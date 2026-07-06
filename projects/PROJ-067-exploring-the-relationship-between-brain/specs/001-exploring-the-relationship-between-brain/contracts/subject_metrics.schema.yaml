@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Metrics Schema"
+description: "Schema for the extracted dynamic connectivity metrics (flexibility/stability) per subject."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., sub-001)."
+  network:
+    type: "string"
+    enum:
+      - "DMN"
+      - "Salience"
+      - "Hippocampal-Memory"
+    description: "The brain network for which the metric was calculated."
+  metric_type:
+    type: "string"
+    enum:
+      - "flexibility"
+      - "stability"
+    description: "The type of dynamic metric."
+  value:
+    type: "number"
+    description: "The calculated metric value (float)."
+  window_size_sec:
+    type: "integer"
+    default: 30
+    description: "Sliding window size in seconds."
+  step_size_sec:
+    type: "integer"
+    default: 10
+    description: "Sliding window step size in seconds."
+  atlas:
+    type: "string"
+    default: "Schaefer-100"
+    description: "The parcellation atlas used."
+required:
+  - subject_id
+  - network
+  - metric_type
+  - value
+  - window_size_sec
+  - step_size_sec
+  - atlas
+additionalProperties: false

@@ -1,0 +1,257 @@
+resolved_at: '2026-07-06T17:37:51.769002+00:00'
+datasets:
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://acs.figshare.com/articles/journal_contribution/Regioselective_3_2_Annulation_of_Multisubstituted_N_Allenamides_A_Palladium-Catalyzed_Heck_Tsuji_Trost_Cascade_Approach/32913270
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Number_of_participants_required_for_the_MD_deviation_to_be_statistically_significant_along_with_the_minimum_and_maximum_value_of_nonlinear_field_determinant_that_produces_the_MD_deviation_p_/32913267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Number_of_participants_required_for_the_FA_deviation_to_be_statistically_significant_along_with_the_minimum_and_the_maximum_value_of_nonlinear_field_determinant_that_produces_the_FA_deviation_p_/32913264
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Mean_ACC_and_density_correlation_for_each_bundle_across_participants_show_high_correlation_overall_p_/32913261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Absolute_percent_difference_in_tract-level_macrostructural_metrics_before_and_after_GNL_correction_p_/32913258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17185931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007058/versions/1.1.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hd6zk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ICA-AROMA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Iodine-Mediated_Controlled_and_Odorless_Mono-_and_Dithiolation_of_Indolizines_with_Sodium_Sulfinates/32913273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Regioselective_3_2_Annulation_of_Multisubstituted_N_Allenamides_A_Palladium-Catalyzed_Heck_Tsuji_Trost_Cascade_Approach/32913270
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Number_of_participants_required_for_the_MD_deviation_to_be_statistically_significant_along_with_the_minimum_and_maximum_value_of_nonlinear_field_determinant_that_produces_the_MD_deviation_p_/32913267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Number_of_participants_required_for_the_FA_deviation_to_be_statistically_significant_along_with_the_minimum_and_the_maximum_value_of_nonlinear_field_determinant_that_produces_the_FA_deviation_p_/32913264
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/figure/_p_Mean_ACC_and_density_correlation_for_each_bundle_across_participants_show_high_correlation_overall_p_/32913261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1445789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7958130
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7560286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10343365
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15768569
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.24942
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds006191/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20313807
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20313807
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20265708
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIfTI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI/resolve/main/NSCLC-Radiomics-NIFTI/LUNG1-001/image.nii.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2210
+      parsed: true
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti-unzipped/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI/resolve/main/NSCLC-Radiomics-NIFTI/LUNG1-001/image.nii.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti-unzipped/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nwirandx/3d-mnist-nifti/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TobiasPitters/nifti-nitest-extracted/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Examples_and_recall_type_for_critical_and_noncritical_scenes_p_/32913300
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controllable_Hydrosilylation_and_Dehydrogenative_Silylation_of_Alkenes_Catalyzed_by_a_Manganese_Alkyl_Complex/32913295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Inter-subject_similarity_in_brain_regions_that_showed_stronger_detail-specific_representations_in_the_recall_group_than_in_the_control_group_when_they_encoded_original_events_Mean_SD_p_/32913297
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Brain_regions_that_showed_stronger_detail-specific_representations_in_the_recall_group_than_in_the_control_group_when_encoding_original_events_p_/32913294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/journal_contribution/_p_Brain_regions_that_showed_detail-specific_representations_were_shared_by_all_participants_in_the_control_group_when_encoding_original_events_p_/32913291
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4563667
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4940072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14889690
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18404923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20276984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205357
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205357
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186458
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21186458
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=a223b1635c1c4a94b1aefba54e5484a8
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
