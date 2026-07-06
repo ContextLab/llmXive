@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synchrony Metrics Schema"
+description: "Schema for the computed neural synchrony metrics (wPLI/PLV) per subject, condition, and frequency band."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., 'sub-01')."
+  condition:
+    type: "string"
+    enum:
+      - "switch"
+      - "stay"
+    description: "Task condition of the epoch."
+  band:
+    type: "string"
+    enum:
+      - "theta"
+      - "gamma"
+    description: "Frequency band of the synchrony metric."
+  pair:
+    type: "string"
+    description: "Electrode pair identifier (e.g., 'F3-P3')."
+  wpli:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Weighted Phase-Lag Index value."
+  plv:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Phase-Locking Value (optional)."
+  mean_wpli:
+    type: "number"
+    description: "Mean wPLI across all pairs for this band and condition."
+required:
+  - "subject_id"
+  - "condition"
+  - "band"
+  - "pair"
+  - "wpli"
+  - "mean_wpli"
+additionalProperties: false

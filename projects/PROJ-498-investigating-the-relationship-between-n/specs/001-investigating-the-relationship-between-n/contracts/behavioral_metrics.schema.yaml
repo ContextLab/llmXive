@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Behavioral Metrics Schema"
+description: "Schema for behavioral metrics including reaction times and switching costs."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  rt_switch:
+    type: "number"
+    minimum: 0
+    description: "Mean reaction time for switch trials in milliseconds."
+  rt_stay:
+    type: "number"
+    minimum: 0
+    description: "Mean reaction time for stay trials in milliseconds."
+  switching_cost:
+    type: "number"
+    description: "Difference between switch and stay RT (rt_switch - rt_stay)."
+  accuracy_switch:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy for switch trials."
+  accuracy_stay:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy for stay trials."
+  n_trials_switch:
+    type: "integer"
+    minimum: 0
+    description: "Number of valid switch trials."
+  n_trials_stay:
+    type: "integer"
+    minimum: 0
+    description: "Number of valid stay trials."
+required:
+  - "subject_id"
+  - "rt_switch"
+  - "rt_stay"
+  - "switching_cost"
+  - "n_trials_switch"
+  - "n_trials_stay"
+additionalProperties: false

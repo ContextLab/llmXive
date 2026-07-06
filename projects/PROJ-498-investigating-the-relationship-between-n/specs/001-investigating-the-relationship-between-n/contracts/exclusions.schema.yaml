@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exclusions Schema"
+description: "Schema for the log of excluded subjects and reasons."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the excluded subject."
+  reason:
+    type: "string"
+    enum:
+      - "insufficient_trials"
+      - "excessive_artifact"
+      - "missing_data"
+      - "invalid_epochs"
+    description: "Reason for exclusion."
+  details:
+    type: "string"
+    description: "Detailed log message explaining the exclusion."
+required:
+  - "subject_id"
+  - "reason"
+  - "details"
+additionalProperties: false

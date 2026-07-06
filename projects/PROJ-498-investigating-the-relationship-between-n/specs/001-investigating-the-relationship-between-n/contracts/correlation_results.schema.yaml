@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the final statistical correlation results."
+type: "object"
+properties:
+  band:
+    type: "string"
+    enum:
+      - "theta"
+      - "gamma"
+    description: "Frequency band tested."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Uncorrected p-value from permutation test."
+  p_value_corrected:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Bonferroni-corrected p-value."
+  n_permutations:
+    type: "integer"
+    minimum: 1
+    description: "Number of permutations performed."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]."
+  method:
+    type: "string"
+    enum:
+      - "pearson"
+      - "spearman"
+    description: "Correlation method used."
+  interpretation:
+    type: "string"
+    description: "Associational interpretation note."
+required:
+  - "band"
+  - "correlation_coefficient"
+  - "p_value"
+  - "p_value_corrected"
+  - "n_permutations"
+  - "method"
+  - "interpretation"
+additionalProperties: false

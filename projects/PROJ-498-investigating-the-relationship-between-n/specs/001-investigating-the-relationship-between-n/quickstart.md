@@ -2,70 +2,80 @@
 
 ## Prerequisites
 
-- Python 3.10+
-- 7 GB+ RAM
-- ~15 GB Disk Space (for raw data + intermediates)
+- Python 3.11+
+- 7GB+ RAM
+- GB+ Disk Space
 - Internet access (for dataset download)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-498-investigating-the-relationship-between-n
-    ```
-
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies include: `mne`, `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`.*
-
-## Data Setup
-
-The pipeline automatically downloads the dataset on first run. If you need to manually verify or re-download:
-
-```bash
-python code/download_data.py --dataset ds004173 --output data/raw
-```
-*Note: The script will fetch ds004173 directly from OpenNeuro. If the dataset lacks 'switch'/'stay' labels, it will halt with an error.*
+1. **Clone the repository** (or navigate to the project directory).
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins versions for `mne`, `scipy`, `statsmodels`, etc.*
 
 ## Running the Pipeline
 
-Execute the full analysis pipeline (Download → Preprocess → Synchrony → LMM):
+The pipeline is executed via `code/main.py`. It performs the following steps sequentially:
+
+1. **Data Validation**: Checks if `ds004173` is available and valid.
+2. **Download**: Fetches data (if not present).
+3. **Preprocessing**: Filters, ICA, epochs.
+4. **Synchrony Calculation**: Computes wPLI/PLV.
+5. **Behavioral Analysis**: Computes switching costs.
+6. **Statistical Testing**: Permutation tests and Bayesian Hierarchical Model.
+7. **Sensitivity Analysis**: Re-runs with shifted windows.
+8. **Output**: Generates reports and plots.
+
+### Command
 
 ```bash
-python code/main.py
+python code/main.py --dataset ds004173 --output data/results
 ```
 
-This will:
-1.  Download and verify checksums.
-2.  Preprocess EEG (filter, ICA, epoch) in batches.
-3.  Compute phase differences (IPD) and wPLI.
-4.  Fit LMM models with interaction terms (Synchrony * Condition).
-5.  Save results to `data/processed/`.
+*Note: If `ds004173` is not available or fails schema validation, the script will halt with an error. Refer to `research.md` for dataset constraints.*
 
-## Verifying Results
+### Configuration
 
-Check the output logs and results:
+Edit `code/config.py` to modify:
+- `BANDPASS_LOW`, `BANDPASS_HIGH`: Filter settings.
+- `EPOCH_TMIN`, `EPOCH_TMAX`: Epoch window.
+- `N_PERMUTATIONS`: Number of permutations (default 1000).
+- `RANDOM_SEED`: For reproducibility.
 
-```bash
-# View the final statistical results
-cat data/processed/lmm_results.csv
+## Verification
 
-# Run contract tests to validate output schemas
-pytest tests/contract/
-```
+To verify the installation and pipeline:
+
+1. **Run Unit Tests**:
+   ```bash
+   pytest tests/unit/
+   ```
+   *Tests synthetic signals for correct wPLI calculation.*
+
+2. **Run Integration Test (Single Subject)**:
+   ```bash
+   python code/main.py --dataset ds004173 --subject sub-01 --quick
+   ```
+   *Processes only one subject to verify memory usage and pipeline flow.*
+
+## Expected Outputs
+
+- `data/processed/`: Cleaned epochs.
+- `data/metrics/`: Synchrony and behavioral CSVs.
+- `data/results/`: Correlation JSON, sensitivity report, and plots.
+- `data/exclusions.csv`: List of excluded subjects.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure you are running on a machine with ≥7 GB RAM. The pipeline processes subjects sequentially and trials in batches; if it still fails, reduce the batch size in `code/main.py` (for testing only).
-- **Dataset Not Found**: If `ds004173` is unavailable or lacks labels, check the logs for "Hypothesis Untestable". No alternative dataset will be used.
-- **LMM Convergence Failures**: This is expected with small trial counts. The pipeline logs these warnings. Results with `convergence_status: failed` are excluded from final interpretation.
-- **Circular Data**: Ensure the `sin_phase` and `cos_phase` columns are present in the synchrony features file; the LMM requires these for IPD.
+- **OOM Error**: Ensure `code/main.py` processes subjects sequentially and deletes raw data after epoching.
+- **Dataset Missing**: If the dataset is not found, check `research.md` for verified sources. The pipeline will not fabricate data. It will halt with a clear error message.
+- **ICA Failure**: If >50% of data is removed, the subject is excluded and logged.
+- **Script Missing**: Ensure `code/update_state_hashes.py` is present. If not, run the setup script to generate it.
