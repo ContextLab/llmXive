@@ -1,0 +1,17 @@
+{
+  "task_id": "T010",
+  "total_n": 1200,
+  "per_family_n": {
+    "AA-6061": 300,
+    "AISI-4340": 300,
+    "Ti-6Al-4V": 300,
+    "Al-7075": 300
+  },
+  "min_family_n": 300,
+  "threshold_total": 1000,
+  "threshold_family": 50,
+  "is_powered": true,
+  "flags": [],
+  "recommendation": "Sample size is sufficient for analysis.",
+  "timestamp": "2023-10-27T10:05:00Z"
+}

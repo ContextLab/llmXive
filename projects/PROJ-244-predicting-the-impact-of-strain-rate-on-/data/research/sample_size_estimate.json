@@ -1,0 +1,37 @@
+{
+  "estimation_method": "simulated_generator_parameters",
+  "source_params": {
+    "total_population_N": 5000,
+    "distribution": "normal",
+    "mean_yield_strength_mpa": 450.0,
+    "std_yield_strength_mpa": 120.0,
+    "strain_rate_range": [
+      0.001,
+      10000.0
+    ],
+    "temperature_range": [
+      200,
+      800
+    ],
+    "missing_composition_rate": 0.15,
+    "missing_grain_size_rate": 0.25,
+    "alloy_family_distribution": {
+      "AA-6061": 0.25,
+      "AISI-4340": 0.2,
+      "Ti-6Al-4V": 0.15,
+      "Inconel-718": 0.15,
+      "AA-7075": 0.15,
+      "Cu-OFHC": 0.1
+    }
+  },
+  "total_n": 5000,
+  "family_counts": {
+    "AA-6061": 1250,
+    "AISI-4340": 1000,
+    "Ti-6Al-4V": 750,
+    "Inconel-718": 750,
+    "AA-7075": 750,
+    "Cu-OFHC": 500
+  },
+  "timestamp": "2023-10-27T10:00:00Z"
+}

@@ -1,0 +1,34 @@
+? "T013 [US1] Implement `preprocess.py` in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/`\
+  \ to standardize units (MPa, s\u207B\xB9, \xB5m) and **drop records missing Yield\
+  \ Strength or Strain Rate** (FR-003)."
+: 2
+? 'T014 [US1] **Composition Imputation**: Implement composition imputation logic in
+  `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`:
+  If alloy composition is missing, impute using Alloy Family average (FR-003). **Must
+  run AFTER T015.0.** **Output: `data/processed/composition_imputed.csv`.**'
+: 2
+? 'T015 [US1] **KNN Grain Size Imputation**: Implement KNN grain size imputation logic
+  in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`
+  with k=5, **using imputed composition (from T014) AND strain_rate (from raw data)
+  as predictors**. **Must run AFTER T014.** **Gate: T014 must have generated `composition_imputed.csv`.**
+  **Output: `data/processed/imputed.csv`.** (FR-003)'
+: 2
+? 'T015.0 [US1] **Correlation Validation & Flagging**: Implement correlation validation
+  in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`:
+  Compute correlation between the **joint vector of [raw composition, strain_rate]**
+  and grain size (using `data/processed/raw_for_sensitivity.csv`). If r < 0.3, flag
+  records in `imputation_confidence` column; **DO NOT drop them from the main dataset**
+  (retain in `imputed.csv`) but **exclude them from the sensitivity dataset** (T013.2).
+  **Output: `data/processed/correlation_check.log` (contains ''r'' value) and `data/processed/low_confidence_records.csv`.**
+  (FR-003, Plan Task 1.3)'
+: 2
+? 'T016 [US1] **Elemental Fraction Encoding**: Implement high-dimensional elemental
+  fraction vector encoding in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`.
+  **Output: `data/processed/encoded_features.csv` (10-dimensional float array of elemental
+  mass fractions).**'
+: 2
+? "T017 [US1] **Stratified Split**: Implement stratified split logic (by Alloy Family,\
+  \ N\u226520 per stratum) in `projects/PROJ-244-predicting-the-impact-of-strain-rate-on-/code/ingestion/preprocess.py`.\
+  \ **Output: `data/processed/train.csv`, `data/processed/test.csv` (using RANDOM_SEED\
+  \ from config).**"
+: 2

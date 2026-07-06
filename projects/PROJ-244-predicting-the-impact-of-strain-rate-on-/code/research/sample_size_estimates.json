@@ -1,0 +1,13 @@
+{
+  "task_id": "T009",
+  "total_n": 1200,
+  "per_family": {
+    "AA-6061": 300,
+    "AISI-4340": 300,
+    "Ti-6Al-4V": 300,
+    "Al-7075": 300
+  },
+  "source": "simulated_generator_parameters",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "status": "completed"
+}
