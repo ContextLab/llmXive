@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ComplianceLog"
+description: "Schema for a daily digital decluttering compliance log."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique log identifier."
+  participant_id:
+    type: "string"
+    pattern: "^P\\d{3}$"
+    description: "Pseudonymous participant ID."
+  date:
+    type: "string"
+    format: "date"
+    description: "Date of the log entry (YYYY-MM-DD)."
+  social_media_minutes:
+    type: "integer"
+    minimum: 0
+    maximum: 1440
+    description: "Self-reported minutes of social media use."
+  news_consumption:
+    type: "boolean"
+    description: "True if news was consumed."
+  notifications_off:
+    type: "boolean"
+    description: "True if notifications were off."
+  is_compliant:
+    type: "boolean"
+    description: "Derived compliance status."
+  notes:
+    type: "string"
+    description: "Optional user notes."
+required:
+  - "id"
+  - "participant_id"
+  - "date"
+  - "social_media_minutes"
+  - "news_consumption"
+  - "notifications_off"
+  - "is_compliant"
+additionalProperties: false

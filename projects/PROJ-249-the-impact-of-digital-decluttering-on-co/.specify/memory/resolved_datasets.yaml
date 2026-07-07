@@ -1,0 +1,182 @@
+resolved_at: '2026-07-07T02:06:47.648054+00:00'
+datasets:
+- intent: SART
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sarthak247/autotrain-data-rebel-covid/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 30
+      parsed: true
+  - url: https://huggingface.co/datasets/sartmis1/self-instruct-starcoder/resolve/main/data/train-00000-of-00001-46338767fe7b9485.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sartmis1/oasst1_en_llama2/resolve/main/data/train-00000-of-00001-51b15f5dfb18988d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/sartajekram/BanglaRQA/f55f490265170e69073ae2d62c9c79ff405be6e6/Test.json?%2Fdatasets%2Fsartajekram%2FBanglaRQA%2Fresolve%2Fmain%2FTest.json=&etag=%22425841f13e5f7f3c9174f08e410416cc8f5e35da%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sarthak247/autotrain-data-rebel-covid/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/sartmis1/self-instruct-starcoder/resolve/main/data/train-00000-of-00001-46338767fe7b9485.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sartmis1/oasst1_en_llama2/resolve/main/data/train-00000-of-00001-51b15f5dfb18988d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sartmis1/wikisql-processed/resolve/main/data/test-00000-of-00001-233dfc97af11b18f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://openresearch.newcastle.edu.au/articles/thesis/Calibration_of_Terrestrial_Laser_Scanners_TLS_for_legal_traceability/32642670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Sa_ad_Zungur_College_of_Nursing_Sciences_Liman_Katagum_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32917223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Jasmonic_Acid_Biosynthesis_and_the_Activation_of_Signal_Transduction_Pathway_Play_a_Crucial_Role_in_Alfalfa_Adaptation_to_Drought_Stress/32917232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/A_Zirconium_Aza-BODIPY_Derivative_as_a_Near-Infrared_Fluorescent_Photoacoustic_Imaging_Bimodal_Probe/32917229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5506585
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18831206
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7294819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19535482
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/30924
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/acrz9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ztq6s/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fsvc5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7gh6j/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/5637
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PSS-10
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/PSS10101/100000/resolve/main/multi_modal_2024/agent_data/Action/20240711_UI_Action_Human.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/PSS10101/100000/resolve/main/multi_modal_2024/agent_data/Action/20240711_UI_Action_Human.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Tombia_Bayelsa_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32917238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_chromosome-level_genome_assembly_of_Sitochroa_verticalis_Lepidoptera_Pyralidae_/32917103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Role_of_Defect_Geometry_in_Localized_Emission_from_Monolayer_Tungsten_Dichalcogenides/32917235
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/thesis/Calibration_of_Terrestrial_Laser_Scanners_TLS_for_legal_traceability/32642670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Sa_ad_Zungur_College_of_Nursing_Sciences_Liman_Katagum_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32917223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17070498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11619239
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12635451
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/v5q7u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/a4qwc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3gqsp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3jyrt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/syfnv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

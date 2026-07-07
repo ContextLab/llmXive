@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the output of the statistical analysis."
+type: "object"
+properties:
+  metric:
+    type: "string"
+    description: "The metric analyzed (e.g., SART)."
+  mean_change:
+    type: "number"
+    description: "Mean of (post - baseline)."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% bootstrap CI."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% bootstrap CI."
+  p_value_uncorrected:
+    type: "number"
+    description: "Uncorrected p-value."
+  p_value_corrected:
+    type: "number"
+    description: "Holm-Bonferroni corrected p-value."
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  n_participants:
+    type: "integer"
+    description: "Number of participants in the analysis."
+  method_used:
+    type: "string"
+    enum:
+      - "bootstrap"
+      - "wilcoxon"
+    description: "Method used for this metric (bootstrap primary, wilcoxon fallback)."
+required:
+  - "metric"
+  - "mean_change"
+  - "ci_lower"
+  - "ci_upper"
+  - "p_value_uncorrected"
+  - "p_value_corrected"
+  - "effect_size_cohen_d"
+  - "n_participants"
+  - "method_used"
+additionalProperties: false
