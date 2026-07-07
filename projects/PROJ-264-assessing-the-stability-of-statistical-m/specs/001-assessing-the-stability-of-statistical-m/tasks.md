@@ -27,7 +27,7 @@
 - [ ] T001 Create project structure per `plan.md` by creating files: `code/__init__.py`, `code/main.py`, `data/raw/.gitkeep`, `data/processed/.gitkeep`, `tests/__init__.py`, `tests/contract/.gitkeep`, `tests/unit/.gitkeep`, `tests/integration/.gitkeep`
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `scikit-learn>=1.3.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `openml>=0.13.0`
 - [ ] T003a [P] Configure linting tool by creating `.ruff.toml` with default rules
-- [ ] T003b [P] Configure formatting tool by creating `.black.toml` with default settings
+- [ ] T003b [P] Configure formatting tool by creating `pyproject.toml` with Black settings (e.g., `line-length = 88`, `target-version = ['py311']`)
 
 ---
 
@@ -37,13 +37,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils.py` for seed pinning, logging setup, and error handling wrappers
-- [ ] T005 [P] Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation, and SHA-256 checksum caching to `data/raw/`; MUST support direct URL fetch for UCI datasets if not available on OpenML (see T005b).
-- [ ] T005a [P] Add validation logic in `code/data_loader.py` to verify selected 15 datasets span a broad sample size range (100 to large-scale per spec) and handle UCI/OpenML sources as per FR-001 and Constitution Principle VII
-- [ ] T005b [P] Implement dataset selection strategy in `code/data_loader.py` to explicitly select binary classification datasets that span a broad spectrum of sample sizes.; includes logic to fetch from UCI direct URLs if OpenML IDs are unavailable, ensuring the final list meets Constitution Principle VII diversity requirements.
-- [ ] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
-- [ ] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
-- [ ] T008 Configure GitHub Actions workflow `ci.yml` to enforce CPU-only execution and 6-hour timeout
+- [X] T004 Implement `code/utils.py` for seed pinning, logging setup, and error handling wrappers
+- [ ] T005 [P] Implement `code/data_loader.py` with OpenML fetch logic, binary-class validation, and SHA-256 checksum caching to `data/raw/`. **MUST** support direct URL fetch for UCI datasets if not available on OpenML. **MUST** explicitly select 15 binary classification datasets (OpenML IDs) defined in `code/config.py` (Constitution Principle VII). **Logic**:
+ 1. Validate each dataset: if `n_samples < 100` or `n_samples > 100000`, log a warning and **skip only that specific dataset** (do not fail the whole run).
+ 2. Perform **programmatic spectrum validation**: verify the remaining valid datasets collectively span the 100-100k sample size range.
+ 3. If the count of valid datasets is insufficient (e.g., < 15), raise a critical error [UNRESOLVED-CLAIM: c_6c91f9b3 — status=not_enough_info].
+ 4. Implement **robust network error handling**: if a download fails, log the error, skip that dataset, and continue with the rest.
+- [X] T006 Implement `code/preprocessor.py` with leakage-safe imputation (median/mode) and scaling wrappers
+- [~] T007 [P] Create contract tests in `tests/contract/test_dataset_schema.py` and `tests/contract/test_evaluation_run_schema.py` to validate schemas defined in `specs/001-assess-model-stability/contracts/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,16 +60,21 @@
 
 > **NOTE**: These tests ensure the evaluation engine produces the correct volume and structure of data.
 
-- [ ] T009 [P] [US1] Contract test for `EvaluationRun` schema in `tests/contract/test_evaluation_run.py` (Depends on Phase 2 schema definitions)
-- [ ] T010 [US1] Integration test for single-dataset 100-repeat loop in `tests/integration/test_cv_engine.py` (Must run AFTER T011/T012)
+- [~] T009 [P] [US1] Contract test for `EvaluationRun` schema in `tests/contract/test_evaluation_run.py` (Depends on Phase 2 schema definitions)
+- [~] T010 [US1] **Write Integration Test** `test_repeated_cv_iris` in `tests/integration/test_cv_engine.py`.
+ - **Dataset**: Use a standard benchmark dataset from OpenML., filtering to classes 0 and 1 only to create a binary classification subset.
+ - **Assertion**: Verify that the expected number of rows are generated (multiple repeats × 3 models).
+ - **Assertion**: Verify non-zero variance in accuracy scores across multiple repeats for at least one model.
+ - **Dependency**: Must be written before T011/T012 (TDD).
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic, handling datasets <100 samples by skipping with a warning. Constraint: It MUST NOT reduce the fold count or alter the dataset for these cases.
-- [ ] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM in `code/evaluator.py` (Depends on T011 structure)
-- [ ] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
-- [ ] T014 [US1] Write raw evaluation results to `data/processed/evaluation_runs.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`
-- [ ] T015 [US1] Add error handling for network failures in `code/data_loader.py` to skip failed datasets and continue processing
+- [~] T011 [US1] Implement `code/evaluator.py` with `RepeatedStratifiedKFold` logic.
+ - **Logic**: Check `n_samples < 100`. If true, log warning and return early (skip dataset). If valid, run `RepeatedStratifiedKFold(n_splits=10, n_repeats=10)`.
+ - **Constraint**: It MUST NOT reduce the fold count or alter the dataset for valid cases.
+- [~] T012 [US1] Implement training loop for Logistic Regression, Random Forest (n_estimators=100), and Linear SVM [UNRESOLVED-CLAIM: c_3063dfde — status=not_enough_info] in `code/evaluator.py` (Depends on T011 structure)
+- [~] T013 [US1] Implement metric calculation (Accuracy, F1) inside the CV loop to prevent leakage
+- [~] T014 [US1] Write raw evaluation results to `results/raw_evaluations.csv` with exact columns: `dataset_id` (OpenML ID), `model_name`, `fold_id`, `repeat_id`, `accuracy`, `f1_score`. (Output path must match Plan.md `results/` schema).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,16 +88,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py`
-- [ ] T017 [P] [US2] Unit test for Pearson correlation calculation in `tests/unit/test_analyser.py`
+- [~] T016 [P] [US2] Unit test for `calculate_cv` function handling zero-variance cases in `tests/unit/test_analyser.py` <!-- SKIPPED: YAML+regex parse failed (expected '<document start>', but found '<block sequence start>'
+ in "<unicode string>", line 6, column 1:
+ - **File Created**: `tests/unit/...
+ ^) -->
+- [~] T017 [P] [US2] Unit test for Pearson correlation calculation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement aggregation logic in `code/analyser.py` to compute `mean_accuracy`, `cv_accuracy`, `mean_f1`, `cv_f1` per (dataset, model). Dependency: Execution depends on T014 completion.
-- [ ] T019 [US2] Implement Pearson correlation calculation in `code/analyser.py` to compute correlation coefficients between CV metrics and dataset properties (sample size, feature count) as required by FR-004
-- [ ] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
-- [ ] T021 [US2] Write summary tables to `data/processed/stability_metrics.csv` and `data/processed/correlation_results.csv` including Pearson r, p-values, and regression residuals
-- [ ] T022 [US2] Add verification step to confirm Pearson correlation coefficients are explicitly calculated and reported in `correlation_results.csv`
+- [~] T018 [US2] Implement aggregation logic in `code/analyser.py` to compute `mean_accuracy`, `cv_accuracy`, `mean_f1`, `cv_f1` per (dataset, model).
+ - **Input**: Must consume `results/raw_evaluations.csv` (validated against schema from T007).
+- [~] T019 [US2] Implement **Pearson correlation** calculation in `code/analyser.py` to compute correlation coefficients between CV metrics and dataset properties (sample size, feature count) as required by FR-004.
+ - **Primary Output**: Pearson r.
+ - **Secondary**: Compute Spearman rho for robustness check.
+ - **Verification**: Ensure `correlation_results.csv` contains non-null Pearson r values for all rows.
+- [~] T020 [US2] Compute residuals from log-log linear regression of log(CV) against log(n_samples) and log(n_features) as a secondary metric; ensure Pearson r remains the primary output per FR-004
+- [~] T021 [US2] Write summary tables to `results/stability_metrics.csv` and `results/correlation_results.csv` including Pearson r, p-values, and regression residuals <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,14 +118,22 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T023 [P] [US3] Unit test for permutation test logic in `tests/unit/test_analyser.py`
-- [ ] T024 [P] [US3] Unit test for Benjamini-Hochberg correction implementation in `tests/unit/test_analyser.py`
+- [ ] T024 [P] [US3] Unit test for Bonferroni correction implementation in `tests/unit/test_analyser.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement Permutation Test on the absolute differences of squared deviations in `code/analyser.py` to compare variance distributions across LR, RF, and SVM as mandated by FR-005
-- [ ] T026 [US3] Implement Benjamini-Hochberg (FDR) correction globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across all 15 datasets to control the family-wise error rate per FR-007
-- [ ] T027 [US3] Write permutation test results (statistic, raw p-value, adjusted p-value, significance flag) to `data/processed/permutation_results.csv`
-- [ ] T028 [US3] Generate a final summary report in `data/processed/final_report.md` including required sections: 'Significant Variance Differences' (listing datasets with p < 0.05 after correction), 'Model Comparison' (ranking models by stability), and 'Correction Methodology' (confirming global BH application)
+- [ ] T025 [US3] Implement Permutation Test in `code/analyser.py` to compare variance distributions across LR, RF, and SVM.
+ - **Test Statistic**: Calculate the absolute difference of the variances (|Var_A - Var_B|) derived from the squared deviations of accuracy scores for each model pair.
+ - **Input**: Must consume variance values from T018 output.
+- [ ] T026 [US3] Implement **Bonferroni correction** globally across the set of ALL hypothesis tests (correlations and Permutation Tests) performed across the full collection of datasets to control the **family-wise error rate (FWER)** per FR-007.
+ - **Input**: Must consume p-values from `results/correlation_results.csv` (from T019) and `results/permutation_results.csv` (from T025). **Must wait for T025 completion**.
+ - **Output**: Adjusted p-values.
+- [ ] T027 [US3] Write permutation test results (statistic, raw p-value, adjusted p-value, significance flag) to `results/permutation_results.csv`
+- [ ] T028 [US3] Generate a final summary report in `results/final_report.md` using a Markdown template containing sections:
+ 1. 'Significant Variance Differences' (list datasets where adj_p < 0.05).
+ 2. 'Model Comparison' (rank by mean CV).
+ 3. 'Correction Methodology' (confirm Bonferroni application for FWER).
+ 4. 'Achieved FWER' (calculate and report the effective alpha level).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -124,9 +144,20 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029 [P] Documentation updates in `README.md` and `specs/001-assess-model-stability/quickstart.md`
-- [ ] T031 Performance optimization: Ensure memory usage stays <7GB by processing datasets sequentially and clearing caches
-- [ ] T032 [P] Run end-to-end validation on a small subset of datasets to verify total runtime < 6h
+- [ ] T031 Performance optimization: Ensure memory usage stays <7GB by processing datasets sequentially and clearing caches [UNRESOLVED-CLAIM: c_bd2e780f — status=not_enough_info]
+- [ ] T032 [P] Run end-to-end validation on a small subset of datasets to verify total runtime < 6h [UNRESOLVED-CLAIM: c_a6df4d9a — status=not_enough_info]
 - [ ] T033 Run `quickstart.md` validation to ensure reproducibility
+
+---
+
+## Phase X: Review Resolution & Hardening
+
+**Purpose**: Address specific reviewer concerns regarding dataset diversity, statistical rigor, and CI reliability.
+
+- [ ] T035 [P] **Statistical Method Alignment**: Update `code/analyser.py` to explicitly prioritize **Pearson correlation** as the primary test for CV vs. Dataset Properties (n_samples, n_features) to satisfy Spec FR-004. Retain Spearman Rank Correlation as a secondary/robustness check. Update `results/correlation_results.csv` schema to reflect Pearson r and p-value as primary columns. (Addresses Plan T021 & FR-004 interpretation; Note: Plan T021 suggests Spearman, but Spec FR-004 mandates Pearson).
+- [ ] T036 [P] **CI Timeout Configuration**: Refactor `ci.yml` to include a specific `timeout-minutes` directive (e.g., 360) for the evaluation job and implement a `signal_handler` in `code/main.py` to gracefully shut down and save partial results if the runner is terminated early, ensuring no silent data loss. (Addresses Plan T008 & Edge Case: Network/Timeout failure).
+- [ ] T037 [P] **Zero-Variance Edge Case Handling**: Add explicit logic in `code/analyser.py` to detect datasets/models where `std=0` (perfect stability). Ensure these are handled gracefully in correlation calculations (e.g., excluded from Pearson but logged) and do not cause division-by-zero errors in CV calculation. (Addresses Spec Edge Case: Zero Variance).
+- [ ] T038 [P] **Multiple Comparison Correction Verification**: Add a unit test in `tests/unit/test_analyser.py` specifically for the Bonferroni implementation to verify that the adjusted p-values are correctly ordered and monotonic relative to raw p-values, ensuring the FWER control logic is mathematically sound before full pipeline execution. (Addresses FR-007 & SC-005).
 
 ---
 
@@ -137,8 +168,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -187,11 +218,11 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Engine)
-   - Developer B: Unit tests for US2/US3
+ - Developer A: User Story 1 (Data Engine)
+ - Developer B: Unit tests for US2/US3
 3. Once US1 data is generated:
-   - Developer A: User Story 2 (Correlation)
-   - Developer B: User Story 3 (Permutation)
+ - Developer A: User Story 2 (Correlation)
+ - Developer B: User Story 3 (Permutation)
 4. Stories complete and integrate independently
 
 ---
@@ -205,6 +236,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All models must run on CPU-only GitHub Actions runners; no GPU or deep learning models allowed.
+- **Constraint**: All models must run on CPU-only GitHub Actions runners [UNRESOLVED-CLAIM: c_eed811a6 — status=not_enough_info]; no GPU or deep learning models allowed.
 - **Constraint**: Datasets <100 samples must be skipped, not downsampled or altered.
 - **Constraint**: No fabricated data; all results must come from real OpenML/UCI datasets.
+- **Dataset IDs**: The specific 15 OpenML/UCI IDs must be defined in `code/config.py` before execution.

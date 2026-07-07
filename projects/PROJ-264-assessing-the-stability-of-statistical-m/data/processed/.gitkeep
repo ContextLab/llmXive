@@ -1,0 +1,2 @@
+# This directory stores preprocessed dataset artifacts (e.g., scaled data, imputed data).
+# Intermediate files generated during the pipeline execution.

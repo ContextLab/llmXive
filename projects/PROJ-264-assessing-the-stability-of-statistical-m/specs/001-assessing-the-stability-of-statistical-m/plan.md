@@ -16,7 +16,7 @@ This feature implements a rigorous statistical pipeline to assess the stability 
 **Project Type**: Statistical analysis CLI / Pipeline.  
 **Performance Goals**: Complete 15 datasets × 3 models × 100 repeats within 6 hours on 2 CPU cores.  
 **Constraints**: CPU-only execution; no GPU; memory footprint < 7GB; strict adherence to data hygiene (checksums); **hardcoded dataset IDs** to eliminate selection bias.  
-**Scale/Scope**: A set of binary classification datasets (sample size 100-100k), 3 models, [deferred] total evaluation runs.
+**Scale/Scope**: A set of binary classification datasets (sample size -100k), 3 models, [deferred] total evaluation runs.
 
 ## Constitution Check
 
@@ -91,7 +91,7 @@ projects/PROJ-264-assessing-the-stability-of-statistical-m/
 - **T003**: Implement checksumming and caching logic (Constitution III).
 - **T004**: Implement preprocessing (imputation, scaling) inside CV loop.
 - **T005**: **Hard Filter**: Validate that the 15 selected datasets fall within 100-100k samples.
-- **T005b**: **Spectrum Validation**: Verify the 15 datasets collectively span the full 100-100k range. If not, raise error. (Addresses Constitution VII).
+- **T005b**: **Spectrum Validation**: Verify the Multiple datasets collectively span the full 100-100k range. If not, raise error. (Addresses Constitution VII).
 
 ### Phase 2: Evaluation Engine
 - **T014**: Implement `evaluator.py` for Multiple folds × multiple repeats per model.
@@ -108,7 +108,7 @@ projects/PROJ-264-assessing-the-stability-of-statistical-m/
 ### Phase 4: Statistical Inference
 - **T021**: Compute **Spearman Rank Correlations** (Primary test).
   - *Note*: Spearman used due to small N=15 and non-normal CV distribution. Pearson on log-transformed data is secondary.
-- **T022**: **Deviation Analysis**: Calculate observed slope vs theoretical -0.5; compute bootstrap CI.
+- **T022**: **Deviation Analysis**: Calculate observed slope vs theoretical prediction; compute bootstrap CI.
 - **T025**: Implement **Paired-Difference Permutation Test** (Variance of differences between models).
   - *Note*: Tests if variance of `|Acc_A - Acc_B|` differs significantly between model pairs.
   - *Dependency*: Must wait for T020 (Residuals/Variance distributions). **NOT Parallel**.

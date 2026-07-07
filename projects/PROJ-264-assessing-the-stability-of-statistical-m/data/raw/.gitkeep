@@ -1,0 +1,2 @@
+# This directory stores raw dataset files downloaded from OpenML/UCI.
+# Files are cached by SHA-256 checksum to avoid re-downloading.
