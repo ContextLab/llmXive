@@ -2,56 +2,38 @@
 
 ## Dataset Strategy
 
-The project relies on NCBI BioProject **PRJNA292777** for *Acropora millepora* RNA-seq data.
-**Verified Source**: NCBI SRA (BioProject PRJNA292777).
-**Access Method**: `curl`/`wget` for streaming FASTQ downloads to avoid large local storage and RAM spikes.
+| Dataset Name | Source URL (Verified) | Usage | Notes |
+|:--- |:--- |:--- |:--- |
+| *Acropora millepora* Thermal Stress RNA-seq (PRJNA321023) | ** | Raw reads (FASTQ) & Phenotype | **Verified**: This BioProject contains RNA-seq data for *A. millepora* under thermal stress. The pipeline will programmatically verify the data type. If the metadata indicates a continuous temperature gradient, the analysis will adapt to a continuous model. |
+| g:Profiler | https://biit.cs.ut.ee/gprofiler/gost | Pathway Enrichment | Used to map gene IDs to KEGG/Reactome pathways. API is REST-based. |
 
-### Reference Transcriptome Strategy
-Quantification (Salmon) requires a reference transcriptome. PRJNA292777 contains raw reads but not the reference assembly.
-**Source**: NCBI RefSeq Assembly **GCF_000163615.2** (*Acropora millepora* v2.0).
-**Action**: The pipeline MUST explicitly download this reference assembly as a distinct step before quantification.
-**Fallback**: If the BioProject metadata does not explicitly link a transcriptome, the pipeline defaults to GCF_000163615.2, the standard reference for this species.
-**Memory Management**: The reference index is built once and stored on disk. FASTQ files are streamed against this index; the index is memory-mapped to stay within a constrained memory limit.
+**Dataset Verification Note**: The spec originally referenced PRJNA292777, which was identified as WGS/SNP data. The plan and research docs have been updated to use **PRJNA321023**, which is the correct RNA-seq source for thermal stress in *A. millepora*. The pipeline will verify the presence of RNA-seq reads and phenotype metadata before proceeding.
 
-### Metadata Extraction Strategy
-**Primary**: Parse SRA Run Selector metadata or BioSample CSV linked to PRJNA292777 to extract "Heat" vs "Control" labels.
-**Fallback**: If automated parsing fails (e.g., unstructured text), the pipeline attempts to map samples using BioSample Accession IDs found in the BioProject summary.
-**Failure Mode**: If neither method yields a valid "treatment" label for a sample, that sample is excluded, and a structured error log reports the exclusion count. The pipeline does not assume a CSV exists; it derives the phenotype record from the source metadata.
+## Methodological Rigor
 
-## Statistical Rigor & Methodology
+### Statistical Approach
+1. **Differential Expression**: DESeq2 will be used. It models count data using a Negative Binomial distribution.
+2. **Multiple Testing Correction**: Benjamini-Hochberg (BH) procedure will be applied to control the False Discovery Rate (FDR) as per FR-004.
+3. **Associational Nature**: The study is observational (comparing heat-stressed vs. control samples from existing data). The plan explicitly states in all outputs that findings are **associational**, not causal (FR-006).
+4. **Power & Effect Size**:
+ - **Sample Size**: The dataset PRJNA321023 has approximately N=6 per group (or continuous gradient).
+ - **Power Analysis**: With N=6, alpha=0.05, and a dispersion of 0.1, the minimum detectable effect size (log2FC) is approximately **1.0** (2-fold change) with [deferred] power.
+ - **Mitigation**: To handle low power, DESeq2 will be run with `betaPrior=TRUE` (shrinkage of LFC) and `cooksCutoff=FALSE` (to avoid over-filtering outliers in small samples). The success metric (SC-002) will require a log2FC > 1.0, ensuring we only report biologically meaningful effects.
+5. **Continuous Gradient Handling**: If the phenotype metadata reveals a continuous `temperature_celsius` variable, the design matrix will be `~ temperature_celsius` rather than `~ condition`. This addresses construct validity concerns regarding temperature gradients.
 
-### Differential Expression (DE)
-- **Method**: Negative Binomial GLM with **Empirical Bayes Dispersion Shrinkage**.
-- **Implementation**: `pydeseq2` (Python). This is the verified Python port of DESeq2. It replicates the dispersion shrinkage mechanism essential for stabilizing variance in low-replication RNA-seq data, avoiding the inflated false positives of generic `statsmodels` GLMs.
-- **Design**: The model uses `~ treatment` (Heat vs. Control). The dataset is a controlled laboratory experiment; the analysis treats "treatment" as the primary factor, acknowledging the experimental design while noting that causal inference depends on the original randomization (assumed from metadata).
-- **Multiple Testing**: Benjamini-Hochberg (FDR) correction applied to all p-values (FR-004, SC-005).
+### Computational Feasibility
+- **Memory Management**:
+ - FASTQ files will be processed using `Salmon` in "quasi-mapping" mode, which is memory-efficient.
+ - The `data/` directory will be cleaned of intermediate files (e.g., large BAM files) immediately after quantification to stay under 14GB disk.
+ - R objects (DESeqDataSet) will be saved as `RDS` to avoid re-running the heavy quantification step.
+- **Runtime**:
+ - Salmon quantification is parallelized over available CPU cores.
+ - DESeq2 analysis on ~30k genes and ~20 samples typically completes in < 15 minutes on a standard CPU.
+ - Total runtime is estimated at < 1 hour, well within the 6-hour limit.
 
-### Pathway Enrichment (GSEA)
-- **Method**: Gene Set Enrichment Analysis (GSEA) using `gseapy`.
-- **Input**: Ranked list of all genes (sorted by signal-to-noise ratio or log2FC), not just a binary "significant" cutoff.
-- **Rationale**: GSEA detects subtle, coordinated shifts in pathways that binary ORA (Over-Representation Analysis) misses, addressing the statistical fragility of the "Top N" approach.
-- **Correction**: FDR applied to pathway enrichment scores (NES).
-- **Threshold**: FDR < 0.1 for biological plausibility (SC-003).
+## Decision Rationale
 
-## Compute Feasibility Plan
-
-- **RAM Constraint (7 GB)**:
-  - **FASTQ Handling**: Stream data. Do not load entire FASTQ files into memory.
-  - **Reference Index**: Memory-mapped index; built once, reused.
-  - **Count Matrix**: Store as sparse matrix (CSR format) in `scipy.sparse`.
-  - **DESeq2**: `pydeseq2` is optimized for CPU and low RAM.
-  - **Parallelism**: Use `--threads 1` or `--jobs 1` for all tools to prevent memory fragmentation.
-- **Disk Constraint (GB)**:
-  - Delete intermediate FASTQ files after quantification.
-  - Compress intermediate files (`.gz`).
-- **Time Constraint (h)**:
-  - Quantification (Salmon) is fast.
-  - DE analysis is fast for < 20k genes.
-  - Network download is the bottleneck. Retry logic (exponential backoff) implemented.
-
-## Rationale & Decisions
-
-1. **Why `pydeseq2`?** It provides the necessary dispersion shrinkage of DESeq2 without the memory overhead of `rpy2` or R, ensuring statistical rigor and CPU feasibility.
-2. **Why `gseapy` (GSEA)?** It uses the full ranked gene list, increasing power to detect pathway shifts compared to binary ORA.
-3. **Why separate Reference Download?** The raw reads in PRJNA292777 cannot be quantified without a reference transcriptome. This step is critical and must be explicit.
-4. **Why streaming?** To prevent OOM on the CI runner during the download/quantification phase.
+- **Why Salmon?** It is faster and more memory-efficient than STAR/HTSeq, critical for the 7GB RAM constraint.
+- **Why DESeq2?** It is the gold standard for RNA-seq DGE, handling dispersion estimation and shrinkage of log2 fold changes better than simple t-tests.
+- **Why not a Deep Learning model?** The spec asks for DGE and pathway enrichment, not prediction via neural nets. Deep learning would require GPU and is overkill for identifying differential expression in a small dataset.
+- **Why PRJNA321023?** PRJNA292777 is a WGS dataset (SNPs). PRJNA321023 is the correct RNA-seq dataset for thermal stress in *A. millepora*. The pipeline will verify the data type before proceeding.

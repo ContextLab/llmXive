@@ -1,4 +1,4 @@
-resolved_at: '2026-07-05T19:21:03.581455+00:00'
+resolved_at: '2026-07-07T02:12:42.811286+00:00'
 datasets:
 - intent: DGE
   status: verified
@@ -41,23 +41,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Science_Alex_Ekwueme_Federal_University_AE-FUNAI_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903471
+  - url: https://figshare.com/articles/dataset/Supporting_Information_for_the_Wilson_Cycle_of_the_North_Altyn_Ocean_a_record_of_subduction_initiation_slab_rollback_and_final_closure/32916839
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Department_of_Nursing_Sciences_Ebonyi_State_University_EBSU_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903468
+  - url: https://figshare.com/articles/media/Dominion_University_Ibadan_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_07040/32917283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Royal_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903465
+  - url: https://figshare.com/articles/dataset/Our_Landmark_University_2026_2027_Open_Admission_form_is_on_sale_07047903330_The_2026_2027_admission_form_is_now_officially_available_for_interested_candidates_call_07047903330_who_wish_to_secure_admission_for_the_upcoming_academic_session_/32917277
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Mater_Misericordiae_College_of_Nursing_Sciences_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903462
+  - url: https://figshare.com/articles/figure/Call_08132728112_College_of_Nursing_Sciences_Maiduguri_Borno_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school_/32917280
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Alex_Ekwueme_Federal_University_Teaching_Hospital_AEFUTHA_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903459
+  - url: https://figshare.com/articles/dataset/_/32915747
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,3 +1,3 @@
 """
-Genome-wide association analysis, PCA, and enrichment modules.
+Differential expression and statistical analysis modules.
 """

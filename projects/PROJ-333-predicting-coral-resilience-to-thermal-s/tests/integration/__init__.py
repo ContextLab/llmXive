@@ -1,3 +1,3 @@
 """
-Integration tests for component interactions and data flows.
+Integration tests for pipeline workflows.
 """

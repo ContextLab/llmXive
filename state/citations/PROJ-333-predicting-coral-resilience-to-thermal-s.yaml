@@ -1,1 +1,23 @@
-[]
+- artifact_hash: 6d5f27c49ed3223656cb5ebcd3010723c641984a4e3f202a37577fe36fc7496b
+  artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA321023**
+  verification_status: mismatch
+  verified_against_url: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA321023**
+  verified_at: '2026-07-07T02:27:37.058191Z'
+- artifact_hash: 6d5f27c49ed3223656cb5ebcd3010723c641984a4e3f202a37577fe36fc7496b
+  artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "g:Profiler \u2013 a web server for functional enrichment analysis\
+    \ and conversions of gene lists"
+  kind: url
+  value: https://biit.cs.ut.ee/gprofiler/gost
+  verification_status: verified
+  verified_against_url: https://biit.cs.ut.ee/gprofiler/gost
+  verified_at: '2026-07-07T02:27:37.058191Z'

@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-coral-resilience"
+version = "0.1.0"
+description = "Predicting Coral Resilience to Thermal Stress"
+requires-python = ">=3.11"
+dependencies = [
+    "biopython",
+    "pysam",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "gprofiler-official",
+    "rpy2",
+    "requests",
+    "pyyaml",
+    "pytest",
+    "memory-profiler",
+    "tomli",
+    "tomli-w",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "pylint",
+    "ruff",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code", "tests"]
+known_third_party = ["biopython", "pysam", "scipy", "pandas", "matplotlib", "requests", "pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "C0116", # missing-function-docstring
+    "R0903", # too-few-public-methods
+]
+
+[tool.pylint.format]
+max-line-length = 88

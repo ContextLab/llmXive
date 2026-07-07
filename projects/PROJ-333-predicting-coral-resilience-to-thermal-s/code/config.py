@@ -1,12 +1,10 @@
 """
-Configuration module for the Coral Resilience GWAS pipeline.
+Configuration module for the Coral Resilience Transcriptome Analysis pipeline.
 
 This module centralizes all project paths, analysis thresholds, and random seeds
 to ensure reproducibility and consistent behavior across the pipeline.
 
-Thresholds are derived from the project specifications:
-- MAF > 0.05
-- Missingness < 10%
+Thresholds are derived from the project specifications and the implementation plan.
 """
 
 import os
@@ -32,8 +30,25 @@ PROCESSED_DATA_DIR: Path = DATA_DIR / "processed"
 PLINK_DIR: Path = PROCESSED_DATA_DIR / "plink"
 NCBI_DOWNLOAD_DIR: Path = RAW_DATA_DIR / "ncbi"
 
-# --- Analysis Thresholds ---
-# Minor Allele Frequency (MAF) threshold: > 0.05
+# --- NCBI BioProject Configuration ---
+# Override: Spec FR-001 lists PRJNA292777, but Plan.md confirms PRJNA321023 contains the required thermal stress data. Source: Plan.md Technical Context.
+NCBI_BIOPROJECT_ID: str = "PRJNA321023"
+
+# --- Memory Constraints ---
+# Maximum RAM usage target in GB (SC-001)
+MAX_RAM_GB: float = 7.0
+
+# --- Filtering Thresholds (Deferred) ---
+# MIN_SAMPLES_FOR_FILTER: Minimum number of samples required to keep a gene during filtering.
+# Value to be determined in the research phase (see data/processed/data-model.md).
+MIN_SAMPLES_FOR_FILTER: int = None
+
+# MIN_COUNT_THRESHOLD: Minimum count threshold for filtering.
+# Value to be determined in the research phase (see data/processed/data-model.md).
+MIN_COUNT_THRESHOLD = None
+
+# --- Analysis Thresholds (Legacy/Reference) ---
+# Minor Allele Frequency (MAF) threshold: > 0.05 (for reference in GWAS tasks)
 MAF_THRESHOLD: float = 0.05
 
 # Missingness threshold: < 10% (0.10)
@@ -52,10 +67,6 @@ PLINK_MIN_GENO: float = 0.10  # Maximum missing genotype rate per variant
 RANDOM_SEED: int = 42
 NP_RANDOM_SEED: int = 42
 PLINK_SEED: int = 42
-
-# --- Memory Constraints ---
-# Maximum RAM usage target in GB (SC-001)
-MAX_RAM_GB: float = 7.0
 
 # --- API Endpoints / Sources ---
 # NCBI SRA FTP base URL (placeholder for dynamic study ID injection)
@@ -90,6 +101,8 @@ def get_thresholds() -> dict:
         "missingness": MISSINGNESS_THRESHOLD,
         "hwe": PLINK_HWE_THRESHOLD,
         "min_geno": PLINK_MIN_GENO,
+        "min_samples_filter": MIN_SAMPLES_FOR_FILTER,
+        "min_count_threshold": MIN_COUNT_THRESHOLD,
     }
 
 # Initialize directories on import if running as main or explicitly called

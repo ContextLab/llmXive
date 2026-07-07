@@ -65,8 +65,8 @@ A researcher needs to visualize the differentially expressed genes via a volcano
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download FASTQ files and phenotype metadata from NCBI BioProject PRJNA292777 and verify file integrity (SHA256) before processing. (See US-1)
-- **FR-002**: System MUST quantify gene expression and filter results to ensure the resulting dataset size is compatible with a 7 GB RAM environment. (See US-1)
+- **FR-001**: System MUST download FASTQ files and phenotype metadata from NCBI BioProject [Identifier] and verify file integrity (SHA256) before processing. (See US-1)
+- **FR-002**: System MUST quantify gene expression and filter results to ensure the resulting dataset size is compatible with a constrained RAM environment. (See US-1)
 - **FR-003**: System MUST execute a differential gene expression test using DESeq2 (or equivalent) to correlate gene expression levels with thermal stress treatment conditions. (See US-2)
 - **FR-004**: System MUST apply a multiple-comparison correction (Benjamini-Hochberg FDR) to all p-values to control family-wise error rate. (See US-2)
 - **FR-005**: System MUST generate a volcano plot and a pathway enrichment report using g:Profiler or equivalent for genes with FDR < 0.05. (See US-3)
@@ -84,7 +84,7 @@ A researcher needs to visualize the differentially expressed genes via a volcano
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Peak memory usage (RSS) measured via system profiler during execution is measured against the 7 GB RAM limit to ensure the analysis completes without memory overflow on the free-tier runner. (See US-1)
+- **SC-001**: Peak memory usage (RSS) measured via system profiler during execution is measured against the available RAM limit to ensure the analysis completes without memory overflow on the free-tier runner. (See US-1)
 - **SC-002**: Number of significant genes (FDR < 0.05) is measured against the expected count under the null hypothesis; success requires observed count > expected count at p < 0.05. (See US-2)
 - **SC-003**: Enrichment p-value for at least one pathway from the predefined list [HSP, Oxidative] is measured against the threshold FDR < 0.1 to validate biological plausibility. (See US-3)
 - **SC-004**: The computational runtime is measured against the free-tier job limit of GitHub Actions to ensure feasibility. (See US-1)
@@ -92,7 +92,7 @@ A researcher needs to visualize the differentially expressed genes via a volcano
 
 ## Assumptions
 
-- The NCBI BioProject contains raw RNA-seq reads (FASTQ) that can be mapped to a reference transcriptome within the 6-hour CI time limit using standard tools (e.g., Salmon, DESeq2).
+- The NCBI BioProject contains raw RNA-seq reads (FASTQ) that can be mapped to a reference transcriptome within a feasible CI time limit using standard tools (e.g., Salmon, DESeq2).
 - The experimental treatment metadata (Heat vs. Control) is available in a machine-readable format (e.g., CSV, TSV) linked to the sample IDs in the genomic files.
 - The dataset size, after quantification and filtering, will fit within the RAM and disk constraints of the free-tier runner.
 - The analysis is purely observational; therefore, no causal claims regarding specific genes causing thermal resilience will be made, only associations.

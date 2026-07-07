@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Phenotype Metadata Schema"
+description: "Schema for the sample phenotype metadata file. Supports both binary conditions and continuous temperature gradients."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Sample ID matching the FASTQ filename."
+  condition:
+    type: string
+    description: "Experimental treatment condition (e.g., 'Heat', 'Control', 'Ambient'). Optional if temperature_celsius is present."
+  temperature_celsius:
+    type: number
+    description: "Continuous temperature value in Celsius. If present, the analysis will use a continuous model."
+  replicate:
+    type: integer
+    description: "Replicate number."
+  batch:
+    type: string
+    description: "Batch identifier if available."
+required:
+  - sample_id
+oneOf:
+  - required: [condition]
+  - required: [temperature_celsius]
+additionalProperties: false

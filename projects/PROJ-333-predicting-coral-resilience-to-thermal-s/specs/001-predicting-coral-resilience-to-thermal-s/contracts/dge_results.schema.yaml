@@ -1,27 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DGE Results Schema"
-description: "Schema for differential gene expression results output."
-type: "object"
+description: "Schema for the output of the DESeq2 differential expression analysis."
+type: object
 properties:
   gene_id:
-    type: "string"
-    description: "Unique gene identifier."
-  log2_fold_change:
-    type: "number"
-    description: "Log2 fold change value."
-  p_value:
-    type: "number"
-    description: "Raw p-value from statistical test."
-  p_adj:
-    type: "number"
+    type: string
+    description: "Unique identifier for the gene."
+  baseMean:
+    type: number
+    description: "Mean of normalized counts for all samples."
+  log2FoldChange:
+    type: number
+    description: "Log2 fold change between Heat and Control conditions."
+  lfcSE:
+    type: number
+    description: "Standard error of the log2 fold change."
+  stat:
+    type: number
+    description: "Wald test statistic."
+  pvalue:
+    type: number
+    description: "Raw p-value from the Wald test."
+  padj:
+    type: number
     description: "Benjamini-Hochberg adjusted p-value (FDR)."
-  significant:
-    type: "boolean"
-    description: "True if p_adj < 0.05."
 required:
-  - "gene_id"
-  - "log2_fold_change"
-  - "p_value"
-  - "p_adj"
-  - "significant"
+  - gene_id
+  - baseMean
+  - log2FoldChange
+  - lfcSE
+  - stat
+  - pvalue
+  - padj
 additionalProperties: false

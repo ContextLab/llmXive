@@ -1,0 +1,76 @@
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Download Acropora millepora reference transcriptome from NCBI RefSeq
+  claim_id: c_1fee8253
+  context: 'T018 [P] [US1] Download and Verify Reference Transcriptome: Download Acropora
+    millepora reference transcriptome (NCBI RefSeq) to data/raw/reference/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Acropora_millepora_reference_transcriptome_from_NCB
+  kind: entity_fact
+  raw_text: 'Download and Verify Reference Transcriptome: Download Acropora millepora
+    reference transcriptome (NCBI RefSeq) to data/raw/reference/.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T02:57:29Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: SHA256 checksum for Acropora millepora assembly GCF_000163615.2 available
+    in NCBI RefSeq FTP manifest
+  claim_id: c_2c4811f6
+  context: MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2 (or use a pre-validated hash from research.md if
+    available).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST fetch the official SHA256 checksum from the NCBI RefSeq FTP manifest
+    for assembly GCF_000163615.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T03:00:13Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: NCBI BioProject ID PRJNA321023 contains thermal stress data for coral
+    resilience study
+  claim_id: c_65e4824e
+  context: 'Override: Spec FR-001 lists PRJNA292777, but Plan.md confirms PRJNA321023
+    contains the required thermal stress data. Source: Plan.md Technical Context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NCBI_BioProject_ID_PRJNA321023_contains_thermal_stress_data
+  kind: entity_fact
+  raw_text: The project uses NCBI BioProject ID PRJNA321023 for thermal stress data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T03:01:18Z'
+- artifact_path: projects/PROJ-333-predicting-coral-resilience-to-thermal-s/specs/001-predicting-coral-resilience-to-thermal-s/tasks.md
+  attempts: 1
+  canonical: Pipeline memory usage target is less than 7 GB RAM
+  claim_id: c_55ba52ab
+  context: 'Goal: Download raw FASTQ reads from NCBI BioProject PRJNA321023, map to
+    reference transcriptome, and quantify gene expression while ensuring peak memory
+    < 7 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_usage_target_is_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: The pipeline targets peak memory usage under 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T03:01:31Z'

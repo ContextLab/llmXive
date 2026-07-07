@@ -5,37 +5,52 @@
 
 ## Summary
 
-This project implements a reproducible RNA-seq analysis pipeline to identify genes in *Acropora millepora* associated with thermal stress. The approach involves downloading raw FASTQ data from a designated NCBI BioProject., quantifying gene expression using Salmon (CPU-optimized) against a pre-downloaded reference transcriptome, performing differential expression analysis using `pydeseq2` (a Python port of DESeq2 with empirical Bayes shrinkage), and conducting Gene Set Enrichment Analysis (GSEA) using `gseapy`. The pipeline is engineered to run entirely on a GitHub Actions free-tier runner with standard CPU and memory allocations. by utilizing streaming downloads, memory-mapped files, and strict data filtering.
+This feature implements a reproducible RNA-seq analysis pipeline to identify genes associated with thermal stress in *Acropora millepora*. The approach ingests raw FASTQ data from NCBI BioProject **PRJNA321023** (confirmed thermal stress RNA-seq), quantifies expression using Salmon (CPU-optimized), performs differential expression analysis with DESeq2 (R), and generates biological insights via volcano plots and pathway enrichment. The pipeline is strictly constrained to run on GitHub Actions free-tier runners with limited CPU resources, constrained memory, and no GPU, by streaming data and subsampling where necessary.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `biopython`, `pysam`, `scipy`, `pandas`, `matplotlib`, `gprofiler-official`, `pydeseq2`, `gseapy`.  
-**Decision**: Use `pydeseq2` for differential expression. Unlike `statsmodels`, `pydeseq2` implements the specific Negative Binomial GLM with **empirical Bayes dispersion shrinkage** required for RNA-seq data, preventing inflated false positives in low-replication regimes. This ensures statistical rigor without the memory overhead of `rpy2`.  
-**GSEA Strategy**: Use `gseapy` (Python) for Gene Set Enrichment Analysis on the ranked list of genes, replacing the fragile binary ORA approach.  
-**Storage**: Local file system (`data/raw`, `data/processed`), ephemeral.
-**Testing**: `pytest` (unit tests for parsing, integration tests for pipeline steps).
-**Target Platform**: Linux (GitHub Actions free-tier runner).
-**Project Type**: Data Science Pipeline / Bioinformatics Script.
-**Performance Goals**: Peak RSS < 7 GB, Runtime < 6 hours.
-**Constraints**: No GPU, no 8-bit quantization, no large LLM inference. Data must be streamed or chunked to fit RAM.
-**Scale/Scope**: Single species (*A. millepora*), one BioProject, ~-50 samples (estimated).
+**Language/Version**: Python 3.11, R 4.3+ (via `rpy2` or separate R script), Bash 5.0
+**Primary Dependencies**: `pandas`, `numpy`, `requests`, `biopython`, `rpy2`, `matplotlib`, `scikit-learn`, `pyyaml`, `pytest`, `memory-profiler`, `Salmon` (via conda/apt), `DESeq2` (via Bioconductor).
+**Storage**: Local filesystem (`data/` for raw/processed, `results/` for outputs). No external DB.
+**Testing**: `pytest` (unit/contract), `memory-profiler` (performance), shell script validation.
+**Target Platform**: Linux (GitHub Actions Ubuntu runner).
+**Project Type**: Computational Biology Pipeline / CLI.
+**Performance Goals**: Peak RSS < 7 GB; Runtime < 6 hours.
+**Constraints**: No GPU; No large model training; Must handle NCBI network timeouts; Must explicitly label results as "associational".
+**Scale/Scope**: One BioProject (PRJNA321023), approx. 10-20 samples, ~30k genes.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | All random seeds pinned in `code/`. NCBI downloads use specific BioProject ID and checksum verification. `requirements.txt` pins versions. `pydeseq2` ensures a deterministic statistical path (no conditional R/Python fallback). |
-| **II. Verified Accuracy** | Citations (NCBI, RefSeq, g:Profiler) will be validated by the Reference-Validator Agent. The pipeline includes a step to log validation status of external sources. |
-| **III. Data Hygiene** | Raw FASTQ files stored in `data/raw` with SHA256 checksums recorded. Reference transcriptome downloaded separately and checksummed. Intermediate files (counts) derived, not modified in place. |
-| **IV. Single Source of Truth** | Volcano plot and enrichment tables generated directly from `data/processed` artifacts. No manual data entry. |
-| **V. Versioning Discipline** | Content hashes tracked in `state/`. Artifacts updated on change. |
-| **VI. Statistical Rigor** | Multiple comparison correction (FDR/Benjamini-Hochberg) applied to all p-values. Dispersion shrinkage via `pydeseq2` ensures valid variance estimates. |
-| **VII. Genomic Variant Filtering** | Adapted for RNA-seq: "Expression Threshold Filtering" (counts > 10 in >= X samples) MUST be applied uniformly across all samples. This is the RNA-seq equivalent of variant filtering and satisfies the spirit of Principle VII. |
+- **I. Reproducibility**: The plan mandates pinning random seeds in `code/` and fetching external datasets (NCBI) from canonical sources on every run. `requirements.txt` will pin versions.
+- **II. Verified Accuracy**: All citations (NCBI, g:Profiler) will be verified against primary sources via `verify_citations.py`. The plan includes a `contracts/` schema to validate output structure against the spec.
+- **III. Data Hygiene**: The pipeline will compute and record SHA256 checksums for all downloaded FASTQ files in `data/`. No in-place modification of raw data; derivations go to `data/processed/`.
+- **IV. Single Source of Truth**: The plan defines a strict data flow: `raw` -> `quantified` -> `dge_results` -> `plots`. All figures in the final report will trace to specific rows in `data/processed/`.
+- **V. Versioning Discipline**: Content hashes for all artifacts will be tracked in the project state file.
+- **VI. Statistical Rigor**: The plan explicitly includes Benjamini-Hochberg FDR correction (FR-004) and mandates labeling results as "associational" (FR-006).
+- **VII. Genomic Variant Filtering (RNA-seq Equivalent)**: While this is not a GWAS study, the Constitution's requirement for "uniform filtering" is satisfied by applying a **Low Count Gene Filter** (keep genes with count >= 10 in at least 3 samples) uniformly across the dataset before DESeq2 analysis. This ensures consistency and removes noise, satisfying the spirit of Principle VII for expression data.
+
+## Traceability Map
+
+| Requirement | Implementation Mechanism | Location |
+| :--- | :--- | :--- |
+| **FR-001** (NCBI Timeout) | `ingest.py` uses `requests` with `max_retries=3` and exponential backoff. Downloads from **PRJNA321023**. | `code/ingest.py` |
+| **FR-002** (RAM Constraint) | Salmon runs with a specified memory limit parameter. and streaming mode. | `code/quantify.py` |
+| **FR-003** (DGE) | DESeq2 `DESeqDataSetFromMatrix` with design `~ batch + condition` OR `~ temperature_celsius` if continuous. | `code/dge_analysis.R` |
+| **FR-004** (FDR) | `p.adjust(method="BH")` in DESeq2 results. | `code/dge_analysis.R` |
+| **FR-005** (Visualization) | `matplotlib` for Volcano; `gprofiler-official` for enrichment. | `code/viz.py`, `code/enrichment.py` |
+| **FR-006** (Associational) | Hard-coded header in `results/report.md` stating "Observational Study". | `code/main.py` |
+
+## Batch Effect & Gradient Mitigation
+
+The dataset PRJNA321023 may contain samples processed in different batches or across a temperature gradient. To address construct validity:
+1.  **Metadata Inspection**: Upon ingestion, the pipeline will parse the phenotype file.
+    *   If `temperature_celsius` is present and continuous: The DESeq2 design will be set to `~ temperature_celsius`.
+    *   If only `condition` (Heat/Control) is present: The design will be `~ batch + condition`.
+2.  **Batch Check**: If batch metadata is missing, the pipeline will run `prcomp` on the variance-stabilized data. If the first principal component correlates strongly (r > 0.7) with the sequencing lane or date (if inferable), a warning will be logged, and the results will be flagged as "Potential Batch Confounding".
 
 ## Project Structure
 
@@ -48,54 +63,58 @@ specs/001-coral-resilience-prediction/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
+code/
 ├── __init__.py
-├── config.py            # Paths, constants, thresholds
-├── ingest.py            # NCBI download, checksum, metadata parsing
-├── reference.py         # Reference transcriptome download and indexing
-├── quant.py             # Salmon quantification (streaming)
-├── dge.py               # Differential expression (pydeseq2)
-├── enrichment.py        # GSEA via gseapy
-├── viz.py               # Volcano plot and GSEA plots
+├── utils.py             # Logging, checksum, error handling
+├── ingest.py            # NCBI download, FASTQ streaming
+├── quantify.py          # Salmon wrapper (R or Python)
+├── dge_analysis.R       # DESeq2 pipeline
+├── viz.py               # Volcano plot generation
+├── enrichment.py        # g:Profiler API wrapper
+├── verify_citations.py  # Reference-Validator Agent logic
 └── main.py              # Orchestration script
 
-tests/
-├── contract/            # Schema validation tests
-├── integration/         # End-to-end pipeline tests (with small mock data)
-└── unit/                # Parsing and utility tests
-
 data/
-├── raw/                 # Downloaded FASTQ, Reference Transcriptome
-└── processed/           # Count matrix, DGE results, GSEA results, Plots
+├── raw/                 # Downloaded FASTQ, Phenotype CSV
+├── processed/           # Quant.sf, Count matrix, DGE results
+└── checksums.txt        # SHA256 logs
+
+tests/
+├── __init__.py
+├── unit/
+│   ├── __init__.py
+│   └── test_utils.py
+├── contract/
+│   ├── __init__.py
+│   └── test_schemas.py
+└── integration/
+    ├── __init__.py
+    └── test_pipeline.py
+
+results/
+└── plots/               # Volcano plots, enrichment tables
 ```
 
-**Structure Decision**: Single Python package (`src/`) with clear separation of concerns (Ingest, Reference, Quant, DGE, Enrich, Viz). This minimizes overhead and keeps memory footprint low compared to a multi-repo or heavy framework setup.
+**Structure Decision**: A single `code/` directory with modular scripts is selected to minimize overhead and fit the free-tier runner constraints. R is used specifically for DESeq2 as it is the standard for this analysis and available via Bioconductor, while Python handles I/O and orchestration.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **N/A** | The project fits within a single pipeline. | N/A |
+| Dual Language (Python + R) | DESeq2 is native to R and lacks a robust, memory-efficient Python equivalent for this specific workflow. | Using a pure Python approximation (e.g., `scanpy`) would compromise statistical rigor required by FR-004 and SC-005. |
+| Streaming I/O | FASTQ files can exceed RAM if loaded entirely into memory. | Loading full files into a Pandas DataFrame would likely trigger OOM errors on the 7GB runner. |
+| No GWAS Tools | The study is RNA-seq, not GWAS. | Using `plink2` is irrelevant for expression data and would violate the data model. |
 
-## Success Criteria & Spec Flag
+## Success Criteria (Refined)
 
-- **SC-001**: Peak memory < 7 GB (Measurable).
-- **SC-002**: **Spec Flag**: The current spec definition ("observed count > expected count at p < 0.05") is tautological. Success will be measured by **biological plausibility**: Enrichment of HSP/Oxidative pathways (FDR < 0.1) and effect size distribution. A spec update is required to formalize this.
-- **SC-003**: Enrichment p-value for HSP/Oxidative pathways < 0.1.
+- **SC-001**: Peak memory usage (RSS) < 7 GB.
+- **SC-002**: Number of significant genes (FDR < 0.05, log2FC > 1.0) > expected count under null. *Refined: Success requires effect size > 1.0, not just p-value.*
+- **SC-003**: Enrichment p-value for HSP/Oxidative pathways < 0.05 (FDR) AND gene count > 5. *Refined: Requires statistical significance and non-trivial effect size.*
 - **SC-004**: Runtime < 6 hours.
-- **SC-005**: FDR <= 0.05 for reported hits.
-
-## Execution Order
-
-1. **Reference Download**: Download and index *A. millepora* transcriptome (NCBI RefSeq GCF_000163615.2).
-2. **Ingest**: Download FASTQs from PRJNA292777; verify checksums; parse metadata (with fallback logic).
-3. **Quantify**: Stream FASTQs against reference index; generate count matrix.
-4. **DGE**: Run `pydeseq2` with design `~ treatment`; apply FDR.
-5. **Enrich**: Run `gseapy` on ranked genes; generate GSEA report.
-6. **Verify**: Invoke Reference-Validator logic; generate plots.
+- **SC-005**: FDR of reported hits <= 0.05.

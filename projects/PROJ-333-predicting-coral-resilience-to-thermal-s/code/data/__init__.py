@@ -1,22 +1,3 @@
 """
-Data module for coral resilience research.
-Handles data models, ingestion, and preprocessing.
+Data ingestion and management utilities.
 """
-
-from .models import (
-    Sample,
-    Variant,
-    Genotype,
-    Phenotype,
-    Dataset,
-    QualityMetrics,
-)
-
-__all__ = [
-    "Sample",
-    "Variant",
-    "Genotype",
-    "Phenotype",
-    "Dataset",
-    "QualityMetrics",
-]

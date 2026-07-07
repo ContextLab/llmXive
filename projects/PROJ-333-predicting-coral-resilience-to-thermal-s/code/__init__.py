@@ -1,3 +1,3 @@
 """
-llmXive Coral Resilience Project - Code Package
+llmXive Coral Resilience Project - Code Module
 """

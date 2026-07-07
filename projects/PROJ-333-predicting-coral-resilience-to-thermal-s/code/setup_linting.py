@@ -1,81 +1,59 @@
 """
 Script to install and verify linting and formatting tools.
-This script ensures ruff and black are installed and can be run.
+This task (T003) configures flake8/pylint and black/isort.
 """
 import subprocess
 import sys
 import os
 
-def run_command(cmd, check=True):
-    """Run a shell command and print output."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(cmd, description):
+    """Run a shell command and print status."""
+    print(f"Running: {description}")
     try:
-        result = subprocess.run(
-            cmd, 
-            check=check, 
-            capture_output=True, 
-            text=True
-        )
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return result.returncode == 0
+        result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
+        print(f"  ✓ {description} completed successfully.")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}")
-        if e.stdout:
-            print(e.stdout)
-        if e.stderr:
-            print(e.stderr, file=sys.stderr)
+        print(f"  ✗ {description} failed.")
+        print(f"  Error: {e.stderr}")
         return False
 
 def install_tools():
-    """Install ruff and black if not present."""
-    print("Checking/Installing linting tools...")
-    
-    # Check if pip is available
-    if not run_command([sys.executable, "-m", "pip", "--version"], check=False):
-        print("pip not found. Please install pip.")
-        return False
-
-    # Install ruff
-    if not run_command([sys.executable, "-m", "pip", "install", "ruff"]):
-        return False
-
-    # Install black
-    if not run_command([sys.executable, "-m", "pip", "install", "black"]):
-        return False
-
+    """Install required linting and formatting tools via pip."""
+    tools = [
+        "black",
+        "isort",
+        "flake8",
+        "pylint",
+        "tomli",  # For reading pyproject.toml if needed in CI
+    ]
+    print("Installing linting and formatting tools...")
+    for tool in tools:
+        if not run_command(f"pip install {tool}", f"Install {tool}"):
+            raise RuntimeError(f"Failed to install {tool}")
     return True
 
 def verify_tools():
-    """Verify that ruff and black are executable."""
-    print("Verifying tool installation...")
-    
-    # Verify ruff
-    if not run_command(["ruff", "--version"], check=False):
-        print("ruff is not installed or not in PATH.")
-        return False
-        
-    # Verify black
-    if not run_command(["black", "--version"], check=False):
-        print("black is not installed or not in PATH.")
-        return False
-        
-    print("Tools verified successfully.")
+    """Verify that installed tools are accessible."""
+    tools = ["black", "isort", "flake8", "pylint"]
+    print("Verifying tool availability...")
+    for tool in tools:
+        if not run_command(f"{tool} --version", f"Check {tool} version"):
+            raise RuntimeError(f"Tool {tool} is not available after installation.")
     return True
 
 def main():
-    """Main entry point."""
-    # Ensure we are in the project root or code directory
-    # The script is in code/, so we assume project root is parent
-    if not install_tools():
+    """Main entry point for T003."""
+    print("--- Task T003: Configure Linting and Formatting ---")
+    try:
+        install_tools()
+        verify_tools()
+        print("\n✓ T003 Completed: Tools installed and verified.")
+        print("  Next step: Run `black .` and `isort .` to format code,")
+        print("  then run `flake8 .` and `pylint code/` for linting.")
+    except RuntimeError as e:
+        print(f"\n✗ T003 Failed: {e}")
         sys.exit(1)
-    
-    if not verify_tools():
-        sys.exit(1)
-        
-    print("Linting and formatting setup complete.")
 
 if __name__ == "__main__":
     main()

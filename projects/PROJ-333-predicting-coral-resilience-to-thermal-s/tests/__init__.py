@@ -1,3 +1,3 @@
 """
-Test suite for the Coral Resilience Project.
+Tests package for the Coral Resilience Prediction pipeline.
 """

@@ -1,48 +1,73 @@
 # Data Model: Predicting Coral Resilience to Thermal Stress
 
+## Overview
+
+This document defines the data structures used throughout the pipeline, ensuring traceability from raw input to final statistical output.
+
 ## Entities
 
-### 1. RawSample
-Represents a single biological sample from the NCBI SRA.
-- `sample_id` (str): Unique SRA accession (e.g., SRR123456).
-- `run_id` (str): SRA Run ID (e.g., SRR123456).
-- `fastq_url` (str): Direct URL to the FASTQ file.
-- `treatment` (str): "Heat" or "Control".
-- `checksum` (str): SHA256 hash of the downloaded file.
+### 1. Raw FASTQ
+-   **Source**: NCBI SRA (PRJNA321023)
+-   **Format**: `.fastq` (gzipped)
+-   **Constraints**: Must pass SHA256 checksum validation.
+-   **Storage**: `data/raw/<sample_id>.fastq.gz`
 
-### 2. ExpressionMatrix
-A sparse matrix of gene counts.
-- `gene_id` (str): Ensembl or NCBI gene ID.
-- `sample_id` (str): Foreign key to RawSample.
-- `count` (int): Raw read count.
-- `is_filtered` (bool): True if count < threshold (e.g., 10).
+### 2. Phenotype Metadata
+-   **Format**: CSV
+-   **Schema**:
+    -   `sample_id`: String (matches FASTQ filename)
+    -   `condition`: String (Optional, e.g., "Heat", "Control", or "Ambient")
+    -   `temperature_celsius`: Float (Optional, continuous temperature value)
+    -   `replicate`: Integer
+    -   `batch`: String (Optional, if available)
+-   **Storage**: `data/raw/phenotype.csv`
+-   **Note**: The pipeline will automatically detect if `temperature_celsius` is present. If so, the analysis will use a continuous model; otherwise, it will default to a binary/grouped model based on `condition`.
 
-### 3. DGEResult
-Results of the differential expression analysis.
-- `gene_id` (str): Primary key.
-- `log2_fold_change` (float): Log2 fold change (Heat vs Control).
-- `p_value` (float): Raw p-value.
-- `p_adj` (float): Adjusted p-value (FDR).
-- `significant` (bool): True if `p_adj` < 0.05.
+### 3. Expression Matrix (Quantified)
+-   **Source**: Salmon output (`quant.sf`) aggregated.
+-   **Format**: TSV / Pandas DataFrame
+-   **Schema**:
+    -   Rows: Gene IDs (e.g., `Ammi_0001`)
+    -   Columns: Sample IDs
+    -   Values: Estimated counts (Integer/Float)
+-   **Storage**: `data/processed/count_matrix.tsv`
 
-### 4. PathwayEnrichment
-Results of the pathway analysis.
-- `term_id` (str): Pathway ID (e.g., GO:0006954).
-- `term_name` (str): Pathway name.
-- `p_value` (float): Raw enrichment p-value.
-- `p_adj` (float): Adjusted p-value.
-- `genes` (list[str]): List of significant genes in this pathway.
+### 4. DGE Results
+-   **Source**: DESeq2 `results()` function.
+-   **Format**: CSV
+-   **Schema**:
+    -   `gene_id`: String
+    -   `baseMean`: Float (mean normalized count)
+    -   `log2FoldChange`: Float
+    -   `lfcSE`: Float (Standard Error)
+    -   `stat`: Float (Wald statistic)
+    -   `pvalue`: Float (Raw p-value)
+    -   `padj`: Float (BH-adjusted p-value)
+-   **Storage**: `data/processed/dge_results.csv`
 
-## Data Flow
+### 5. Enrichment Results
+-   **Source**: g:Profiler API
+-   **Format**: JSON / CSV
+-   **Schema**:
+    -   `term_id`: String (e.g., `GO:0006950`)
+    -   `term_name`: String (e.g., "Heat shock protein binding")
+    -   `p_value`: Float
+    -   `adjusted_p_value`: Float
+    -   `genes`: List[String]
+-   **Storage**: `data/processed/enrichment_results.csv`
 
-1. **Ingest**: `RawSample` created from NCBI metadata.
-2. **Quantify**: `RawSample` -> `ExpressionMatrix` (Sparse).
-3. **Filter**: `ExpressionMatrix` -> Filtered `ExpressionMatrix` (counts > 10).
-4. **DGE**: Filtered `ExpressionMatrix` -> `DGEResult`.
-5. **Enrich**: `DGEResult` (significant genes) -> `PathwayEnrichment`.
+## Data Flow Diagram
 
-## Constraints
-
-- **Memory**: `ExpressionMatrix` MUST be stored as a sparse matrix.
-- **Integrity**: `RawSample.checksum` MUST match the downloaded file.
-- **Completeness**: `DGEResult` MUST contain all genes in the filtered matrix.
+```mermaid
+graph TD
+    A[NCBI SRA PRJNA321023] -->|Download| B(Raw FASTQ + Phenotype)
+    B -->|SHA256 Verify| C{Valid?}
+    C -->|No| D[Error: Checksum Mismatch]
+    C -->|Yes| E[Salmon Quantification]
+    E -->|Output| F[Count Matrix]
+    F -->|Filter Low Count| G[Filtered Matrix]
+    G -->|DESeq2 (Continuous or Binary)| H[DGE Results]
+    H -->|Filter FDR < 0.05| I[Significant Genes]
+    I -->|g:Profiler API| J[Enrichment Report]
+    J -->|Plot| K[Volcano Plot]
+```
