@@ -4,20 +4,23 @@ from pathlib import Path
 def create_directories():
     """
     Creates the required directory structure for the project.
-    Ensures data/raw, data/derived, and docs/output directories exist.
+    Specifically ensures the docs/output directory exists for report artifacts.
     """
-    project_root = Path(__file__).resolve().parent.parent
+    base_path = Path("projects/PROJ-508-evaluating-the-impact-of-llm-based-code-")
     
-    # Define directories to create based on task requirements
     directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "derived",
-        project_root / "docs" / "output",
+        base_path / "data" / "raw",
+        base_path / "data" / "derived",
+        base_path / "docs" / "output",
+        base_path / "code",
+        base_path / "code" / "utils",
+        base_path / "tests",
+        base_path / "specs" / "001-evaluating-the-impact-of-llm-based-code",
     ]
     
-    for dir_path in directories:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
 if __name__ == "__main__":
     create_directories()

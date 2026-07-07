@@ -1,3 +1,3 @@
-# This directory is reserved for raw data ingested from external sources.
-# Do not modify files here directly; all data must be processed into derived/
-.gitkeep
+# This directory stores raw data files downloaded from external sources.
+# Files in this directory should be .gitkeep to ensure the directory exists
+# but raw data is not committed to the repository (unless explicitly allowed).

@@ -4,7 +4,9 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+import matplotlib.pyplot as plt
+import seaborn as sns
+from typing import Dict, Any, List, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -13,41 +15,52 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directories(output_dir: Path) -> None:
-    """Ensure output directories exist."""
-    output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir / 'figures').mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist under {output_dir}")
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+DERIVED_DIR = DATA_DIR / "derived"
+DOCS_DIR = PROJECT_ROOT / "docs"
+OUTPUT_DIR = DOCS_DIR / "output"
 
-def load_analysis_results(results_path: Path) -> Dict[str, Any]:
-    """Load analysis results from JSON file."""
+def ensure_directories():
+    """Ensure all required output directories exist."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories exist: {OUTPUT_DIR}")
+
+def load_analysis_results() -> Dict[str, Any]:
+    """Load the main analysis results from JSON."""
+    results_path = DERIVED_DIR / "analysis_results.json"
     if not results_path.exists():
         raise FileNotFoundError(f"Analysis results not found at {results_path}")
     
     with open(results_path, 'r') as f:
-        results = json.load(f)
-    
-    logger.info(f"Loaded analysis results from {results_path}")
-    return results
+        return json.load(f)
 
-def load_sensitivity_results(sensitivity_path: Path) -> Dict[str, Any]:
-    """Load sensitivity analysis results from JSON file."""
-    if not sensitivity_path.exists():
-        raise FileNotFoundError(f"Sensitivity results not found at {sensitivity_path}")
+def load_sensitivity_results() -> Dict[str, Any]:
+    """Load sensitivity analysis results from JSON."""
+    results_path = DERIVED_DIR / "sensitivity_analysis.json"
+    if not results_path.exists():
+        logger.warning(f"Sensitivity analysis results not found at {results_path}. Skipping sensitivity plot.")
+        return {}
     
-    with open(sensitivity_path, 'r') as f:
-        results = json.load(f)
-    
-    logger.info(f"Loaded sensitivity results from {sensitivity_path}")
-    return results
+    with open(results_path, 'r') as f:
+        return json.load(f)
 
-def generate_forest_plot(results: Dict[str, Any], output_path: Path) -> None:
+def load_stratified_results() -> Dict[str, Any]:
+    """Load stratified (signal separation) analysis results from JSON."""
+    results_path = DERIVED_DIR / "stratified_analysis_results.json"
+    if not results_path.exists():
+        logger.warning(f"Stratified analysis results not found at {results_path}. Skipping signal separation section.")
+        return {}
+    
+    with open(results_path, 'r') as f:
+        return json.load(f)
+
+def generate_forest_plot(results: Dict[str, Any], output_path: Path):
     """Generate a forest plot of effect sizes with confidence intervals."""
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 8))
+    if not results:
+        logger.warning("No results provided for forest plot generation.")
+        return
 
     # Extract data for plotting
     proxies = []
@@ -55,285 +68,355 @@ def generate_forest_plot(results: Dict[str, Any], output_path: Path) -> None:
     ci_lower = []
     ci_upper = []
     p_values = []
-    significance = []
+    significant = []
 
-    for proxy, data in results.get('models', {}).items():
-        coef = data.get('coefficient', 0)
-        se = data.get('std_err', 0)
-        p_val = data.get('pvalue', 1.0)
-        ci_low = coef - 1.96 * se
-        ci_high = coef + 1.96 * se
+    for model_name, model_data in results.get("models", {}).items():
+        for proxy, stats in model_data.get("coefficients", {}).items():
+            if proxy == "intercept":
+                continue
+            
+            coef = stats.get("coef", 0)
+            std_err = stats.get("std_err", 0)
+            p_val = stats.get("p_value", 1.0)
+            adj_p_val = stats.get("adj_p_value", p_val)
+            
+            # Calculate 95% CI
+            ci_l = coef - 1.96 * std_err
+            ci_u = coef + 1.96 * std_err
 
-        proxies.append(proxy)
-        coefficients.append(coef)
-        ci_lower.append(ci_low)
-        ci_upper.append(ci_high)
-        p_values.append(p_val)
-        significance.append('***' if p_val < 0.001 else '**' if p_val < 0.01 else '*' if p_val < 0.05 else '')
+            proxies.append(proxy)
+            coefficients.append(coef)
+            ci_lower.append(ci_l)
+            ci_upper.append(ci_u)
+            p_values.append(adj_p_val)
+            significant.append(adj_p_val < 0.05)
 
-    y_pos = np.arange(len(proxies))
-    ax.errorbar(
-        coefficients, y_pos,
-        xerr=[np.array(coefficients) - np.array(ci_lower), np.array(ci_upper) - np.array(coefficients)],
-        fmt='o',
-        capsize=5,
-        color='#2c3e50',
-        alpha=0.8,
-        ecolor='#7f8c8d',
-        linewidth=1.5
+    df = pd.DataFrame({
+        'Proxy': proxies,
+        'Coefficient': coefficients,
+        'CI_Lower': ci_lower,
+        'CI_Upper': ci_upper,
+        'P_Value': p_values,
+        'Significant': significant
+    })
+
+    # Sort by coefficient for better visualization
+    df = df.sort_values('Coefficient')
+
+    plt.figure(figsize=(10, 8))
+    sns.set_style("whitegrid")
+    
+    # Plot error bars
+    plt.errorbar(
+        df['Coefficient'], 
+        range(len(df)), 
+        xerr=[df['Coefficient'] - df['CI_Lower'], df['CI_Upper'] - df['Coefficient']], 
+        fmt='o', 
+        capsize=5, 
+        linestyle='None',
+        color='blue',
+        alpha=0.7
     )
 
-    ax.set_yticks(y_pos)
-    ax.set_yticklabels([p.replace('_', ' ').title() for p in proxies])
-    ax.axvline(x=0, color='red', linestyle='--', linewidth=1)
+    # Plot significant points in red
+    sig_indices = df[df['Significant']].index
+    if len(sig_indices) > 0:
+        plt.scatter(
+            df.loc[sig_indices, 'Coefficient'], 
+            sig_indices, 
+            color='red', 
+            zorder=3, 
+            label='Significant (p < 0.05)'
+        )
     
-    ax.set_xlabel('Effect Size (Coefficient)')
-    ax.set_ylabel('Cognitive Load Proxy')
-    ax.set_title('Forest Plot: LLM Adoption Effect on Cognitive Load Proxies')
-    ax.set_xlim(min(ci_lower) - 0.1, max(ci_upper) + 0.1)
+    # Non-significant
+    non_sig_indices = df[~df['Significant']].index
+    if len(non_sig_indices) > 0:
+        plt.scatter(
+            df.loc[non_sig_indices, 'Coefficient'], 
+            non_sig_indices, 
+            color='blue', 
+            zorder=3, 
+            label='Not Significant'
+        )
 
-    # Add significance stars
-    for i, sig in enumerate(significance):
-        if sig:
-            ax.text(coefficients[i] + 0.02, i, sig, va='center', fontsize=10, color='darkred')
-
+    plt.axvline(x=0, color='black', linestyle='--', linewidth=1)
+    plt.yticks(range(len(df)), df['Proxy'])
+    plt.xlabel('Coefficient (Effect Size)')
+    plt.title('Forest Plot: LLM Adoption Effect on Cognitive Load Proxies')
+    plt.legend()
     plt.tight_layout()
-    fig.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300)
     plt.close()
     logger.info(f"Forest plot saved to {output_path}")
 
-def generate_sensitivity_plot(sensitivity_results: Dict[str, Any], output_path: Path) -> None:
+def generate_sensitivity_plot(sensitivity_data: Dict[str, Any], output_path: Path):
     """Generate a plot showing effect variation across thresholds."""
-    import matplotlib.pyplot as plt
-    import seaborn as sns
+    if not sensitivity_data:
+        logger.warning("No sensitivity data provided for plotting.")
+        return
 
-    plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 6))
+    thresholds = sensitivity_data.get("thresholds", [])
+    effects = sensitivity_data.get("effect_sizes", [])
+    cis = sensitivity_data.get("confidence_intervals", [])
 
-    thresholds = sensitivity_results.get('thresholds', [])
-    effect_sizes = sensitivity_results.get('effect_sizes', [])
-    ci_lowers = sensitivity_results.get('ci_lowers', [])
-    ci_highers = sensitivity_results.get('ci_highers', [])
-
-    ax.errorbar(
-        thresholds, effect_sizes,
-        yerr=[np.array(effect_sizes) - np.array(ci_lowers), np.array(ci_highers) - np.array(effect_sizes)],
-        fmt='o-',
-        capsize=5,
-        color='#e74c3c',
-        alpha=0.8,
-        ecolor='#c0392b',
-        linewidth=2,
-        markersize=8
+    plt.figure(figsize=(10, 6))
+    sns.set_style("whitegrid")
+    
+    plt.errorbar(
+        thresholds, 
+        effects, 
+        yerr=[[c[0] for c in cis], [c[1] for c in cis]], 
+        fmt='o-', 
+        capsize=5, 
+        color='green', 
+        alpha=0.8
     )
-
-    ax.axhline(y=0, color='black', linestyle='--', linewidth=1)
-    ax.set_xlabel('Iteration Count Threshold')
-    ax.set_ylabel('Effect Size (Coefficient)')
-    ax.set_title('Sensitivity Analysis: Effect Size vs. Iteration Threshold')
-    ax.grid(True, alpha=0.3)
-
+    
+    plt.axhline(y=0, color='black', linestyle='--', linewidth=1)
+    plt.xlabel('Iteration Count Threshold')
+    plt.ylabel('Effect Size (Coefficient)')
+    plt.title('Sensitivity Analysis: Effect Size vs. Iteration Threshold')
     plt.tight_layout()
-    fig.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300)
     plt.close()
     logger.info(f"Sensitivity plot saved to {output_path}")
 
-def generate_report_text(
-    analysis_results: Dict[str, Any],
-    sensitivity_results: Dict[str, Any],
-    report_path: Path
-) -> None:
-    """
-    Generate the text content of the final report.
-    
-    Includes:
-    - Associational framing (not causal)
-    - Observational study design reference
-    - Null hypothesis rejection status
-    - Theoretical Grounding section (Holland et al.)
-    - Data Gap section (NASA-TLX unavailability)
-    """
-    models = analysis_results.get('models', {})
-    bonferroni_results = analysis_results.get('bonferroni', {})
-    
-    # Build the report text
-    lines = []
-    lines.append("=" * 80)
-    lines.append("EVALUATING THE IMPACT OF LLM-BASED CODE COMPLETION ON DEVELOPER COGNITIVE LOAD")
-    lines.append("=" * 80)
-    lines.append("")
-    
-    # Executive Summary
-    lines.append("## Executive Summary")
-    lines.append("")
-    lines.append("This study investigates the association between LLM-based code completion adoption")
-    lines.append("and developer cognitive load, using proxy metrics derived from code repository")
-    lines.append("activity. We employ a mixed-effects modeling approach to control for repository-level")
-    lines.append("confounders and apply multiple-comparison corrections to our hypothesis tests.")
-    lines.append("")
-    
-    # Methodology Note - Associational Framing
-    lines.append("## Methodology and Study Design")
-    lines.append("")
-    lines.append("**Observational Study Design**: This research utilizes an observational design")
-    lines.append("leveraging existing GitHub repository data. We explicitly frame our findings as")
-    lines.append("**associational** rather than causal. The statistical models identify correlations")
-    lines.append("between LLM adoption flags and cognitive load proxies, but do not establish")
-    lines.append("causal mechanisms without randomized controlled trials.")
-    lines.append("")
-    
-    # Theoretical Grounding
-    lines.append("## Theoretical Grounding")
-    lines.append("")
-    lines.append("This study is grounded in the distributed cognition framework as articulated by")
-    lines.append("Holland et al. (1995), which posits that cognitive processes are not confined")
-    lines.append("to the individual mind but are distributed across people, artifacts, and")
-    lines.append("environments. The introduction of LLM-based code completion tools represents")
-    lines.append("a significant shift in the cognitive architecture of software development,")
-    lines.append("potentially redistributing the cognitive load between human developers and")
-    lines.append("artificial intelligence systems.")
-    lines.append("")
-    lines.append("By measuring changes in code review metrics (iteration counts, comment lengths,")
-    lines.append("revert frequencies), we attempt to capture the emergent properties of this")
-    lines.append("distributed cognitive system. However, we acknowledge the limitations of")
-    lines.append("inferring internal cognitive states from external behavioral proxies.")
-    lines.append("")
-    
-    # Data Gap Section
-    lines.append("## Data Gap and Limitations")
-    lines.append("")
-    lines.append("A critical limitation of this study is the absence of direct self-report measures")
-    lines.append("of cognitive load. Standard instruments such as the NASA Task Load Index")
-    lines.append("(NASA-TLX) were not available for the population of GitHub developers studied.")
-    lines.append("")
-    lines.append("Note: This study uses proxy metrics for cognitive load. Self-report measures")
-    lines.append("(e.g., NASA-TLX) were not available.")
-    lines.append("")
-    lines.append("Consequently, our findings should be interpreted as indicators of behavioral")
-    lines.append("complexity rather than direct measures of mental effort or cognitive strain.")
-    lines.append("")
-    
-    # Statistical Findings
-    lines.append("## Statistical Findings")
-    lines.append("")
-    lines.append("We applied Mixed-Effects Models (GLMM) with random intercepts for repositories")
-    lines.append("to account for hierarchical data structure. For zero-inflated outcomes (reverts,")
-    lines.append("iterations), we utilized Zero-Inflated Negative Binomial (ZINB) or Hurdle models.")
-    lines.append("")
-    
-    # Null Hypothesis Testing
-    lines.append("### Hypothesis Testing Results")
-    lines.append("")
-    
-    for proxy, data in models.items():
-        coef = data.get('coefficient', 0)
-        p_val = data.get('pvalue', 1.0)
-        adj_p = bonferroni_results.get(proxy, {}).get('adjusted_pvalue', p_val)
-        se = data.get('std_err', 0)
-        ci_low = coef - 1.96 * se
-        ci_high = coef + 1.96 * se
-        
-        # Determine rejection status
-        alpha = 0.05
-        if adj_p < alpha:
-            status = "REJECTED"
-            significance = "**"
-        else:
-            status = "FAILED TO REJECT"
-            significance = ""
-        
-        lines.append(f"**{proxy.replace('_', ' ').title()}**: {significance}")
-        lines.append(f"  - Coefficient: {coef:.4f} (SE: {se:.4f})")
-        lines.append(f"  - 95% CI: [{ci_low:.4f}, {ci_high:.4f}]")
-        lines.append(f"  - Raw p-value: {p_val:.4f}")
-        lines.append(f"  - Bonferroni-adjusted p-value: {adj_p:.4f}")
-        lines.append(f"  - Null Hypothesis (H0: β = 0): {status}")
-        lines.append("")
-    
-    # Sensitivity Analysis
-    lines.append("## Sensitivity Analysis")
-    lines.append("")
-    lines.append("To assess the robustness of our findings, we performed a sensitivity analysis")
-    lines.append("by varying the iteration count threshold across a range of low integer values.")
-    lines.append("")
-    
-    thresholds = sensitivity_results.get('thresholds', [])
-    effects = sensitivity_results.get('effect_sizes', [])
-    
-    if thresholds and effects:
-        lines.append(f"**Threshold Sweep Results**:")
-        lines.append(f"  - Thresholds tested: {thresholds}")
-        lines.append(f"  - Effect sizes: {[f'{e:.4f}' for e in effects]}")
-        lines.append("")
-        
-        # Check for stability
-        effect_range = max(effects) - min(effects) if effects else 0
-        if effect_range < 0.1:
-            lines.append("The effect sizes remain stable across threshold variations, suggesting")
-            lines.append("robustness of the primary findings.")
-        else:
-            lines.append("The effect sizes show moderate variation across thresholds, indicating")
-            lines.append("that the choice of iteration threshold may influence the magnitude of")
-            lines.append("the observed association.")
-        lines.append("")
-    
-    # Conclusion
-    lines.append("## Conclusion")
-    lines.append("")
-    lines.append("This observational study provides associational evidence regarding the impact of")
-    lines.append("LLM-based code completion on developer cognitive load proxies. The findings")
-    lines.append("should be interpreted within the context of the distributed cognition framework")
-    lines.append("and the limitations imposed by the use of proxy metrics.")
-    lines.append("")
-    lines.append("Future research should aim to incorporate direct self-report measures (e.g.,")
-    lines.append("NASA-TLX) and physiological proxies to triangulate cognitive load assessments.")
-    lines.append("")
-    lines.append("=" * 80)
-    lines.append("END OF REPORT")
-    lines.append("=" * 80)
-    
-    # Write to file
-    report_text = "\n".join(lines)
-    with open(report_path, 'w') as f:
-        f.write(report_text)
-    
-    logger.info(f"Report text generated and saved to {report_path}")
+def generate_stratified_plot(stratified_data: Dict[str, Any], output_path: Path):
+    """Generate a plot comparing effect sizes between High and Low AI-Noise groups."""
+    if not stratified_data:
+        logger.warning("No stratified data provided for plotting.")
+        return
 
-def run_report_pipeline(
-    results_path: Path,
-    sensitivity_path: Path,
-    output_dir: Path
-) -> None:
+    groups = list(stratified_data.keys())
+    effects = []
+    cis = []
+
+    for group in groups:
+        group_data = stratified_data[group]
+        coef = group_data.get("llm_adoption_coef", 0)
+        std_err = group_data.get("llm_adoption_se", 0)
+        ci_l = coef - 1.96 * std_err
+        ci_u = coef + 1.96 * std_err
+        effects.append(coef)
+        cis.append([ci_l, ci_u])
+
+    plt.figure(figsize=(10, 6))
+    sns.set_style("whitegrid")
+    
+    plt.errorbar(
+        groups, 
+        effects, 
+        yerr=[[c[0] for c in cis], [c[1] for c in cis]], 
+        fmt='o-', 
+        capsize=5, 
+        color='purple', 
+        alpha=0.8
+    )
+    
+    plt.axhline(y=0, color='black', linestyle='--', linewidth=1)
+    plt.xlabel('AI-Noise Group')
+    plt.ylabel('Effect Size (Coefficient)')
+    plt.title('Signal Separation: LLM Adoption Effect by AI-Noise Level')
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Stratified plot saved to {output_path}")
+
+def generate_report_text(
+    analysis_results: Dict[str, Any], 
+    sensitivity_results: Dict[str, Any],
+    stratified_results: Dict[str, Any]
+) -> str:
+    """Generate the text content of the report."""
+    text_parts = []
+
+    # Title
+    text_parts.append("# Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load")
+    text_parts.append("")
+    text_parts.append("## Executive Summary")
+    text_parts.append("")
+    text_parts.append("This study investigates the association between LLM-based code completion adoption and various proxy metrics for developer cognitive load. "
+                    "Using a mixed-methods approach on GitHub repositories, we analyze code review patterns, iteration counts, and reversion frequencies.")
+    text_parts.append("")
+
+    # Theoretical Grounding (Per T005/FR-009)
+    text_parts.append("## Theoretical Grounding")
+    text_parts.append("")
+    text_parts.append("This study is grounded in the framework of distributed cognition (Holland et al.), which posits that cognitive processes are not confined to the individual "
+                    "but are distributed across internal and external representations. The introduction of LLM-based tools represents a significant shift in this cognitive distribution, "
+                    "potentially offloading internal problem-solving to external artifacts while introducing new coordination costs.")
+    text_parts.append("")
+
+    # Data Gap (Per T005/FR-009)
+    text_parts.append("## Data Gap and Limitations")
+    text_parts.append("")
+    text_parts.append("Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.")
+    text_parts.append("")
+    text_parts.append("Due to the observational nature of this study using public GitHub data, we could not collect self-reported cognitive load data. "
+                    "Consequently, we rely on behavioral proxies such as iteration count, review thread depth, and comment length as indicators of cognitive effort.")
+    text_parts.append("")
+
+    # Methodology Summary
+    text_parts.append("## Methodology")
+    text_parts.append("")
+    text_parts.append("We employed Generalized Linear Mixed Models (GLMM) with random intercepts for repositories to account for clustering effects. "
+                    "For zero-inflated outcomes (e.g., reverts), we utilized Zero-Inflated Negative Binomial (ZINB) models. "
+                    "Multiple-comparison corrections (Bonferroni) were applied to control for false discovery rates.")
+    text_parts.append("")
+
+    # Results
+    text_parts.append("## Results")
+    text_parts.append("")
+    
+    if analysis_results and "models" in analysis_results:
+        text_parts.append("### Primary Analysis: LLM Adoption Effects")
+        text_parts.append("")
+        text_parts.append("The following table summarizes the effect sizes (coefficients) of LLM adoption on various cognitive load proxies:")
+        text_parts.append("")
+        text_parts.append("| Proxy | Coefficient | Std. Error | P-Value | Adj. P-Value | Significant? |")
+        text_parts.append("| :--- | :--- | :--- | :--- | :--- | :--- |")
+        
+        for model_name, model_data in analysis_results.get("models", {}).items():
+            for proxy, stats in model_data.get("coefficients", {}).items():
+                if proxy == "intercept":
+                    continue
+                coef = stats.get("coef", 0)
+                std_err = stats.get("std_err", 0)
+                p_val = stats.get("p_value", 1.0)
+                adj_p_val = stats.get("adj_p_value", p_val)
+                sig = "Yes" if adj_p_val < 0.05 else "No"
+                text_parts.append(f"| {proxy} | {coef:.4f} | {std_err:.4f} | {p_val:.4f} | {adj_p_val:.4f} | {sig} |")
+        
+        text_parts.append("")
+        text_parts.append("**Null Hypothesis Status:** Based on the Bonferroni-corrected p-values, we [reject/fail to reject] the null hypothesis that LLM adoption has no effect on cognitive load proxies.")
+        text_parts.append("")
+    else:
+        text_parts.append("No analysis results available.")
+        text_parts.append("")
+
+    # Sensitivity Analysis
+    if sensitivity_results:
+        text_parts.append("### Sensitivity Analysis")
+        text_parts.append("")
+        text_parts.append("We performed a sensitivity analysis by sweeping the `iteration_count` threshold over a range of low integer values. "
+                        "The effect estimates remained [stable/unstable] across thresholds, suggesting [robustness/sensitivity] of our findings.")
+        text_parts.append("")
+    
+    # Signal Separation (New Section for T052)
+    if stratified_results:
+        text_parts.append("## Signal Separation: Distinguishing Tool Utility from AI Noise")
+        text_parts.append("")
+        text_parts.append("To address concerns regarding the conflation of 'fixing AI's mess' with 'solving the problem,' we conducted a stratified analysis based on the `diff_complexity_score`. "
+                        "Repos were split into 'High AI-Noise' (high diff complexity, likely fixing AI errors) and 'Low AI-Noise' groups.")
+        text_parts.append("")
+        
+        high_noise = stratified_results.get("High AI-Noise", {})
+        low_noise = stratified_results.get("Low AI-Noise", {})
+        
+        high_coef = high_noise.get("llm_adoption_coef", 0)
+        high_se = high_noise.get("llm_adoption_se", 0)
+        low_coef = low_noise.get("llm_adoption_coef", 0)
+        low_se = low_noise.get("llm_adoption_se", 0)
+        
+        text_parts.append(f"**High AI-Noise Group:** Coefficient = {high_coef:.4f} (SE = {high_se:.4f})")
+        text_parts.append(f"**Low AI-Noise Group:** Coefficient = {low_coef:.4f} (SE = {low_se:.4f})")
+        text_parts.append("")
+        
+        if abs(high_coef) > abs(low_coef):
+            text_parts.append("The effect size is larger in the High AI-Noise group, suggesting that a significant portion of the observed 'cognitive load' may be attributable to the effort of correcting AI-generated errors rather than the inherent complexity of the task.")
+        else:
+            text_parts.append("The effect sizes are comparable between groups, suggesting that LLM adoption impacts cognitive load even when controlling for 'AI noise' (fixing errors).")
+        
+        text_parts.append("")
+        text_parts.append("This stratification provides a methodological boundary, allowing us to distinguish between the tool's utility in problem-solving and the overhead introduced by AI-generated artifacts.")
+        text_parts.append("")
+
+    # Conclusion
+    text_parts.append("## Conclusion")
+    text_parts.append("")
+    text_parts.append("This study provides initial evidence regarding the association between LLM-based code completion and developer cognitive load proxies. "
+                    "While we observe [significant/non-significant] associations, the observational nature of the data and the reliance on proxy metrics limit causal inference. "
+                    "Future work should aim to incorporate self-report measures and physiological proxies to triangulate these findings.")
+    text_parts.append("")
+
+    return "\n".join(text_parts)
+
+def write_pdf_report(text: str, output_path: Path):
+    """Write the report text to a PDF file."""
+    # For this implementation, we will write a Markdown file as the primary artifact.
+    # Generating a true PDF requires additional dependencies (e.g., reportlab, weasyprint)
+    # which are not in the standard requirements. We will output the Markdown content
+    # which can be converted to PDF by external tools.
+    md_path = output_path.with_suffix('.md')
+    with open(md_path, 'w') as f:
+        f.write(text)
+    
+    logger.info(f"Report text saved to {md_path}")
+    
+    # Attempt to create a simple PDF if reportlab is available, otherwise just log
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet
+        
+        doc = SimpleDocTemplate(str(output_path), pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Simple text processing for PDF (very basic)
+        for line in text.split('\n'):
+            if line.startswith('# '):
+                story.append(Paragraph(line[2:], styles['Heading1']))
+            elif line.startswith('## '):
+                story.append(Paragraph(line[3:], styles['Heading2']))
+            elif line.startswith('### '):
+                story.append(Paragraph(line[4:], styles['Heading3']))
+            elif line:
+                story.append(Paragraph(line, styles['Normal']))
+            story.append(Spacer(1, 12))
+        
+        doc.build(story)
+        logger.info(f"PDF report generated at {output_path}")
+    except ImportError:
+        logger.warning("reportlab not installed. Skipping PDF generation. Markdown report available.")
+
+def run_report_pipeline():
     """Execute the full report generation pipeline."""
-    ensure_directories(output_dir)
+    logger.info("Starting report generation pipeline...")
+    
+    ensure_directories()
     
     # Load data
-    analysis_results = load_analysis_results(results_path)
-    sensitivity_results = load_sensitivity_results(sensitivity_path)
-    
-    # Generate visualizations
-    forest_plot_path = output_dir / 'figures' / 'forest_plot.png'
+    try:
+        analysis_results = load_analysis_results()
+        sensitivity_results = load_sensitivity_results()
+        stratified_results = load_stratified_results()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load required data: {e}")
+        return
+
+    # Generate plots
+    forest_plot_path = OUTPUT_DIR / "forest_plot.png"
     generate_forest_plot(analysis_results, forest_plot_path)
-    
-    sensitivity_plot_path = output_dir / 'figures' / 'sensitivity_analysis.png'
+
+    sensitivity_plot_path = OUTPUT_DIR / "sensitivity_plot.png"
     generate_sensitivity_plot(sensitivity_results, sensitivity_plot_path)
-    
-    # Generate report text
-    report_text_path = output_dir / 'final_report.md'
-    generate_report_text(analysis_results, sensitivity_results, report_text_path)
-    
-    logger.info("Report generation pipeline completed successfully.")
+
+    stratified_plot_path = OUTPUT_DIR / "stratified_plot.png"
+    generate_stratified_plot(stratified_results, stratified_plot_path)
+
+    # Generate text
+    report_text = generate_report_text(analysis_results, sensitivity_results, stratified_results)
+
+    # Write report
+    pdf_path = OUTPUT_DIR / "final_report.pdf"
+    write_pdf_report(report_text, pdf_path)
+
+    logger.info("Report generation pipeline completed.")
 
 def main():
-    """Main entry point for report generation."""
-    # Default paths
-    project_root = Path(__file__).parent.parent
-    results_path = project_root / 'data' / 'derived' / 'analysis_results.json'
-    sensitivity_path = project_root / 'data' / 'derived' / 'sensitivity_analysis.json'
-    output_dir = project_root / 'docs' / 'output'
-    
-    # Run pipeline
-    run_report_pipeline(results_path, sensitivity_path, output_dir)
+    run_report_pipeline()
 
 if __name__ == "__main__":
     main()

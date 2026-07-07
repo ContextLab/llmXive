@@ -67,7 +67,7 @@ def generate_synthetic_episode(n: int, embedding_dim: int) -> dict:
         "embedding": embedding
     }
 
-def build_faiss_index(epsisodes: list) -> tuple:
+def build_faiss_index(episodes: list) -> tuple:
     """
     Build FAISS HNSW index and measure memory usage.
     

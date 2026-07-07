@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure by executing `mkdir -p projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/{data/raw,data/processed,models,services,experiments,validation,utils,tests/unit,tests/integration,tests/contract,scripts}`
+- [X] T001 Create project structure by executing `mkdir -p projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/{data/raw,data/processed,models,services,experiments,validation,utils,tests/unit,tests/integration,tests/contract,scripts}`
 
 - [X] T002a [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/requirements.txt` with pinned versions for torch (CPU), transformers, faiss-cpu, scikit-learn, datasets, pandas, numpy, pytest, hydra-core, statsmodels. (Removed `streamlit` as it is not required by Spec/Plan).
 
@@ -93,7 +93,7 @@
 
 **Goal**: Implement a CPU-optimized neural episodic control module that stores (state, action, outcome) tuples with semantic embeddings and supports high-precision retrieval.
 
-**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU. [UNRESOLVED-CLAIM: c_50506279 — status=not_enough_info]
+**Independent Test**: Record 100 planning trajectories, store them, and verify top-5 retrieval precision ≥ 0.80 with cosine similarity ≥ 0.75 within 500ms on CPU. [UNRESOLVED-CLAIM: c_1112ddea — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -135,7 +135,7 @@
 
 **Goal**: Generate future planning scenarios by combining retrieved episodic memories with current state, ensuring coherence and statistical validity.
 
-**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8. [UNRESOLVED-CLAIM: c_60b64a45 — status=not_enough_info]
+**Independent Test**: Generate plans for 50 held-out tasks; measure accuracy against baseline; report effect size d≥0.8. [UNRESOLVED-CLAIM: c_dd2b2a55 — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -303,6 +303,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. No CUDA, no 8-bit quantization, no large LLMs.
+- **CPU Constraint**: All models and data processing MUST fit within 7GB RAM and run on 2 CPU cores. [UNRESOLVED-CLAIM: c_20d94457 — status=not_enough_info] No CUDA, no 8-bit quantization, no large LLMs.
 - **Data Integrity**: Use real ALFWorld/TextWorld datasets via official repositories. No synthetic/fake data generation for inputs.
 - **Reproducibility**: All evaluation metrics (including human evaluation) must be reproducible via deterministic recording of raw ratings and calculation of inter-rater reliability in CI.

@@ -1,0 +1,7 @@
+- id: validate-references
+  name: Validate References (Constitution Principle II)
+  description: Validates that plan.md references required design artifacts
+  entry: python -m utils.reference_validator
+  language: python
+  files: ^plan\.md$
+  pass_filenames: false

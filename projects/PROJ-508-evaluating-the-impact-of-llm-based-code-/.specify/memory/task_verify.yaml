@@ -1,8 +1,8 @@
 'T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**.': 2
-'T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->': 2
-T010 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`: 1
+T010 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`: 2
 ? 'T011 Initialize Python 3.11 project with `requirements.txt` dependencies: `pandas`,
   `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`'
-: 1
-T012 [P] Configure linting (ruff) and formatting (black) tools: 1
-T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic): 1
+: 2
+T012 [P] Configure linting (ruff) and formatting (black) tools: 2
+T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic): 2
+T015 Create `code/utils/config.py` for environment variables and API key handling: 1

@@ -1,77 +1,163 @@
+# Feature Extraction Schema for Emotional Synchrony Trust Study
+# Defines the structure of extracted features from video and audio modalities
+# Per FR-001: Schema must be static, versioned, and validated before analysis
+
 $schema: http://json-schema.org/draft-07/schema#
-title: Feature Extraction Schema
+title: FeatureExtractionSchema
 description: >
-  Static schema definition for the extracted features from facial and vocal
-  modalities. Used to validate the output of extract_facial.py and extract_vocal.py.
-  Based on FR-001 schema requirements.
+  Schema for extracted features from facial and vocal modalities.
+  Used to validate the output of extract_facial.py and extract_vocal.py.
+version: "1.0.0"
+
 type: object
 required:
   - metadata
   - features
+
 properties:
   metadata:
     type: object
+    description: Metadata about the feature extraction run
     required:
-      - version
-      - extraction_tool
-      - extraction_timestamp
-      - source_dataset_version
+      - extraction_id
+      - timestamp
+      - tool_versions
+      - input_dataset_id
     properties:
-      version:
+      extraction_id:
         type: string
-        description: Feature schema version
-      extraction_tool:
-        type: string
-        description: Tool used for extraction (e.g., "OpenFace", "Librosa")
-      extraction_timestamp:
+        description: Unique identifier for this extraction run
+        pattern: "^EXT-[0-9]{6}-[0-9]{4}$"
+      timestamp:
         type: string
         format: date-time
-        description: When features were extracted
-      source_dataset_version:
+        description: ISO 8601 timestamp of extraction completion
+      tool_versions:
+        type: object
+        description: Versions of tools used (OpenFace, librosa, etc.)
+        required:
+          - openface
+          - librosa
+        properties:
+          openface:
+            type: string
+            description: OpenFace version string
+          librosa:
+            type: string
+            description: librosa version string
+      input_dataset_id:
         type: string
-        description: Version of the source dataset
+        description: Reference to the dataset_id from dataset_schema.yaml
+        pattern: "^PROJ-344-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$"
+
   features:
     type: array
-    description: List of extracted feature records
+    description: List of extracted feature records per interaction
     items:
       type: object
       required:
         - interaction_id
-        - modality
-        - timestamp
-        - feature_vector
+        - facial_features
+        - vocal_features
+        - consistency_score
       properties:
         interaction_id:
           type: string
-          description: Links to the interaction in the dataset
-        modality:
-          type: string
-          enum: [facial, vocal]
-          description: Modality of the features
-        timestamp:
-          type: number
-          description: Timestamp relative to interaction start (seconds)
-        feature_vector:
-          type: array
-          items:
-            type: number
-          description: Numerical feature values
-        confidence_score:
+          description: Must match interaction_id in dataset_schema.yaml
+          pattern: "^INT-[0-9]{6}$"
+        facial_features:
+          type: object
+          description: Extracted facial features (OpenFace output)
+          required:
+            - action_units
+            - pose
+          properties:
+            action_units:
+              type: array
+              items:
+                type: object
+                required:
+                  - au_id
+                  - intensity
+                properties:
+                  au_id:
+                    type: integer
+                    minimum: 1
+                    maximum: 45
+                    description: Action Unit ID (e.g., 12 for Lip Corner Puller)
+                  intensity:
+                    type: number
+                    minimum: 0
+                    maximum: 5
+                    description: Intensity score (0-5 scale)
+            pose:
+              type: object
+              required:
+                - pitch
+                - yaw
+                - roll
+              properties:
+                pitch:
+                  type: number
+                yaw:
+                  type: number
+                roll:
+                  type: number
+        vocal_features:
+          type: object
+          description: Extracted vocal features (librosa output)
+          required:
+            - pitch
+            - energy
+            - tempo
+          properties:
+            pitch:
+              type: object
+              required:
+                - mean
+                - std
+              properties:
+                mean:
+                  type: number
+                  minimum: 0
+                  description: Mean fundamental frequency (Hz)
+                std:
+                  type: number
+                  minimum: 0
+                  description: Standard deviation of fundamental frequency
+            energy:
+              type: object
+              required:
+                - mean
+                - std
+              properties:
+                mean:
+                  type: number
+                  minimum: 0
+                  description: Mean RMS energy
+                std:
+                  type: number
+                  minimum: 0
+                  description: Standard deviation of RMS energy
+            tempo:
+              type: number
+              minimum: 0
+              description: Estimated beats per minute
+        consistency_score:
           type: number
           minimum: 0
           maximum: 1
-          description: Confidence score of the extraction (optional)
-        quality_metrics:
-          type: object
-          properties:
-            signal_to_noise_ratio:
-              type: number
-            frame_quality:
-              type: number
-            missing_data_ratio:
-              type: number
-        processing_status:
+          description: Normalized intra-modal consistency score (0=low, 1=high)
+        extraction_status:
           type: string
-          enum: [success, partial, failed]
-          description: Status of the feature extraction for this segment
+          enum:
+            - success
+            - partial
+            - failed
+          description: Status of the extraction for this interaction
+        error_message:
+          type: string
+          description: Error message if extraction failed or was partial
+          minLength: 0
+
 additionalProperties: false

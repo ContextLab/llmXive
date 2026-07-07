@@ -7,11 +7,18 @@
   tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested -->'
 : 1
-T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root: 2
-? T004 Create static schema definitions in `specs/001-emotional-synchrony-trust/contracts/dataset_schema.yaml`
-  and `contracts/feature_extraction_schema.yaml` based on FR-001 schema requirements
-: 2
+? 'T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/`
+  by executing `mkdir -p data/raw data/processed data/features code tests/contract
+  tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested -->'
+: 1
+? T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
+  against `contracts/dataset_schema.yaml`
+: 1
+? T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from
+  `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
+: 1
 ? T012c [P] [US1] Implement Controlled Data Collection Protocol by creating `code/data_collection.py`
   (survey interface, consent capture, anonymization pipeline) and `code/consent_form_template.md`
   as version-controlled artifacts per Constitution Principle VII and FR-001 fallback
-: 1
+: 2

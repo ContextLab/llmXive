@@ -45,7 +45,7 @@
 
 **⚠️ BLOCKING**: No other phase can begin until Phase 0 is complete and the spec artifact is updated.
 
-- [ ] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->
+- [X] T004 [US2] **Spec Update**: Update `spec.md` to add **FR-008** and **SC-008**. <!-- FAILED: unspecified -->
  - **FR-008 Text**: "The system MUST calculate `diff_complexity_score` = (lines_added + lines_deleted) / total_lines if lines_deleted > 0 else 0. It MUST flag 'AI Noise' if `diff_complexity_score` > 0.3 AND commit message contains 'fix', 'hotfix', or 'patch'."
  - **SC-008 Text**: "The analysis must produce a stratified result showing how the 'LLM Adoption' effect size changes when controlling for 'AI Noise' or when filtering for specific commit types."
  - **Rationale**: Authorizes the 'Signal Separation' analysis (Phase 7) to address Feynman's concern.
@@ -85,7 +85,7 @@
 - [ ] T012 [P] Configure linting (ruff) and formatting (black) tools
 - [X] T013 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
 - [ ] T014 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
-- [~] T015 Create `code/utils/config.py` for environment variables and API key handling
+- [ ] T015 Create `code/utils/config.py` for environment variables and API key handling
 - [~] T016 Setup `pytest` configuration and basic test scaffolding in `tests/`
 - [~] T017 Implement `code/utils/data_validation.py` for PII scanning and schema validation
 
@@ -181,7 +181,7 @@
  - **Include "Theoretical Grounding" section citing Holland (Per T005/FR-009)**
  - **Include "Data Gap" section stating NASA-TLX unavailability (Per T005/FR-009)**
  - **Include exact warning string: "Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available."**
-- [ ] T048 [US3] Generate `docs/output/final_report.pdf`
+- [~] T048 [US3] Generate `docs/output/final_report.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -195,14 +195,14 @@
 
 ### Implementation for Signal Separation
 
-- [ ] T049 [US2] **New Metric**: Implement `code/utils/metrics.py` function to calculate `diff_complexity_score`:
+- [~] T049 [US2] **New Metric**: Implement `code/utils/metrics.py` function to calculate `diff_complexity_score`:
  - **Formula**: `(lines_added + lines_deleted) / total_lines` if `lines_deleted > 0` else `0`.
  - **Flag Logic**: Flag "AI Noise" if `diff_complexity_score` > 0.3 AND commit message contains "fix", "hotfix", or "patch".
  - **Rationale**: Per updated `spec.md` FR-008 (Task T004).
-- [ ] T050 [US2] **Control Variable**: Add `diff_complexity_score` as a control variable in the GLMM/ZINB models (T034/T035) to isolate the pure "LLM Adoption" effect.
-- [ ] T051 [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI-Noise" (high diff complexity) and "Low AI-Noise" groups to compare effect sizes.
-- [ ] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results.
-- [ ] T053 [US3] **Data Flow Diagram**: Generate a diagram in `docs/output/` using Mermaid syntax illustrating the data flow and where "load" is inferred, explicitly marking the point where AI-generated code is conflated with human problem-solving.
+- [~] T050 [US2] **Control Variable**: Add `diff_complexity_score` as a control variable in the GLMM/ZINB models (T034/T035) to isolate the pure "LLM Adoption" effect.
+- [~] T051 [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI-Noise" (high diff complexity) and "Low AI-Noise" groups to compare effect sizes.
+- [~] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results.
+- [~] T053 [US3] **Data Flow Diagram**: Generate a diagram in `docs/output/` using Mermaid syntax illustrating the data flow and where "load" is inferred, explicitly marking the point where AI-generated code is conflated with human problem-solving.
  - **Nodes**: Repository, PR, Commit, Metric Calculation, GLMM, Report.
  - **Edges**: Data flow arrows, highlighting the `diff_complexity_score` calculation point.
 
@@ -214,9 +214,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T054 [P] Documentation updates in `docs/` (README, usage instructions)
-- [ ] T055 Code cleanup and refactoring
-- [ ] T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
+- [~] T054 [P] Documentation updates in `docs/` (README, usage instructions)
+- [~] T055 Code cleanup and refactoring
+- [~] T056 Performance optimization (ensure runtime < 6h on 2 CPU cores)
 - [ ] T057 [P] Run `pytest` suite and ensure [deferred] pass rate
 - [ ] T058 [P] Run quickstart.md validation
 - [ ] T059 [P] Verify `state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml` artifact hashes are updated

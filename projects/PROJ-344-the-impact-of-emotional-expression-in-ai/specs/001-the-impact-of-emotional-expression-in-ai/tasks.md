@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python project with pinned dependencies by generating `code/requirements.txt` containing pinned versions for openface, librosa, scikit-learn, statsmodels, pandas, matplotlib, seaborn, synthpop
-- [ ] T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root
+- [X] T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root
 
 ---
 
@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create static schema definitions in `specs/001-emotional-synchrony-trust/contracts/dataset_schema.yaml` and `contracts/feature_extraction_schema.yaml` based on FR-001 schema requirements
+- [X] T004 Create static schema definitions in `specs/001-emotional-synchrony-trust/contracts/dataset_schema.yaml` and `contracts/feature_extraction_schema.yaml` based on FR-001 schema requirements
 - [X] T005 Implement data validation logic in `code/config.py` and `code/validators.py` to enforce FR-001 (schema check, metadata presence)
 - [X] T006 Setup deterministic logging and state tracking by creating `state/` directory and `code/logging_config.py` with specific logging format
 - [X] T007 Implement error handling framework by creating `code/utils.py` with a `handle_corrupted_file()` function that logs to logger and returns None for specific error conditions (corrupted media, missing metadata)
@@ -75,8 +75,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` against `contracts/dataset_schema.yaml`
-- [~] T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
+- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` against `contracts/dataset_schema.yaml`
+- [ ] T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
 
 ### Implementation for User Story 1
 

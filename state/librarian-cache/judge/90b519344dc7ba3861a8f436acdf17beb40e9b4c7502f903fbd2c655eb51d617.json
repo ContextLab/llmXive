@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.02288",
+  "judged_at": "2026-07-07T01:28:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing a sustainable solar-powered hydrogen fuel production system energy",
+  "rationale": "The paper studies the loss of hydrogen from Venus's atmosphere due to solar radiation, which is the opposite of the user's goal to produce and retain hydrogen fuel on Earth; it addresses a distinct planetary science construct (atmospheric escape) rather than the engineering mechanism for sustainable hydrogen production, failing all inclusion criteria (a-f) and falling under the \"distinct construct\" rejection rule.",
+  "relevant": false
+}

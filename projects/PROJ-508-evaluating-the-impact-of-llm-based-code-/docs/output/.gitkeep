@@ -1,9 +1,2 @@
-# Output Directory
-This directory is reserved for generated artifacts, specifically the final report (`final_report.pdf`), data flow diagrams, and other documentation outputs produced by the `code/report.py` pipeline.
-
-Do not commit generated files here in a production environment; instead, ensure they are listed in `.gitignore`.
-
-Artifacts generated here:
-- `final_report.pdf` (Task T048)
-- Data flow diagrams (Task T053)
-- Sensitivity analysis plots (Task T046)
+# This directory stores generated reports and figures.
+# Files in this directory are generated and should not be committed to the repository.

@@ -1,0 +1,58 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e1f5fe', 'edgeLabelBackground': '#ffffff', 'tertiaryColor': '#fffde7'}}}%%
+flowchart TD
+    subgraph Input ["Input Sources"]
+        Repo["Repository (GitHub)"]
+        PR["Pull Request Metadata"]
+        Commit["Commit History & Diffs"]
+    end
+
+    subgraph Processing ["Data Processing & Metrics"]
+        direction TB
+        Ingest["Ingestion (code/ingest.py)"]
+        Metrics["Metric Calculation (code/utils/metrics.py)"]
+        
+        subgraph LoadInference ["Cognitive Load Inference"]
+            Iteration["Iteration Count (PR Push Events)"]
+            Comment["Avg Comment Length"]
+            Review["Review Thread Depth"]
+            DiffComplex["Diff Complexity Score"]
+            AI_Noise["AI Noise Flag"]
+        end
+
+        Analysis["Statistical Analysis (code/analyze.py)"]
+        GLMM["GLMM / ZINB Models"]
+    end
+
+    subgraph Output ["Outputs"]
+        Report["Final Report (docs/output/final_report.pdf)"]
+        Diagram["This Diagram (docs/output/data_flow_diagram.mmd)"]
+    end
+
+    Repo -->|Fetch Data| Ingest
+    PR -->|Fetch Data| Ingest
+    Commit -->|Fetch Data| Ingest
+
+    Ingest -->|Raw Data| Metrics
+    
+    Metrics -->|Calculate| Iteration
+    Metrics -->|Calculate| Comment
+    Metrics -->|Calculate| Review
+    
+    subgraph ConflationPoint ["⚠️ CONFLATION POINT"]
+        DiffComplex -->|Input| AI_Noise
+        AI_Noise -->|Flagged if >0.3 & 'fix' msg| LoadInference
+        note1["<b>Warning:</b> At this junction, the metric <code>diff_complexity_score</code> (lines added/deleted) is used as a proxy for cognitive load. However, high values may represent 'AI Noise' (fixing LLM errors) rather than 'Human Problem Solving'. The model cannot inherently distinguish the source of the load without the 'AI Noise' flag stratification."]
+    end
+
+    Iteration --> Analysis
+    Comment --> Analysis
+    Review --> Analysis
+    DiffComplex -->|Control Variable| Analysis
+    AI_Noise -->|Stratification Factor| Analysis
+
+    Analysis -->|Coefficients, SE, p-values| GLMM
+    GLMM -->|Effect Sizes| Report
+    Report -->|Visualizes| Diagram
+
+    style ConflationPoint fill:#ffebee,stroke:#b71c1c,stroke-width:2px
+    style note1 fill:#fff3e0,stroke:#ef6c00,stroke-width:1px,stroke-dasharray: 5 5

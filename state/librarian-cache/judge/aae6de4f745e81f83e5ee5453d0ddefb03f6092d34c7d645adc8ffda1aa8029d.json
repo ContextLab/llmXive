@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.03564",
+  "judged_at": "2026-07-07T01:28:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing a sustainable solar-powered hydrogen fuel production system energy",
+  "rationale": "This paper directly addresses the user's question by providing a specific technical implementation of a \"solar-powered hydrogen fuel production system\" using photoelectrochemical (PEC) water splitting, which satisfies acceptance criteria (a) for measuring the same biological/physical mechanism and (b) for addressing the independent variable (solar energy) and dependent variable (hydrogen production) within the user's domain.",
+  "relevant": true
+}

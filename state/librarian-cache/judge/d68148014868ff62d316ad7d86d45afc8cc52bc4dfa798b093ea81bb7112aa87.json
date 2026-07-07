@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.10579",
+  "judged_at": "2026-07-07T01:28:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing a sustainable solar-powered hydrogen fuel production system energy",
+  "rationale": "The paper focuses on using Graph Neural Networks for pressure estimation in water distribution networks, which is an off-domain application unrelated to the user's question about sustainable solar-powered hydrogen fuel production systems. It shares no measurable connection to the user's mechanism (solar energy conversion, electrolysis), variables (hydrogen yield, solar efficiency), or empirical setting (energy systems), failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely",
+  "relevant": false
+}

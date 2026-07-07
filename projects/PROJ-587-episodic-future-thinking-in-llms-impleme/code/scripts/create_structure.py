@@ -1,19 +1,15 @@
-"""
-Script to initialize the project directory structure for PROJ-587.
-This script creates the necessary folders for data, models, services, experiments,
-validation, utils, and tests as defined in the project plan.
-"""
 import os
 from pathlib import Path
 
 def main():
-    # Define the project root relative to the script location or current working directory
-    # The task specifies paths relative to project root, assuming this runs from project root
-    project_root = Path(".")
-    code_dir = project_root / "code"
+    """
+    Creates the standard project directory structure for PROJ-587.
+    This ensures all required folders for data, models, services, and tests exist.
+    """
+    project_root = Path("projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code")
     
-    # Define the directory structure to create
-    dirs_to_create = [
+    # Define the directory structure relative to the project root
+    directories = [
         "data/raw",
         "data/processed",
         "models",
@@ -28,17 +24,17 @@ def main():
     ]
     
     created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = code_dir / dir_path
+    for dir_path in directories:
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Exists: {full_path}")
+            print(f"Directory already exists: {full_path}")
     
-    print(f"\nDirectory initialization complete. Created {created_count} new directories.")
-    print(f"Base directory: {code_dir.resolve()}")
+    print(f"\nProject structure setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
     main()

@@ -12,7 +12,7 @@
   "failures": [
     "python code/reproducibility/checksum_generator.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/code/reproducibility/checksum_generator.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 1,
-  "updated_at": "2026-07-05T04:33:27Z"
+  "updated_at": "2026-07-07T01:03:57Z"
 }
