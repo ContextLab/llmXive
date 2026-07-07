@@ -1,0 +1,19 @@
+T001 Create project structure per implementation plan (`projects/PROJ-727-assessing-energy-consumption-of-llm-infe/`): 2
+? T002 Initialize Python 3.10+ project with `requirements.txt` (transformers, torch-cpu,
+  codecarbon, pandas, numpy, scipy, statsmodels, matplotlib, seaborn, human-eval,
+  huggingface_hub)
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+? 'T004 Create `code/config.py` with constants: seeds, model IDs (GPT2-small, CodeBERT,
+  StarCoder-1B), parameter counts, max tokens, temperature=0.0. Ensure data/raw/ directory
+  exists.'
+: 2
+? T005a [AMEND] Update `spec.md` (FR-001, US-1) and `plan.md` to explicitly replace
+  'StarCoder-base' with 'StarCoder-1B' and authorize this substitution due to RAM
+  constraints. Ensure the spec text is updated BEFORE any code implementation begins
+  (FR-001, Plan Feasibility Note).
+: 2
+? T006 Create `code/calibration.py` implementing a CPU-bound load loop (not matrix
+  multiply) to validate `codecarbon` power draw detection. The script must exit with
+  code 1 or raise an exception if deviation > 10% (FR-010).
+: 1

@@ -1,0 +1,392 @@
+resolved_at: '2026-07-07T09:27:11.970883+00:00'
+datasets:
+- intent: GPT-2-small
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-1000-64-16-jinaai_jina-embeddings-v2-small-en-10-gpt-4-turbo-0_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-1000-64-16-jinaai_jina-embeddings-v2-small-en-1000-gpt-3.5-tur_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-20-0-16-jinaai_jina-embeddings-v2-small-en-1000-gpt-4-turbo-01_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 116866
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-1000-64-16-jinaai_jina-embeddings-v2-small-en-10-gpt-4-turbo-0_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-1000-64-16-jinaai_jina-embeddings-v2-small-en-1000-gpt-3.5-tur_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/florianhoenicke/medical-20-0-16-jinaai_jina-embeddings-v2-small-en-1000-gpt-4-turbo-01_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/florian-hoenicke/medical-20-0-16-jinaai_jina-embeddings-v2-small-en-100-gpt-3.5-turbo-0_9062874564/resolve/main/samples.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/CausalNLP/gpt2small_training_data/resolve/main/data/arb_Arab-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Height_does_not_impair_the_hydraulic_system_of_the_tallest_tropical_Dipterocarp_trees/32922032
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/YOLOViT-Dataset/32922008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_2/32920310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Luxury_Interior_Designer_in_Ghaziabad/32922098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19651903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14894792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4275046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14894825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18329229
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234463
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234463
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21231976
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21232697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: StarCoder
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/codeparrot/self-instruct-starcoder/resolve/main/data/compile-00000-of-00001-1fea61652fe524d2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/philschmid/starcoder-tokenized-test/resolve/main/data/train-00000-of-00005-4a3aeed777231ad0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/edward-io/starcoderdata-repo/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bigcode/starcoderdata/resolve/main/ada/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/codeparrot/self-instruct-starcoder/resolve/main/data/compile-00000-of-00001-1fea61652fe524d2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/edward-io/starcoderdata-repo/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/philschmid/starcoder-tokenized-test/resolve/main/data/train-00000-of-00005-4a3aeed777231ad0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Height_does_not_impair_the_hydraulic_system_of_the_tallest_tropical_Dipterocarp_trees/32922032
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10447705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17222031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10572275
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19851380
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11096391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchrepository.ul.ie/entities/publication/221e8475-686d-4cf6-af18-4976404edaff
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''researchrepository.ul.ie'', port=443): Max
+      retries exceeded with url: /entities/publication/221e8475-686d-4cf6-af18-4976404edaff
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''researchrepository.ul.ie'',
+      port=443) at 0x7f024ba19cd0>, ''Connection to researchrepository.ul.ie timed
+      out. (connect timeout=20)''))'
+  - url: https://arxiv.org/abs/2606.28962
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.19672161
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://underline.io/lecture/95626-hierarchynet-learning-to-summarize-source-code-with-heterogeneous-representations
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2411.19099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HumanEval
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 83920
+      parsed: true
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/standard_humaneval/resolve/main/HumanEval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Height_does_not_impair_the_hydraulic_system_of_the_tallest_tropical_Dipterocarp_trees/32922032
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15554034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10530787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19237762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28998
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.03236
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02668
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02520
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.09072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2311.10090
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

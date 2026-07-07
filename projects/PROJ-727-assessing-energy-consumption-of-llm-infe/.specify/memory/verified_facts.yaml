@@ -1,0 +1,11 @@
+'|base codebert':
+  quote: total number of model parameters is 125M.
+  source_id: '2002.08155'
+  url: https://arxiv.org/abs/2002.08155
+  value: 125M
+'|humaneval':
+  quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems, collected
+    from various online educational websites.'
+  source_id: Language model benchmark
+  url: https://en.wikipedia.org/wiki/Language_model_benchmark
+  value: '164'

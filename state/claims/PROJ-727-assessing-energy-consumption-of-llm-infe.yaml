@@ -1,0 +1,165 @@
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/README.md
+  attempts: 1
+  canonical: Energy consumption assessed for GPT-2-small, CodeBERT, and StarCoder-1B
+    on HumanEval dataset using CPU-only inference
+  claim_id: c_7774cdaa
+  context: This project assesses the energy consumption of running LLMs (GPT-2-small,
+    CodeBERT, StarCoder-1B) on the HumanEval dataset using CPU-only inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project assesses the energy consumption of running LLMs (GPT-2-small,
+    CodeBERT, StarCoder-1B) on the HumanEval dataset using CPU-only inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:47:54Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/spec.md
+  attempts: 1
+  canonical: energy consumption and runtime of GPT-2-small, CodeBERT, and StarCoder-1B
+    on HumanEval
+  claim_id: c_94082306
+  context: Overview section describing the project goal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project quantifies the energy consumption (kWh) and runtime of three
+    code completion models (GPT-2-small, CodeBERT, StarCoder-1B) when executing inference
+    on the HumanEval dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:50:42Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/spec.md
+  attempts: 1
+  canonical: GPT-2-small has 117 million parameters
+  claim_id: c_8e62a02e
+  context: Constraints section listing model specifications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-2-small (117M params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:51:05Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/spec.md
+  attempts: 1
+  canonical: CodeBERT-base has 125 million parameters
+  claim_id: c_0ece21ae
+  context: Constraints section listing model specifications.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: total number of model parameters is 125M.
+      source_id: '2002.08155'
+      url: https://arxiv.org/abs/2002.08155
+      value: 125M
+    filled: true
+  kind: numeric
+  raw_text: CodeBERT-base (125M params)
+  resolved_value: 125M
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T09:51:29Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/spec.md
+  attempts: 1
+  canonical: StarCoder-1B has 1.1 billion parameters
+  claim_id: c_9beecebf
+  context: Constraints section listing model specifications.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: StarCoder-1B (1.1B params)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:51:55Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/spec.md
+  attempts: 1
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_889487d0
+  context: Constraints section listing the dataset used.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: HumanEval (164 problems).
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T09:52:02Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/plan.md
+  attempts: 1
+  canonical: Standard CI runners provide 7GB-14GB RAM
+  claim_id: c_c408f5dc
+  context: 'RAM Constraints: Standard CI runners (e.g., GitHub Actions) typically
+    provide 7GB-14GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standard_CI_runners_provide_7GB-14GB_RAM
+  kind: entity_fact
+  raw_text: Standard CI runners (e.g., GitHub Actions) typically provide 7GB-14GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:52:36Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/plan.md
+  attempts: 1
+  canonical: GPT-2-small and CodeBERT are approximately 500MB
+  claim_id: c_4c0d3695
+  context: 'Model Selection: GPT-2-small (~500MB) and CodeBERT (~500MB) are safe.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-2-small (~500MB) and CodeBERT (~500MB) are safe.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T09:52:48Z'
+- artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/plan.md
+  attempts: 1
+  canonical: StarCoder-1B is approximately 2-3GB in FP32 and 1.5GB in FP16
+  claim_id: c_37fbffba
+  context: StarCoder-1B (approx. 2-3GB in FP32, ~1.5GB in FP16) is the largest viable
+    model.
+  evidence:
+    entailment_evidence: StarCoder-1B is approximately 2-3GB in FP32 and 1.5GB in
+      FP1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/StarCoder-1B_is_approximately_2-3GB_in_FP32_and_1.5GB_in_FP1
+  kind: magnitude
+  raw_text: StarCoder-1B (approx. 2-3GB in FP32, ~1.5GB in FP16) is the largest viable
+    model.
+  resolved_value: StarCoder-1B is approximately 2-3GB in FP32 and 1.5GB in FP16
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T09:52:50Z'

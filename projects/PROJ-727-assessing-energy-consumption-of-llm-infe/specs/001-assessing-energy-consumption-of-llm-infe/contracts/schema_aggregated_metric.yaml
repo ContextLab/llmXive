@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "AggregatedMetric Schema"
+description: "Schema for summary statistics per model"
+properties:
+  model_id:
+    type: string
+    description: "Identifier of the model"
+  mean_energy_per_token:
+    type: ["number", "null"]
+    description: "Average Joules/token (calculated from valid rows)"
+  std_energy_per_token:
+    type: ["number", "null"]
+    description: "Standard deviation of energy per token"
+  accuracy_pass_rate:
+    type: number
+    description: "Percentage of problems solved (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+  total_energy_kwh:
+    type: number
+    description: "Total energy consumed for the model run"
+    minimum: 0.0
+required:
+  - model_id
+  - mean_energy_per_token
+  - std_energy_per_token
+  - accuracy_pass_rate
+  - total_energy_kwh
+additionalProperties: false
