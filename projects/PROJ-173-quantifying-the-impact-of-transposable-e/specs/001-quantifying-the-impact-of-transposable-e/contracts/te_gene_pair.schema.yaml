@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  te_id:
+    type: string
+    description: "Unique identifier for the Transposable Element"
+  gene_id:
+    type: string
+    description: "Unique identifier for the Gene"
+  effect_size:
+    type: number
+    description: "Coefficient of TE_presence (log2-fold change)"
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval"
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval"
+  p_value:
+    type: number
+    description: "Unadjusted p-value from linear model"
+  adj_p_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value"
+  vif_flag:
+    type: boolean
+    description: "True if Variance Inflation Factor > 5"
+  proximity_flag:
+    type: boolean
+    description: "True if TE is not within 5kb of gene"
+  ambiguous_flag:
+    type: boolean
+    description: "True if TE overlaps multiple genes"
+  significance_status:
+    type: string
+    enum:
+      - "significant"
+      - "null"
+    description: "Status based on adj_p_value < 0.05"
+required:
+  - te_id
+  - gene_id
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - p_value
+  - adj_p_value
+  - vif_flag
+  - proximity_flag
+  - ambiguous_flag
+  - significance_status
+additionalProperties: false

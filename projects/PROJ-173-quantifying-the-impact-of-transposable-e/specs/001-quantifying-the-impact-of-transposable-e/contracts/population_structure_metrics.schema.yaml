@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  gene_id:
+    type: string
+    description: "Unique identifier for the Gene"
+  r2_with_pc:
+    type: number
+    description: "R-squared of the model including population PCs"
+  r2_without_pc:
+    type: number
+    description: "R-squared of the model excluding population PCs"
+  r2_reduction:
+    type: number
+    description: "Difference: r2_without_pc - r2_with_pc"
+required:
+  - gene_id
+  - r2_with_pc
+  - r2_without_pc
+  - r2_reduction
+additionalProperties: false

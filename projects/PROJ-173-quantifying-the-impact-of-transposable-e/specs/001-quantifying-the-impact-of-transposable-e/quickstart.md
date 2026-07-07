@@ -2,82 +2,69 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Git
+- Python 3.10 or higher
+- pip
+- git
 
 ## Installation
 
-1. **Clone the repository**  
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-173-quantifying-the-impact-of-transposable-e
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-173-quantifying-the-impact-of-transposable-e
+    ```
 
-2. **Create and activate a virtual environment**  
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**  
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-## Running the Pipeline (Mock Mode)
+## Running the Pipeline
 
-Because no verified public DGRP TE‑genotype + TE‑aware expression dataset exists, the pipeline ships with a **Mock Mode** for CI testing.
+The pipeline consists of three main steps: Data Generation, Association Analysis, and Permutation Testing.
 
-1. **Generate Mock Data** (synthetic but schema‑compliant)  
-   ```bash
-   python src/cli.py generate-mock --n-lines 50 --n-pairs 500 --seed 42
-   ```
-   *Creates `data/raw/mock/` with genotype, FASTQ (empty placeholders), GTF, and a TE‑aware expression matrix.*
-
-2. **Execute the Full Analysis**  
-   ```bash
-   python src/cli.py run --mode mock
-   ```
-   This runs:
-   - PCA computation  
-   - TE‑aware quantification (mock step)  
-   - TE‑gene pairing, monomorphic & power filtering  
-   - Linear models with VIF & BH correction  
-   - Freedman‑Lane permutation (100 iters) and null‑distribution plot  
-   - R² reduction metric (SC‑004)  
-   - Replication (if a second mock dataset is supplied)  
-
-3. **Inspect Results**  
-   - `results/associations.csv` – final association table (includes `vif_flag`, `ambiguous_flag`, `power_flag`).  
-   - `results/plots/null_distribution.png` – permutation null plot with observed statistic line and 95 % threshold.  
-   - `results/population_structure_control.csv` – R² reduction metric.  
-   - `results/replication/comparison.tsv` – replication comparison (if applicable).
-
-## Running with Real Data (When Available)
-
-If you obtain a verified DGRP VCF with TE calls **and** TE‑aware RNA‑seq quantifications:
-
-1. Place the files under `data/raw/` (e.g., `genotypes.vcf`, `expression_TEaware.tsv`, `genes.gtf`).  
-2. Edit `config.yaml`:
-   ```yaml
-   data:
-     genotypes_path: "data/raw/genotypes.vcf"
-     expression_path: "data/raw/expression_TEaware.tsv"
-     gene_models_path: "data/raw/genes.gtf"
-     use_mock: false
-   ```
-3. Run the pipeline:
-   ```bash
-   python src/cli.py run
-   ```
-
-## Verification
-
-Run the contract tests to ensure all outputs conform to the schemas:
-
+### Step 1: Generate Mock Data
+Generates synthetic TE genotypes, gene expression, and population PCs.
 ```bash
-pytest tests/test_contracts.py
+python code/main.py generate-data --lines 100 --output data/mock/
+```
+*Output*: `data/mock/te_genotypes.csv`, `data/mock/gene_expression.csv`, `data/mock/population_pcs.csv`.
+
+### Step 2: Run Association Analysis
+Fits linear models, calculates VIF, applies FDR correction, and outputs results.
+```bash
+python code/main.py run-association --input data/mock/ --output data/results/
+```
+*Output*: `data/results/association_results.csv`, `data/results/population_structure_metrics.csv`.
+
+### Step 3: Run Permutation Testing
+Performs 1000 Freedman-Lane permutations for significant pairs.
+```bash
+python code/main.py run-permutation --input data/results/association_results.csv --output data/results/ --iterations 1000
+```
+*Output*: `data/results/permutation_results.csv`, `data/results/null_distribution_plot.png`.
+
+### Step 4: Run Replication (Optional)
+Tests significant pairs on a second mock dataset.
+```bash
+python code/main.py run-replication --primary data/results/association_results.csv --secondary data/mock/secondary/ --output data/results/
 ```
 
-**Important:** Until a public, verified dataset containing both TE genotypes and TE‑aware expression becomes available, the pipeline can only demonstrate methodology on mock data. The scientific conclusions about TE impact on *Drosophila* gene expression will require real data.
+## Validation
+
+Run the test suite to ensure all contract schemas are met:
+```bash
+pytest tests/contract/
+```
+
+## Troubleshooting
+
+- **Memory Error**: Reduce `--lines` in `generate-data` or `--iterations` in `run-permutation`.
+- **Timeout**: If permutation exceeds 6 hours, reduce `--iterations` to 500.
+- **Missing Data**: The pipeline automatically excludes lines with missing expression values.

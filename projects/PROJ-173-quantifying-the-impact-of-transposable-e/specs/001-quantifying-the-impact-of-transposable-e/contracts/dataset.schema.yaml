@@ -15,9 +15,14 @@ properties:
       seed:
         type: "integer"
         description: "Random seed used for generation"
+      quantification_method:
+        type: "string"
+        enum: ["TEaware", "Standard"]
+        description: "Must be 'TEaware' to satisfy Principle VII"
     required:
       - source
       - generated_at
+      - quantification_method
   genotypes:
     type: "array"
     description: "TE presence/absence per sample"
@@ -71,14 +76,10 @@ properties:
         tissue:
           type: "string"
           description: "Tissue type (for replication)"
-        quantification_method:
-          type: "string"
-          description: "Must be 'TEaware' to satisfy Principle VII"
       required:
         - sample_id
         - gene_id
         - expression_value
-        - quantification_method
   gene_models:
     type: "array"
     description: "Gene coordinates"

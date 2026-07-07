@@ -2,68 +2,110 @@
 
 ## Overview
 
-Defines all data artifacts produced and consumed by the pipeline. Every output must validate against a schema in `contracts/`. The pipeline follows a strict **raw → processed → derived** flow.
+This document defines the data structures, schemas, and transformations used in the project. All data is generated synthetically or derived from synthetic inputs. The model is designed to be lightweight, fitting within the memory constraints of a GitHub Actions free-tier runner.
 
-## Input Data
+## Key Entities
 
-### 1. Genotype Data (VCF‑derived CSV)
-* `sample_id`, `te_id`, `te_family`, `chromosome`, `position`, `presence` (0/1), `frequency`.
+### 1. TE Insertion
+Represents a Transposable Element insertion site and its genotype across lines.
 
-### 2. Expression Data (TE‑aware TPM matrix)
-* `sample_id`, `gene_id`, `expression_value` (TPM or log₂(TPM+1)), `tissue`, `quantification_method` **must be `"TEaware"`**.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `te_id` | string | Unique identifier (e.g., `TE_001`). |
+| `chromosome` | string | Chromosome name (e.g., `2L`, `3R`). |
+| `start` | integer | Genomic start coordinate. |
+| `end` | integer | Genomic end coordinate. |
+| `family` | string | TE family (e.g., `P-element`, `copia`). |
+| `frequency` | float | Presence frequency across lines (0.0 - 1.0). |
+| `monomorphic` | boolean | True if frequency < 0.05 or > 0.95. |
 
-### 3. Gene Models (Release 6 GTF)
-* `gene_id`, `chromosome`, `strand`, `start`, `end`, `tss`, `tes`.
+### 2. Gene
+Represents a protein-coding gene.
 
-## Processed Data
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `gene_id` | string | Gene identifier (e.g., `FBgn000001`). |
+| `chromosome` | string | Chromosome name. |
+| `start` | integer | Transcription start site (TSS). |
+| `end` | integer | Transcription end site (TES). |
+| `strand` | string | `+` or `-`. |
+| `symbol` | string | Gene symbol (e.g., `Act5C`). |
 
-### 1. PCA Matrix
-* `sample_id`, `PC1`, `PC2`, `PC3`.
+### 3. Line
+Represents a DGRP line (sample).
 
-### 2. TE‑Gene Pairs
-* `te_id`, `gene_id`, `distance_bp`, `proximal_flag` (bool), `ambiguous_flag` (bool), `mac` (minor allele count), `power_flag` (bool, true if MAC ≥ 5).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `line_id` | string | Line identifier (e.g., `DGRP_001`). |
+| `pc1` | float | Principal Component 1. |
+| `pc2` | float | Principal Component 2. |
+| `pc3` | float | Principal Component 3. |
 
-### 3. Association Results
-* `te_id`, `gene_id`, `effect_size`, `ci_lower`, `ci_upper`, `p_value`, `adj_p_value`, `vif`, `vif_flag`, `fdr_significant`.
+### 4. TE-Gene Pair
+The core unit of analysis, linking a TE to a proximal gene.
 
-### 4. Population Structure Control Metric
-* `r_squared_with_pcs`, `r_squared_without_pcs`, `reduction`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `te_id` | string | FK to TE Insertion. |
+| `gene_id` | string | FK to Gene. |
+| `distance_bp` | integer | Distance from TE to gene TSS/TES (negative if upstream). |
+| `proximal` | boolean | True if `|distance_bp| <= 5000`. |
+| `ambiguous` | boolean | True if TE overlaps multiple genes. |
 
-### 5. Permutation Summary
-* `n_permutations`, `observed_t_stat`, `null_95th_percentile`, `exceeds_null`.
+### 5. Expression Matrix
+Gene expression values per line.
 
-### 6. Replication Summary
-* `total_tested`, `concordant_count`, `concordance_rate`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `line_id` | string | FK to Line. |
+| `gene_id` | string | FK to Gene. |
+| `tpm` | float | Transcripts Per Million. |
+| `log2_tpm` | float | Log2 transformed TPM (with offset). |
+| `missing` | boolean | True if data is missing for this line/gene. |
 
-## Output Data
+### 6. Association Result
+Output of the linear model analysis.
 
-### 1. Final Association Table (`results/associations.csv`)
-* All fields from **Association Results** plus `distance_bp`, `proximal_flag`, `ambiguous_flag`, `mac`, `power_flag`, `null_statistic_95th`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `te_id` | string | TE identifier. |
+| `gene_id` | string | Gene identifier. |
+| `effect_size` | float | Coefficient of TE_presence. |
+| `ci_lower` | float | Lower bound of 95% CI. |
+| `ci_upper` | float | Upper bound of 95% CI. |
+| `p_value` | float | Unadjusted p-value. |
+| `adj_p_value` | float | Benjamini-Hochberg adjusted p-value. |
+| `vif_flag` | boolean | True if VIF > 5. |
+| `proximity_flag` | boolean | True if not proximal. |
+| `ambiguous_flag` | boolean | True if ambiguous. |
+| `significance_status` | string | `significant` or `null`. |
 
-### 2. Null Distribution Plot (`results/plots/null_distribution.png`)
-* Histogram of null t‑statistics with observed statistic vertical line and 95th‑percentile threshold line.
+### 7. Population Structure Metrics
+Efficacy of PC control.
 
-### 3. Population Structure Control Table (`results/population_structure_control.csv`)
-* Columns: `r_squared_with_pcs`, `r_squared_without_pcs`, `reduction`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `gene_id` | string | Gene identifier. |
+| `r2_with_pc` | float | R² of model with PCs. |
+| `r2_without_pc` | float | R² of model without PCs. |
+| `r2_reduction` | float | `r2_without_pc - r2_with_pc`. |
 
-### 4. Replication Comparison Table (`results/replication/comparison.tsv`)
-* `te_id`, `gene_id`, `orig_effect`, `rep_effect`, `direction_concordant`, `rep_p_value`.
+### 8. Permutation Result
+Null distribution statistics.
 
-### 5. Burden Test Results (optional) (`results/burden_analysis.tsv`)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `te_id` | string | TE identifier. |
+| `gene_id` | string | Gene identifier. |
+| `observed_t` | float | Observed t-statistic. |
+| `null_95th` | float | 95th percentile of null distribution. |
+| `perm_p_value` | float | Proportion of null t > observed t. |
 
-## Data Flow Diagram
+## Data Flow
 
-```mermaid
-graph TD
-    A[Raw Genotypes] -->|PCA| B[PC Matrix]
-    C[Raw FASTQ] -->|TEtranscripts| D[TE‑aware Expression]
-    E[Gene Models] -->|Pairing| F[TE‑Gene Pairs]
-    B --> G[Linear Model]
-    D --> G
-    F --> G
-    G --> H[Association Results]
-    H -->|BH| I[Significant Pairs]
-    H -->|Permutation| J[Null Distribution]
-    I --> K[Replication]
-    K --> L[Final Report]
-```
+1.  **Generation**: `data_generator.py` creates `TE Insertion`, `Gene`, `Line`, and `Expression Matrix` (Mock).
+2.  **Pairing**: `association.py` joins TE and Gene to create `TE-Gene Pair` (filtering by proximity and monomorphism).
+3.  **Analysis**: `association.py` fits models, calculates VIF, and generates `Association Result`.
+4.  **Correction**: `association.py` applies BH correction.
+5.  **Permutation**: `permutation.py` generates `Permutation Result` for significant pairs.
+6.  **Replication**: `replication.py` compares Primary and Secondary results.

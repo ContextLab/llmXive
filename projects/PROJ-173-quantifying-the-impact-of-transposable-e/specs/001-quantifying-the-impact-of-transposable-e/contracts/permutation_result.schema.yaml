@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  te_id:
+    type: string
+    description: "Unique identifier for the Transposable Element"
+  gene_id:
+    type: string
+    description: "Unique identifier for the Gene"
+  observed_t:
+    type: number
+    description: "Observed t-statistic for TE_presence"
+  null_95th:
+    type: number
+    description: "95th percentile of the null distribution"
+  perm_p_value:
+    type: number
+    description: "Proportion of null t-statistics >= observed_t"
+  iterations_completed:
+    type: integer
+    description: "Number of permutation iterations completed"
+required:
+  - te_id
+  - gene_id
+  - observed_t
+  - null_95th
+  - perm_p_value
+  - iterations_completed
+additionalProperties: false

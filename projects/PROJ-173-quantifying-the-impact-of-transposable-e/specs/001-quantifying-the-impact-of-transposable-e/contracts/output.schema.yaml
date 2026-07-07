@@ -89,11 +89,15 @@ properties:
         type: "number"
       exceeds_null:
         type: "boolean"
+      iterations_completed:
+        type: "integer"
+        description: "Actual number of iterations completed (may be reduced if time limit approached)"
     required:
       - n_permutations
       - observed_t_stat
       - null_95th_percentile
       - exceeds_null
+      - iterations_completed
   replication_summary:
     type: "object"
     description: "Replication results"
@@ -104,10 +108,15 @@ properties:
         type: "integer"
       concordance_rate:
         type: "number"
+      scenario:
+        type: "string"
+        enum: ["signal_replication", "null_replication"]
+        description: "Scenario used for binomial test null hypothesis"
     required:
       - total_tested
       - concordant_count
       - concordance_rate
+      - scenario
 required:
   - associations
   - population_structure_control

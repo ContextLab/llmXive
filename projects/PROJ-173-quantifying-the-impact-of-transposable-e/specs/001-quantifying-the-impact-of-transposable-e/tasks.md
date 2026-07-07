@@ -44,64 +44,64 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-173-quantifying-the-impact-of-transposable-e/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (pandas, scikit-learn, statsmodels, vcfpy, numpy, scipy, requests, biopython, pyyaml, lxml)
+- [ ] T002 Initialize Python project with `requirements.txt` (pandas, scikit-learn, statsmodels, numpy, scipy, requests, biopython, pyyaml, lxml, matplotlib, shapely)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+**CRITICAL**: This phase now implements the Mock Data Generator required by FR-001. No real data downloads are permitted.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+**Note on Execution**: Tasks T004-T008 all write to `code/data_generator.py`. They must be implemented **sequentially** (not in parallel) to avoid file conflicts and respect internal dependencies (e.g., T006A depends on T006).
 
-- [ ] T004 [P] Implement `code/download.py` function to fetch DGRP VCF (FTP) with checksum validation. Research question: How can we reliably retrieve DGRP genomic variation data? Method: Develop a Python script to download VCF files via FTP and validate integrity using checksums. References: Mackay et al. (2012).
-- [ ] T004A [P] Implement `code/download.py` function to fetch RNA-seq expression data (SRA SRP) as **pre-quantified TPM matrix** or raw counts (with checksum validation). Must verify the file format matches expected schema.
-- [ ] T004B [P] Implement `code/download.py` function to **validate** TE-aware quantification metadata (e.g., TEtranscripts flag) in the fetched expression data metadata file. **If input is raw counts, log a warning and set 'TE-aware assumption flag' to False; do NOT attempt to run TEtranscripts here.** This task is strictly for metadata validation.
-- [ ] T005 [P] Implement `code/utils.py` for logging, checksumming, and random seed management
-- [ ] T006 [P] Implement `code/preprocessing.py` function for VCF parsing skeleton (header reading, variant extraction)
-- [ ] T006A [P] Implement `code/preprocessing.py` function for TE-Gene pairing skeleton (distance calculation logic placeholder)
-- [ ] T006B [P] Implement `code/preprocessing.py` function for missing data handling skeleton (line exclusion logic placeholder)
-- [ ] T007 [P] Implement `code/preprocessing.py` function to compute population structure PCs from genome-wide SNPs (scikit-learn PCA)
-- [ ] T008 [P] Implement `code/preprocessing.py` function to filter monomorphic TEs (freq < 5% or > 95%) and log exclusions
-- [ ] T009 [P] Implement `code/preprocessing.py` function to calculate Variance Inflation Factor (VIF) for TE presence vs PCs
+- [ ] T004 [P] Implement `code/data_generator.py` function to generate Mock TE genotypes CSV. Must simulate a substantial number of lines with TE presence frequencies between **0.05 and 0.95** (to ensure sufficient power and exclude monomorphic TEs per FR-008). The function must generate **raw data including monomorphic TEs**; filtering is handled by T008. (FR-001, FR-008)
+- [ ] T004A [P] Implement `code/data_generator.py` function to generate Mock gene expression TPM matrix CSV. Must simulate expression values for multiple lines with realistic variance, and handle zero/near-zero values by adding a small constant (e.g., 1e-6). (FR-001)
+- [ ] T004B [P] Implement `code/data_generator.py` function to generate Mock population PCs CSV and set `quantification_method: TEaware` in the mock dataset metadata/schema. This task ensures the Mock data satisfies Constitution Principle VII. (FR-001, Constitution Principle VII)
+- [ ] T005 [P] Implement `code/utils.py` for logging, checksumming, and random seed management (ensure reproducibility)
+- [ ] T006 [P] Implement `code/data_generator.py` function to generate Mock gene models CSV with Drosophila release 6 TSS/TES coordinates. Must simulate a **distribution of TE insertions across the genome, ensuring a mix of proximal (≤5kb) and distal (>5kb) insertions** to provide necessary negative controls for filtering logic. (FR-002, FR-011)
+- [ ] T006A [P] Implement `code/data_generator.py` function to simulate TE-Gene pairing logic and ensure ambiguous pairs are flagged in the generated metadata.
+- [ ] T006B [P] Implement `code/data_generator.py` function to simulate missing expression data for specific lines to test exclusion logic (FR-009).
+- [ ] T007 [P] Implement `code/data_generator.py` function to generate Mock population structure PCs (PC1, PC2, PC3) derived from simulated genome-wide SNPs. These PCs must be independent of specific TE insertions to allow non-tautological validation. (FR-003)
+- [ ] T008 [P] Implement `code/data_generator.py` function to filter monomorphic TEs (freq < 5% or > 95%) in the generated dataset and log exclusions. Ensure the final output CSV only contains polymorphic TEs. (FR-008)
+- [ ] T009 [P] Implement `code/preprocessing.py` function to calculate Variance Inflation Factor (VIF) for TE presence vs PCs (for use in association testing).
 - [ ] T010 [P] Implement `code/association.py` skeleton for linear model fitting (`log2(expr) ~ TE + PC1 + PC2 + PC3`)
 - [ ] T011 [P] Implement `code/association.py` function to apply Benjamini-Hochberg correction and filter FDR < 0.05
-- [ ] T012 [P] Implement `code/association.py` function to compute R² reduction with/without PCs for population structure control metric
+- [ ] T012 [P] Implement `code/association.py` function to compute R² reduction with/without PCs for population structure control metric. **Must write the output table to `data/results/population_structure_control_metrics.csv` with columns: `r2_with_pcs`, `r2_without_pcs`, `reduction_percent`. Must handle the edge case where `r2_without_pcs` is 0 by setting `reduction_percent` to `0.0` to prevent division-by-zero errors.** (FR-012, SC-004)
 - [ ] T013 [P] Implement `code/permutation.py` skeleton for null distribution generation
 - [ ] T014 [P] Implement `code/replication.py` skeleton for independent dataset validation logic
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - Mock data generator and basic analysis skeleton complete. User story implementation can now begin.
 
 ---
 
 ## Phase 3: User Story 1 - Core TE-Gene Association Analysis Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download DGRP genotype/expression data, define proximal TE-gene pairs, and run linear models with covariates to produce a table of significant associations with effect sizes and FDR-corrected p-values.
+**Goal**: Run the association analysis pipeline on the Mock/Synthetic Dataset and produce a table of TE-gene pairs with effect sizes, FDR-corrected p-values, and diagnostic flags.
 
-**Independent Test**: Run pipeline on a sample subset of DGRP lines; verify output table contains TE-gene pairs with proper statistical metrics (effect size, CI, p-value, adj-p-value) and handles missing data gracefully.
+**Independent Test**: Run pipeline on the generated Mock Dataset; verify output table contains TE-gene pairs with proper statistical metrics (effect size, CI, p-value, adj-p-value) and handles missing data/monomorphic TEs gracefully.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Unit test for TE-Gene pairing logic and monomorphic filtering in `tests/test_preprocessing.py` (verify distance calculation and frequency thresholding)
-- [ ] T016 [P] [US1] Unit test for missing data exclusion logic in `tests/test_preprocessing.py` (verify line exclusion per test)
-- [ ] T017 [P] [US1] Integration test for full US1 pipeline on sample data in `tests/integration/test_us1_pipeline.py`
+- [ ] T015 [P] [US1] Unit test for TE-Gene pairing logic and monomorphic filtering in `tests/test_preprocessing.py` (verify distance calculation and frequency thresholding on mock data)
+- [ ] T015A [P] [US1] Unit test for missing data exclusion logic in `tests/test_preprocessing.py` (verify line exclusion per test)
+- [ ] T015B [P] [US1] Contract test for `quantification_method` flag in `tests/test_data_schema.py`. **Verify that the mock data metadata schema correctly declares `quantification_method: TEaware` as a simulated metadata field (not a tool usage flag) to satisfy Constitution Principle VII intent.**
+- [ ] T016 [P] [US1] Integration test for full US1 pipeline on mock data in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Finalize `code/download.py` to handle specific DGRP2 FTP paths and SRA metadata extraction (ensure real data fetch, no faking)
-- [ ] T019 [US1] Implement `code/preprocessing.py` logic to map TE coordinates to gene TSS/TES (Drosophila release 6) and define proximal pairs
+- [ ] T019 [US1] Implement `code/preprocessing.py` logic to map TE coordinates to gene TSS/TES (Drosophila release 6) and define proximal pairs (≤5kb) using the Mock gene models. (FR-002)
 - [ ] T020 [US1] Implement `code/preprocessing.py` logic to handle missing expression values by excluding affected lines per test (FR-009)
-- [ ] T020A [US1] Implement `code/preprocessing.py` logic for ambiguous TE-gene proximity resolution: if a TE is within 5kb of multiple genes, implement logic to either (a) flag for exclusion, (b) assign to nearest gene, or (c) split counts, based on spec edge case requirements. **Must produce a deterministic assignment or exclusion flag.**
-- [ ] T020B [US1] Implement `code/preprocessing.py` logic to verify TE-aware quantification metadata (e.g., TEtranscripts flag) in input data; if missing, raise warning and set 'TE-aware assumption flag' to True, ensuring compliance with Constitution Principle VII.
+- [ ] T020A [US1] Implement `code/preprocessing.py` logic for ambiguous TE-gene proximity resolution: if a TE is within 5kb of multiple genes, flag these pairs with 'ambiguous_flag' = true and exclude them from primary association testing (FR-011).
 - [ ] T021 [US1] Implement `code/association.py` to fit `log2(expression) ~ TE_presence + PC1 + PC2 + PC3` for each pair (FR-004)
 - [ ] T022 [US1] Implement `code/association.py` to calculate VIF and flag pairs with VIF > 5 for descriptive-only reporting (FR-007). **Output must include a 'vif_flag' column.**
 - [ ] T023 [US1] Implement `code/association.py` to generate final output table with effect size, confidence intervals, unadjusted p-value, and BH adjusted p-value, **including integration of VIF flags** from T022 (FR-005). **Must append 'vif_flag' column to final results.**
-- [ ] T024 [US1] Add error handling in `code/download.py` to raise `DataNotFoundError` if verified sources are unreachable (Assumptions)
-- [ ] T025 [US1] Implement `code/association.py` to compute R² reduction metric for population structure control and write to `results/population_structure_control.csv` with columns: `r2_with_pcs`, `r2_without_pcs`, `reduction_percent`. **Must verify columns exist and assert reduction_percent > 0 before marking complete.** (SC-004)
-- [ ] T038A [US1] Implement `code/preprocessing.py` logic to **strictly reject** raw counts if TE-aware metadata is missing. If input is raw counts and no TE-aware tool flag is present, halt pipeline with `DataTypeError: Raw counts detected without TE-aware quantification metadata. Please provide pre-quantified data from TEtranscripts or similar.` (Constitution Principle VII Enforcement)
+- [ ] T024 [US1] Add error handling in `code/data_generator.py` to raise `DataGenerationError` if mock data generation fails or violates schema constraints (Assumptions)
+- [ ] T025 [US1] Add error handling in `code/association.py` to handle cases where no significant pairs are found (output empty table with correct schema).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,9 +109,9 @@
 
 ## Phase 4: User Story 2 - Independent Dataset Replication (Priority: P2)
 
-**Goal**: Validate significant TE-gene associations by testing them on an independent DGRP expression dataset (e.g., modENCODE) and calculate replication concordance.
+**Goal**: Validate significant TE-gene associations by testing them on a second Mock dataset (simulating a different tissue/stage) and calculate replication concordance.
 
-**Independent Test**: Run association analysis on a second expression dataset for ≥10 significant pairs; verify output table includes original effect size, replication effect size, direction concordance, and replication p-value.
+**Independent Test**: Run association analysis on a second Mock dataset for ≥10 significant pairs; verify output table includes original effect size, replication effect size, direction concordance, and replication p-value.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -120,13 +120,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implement `code/replication.py` to load independent expression dataset (modENCODE or similar) and align gene IDs
-- [ ] T032 [US2] Implement `code/replication.py` to filter the set of significant pairs from US1 for testing on the replication dataset
-- [ ] T033 [US2] Implement `code/replication.py` to fit the same linear model on the replication data for the selected pairs (handling missing lines per FR-009)
-- [ ] T034 [US2] Implement `code/replication.py` to calculate direction concordance and replication p-values
-- [ ] T035 [US2] Implement `code/replication.py` to generate the comparison table (original effect, replication effect, concordance flag, rep p-value) (FR-010)
-- [ ] T036 [US2] Implement `code/replication.py` to compute replication concordance rate (SC-002)
-- [ ] T037 [US2] Write unit tests in `tests/test_replication.py` for concordance calculation and missing data exclusion logic
+- [ ] T031 [US2] Implement `code/replication.py` to load a second independent Mock expression dataset (generated with different seeds) and align gene IDs. (US-2)
+- [ ] T032 [US2] Implement `code/replication.py` to filter the set of significant pairs from US1 for testing on the replication dataset. **(Depends on T023 completion artifact)**
+- [ ] T033 [US2] Implement `code/replication.py` to fit the same linear model on the replication data for the selected pairs (handling missing lines per FR-009).
+- [ ] T034 [US2] Implement `code/replication.py` to calculate direction concordance and replication p-values.
+- [ ] T035 [US2] Implement `code/replication.py` to generate the comparison table (original effect, replication effect, concordance flag, rep p-value) (FR-010).
+- [ ] T036 [US2] Implement `code/replication.py` to compute replication concordance rate and perform binomial test against null hypothesis of equal probability (SC-002, FR-016).
+- [ ] T037 [US2] Write unit tests in `tests/test_replication.py` for concordance calculation and missing data exclusion logic.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,9 +134,9 @@
 
 ## Phase 5: User Story 3 - Permutation Testing for Robustness Validation (Priority: P3)
 
-**Goal**: Perform residual-based permutation testing (≥100 runs) to confirm observed associations exceed random expectation and generate null distribution plots.
+**Goal**: Perform residual-based permutation testing (up to 1000 iterations with fallback) to confirm observed associations exceed random expectation and generate null distribution plots.
 
-**Independent Test**: Run multiple permutations of TE presence labels; verify observed raw t-statistic for significant pairs exceeds the selected percentile of the null distribution.
+**Independent Test**: Run a sufficient number of permutations; verify observed raw t-statistic for significant pairs exceeds the critical threshold of the null distribution.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -145,12 +145,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Implement `code/permutation.py` to perform **residual-based permutation** (shuffle residuals of the null model `gene_expression ~ PC1 + PC2 + PC3` while preserving PC structure) to generate a valid null distribution. **Explicitly do NOT shuffle TE labels directly.**
-- [ ] T040 [US3] Implement `code/permutation.py` to run ≥100 permutations and store null distribution of raw t-statistics
-- [ ] T041 [US3] Implement `code/permutation.py` to calculate a high percentile threshold of the null distribution and generate a **null distribution plot with the observed statistic as a vertical line AND the 95th percentile threshold clearly marked** (US-3 Acceptance Scenario 2, SC-005)
-- [ ] T042 [US3] Implement `code/permutation.py` to compare observed raw t-statistics against the null threshold (SC-005)
-- [ ] T043 [US3] Implement timeout handling in `code/permutation.py` to save intermediate results and report partial p-values if >6h (US-3 Acceptance Scenario 3)
-- [ ] T044 [US3] Write unit tests in `tests/test_permutation.py` for timeout handling and intermediate result saving
+- [ ] T040 [US3] Implement `code/permutation.py` to perform **residual-based permutation** (shuffle residuals of the null model `gene_expression ~ PC1 + PC2 + PC3` while preserving PC structure) to generate a valid null distribution. **Explicitly do NOT shuffle TE labels directly.** (FR-006)
+- [ ] T041 [US3] Implement `code/permutation.py` to run **up to 1000 iterations** of the Freedman-Lane procedure with a **timeout-aware loop**. If the CI limit is approached, stop early, save intermediate results, and report the partial count. (FR-006, SC-005, Plan: Dynamic Fallback)
+- [ ] T042 [US3] Implement `code/permutation.py` to calculate a statistically significant percentile threshold of the null distribution and compare observed raw t-statistics against it (SC-005).
+- [ ] T043 [US3] Implement timeout handling in `code/permutation.py` to save intermediate results and report partial p-values if >6h (US-3 Acceptance Scenario 3).
+- [ ] T044 [US3] Implement `code/viz.py` to generate a **null_distribution_plot** visualization showing the observed statistic as a vertical line and the 95th percentile threshold clearly marked with a **red dashed vertical line**. **Output must be saved to `data/results/null_distribution_plot.png`.** (FR-014, SC-005)
+- [ ] T045 [US3] Write unit tests in `tests/test_permutation.py` for timeout handling and intermediate result saving.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -160,11 +160,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T045 [P] Documentation updates in `README.md` and `docs/` (include quickstart instructions)
-- [ ] T046 Code cleanup and refactoring of `code/` modules for consistency
-- [ ] T047 Performance optimization for large-scale TE-Gene pair iteration (vectorization where possible)
-- [ ] T048 [P] Additional unit tests for edge cases (monomorphic TEs, zero expression, collinearity) in `tests/unit/`
-- [ ] T049 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [ ] T046 [P] Documentation updates in `README.md` and `docs/` (include quickstart instructions)
+- [ ] T047 Code cleanup and refactoring of `code/` modules for consistency
+- [ ] T048 Performance optimization for large-scale TE-Gene pair iteration (vectorization where possible)
+- [ ] T049 [P] Additional unit tests for edge cases (monomorphic TEs, zero expression, collinearity) in `tests/unit/`
+- [ ] T050 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility
 
 ---
 
@@ -196,7 +196,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks (T005-T014) marked [P] can run in parallel **except T004-T008 which must be sequential due to shared file writes**.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -258,9 +258,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must run on a limited CPU core allocation, ~7 GB RAM, no GPU. No 8-bit/4-bit quantization or large model training.
-- **Data Integrity**: All data downloads must use real URLs (DGRP2 FTP, SRA). No synthetic data generation for inputs.
-- **TE-Aware Quantification**: Constitution Principle VII requires TE-aware tools; tasks T004B, T020B, and T038A ensure compliance. T004B validates metadata; T038A enforces rejection of raw data.
+- **CPU Constraint**: All tasks must run on a limited CPU core allocation, constrained RAM, no GPU.. No 8-bit/4-bit quantization or large model training.
+- **Data Integrity**: All data is Mock/Synthetic as per FR-001. No real data downloads.
+- **TE-Aware Quantification**: Constitution Principle VII requires TE-aware tools; tasks T004B and T015B ensure the Mock data includes the `quantification_method: TEaware` flag in metadata (simulated).
 - **Ambiguous Proximity**: Task T020A handles edge cases for overlapping TE-gene assignments.
-- **Residual Permutation**: Task T037 explicitly implements residual-based permutation to preserve LD structure.
-- **Output Verification**: Tasks T025 and T041 ensure specific output formats and plot elements are generated as required by Success Criteria.
+- **Residual Permutation**: Task T040 explicitly implements residual-based permutation to preserve LD structure.
+- **Output Verification**: Tasks T012 and T044 ensure specific output formats and paths are generated as required by Success Criteria.
+- **Iteration Count**: Task T041 enforces up to 1000 permutations with timeout fallback as per FR-006 and Plan assumptions.
+- **Sequential Execution**: Tasks T004-T008 must be implemented sequentially as they all modify `code/data_generator.py`.
