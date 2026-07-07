@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Summary"
+description: "Schema for the final statistical analysis results."
+type: "object"
+properties:
+  correlation_method:
+    type: "string"
+    description: "The statistical method used (e.g., 'spearman')."
+  correlation_coefficient:
+    type: "number"
+    description: "The calculated correlation coefficient."
+  p_value:
+    type: "number"
+    description: "The p-value for the correlation test."
+  significance_level:
+    type: "number"
+    description: "The significance level used for testing (e.g., 0.05)."
+  corrected_p_value:
+    type: "number"
+    description: "The p-value after multiple-comparison correction (if applied)."
+  sensitivity_analysis:
+    type: "object"
+    description: "Results for different order parameter thresholds."
+    properties:
+      threshold_0.4:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+      threshold_0.5:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+      threshold_0.6:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+  topological_correlations:
+    type: "object"
+    description: "Correlations between K_c and measured topological metrics."
+    properties:
+      clustering_coefficient:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+      average_path_length:
+        type: "object"
+        properties:
+          coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+required:
+  - correlation_method
+  - correlation_coefficient
+  - p_value
+  - significance_level
+  - sensitivity_analysis
+  - topological_correlations
+additionalProperties: false

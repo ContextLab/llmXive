@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Instance Metadata"
+description: "Schema for the metadata of a generated Watts-Strogatz network instance."
+type: "object"
+properties:
+  graph_id:
+    type: "integer"
+    description: "Unique identifier for the graph instance (1 to 50)."
+  rewiring_probability:
+    type: "number"
+    description: "The probability p used in the Watts-Strogatz algorithm (0.0 to 1.0)."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  n_nodes:
+    type: "integer"
+    description: "Number of nodes in the graph (fixed at a predetermined constant)."
+  k:
+    type: "integer"
+    description: "Degree of the base regular lattice."
+  is_connected:
+    type: "boolean"
+    description: "Whether the generated graph is connected."
+  clustering_coefficient:
+    type: "number"
+    description: "Average clustering coefficient of the graph."
+  average_path_length:
+    type: "number"
+    description: "Average shortest path length of the graph."
+required:
+  - graph_id
+  - rewiring_probability
+  - seed
+  - n_nodes
+  - k
+  - is_connected
+additionalProperties: false

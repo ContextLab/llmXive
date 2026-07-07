@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result"
+description: "Schema for the output of a Kuramoto simulation run."
+type: "object"
+properties:
+  graph_id:
+    type: "integer"
+    description: "ID of the graph instance used."
+  rewiring_probability:
+    type: "number"
+    description: "Rewiring probability of the graph."
+  critical_coupling_strength:
+    type: "number"
+    description: "The critical coupling strength K_c detected."
+  order_parameter_threshold:
+    type: "number"
+    description: "The threshold R used to define synchronization (e.g., 0.5)."
+  final_order_parameter:
+    type: "number"
+    description: "The order parameter R at the final time step."
+  convergence_iterations:
+    type: "integer"
+    description: "Number of iterations to find K_c."
+  is_connected:
+    type: "boolean"
+    description: "Whether the graph was connected."
+  transition_slope:
+    type: "number"
+    description: "The slope of the R(K) curve at the critical coupling point."
+required:
+  - graph_id
+  - rewiring_probability
+  - critical_coupling_strength
+  - order_parameter_threshold
+  - final_order_parameter
+  - convergence_iterations
+  - is_connected
+additionalProperties: false

@@ -1,0 +1,204 @@
+resolved_at: '2026-07-07T10:42:06.168984+00:00'
+datasets:
+- intent: AstroPh
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/charlieoneill/jsalt-astroph-dataset/resolve/main/data/train-00000-of-00007.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/0xZee/dataset-CoT-Space-Physics-Astrophysics-76/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/0xZee/dataset-CoT-Relativity-Astrophysics-Nuclear-Physics-313/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/charlieoneill/jsalt-astroph-dataset/resolve/main/data/train-00000-of-00007.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/sultan-hassan/Arxiv_astroph.CO_QA_pairs_2018_2022/2844f344ee4b3976e1e3aeb9a5cc71622e195607/data.json?%2Fdatasets%2Fsultan-hassan%2FArxiv_astroph.CO_QA_pairs_2018_2022%2Fresolve%2Fmain%2Fdata.json=&etag=%227d131268cb515505623274b6526bfe98a313ddd5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/0xZee/dataset-CoT-Space-Physics-Astrophysics-76/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/0xZee/dataset-CoT-Relativity-Astrophysics-Nuclear-Physics-313/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mlfoundations-dev/existing-seed-reasoning-astrophysics/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Early_YAP_-catenin_activation_primes_b_b_i_Helicobacter_pylori_i_b_b_-infected_gastric_cancer_cells_for_metastatic_colonization_b_/31848064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Research_Question_2_-_most_cited_reference_article_based_on_citation_data_/32922443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/readme/32922707
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/dataset/Data_and_code_for_Downward_counterfactuals_reveal_urban_vulnerabilities_to_future_climate_extremes/31325146
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Link_between_parents_mental_health_and_childhood_emotional-behavioural_development_a_narrative_review/32922698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3739516
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10632654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10034094
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3671413
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5083151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18272078
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18272078
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2508.19872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17318354
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15621003
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNAP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/krept-and-konan-bugzy-malone-sl-morisson-abra-cadabra-rv-and-snap-capone/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4751
+      parsed: true
+  - url: https://huggingface.co/datasets/olm/cia-world-factbook-snapshots/resolve/main/data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kuroneko5943/snap21/resolve/main/dev/Arts_Crafts_and_Sewing_5.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 198763
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/krept-and-konan-bugzy-malone-sl-morisson-abra-cadabra-rv-and-snap-capone/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/olm/cia-world-factbook-snapshots/resolve/main/data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/kuroneko5943/snap21/resolve/main/dev/Arts_Crafts_and_Sewing_5.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/_b_Early_YAP_-catenin_activation_primes_b_b_i_Helicobacter_pylori_i_b_b_-infected_gastric_cancer_cells_for_metastatic_colonization_b_/31848064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Research_Question_2_-_most_cited_reference_article_based_on_citation_data_/32922443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/readme/32922707
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/dataset/Data_and_code_for_Downward_counterfactuals_reveal_urban_vulnerabilities_to_future_climate_extremes/31325146
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Link_between_parents_mental_health_and_childhood_emotional-behavioural_development_a_narrative_review/32922698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7232087
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6512209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7314509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7306128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7306126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234932
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234932
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
