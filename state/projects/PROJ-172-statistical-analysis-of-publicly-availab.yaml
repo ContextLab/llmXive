@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T21:21:05.096683Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-172-statistical-analysis-of-publicly-availab
-last_run_id: 5acb3a2e-eecd-4049-8f17-ab66e993d78e
+last_run_id: 52feaca5-1e3f-43ab-a7b2-70873d3d4e3b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Sports Data for Predictive Modeling
-updated_at: '2026-06-28T07:24:06.357718Z'
+updated_at: '2026-07-07T07:05:44.669768Z'

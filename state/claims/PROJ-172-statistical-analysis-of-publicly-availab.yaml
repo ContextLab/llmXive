@@ -1,0 +1,100 @@
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: pandas 2.0.3, scikit-learn 1.3.0, xgboost 1.7.6,
+    statsmodels 0.14.0, requests 2.31.0, pyyaml 6.0.1, numpy 1.24.3, pytest 7.4.0'
+  claim_id: c_5ed925dc
+  context: 'T002 Initialize Python 3.10 project with pinned dependencies in requirements.txt
+    using command pip freeze > requirements.txt. Include: pandas==2.0.3, scikit-learn==1.3.0,
+    xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3,
+    pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0,
+    requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T06:55:48Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Data pipeline validates no leakage between 2000-2018 train set and 2019-2022
+    test set
+  claim_id: c_dd349a5b
+  context: "The pipeline executes end-to-end on a fresh environment, producing a single\
+    \ CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and\
+    \ validates completeness \u2265 95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: no data leakage between 2000-2018 (train) and 2019-2022 (test)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T06:56:11Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Data pipeline validates completeness rate greater than or equal to 95%
+  claim_id: c_04b1c8aa
+  context: "The pipeline executes end-to-end on a fresh environment, producing a single\
+    \ CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and\
+    \ validates completeness \u2265 95%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_validates_completeness_rate_greater_than_or_eq
+  kind: magnitude
+  raw_text: "validates completeness \u2265 95%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T06:57:05Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: System raises ValueError if data completeness rate is less than 95% and
+    real data is used
+  claim_id: c_e7e227c6
+  context: "Implement data completeness validation logic (\u226595% required variables).\
+    \ ENFORCEMENT: RAISE ValueError if rate < 95% AND is_real_data is True."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_raises_ValueError_if_data_completeness_rate_is_less_t
+  kind: magnitude
+  raw_text: RAISE ValueError if rate < 95% AND is_real_data is True
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T06:57:29Z'
+- artifact_path: projects/PROJ-172-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps classification thresholds from 0.0 to 1.0
+    with step size 0.01
+  claim_id: c_b8859b96
+  context: 'Implement code/evaluation.py: Execute sensitivity analysis sweeping classification
+    thresholds across the full valid range [0.0, 1.0] with a step size of 0.01.'
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Execute sensitivity analysis sweeping classification thresholds across
+    the full valid range [0.0, 1.0] with a step size of 0.01
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T06:57:29Z'

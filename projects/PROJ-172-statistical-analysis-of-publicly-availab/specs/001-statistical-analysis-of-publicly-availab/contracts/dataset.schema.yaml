@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "MLB Game Dataset Schema"
+description: "Schema for the processed game-level dataset containing traditional and advanced metrics."
+type: object
+properties:
+  game_id:
+    type: string
+    description: "Unique identifier for the game (e.g., YYYYMMDD_TEAM1_TEAM2)"
+  date:
+    type: string
+    format: date
+    description: "Game date in YYYY-MM-DD format"
+  home_team_id:
+    type: string
+    description: "3-letter code for the home team"
+  away_team_id:
+    type: string
+    description: "3-letter code for the away team"
+  home_runs:
+    type: integer
+    description: "Total runs scored by the home team"
+  away_runs:
+    type: integer
+    description: "Total runs scored by the away team"
+  home_win:
+    type: boolean
+    description: "True if home team won, False otherwise"
+  era_home:
+    type: number
+    description: "Earned Run Average for the home team (3 decimal places)"
+  era_away:
+    type: number
+    description: "Earned Run Average for the away team (3 decimal places)"
+  woba_home:
+    type: number
+    description: "Weighted On-Base Average for the home team (3 decimal places)"
+  woba_away:
+    type: number
+    description: "Weighted On-Base Average for the away team (3 decimal places)"
+  babip_home:
+    type: number
+    description: "Batting Average on Balls In Play for the home team (3 decimal places)"
+  babip_away:
+    type: number
+    description: "Batting Average on Balls In Play for the away team (3 decimal places)"
+  split_type:
+    type: string
+    enum:
+      - "train"
+      - "test"
+    description: "Indicates if the record is in the training (<=2018) or test (2019-2022) set"
+required:
+  - game_id
+  - date
+  - home_team_id
+  - away_team_id
+  - home_runs
+  - away_runs
+  - home_win
+  - era_home
+  - era_away
+  - woba_home
+  - woba_away
+  - babip_home
+  - babip_away
+  - split_type

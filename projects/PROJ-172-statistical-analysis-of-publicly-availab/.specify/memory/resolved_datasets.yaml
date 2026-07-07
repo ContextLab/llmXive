@@ -1,0 +1,221 @@
+resolved_at: '2026-07-07T06:35:24.549848+00:00'
+datasets:
+- intent: BABIP
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.swinburne.edu.au/articles/thesis/The_value_of_good_enough_A_typology_of_jugaad_practices_in_Delhi_s_informal_retail_ecosystem/32820554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Metabolomic_Differentiation_and_Chemotaxonomic_Insights_into_Three_Korean_Alnus_Species_Revealed_by_UPLC_QTOF_MS/32920174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocycloaddition_of_Aromatic_Bithiomaleimides_A_Polymerization_Strategy_for_Constructing_Recyclable_Programmable_and_Rigid_Polyimide_Backbones/32920171
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Theoretical_Structure_Prediction_and_High-Pressure_Synthesis_of_a_Layered_Sodium_Silicide_Zintl_Phase_Na_sub_2_sub_Si_sub_3_sub_/32920165
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hydrogen_Plasma-Driven_Surface_Defect_Engineering_of_ZnO_Nanorods_Correlating_Electronic_Structure_and_Photoelectrochemical_Performance/32920162
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7285066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15674500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21212173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.16177477
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.swinburne.edu.au/articles/thesis/The_value_of_good_enough_A_typology_of_jugaad_practices_in_Delhi_s_informal_retail_ecosystem/32820554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Metabolomic_Differentiation_and_Chemotaxonomic_Insights_into_Three_Korean_Alnus_Species_Revealed_by_UPLC_QTOF_MS/32920174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocycloaddition_of_Aromatic_Bithiomaleimides_A_Polymerization_Strategy_for_Constructing_Recyclable_Programmable_and_Rigid_Polyimide_Backbones/32920171
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Theoretical_Structure_Prediction_and_High-Pressure_Synthesis_of_a_Layered_Sodium_Silicide_Zintl_Phase_Na_sub_2_sub_Si_sub_3_sub_/32920165
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hydrogen_Plasma-Driven_Surface_Defect_Engineering_of_ZnO_Nanorods_Correlating_Electronic_Structure_and_Photoelectrochemical_Performance/32920162
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16945875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10637886
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Data-driven_mapping_of_soil_salinity_in_the_Red_River_Delta_Sentinel-2_MSI_and_machine_learning_integration/32920116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Data-driven_mapping_of_soil_salinity_in_the_Red_River_Delta_Sentinel-2_MSI_and_machine_learning_integration/32920116/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20167
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739565
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.swinburne.edu.au/articles/thesis/The_value_of_good_enough_A_typology_of_jugaad_practices_in_Delhi_s_informal_retail_ecosystem/32820554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Metabolomic_Differentiation_and_Chemotaxonomic_Insights_into_Three_Korean_Alnus_Species_Revealed_by_UPLC_QTOF_MS/32920174
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocycloaddition_of_Aromatic_Bithiomaleimides_A_Polymerization_Strategy_for_Constructing_Recyclable_Programmable_and_Rigid_Polyimide_Backbones/32920171
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Theoretical_Structure_Prediction_and_High-Pressure_Synthesis_of_a_Layered_Sodium_Silicide_Zintl_Phase_Na_sub_2_sub_Si_sub_3_sub_/32920165
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hydrogen_Plasma-Driven_Surface_Defect_Engineering_of_ZnO_Nanorods_Correlating_Electronic_Structure_and_Photoelectrochemical_Performance/32920162
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7f0975009fd0>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.09072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2311.10090
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

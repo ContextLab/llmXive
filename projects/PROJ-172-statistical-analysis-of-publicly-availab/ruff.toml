@@ -1,0 +1,66 @@
+# Ruff configuration for llmXive project
+# Based on PEP 8 and common best practices
+
+line-length = 88
+target-version = "py310"
+
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C90", # mccabe (complexity)
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "D100", # Missing docstring in public module (relaxed for now)
+    "D104", # Missing docstring in public package
+]
+
+# Allow autofix for all enabled rules (when --fix is passed)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few problematic files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Per-file-ignores
+[lint.per-file-ignores]
+"tests/*" = ["D100", "D103"] # Ignore missing docstrings in tests
+"code/setup_project_structure.py" = ["D100"]
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+known-first-party = []
+known-third-party = []
+
+[lint.mccabe]
+max-complexity = 15

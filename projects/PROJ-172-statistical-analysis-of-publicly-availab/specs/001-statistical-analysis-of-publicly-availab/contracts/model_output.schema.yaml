@@ -1,0 +1,120 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Model Evaluation Results Schema"
+description: "Schema for the JSON report containing model performance metrics and statistical test results."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model trained (e.g., LogisticRegression, RandomForest, XGBoost)"
+  feature_set:
+    type: string
+    enum:
+      - "traditional"
+      - "advanced"
+    description: "Feature set used for training"
+  roc_auc:
+    type: number
+    description: "Area Under the ROC Curve on the test set"
+  log_loss:
+    type: number
+    description: "Logarithmic loss on the test set"
+  brier_score:
+    type: number
+    description: "Brier score on the test set"
+  cv_scores_mean:
+    type: number
+    description: "Mean ROC-AUC from 5-fold time-series cross-validation"
+  cv_scores_std:
+    type: number
+    description: "Standard deviation of CV scores"
+  statistical_significance:
+    type: object
+    properties:
+      test_type:
+        type: string
+        description: "Name of the statistical test (e.g., Diebold-Mariano, Corrected Resampled T-Test, Likelihood Ratio Test)"
+      p_value:
+        type: number
+        description: "P-value from the significance test"
+      significant_at_alpha:
+        type: boolean
+        description: "True if p_value < 0.05 (or adjusted alpha)"
+      effect_size:
+        type: number
+        description: "Cohen's d or similar effect size metric"
+      marginal_gain:
+        type: number
+        description: "Marginal predictive gain (e.g., delta AUC) from nested model comparison"
+    required:
+      - test_type
+      - p_value
+      - significant_at_alpha
+      - effect_size
+  sensitivity_analysis:
+    type: object
+    properties:
+      threshold_range:
+        type: array
+        items:
+          type: number
+        description: "List of thresholds tested (0.0 to 1.0)"
+      false_positive_rates:
+        type: array
+        items:
+          type: number
+        description: "FPR at each threshold"
+      false_negative_rates:
+        type: array
+        items:
+          type: number
+        description: "FNR at each threshold"
+      expected_utility:
+        type: array
+        items:
+          type: number
+        description: "Expected utility at each threshold based on cost matrix"
+      optimal_threshold:
+        type: number
+        description: "Threshold that maximizes expected utility"
+    required:
+      - threshold_range
+      - false_positive_rates
+      - false_negative_rates
+      - expected_utility
+      - optimal_threshold
+  data_completeness:
+    type: object
+    properties:
+      overall_rate:
+        type: number
+        description: "Overall completeness rate (0.0 to 1.0)"
+      variable_rates:
+        type: object
+        description: "Completeness rate for each required variable"
+        additionalProperties:
+          type: number
+      passed_threshold:
+        type: boolean
+        description: "True if overall_rate >= 0.95"
+    required:
+      - overall_rate
+      - variable_rates
+      - passed_threshold
+  empirical_hypothesis_status:
+    type: string
+    enum:
+      - "TESTED"
+      - "UNTESTED"
+    description: "Status of the empirical hypothesis. 'UNTESTED' if synthetic data was used."
+required:
+  - model_type
+  - feature_set
+  - roc_auc
+  - log_loss
+  - brier_score
+  - cv_scores_mean
+  - cv_scores_std
+  - statistical_significance
+  - sensitivity_analysis
+  - data_completeness
+  - empirical_hypothesis_status
