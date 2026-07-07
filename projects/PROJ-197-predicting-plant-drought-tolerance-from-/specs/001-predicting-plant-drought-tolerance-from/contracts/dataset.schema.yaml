@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpeciesRecord"
+description: "Schema for the merged plant species dataset containing physiological and synthetic genomic features. Note: Genomic features are synthetic placeholders for pipeline validation."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "Unique identifier for the plant species."
+  root_depth_cm:
+    type: "number"
+    description: "Root system depth in centimeters. May be imputed."
+  sla:
+    type: "number"
+    description: "Specific Leaf Area (mm^2/mg). May be imputed."
+  synth_gene_01:
+    type: "integer"
+    description: "Synthetic presence (1) or absence (0) of gene 01. Placeholder for real genomic data."
+    enum:
+      - 0
+      - 1
+  synth_gene_02:
+    type: "integer"
+    description: "Synthetic presence (1) or absence (0) of gene 02. Placeholder for real genomic data."
+    enum:
+      - 0
+      - 1
+  drought_tolerance:
+    type: "integer"
+    description: "Synthetic binary label: 1 for Tolerant, 0 for Sensitive. Generated for pipeline validation."
+    enum:
+      - 0
+      - 1
+required:
+  - species_id
+  - root_depth_cm
+  - sla
+  - synth_gene_01
+  - synth_gene_02
+  - drought_tolerance
+additionalProperties: false

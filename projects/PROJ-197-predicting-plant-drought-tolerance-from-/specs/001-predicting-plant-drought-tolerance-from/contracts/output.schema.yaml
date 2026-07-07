@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output metrics and feature importance of a trained model. Results are for pipeline validation only."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model (RandomForest, XGBoost, KNN_Baseline)."
+  roc_auc:
+    type: "number"
+    description: "ROC-AUC score on the test set."
+  std_auc:
+    type: "number"
+    description: "Standard deviation of the AUC score."
+  p_value_comparison:
+    type: "number"
+    description: "P-value from the paired t-test or DeLong's test."
+  feature_importance:
+    type: "array"
+    description: "List of top features with their importance scores."
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        score:
+          type: "number"
+      required:
+        - feature_name
+        - score
+required:
+  - model_type
+  - roc_auc
+  - std_auc
+  - feature_importance
+additionalProperties: false

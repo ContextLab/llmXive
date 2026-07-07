@@ -1,0 +1,515 @@
+resolved_at: '2026-07-07T09:30:46.826398+00:00'
+datasets:
+- intent: TRY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xcll/Try-Any-Bench/resolve/main/test.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/met/Meti_try/resolve/main/try.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-IMAGE/resolve/main/test.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-IMAGE/resolve/main/test.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-Captions/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/xcll/Try-Any-Bench/resolve/main/test.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/met/Meti_try/resolve/main/try.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7380868
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10022085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8154705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8017011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3855588
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nkjq5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://works.hcommons.org/doi/10.17613/v923t-0hv38
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://works.hcommons.org/doi/10.17613/kfe8q-tgy16
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235653
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ABA-signaling
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2013.00206/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0031942214001368
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19888015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5q449h5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.47c8q50
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=09ad4d1e684c4553a4469f44b039ceaa
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/98312-impact-of-abscisic-acid-treatment-for-better-adaptation-of-spring-barley-cbc-mutants-to-drought-stress
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20966836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20966836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20967206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Riesgos_psicosociales_en_la_interpretaci_n_de_enlace_en_contextos_de_atenci_n_psicol_gica_un_estudio_exploratorio_con_int_rpretes_profesionales/32918543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803871
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20589030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20589030
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RefSeq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_viral/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_fungi/resolve/main/data/train-00000-of-00038.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_archaea/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_viral/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_fungi/resolve/main/data/train-00000-of-00038.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hack90/ref_seq_archaea/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/the_validation_of_experiment/32181540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10519852
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14200040
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12707420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.nzs7h44zk
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10452279
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21125109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21125109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21222798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/the_validation_of_experiment/32181540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/High-temperature_creep_in_compacted_graphite_iron_Numerical_study_of_microstructural_effect/32907287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ordo.open.ac.uk/articles/data_management_plan/Data_Management_Plan_for_b_Responding_to_recommendations_Co-creating_resources_with_young_people_to_support_better_contraceptive_consultations_b_/32907329
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/poster/Visual_abstract_for_Eliciting_supplier_cooperation_for_value_chain_decarbonization_A_field_experiment_with_smallholder_farmers_in_India_/32920739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/longitudinal_study_in_40_mice/32181381
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14973553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15309798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21236037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820731
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820731
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Intrinsic_magnetic_properties_for_SmFe_12_xTx_thin_films_via_high-throughput_experiments_and_machine_learning_techniques/30467288/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Intrinsic_magnetic_properties_for_SmFe_12_xTx_thin_films_via_high-throughput_experiments_and_machine_learning_techniques/30467288
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RandomForest
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RandomForest8/sciERC/resolve/main/dev.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103316
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RandomForest8/sciERC/resolve/main/dev.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Evolution_Process_of_Pseudo-lignin_Derived_from_Lignocellulose/32922189
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.smu.edu.sg/articles/software/DLR-RM_stable-baselines3_v2_9_0_Updated_dependencies_pandas_is_now_optional_gymnasium_1_3_0_support_torch_2_8_/32182704
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Distinct_Chemical_Profiles_and_Gut_Microbiota_Modulation_of_Ancha_Tea_Compared_with_Green_and_Black_Teas_from_the_Same_Cultivar/32922187
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Hierarchically_Engineered_Interfaces_in_Flexible_Piezoelectric_Composite_Films_for_Broad-Range_Pressure_Sensing/32922186
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/the_validation_of_experiment/32181540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4459839
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5838122
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10419006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14799772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3934498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5dv41nshz
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21205540
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204574
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21199544
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

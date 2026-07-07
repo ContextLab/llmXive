@@ -1,0 +1,149 @@
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic genomic data generation uses 20 specific plant stress response
+    genes
+  claim_id: c_6121da17
+  context: 'T012 [US1] Implement code/data/generate.py to generate synthetic genomic
+    features and synthetic drought labels. Logic: Use random_state=42. Gene List (20):
+    NCED3, ABF3, P5CS...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate a synthetic genomic data set using a specific gene list of 20
+    genes: NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD,
+    APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:03:06Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Synthetic drought label assigned if sum of genomic markers is 12 or higher
+  claim_id: c_9477b69f
+  context: 'T012 [US1] ... Label Logic: label = 1 if sum(genomic_markers) >= 12, else
+    0.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_drought_label_assigned_if_sum_of_genomic_markers_i
+  kind: magnitude
+  raw_text: Generate a synthetic drought label where the label is 1 if the sum of
+    genomic markers is greater than or equal to 12, and 0 otherwise.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:03:56Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: RF and XGBoost models trained within 30 minutes on 2-core CPU
+  claim_id: c_85f9ad9a
+  context: T018 [P] [US2] Integration test verifying RF and XGBoost train within 30
+    mins on 2-core CPU without GPU errors...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest and XGBoost models within 30 minutes on a 2-core CPU
+    without GPU errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:04:19Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Grid search for n_estimators uses values 100, 200, and 500
+  claim_id: c_2bd5ab49
+  context: T020c [P] [US2] Implement code/models/train.py to perform n_estimators
+    grid search across values {100, 200, 500} for both models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a grid search for n_estimators across the values 100, 200, and
+    500 for both Random Forest and XGBoost models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:04:48Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: KNN Baseline model trained with K=5
+  claim_id: c_92174953
+  context: T021 [P] [US2] Implement code/models/train.py to train KNN Baseline (K=5)
+    using the synthetic phylogenetic distance matrix...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a KNN Baseline model with K=5 using the synthetic phylogenetic distance
+    matrix.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:05:04Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Significance validation requires p < 0.05 and AUC diff > 0.05
+  claim_id: c_b0913c42
+  context: T023 [US2] ... Verify p < 0.05 AND AUC diff > 0.05 as per SC-001.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significance_validation_requires_p_%3C_0.05_and_AUC_diff_%3E_0.0
+  kind: magnitude
+  raw_text: Validate model significance if the p-value is less than 0.05 and the AUC
+    difference is greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:05:29Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Validation gene list contains 15 genes; top 10 must include at least
+    3
+  claim_id: c_0c7a6136
+  context: 'T029 [US3] ... Validation Logic: Use Validation Gene List (15): DREB2A,
+    ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU,
+    ZAT12. Check if count of these genes in Top 10 features >= 3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_gene_list_contains_15_genes;_top_10_must_include
+  kind: magnitude
+  raw_text: Use a validation gene list of 15 specific genes to check if at least 3
+    appear in the top 10 features.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:06:20Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: All genomic data and labels are synthetic; no real NCBI RefSeq or TRY
+    genomic data used
+  claim_id: c_c8855349
+  context: 'Critical Constraint: All genomic data and labels are SYNTHETIC (per Plan).
+    No real NCBI RefSeq or TRY genomic data is used.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_genomic_data_and_labels_are_synthetic;_no_real_NCBI_RefS
+  kind: entity_fact
+  raw_text: All genomic data and labels used in the project are synthetic, with no
+    real NCBI RefSeq or TRY genomic data used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T10:07:01Z'
