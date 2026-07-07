@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entropy Metrics Schema"
+description: "Schema for computed multiscale sample entropy metrics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+  mse_scale_1:
+    type: "number"
+    description: "MSE at scale τ=1."
+  mse_scale_2:
+    type: "number"
+    description: "MSE at scale τ=2."
+  mse_scale_3:
+    type: "number"
+    description: "MSE at scale τ=3."
+  mse_scale_4:
+    type: "number"
+    description: "MSE at scale τ=4."
+  mse_scale_5:
+    type: "number"
+    description: "MSE at scale τ=5."
+  whole_brain_entropy:
+    type: "number"
+    description: "Mean of MSE across scales and parcels."
+required:
+  - subject_id
+  - mse_scale_1
+  - mse_scale_2
+  - mse_scale_3
+  - mse_scale_4
+  - mse_scale_5
+  - whole_brain_entropy
+additionalProperties: false

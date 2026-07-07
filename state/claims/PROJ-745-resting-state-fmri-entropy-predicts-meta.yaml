@@ -1,0 +1,22 @@
+- artifact_path: projects/PROJ-745-resting-state-fmri-entropy-predicts-meta/specs/001-resting-state-fmri-entropy-predicts-meta/tasks.md
+  attempts: 1
+  canonical: multiscale sample entropy calculation uses scales 1 to 5, embedding dimension
+    2, and default tolerance parameter 0.15
+  claim_id: c_a5ad0008
+  context: Phase 4, Implementation for User Story 2, Task T025
+  evidence:
+    asserted: '1.0'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: "use scales \u03C4=1\u20135, m=2, configurable r parameter (default 0.15)"
+  resolved_value: '6'
+  resolver: approximate
+  source_hash: d0a1b8a5b40995feb696dbce9ae211b0e3e5520e8676d5fd1b9d8448cdea0647
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T19:27:17Z'

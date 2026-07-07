@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for regression model output."
+type: "object"
+properties:
+  predictor:
+    type: "string"
+    description: "Predictor name (e.g., 'whole_brain_entropy')."
+  coefficient:
+    type: "number"
+    description: "Regression coefficient (beta)."
+  std_error:
+    type: "number"
+    description: "Standard error of coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  p_value_bonferroni:
+    type: "number"
+    description: "Bonferroni-corrected p-value."
+  r_squared:
+    type: "number"
+    description: "Model R-squared."
+required:
+  - predictor
+  - coefficient
+  - std_error
+  - p_value
+  - p_value_bonferroni
+  - r_squared
+additionalProperties: false

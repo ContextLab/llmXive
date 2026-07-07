@@ -1,0 +1,8 @@
+? 'T001 [P] Create project directories: `projects/PROJ-745-resting-state-fmri-entropy-predicts-meta/`,
+  `data/`, `code/`, `tests/`'
+: 1
+T002 [P] Create `.gitignore` rules for `data/`, `__pycache__/`, and virtual environments: 1
+T003 [P] Create empty `__init__.py` files in `code/` and `tests/` directories: 1
+T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`): 1
+T005 [P] Implement data ingestion metadata fetcher in `code/download.py` (HCP metadata validation): 1
+T006 [P] Implement NIfTI download logic in `code/download.py` (fetch raw fMRI data to `data/raw/`): 1

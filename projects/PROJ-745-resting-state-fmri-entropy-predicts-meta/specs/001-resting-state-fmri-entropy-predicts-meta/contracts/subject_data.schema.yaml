@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Data Schema"
+description: "Schema for raw subject metadata and behavioral trial data."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+  age:
+    type: "integer"
+    description: "Age in years."
+  sex:
+    type: "string"
+    description: "Sex of the subject (M or F)."
+  mean_fd:
+    type: "number"
+    description: "Mean Framewise Displacement in mm."
+  trials:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        trial_id:
+          type: "integer"
+        stimulus:
+          type: "string"
+        response:
+          type: "integer"
+        confidence:
+          type: "integer"
+      required:
+        - trial_id
+        - stimulus
+        - response
+        - confidence
+required:
+  - subject_id
+  - age
+  - sex
+  - mean_fd
+  - trials
+additionalProperties: false

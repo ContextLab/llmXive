@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Schema"
+description: "Schema for sensitivity analysis output."
+type: "object"
+properties:
+  r_value:
+    type: "number"
+    description: "Tolerance parameter r."
+  coefficient:
+    type: "number"
+    description: "Regression coefficient at r."
+  p_value:
+    type: "number"
+    description: "p-value at r."
+  direction:
+    type: "string"
+    description: "Direction of association (positive or negative)."
+required:
+  - r_value
+  - coefficient
+  - p_value
+  - direction
+additionalProperties: false

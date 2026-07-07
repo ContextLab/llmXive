@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metacognitive Metrics Schema"
+description: "Schema for computed meta-d' and efficiency metrics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique HCP subject identifier."
+  d_prime:
+    type: "number"
+    description: "Sensitivity (d')."
+  meta_d_prime:
+    type: "number"
+    description: "Metacognitive sensitivity (meta-d')."
+  meta_efficiency:
+    type: "number"
+    description: "Ratio (meta-d'/d')."
+  n_trials:
+    type: "integer"
+    description: "Number of valid trials."
+  missing_confidence_pct:
+    type: "number"
+    description: "Percentage of missing confidence ratings."
+required:
+  - subject_id
+  - d_prime
+  - meta_d_prime
+  - meta_efficiency
+  - n_trials
+  - missing_confidence_pct
+additionalProperties: false
