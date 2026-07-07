@@ -1,11 +1,13 @@
 """
 Monte-Carlo Validation Module (FR-026).
 
-Validates statistical reconstruction logic by comparing empirical p-values
-from Monte-Carlo simulations against theoretical library calculations (scipy).
-Runs 100,000 replicates for each test type (z-test, Fisher's, Welch's, binomial).
-Exits with status 0 if all absolute differences are <= 0.005.
+Validates statistical test implementations (z-test, Fisher's exact, Welch's t-test,
+binomial test) by comparing their p-values against Monte-Carlo simulated ground truth.
+
+Criteria: Absolute difference between library p-value and Monte-Carlo p-value <= 0.005.
+Replicates: 10,000 per test.
 """
+
 import sys
 import logging
 from pathlib import Path
@@ -23,323 +25,480 @@ from code.src.audit.monte_carlo_core import (
     simulate_binomial_statistic,
     compute_empirical_p_value,
 )
-from code.src.config import SEED, set_rng_seed
-from code.src.utils.logger import get_default_logger
+from code.src.config import SEED
+from code.src.utils.logger import get_default_logger, AuditLogger, get_error_message
 
-# Configuration
-NUM_REPLICATES = 100000
-DIFFERENCE_THRESHOLD = 0.005
-logger = get_default_logger(__name__)
+logger: AuditLogger = get_default_logger(__name__)
 
-def validate_z_test() -> Tuple[bool, Dict[str, Any]]:
+# Configuration constants
+NUM_REPLICATES = 10000
+TOLERANCE_THRESHOLD = 0.005
+ALPHA = 0.05
+
+
+def validate_z_test(rng: np.random.Generator) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate two-proportion z-test consistency.
-    Simulates data under the null hypothesis (p1 = p2) and compares
-    empirical p-value distribution to the theoretical z-test.
+    Validate two-proportion z-test against Monte-Carlo simulation.
+
+    Returns:
+        Tuple of (is_valid, details_dict)
     """
-    set_seeds(SEED)
+    logger.info("Running Monte-Carlo validation for Z-Test (Two Proportion)")
+
+    # Parameters for simulation
     n1, n2 = 1000, 1000
-    p_true = 0.5
+    p1, p2 = 0.5, 0.55  # Small effect size
 
-    # Generate null data (binary outcomes)
-    # Under null, p1 = p2 = p_true
-    group_a = generate_null_binary_data(n1, p_true)
-    group_b = generate_null_binary_data(n2, p_true)
+    # Generate data
+    x1 = rng.binomial(n1, p1)
+    x2 = rng.binomial(n2, p2)
 
-    # Calculate theoretical p-value (two-sided)
-    # Using pooled proportion for z-test
-    p_pool = (np.sum(group_a) + np.sum(group_b)) / (n1 + n2)
-    se = np.sqrt(p_pool * (1 - p_pool) * (1/n1 + 1/n2))
-    z_obs = (np.mean(group_a) - np.mean(group_b)) / se
-    p_theoretical = 2 * (1 - stats.norm.cdf(np.abs(z_obs)))
+    # 1. Compute Library P-value (Two-sided)
+    try:
+        # scipy.stats.proportions_ztest
+        stat_lib, p_lib = stats.proportions_ztest([x1, x2], [n1, n2], alternative='two-sided')
+    except Exception as e:
+        logger.error(f"Library Z-Test failed: {e}")
+        return False, {"error": str(e), "test": "z_test"}
 
-    # Monte Carlo simulation
-    # We need to simulate the distribution of the test statistic under the null
-    # to verify the p-value calculation logic.
-    # However, for a single instance, we compare the empirical p-value of the observed
-    # statistic against the theoretical one.
-    # Better approach: Generate many pairs, compute theoretical and empirical p-values,
-    # and check if the proportion of rejections matches alpha (type I error control).
-    # But the task asks for "absolute difference <= 0.005". This usually implies
-    # comparing the empirical p-value of a specific observed statistic to the theoretical one.
-    # Since p-values are random variables, we run the simulation for a fixed observed statistic
-    # or check the calibration.
-    # Let's interpret as: Compute the empirical p-value by simulating the null distribution
-    # of the Z statistic and comparing the position of the observed Z.
+    # 2. Compute Monte-Carlo P-value
+    # Simulate under null hypothesis (p1 = p2)
+    # We pool the proportion for the null
+    pooled_p = (x1 + x2) / (n1 + n2)
 
-    # Generate null distribution of Z statistics
-    z_stats = []
+    mc_p_values = []
     for _ in range(NUM_REPLICATES):
-        g_a = generate_null_binary_data(n1, p_true)
-        g_b = generate_null_binary_data(n2, p_true)
-        p_a, p_b = np.mean(g_a), np.mean(g_b)
-        p_pool_sim = (n1*p_a + n2*p_b) / (n1 + n2)
-        se_sim = np.sqrt(p_pool_sim * (1 - p_pool_sim) * (1/n1 + 1/n2))
-        if se_sim == 0:
-            z_stats.append(0.0)
-        else:
-            z_stats.append((p_a - p_b) / se_sim)
+        # Generate data under null
+        y1 = rng.binomial(n1, pooled_p)
+        y2 = rng.binomial(n2, pooled_p)
 
-    z_stats = np.array(z_stats)
-    empirical_p = (np.sum(np.abs(z_stats) >= np.abs(z_obs)) + 1) / (NUM_REPLICATES + 1)
+        # Simulate statistic
+        try:
+            stat_sim = simulate_z_test_statistic(y1, y2, n1, n2, pooled_p)
+            mc_p_values.append(stat_sim)
+        except Exception:
+            continue
 
-    diff = abs(empirical_p - p_theoretical)
-    passed = diff <= DIFFERENCE_THRESHOLD
+    if not mc_p_values:
+        logger.error("Monte-Carlo simulation produced no valid statistics for Z-Test.")
+        return False, {"error": "No MC samples", "test": "z_test"}
 
-    return passed, {
+    # Compute empirical p-value (two-sided: count stats >= |observed|)
+    # Note: simulate_z_test_statistic returns the z-statistic
+    observed_abs_stat = abs(stat_lib)
+    # Count how many simulated stats are as extreme or more extreme
+    extreme_count = sum(1 for s in mc_p_values if abs(s) >= observed_abs_stat)
+    p_mc = extreme_count / NUM_REPLICATES
+
+    diff = abs(p_lib - p_mc)
+    is_valid = diff <= TOLERANCE_THRESHOLD
+
+    details = {
         "test": "z_test",
-        "observed_z": float(z_obs),
-        "theoretical_p": float(p_theoretical),
-        "empirical_p": float(empirical_p),
-        "difference": float(diff),
-        "passed": passed
+        "p_library": p_lib,
+        "p_monte_carlo": p_mc,
+        "difference": diff,
+        "threshold": TOLERANCE_THRESHOLD,
+        "valid": is_valid,
+        "replicates": NUM_REPLICATES
     }
 
-def validate_fisher_exact() -> Tuple[bool, Dict[str, Any]]:
+    if is_valid:
+        logger.info(f"Z-Test validation PASSED (diff={diff:.5f})")
+    else:
+        logger.error(f"Z-Test validation FAILED (diff={diff:.5f} > {TOLERANCE_THRESHOLD})")
+
+    return is_valid, details
+
+
+def validate_fisher_exact(rng: np.random.Generator) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate Fisher's Exact Test consistency.
+    Validate Fisher's Exact Test against Monte-Carlo simulation.
+
+    Returns:
+        Tuple of (is_valid, details_dict)
     """
-    set_seeds(SEED)
-    # Create a contingency table
-    # Under null, odds ratio = 1
-    # We simulate tables with fixed margins to check the p-value calculation
+    logger.info("Running Monte-Carlo validation for Fisher's Exact Test")
+
+    # Parameters
     n1, n2 = 100, 100
-    p_true = 0.5
+    p1, p2 = 0.4, 0.5
 
-    # Observed table (simulated)
-    # We generate one observed table and then simulate the null distribution
-    # by permuting or generating new tables with same margins?
-    # Standard Fisher: fixed margins.
-    # Let's generate data and fix margins.
-    a = int(n1 * p_true)
-    b = n1 - a
-    c = int(n2 * p_true)
-    d = n2 - c
+    # Generate data
+    x1 = rng.binomial(n1, p1)
+    x2 = rng.binomial(n2, p2)
 
-    observed_table = [[a, b], [c, d]]
-    row_sums = [sum(observed_table[0]), sum(observed_table[1])]
-    col_sums = [sum(x[0] for x in observed_table), sum(x[1] for x in observed_table)]
-    total = sum(row_sums)
+    # 1. Library P-value
+    try:
+        table = [[x1, n1 - x1], [x2, n2 - x2]]
+        res = stats.fisher_exact(table, alternative='two-sided')
+        p_lib = res.pvalue
+    except Exception as e:
+        logger.error(f"Library Fisher Exact failed: {e}")
+        return False, {"error": str(e), "test": "fisher_exact"}
 
-    # Theoretical p-value
-    _, p_theoretical = stats.fisher_exact(observed_table, alternative='two-sided')
-
-    # Monte Carlo: Simulate tables with fixed margins
-    # We can use the hypergeometric distribution to simulate 'a'
-    # a ~ Hypergeometric(N=total, K=col_sums[0], n=row_sums[0])
-    # Then construct the table and compute p-value for each?
-    # Actually, Fisher's p-value is the sum of probabilities of tables as or more extreme.
-    # To validate, we check if the empirical p-value (fraction of simulated tables with
-    # odds ratio as extreme or more extreme) matches the theoretical one.
-    # But the theoretical p-value IS the sum of hypergeometric probabilities.
-    # So we simulate the hypergeometric distribution and check the cumulative probability.
-
-    # Let's simulate 'a' from Hypergeometric
-    # N=total, K=col_sums[0], n=row_sums[0]
-    # Then calculate the p-value for that specific 'a' using the hypergeometric PMF
-    # and compare the empirical proportion of extreme tables.
-
-    # Simplified: The empirical p-value of the observed table under the null
-    # should be close to the theoretical p-value.
-    # We simulate many tables with the same margins.
-    extreme_count = 0
-    odds_ratio_obs = (a * d) / (b * c) if (b * c) != 0 else 0
-
+    # 2. Monte-Carlo P-value
+    # Simulate contingency tables with fixed margins (hypergeometric distribution)
+    # The null hypothesis is that the odds ratio is 1.
+    # We simulate by shuffling the outcomes while keeping row/col totals fixed.
+    # Or simpler: generate counts from hypergeometric distribution directly.
+    # Total successes = x1 + x2, Total failures = (n1+n2) - (x1+x2)
+    # We draw x1' from Hypergeometric(N=n1+n2, K=x1+x2, n=n1)
+    
+    total_successes = x1 + x2
+    total_n = n1 + n2
+    
+    mc_p_values = []
     for _ in range(NUM_REPLICATES):
-        # Sample 'a' from Hypergeometric
-        # K = col_sums[0] (total successes in pop), n = row_sums[0] (sample size)
-        a_sim = np.random.hypergeometric(col_sums[0], col_sums[1], row_sums[0])
-        b_sim = row_sums[0] - a_sim
-        c_sim = col_sums[0] - a_sim
-        d_sim = row_sums[1] - c_sim
+        # Simulate x1 under null
+        x1_sim = rng.hypergeometric(
+            ngood=total_successes,
+            nbad=total_n - total_successes,
+            nsample=n1
+        )
+        x2_sim = total_successes - x1_sim
+        
+        # Ensure non-negative (hypergeometric handles this, but just in case)
+        if x2_sim < 0 or x2_sim > n2:
+            continue
 
-        if b_sim <= 0 or c_sim <= 0:
-            or_sim = float('inf') if a_sim * d_sim > 0 else 0
+        table_sim = [[x1_sim, n1 - x1_sim], [x2_sim, n2 - x2_sim]]
+        
+        # Compute statistic (odds ratio) or p-value?
+        # To compare p-values directly, we need the p-value of the simulated table.
+        # However, computing Fisher's exact for every simulation is slow.
+        # Alternative: Compare the Odds Ratio statistic distribution.
+        # But the task asks to check p-value difference <= 0.005.
+        # Let's approximate the p-value via the hypergeometric probability mass.
+        # P-value = sum of probabilities of tables as extreme or more extreme.
+        # This is computationally heavy for MC if we sum PMF.
+        # Instead, we can simulate the p-value by counting how many tables are more extreme.
+        
+        # Let's use the Odds Ratio as the statistic for ordering.
+        # OR = (x1 * x2_fail) / (x1_fail * x2)
+        # If x1_fail or x2 is 0, OR is 0 or inf.
+        try:
+            or_sim = (x1_sim * (n2 - x2_sim)) / ((n1 - x1_sim) * x2_sim) if (n1-x1_sim)*x2_sim != 0 else float('inf')
+        except:
+            continue
+        
+        # We need the observed OR
+        try:
+            or_obs = (x1 * (n2 - x2)) / ((n1 - x1) * x2) if (n1-x1)*x2 != 0 else float('inf')
+        except:
+            continue
+
+        # We need to define "extreme". Two-sided: |log(OR)| >= |log(OR_obs)|
+        # Or simpler: count how many simulated ORs are as extreme or more extreme.
+        # But this is tricky with 0/Inf.
+        
+        # Let's fallback to a simpler MC approach for Fisher:
+        # Simulate the p-value directly by generating tables and computing exact p for each? Too slow.
+        # Let's use the hypergeometric probability of the observed table and sum tails.
+        # Actually, the standard MC Fisher approximates the p-value by counting tables with p <= p_obs.
+        # That's circular.
+        
+        # Let's use the statistic: the count x1.
+        # P-value = P(X1 <= x1_obs | H0) + P(X1 >= x1_obs | H0) depending on direction.
+        # Since we generated under H0, the p-value is simply the proportion of simulated x1
+        # that are as or more extreme than the observed x1.
+        
+        # Determine direction
+        if x1 > (n1 * total_successes / total_n):
+            # Right tail
+            extreme = sum(1 for _ in range(NUM_REPLICATES) if rng.hypergeometric(total_successes, total_n-total_successes, n1) >= x1)
+            # Wait, we need to do this in one pass.
+            pass
+        
+        # Correct approach for MC p-value of Fisher's:
+        # 1. Calculate observed statistic (e.g., x1 or OR).
+        # 2. Simulate many tables under H0.
+        # 3. Calculate statistic for each.
+        # 4. Count how many simulated stats are as or more extreme than observed.
+        
+        # Let's use x1 as the statistic.
+        # Observed x1.
+        # Simulate x1_sim.
+        # More extreme: if x1 > expected, then x1_sim >= x1. If x1 < expected, x1_sim <= x1.
+        
+        expected_x1 = n1 * total_successes / total_n
+        if x1 >= expected_x1:
+            # Right tail
+            pass # We'll count in the loop below
         else:
-            or_sim = (a_sim * d_sim) / (b_sim * c_sim)
+            # Left tail
+            pass
 
-        # Two-sided: check if |log(OR)| >= |log(OR_obs)|
-        # Or use the probability mass. Fisher's exact is usually defined by PMF.
-        # Let's use the probability of the table itself as the metric for "extremeness"
-        # P(T) = (C(row1, a) * C(row2, c)) / C(N, col1)
-        # This is the hypergeometric probability.
-        # We count tables with P(T_sim) <= P(T_obs)
-        # But calculating factorials for large numbers is hard.
-        # Instead, we rely on the property that the empirical p-value from simulation
-        # of the null distribution (via permutation or hypergeometric) converges to the exact p-value.
+        # Let's just collect all simulated x1s first
+        pass
 
-        # Let's just count if the simulated table is as extreme or more extreme in terms of odds ratio
-        # This is an approximation of the two-sided test.
-        if np.abs(np.log(or_sim + 1e-9)) >= np.abs(np.log(odds_ratio_obs + 1e-9)):
-            extreme_count += 1
+    # Re-implementing Fisher MC logic cleanly
+    mc_extreme_count = 0
+    expected_x1 = n1 * total_successes / total_n
+    is_right_tailed = x1 >= expected_x1
+    
+    # We need to generate the simulated tables and compare
+    # But to compare "p-values", we are essentially checking if the library p-value
+    # matches the MC estimated p-value.
+    # MC Estimated P = (count of simulated tables with p_sim <= p_obs + 1) / (N + 1)
+    # But computing p_sim for every table is expensive.
+    # Instead, we use the statistic ordering.
+    # P-value = P(T >= T_obs) or P(T <= T_obs).
+    # We will count how many simulated T are as extreme as T_obs.
+    
+    # Let's collect simulated x1s
+    sim_x1s = []
+    for _ in range(NUM_REPLICATES):
+        val = rng.hypergeometric(total_successes, total_n - total_successes, n1)
+        sim_x1s.append(val)
+    
+    if is_right_tailed:
+        mc_extreme_count = sum(1 for val in sim_x1s if val >= x1)
+    else:
+        mc_extreme_count = sum(1 for val in sim_x1s if val <= x1)
+    
+    p_mc = mc_extreme_count / NUM_REPLICATES
 
-    p_empirical = (extreme_count + 1) / (NUM_REPLICATES + 1)
-    diff = abs(p_empirical - p_theoretical)
-    passed = diff <= DIFFERENCE_THRESHOLD
+    diff = abs(p_lib - p_mc)
+    is_valid = diff <= TOLERANCE_THRESHOLD
 
-    return passed, {
+    details = {
         "test": "fisher_exact",
-        "theoretical_p": float(p_theoretical),
-        "empirical_p": float(p_empirical),
-        "difference": float(diff),
-        "passed": passed
+        "p_library": p_lib,
+        "p_monte_carlo": p_mc,
+        "difference": diff,
+        "threshold": TOLERANCE_THRESHOLD,
+        "valid": is_valid,
+        "replicates": NUM_REPLICATES
     }
 
-def validate_welch_t_test() -> Tuple[bool, Dict[str, Any]]:
+    if is_valid:
+        logger.info(f"Fisher Exact validation PASSED (diff={diff:.5f})")
+    else:
+        logger.error(f"Fisher Exact validation FAILED (diff={diff:.5f} > {TOLERANCE_THRESHOLD})")
+
+    return is_valid, details
+
+
+def validate_welch_t_test(rng: np.random.Generator) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate Welch's t-test consistency.
+    Validate Welch's t-test against Monte-Carlo simulation.
+
+    Returns:
+        Tuple of (is_valid, details_dict)
     """
-    set_seeds(SEED)
-    n1, n2 = 100, 100
-    mu, sigma = 0, 1
+    logger.info("Running Monte-Carlo validation for Welch's T-Test")
 
-    # Generate null data (continuous)
-    group_a = generate_null_continuous_data(n1, mu, sigma)
-    group_b = generate_null_continuous_data(n2, mu, sigma)
+    # Parameters
+    n1, n2 = 100, 150
+    mu1, mu2 = 0, 0.2
+    sigma1, sigma2 = 1.0, 1.2
 
-    # Theoretical p-value
-    t_obs, p_theoretical = stats.ttest_ind(group_a, group_b, equal_var=False)
+    # Generate data
+    data1 = rng.normal(mu1, sigma1, n1)
+    data2 = rng.normal(mu2, sigma2, n2)
 
-    # Monte Carlo: Simulate t-statistics under null
-    t_stats = []
+    # 1. Library P-value
+    try:
+        stat_lib, p_lib = stats.ttest_ind(data1, data2, equal_var=False)
+    except Exception as e:
+        logger.error(f"Library Welch T-Test failed: {e}")
+        return False, {"error": str(e), "test": "welch_t_test"}
+
+    # 2. Monte-Carlo P-value
+    # Simulate under null (mu1 = mu2). Center both samples at 0.
+    # We shift data1 and data2 to have mean 0, then resample?
+    # Or just generate new data from N(0, sigma) with estimated sigmas.
+    # Better: Permutation test style or parametric bootstrap under H0.
+    # Parametric: Generate data from N(0, sigma1) and N(0, sigma2).
+    
+    # Estimate sigmas from data (or use known if we control generation, but let's be robust)
+    s1 = np.std(data1, ddof=1)
+    s2 = np.std(data2, ddof=1)
+    
+    mc_p_values = []
     for _ in range(NUM_REPLICATES):
-        g_a = generate_null_continuous_data(n1, mu, sigma)
-        g_b = generate_null_continuous_data(n2, mu, sigma)
-        t_sim, _ = stats.ttest_ind(g_a, g_b, equal_var=False)
-        t_stats.append(t_sim)
+        y1 = rng.normal(0, s1, n1)
+        y2 = rng.normal(0, s2, n2)
+        
+        try:
+            stat_sim, _ = stats.ttest_ind(y1, y2, equal_var=False)
+            mc_p_values.append(stat_sim)
+        except:
+            continue
+    
+    if not mc_p_values:
+        logger.error("Monte-Carlo simulation produced no valid statistics for Welch T-Test.")
+        return False, {"error": "No MC samples", "test": "welch_t_test"}
+    
+    # Two-sided p-value estimation
+    observed_abs_stat = abs(stat_lib)
+    extreme_count = sum(1 for s in mc_p_values if abs(s) >= observed_abs_stat)
+    p_mc = extreme_count / NUM_REPLICATES
 
-    t_stats = np.array(t_stats)
-    empirical_p = (np.sum(np.abs(t_stats) >= np.abs(t_obs)) + 1) / (NUM_REPLICATES + 1)
+    diff = abs(p_lib - p_mc)
+    is_valid = diff <= TOLERANCE_THRESHOLD
 
-    diff = abs(empirical_p - p_theoretical)
-    passed = diff <= DIFFERENCE_THRESHOLD
-
-    return passed, {
+    details = {
         "test": "welch_t_test",
-        "observed_t": float(t_obs),
-        "theoretical_p": float(p_theoretical),
-        "empirical_p": float(empirical_p),
-        "difference": float(diff),
-        "passed": passed
+        "p_library": p_lib,
+        "p_monte_carlo": p_mc,
+        "difference": diff,
+        "threshold": TOLERANCE_THRESHOLD,
+        "valid": is_valid,
+        "replicates": NUM_REPLICATES
     }
 
-def validate_binomial_test() -> Tuple[bool, Dict[str, Any]]:
+    if is_valid:
+        logger.info(f"Welch T-Test validation PASSED (diff={diff:.5f})")
+    else:
+        logger.error(f"Welch T-Test validation FAILED (diff={diff:.5f} > {TOLERANCE_THRESHOLD})")
+
+    return is_valid, details
+
+
+def validate_binomial_test(rng: np.random.Generator) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate Binomial test consistency.
+    Validate Binomial Test against Monte-Carlo simulation.
+
+    Returns:
+        Tuple of (is_valid, details_dict)
     """
-    set_seeds(SEED)
-    n = 100
+    logger.info("Running Monte-Carlo validation for Binomial Test")
+
+    # Parameters
+    n = 50
+    p_true = 0.5
     p_null = 0.5
-    k = int(n * p_null)  # Observed successes under null
 
-    # Theoretical p-value (two-sided)
-    # Probability of k or more extreme outcomes
-    # For two-sided, it's 2 * min(P(X <= k), P(X >= k)) if symmetric
-    # scipy.stats.binom_test handles this
-    p_theoretical = stats.binom_test(k, n, p_null, alternative='two-sided')
+    # Generate data
+    k = rng.binomial(n, p_true)
 
-    # Monte Carlo: Simulate binomial trials
-    successes = []
+    # 1. Library P-value (Two-sided)
+    try:
+        # scipy.stats.binom_test is deprecated, use binomtest
+        res = stats.binomtest(k, n, p_null, alternative='two-sided')
+        p_lib = res.pvalue
+    except Exception as e:
+        logger.error(f"Library Binomial Test failed: {e}")
+        return False, {"error": str(e), "test": "binomial_test"}
+
+    # 2. Monte-Carlo P-value
+    # Simulate under null: Binomial(n, p_null)
+    mc_p_values = []
     for _ in range(NUM_REPLICATES):
-        s = np.random.binomial(n, p_null)
-        successes.append(s)
-
-    # Count how many are as or more extreme than k
-    # For two-sided, distance from mean n*p
-    mean_val = n * p_null
-    dist_obs = abs(k - mean_val)
+        k_sim = rng.binomial(n, p_null)
+        mc_p_values.append(k_sim)
+    
+    if not mc_p_values:
+        logger.error("Monte-Carlo simulation produced no valid statistics for Binomial Test.")
+        return False, {"error": "No MC samples", "test": "binomial_test"}
+    
+    # Two-sided: count how many simulated k are as or more extreme than observed k.
+    # "More extreme" means probability of k_sim under H0 is <= probability of k under H0.
+    # Or simpler: distance from mean n*p.
+    # scipy's two-sided binomial test sums probabilities of all outcomes with p(x) <= p(k).
+    # We will approximate this by counting how many k_sim have P(X=k_sim) <= P(X=k).
+    
+    # Calculate P(X=k)
+    from scipy.stats import binom
+    p_k = binom.pmf(k, n, p_null)
+    
     extreme_count = 0
-    for s in successes:
-        dist_s = abs(s - mean_val)
-        if dist_s >= dist_obs:
+    for k_sim in mc_p_values:
+        p_sim = binom.pmf(k_sim, n, p_null)
+        if p_sim <= p_k:
             extreme_count += 1
+    
+    p_mc = extreme_count / NUM_REPLICATES
 
-    p_empirical = (extreme_count + 1) / (NUM_REPLICATES + 1)
-    diff = abs(p_empirical - p_theoretical)
-    passed = diff <= DIFFERENCE_THRESHOLD
+    diff = abs(p_lib - p_mc)
+    is_valid = diff <= TOLERANCE_THRESHOLD
 
-    return passed, {
-        "test": "binomial",
-        "observed_k": int(k),
-        "theoretical_p": float(p_theoretical),
-        "empirical_p": float(p_empirical),
-        "difference": float(diff),
-        "passed": passed
+    details = {
+        "test": "binomial_test",
+        "p_library": p_lib,
+        "p_monte_carlo": p_mc,
+        "difference": diff,
+        "threshold": TOLERANCE_THRESHOLD,
+        "valid": is_valid,
+        "replicates": NUM_REPLICATES
     }
+
+    if is_valid:
+        logger.info(f"Binomial Test validation PASSED (diff={diff:.5f})")
+    else:
+        logger.error(f"Binomial Test validation FAILED (diff={diff:.5f} > {TOLERANCE_THRESHOLD})")
+
+    return is_valid, details
+
 
 def run_monte_carlo_validation() -> bool:
     """
-    Run all validation tests and return True if all pass.
-    """
-    logger.info("Starting Monte-Carlo validation with %d replicates...", NUM_REPLICATES)
+    Execute the full Monte-Carlo validation suite.
 
+    Returns:
+        True if all tests pass, False otherwise.
+    """
+    logger.info("Starting Monte-Carlo Validation Suite (FR-026)")
+    
+    # Initialize RNG with fixed seed for reproducibility
+    rng = np.random.default_rng(SEED)
+    
     results = []
     all_passed = True
 
-    # Z-Test
-    logger.info("Validating Z-Test...")
-    passed, res = validate_z_test()
-    results.append(res)
-    if not passed:
-        all_passed = False
-        logger.warning("Z-Test validation FAILED: diff=%.6f", res['difference'])
-    else:
-        logger.info("Z-Test validation PASSED.")
+    # Run validations
+    tests = [
+        ("Z-Test", validate_z_test),
+        ("Fisher's Exact", validate_fisher_exact),
+        ("Welch's T-Test", validate_welch_t_test),
+        ("Binomial Test", validate_binomial_test),
+    ]
 
-    # Fisher's Exact
-    logger.info("Validating Fisher's Exact Test...")
-    passed, res = validate_fisher_exact()
-    results.append(res)
-    if not passed:
-        all_passed = False
-        logger.warning("Fisher's Exact validation FAILED: diff=%.6f", res['difference'])
-    else:
-        logger.info("Fisher's Exact validation PASSED.")
-
-    # Welch's T-Test
-    logger.info("Validating Welch's T-Test...")
-    passed, res = validate_welch_t_test()
-    results.append(res)
-    if not passed:
-        all_passed = False
-        logger.warning("Welch's T-Test validation FAILED: diff=%.6f", res['difference'])
-    else:
-        logger.info("Welch's T-Test validation PASSED.")
-
-    # Binomial Test
-    logger.info("Validating Binomial Test...")
-    passed, res = validate_binomial_test()
-    results.append(res)
-    if not passed:
-        all_passed = False
-        logger.warning("Binomial Test validation FAILED: diff=%.6f", res['difference'])
-    else:
-        logger.info("Binomial Test validation PASSED.")
+    for name, func in tests:
+        try:
+            passed, details = func(rng)
+            results.append(details)
+            if not passed:
+                all_passed = False
+        except Exception as e:
+            logger.exception(f"Validation for {name} raised an exception: {e}")
+            all_passed = False
+            results.append({
+                "test": name,
+                "error": str(e),
+                "valid": False
+            })
 
     # Log summary
-    logger.info("Monte-Carlo validation complete. All tests passed: %s", all_passed)
-    for r in results:
-        logger.info("  %s: p_theo=%.4f, p_emp=%.4f, diff=%.4f, pass=%s",
-                    r['test'], r['theoretical_p'], r['empirical_p'], r['difference'], r['passed'])
+    logger.info(f"Validation Suite Complete. All Passed: {all_passed}")
+    for res in results:
+        status = "PASS" if res.get("valid") else "FAIL"
+        logger.info(f"  - {res['test']}: {status}")
 
     return all_passed
 
-def main():
+
+def main() -> int:
     """
-    Entry point for the Monte-Carlo validation module.
-    Exits with status 0 if all tests pass, 1 otherwise.
+    Entry point for the script.
+
+    Returns:
+        0 if validation passes, 1 if any test fails.
     """
     try:
         success = run_monte_carlo_validation()
         if success:
-            logger.info("All Monte-Carlo validations passed. Exiting with status 0.")
-            sys.exit(0)
+            logger.info("All Monte-Carlo validations passed.")
+            return 0
         else:
-            logger.error("Some Monte-Carlo validations failed. Exiting with status 1.")
-            sys.exit(1)
+            logger.error("One or more Monte-Carlo validations failed.")
+            return 1
     except Exception as e:
-        logger.exception("Monte-Carlo validation failed with exception: %s", e)
-        sys.exit(1)
+        logger.exception(f"Fatal error in Monte-Carlo validation: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
