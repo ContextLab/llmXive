@@ -1,0 +1,173 @@
+# Output Schema for Neural Correlates of Anticipatory Reward Processing
+# Defines the expected structure of the final analysis report and plot metadata
+# Used for validation of the reporting pipeline (US3)
+
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Report Schema
+description: >
+  Schema defining the structure of the summary report (summary_report.txt)
+  and the metadata required for generated figures (data/figures).
+
+definitions:
+  plot_metadata:
+    type: object
+    description: Metadata for a single generated plot
+    required:
+      - figure_id
+      - figure_type
+      - x_axis_label
+      - y_axis_label
+      - output_path
+      - generated_at
+    properties:
+      figure_id:
+        type: string
+        description: Unique identifier for the figure (e.g., "fig_001_scatter")
+      figure_type:
+        type: string
+        enum:
+          - scatter_plot
+          - residual_plot
+          - histogram
+          - bar_chart
+        description: Type of visualization generated
+      x_axis_label:
+        type: string
+        description: Label for the X-axis
+      y_axis_label:
+        type: string
+        description: Label for the Y-axis
+      title:
+        type: string
+        description: Optional title of the figure
+      output_path:
+        type: string
+        description: Relative path to the generated file (e.g., "data/figures/scatter_reward_vs_fr.png")
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      statistics_summary:
+        type: object
+        description: Key statistics overlaid or referenced in the plot
+        properties:
+          n_points:
+            type: integer
+            description: Number of data points plotted
+          r_squared:
+            type: number
+            format: float
+            description: R-squared value if regression line is present
+          p_value:
+            type: number
+            format: float
+            description: P-value if significance testing is shown
+
+  report_metrics:
+    type: object
+    description: Core statistical metrics included in the summary report
+    required:
+      - coefficient
+      - p_value
+      - model_type
+      - mdes_80_power
+      - cv_score_mean
+      - cv_score_std
+    properties:
+      coefficient:
+        type: number
+        format: float
+        description: GLM coefficient for reward_magnitude
+      p_value:
+        type: number
+        format: float
+        description: P-value for the reward_magnitude coefficient
+      model_type:
+        type: string
+        enum:
+          - Poisson
+          - NegativeBinomial
+        description: Type of GLM fitted
+      dispersion:
+        type: number
+        format: float
+        description: Estimated dispersion parameter
+      mdes_80_power:
+        type: number
+        format: float
+        description: Minimum Detectable Effect Size at 80% power
+      cv_score_mean:
+        type: number
+        format: float
+        description: Mean R2 from k-fold cross-validation
+      cv_score_std:
+        type: number
+        format: float
+        description: Standard deviation of R2 from k-fold cross-validation
+      permutation_p_value:
+        type: number
+        format: float
+        description: P-value from the permutation test
+      neuron_count:
+        type: integer
+        description: Number of unique neurons analyzed
+      multiple_comparison_method:
+        type: string
+        description: Method used for multiple comparisons (e.g., "Bonferroni")
+
+  data_loss_metrics:
+    type: object
+    description: Metrics regarding data filtering and validation
+    required:
+      - ingestion_rows_total
+      - ingestion_rows_valid
+      - ingestion_rows_dropped
+    properties:
+      ingestion_rows_total:
+        type: integer
+      ingestion_rows_valid:
+        type: integer
+      ingestion_rows_dropped:
+        type: integer
+      drop_reasons:
+        type: array
+        items:
+          type: string
+        description: List of reasons why rows were dropped (e.g., "cue_reward_delay < 500ms")
+
+type: object
+required:
+  - report_metadata
+  - model_results
+  - plot_metadata_list
+  - data_quality
+properties:
+  report_metadata:
+    type: object
+    description: General information about the report generation
+    required:
+      - project_id
+      - generated_at
+      - pipeline_version
+    properties:
+      project_id:
+        type: string
+        const: PROJ-517-neural-correlates-of-anticipatory-reward
+      generated_at:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+        description: Version of the analysis pipeline used
+
+  model_results:
+    $ref: "#/definitions/report_metrics"
+
+  plot_metadata_list:
+    type: array
+    description: List of all generated figures and their metadata
+    items:
+      $ref: "#/definitions/plot_metadata"
+
+  data_quality:
+    $ref: "#/definitions/data_loss_metrics"

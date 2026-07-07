@@ -1,0 +1,36 @@
+# Schema for neural correlates dataset
+# Generated/Managed by T006
+type: object
+properties:
+  trial_id:
+    type: string
+    pattern: "^trial_[0-9]+$"
+    description: "Unique identifier for the trial, format: trial_<number>"
+  neuron_id:
+    type: integer
+    description: "Unique identifier for the neuron"
+  spike_timestamps:
+    type: array
+    items:
+      type: number
+    description: "List of spike timestamps in milliseconds"
+  reward_magnitude:
+    type: number
+    description: "Magnitude of the reward delivered"
+  cue_timestamps:
+    type: array
+    items:
+      type: number
+    description: "List of cue timestamps in milliseconds"
+  spike_sorting_metadata:
+    type: object
+    properties:
+      snr:
+        type: number
+      isolation_distance:
+        type: number
+    description: "Metadata regarding spike sorting quality"
+required:
+  - trial_id
+  - neuron_id
+  - reward_magnitude

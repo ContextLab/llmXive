@@ -1,0 +1,12 @@
+'T001a [P] Create source code directories: `code/`, `tests/` (relative to project root)': 1
+'T001b [P] Create data directories: `data/raw/`, `data/processed/`, `data/figures/` (relative to project root)': 1
+'T001c [P] Create spec directories: `specs/001-neural-correlates-of-anticipatory-reward/` (relative to project root)': 1
+T002a [P] Create `code/__init__.py` and `tests/__init__.py`: 1
+? 'T002b [P] Create `projects/PROJ-517-neural-correlates-of-anticipatory-reward/requirements.txt`
+  with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib,
+  seaborn, pyyaml, pytest'
+: 1
+? 'T002c [P] Initialize virtualenv in project root: Run `python -m venv.venv`, `source.venv/bin/activate`,
+  and `pip install -r requirements.txt` (Ensure Python 3.10+) <!-- FAILED: unspecified
+  -->'
+: 1

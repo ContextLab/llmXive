@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial"
+  neuron_id:
+    type: string
+    description: "Unique identifier for the neuron"
+  spike_count:
+    type: integer
+    description: "Number of spikes in the -500ms to 0ms window"
+    minimum: 0
+  reward_magnitude:
+    type: number
+    description: "Volume of reward in microliters"
+    minimum: 0
+  is_valid_trial:
+    type: boolean
+    description: "True if the trial meets the temporal validity criteria"
+required:
+  - trial_id
+  - neuron_id
+  - spike_count
+  - reward_magnitude
+  - is_valid_trial
+additionalProperties: false
+description: "Schema for the processed feature matrix used in GLM analysis."

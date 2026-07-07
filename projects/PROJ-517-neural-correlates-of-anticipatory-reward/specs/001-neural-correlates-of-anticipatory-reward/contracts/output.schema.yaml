@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  neuron_id:
+    type: string
+    description: "Unique identifier for the neuron"
+  coefficient:
+    type: number
+    description: "Estimated slope for reward_magnitude"
+  std_error:
+    type: number
+    description: "Standard error of the coefficient"
+  p_value_perm:
+    type: number
+    description: "P-value from the permutation test"
+    minimum: 0
+    maximum: 1
+  p_value_corrected:
+    type: number
+    description: "Bonferroni-corrected p-value"
+    minimum: 0
+    maximum: 1
+  dispersion_param:
+    type: number
+    description: "Estimated dispersion parameter for Negative Binomial"
+    minimum: 0
+  converged:
+    type: boolean
+    description: "True if the GLM optimization converged"
+  mdes_80_power:
+    type: number
+ description: "Minimum Detectable Effect Size for [deferred] power"
+  cv_score_mean:
+    type: number
+    description: "Mean cross-validation score (coefficient stability)"
+  cv_score_std:
+    type: number
+    description: "Standard deviation of cross-validation scores"
+  ingestion_rows_total:
+    type: integer
+    description: "Total rows in raw input"
+  ingestion_rows_valid:
+    type: integer
+    description: "Rows successfully aligned and valid"
+  ingestion_rows_dropped:
+    type: integer
+    description: "Rows dropped due to missing data or invalid windows"
+  reward_independence_status:
+    type: string
+    description: "Status of reward independence check: 'exogenous', 'endogenous', or 'unknown'"
+  non_linearity_flag:
+    type: boolean
+    description: "True if categorical model fits significantly better than linear"
+  selection_bias_flag:
+    type: boolean
+    description: "True if excluded trials have systematically different rewards"
+required:
+  - neuron_id
+  - coefficient
+  - std_error
+  - p_value_perm
+  - p_value_corrected
+  - dispersion_param
+  - converged
+  - mdes_80_power
+  - cv_score_mean
+  - cv_score_std
+  - ingestion_rows_total
+  - ingestion_rows_valid
+  - ingestion_rows_dropped
+  - reward_independence_status
+  - non_linearity_flag
+  - selection_bias_flag
+additionalProperties: false
+description: "Schema for the model output results."
