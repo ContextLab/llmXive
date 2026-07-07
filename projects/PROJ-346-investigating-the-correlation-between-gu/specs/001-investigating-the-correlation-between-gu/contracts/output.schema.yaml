@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+type: "object"
+properties:
+  # Correlation and Regression Outputs (Conditional)
+  taxon_name:
+    type: "string"
+    description: "Name of the microbial taxon"
+  r_value:
+    type: "number"
+    description: "Spearman correlation coefficient"
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: "number"
+    description: "Raw p-value"
+    minimum: 0
+    maximum: 1
+  q_value:
+    type: "number"
+    description: "Benjamini-Hochberg FDR corrected p-value"
+    minimum: 0
+    maximum: 1
+  significant:
+    type: "boolean"
+    description: "True if q < 0.05"
+  beta_coef:
+    type: "number"
+    description: "Regression coefficient (if applicable)"
+  std_err:
+    type: "number"
+    description: "Standard error of the coefficient"
+    minimum: 0
+  selected:
+    type: "boolean"
+    description: "True if selected by LASSO"
+  
+  # Data Gap Report Fields (If Linkage Failed)
+  gap_status:
+    type: "string"
+    description: "Status of the data linkage check"
+    enum: ["Data Linkage Failure", "Success"]
+  gap_reason:
+    type: "string"
+    description: "Explanation of why data linkage failed"
+  available_datasets:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of datasets used in the attempt"
+  missing_variables:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of variables missing for pairing"
+  success_criterion_status:
+    type: "object"
+    description: "Status of success criteria (SC-001, SC-004, etc.)"
+    properties:
+      SC_001:
+        type: "string"
+        description: "Status of SC-001 (significant taxa count)"
+        enum: ["Measured", "Not Measurable", "N/A"]
+      SC_004:
+        type: "string"
+        description: "Status of SC-004 (robustness by age)"
+        enum: ["Measured", "Not Measurable", "N/A"]
+required:
+  - gap_status
+oneOf:
+  - required:
+      - taxon_name
+      - r_value
+      - p_value
+      - q_value
+      - significant
+    description: "Output from successful correlation analysis"
+  - required:
+      - gap_reason
+      - available_datasets
+      - missing_variables
+      - success_criterion_status
+    description: "Output from data gap report"
+additionalProperties: false

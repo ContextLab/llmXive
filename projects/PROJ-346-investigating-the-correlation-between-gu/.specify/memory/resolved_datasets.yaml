@@ -1,0 +1,529 @@
+resolved_at: '2026-07-07T14:40:38.401974+00:00'
+datasets:
+- intent: MICE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 52723
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Earthquake_Dynamics_as_a_Benchmark_for_Scale-Invariant_Behavior/32923529
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Task-specific_effects_of_occupational_sedentary_behavior_on_proprioceptive_accuracy/32162745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Enki_Journal_for_Humanities_and_Social_Sciences_Issue_12_b_/32923838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Colonization_and_institutional_distance_influences_on_equity_participation_strategies_of_emerging_market_multinational_enterprises/32803004
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_for_Cattle-CellGTEx/32923865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6240985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833120
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4813200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10578501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155510
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/204989
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1118557
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1140389
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/127996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/22121310/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://www.openml.org/data/get_csv/22122393/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: AGP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 175588
+      parsed: true
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chongli17/AG-Pair/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/colabfit/Ag-PBE_MSMSE_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/AgPd_NPJ_2021/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/eternalaudrey/jump-cp-0016-labelfree-AGP/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Resurgammm/AGP-Training/resolve/main/coding/train.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.le.ac.uk/articles/thesis/Architects_of_Freedom_How_Four_Minority_Members_Influenced_Harry_Truman_s_Committee_on_Civil_Rights/32923517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Configurations_of_Entrepreneurial_Imaginativeness_and_Entrepreneurial_Passion_in_Tackling_Grand_Challenges/32824244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Chaos_synchronization_using_photonic_reservoir_computing_based_on_a_single_delayed_semiconductor_laser_-_7953114_pdf/32760480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Earthquake_Dynamics_as_a_Benchmark_for_Scale-Invariant_Behavior/32923529
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Task-specific_effects_of_occupational_sedentary_behavior_on_proprioceptive_accuracy/32162745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7400565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/161172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5512429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15331805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3467968
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/171957
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/JN2VTP
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.21005
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.16604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21083596
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NHANES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nguyenvy/cleaned_nhanes_1988_2018/resolve/main/chemicals_clean.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-nhanes-select-chronic-conditions-prevalence-es/resolve/main/data/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 237877
+      parsed: true
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-nhanes-footnotes/resolve/main/data/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5039
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nguyenvy/cleaned_nhanes_1988_2018/resolve/main/chemicals_clean.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67ff7ae7b60ed0febc1685fd/53e4265c350f6355a94934a9141272c9959446f435cd1eac5e6e44300779ec85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27databaseHealth.json%3B+filename%3D%22databaseHealth.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783438755&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmZjdhZTdiNjBlZDBmZWJjMTY4NWZkLzUzZTQyNjVjMzUwZjYzNTVhOTQ5MzRhOTE0MTI3MmM5OTU5NDQ2ZjQzNWNkMWVhYzVlNmU0NDMwMDc3OWVjODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YWJhc2VIZWFsdGguanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFiYXNlSGVhbHRoLmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDM4NzU1fX19XX0_&Signature=MEUCIEytNMcmcfIV885EMBkA8QohO~dj1OGsHXm5LWrakrcOAiEAqBuKITDrXNgE8CiCZNugv3ZU1VGL0fXDWkhn0jsCbig_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-nhanes-select-chronic-conditions-prevalence-es/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-nhanes-footnotes/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/rtweera/nhanes-training-merged/resolve/main/nhanes_1999_2018.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/thesis/Architects_of_Freedom_How_Four_Minority_Members_Influenced_Harry_Truman_s_Committee_on_Civil_Rights/32923517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Configurations_of_Entrepreneurial_Imaginativeness_and_Entrepreneurial_Passion_in_Tackling_Grand_Challenges/32824244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Chaos_synchronization_using_photonic_reservoir_computing_based_on_a_single_delayed_semiconductor_laser_-_7953114_pdf/32760480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Earthquake_Dynamics_as_a_Benchmark_for_Scale-Invariant_Behavior/32923529
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Task-specific_effects_of_occupational_sedentary_behavior_on_proprioceptive_accuracy/32162745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5118509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6990468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agsjournals.onlinelibrary.wiley.com/doi/10.1111/j.1532-5415.2007.01215.x
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/3361283
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18378974
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/enauq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21236918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21236918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: APIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14860
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19268
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24017
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/RazinAleks/SO-Python_QA-Networking_and_APIs_class/0272c822cc0f0e5a1c45c29c559d9061d3c73e4f/test.json?%2Fdatasets%2FRazinAleks%2FSO-Python_QA-Networking_and_APIs_class%2Fresolve%2Fmain%2Ftest.json=&etag=%22685295df5b2429de46482f7c3dc13b0b561f39c1%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/venkatsrini/api_single_4k_truncateright/resolve/main/data/train-00000-of-00011-042202c6a570c9d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/thesis/Architects_of_Freedom_How_Four_Minority_Members_Influenced_Harry_Truman_s_Committee_on_Civil_Rights/32923517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Configurations_of_Entrepreneurial_Imaginativeness_and_Entrepreneurial_Passion_in_Tackling_Grand_Challenges/32824244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Chaos_synchronization_using_photonic_reservoir_computing_based_on_a_single_delayed_semiconductor_laser_-_7953114_pdf/32760480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Earthquake_Dynamics_as_a_Benchmark_for_Scale-Invariant_Behavior/32923529
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Task-specific_effects_of_occupational_sedentary_behavior_on_proprioceptive_accuracy/32162745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4067184
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3547513
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/2328/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijtsrd.com/computer-science/database/15797/apis-and-restful-apis/mithilesh-tarkar
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5345597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242143
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242143
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239571
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21240194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Data_Computer_Codes_References_for_Experimental_Data/22678411
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/Architects_of_Freedom_How_Four_Minority_Members_Influenced_Harry_Truman_s_Committee_on_Civil_Rights/32923517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Configurations_of_Entrepreneurial_Imaginativeness_and_Entrepreneurial_Passion_in_Tackling_Grand_Challenges/32824244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Chaos_synchronization_using_photonic_reservoir_computing_based_on_a_single_delayed_semiconductor_laser_-_7953114_pdf/32760480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Earthquake_Dynamics_as_a_Benchmark_for_Scale-Invariant_Behavior/32923529
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/3779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/2319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/RawData_xlsx/29875070/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/RawData_xlsx/29875070/5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ev935/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242330
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21242330
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

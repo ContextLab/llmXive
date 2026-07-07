@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T08:59:58.963205Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-346-investigating-the-correlation-between-gu
-last_run_id: e189a0ef-57d4-4ca3-a786-c095d61b1408
+last_run_id: 68a10c19-a747-487a-85ce-652a7857a515
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-346-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Cognitive
   Flexibility
-updated_at: '2026-07-03T10:32:03.385852Z'
+updated_at: '2026-07-07T15:20:01.978152Z'
