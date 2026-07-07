@@ -8,9 +8,8 @@ tqdm
 pyyaml
 jsonschema
 psutil
-pydantic
-pytest
 ruff
 black
 pre-commit
-mypy
+pytest
+pytest-cov

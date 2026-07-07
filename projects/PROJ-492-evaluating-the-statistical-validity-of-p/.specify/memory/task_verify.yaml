@@ -71,6 +71,13 @@
   ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
   <!-- ATOMIZE: requested -->'
 : 1
+? 'T003 {{claim:c_ef1634da}} ({{claim:c_8fd76726}}, https://www.wikidata.org/wiki/Q19873191)
+  *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+  <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->'
+: 2
 ? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
   code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
   \ (verify logs contain correct codes)."
@@ -186,13 +193,6 @@
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
 : 1
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
-  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
