@@ -1,3 +1,7 @@
 {"event": "template_artifact_purge", "ts": "2026-05-15T11:42:05Z", "deleted_paths": ["projects/PROJ-008-psychology-research/.specify/memory/constitution.md", "projects/PROJ-008-psychology-research/specs/001-psychology-research/quickstart.md"], "prior_stage": "research_rejected", "new_stage": "flesh_out_complete", "reason": "speckit_prune purged TEMPLATE artifact(s) and downstream dependents", "run_id": "b22417dd-44f5-4092-97dc-862b88db438c"}
 {"at": "2026-06-14T18:09:13.819567+00:00", "from_stage": "flesh_out_complete", "last_run_id": "e415a768-10a0-4ecc-8fbf-bc3eff05aa8c", "to_stage": "flesh_out_in_progress"}
 {"at": "2026-06-25T21:46:47.582645+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "31f98d4f-ba9c-4604-9ad1-30a77b77384c", "to_stage": "flesh_out_complete"}
+{"at": "2026-07-07T19:39:43.880184+00:00", "from_stage": "flesh_out_complete", "last_run_id": "f259fffb-6ad6-45df-bdb6-a4091a6f50a0", "to_stage": "validated"}
+{"at": "2026-07-07T19:40:02.726774+00:00", "from_stage": "validated", "last_run_id": "cf5bf871-8183-4846-ad77-de110953676e", "to_stage": "project_initialized"}
+{"at": "2026-07-07T19:40:46.748461+00:00", "from_stage": "project_initialized", "last_run_id": "1fa4d452-f6ab-425f-bf8e-cbb53a99c099", "to_stage": "specified"}
+{"at": "2026-07-07T19:45:27.668772+00:00", "from_stage": "specified", "last_run_id": "8a708e3d-61aa-48e2-af65-2b48d546c6dc", "to_stage": "clarified"}
