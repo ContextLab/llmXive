@@ -78,7 +78,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for data filtering logic in `tests/test_download_data.py`
+- [X] T009 [P] [US1] Unit test for data filtering logic in `tests/test_download_data.py`
 - [ ] T010 [P] [US1] Unit test for band-pass filter frequency response in `tests/test_preprocess_fmri.py`
 
 ### Implementation for User Story 1
