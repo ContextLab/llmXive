@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics Schema"
+description: "Schema for cross-validation results and statistical comparisons."
+type: "object"
+properties:
+  property:
+    type: "string"
+    description: "Target property name."
+  feature_set:
+    type: "string"
+    enum: ["traditional", "topological", "combined"]
+    description: "Feature set used for training."
+  model_type:
+    type: "string"
+    enum: ["linear_l2", "random_forest"]
+    description: "Model architecture."
+  r2_mean:
+    type: "number"
+    description: "Mean R² score across folds."
+  r2_std:
+    type: "number"
+    description: "Standard deviation of R² scores."
+  rmse_mean:
+    type: "number"
+    description: "Mean RMSE across folds."
+  rmse_std:
+    type: "number"
+    description: "Standard deviation of RMSE scores."
+  fold_scores:
+    type: "array"
+    description: "R² scores for each fold."
+    items:
+      type: "number"
+  comparison:
+    type: "object"
+    description: "Statistical comparison against baseline."
+    properties:
+      p_value:
+        type: "number"
+      bonferroni_adjusted_p:
+        type: "number"
+      significant:
+        type: "boolean"
+    required:
+      - "p_value"
+      - "bonferroni_adjusted_p"
+      - "significant"
+  vif_max:
+    type: "number"
+    description: "Maximum VIF observed in the feature set."
+  mutual_info:
+    type: "number"
+    description: "Mutual information between traditional and topological sets."
+required:
+  - "property"
+  - "feature_set"
+  - "model_type"
+  - "r2_mean"
+  - "r2_std"
+  - "rmse_mean"
+  - "rmse_std"
+  - "fold_scores"
+  - "comparison"
+  - "vif_max"
+  - "mutual_info"
+additionalProperties: false

@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Dataset Schema"
+description: "Schema for the input dataset containing SMILES and target properties."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string for the molecule."
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight in g/mol."
+  logP:
+    type: "number"
+    description: "Partition coefficient (logP)."
+  solubility:
+    type: "number"
+    description: "Solubility in mol/L or mg/mL."
+  boiling_point:
+    type: "number"
+    description: "Boiling point in Kelvin."
+required:
+  - "smiles"
+additionalProperties: true

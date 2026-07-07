@@ -1,0 +1,30 @@
+# Python 3.11+ Project Dependencies for PROJ-444
+# TDA Molecular Properties Pipeline
+
+# Core Data & Molecular Processing
+rdkit>=2023.9.5
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Topological Data Analysis (TDA)
+# Using Gudhi as the primary TDA library (Dionysus2 is an alternative but Gudhi is more standard for Python)
+gudhi>=3.8.0
+
+# Machine Learning
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Configuration & Utilities
+pyyaml>=6.0.1
+requests>=2.31.0
+
+# Optional: Dionysus2 if needed for specific filtrations not covered by Gudhi
+# Note: Dionysus2 installation can be complex; keeping commented out unless explicitly required
+# dionysus2>=3.0.0
+
+# Testing (Optional but recommended for pipeline validation)
+pytest>=7.4.0
+pytest-cov>=4.1.0

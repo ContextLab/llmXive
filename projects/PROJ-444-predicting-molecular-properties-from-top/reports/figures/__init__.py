@@ -1,0 +1,3 @@
+"""
+Generated figures and plots.
+"""

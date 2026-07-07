@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Matrix Schema"
+description: "Schema for the combined feature matrix (traditional + topological)."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  features:
+    type: "array"
+    description: "Flattened array of all features (traditional + topological)."
+    items:
+      type: "number"
+  feature_names:
+    type: "array"
+    description: "List of feature names corresponding to the 'features' array."
+    items:
+      type: "string"
+  target_property:
+    type: "string"
+    description: "Name of the target property (e.g., 'logP')."
+  target_value:
+    type: "number"
+    description: "Experimental value of the target property."
+required:
+  - "molecule_id"
+  - "features"
+  - "feature_names"
+  - "target_property"
+  - "target_value"
+additionalProperties: false

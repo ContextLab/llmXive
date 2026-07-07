@@ -1,0 +1,15 @@
+rdkit
+gudhi
+dionysus2
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+pyyaml
+requests
+networkx
+scipy
+pytest
+ruff
+black

@@ -1,0 +1,7 @@
+T001 Create project structure per implementation plan (`projects/PROJ-444-predicting-molecular-properties-from-top/`): 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, gudhi/dionysus2,
+  scikit-learn, pandas, numpy, matplotlib, seaborn, pyyaml, requests)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 Setup `data/` directory structure (`raw/`, `processed/`) and `state/` tracking: 1
+T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling: 1

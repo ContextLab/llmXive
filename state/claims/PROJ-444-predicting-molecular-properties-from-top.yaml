@@ -1,0 +1,197 @@
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: perform a priori power analysis with minimum sample size of 128
+  claim_id: c_b69c797f
+  context: Implement code/01_data_ingestion.py to fetch MoleculeNet ESOL, validate
+    smiles/logP columns against schema, perform a priori power analysis (N>=128),
+    enforce min scaffolds check, and ensure random seed pinning (fixed value)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a priori power analysis (N>=128)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:14:57Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Train Linear Regression with alpha 1.0 and Random Forest with 100 trees
+    and max depth 10
+  claim_id: c_35b5ce14
+  context: 'Implement code/04_model_training.py: Train Linear Regression (alpha=1.0)
+    and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:15:05Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: flag predictors with VIF greater than 5
+  claim_id: c_a2a06c96
+  context: 'Implement code/06_diagnostics.py: Calculate VIF; flag predictors > 5 (FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: flag predictors > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:15:17Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: optimize memory usage to ensure total runtime less than 5.4 hours
+  claim_id: c_7d769de5
+  context: 'Performance optimization: Profile code/02_tda_computation.py and optimize
+    memory usage to ensure total runtime < 5.4h (SC-004)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_memory_usage_to_ensure_total_runtime_less_than_5.4
+  kind: magnitude
+  raw_text: optimize memory usage to ensure total runtime < 5.4h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:15:26Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: a priori power analysis requires N greater than or equal to 128
+  claim_id: c_d8f70333
+  context: Implement 01_data_ingestion.py to fetch MoleculeNet ESOL, validate smiles/logP
+    columns against schema, perform a priori power analysis (N>=128), enforce min
+    scaffolds check, and ensure random seed pinning (fixed value)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/A_priori_power_analysis_requires_N_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: perform a priori power analysis (N>=128)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:28:51Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression uses alpha 1.0 and Random Forest uses 100 trees with
+    max depth 10
+  claim_id: c_c934dfb3
+  context: 'Implement code/04_model_training.py: Train Linear Regression (alpha=1.0)
+    and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+    on 3 feature sets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:29:02Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: VIF flag is set for predictors greater than 5
+  claim_id: c_4937c469
+  context: 'Implement code/06_diagnostics.py: Calculate VIF; flag predictors > 5 (FR-007)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_is_set_for_predictors_greater_than_5
+  kind: magnitude
+  raw_text: flag predictors > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:29:04Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Total runtime is optimized to be less than 5.4 hours
+  claim_id: c_020a066c
+  context: 'Performance optimization: Profile code/02_tda_computation.py and optimize
+    memory usage to ensure total runtime < 5.4h (SC-004)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_is_optimized_to_be_less_than_5.4_hours
+  kind: magnitude
+  raw_text: optimize memory usage to ensure total runtime < 5.4h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:29:05Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity is reduced to less than 10
+  claim_id: c_316e1e43
+  context: 'Code cleanup: Refactor code/utils/graph_builder.py to reduce cyclomatic
+    complexity to < 10'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_is_reduced_to_less_than_10
+  kind: magnitude
+  raw_text: reduce cyclomatic complexity to < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:29:19Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: sensitivity sweeps are executed on low, medium, and high resolution settings
+  claim_id: c_b8e644e1
+  context: "Implement code/05_sensitivity_analysis.py: Execute sensitivity sweeps\
+    \ on resolutions including low, medium, and high settings. using the pipeline\
+    \ from T013; measure and report R\xB2 variance (FR-006, SC-002)"
+  evidence:
+    entailment_evidence: Sensitivity sweeps are executed on low, medium, and high
+      res
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweeps_are_executed_on_low,_medium,_and_high_res
+  kind: entity_fact
+  raw_text: execute sensitivity sweeps on resolutions including low, medium, and high
+    settings
+  resolved_value: sensitivity sweeps are executed on low, medium, and high resolution
+    settings
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T15:29:21Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: R squared and RMSE are reported for 3 configurations and 5 folds
+  claim_id: c_33f33c24
+  context: "Independent Test: Execute 04_model_training.py; verify R\xB2/RMSE reported\
+    \ for all 3 configurations and 5 folds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify R\xB2/RMSE reported for all 3 configurations and 5 folds"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T15:29:28Z'
