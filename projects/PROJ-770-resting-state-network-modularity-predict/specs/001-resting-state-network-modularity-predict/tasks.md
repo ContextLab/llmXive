@@ -79,11 +79,11 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T009 [P] [US1] Unit test for data filtering logic in `tests/test_download_data.py`
-- [ ] T010 [P] [US1] Unit test for band-pass filter frequency response in `tests/test_preprocess_fmri.py`
+- [X] T010 [P] [US1] Unit test for band-pass filter frequency response in `tests/test_preprocess_fmri.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/download_data.py` to fetch a representative sample of subjects' fMRI NIfTI and behavioral CSVs from HCP verified sources (S3/HuggingFace) using `seed=42` and `random.sample`, verifying column existence for "Number of close friends" and "Number of acquaintances"; output `data/processed/behavioral_clean.csv` (schema: subject_id, age, sex, friends, acquaintances) with median imputation applied if missingness <20%, otherwise exclude subject and log exclusion count
+- [X] T011 [P] [US1] Implement `code/download_data.py` to fetch a representative sample of subjects' fMRI NIfTI and behavioral CSVs from HCP verified sources (S3/HuggingFace) using `seed=42` and `random.sample`, verifying column existence for "Number of close friends" and "Number of acquaintances"; output `data/processed/behavioral_clean.csv` (schema: subject_id, age, sex, friends, acquaintances) with median imputation applied if missingness <20%, otherwise exclude subject and log exclusion count <!-- FAILED: unspecified -->
 - [ ] T012 [P] [US1] Implement `code/preprocess_fmri.py` to apply band-pass filter (–0.1 Hz), regress motion parameters and global signal, and extract region-wise time series using the Schaefer atlas
 - [ ] T013 [US1] Implement `code/preprocess_fmri.py` logic to compute Fisher-z transformed correlation matrices for each subject, handling motion artifact exclusion (FD > 0.5mm) and missing data via **median imputation (if <20% missing) or subject exclusion (if >20% missing)** with mandatory logging/exclusion count documentation
 - [ ] T014 [US1] Add validation logic in `code/preprocess_fmri.py` to ensure no NaN values or dimension mismatches in output matrices
