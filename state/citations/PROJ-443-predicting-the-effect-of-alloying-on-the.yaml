@@ -1,26 +1,4 @@
-- artifact_hash: 10605149ebc27ecabc1d6968ec26d473e0302b23d8727f4540cc6e7a1bf46c47
-  artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: targets.csv
-  kind: url
-  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1782974554&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTc0NTU0fX19XX0_&Signature=MEUCIQCzi3vnZofhLV4dbUHKdByHX66nxUYRSx9HN1376JW4WAIgfQXkQlBQmAn%7ERAKJldXoIFj71zwy4v-k%7EGoJDGcy9IY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T05:42:34.256208Z'
-- artifact_hash: 10605149ebc27ecabc1d6968ec26d473e0302b23d8727f4540cc6e7a1bf46c47
-  artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: oqmd.tar.gz
-  kind: url
-  value: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/baf752aeafbc52d51bf3b96aa13c97cdcf4f068eb1d2a6a8c42cd3727c5690a8?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27oqmd.tar.gz%3B+filename%3D%22oqmd.tar.gz%22%3B&X-Xet-Cas-Uid=public&user_id=public&response-content-type=application%2Fgzip&Expires=1782974557&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2JhZjc1MmFlYWZiYzUyZDUxYmYzYjk2YWExM2M5N2NkY2Y0ZjA2OGViMWQyYTZhOGM0MmNkMzcyN2M1NjkwYThcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3b3FtZC50YXIuZ3olM0IrZmlsZW5hbWUlM0QlMjJvcW1kLnRhci5neiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5NzQ1NTd9fX1dfQ__&Signature=MEYCIQDNlBqimHKX3TXKAF5-9cAOc9wpIfMuzThcDM0tD%7EbgsAIhAI3LexDtXr5nXX21V%7EJjqclZgmfKyB8ukgR86hJR%7EN5W&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T05:42:34.256208Z'
-- artifact_hash: a44d913e4836e9a6070309e3f7c9dd64a2188555f28afe3f36714d603902bfc7
+- artifact_hash: 50155a53cdada3a730f4686224e5b40550b073d88b3cea70152c2fe35c4df6d1
   artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
   cite_id: c-001
   cited_authors: []
@@ -29,16 +7,16 @@
   kind: url
   value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&user_id=public&Expires=1782974582&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTc0NTgyfX19XX0_&Signature=MEUCIAJpIJcep0x%7E2GPRnqJH98A5Obi4zqE1IMaPPI3v3OHkAiEAkHzG-u3TgpPAI7fbK7jS%7EARkUOM6wnaWumiCie0i91o_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T05:43:02.536279Z'
-- artifact_hash: a44d913e4836e9a6070309e3f7c9dd64a2188555f28afe3f36714d603902bfc7
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&Expires=1783385990&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzg1OTkwfX19XX0_&Signature=MEUCIQCTUpc8BjV3nniURvj6HopUoGte88GXwV1WhQDsc6equwIgf17UA906jjPjbmaPWfGoWcTAjWbG4DSdj3hg7dDmyuw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-06T23:59:50.740154Z'
+- artifact_hash: 50155a53cdada3a730f4686224e5b40550b073d88b3cea70152c2fe35c4df6d1
   artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: oqmd.tar.gz
+  fetched_title: "punwaiw/il-reasoning-responses \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz`
+  value: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/...`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/654cfce223281492f2c82e4b/baf752aeafbc52d51bf3b96aa13c97cdcf4f068eb1d2a6a8c42cd3727c5690a8?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27oqmd.tar.gz%3B+filename%3D%22oqmd.tar.gz%22%3B&response-content-type=application%2Fgzip&Expires=1782974584&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0Y2ZjZTIyMzI4MTQ5MmYyYzgyZTRiL2JhZjc1MmFlYWZiYzUyZDUxYmYzYjk2YWExM2M5N2NkY2Y0ZjA2OGViMWQyYTZhOGM0MmNkMzcyN2M1NjkwYThcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3b3FtZC50YXIuZ3olM0IrZmlsZW5hbWUlM0QlMjJvcW1kLnRhci5neiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5NzQ1ODR9fX1dfQ__&Signature=MEUCIQC9A3VztVU2CnJBqcAEmtAfHEfBJPuzZg23gh%7Elp2UN2QIgEDOeiVtEZSLlOaDXxqcsC6leJZmBzEaDZwISi8sBCX8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-02T05:43:02.536279Z'
+  verified_against_url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses
+  verified_at: '2026-07-06T23:59:50.740154Z'

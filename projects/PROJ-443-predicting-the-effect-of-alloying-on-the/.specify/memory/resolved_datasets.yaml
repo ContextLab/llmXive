@@ -1,23 +1,23 @@
-resolved_at: '2026-07-02T16:21:13.641270+00:00'
+resolved_at: '2026-07-06T23:35:53.097906+00:00'
 datasets:
 - intent: HEA
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/lavita/ChatDoctor-HealthCareMagic-100k/resolve/main/data/train-00000-of-00001-5e7cb295b9cff0bf.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/mpingale/mental-health-chat-dataset/resolve/main/data/train-00000-of-00001-991edb316b3098d3.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/openai/healthbench/resolve/main/2025-05-07-06-14-12_oss_eval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chenhaodev/healthbench-eldercare-hallu-zh/resolve/main/data/annotations_full.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 194077
+      parsed: true
+  - url: https://huggingface.co/datasets/Amod/mental_health_counseling_conversations/resolve/main/combined_dataset.json
     source: huggingface
     format: jsonl
     relevance: 0.0
@@ -25,59 +25,55 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/lavita/ChatDoctor-HealthCareMagic-100k/resolve/main/data/train-00000-of-00001-5e7cb295b9cff0bf.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/mpingale/mental-health-chat-dataset/resolve/main/data/train-00000-of-00001-991edb316b3098d3.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/ChuGyouk/AI_healthcare_QA/resolve/main/AI_healthcare_QA.jsonl
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/mrs83/kurtis_mental_health_dpo/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
   - url: https://huggingface.co/datasets/openai/healthbench/resolve/main/2025-05-07-06-14-12_oss_eval.jsonl
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/From_Computational_Creativity_to_Socio-technical_Co-creation_Generative_AI_and_the_Reorganization_of_Creative_Work/32882156
+  - url: https://huggingface.co/datasets/chenhaodev/healthbench-eldercare-hallu-zh/resolve/main/data/annotations_full.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Amod/mental_health_counseling_conversations/resolve/main/combined_dataset.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ourafla/Mental-Health_Text-Classification_Dataset/resolve/main/mental_health_combined_test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Unlocking_Avatar_Potential_A_Quantitative_Study_on_Avatar_Design_Preferences_for_Digital_Narrative_Therapy_in_Schizophrenia_Rehabilitation_Dataset/32802974
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gov_Docs_microforms/32882066
+  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Weight-Dependent_Puncture_Mechanics_and_Structural_Evolution_of_High-Density_Polyethylene_Revealed_by_In_Situ_Synchrotron_SAXS_WAXD_and_USAXS/32882153
+  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Symmetry-Enabled_Optical_Spin_Initialization_of_Luminescent_Organic_Radical_Doublet_States/32882150
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14431385
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://linkinghub.elsevier.com/retrieve/pii/S0257897220312330
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7609726
+  - url: https://zenodo.org/records/5569508
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7609732
+  - url: https://zenodo.org/records/7614872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6223378
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,23 +81,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128311
+  - url: https://zenodo.org/records/21227644
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128311
+  - url: https://zenodo.org/records/21227644
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128130
+  - url: https://zenodo.org/records/21228030
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128130
+  - url: https://zenodo.org/records/21228030
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.00546
+  - url: https://zenodo.org/records/21228112
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +146,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/From_Computational_Creativity_to_Socio-technical_Co-creation_Generative_AI_and_the_Reorganization_of_Creative_Work/32882156
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Unlocking_Avatar_Potential_A_Quantitative_Study_on_Avatar_Design_Preferences_for_Digital_Narrative_Therapy_in_Schizophrenia_Rehabilitation_Dataset/32802974
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gov_Docs_microforms/32882066
+  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Weight-Dependent_Puncture_Mechanics_and_Structural_Evolution_of_High-Density_Polyethylene_Revealed_by_In_Situ_Synchrotron_SAXS_WAXD_and_USAXS/32882153
+  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Symmetry-Enabled_Optical_Spin_Initialization_of_Luminescent_Organic_Radical_Doublet_States/32882150
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -174,11 +170,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10028980
+  - url: https://zenodo.org/records/7118055
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7118055
+  - url: https://zenodo.org/records/10028980
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -225,31 +221,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6842d9c7c2ce4834fb838420/4a386d739087af08319ce59d79a43ca9abc379d6f7e58679aaed8218aff0a2e0?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset.json%3B+filename%3D%22final_dataset.json%22%3B&user_id=public&Expires=1783012742&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg0MmQ5YzdjMmNlNDgzNGZiODM4NDIwLzRhMzg2ZDczOTA4N2FmMDgzMTljZTU5ZDc5YTQzY2E5YWJjMzc5ZDZmN2U1ODY3OWFhZWQ4MjE4YWZmMGEyZTBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdmaW5hbF9kYXRhc2V0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJmaW5hbF9kYXRhc2V0Lmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzAxMjc0Mn19fV19&Signature=MEUCIBYNUNk47GUbMb42B~nChNtUj660sxtWTWoDPfHcA2VBAiEAxLsafJgNPgiOaY4NsAhqu5p9wd8v22e~2gZ~LVNRF7s_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/ILRDF/klokah_pcc/resolve/main/Amis_Coastal/train-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/ILRDF/ithuan_formosan_train/resolve/main/Amis_Xiuguluan/train-00000-of-00006.parquet
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/dataset/From_Computational_Creativity_to_Socio-technical_Co-creation_Generative_AI_and_the_Reorganization_of_Creative_Work/32882156
+  - url: https://huggingface.co/datasets/ILRDF/klokah_asr_train_clean/resolve/main/Amis_Coastal/train-00000-of-00002.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ILRDF/klokah_tts_train_clean/resolve/main/Amis_Coastal/train-00000-of-00003.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Unlocking_Avatar_Potential_A_Quantitative_Study_on_Avatar_Design_Preferences_for_Digital_Narrative_Therapy_in_Schizophrenia_Rehabilitation_Dataset/32802974
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gov_Docs_microforms/32882066
+  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Weight-Dependent_Puncture_Mechanics_and_Structural_Evolution_of_High-Density_Polyethylene_Revealed_by_In_Situ_Synchrotron_SAXS_WAXD_and_USAXS/32882153
+  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Symmetry-Enabled_Optical_Spin_Initialization_of_Luminescent_Organic_Radical_Doublet_States/32882150
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -261,16 +261,24 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15611780
+  - url: https://zenodo.org/records/20101862
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20101862
+  - url: https://zenodo.org/records/15611780
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20534961
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/8190#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/9337#doi
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://osf.io/brfn9/
@@ -285,14 +293,6 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ese-journals.unisalento.it/index.php/ejasa/article/download/29760/24646
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20599896
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 410'
 - intent: ElasticNet
   status: verified
   candidates:
@@ -308,27 +308,35 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/From_Computational_Creativity_to_Socio-technical_Co-creation_Generative_AI_and_the_Reorganization_of_Creative_Work/32882156
+  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Unlocking_Avatar_Potential_A_Quantitative_Study_on_Avatar_Design_Preferences_for_Digital_Narrative_Therapy_in_Schizophrenia_Rehabilitation_Dataset/32802974
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gov_Docs_microforms/32882066
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Weight-Dependent_Puncture_Mechanics_and_Structural_Evolution_of_High-Density_Polyethylene_Revealed_by_In_Situ_Synchrotron_SAXS_WAXD_and_USAXS/32882153
+  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Symmetry-Enabled_Optical_Spin_Initialization_of_Luminescent_Organic_Radical_Doublet_States/32882150
+  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50687
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/27472
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3885868
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,18 +344,18 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/3885868
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/50687
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4678278
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21084102
     source: datacite
     status: wrong_format
@@ -357,14 +365,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21074983
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21074983
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21049270
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -394,27 +394,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1783012795&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMTI3OTV9fX1dfQ__&Signature=MEUCIQDRu~UcfyJ2Ff-4xYE~U9UXqgpThhMLpbENZoVyhpF-WQIgJbvk0KQTR~wHTbQO7a4715vD7kc22YmbV8iMidzCR~0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1783384453&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzODQ0NTN9fX1dfQ__&Signature=MEQCIC49TM6HGoqEXRPhK0eSwQWDFZQvn0ncfECGM1OD9Mr~AiBPKrqg6ejo-xxiJOCnbjByyBbIWUfc5T~yDP9GFmXpkw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Divide_Between_Neighbors_Differences_in_Attitudes_Toward_Facial_Recognition_Technology_Across_Scenarios_in_China_and_Japan/32882159
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/From_Computational_Creativity_to_Socio-technical_Co-creation_Generative_AI_and_the_Reorganization_of_Creative_Work/32882156
+  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Unlocking_Avatar_Potential_A_Quantitative_Study_on_Avatar_Design_Preferences_for_Digital_Narrative_Therapy_in_Schizophrenia_Rehabilitation_Dataset/32802974
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Gov_Docs_microforms/32882066
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Molecular-Weight-Dependent_Puncture_Mechanics_and_Structural_Evolution_of_High-Density_Polyethylene_Revealed_by_In_Situ_Synchrotron_SAXS_WAXD_and_USAXS/32882153
+  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -438,23 +438,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/382362
+  - url: https://zenodo.org/records/21229776
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16184
+  - url: https://zenodo.org/records/19637515
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16054
+  - url: https://zenodo.org/records/19637515
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/14985
+  - url: https://zenodo.org/records/19622928
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://epub.uni-bayreuth.de/id/eprint/9459/
+  - url: https://zenodo.org/records/21225670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -503,31 +503,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S8_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882177
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Bells_University_of_Technology_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S9_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882174
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Table_S1_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882171
+  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Table_S2_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882168
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Table_S3_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882165
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8299749
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13984656
+  - url: https://zenodo.org/records/14174346
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -535,31 +539,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15795891
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/369485
+  - url: https://osf.io/6jgy5/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/rngjh/
+  - url: https://zenodo.org/records/21225670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/36yz2/
+  - url: https://zenodo.org/records/21225670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19822784
+  - url: https://zenodo.org/records/21224466
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19822784
+  - url: https://zenodo.org/records/21224466
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -608,23 +608,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://aacr.figshare.com/articles/dataset/Supplementary_Data_S1_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882201
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Bells_University_of_Technology_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916398
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S1_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882198
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S2_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882195
+  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S3_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882192
+  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aacr.figshare.com/articles/journal_contribution/Supplementary_Figure_S4_from_Development_of_a_Clinical_Assay_to_Guide_Patient_Therapy_in_HPV-Associated_Head_and_Neck_Cancer/32882189
+  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -648,23 +648,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/f5unm/
+  - url: https://www.gbif.org/occurrence/download/0022704-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0022694-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://yareta.unige.ch/archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/6857
+  - url: https://yareta.unige.ch/archives/a56337e9-3cf6-4ec0-ae16-a6203d129ed1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19864082
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19864082
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21133710
+  - url: https://zenodo.org/records/21228752
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

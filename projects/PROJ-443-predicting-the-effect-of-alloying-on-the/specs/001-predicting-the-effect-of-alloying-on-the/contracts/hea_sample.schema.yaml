@@ -1,74 +1,61 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Sample Schema"
-description: "Schema for a single High-Entropy Alloy sample with compositional and elastic properties."
+description: "Schema for processed HEA sample data including ILR-transformed composition and descriptors."
 type: "object"
 required:
-  - "sample_id"
-  - "composition"
-  - "elastic_constants"
-  - "residual_bulk_modulus"
+  - sample_id
+  - elements
+  - composition_ilr
+  - target_residual
+  - bulk_modulus_observed
 properties:
   sample_id:
     type: "string"
-    description: "Unique identifier for the alloy sample."
-  composition:
-    type: "object"
-    description: "Atomic fractions of elements. Keys are element symbols, values are floats."
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-    description: "Sum of values must be 1.0."
-  elastic_constants:
-    type: "object"
-    required:
-      - "bulk_modulus"
-      - "shear_modulus"
-    properties:
-      bulk_modulus:
-        type: "number"
-        description: "Bulk Modulus in GPa."
-      shear_modulus:
-        type: "number"
-        description: "Shear Modulus in GPa."
-  crystal_structure:
+    description: "Unique identifier for the HEA sample."
+  elements:
     type: "string"
-    description: "Crystal structure (e.g., 'BCC', 'FCC')."
-  source:
-    type: "string"
-    description: "Data source (e.g., 'OQMD', 'Materials Project')."
-  miedema_baseline:
-    type: "number"
-    description: "Predicted Bulk Modulus via Miedema's model in GPa."
-  residual_bulk_modulus:
-    type: "number"
-    description: "Observed Bulk Modulus minus Miedema baseline (GPa)."
-  ilr_features:
+    description: "String representation of constituent elements (e.g., 'CrMnFeCoNi')."
+  composition_ilr:
     type: "array"
+    description: "Isometric Log-Ratio transformed composition vector."
     items:
       type: "number"
-    description: "Isometric Log-Ratio transformed composition coordinates."
-  mixing_enthalpy:
+    minItems: 1
+  descriptors:
+    type: "object"
+    description: "Compositional descriptors (e.g., entropy, radius variance). Miedema-derived features excluded if target is residual."
+    additionalProperties:
+      type: "number"
+  bulk_modulus_observed:
     type: "number"
-    description: "Mixing enthalpy in kJ/mol."
-  atomic_radius_variance:
+    description: "Observed Bulk Modulus from experimental or DFT data."
+  bulk_modulus_miedema:
     type: "number"
-    description: "Atomic radius variance (dimensionless)."
-  entropy_mixing:
+    description: "Bulk Modulus calculated via Miedema's model."
+  target_residual:
     type: "number"
-    description: "Entropy of mixing in J/mol·K."
-  vec:
-    type: "number"
-    description: "Valence Electron Concentration."
+    description: "Residual Bulk Modulus (B_observed - B_Miedema)."
   metadata:
     type: "object"
-    properties:
-      api_version:
-        type: "string"
-        description: "Version of the API used to fetch this data."
-      query_params:
-        type: "string"
-        description: "JSON string of query parameters used."
-      checksum:
-        type: "string"
-        description: "SHA-256 checksum of the raw data source."
+    description: "Additional metadata (source, crystal structure)."
+    additionalProperties: true
+  validation_warnings:
+    type: "array"
+    description: "List of warnings (e.g., residual correlation > 0.1)."
+    items:
+      type: "string"
+    default: []
+examples:
+  - sample_id: "CrMnFeCoNi_001"
+    elements: "CrMnFeCoNi"
+    composition_ilr: [0.1, -0.2, 0.5, -0.1, 0.3]
+    descriptors:
+      mixing_entropy: 1.61
+      radius_variance: 0.02
+    bulk_modulus_observed: 180.5
+    bulk_modulus_miedema: 175.2
+    target_residual: 5.3
+    metadata:
+      source: "Materials Project"
+      structure: "FCC"
+    validation_warnings: []
