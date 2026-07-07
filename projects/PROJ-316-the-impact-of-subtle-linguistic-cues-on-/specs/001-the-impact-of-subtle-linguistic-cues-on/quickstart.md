@@ -2,132 +2,97 @@
 
 ## Prerequisites
 
-- Python 3.11+  
-- Git  
-- 7 GB RAM, 14 GB disk (free-tier GitHub Actions runner)  
-- Access to verified dataset URL (see `research.md` for gap note)
+*   Python 3.11+
+*   `pip` or `conda`
+*   Access to the verified datasets (via HuggingFace CLI or direct download links).
 
 ## Installation
 
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` will pin specific versions of `nltk`, `pandas`, `scikit-learn`, `statsmodels`, and `matplotlib` to ensure reproducibility.*
 
-2. Create virtual environment:  
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Data Setup
 
-3. Install dependencies:  
-   ```bash
-   pip install -r code/requirements.txt
-   python -m spacy download en_core_web_sm
-   ```
+1.  **Download Datasets**:
+    Use the verified URLs from `research.md` to download the Parquet files into `data/raw/`.
+    ```bash
+    # Example for one dataset (replace with actual download command)
+    wget "https://huggingface.co/datasets/Fsoft-AIC/RobotDesign1M/resolve/main/conversations/test-00000-of-00088.parquet" -O data/raw/aic_robotdesign.parquet
+    ```
+2.  **Verify Checksums**:
+    Run the provided checksum script to ensure data integrity (Constitution Principle III).
+    ```bash
+    python src/checksum.py
+    ```
 
-## Data Preparation
+## Running the Pipeline
 
-### Step 1: Download Raw Data
+1.  **Power Analysis (Prerequisite)**:
+    Determine the required sample size for the annotation study.
+    ```bash
+    python src/main.py --step power_analysis --output data/results/power_analysis_results.yaml
+    ```
+    *This will generate `power_analysis_results.yaml` with the required N.*
 
-The project requires a dataset with **human authenticity ratings**. As noted in `research.md`, the verified dataset (`MixSub-LLaMA-3.2`) lacks these ratings. **You must provide a verified dataset with human ratings before proceeding.**
+2.  **Lexicon Validation (FR-010)**:
+    (Manual Step) Annotate 50 turns and run validation script.
+    ```bash
+    python src/main.py --step validate_lexicon --input data/raw/annotated_50.csv --output data/results/lexicon_validation_results.yaml
+    ```
 
-If you have a verified dataset URL (e.g., from a published study), download it:
+3.  **Feature Extraction**:
+    Extract linguistic features from the raw data.
+    ```bash
+    python src/main.py --step extract --input data/raw/aic_robotdesign.parquet --output data/processed/features.csv
+    ```
+    *This will generate `features.csv` with columns: `first_person_count`, `hedge_count`, `sentiment_score`, etc.*
 
-```bash
-python src/utils/data_loader.py --url <VERIFIED_URL> --output data/raw/conversations.jsonl
-```
+4.  **Human Annotation**:
+    (Manual Step) Annotate the required N conversations based on Phase -1 results. Store metadata in `data/raw/rater_metadata.json`.
 
-> **Do NOT fabricate a URL.** If no verified dataset with human ratings exists, the pipeline cannot run.
+5.  **Statistical Analysis**:
+    Run correlations, regression, and power analysis.
+    ```bash
+    python src/main.py --step analyze --input data/processed/annotated_features.csv --output data/results/stats_results.csv
+    ```
+    *This will generate `stats_results.csv` with coefficients, p-values (raw and adjusted), and VIFs.*
 
-### Step 2: Manual Annotation (If No Verified Dataset Exists)
+6.  **Sensitivity Analysis**:
+    Run the leave-one-out sweep.
+    ```bash
+    python src/main.py --step sensitivity --input data/processed/annotated_features.csv --output data/results/sensitivity_analysis.csv
+    ```
 
-If no verified dataset with human ratings exists, you must perform manual annotation:
-1. Select a random sample of ≤10,000 conversations from `conversations.jsonl`.
-2. Recruit human annotators and provide standardized instructions (1-5 Likert scale for authenticity).
-3. Collect ratings in `data/processed/ratings.csv` with columns:
-   - `conversation_id` (str)
-   - `authenticity_score` (int, 1–5)
-   - `rater_id` (str)
-   - `annotation_instructions` (str)
-4. Calculate Krippendorff's alpha (target ≥ 0.7) using the `krippendorff` library.
+7.  **Visualization**:
+    Generate plots and the summary report.
+    ```bash
+    python src/main.py --step viz --input data/results/stats_results.csv --output data/results/plots/
+    ```
 
-### Step 3: Extract Linguistic Features
+## Verification
 
-Run the extraction script:
-
-```bash
-python src/extraction/main.py --input data/raw/conversations.jsonl --output data/processed/features.csv
-```
-
-This will:
-- Calculate `pronoun_rate`, `hedge_density`, `valence_score`.  
-- Skip empty/short texts (<5 words) and log exclusions.  
-- Output `features.csv` with columns: `conversation_id`, `pronoun_rate`, `hedge_density`, `valence_score`, `length`, `turn_count`.
-
-## Running the Analysis
-
-### Correlation Analysis
-
-```bash
-python src/analysis/correlation.py --features data/processed/features.csv --ratings data/processed/ratings.csv --output data/derived/correlation_results.csv
-```
-
-Output includes:  
-- Pearson and Spearman coefficients.  
-- p-values and BH-corrected adjusted p-values.  
-- Scatter plots (saved to `figures/`).
-
-### Regression Analysis
-
-```bash
-python src/analysis/regression.py --features data/processed/features.csv --ratings data/processed/ratings.csv --output data/derived/regression_results.csv
-```
-
-Output includes:  
-- Coefficients, standard errors, p-values.  
-- Adjusted R², AIC.  
-- VIF diagnostics.  
-- Non-linearity test results.
-
-## Generating the Report
-
-```bash
-python src/main.py --features data/processed/features.csv --ratings data/processed/ratings.csv --output data/derived/analysis_results.csv
-```
-
-This generates:
-- `data/derived/analysis_results.csv` (final statistics).  
-- `figures/` (correlation scatter plots, regression diagnostics).  
-- `reports/associational_disclaimer.txt` (contains: "These results indicate association, not causation.").
-
-## Validation
-
-### Unit Tests
-
-```bash
-pytest tests/unit/
-```
-
-### Integration Tests
-
-```bash
-pytest tests/integration/
-```
-
-### Contract Tests
-
-```bash
-pytest tests/contract/
-```
-
-Ensure all contracts (schema validation) pass.
+To verify the extraction logic (US-1):
+1.  Run the unit tests:
+    ```bash
+    pytest tests/unit/test_lexicon.py -v
+    ```
+2.  Run the integration test on a small synthetic dataset:
+    ```bash
+    pytest tests/integration/test_pipeline.py -v
+    ```
+    *Note: Synthetic data is used ONLY for code verification, not for the main analysis.*
 
 ## Troubleshooting
 
-- **Division by Zero**: Check `features.csv` for `excluded_reason = "empty_text"`.  
-- **Missing Ratings**: Check log for exclusion count.  
-- **Skewed Distributions**: Check `reports/diagnostics.txt` for Shapiro-Wilk flags.  
-- **High VIF**: Check `reports/diagnostics.txt` for VIF >5 flags.  
-- **Dataset Gap**: If no human ratings, the pipeline will fail at merge step; provide verified dataset or complete manual annotation.
+*   **Missing Columns**: If the script raises a "Missing column: text_content" error, check the dataset metadata. If `authenticity_score` is missing, ensure the annotation protocol has been run.
+*   **Convergence Failure**: If the regression model fails to converge, check for perfect multicollinearity (VIF > 5) or zero-variance predictors. The script will log the specific error.
+*   **Memory Issues**: If running out of RAM, reduce the sample size using the `--sample-size` flag in `main.py`.

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Extracted Linguistic Features"
+description: "Schema for the output of the feature extraction pipeline (LinguisticMetrics entity)."
+type: "object"
+properties:
+  conversation_id:
+    type: "string"
+    description: "Unique identifier for the conversation session."
+  turn_number:
+    type: "integer"
+    description: "Sequence number of the turn."
+  first_person_count:
+    type: "integer"
+    description: "Count of first-person pronouns."
+  hedge_count:
+    type: "integer"
+    description: "Count of hedge words from the fixed lexicon."
+  hedge_ratio:
+    type: "number"
+    description: "Ratio of hedge count to total word count."
+  sentiment_score:
+    type: "number"
+    description: "VADER compound sentiment score."
+  conversation_length:
+    type: "integer"
+    description: "Total word count of the conversation turn."
+  authenticity_score:
+    type: "number"
+    nullable: true
+    description: "Human-rated authenticity score. May be null if not available in source."
+required:
+  - conversation_id
+  - turn_number
+  - first_person_count
+  - hedge_count
+  - hedge_ratio
+  - sentiment_score
+  - conversation_length
+additionalProperties: false

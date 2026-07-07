@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Results"
+description: "Schema for the output of the statistical analysis pipeline (StatisticalResult entity)."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Identifier for the specific model run."
+  metric_name:
+    type: "string"
+    description: "Name of the predictor variable (e.g., 'hedge_count')."
+  correlation_pearson:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  correlation_spearman:
+    type: "number"
+    description: "Spearman rank correlation coefficient."
+  p_value_raw:
+    type: "number"
+    description: "Unadjusted p-value from the test."
+  p_value_adjusted:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value."
+  regression_coefficient:
+    type: "number"
+    description: "Beta weight from the multiple linear regression."
+  std_error:
+    type: "number"
+    description: "Standard error of the regression coefficient."
+  vif_value:
+    type: "number"
+    description: "Variance Inflation Factor for the predictor."
+  significance_flag:
+    type: "boolean"
+    description: "True if adjusted p-value is less than 0.05."
+required:
+  - model_id
+  - metric_name
+  - correlation_pearson
+  - p_value_raw
+  - p_value_adjusted
+  - regression_coefficient
+  - std_error
+  - vif_value
+  - significance_flag
+additionalProperties: false
