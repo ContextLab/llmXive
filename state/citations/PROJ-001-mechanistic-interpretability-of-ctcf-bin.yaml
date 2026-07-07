@@ -9,3 +9,25 @@
   verification_status: verified
   verified_against_url: https://www.encodeproject.org/
   verified_at: '2026-04-29T15:35:00.077138Z'
+- artifact_hash: 2f59911e04c8d186b3e5996bc6a5b4de3435c12facf56f685c3cdd345328727e
+  artifact_path: projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/002-mechanistic-interpretability-of-ctcf-bin/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/simecek/Human_DNA_v0/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/629f297f6c741ca29909a2e9/f76231b2dafc263ff5a95a2e6872cc08354bb7e1260862e8287000bf735d2f79?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1783425779&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI5ZjI5N2Y2Yzc0MWNhMjk5MDlhMmU5L2Y3NjIzMWIyZGFmYzI2M2ZmNWE5NWEyZTY4NzJjYzA4MzU0YmI3ZTEyNjA4NjJlODI4NzAwMGJmNzM1ZDJmNzlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MjU3Nzl9fX1dfQ__&Signature=MEYCIQD6w%7ETBx-5ktsusNCjTaTLiZ5zJ1YtXUEBt45AX8lseTgIhAM7rya7W89CWdkxb%7Eer9HlhaKv86wXcA8HvfhfZ3USVD&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-07T11:02:59.404019Z'
+- artifact_hash: 2f59911e04c8d186b3e5996bc6a5b4de3435c12facf56f685c3cdd345328727e
+  artifact_path: projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/002-mechanistic-interpretability-of-ctcf-bin/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/simecek/Human_DNA_v0_DNABert6tokenized/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/629f66f8540c0da640aba231/156fcfaf5fec5470d9a548344414add9eebae9f752ff429c1bbfa368658f2fd0?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1783425785&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI5ZjY2Zjg1NDBjMGRhNjQwYWJhMjMxLzE1NmZjZmFmNWZlYzU0NzBkOWE1NDgzNDQ0MTRhZGQ5ZWViYWU5Zjc1MmZmNDI5YzFiYmZhMzY4NjU4ZjJmZDBcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MjU3ODV9fX1dfQ__&Signature=MEUCIQD0gDVcAdzjstAL6i1FRPtUyhzRFnE92yga3ZbRTlLn1AIgfQx21G%7E5j1WIRz79xth0NrO4Pqcs0Ty0CtBptGhYFdA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-07T11:02:59.404019Z'

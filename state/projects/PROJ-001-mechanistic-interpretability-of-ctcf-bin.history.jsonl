@@ -1,3 +1,8 @@
 {"event": "diff_pollution_purge", "ts": "2026-05-15T12:35:01Z", "deleted_paths": ["projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/tasks.md", "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/plan.md", "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/spec.md"], "prior_stage": "in_progress", "new_stage": "flesh_out_complete", "reason": "polluted by unified-diff content; deleted, rolled back per spec 010 fix", "run_id": "94ebb5c6-41c1-4b77-acf6-79e88ecf5bf4"}
 {"at": "2026-06-14T18:11:26.241314+00:00", "from_stage": "flesh_out_complete", "last_run_id": "3b2c75a9-0372-4875-9cd5-7f17396cc004", "to_stage": "validated"}
 {"at": "2026-06-28T14:37:58.818321+00:00", "from_stage": "validated", "last_run_id": "2cc290fe-332c-47af-a108-e02f373cac56", "to_stage": "project_initialized"}
+{"at": "2026-07-07T10:38:20.103529+00:00", "from_stage": "project_initialized", "last_run_id": "3834c133-c868-4c5f-9d00-dd289c9fc77a", "to_stage": "specified"}
+{"at": "2026-07-07T10:51:29.413627+00:00", "from_stage": "specified", "last_run_id": "0a11fdca-504e-4e11-bb40-f238bcf2a898", "to_stage": "clarified"}
+{"at": "2026-07-07T11:03:11.145237+00:00", "from_stage": "clarified", "last_run_id": "330f276a-5f51-4acd-9bcf-e7d1de199a8b", "to_stage": "planned"}
+{"at": "2026-07-07T11:11:49.355902+00:00", "from_stage": "planned", "last_run_id": "03252f8a-5001-4874-991f-1826e9a5d6b4", "to_stage": "tasked"}
+{"at": "2026-07-07T11:21:00.860090+00:00", "from_stage": "tasked", "last_run_id": "eff4c57a-3e1e-4338-a85d-c3b6825704d8", "to_stage": "analyzed"}

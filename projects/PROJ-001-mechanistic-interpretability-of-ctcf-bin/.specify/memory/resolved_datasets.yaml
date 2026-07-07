@@ -1,0 +1,619 @@
+resolved_at: '2026-07-07T10:56:38.862722+00:00'
+datasets:
+- intent: ATAC-seq
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Vulnerable_moments_Upset_in_palliative_care_consultations/32922737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.bathspa.ac.uk/articles/online_resource/Comic_Disability_Queerness_and_Me_An_exploration_of_sexual_experiences_/32922254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Total_yield_tons_of_halibut_plaice_lemon_sole_haddock_and_cod_in_Icelandic_waters_during_the_years_1906-1938/32922413
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Cross-Linked_Diselenide_Nanovesicles_against_Acute_Liver_Injury_by_Seamless_Integration_of_ROS_Elimination_and_Source_Inhibition/32922750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20390640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5717729
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4439189
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12698159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17084281
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17084281
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/f0nhj-xwn47
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENCODE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Vulnerable_moments_Upset_in_palliative_care_consultations/32922737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.bathspa.ac.uk/articles/online_resource/Comic_Disability_Queerness_and_Me_An_exploration_of_sexual_experiences_/32922254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Total_yield_tons_of_halibut_plaice_lemon_sole_haddock_and_cod_in_Icelandic_waters_during_the_years_1906-1938/32922413
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Cross-Linked_Diselenide_Nanovesicles_against_Acute_Liver_Injury_by_Seamless_Integration_of_ROS_Elimination_and_Source_Inhibition/32922750
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16414829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://amsacta.unibo.it/id/eprint/7046/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3564813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19153349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18979384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18979384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/rckha/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://collections.durham.ac.uk/files/r19593tv218
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CTCF
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Vulnerable_moments_Upset_in_palliative_care_consultations/32922737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.bathspa.ac.uk/articles/online_resource/Comic_Disability_Queerness_and_Me_An_exploration_of_sexual_experiences_/32922254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Total_yield_tons_of_halibut_plaice_lemon_sole_haddock_and_cod_in_Icelandic_waters_during_the_years_1906-1938/32922413
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18356847
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://genesdev.cshlp.org/lookup/doi/10.1101/gad.351189.123
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/14056602
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0021925820566714
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8305567
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/s4yph/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cytomics.gibh.ac.cn/dataDetails/fdd29fb9392d44f3aabc777342a7988e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cytomics.gibh.ac.cn/dataDetails/5cd9444478eb475a88f80c54de793734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8rq4c/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21145703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DNA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0_DNABert6tokenized/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dnaveenr/cmu_mocap/resolve/main/subject_to_details.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 192222
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/krahets/dna_rendering_processed/resolve/main/cameras/0007_01.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/dnaveenr/cmu_mocap/resolve/main/subject_to_details.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/simecek/Human_DNA_v0_DNABert6tokenized/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/_b_Modern_X-Ray_Baggage_Screening_for_Secure_Public_and_Commercial_Entry_Points_b_/32922773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Vulnerable_moments_Upset_in_palliative_care_consultations/32922737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.bathspa.ac.uk/articles/online_resource/Comic_Disability_Queerness_and_Me_An_exploration_of_sexual_experiences_/32922254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7433124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jc247v3
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12716221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12716219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biotaxa.org/em/article/view/em.2019.22.4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237562
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237562
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235498
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235498
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/4965245/dna.csv
+    source: openml
+    status: verified
+    format: csv
+- intent: ATAC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/slxhere/ATAC/resolve/main/caltech101.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/super-dainiu/epiBERT-atac-rna-union-filtered-feature-classification-celltype/resolve/main/data/test-00000-of-00011.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/super-dainiu/epiBERT-atac-rna-union-filtered-feature-classification-random/resolve/main/data/test-00000-of-00011.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Belongsx/atacom_human_record/resolve/main/human_record.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/slxhere/ATAC/resolve/main/caltech101.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/super-dainiu/epiBERT-atac-rna-union-filtered-feature-classification-celltype/resolve/main/data/test-00000-of-00011.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/super-dainiu/epiBERT-atac-rna-union-filtered-feature-classification-random/resolve/main/data/test-00000-of-00011.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32922788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_LMS_on_Student_Engagement_in_Higher_Education_b_/32922710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Modern_X-Ray_Baggage_Screening_for_Secure_Public_and_Commercial_Entry_Points_b_/32922773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4292082
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12738065
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6333931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11473148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17084281
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17084281
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/hg18n-kqa90
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: H3K27ac
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32922788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_LMS_on_Student_Engagement_in_Higher_Education_b_/32922710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Modern_X-Ray_Baggage_Screening_for_Secure_Public_and_Commercial_Entry_Points_b_/32922773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_RII_Framework_for_System_Stability_b_/32922260
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11147013
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11146694
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11146715
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17131620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18486132
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/8d85415b-269d-4e5a-a18d-1765b4c95c4a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/93j2f-6n514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/93j2f-6n514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/q8mmb-jgs63
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/q8mmb-jgs63
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUC-ROC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/TM_and_older_workers/32922770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32922788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_LMS_on_Student_Engagement_in_Higher_Education_b_/32922710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Modern_X-Ray_Baggage_Screening_for_Secure_Public_and_Commercial_Entry_Points_b_/32922773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Identification_and_Validation_of_Gene_Markers_for_Early_Detection_and_Prognosis_in_Colorectal_Cancer_A_Comprehensive_RNA-Seq_Based_Approach/31346185
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Adam1010/gemma-4-31b-sae-features/resolve/main/dataset_summary.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 8683
+      parsed: true
+  - url: https://huggingface.co/datasets/Davincilee/door_inner_with_SAE/resolve/main/door_inner_belt_study__with_sae.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Adam1010/gemma-4-31b-sae-features/resolve/main/dataset_summary.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/jgammack/SAE-door-abstracts/7cee4936fb208443b00afa753d01c57376496856/SAE_abstracts.csv?%2Fdatasets%2Fjgammack%2FSAE-door-abstracts%2Fresolve%2Fmain%2FSAE_abstracts.csv=&etag=%2237e0a05feb0f7257fee3942c2d96a4748de06a74%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Davincilee/door_inner_with_SAE/resolve/main/door_inner_belt_study__with_sae.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/TM_and_older_workers/32922770
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32922788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Impact_of_LMS_on_Student_Engagement_in_Higher_Education_b_/32922710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Modern_X-Ray_Baggage_Screening_for_Secure_Public_and_Commercial_Entry_Points_b_/32922773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.manchester.ac.uk/articles/dataset/Acceptability_and_implementation_of_a_digital_diabetes_self-management_platform_MyWay_Diabetes_in_England_a_qualitative_study/32911469
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JASPAR
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: AND
+  status: unresolved
+  candidates: []
+  candidates_tried: []

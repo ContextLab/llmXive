@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LatentFeatureSchema"
+description: "Schema for identified latent features from the SAE. [BLOCKED: Cannot be generated without training.]"
+type: object
+properties:
+  id:
+    type: integer
+    description: "Unique feature index"
+  activation_pattern:
+    type: string
+    description: "Human-readable description of the feature"
+  correlation_canonical:
+    type: number
+    description: "Correlation with canonical CTCF motif score"
+    minimum: -1.0
+    maximum: 1.0
+  correlation_binding:
+    type: number
+    description: "Correlation with binding label"
+    minimum: -1.0
+    maximum: 1.0
+  significance_p:
+    type: number
+    description: "P-value from permutation test"
+    minimum: 0.0
+    maximum: 1.0
+  is_non_canonical:
+    type: boolean
+    description: "True if feature predicts binding with low canonical motif correlation"
+required:
+  - id
+  - activation_pattern
+  - correlation_canonical
+  - correlation_binding
+  - significance_p
+  - is_non_canonical
+additionalProperties: false

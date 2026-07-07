@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GenomicWindowSchema"
+description: "Schema for the unified genomic window dataset used in CTCF binding prediction. [BLOCKED: No verified source exists for this schema's data.]"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the genomic window (e.g., chr1:1000-2000)"
+  sequence:
+    type: string
+    description: "DNA sequence string containing only A, C, G, T, N"
+    pattern: "^[ACGTN]+$"
+  label:
+    type: number
+    description: "Binding probability or binary label (0.0-1.0). [NO VERIFIED SOURCE]"
+    minimum: 0.0
+    maximum: 1.0
+  motif_score:
+    type: number
+    description: "Score of the canonical CTCF motif in this window"
+    minimum: 0.0
+  cell_type:
+    type: string
+    description: "Cell type name or 'Unknown' if not available"
+  source:
+    type: string
+    description: "URL of the source dataset (must be from verified list) [NO VERIFIED SOURCE]"
+required:
+  - id
+  - sequence
+  - label
+  - motif_score
+  - source
+additionalProperties: false
