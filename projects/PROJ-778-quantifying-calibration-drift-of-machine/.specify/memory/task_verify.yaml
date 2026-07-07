@@ -1,0 +1,15 @@
+T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`): 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas,
+  numpy, scipy, statsmodels, ruptures, requests, pyyaml)
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? 'T004 Create `contracts/dataset_schema.yaml` defining expected columns for Adult/CPS
+  datasets (Columns: ''age'', ''workclass'', ''education'', ''occupation'', ''relationship'',
+  ''race'', ''sex'', ''capital-gain'', ''capital-loss'', ''hours-per-week'', ''native-country'',
+  ''income''; Types: int, str, float).'
+: 1
+? 'T005 Create `contracts/metric_record_schema.yaml` defining JSON structure for calibration/covariate
+  metrics (Fields: year, model_type, ece_5, ece_10, ece_20, brier, pca_shift, key_feature_shift,
+  rho_5, rho_10, rho_20, **rho_diff_5_10, rho_diff_10_20, max_rho_diff**, p_value_wls,
+  change_point_year). Note: Added rho_diff fields to satisfy SC-002 robustness verification.'
+: 1

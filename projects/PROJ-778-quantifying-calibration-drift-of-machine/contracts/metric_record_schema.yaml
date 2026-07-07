@@ -1,0 +1,101 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Metric Record Schema
+description: |
+  JSON schema for calibration and covariate shift metric records.
+  Used to validate outputs from code/03_evaluation.py and code/04_statistical_analysis.py.
+  Includes robustness verification fields (rho_diff) per SC-002.
+type: object
+required:
+  - year
+  - model_type
+  - ece_5
+  - ece_10
+  - ece_20
+  - brier
+  - pca_shift
+  - key_feature_shift
+  - rho_5
+  - rho_10
+  - rho_20
+  - rho_diff_5_10
+  - rho_diff_10_20
+  - max_rho_diff
+  - p_value_wls
+  - change_point_year
+properties:
+  year:
+    type: integer
+    description: The calendar year of the test split.
+    minimum: 1990
+  model_type:
+    type: string
+    description: The classifier type used (e.g., 'LogisticRegression', 'RandomForest').
+    enum:
+      - LogisticRegression
+      - RandomForest
+  ece_5:
+    type: number
+    description: Expected Calibration Error with 5 bins.
+    minimum: 0.0
+    maximum: 1.0
+  ece_10:
+    type: number
+    description: Expected Calibration Error with 10 bins.
+    minimum: 0.0
+    maximum: 1.0
+  ece_20:
+    type: number
+    description: Expected Calibration Error with 20 bins.
+    minimum: 0.0
+    maximum: 1.0
+  brier:
+    type: number
+    description: Brier Score (Mean Squared Error of probabilities).
+    minimum: 0.0
+    maximum: 1.0
+  pca_shift:
+    type: number
+    description: PCA-based covariate shift magnitude.
+    minimum: 0.0
+  key_feature_shift:
+    type: number
+    description: Mean shift magnitude of key features.
+    minimum: 0.0
+  rho_5:
+    type: number
+    description: Spearman correlation between covariate shift and ECE (5 bins).
+    minimum: -1.0
+    maximum: 1.0
+  rho_10:
+    type: number
+    description: Spearman correlation between covariate shift and ECE (10 bins).
+    minimum: -1.0
+    maximum: 1.0
+  rho_20:
+    type: number
+    description: Spearman correlation between covariate shift and ECE (20 bins).
+    minimum: -1.0
+    maximum: 1.0
+  rho_diff_5_10:
+    type: number
+    description: Absolute difference |rho_5 - rho_10| for robustness check.
+    minimum: 0.0
+  rho_diff_10_20:
+    type: number
+    description: Absolute difference |rho_10 - rho_20| for robustness check.
+    minimum: 0.0
+  max_rho_diff:
+    type: number
+    description: Maximum of (rho_diff_5_10, rho_diff_10_20) to verify SC-002.
+    minimum: 0.0
+  p_value_wls:
+    type: number
+    description: P-value from Weighted Least Squares regression of ECE over time.
+    minimum: 0.0
+    maximum: 1.0
+  change_point_year:
+    type: integer
+    nullable: true
+    description: Year identified as a change point by BIC-based detection.
+    minimum: 1990
+additionalProperties: false

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetSnapshot Schema"
+description: "Schema for a single yearly snapshot of a benchmark dataset."
+type: "object"
+properties:
+  snapshot_id:
+    type: "string"
+    description: "Unique identifier for the snapshot (e.g., 'cps_1994')."
+  dataset_name:
+    type: "string"
+    description: "Source name (e.g., 'IPUMS_CPS', 'Synthetic_Drift')."
+  year:
+    type: "integer"
+    description: "The year of the snapshot."
+  path:
+    type: "string"
+    description: "Relative path to the raw CSV file."
+  checksum:
+    type: "string"
+    description: "SHA-256 hash of the file."
+  feature_columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of feature column names after alignment."
+  target_column:
+    type: "string"
+    description: "Name of the target variable."
+  n_samples:
+    type: "integer"
+    description: "Number of rows in the dataset."
+required:
+  - snapshot_id
+  - dataset_name
+  - year
+  - path
+  - checksum
+  - feature_columns
+  - target_column
+  - n_samples
+additionalProperties: false

@@ -1,0 +1,19 @@
+# Configuration for Quantifying Calibration Drift Project
+# This file must be populated with real URLs for yearly CPS data to satisfy FR-001.
+# Without these, the acquisition script will halt as per T013 requirements.
+
+data:
+  # List of URLs for yearly CPS data (1995-2022) matching the Adult schema.
+  # Since public direct download links for all these years are not available without IPUMS registration,
+  # this list must be manually populated with valid URLs if they exist, or the script will halt.
+  # Example structure:
+  # yearly_cps_urls:
+  #   - year: 1995
+  #     url: "https://example.com/cps_1995.csv"
+  #   - year: 1996
+  #     url: "https://example.com/cps_1996.csv"
+  # ...
+  yearly_cps_urls: []
+
+paths:
+  root: "."

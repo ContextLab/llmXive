@@ -1,0 +1,2 @@
+# This directory stores raw downloaded datasets (e.g., UCI Adult, CPS).
+# Files are .gitignored to prevent repository bloat.

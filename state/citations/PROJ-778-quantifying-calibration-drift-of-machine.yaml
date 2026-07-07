@@ -1,0 +1,22 @@
+- artifact_hash: fd710ef82ac7a1c1e1a0cc1c83be6de53b276b2cdd79e8a67a9900f58dffad9d
+  artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: IPUMS CPS
+  kind: url
+  value: https://cps.ipums.org/cps/`
+  verification_status: verified
+  verified_against_url: https://cps.ipums.org/cps/
+  verified_at: '2026-07-07T11:52:43.195850Z'
+- artifact_hash: 79fdbe7513f66398abb34aad890b09caaacc9867c36b1cb088a57941dba4102f
+  artifact_path: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: IPUMS CPS
+  kind: url
+  value: https://cps.ipums.org/cps/`
+  verification_status: verified
+  verified_against_url: https://cps.ipums.org/cps/
+  verified_at: '2026-07-07T11:52:52.479594Z'

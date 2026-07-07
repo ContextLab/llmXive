@@ -1,0 +1,2 @@
+# This directory stores trained model artifacts (e.g., .pkl files).
+# Files are .gitignored to prevent repository bloat.

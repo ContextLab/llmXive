@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T21:39:10.387894Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-778-quantifying-calibration-drift-of-machine
-last_run_id: 7c73014a-b1a7-47e0-b0be-8dab397ec104
+last_run_id: df05c0c9-769f-49ed-9315-f166810e9665
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-778-quantifying-calibration-drift-of-machine/specs/001-quantifying-calibration-drift-of-machine
 title: Quantifying Calibration Drift of Machine Learning Classifiers Over Time
-updated_at: '2026-06-25T10:02:27.336747Z'
+updated_at: '2026-07-07T12:22:06.677126Z'

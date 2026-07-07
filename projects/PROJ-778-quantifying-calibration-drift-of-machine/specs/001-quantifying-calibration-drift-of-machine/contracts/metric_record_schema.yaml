@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CalibrationMetricRecord Schema"
+description: "Schema for a single evaluation record of a fixed model on a test set."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  model_id:
+    type: "string"
+    description: "Foreign key to the FixedModel."
+  test_snapshot_id:
+    type: "string"
+    description: "Foreign key to the DatasetSnapshot."
+  year:
+    type: "integer"
+    description: "The year of the test set."
+  ece_5:
+    type: "number"
+    description: "Expected Calibration Error with 5 bins."
+  ece_10:
+    type: "number"
+    description: "Expected Calibration Error with 10 bins."
+  ece_20:
+    type: "number"
+    description: "Expected Calibration Error with 20 bins."
+  brier_score:
+    type: "number"
+    description: "Brier Score."
+  pca_shift:
+    type: "number"
+    description: "Covariate shift magnitude (Euclidean distance of PCA-projected means)."
+  key_feature_shift:
+    type: "number"
+    description: "Covariate shift magnitude (Average absolute mean shift of key features)."
+  n_samples:
+    type: "integer"
+    description: "Number of samples in the test set."
+required:
+  - record_id
+  - model_id
+  - test_snapshot_id
+  - year
+  - ece_5
+  - ece_10
+  - ece_20
+  - brier_score
+  - pca_shift
+  - key_feature_shift
+  - n_samples
+additionalProperties: false

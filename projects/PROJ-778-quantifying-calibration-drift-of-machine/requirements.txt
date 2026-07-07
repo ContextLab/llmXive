@@ -1,0 +1,11 @@
+scikit-learn
+pandas
+numpy
+scipy
+statsmodels
+ruptures
+requests
+pyyaml
+pytest
+black
+ruff

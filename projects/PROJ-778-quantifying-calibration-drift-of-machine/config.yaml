@@ -1,0 +1,25 @@
+# llmXive Project Configuration
+# This file defines data paths and project settings.
+# Override by setting the environment variable LLMXIVE_CONFIG_PATH.
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  models_dir: data/models
+  figures_dir: figures
+
+paths:
+  contracts_dir: contracts
+  specs_dir: specs
+
+# Optional: Data source settings
+data_sources:
+  adult_uci:
+    base_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/"
+    files:
+      - "adult.data"
+      - "adult.test"
+  credit_card:
+    base_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/"
+    # Specific path might vary, handled in acquisition script
+    note: "Credit Card Default dataset path requires manual verification or specific download link"

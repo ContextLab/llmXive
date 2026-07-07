@@ -1,0 +1,90 @@
+# Dataset Schema for Calibration Drift Analysis
+# Defines expected columns and types for Adult/CPS datasets
+# Used for validation during data acquisition and preprocessing
+
+schema_version: "1.0"
+description: "Schema for UCI Adult and IPUMS CPS datasets used in calibration drift analysis"
+
+datasets:
+  - name: "adult_cps"
+    description: "Combined schema for Adult and CPS datasets"
+    source_reference: "UCI Adult / IPUMS CPS"
+    
+    columns:
+      - name: "age"
+        type: "int"
+        description: "Age of the individual in years"
+        required: true
+        
+      - name: "workclass"
+        type: "str"
+        description: "Type of employer (e.g., Private, Self-emp, Gov)"
+        required: true
+        
+      - name: "education"
+        type: "str"
+        description: "Education level (e.g., Bachelors, HS-grad, Masters)"
+        required: true
+        
+      - name: "occupation"
+        type: "str"
+        description: "Occupation type (e.g., Tech-supp, Prof-specialty, Sales)"
+        required: true
+        
+      - name: "relationship"
+        type: "str"
+        description: "Relationship status (e.g., Husband, Wife, Not-in-family)"
+        required: true
+        
+      - name: "race"
+        type: "str"
+        description: "Race category (e.g., White, Black, Asian-Pac-Islander)"
+        required: true
+        
+      - name: "sex"
+        type: "str"
+        description: "Gender (e.g., Male, Female)"
+        required: true
+        
+      - name: "capital-gain"
+        type: "int"
+        description: "Capital gains in dollars"
+        required: true
+        
+      - name: "capital-loss"
+        type: "int"
+        description: "Capital losses in dollars"
+        required: true
+        
+      - name: "hours-per-week"
+        type: "int"
+        description: "Average hours worked per week"
+        required: true
+        
+      - name: "native-country"
+        type: "str"
+        description: "Country of origin (e.g., United-States, Mexico, Canada)"
+        required: true
+        
+      - name: "income"
+        type: "str"
+        description: "Income bracket (e.g., <=50K, >50K) - target variable"
+        required: true
+    
+    constraints:
+      age:
+        min: 17
+        max: 90
+      capital-gain:
+        min: 0
+      capital-loss:
+        min: 0
+      hours-per-week:
+        min: 1
+        max: 168
+        
+    validation_rules:
+      - "All required columns must be present"
+      - "Data types must match specified types"
+      - "Numeric fields must be within specified ranges"
+      - "Categorical fields should have valid values from known domains"
