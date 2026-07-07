@@ -11,6 +11,6 @@ psutil
 ruff
 black
 pre-commit
-pytest
-pydantic
-scikit-learn
+matplotlib
+jupyter
+notebook
