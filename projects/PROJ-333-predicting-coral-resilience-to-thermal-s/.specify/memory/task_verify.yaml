@@ -1,4 +1,4 @@
-T001 Create project structure per implementation plan (`code/`, `tests/`, `data/raw`, `data/processed`): 1
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/raw`, `data/processed`): 2
 'T001a [P] Create project directory structure: `code/`, `tests/`, `data/`, `results/`, `docs/`': 1
 ? T001b [P] Create `__init__.py` files in `code/`, `code/data/`, `code/analysis/`,
   `code/viz/`, `tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/`
@@ -9,8 +9,8 @@ T001 Create project structure per implementation plan (`code/`, `tests/`, `data/
 : 1
 ? T002 Initialize Python project with pinned dependencies (`biopython`, `pysam`, `scipy`,
   `pandas`, `matplotlib`, `gprofiler-official`, `rpy2`) in `requirements.txt`
-: 1
-T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools: 1
+: 2
+T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools: 2
 T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
 T005 [P] Implement `code/utils.py` for logging, error handling, and checksum validation: 1
-T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time: 1
+T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time: 2

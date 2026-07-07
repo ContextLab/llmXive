@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.00157",
+  "judged_at": "2026-07-07T19:03:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (prediction accuracy of material properties) in the user's specific domain (materials informatics) while explicitly analyzing the impact of data scarcity (few records) and data removal (60% reduction), which directly relates to the user's independent variable of dataset size. Additionally, it serves as an empirical baseline (c) for model performance under low-data regimes in materials science.",
+  "relevant": true
+}

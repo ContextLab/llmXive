@@ -9,40 +9,57 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Can extreme value theory (EVT) combined with spatial statistical models improve short-term prediction of localized extreme weather events (heavy rainfall and heatwaves) compared to standard time-series baselines using publicly available historical weather data?
+How does spatial dependence structure the tail behavior of localized extreme weather events, and what is the predictive gain of modeling this dependence over independent station assumptions?
 
 ## Motivation
 
-Extreme weather events are increasing in frequency and intensity due to climate change, yet many regional forecasting systems struggle with accurate short-term predictions of localized extremes. Existing approaches often rely on complex physical models or machine learning that require significant computational resources. This project addresses the gap in accessible, statistically rigorous methods that can be implemented on modest infrastructure while still providing actionable forecasts for local preparedness.
+Extreme weather events are increasing in frequency and intensity, yet standard statistical models often treat weather stations as independent observations, ignoring the spatial correlation inherent in atmospheric processes. This simplification can lead to underestimation of regional risk and poor performance in predicting the intensity of localized extremes. By explicitly modeling the spatial dependence in the tails of the distribution, this project aims to quantify the improvement in predictive accuracy and provide a more robust framework for regional risk assessment using accessible public data.
 
 ## Related work
 
-- [A Statistical Analysis of Noisy Crowdsourced Weather Data (2019)](http://arxiv.org/abs/1902.06183v2) — Demonstrates statistical methods for handling real-world weather data with measurement noise and missing values.
-- [Bridging centrality and extremity: Refining empirical data depth using extreme value statistics (2015)](http://arxiv.org/abs/1510.08694v1) — Introduces extreme value statistics methods for identifying multivariate extremes in environmental data.
-- [Statistical Modeling of Spatial Extremes (2012)](http://arxiv.org/abs/1208.3378v1) — Provides framework for areal modeling of rainfall and temperature extremes, directly applicable to regional forecasting.
-- [Mortality risk attributable to high and low ambient temperature: a multicountry observational study (2015)](https://doi.org/10.1016/s0140-6736(14)62114-0) — Establishes health-relevant temperature thresholds that inform extreme event definition.
-- [Verification of Space Weather Forecasts issued by the Met Office Space Weather Operations Centre (2018)](http://arxiv.org/abs/1804.02985v1) — Offers verification methodology applicable to weather forecast evaluation.
+- [Statistical Modeling of Spatial Extremes (2012)](https://arxiv.org/abs/1208.3378) — Establishes the theoretical framework for areal modeling of rainfall and temperature extremes, directly applicable to analyzing spatial dependence in tail events.
+- [A Statistical Analysis of Noisy Crowdsourced Weather Data (2019)](https://arxiv.org/abs/1902.06183) — Demonstrates statistical methods for handling real-world weather data with measurement noise and missing values, relevant for preprocessing public station data.
+- [DYffCast: Regional Precipitation Nowcasting Using IMERG Satellite Data. A case study over South America (2024)](https://arxiv.org/abs/2412.02723) — Highlights the critical need for accurate regional nowcasting of extreme precipitation due to climate change, providing context for the practical value of improved spatial tail models.
 
 ## Expected results
 
-We expect EVT-based models to outperform standard ARIMA/linear baselines by 10-15% in predicting extreme event intensity (measured by peak rainfall/temperature thresholds). The Generalized Pareto Distribution should capture tail behavior more accurately than Gaussian assumptions, confirmed through probability integral transform tests and Brier score comparisons on held-out validation data.
+We expect that models explicitly accounting for spatial dependence in the extreme tails (e.g., using max-stable processes or spatial Generalized Pareto distributions) will yield significantly lower prediction errors and better coverage probabilities for regional extremes compared to models assuming independent stations. The magnitude of the predictive gain will be quantified via the reduction in Brier score and RMSE on held-out spatial blocks, demonstrating that ignoring spatial structure leads to systematic underestimation of concurrent extreme risks.
 
 ## Methodology sketch
 
-- Download NOAA GHCN-Daily dataset via `wget` from https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily (select 5 regions with dense station coverage, ~2000-2020)
-- Preprocess data: handle missing values via linear interpolation, filter stations with >10% missing data, convert to daily aggregates
-- Define extreme events: rainfall > 95th percentile and temperature > 95th percentile for each station using 10-year rolling windows
-- Fit Generalized Extreme Value (GEV) distribution to block maxima (monthly) using `scipy.stats` with maximum likelihood estimation
-- Fit Generalized Pareto Distribution (GPD) to peaks-over-threshold (POT) data using `pyextremes` or `scipy.stats`
-- Implement baseline ARIMA(1,1,1) and exponential smoothing models for comparison
-- Train-test split: use 2000-2015 for training, 2016-2020 for testing
-- Evaluate performance using: Brier score for event classification, RMSE for intensity prediction, coverage probability for 95% confidence intervals
-- Apply spatial smoothing using Gaussian kernel with 50km radius to account for station correlation
-- Generate diagnostic plots: QQ-plots for distribution fit, residual autocorrelation, probability integral transform histograms
-- All computation designed to complete within 4 hours on 2 CPU cores with <6GB RAM peak memory
+- Download NOAA GHCN-Daily dataset via `wget` from https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily, selecting a dense sub-region (e.g., Northeast USA) with ~100 stations and daily data from 2000–2020.
+- Preprocess data: handle missing values via linear interpolation or station-specific imputation, filter stations with >15% missing data, and convert to daily aggregates.
+- Define extreme events using a peaks-over-threshold approach: identify days where rainfall or temperature exceeds the 95th percentile for that station using a 10-year rolling window to account for trends.
+- Fit a baseline model assuming independent Generalized Pareto Distributions (GPD) for each station's extremes using `scipy.stats` or `pyextremes`.
+- Fit a spatial extremes model (e.g., a spatial GPD or a max-stable process approximation) using the `SpatialExtremes` R package or equivalent Python implementation to capture the tail dependence structure.
+- Split data temporally: train on 2000–2015, validate on 2016–2018, and test on 2019–2020 to ensure independence between training and evaluation periods.
+- Evaluate performance using: Brier score for binary event classification (exceedance), RMSE for intensity prediction, and empirical coverage of 95% confidence intervals for regional sums.
+- Conduct a "leave-one-station-out" cross-validation to assess how well the spatial model predicts extremes at unseen locations compared to the independent model.
+- Generate diagnostic plots: variograms of extremes, QQ-plots for marginal fits, and maps of predicted regional exceedance probabilities.
+- Ensure all computations (including spatial model fitting) are optimized to run within 6 hours on 2 CPU cores and <7GB RAM, potentially by subsampling time steps or using approximate inference if necessary.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: Statistical Modeling of Spatial Extremes, Temperature Mortality Risk Assessment, Crowdsourced Weather Analysis.
-- Closest match: Statistical Modeling of Spatial Extremes (similarity sketch: both use spatial extremes but this project adds EVT to short-term prediction with public dataset constraints).
+- Reviewed existing ideas: Statistical Modeling of Spatial Extremes, Crowdsourced Weather Analysis, Temperature Mortality Risk Assessment.
+- Closest match: Statistical Modeling of Spatial Extremes (similarity sketch: both address spatial extremes, but this project focuses specifically on the *predictive gain* of tail dependence modeling for *short-term* localized events using a constrained public dataset, whereas the cited work is more theoretical/methodological).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-07T19:05:36Z
+**Outcome**: exhausted
+**Original term**: Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction statistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction statistics | 3 |
+
+### Verified citations
+
+1. **A Statistical Analysis of Noisy Crowdsourced Weather Data** (2019). Arnab Chakraborty, Soumendra Nath Lahiri, Alyson Wilson. arXiv. [1902.06183](https://arxiv.org/abs/1902.06183). PDF-sampled: No.
+2. **Statistical Modeling of Spatial Extremes** (2012). A. C. Davison, S. A. Padoan, M. Ribatet. arXiv. [1208.3378](https://arxiv.org/abs/1208.3378). PDF-sampled: No.
+3. **DYffCast: Regional Precipitation Nowcasting Using IMERG Satellite Data. A case study over South America** (2024). Daniel Seal, Rossella Arcucci, Salva Rühling-Cachay, César Quilodrán-Casas. arXiv. [2412.02723](https://arxiv.org/abs/2412.02723). PDF-sampled: No.

@@ -12,4 +12,14 @@
   with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
   in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
   FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 2
+? 'T006 [P] Create base utility module `code/utils.py` for logging, checksumming,
+  and config loading. **Function**: `checksum_file(path)` must be implemented and
+  tested.'
 : 1
+T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`: 1
+? T008 Configure error handling and retry logic (multiple attempts, fixed time intervals)
+  for data fetching in `code/utils.py`
+: 1
+T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`: 1
+T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`: 1

@@ -63,11 +63,11 @@
 
 - [X] T005 [P] Implement deterministic synthetic data generator in `code/generate_data.py` (seeded, schema-valid, CPU-feasible) to produce `data/raw/synthetic_counts.csv` and `data/raw/synthetic_peaks.bed` with Seed=42, dimensions [deferred] genes x cell lines x [deferred] peaks. **Deliverable**: `code/generate_data.py`.
 
-- [~] T006 [P] Create base utility module `code/utils.py` for logging, checksumming, and config loading. **Function**: `checksum_file(path)` must be implemented and tested.
+- [ ] T006 [P] Create base utility module `code/utils.py` for logging, checksumming, and config loading. **Function**: `checksum_file(path)` must be implemented and tested.
 
-- [~] T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`
+- [ ] T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`
 
-- [~] T008 Configure error handling and retry logic (multiple attempts, fixed time intervals) for data fetching in `code/utils.py`
+- [ ] T008 Configure error handling and retry logic (multiple attempts, fixed time intervals) for data fetching in `code/utils.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,8 +81,8 @@
 
 ### Tests for User Story 1 (OPTIONAL)
 
-- [~] T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`
-- [~] T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`
+- [ ] T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`
+- [ ] T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -158,7 +158,7 @@
 
 - [~] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003). **Deliverable**: `data/processed/tss_proximity_stats.json`.
 
-- [ ] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 and gene lists from T016/T017. **Deliverable**: `data/processed/performance_gap.json`.
+- [~] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 and gene lists from T016/T017. **Deliverable**: `data/processed/performance_gap.json`.
 
 - [ ] T034 [US3] Generate summary report comparing model performance across cell types and gene categories in `code/interpret.py`. **Deliverable**: `docs/regulatory_insights_report.md`.
 

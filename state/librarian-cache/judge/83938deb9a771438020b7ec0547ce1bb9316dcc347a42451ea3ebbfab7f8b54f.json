@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-07T19:03:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+  "rationale": "The paper focuses on the risks of changing data sources (concept drift, bias) in the domain of official statistics and policy-making, which is an off-domain application compared to the user's specific question about quantifying dataset size effects on material property prediction in physics. It does not measure the relationship between dataset size and model accuracy for physical materials, nor does it provide a foundational methodology or empirical baseline for that specific scientific domain.",
+  "relevant": false
+}

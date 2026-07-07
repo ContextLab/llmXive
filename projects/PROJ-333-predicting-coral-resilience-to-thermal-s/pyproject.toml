@@ -5,36 +5,35 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-coral-resilience"
 version = "0.1.0"
-description = "Predicting Coral Resilience to Thermal Stress"
-requires-python = ">=3.11"
+description = "Predicting Coral Resilience to Thermal Stress Using Publicly Available Genomic Data"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
-    "biopython",
-    "pysam",
-    "scipy",
-    "pandas",
-    "matplotlib",
-    "gprofiler-official",
-    "rpy2",
-    "requests",
-    "pyyaml",
-    "pytest",
-    "memory-profiler",
-    "tomli",
-    "tomli-w",
+    "biopython>=1.81",
+    "pysam>=0.21.0",
+    "scipy>=1.11.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.7.0",
+    "gprofiler-official>=1.0.0",
+    "rpy2>=3.5.0",
+    "requests>=2.31.0",
+    "tomlkit>=0.12.0",
+    "tomli-w>=1.0.0",
+    "tomli>=2.0.0",
+    "numpy>=1.24.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "isort",
-    "flake8",
-    "pylint",
-    "ruff",
+    "flake8>=6.1.0",
+    "pylint>=3.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -47,27 +46,41 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data/raw
+    | data/processed
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code", "tests"]
-known_third_party = ["biopython", "pysam", "scipy", "pandas", "matplotlib", "requests", "pytest"]
+known_first_party = ["models", "utils", "data", "tests"]
+skip = [
+    ".git",
+    ".venv",
+    "venv",
+    "data/raw",
+    "data/processed"
+]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+[tool.pylint.main]
+load-plugins = []
 
 [tool.pylint.messages_control]
 disable = [
-    "C0114", # missing-module-docstring
-    "C0115", # missing-class-docstring
-    "C0116", # missing-function-docstring
-    "R0903", # too-few-public-methods
+    "C0114",
+    "C0115",
+    "C0116",
+    "R0903",
+    "R0913",
+    "R0914",
+    "W0511",
+    "W1203"
 ]
 
 [tool.pylint.format]

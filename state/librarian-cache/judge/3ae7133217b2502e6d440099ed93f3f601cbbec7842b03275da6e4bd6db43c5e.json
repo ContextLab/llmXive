@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.3662",
+  "judged_at": "2026-07-07T19:05:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+  "rationale": "The paper focuses exclusively on functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain from the user's question regarding weather data and extreme event prediction. While both involve statistical analysis, the paper fails the \"off-domain entirely\" rejection rule as it shares no measurable connection to the specific variables, mechanisms, or empirical population (meteorology) requested.",
+  "relevant": false
+}

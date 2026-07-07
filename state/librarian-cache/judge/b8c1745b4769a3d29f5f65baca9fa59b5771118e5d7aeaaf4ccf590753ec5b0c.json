@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.06183",
+  "judged_at": "2026-07-07T19:05:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it performs a statistical analysis on weather data (the user's domain) to address data quality and prediction challenges, specifically focusing on the statistical properties of noisy crowdsourced observations which is a critical component of the user's query regarding \"statistics\" for \"extreme event prediction.\"",
+  "relevant": true
+}

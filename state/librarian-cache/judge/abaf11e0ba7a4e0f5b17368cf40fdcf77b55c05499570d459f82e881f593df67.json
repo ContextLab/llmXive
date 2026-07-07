@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.10086",
+  "judged_at": "2026-07-07T19:03:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+  "rationale": "The paper focuses on the methodology of learning universal graph embeddings and transfer learning across general graph classification benchmarks, but it does not measure or analyze the specific relationship between dataset size and model accuracy for predicting material properties. While it uses GNNs (a relevant technique), it fails to satisfy the criteria for same-mechanism evidence, empirical baselines on the specific domain, or studies of the material science population, as it does not addres",
+  "relevant": false
+}

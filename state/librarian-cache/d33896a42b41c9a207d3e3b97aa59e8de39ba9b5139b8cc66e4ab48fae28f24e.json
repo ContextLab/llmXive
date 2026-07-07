@@ -1,0 +1,286 @@
+{
+  "fetched_at": "2026-07-07T19:03:42Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Models for Predicting Material Properties",
+      "target_n": 5
+    },
+    "duration_seconds": 56.709,
+    "ended_at": "2026-07-07T19:03:42Z",
+    "expansion": null,
+    "extracted_queries": [
+      "data scaling laws material property prediction",
+      "QM9 OQMD Materials Graph Neural Network",
+      "learning curve extrapolation material informatics",
+      "test set error dataset size materials science",
+      "sample efficiency data contamination material properties"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2103.00157"
+      ]
+    },
+    "per_query_hit_count": {
+      "QM9 OQMD Materials Graph Neural Network": 3,
+      "Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Models for Predicting Material Properties physics": 3,
+      "data scaling laws material property prediction": 3,
+      "learning curve extrapolation material informatics": 3,
+      "sample efficiency data contamination material properties": 1,
+      "test set error dataset size materials science": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on model interpretability and feature identification using energy landscape methods, which does not measure the relationship between dataset size and prediction accuracy (the user's specific variables). While it mentions \"real world\" examples and physics inspiration, it lacks the empirical study of data scaling laws or accuracy metrics required by criteria (a) or (b), and it is not a foundational methodology paper for the specific question of dataset size impact (criterion d).",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper is rejected because it is off-domain entirely (biology vs. materials physics) and focuses on methodological recommendations for validation standards rather than providing empirical evidence on the specific mechanism of dataset size impact on model accuracy. It does not measure the relationship between data quantity and predictive performance in the user's domain, nor does it establish a baseline for material property prediction.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources (concept drift, bias) in the domain of official statistics and policy-making, which is an off-domain application compared to the user's specific question about quantifying dataset size effects on material property prediction in physics. It does not measure the relationship between dataset size and model accuracy for physical materials, nor does it provide a foundational methodology or empirical baseline for that specific scientific domain.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2008.06415",
+          "rationale": "The paper focuses on a specific model architecture (OGCNN) and its superiority over other descriptors for material property prediction, but it does not investigate the relationship between dataset size and model accuracy, nor does it establish an empirical baseline for how scaling data volume impacts performance in this domain. While it addresses the general topic of \"material property prediction,\" it fails to satisfy any of the inclusion criteria (a-f) regarding the specific mechanism of datase",
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction"
+        },
+        {
+          "primary_pointer": "1909.10086",
+          "rationale": "The paper focuses on the methodology of learning universal graph embeddings and transfer learning across general graph classification benchmarks, but it does not measure or analyze the specific relationship between dataset size and model accuracy for predicting material properties. While it uses GNNs (a relevant technique), it fails to satisfy the criteria for same-mechanism evidence, empirical baselines on the specific domain, or studies of the material science population, as it does not addres",
+          "title": "Learning Universal Graph Neural Network Embeddings With Aid Of Transfer Learning"
+        },
+        {
+          "primary_pointer": "2407.19724",
+          "rationale": "The paper focuses on accelerating training and inference speed (efficiency) using a specific deep equilibrium architecture, rather than quantifying the relationship between dataset size and model accuracy. While it applies machine learning to material properties, it does not provide empirical evidence, baselines, or analysis regarding how varying the amount of training data impacts predictive performance, which is the core of the user's question.",
+          "title": "Constructing artificial life and materials scientists with accelerated AI using Deep AndersoNN"
+        },
+        {
+          "primary_pointer": "2405.19595",
+          "rationale": "The paper is off-domain entirely, focusing on medical imaging (CT scans) and traumatic injury detection rather than the user's specific domain of material properties physics. While it discusses dataset size and machine learning, it does not measure the same biological pathway, physical observable, or causal mechanism (material property prediction) required by the user's question.",
+          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T19:02:45Z",
+    "term_input": {
+      "normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+      "raw": "Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Models for Predicting Material Properties physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-07T19:03:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-07T19:03:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-07T19:03:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-07T19:03:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-07T19:03:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Model', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-07T19:03:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ari Brill"
+          ],
+          "title": "Neural Scaling Laws Rooted in the Data Distribution",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.07942",
+        "summary": "Deep neural networks exhibit empirical neural scaling laws, with error decreasing as a power law with increasing model or data size, across a wide variety of architectures, tasks, and datasets. This universality suggests that scaling laws may result from general properties of natural learning tasks. We develop a mathematical model intended to describe natural datasets using percolation theory. Two distinct criticality regimes emerge, each yielding optimal power-law neural scaling laws. These regimes, corresponding to power-law-distributed discrete subtasks and a dominant data manifold, can be associated with previously proposed theories of neural scaling, thereby grounding and unifying prior works. We test the theory by training regression models on toy datasets derived from percolation theory simulations. We suggest directions for quantitatively predicting language model scaling.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.07942",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:03:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kan Hatakeyama-Sato",
+            "Kenichi Oyaizu"
+          ],
+          "title": "A Generative Model for Extrapolation Prediction in Materials Informatics",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.00157",
+        "summary": "We report a deep generative model for regression tasks in materials informatics. The model is introduced as a component of a data imputer, and predicts more than 20 diverse experimental properties of organic molecules. The imputer is designed to predict material properties by \"imagining\" the missing data in the database, enabling the use of incomplete material data. Even removing 60% of the data does not diminish the prediction accuracy in a model task. Moreover, the model excels at extrapolation prediction, where target values of the test data are out of the range of the training data. Such extrapolation has been regarded as an essential technique for exploring novel materials, but has hardly been studied to date due to its difficulty. We demonstrate that the prediction performance can be improved by >30% by using the imputer compared with traditional linear regression and boosting models. The benefit becomes especially pronounced with few records for an experimental property (< 100 cases) when prediction would be difficult by conventional methods. The presented approach can be used to more efficiently explore functional materials and break through previous performance limits.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.00157",
+          "http_status": 200,
+          "pdf_sample_score": 0.2861,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:03:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:03:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

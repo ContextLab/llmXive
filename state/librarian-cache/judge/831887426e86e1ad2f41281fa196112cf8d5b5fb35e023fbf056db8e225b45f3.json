@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1208.3378",
+  "judged_at": "2026-07-07T19:05:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides the foundational statistical methodology (extreme value statistics, spatial max-stable processes, and copulas) specifically for modeling natural extremes like rainfall and temperature, which are the core variables and mechanisms required for the user's question on extreme event prediction.",
+  "relevant": true
+}

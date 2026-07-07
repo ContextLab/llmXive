@@ -1,3 +1,3 @@
 """
-Data ingestion and management utilities.
+Data ingestion and management modules.
 """

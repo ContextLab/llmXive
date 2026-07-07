@@ -1,3 +1,3 @@
 """
-Tests package for the Coral Resilience Prediction pipeline.
+llmXive Coral Resilience Project - Tests Module
 """

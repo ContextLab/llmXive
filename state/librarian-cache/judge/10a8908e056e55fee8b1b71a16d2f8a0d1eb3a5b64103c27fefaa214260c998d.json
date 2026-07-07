@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.02723",
+  "judged_at": "2026-07-07T19:05:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the prediction of extreme precipitation events (a specific type of extreme weather event) using publicly available satellite data (IMERG), directly addressing the domain of extreme event prediction and the use of public weather data, even though it focuses on a specific nowcasting methodology rather than a general statistical analysis framework.",
+  "relevant": true
+}

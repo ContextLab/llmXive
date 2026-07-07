@@ -1,0 +1,546 @@
+{
+  "fetched_at": "2026-07-07T19:05:36Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction",
+      "target_n": 5
+    },
+    "duration_seconds": 96.503,
+    "ended_at": "2026-07-07T19:05:36Z",
+    "expansion": null,
+    "extracted_queries": [
+      "extreme value theory heavy-tailed distributions",
+      "ERA5 reanalysis IMERG satellite precipitation datasets",
+      "return period exceedance probability threshold",
+      "forecast verification Brier score CRPS reliability",
+      "non-stationarity climate change trend detection"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1902.06183"
+      ]
+    },
+    "per_query_hit_count": {
+      "ERA5 reanalysis IMERG satellite precipitation datasets": 3,
+      "Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction statistics": 3,
+      "extreme value theory heavy-tailed distributions": 3,
+      "forecast verification Brier score CRPS reliability": 3,
+      "non-stationarity climate change trend detection": 3,
+      "return period exceedance probability threshold": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "0906.3662",
+          "rationale": "The paper focuses exclusively on functional Magnetic Resonance Imaging (fMRI) data in neuroscience, which is an entirely different domain from the user's question regarding weather data and extreme event prediction. While both involve statistical analysis, the paper fails the \"off-domain entirely\" rejection rule as it shares no measurable connection to the specific variables, mechanisms, or empirical population (meteorology) requested.",
+          "title": "The Statistical Analysis of fMRI Data"
+        },
+        {
+          "primary_pointer": "2402.03197",
+          "rationale": "The paper focuses on the theoretical statistical methodology of combining p-values using extreme value theory for multiple hypothesis testing, which is a general statistical tool rather than an application to or analysis of \"publicly available weather data\" or \"extreme event prediction\" in the meteorological domain. While it uses the term \"extreme value theory,\" it does not satisfy the criteria for measuring the specific variables, domain, or empirical population requested by the user, and thus ",
+          "title": "Heavy-tailed $p$-value combinations from the perspective of extreme value theory"
+        },
+        {
+          "primary_pointer": "2312.10499",
+          "rationale": "The paper focuses on statistical methodology for handling censored data in extreme value theory (specifically applied to brain cancer data), but it does not address the user's specific domain of \"publicly available weather data\" or the application to \"extreme event prediction\" in meteorology. While it shares the general topic of extreme value statistics, it fails the inclusion criteria because it does not measure the same mechanism on the user's domain (weather), nor does it provide a canonical ",
+          "title": "Censored extreme value estimation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T19:04:00Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+      "raw": "Statistical Analysis of Publicly Available Weather Data for Extreme Event Prediction statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "nsEVDx is an open-source Python package for fitting stationary and nonstationary Extreme Value Distributions (EVDs) to extreme value data. It can be used to model extreme events in fields like hydrology, climate science, finance, and insurance, using both frequentist and Bayesian methods. For Bayesian inference it employs advanced Monte Carlo sampling techniques such as Metropolis-Hastings, Metropolis-adjusted Langevin (MALA), and Hamiltonian Monte Carlo (HMC). Unlike many existing extreme value theory (EVT) tools, which can be complex or lack Bayesian options, nsEVDx offers an intuitive, Python-native interface that is both user-friendly and extensible. It requires only standard scientific Python libraries (numpy, scipy) for its core functionality, while optional features like plotting and diagnostics use matplotlib and seaborn. A key feature of nsEVDx is its flexible support for non-stationary modeling, where the location, scale, and shape parameters can each depend on arbitrary, user-defined covariates. This enables practical applications such as linking extremes to other variables (e.g., rainfall extremes to temperature or maximum stock market losses to market volatility indices). Overall, nsEVDx aims to serve as a practical, easy-to-use, and extensible tool for researchers and practitioners analyzing extreme events in non-stationary environments.",
+          "claimed_authors": [
+            "Nischal Kafle",
+            "Claudio I. Meier"
+          ],
+          "claimed_title": "nsEVDx: A Python library for modeling Non-Stationary Extreme Value Distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.07261"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='nsEVDx: A Python library for modeling Non-Stationary Extreme Value Distributions')",
+        "failed_at": "2026-07-07T19:05:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While adaptive gradient methods are the workhorse of modern machine learning, sign-based optimization algorithms such as Lion and Muon have recently demonstrated superior empirical performance over AdamW in training large language models (LLM). However, a theoretical understanding of why sign-based updates outperform variance-adapted methods remains elusive. In this paper, we aim to bridge the gap between theory and practice through the lens of heavy-tailed gradient noise, a phenomenon frequently observed in language modeling tasks. Theoretically, we introduce a novel generalized heavy-tailed noise condition that captures the behavior of LLMs more accurately than standard finite variance assumptions. Under this noise model, we establish sharp convergence rates of SignSGD and Lion for generalized smooth function classes, matching or surpassing previous best-known bounds. Furthermore, we extend our analysis to Muon and Muonlight, providing what is, to our knowledge, the first rigorous analysis of matrix optimization under heavy-tailed stochasticity. These results offer a strong theoretical justification for the empirical superiority of sign-based optimizers, showcasing that they are naturally suited to handle the noisy gradients associated with heavy tails. Empirically, LLM pretraining experiments validate our theoretical insights and confirm that our proposed noise models are well-aligned with practice.",
+          "claimed_authors": [
+            "Dingzhi Yu",
+            "Hongyi Tao",
+            "Yuanyu Wan",
+            "Luo Luo",
+            "Lijun Zhang"
+          ],
+          "claimed_title": "Sign-Based Optimizers Are Effective Under Heavy-Tailed Noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07425"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Sign-Based Optimizers Are Effective Under Heavy-Tailed Noise')",
+        "failed_at": "2026-07-07T19:05:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reanalysis products such as the ERA5 reanalysis are commonly used as proxies for observed atmospheric conditions. These products are convenient to use due to their global coverage, the large number of available atmospheric variables and the physical consistency between these variables, as well as their relatively high spatial and temporal resolutions. However, despite the continuous improvements in accuracy and increasing spatial and temporal resolutions of reanalysis products, they may not always capture local atmospheric conditions, especially for highly localised variables such as precipitation. This paper proposes a computationally efficient stochastic downscaling of ERA5 temperature and precipitation. The method combines information from ERA5 and surface observations from nearby stations in a non-linear regression framework that combines generalised additive models (GAMs) with regression splines and auto-regressive moving average (ARMA) models to produce realistic time series of local daily temperature and precipitation. Using a wide range of evaluation criteria that address different properties of the data, the proposed framework is shown to improve the representation of local temperature and precipitation compared to ERA5 at over 4000 locations in Europe over a period of more than 70 years.",
+          "claimed_authors": [
+            "Silius M. Vandeskog",
+            "Thordis L. Thorarinsdottir",
+            "Alex Lenkoski"
+          ],
+          "claimed_title": "Simulation and evaluation of local daily temperature and precipitation series derived by stochastic downscaling of ERA5 reanalysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.01692"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Simulation and evaluation of local daily temperature and precipitation series derived by stochastic downscaling of ERA5 reanalysis')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study presents a meshless-based local reanalysis (MLR) method. The purpose of this study is to extend reanalysis methods to the Kriging interpolation meshless method due to its high efficiency. In this study, two reanalysis methods: combined approximations CA) and indirect factorization updating (IFU) methods are utilized. Considering the computational cost of meshless methods, the reanalysis method improves the efficiency of the full meshless method significantly. Compared with finite element method (FEM)-based reanalysis methods, the main superiority of meshless-based reanalysis method is to break the limitation of mesh connection. The meshless-based reanalysis is much easier to obtain the stiffness matrix even for solving the mesh distortion problems. However, compared with the FEM-based reanalysis method, the critical challenge is to use much more nodes in the influence domain due to high order interpolation. Therefore, a local reanalysis method which only needs to calculate the local stiffness matrix in the influence domain is suggested to improve the efficiency further. Several typical numerical examples are tested and the performance of the suggested method is verified.",
+          "claimed_authors": [
+            "Zhenxing Cheng",
+            "Hu Wang"
+          ],
+          "claimed_title": "A Meshless-based Local Reanalysis Method for Structural Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.04355"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='A Meshless-based Local Reanalysis Method for Structural Analysis')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large deviation theory has provided important clues for the choice of importance sampling measures for Monte Carlo evaluation of exceedance probabilities. However, Glasserman and Wang [Ann. Appl. Probab. 7 (1997) 731--746] have given examples in which importance sampling measures that are consistent with large deviations can perform much worse than direct Monte Carlo. We address this problem by using certain mixtures of exponentially twisted measures for importance sampling. Their asymptotic optimality is established by using a new class of likelihood ratio martingales and renewal theory.",
+          "claimed_authors": [
+            "Hock Peng Chan",
+            "Tze Leung Lai"
+          ],
+          "claimed_title": "Efficient importance sampling for Monte Carlo evaluation of exceedance probabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "math/0703910"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Efficient importance sampling for Monte Carlo evaluation of exceedance probabilities')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that if (X,\\mathfrakA,P) is an arbitrary probability space with countably generated σ-algebra \\mathfrakA, (Y,\\mathfrakB,Q) is an arbitrary complete probability space with a lifting ρand \\hat R is a complete probability measure on \\mathfrakA \\hat \\otimes_R \\mathfrakB determined by a regular conditional probability {S_y:y\\in Y} on \\mathfrakA with respect to \\mathfrakB, then there exist a lifting πon (X\\times Y,\\mathfrakA \\hat \\otimes_R \\mathfrakB,\\hat R) and liftings σ_y on (X,\\hat \\mathfrakA_y,\\hat S_y), y\\in Y, such that, for every E\\in\\mathfrakA \\hat \\otimes_R \\mathfrakB and every y\\in Y, [π(E)]^y=σ_y\\bigl([π(E)]^y\\bigr). Assuming the absolute continuity of R with respect to P\\otimes Q, we prove the existence of a regular conditional probability {T_y:y\\in Y} and liftings \\varpi on (X\\times Y,\\mathfrakA \\hat \\otimes_R \\mathfrakB,\\hat R), ρ' on (Y,\\mathfrakB,\\hat Q) and σ_y on (X,\\hat \\mathfrakA_y,\\hat S_y), y\\in Y, such that, for every E\\in\\mathfrakA \\hat \\otimes_R \\mathfrakB and every y\\in Y, [\\varpi(E)]^y=σ_y\\bigl([\\varpi(E)]^y\\bigr) and \\varpi(A\\times B)=\\bigcup_{y\\inρ'(B)}σ_y(A)\\times{y}\\qquadif A\\times B\\in\\mathfrakA\\times\\mathfrakB. Both results are generalizations of Musiał, Strauss and Macheras [Fund. Math. 166 (2000) 281-303] to the case of measures which are not necessarily products of marginal measures. We prove also that liftings obtained in this paper always convert \\hat R-measurable stochastic processes into their \\hat R-measurable modifications.",
+          "claimed_authors": [
+            "W. Strauss",
+            "N. D. Macheras",
+            "K. Musial"
+          ],
+          "claimed_title": "Splitting of liftings in products of probability spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0509010"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Splitting of liftings in products of probability spaces')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bounds for the expected return probability of the delayed random walk on finite clusters of an invariant percolation on transitive unimodular graphs are derived. They are particularly suited for the case of critical Bernoulli percolation and the associated heavy-tailed cluster size distributions. The upper bound relies on the fact that cartesian products of finite graphs with cycles of a certain minimal size are Hamiltonian. For critical Bernoulli bond percolation on the homogeneous tree this bound is sharp. The asymptotic type of the expected return probability for large times t in this case is of order of the 3/4'th power of 1/t.",
+          "claimed_authors": [
+            "Florian Sobieczky"
+          ],
+          "claimed_title": "Bounds for the annealed return probability on large finite percolation clusters",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0812.0117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Bounds for the annealed return probability on large finite percolation clusters')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An optimal transport (OT) problem seeks to find the cheapest mapping between two distributions with equal total density, given the cost of transporting density from one place to another. Unbalanced OT allows for different total density in each distribution. This is the typical setting for precipitation forecast and observation data, when considering the densities as accumulated rainfall, or intensity. In this work, entropic unbalanced OT and its associated Sinkhorn divergence are examined as a spatial forecast verification method for precipitation data. It offers many attractive features, such as morphing one field into another, defining a distance between fields and providing feature based optimal assignment. It is found that the Sinkhorn divergence is robust against the common double penalty problem (a form of phase error), on average aligns with expert assessments of model performance, and allows for a variety of novel pictorial illustrations of error. It provides informative summary scores, and has few limitations to its application. Combined, these findings place unbalanced entropy regularised optimal transport and the Sinkhorn divergence as an informative method which follows geometric intuition.",
+          "claimed_authors": [
+            "Jacob J. M. Francis",
+            "Colin J. Cotter",
+            "Marion P. Mittermaier"
+          ],
+          "claimed_title": "Examining Entropic Unbalanced Optimal Transport and Sinkhorn Divergences for Spatial Forecast Verification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.16063"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Examining Entropic Unbalanced Optimal Transport and Sinkhorn Divergences for Spatial Forecast Verification')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proper scoring rules are essential for evaluating probabilistic forecasts. We propose a simple algebraic rearrangement of the Yates covariance decomposition of the Brier score into three independently non-negative terms: a variance mismatch term, a correlation deficit term, and a calibration-in-the-large term. This rearrangement makes the optimality conditions for perfect forecasting transparent: the optimal forecast must simultaneously match the variance of outcomes, achieve perfect positive correlation with outcomes, and match the mean of outcomes. Any deviation from these conditions results in a positive contribution to the Brier score.",
+          "claimed_authors": [
+            "Bruno Hebling Vieira"
+          ],
+          "claimed_title": "An intuitive rearranging of the Yates covariance decomposition for probabilistic verification of forecasts with the Brier score",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.05544"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='An intuitive rearranging of the Yates covariance decomposition for probabilistic verification of forecasts with the Brier score')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Forecast of football outcomes in terms of Home Win, Draw and Away Win relies largely on ex ante probability elicitation of these events and ex post verification of them via computation of probability scoring rules (Brier, Ranked Probability, Logarithmic, Zero-One scores). Usually, appraisal of the quality of forecasting procedures is restricted to reporting mean score values. The purpose of this article is to propose additional tools of verification, such as score decompositions into several components of special interest. Graphical and numerical diagnoses of reliability and discrimination and kindred statistical methods are presented using different techniques of binning (fixed thresholds, quantiles, logistic and iso regression). These procedures are illustrated on probability forecasts for the outcomes of the UEFA Champions League (C1) at the end of the group stage based on typical Poisson regression models with reasonably good results in terms of reliability as compared to those obtained from bookmaker odds and whatever the technique used. Links with research in machine learning and different areas of application (meteorology, medicine) are discussed.",
+          "claimed_authors": [
+            "Jean-Louis Foulley"
+          ],
+          "claimed_title": "More on verification of probability forecasts for football outcomes: score decompositions, reliability, and discrimination analyses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.14345"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='More on verification of probability forecasts for football outcomes: score decompositions, reliability, and discrimination analyses')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+          "claimed_authors": [
+            "J. Sanjay",
+            "R. Krishnan",
+            "M. V. S. Ramarao",
+            "R. Mahesh",
+            "Bhupendra Bahadur Singh",
+            "Jayashri Patel",
+            "Sandip Ingle",
+            "Preethi Bhaskar",
+            "J. V. Revadekar",
+            "T. P. Sabin",
+            "M. Mujumdar"
+          ],
+          "claimed_title": "Future Climate Change Projections over the Indian Region",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.10386"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Future Climate Change Projections over the Indian Region')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_authors": [
+            "Kimberley Miner",
+            "Laura Meyerson",
+            ". Climate Change Institute",
+            "School of Earth",
+            "Climate Sciences",
+            "University of Maine",
+            " Orono",
+            "ME 04469 2. Department of Natural Resources Science",
+            "University of Rhode Island",
+            " Kingston",
+            "RI 02881"
+          ],
+          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01035"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Consider $d$ dependent change point tests, each based on a CUSUM-statistic. We provide an asymptotic theory that allows us to deal with the maximum over all test statistics as both the sample size $n$ and $d$ tend to infinity. We achieve this either by a consistent bootstrap or an appropriate limit distribution. This allows for the construction of simultaneous confidence bands for dependent change point tests, and explicitly allows us to determine the location of the change both in time and coordinates in high-dimensional time series. If the underlying data has sample size greater or equal $n$ for each test, our conditions explicitly allow for the large $d$ small $n$ situation, that is, where $n/d\\to0$. The setup for the high-dimensional time series is based on a general weak dependence concept. The conditions are very flexible and include many popular multivariate linear and nonlinear models from the literature, such as ARMA, GARCH and related models. The construction of the tests is completely nonparametric, difficulties associated with parametric model selection, model fitting and parameter estimation are avoided. Among other things, the limit distribution for $\\max_{1\\leq h\\leq d}\\sup_{0\\leq t\\leq1}\\vert \\mathcal{W}_{t,h}-t\\mathcal{W}_{1,h}\\vert$ is established, where $\\{\\mathcal{W}_{t,h}\\}_{1\\leq h\\leq d}$ denotes a sequence of dependent Brownian motions. As an application, we analyze all S&P 500 companies over a period of one year.",
+          "claimed_authors": [
+            "Moritz Jirak"
+          ],
+          "claimed_title": "Uniform change point tests in high dimension",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.05333"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Uniform change point tests in high dimension')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $(X,μ)$ be a standard probability space. An automorphism $T$ of $(X,μ)$ has the weak Pinsker property if for every $\\varepsilon > 0$ it has a splitting into a direct product of a Bernoulli shift and an automorphism of entropy less than $\\varepsilon$. This property was introduced by Thouvenot, who asked whether it holds for all ergodic automorphisms.\n  This paper proves that it does. The proof actually gives a more general result. Firstly, it gives a relative version: any factor map from one ergodic automorphism to another can be enlarged by arbitrarily little entropy to become relatively Bernoulli. Secondly, using some facts about relative orbit equivalence, the analogous result holds for all free and ergodic measure-preserving actions of a countable amenable group.\n  The key to this work is a new result about measure concentration. Suppose now that $μ$ is a probability measure on a finite product space $A^n$, and endow this space with its Hamming metric. We prove that $μ$ may be represented as a mixture of other measures in which (i) most of the weight in the mixture is on measures that exhibit a strong kind of concentration, and (ii) the number of summands is bounded in terms of the difference between the Shannon entropy of $μ$ and the combined Shannon entropies of its marginals.",
+          "claimed_authors": [
+            "Tim Austin"
+          ],
+          "claimed_title": "Measure concentration and the weak Pinsker property",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.00302"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Measure concentration and the weak Pinsker property')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper investigates the propreties of the persistence diagrams stemming from almost surely continuous random processes on $[0,t]$. We focus our study on two variables which together characterize the barcode : the number of points of the persistence diagram inside a rectangle $]\\!-\\!\\infty,x]\\times [x+\\varepsilon,\\infty[$, $N^{x,x+\\varepsilon}$ and the number of bars of length $\\geq \\varepsilon$, $N^\\varepsilon$. For processes with the strong Markov property, we show both of these variables admit a moment generating function and in particular moments of every order. Switching our attention to semimartingales, we show the asymptotic behaviour of $N^\\varepsilon$ and $N^{x,x+\\varepsilon}$ as $\\varepsilon \\to 0$ and of $N^\\varepsilon$ as $\\varepsilon \\to \\infty$. Finally, we study the repercussions of the classical stability theorem of barcodes and illustrate our results with some examples, most notably Brownian motion and empirical functions converging to the Brownian bridge.",
+          "claimed_authors": [
+            "Daniel Perez"
+          ],
+          "claimed_title": "On the persistent homology of almost surely $C^0$ stochastic processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.09459"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='On the persistent homology of almost surely $C^0$ stochastic processes')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper focuses on testing for the presence of alpha in time-varying factor pricing models, specifically when the number of securities N is larger than the time dimension of the return series T. We introduce a maximum-type test that performs well in scenarios where the alternative hypothesis is sparse. We establish the limit null distribution of the proposed maximum-type test statistic and demonstrate its asymptotic independence from the sum-type test statistics proposed by Ma et al.(2020).Additionally, we propose an adaptive test by combining the maximum-type test and sum-type test, and we show its advantages under various alternative hypotheses through simulation studies and two real data applications.",
+          "claimed_authors": [
+            "Huifang MA",
+            "Long Feng",
+            "Zhaojun Wang"
+          ],
+          "claimed_title": "Adaptive Testing for Alphas in Conditional Factor Models with High Dimensional Assets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.09397"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Adaptive Testing for Alphas in Conditional Factor Models with High Dimensional Assets')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper deals with off-line detection of change points for time series of independent observations, when the number of change points is unknown. We propose a sequential analysis like method with linear time and memory complexity. Our method is based at first step, on Filtered Derivative method which detects the right change points but also false ones. We improve Filtered Derivative method by adding a second step in which we compute the p-values associated to each potential change points. Then we eliminate as false alarms the points which have p-value smaller than a given critical level. Next, our method is compared with the Penalized Least Square Criterion procedure on simulated data sets. Eventually, we apply Filtered Derivative with p-Value method to segmentation of heartbeat time series, and detection of change points in the average daily volume of financial time series.",
+          "claimed_authors": [
+            "Pierre R. Bertrand",
+            "Mehdi Fhima",
+            "Arnaud Guillin"
+          ],
+          "claimed_title": "Off-line detection of multiple change points with the Filtered Derivative with p-Value method",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.4148"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Off-line detection of multiple change points with the Filtered Derivative with p-Value method')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "For a zero-mean, unit-variance second-order stationary univariate Gaussian process we derive the probability that a record at the time $n$, say $X_n$, takes place and derive its distribution function. We study the joint distribution of the arrival time process of records and the distribution of the increments between the first and second record, and the third and second record and we compute the expected number of records. We also consider two consecutive and non-consecutive records, one at time $j$ and one at time $n$ and we derive the probability that the joint records $(X_j,X_n)$ occur as well as their distribution function. The probability that the records $X_n$ and $(X_j,X_n)$ take place and the arrival time of the $n$-th record, are independent of the marginal distribution function, provided that it is continuous. These results actually hold for a second-order stationary process with Gaussian copulas. We extend some of these results to the case of a multivariate Gaussian process. Finally, for a strictly stationary process satisfying some mild conditions on the tail behavior of the common marginal distribution function $F$ and the long-range dependence of the extremes of the process, we derive the asymptotic probability that the record $X_n$ occurs and derive its distribution function.",
+          "claimed_authors": [
+            "Michael Falk",
+            "Amir Khorrami",
+            "Simone A. Padoan"
+          ],
+          "claimed_title": "Records for Some Stationary Dependent Sequences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.00337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Records for Some Stationary Dependent Sequences')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Drees and Rootzén (2010) have established limit theorems for a general class of empirical processes of statistics that are useful for the extreme value analysis of time series, but do not apply to statistics of sliding blocks, including so-called runs estimators. We generalize these results to empirical processes which cover both the class considered by Drees and Rootzén (2010) and processes of sliding blocks statistics. Using this approach, one can analyze different types of statistics in a unified framework. We show that statistics based on sliding blocks are asymptotically normal with an asymptotic variance which, under rather mild conditions, is smaller than or equal to the asymptotic variance of the corresponding estimator based on disjoint blocks. Finally, the general theory is applied to three well-known estimators of the extremal index. It turns out that they all have the same limit distribution, a fact which has so far been overlooked in the literature.",
+          "claimed_authors": [
+            "Holger Drees",
+            "Sebastian Neblung"
+          ],
+          "claimed_title": "Asymptotics for sliding blocks estimators of rare events",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.01016"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Asymptotics for sliding blocks estimators of rare events')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we investigate sphericity testing in high-dimensional settings, where existing methods primarily rely on sum-type test procedures that often underperform under sparse alternatives. To address this limitation, we propose two max-type test procedures utilizing the sample covariance matrix and the sample spatial-sign covariance matrix, respectively. Furthermore, we introduce two Cauchy combination test procedures that integrate both sum-type and max-type tests, demonstrating their superiority across a wide range of sparsity levels in the alternative hypothesis. Our simulation studies corroborate these findings, highlighting the enhanced performance of our proposed methodologies in high-dimensional sphericity testi",
+          "claimed_authors": [
+            "Ping Zhao",
+            "Wenwan Yang",
+            "Long Feng",
+            "Zhaojun Wang"
+          ],
+          "claimed_title": "Adaptive Sphericity Tests for High Dimensional Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.24094"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Weather Data for Extreme Event Predic', candidate_title='Adaptive Sphericity Tests for High Dimensional Data')",
+        "failed_at": "2026-07-07T19:05:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arnab Chakraborty",
+            "Soumendra Nath Lahiri",
+            "Alyson Wilson"
+          ],
+          "title": "A Statistical Analysis of Noisy Crowdsourced Weather Data",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.06183",
+        "summary": "Spatial prediction of weather-elements like temperature, precipitation, and barometric pressure are generally based on satellite imagery or data collected at ground-stations. None of these data provide information at a more granular or \"hyper-local\" resolution. On the other hand, crowdsourced weather data, which are captured by sensors installed on mobile devices and gathered by weather-related mobile apps like WeatherSignal and AccuWeather, can serve as potential data sources for analyzing environmental processes at a hyper-local resolution. However, due to the low quality of the sensors and the non-laboratory environment, the quality of the observations in crowdsourced data is compromised. This paper describes methods to improve hyper-local spatial prediction using this varying-quality noisy crowdsourced information. We introduce a reliability metric, namely Veracity Score (VS), to assess the quality of the crowdsourced observations using a coarser, but high-quality, reference data. A VS-based methodology to analyze noisy spatial data is proposed and evaluated through extensive simulations. The merits of the proposed approach are illustrated through case studies analyzing crowdsourced daily average ambient temperature readings for one day in the contiguous United States.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.06183",
+          "http_status": 200,
+          "pdf_sample_score": 0.2705,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:05:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "A. C. Davison",
+            "S. A. Padoan",
+            "M. Ribatet"
+          ],
+          "title": "Statistical Modeling of Spatial Extremes",
+          "venue": "arXiv",
+          "year": 2012
+        },
+        "primary_pointer": "1208.3378",
+        "summary": "The areal modeling of the extremes of a natural process such as rainfall or temperature is important in environmental statistics; for example, understanding extreme areal rainfall is crucial in flood protection. This article reviews recent progress in the statistical modeling of spatial extremes, starting with sketches of the necessary elements of extreme value statistics and geostatistics. The main types of statistical models thus far proposed, based on latent variables, on copulas and on spatial max-stable processes, are described and then are compared by application to a data set on rainfall in Switzerland. Whereas latent variable modeling allows a better fit to marginal distributions, it fits the joint distributions of extremes poorly, so appropriately-chosen copula or max-stable models seem essential for successful spatial modeling of extremes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1208.3378",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:05:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daniel Seal",
+            "Rossella Arcucci",
+            "Salva Rühling-Cachay",
+            "César Quilodrán-Casas"
+          ],
+          "title": "DYffCast: Regional Precipitation Nowcasting Using IMERG Satellite Data. A case study over South America",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.02723",
+        "summary": "Climate change is increasing the frequency of extreme precipitation events, making weather disasters such as flooding and landslides more likely. The ability to accurately nowcast precipitation is therefore becoming more critical for safeguarding society by providing immediate, accurate information to decision makers. Motivated by the recent success of generative models at precipitation nowcasting, this paper: extends the DYffusion framework to this task and evaluates its performance at forecasting IMERG satellite precipitation data up to a 4-hour horizon; modifies the DYffusion framework to improve its ability to model rainfall data; and introduces a novel loss function that combines MSE, MAE and the LPIPS perceptual score. In a quantitative evaluation of forecasts up to a 4-hour horizon, the modified DYffusion framework trained with the novel loss outperforms four competitor models. It has the highest CSI scores for weak, moderate, and heavy rain thresholds and retains an LPIPS score $<$ 0.2 for the entire roll-out, degrading the least as lead-time increases. The proposed nowcasting model demonstrates visually stable and sharp forecasts up to a 2-hour horizon on a heavy rain case study. Code is available at https://github.com/Dseal95/DYffcast.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.02723",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T19:05:19Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available weather data for extreme event prediction statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

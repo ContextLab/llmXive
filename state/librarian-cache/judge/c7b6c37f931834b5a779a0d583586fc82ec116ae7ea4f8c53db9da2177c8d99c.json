@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-07T19:03:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of dataset size on the accuracy of machine learning models for predicting material properties physics",
+  "rationale": "The paper is rejected because it is off-domain entirely (biology vs. materials physics) and focuses on methodological recommendations for validation standards rather than providing empirical evidence on the specific mechanism of dataset size impact on model accuracy. It does not measure the relationship between data quantity and predictive performance in the user's domain, nor does it establish a baseline for material property prediction.",
+  "relevant": false
+}

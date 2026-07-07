@@ -60,8 +60,8 @@
  - **MUST define `MIN_COUNT_THRESHOLD` as a placeholder** (e.g., `None` or `# TODO: Determine in research phase`) to satisfy deferral of empirical specifics.
 - [ ] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time
 - [X] T006 [P] Create base data model schema definition `code/models/expression.py` (ExpressionMatrix class definition only, no instances)
-- [~] T007 [P] Create base data model schema definition `code/models/phenotype.py` (PhenotypeRecord class definition only, no instances)
-- [ ] T008 [P] Create base data model schema definition `code/models/dge.py` (DGEResult class definition only, no instances)
+- [X] T007 [P] Create base data model schema definition `code/models/phenotype.py` (PhenotypeRecord class definition only, no instances)
+- [X] T008 [P] Create base data model schema definition `code/models/dge.py` (DGEResult class definition only, no instances)
 - [ ] T009 [P] Create error handling utilities in `code/utils/errors.py` (specifically for NCBI timeout retries and checksum mismatches)
 - [ ] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `data/processed/data-model.md`.
  - **Do NOT hardcode values** (e.g., 10, 3).

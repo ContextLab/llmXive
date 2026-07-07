@@ -1,8 +1,3 @@
 """
-Data models for the Coral Resilience Prediction pipeline.
+Data models for the Coral Resilience project.
 """
-from .expression import ExpressionMatrix
-from .phenotype import PhenotypeRecord
-from .dge import DGEResult
-
-__all__ = ["ExpressionMatrix", "PhenotypeRecord", "DGEResult"]

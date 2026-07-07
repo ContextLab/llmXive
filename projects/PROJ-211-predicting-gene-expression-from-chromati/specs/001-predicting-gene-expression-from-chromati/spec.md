@@ -1,125 +1,133 @@
-# Feature Specification: Predicting Gene Expression from Chromatin Accessibility in Human Cells
+# Specification: Predicting Gene Expression from Chromatin Accessibility in Human Cells
 
-**Feature Branch**: `001-gene-regulation`
-**Created**: 2024-01-15
-**Status**: Draft
-**Input**: User description: "To what extent can bulk chromatin accessibility profiles (DNase-seq/ATAC-seq) predict steady-state gene expression levels (RNA-seq) across diverse human cell types using interpretable regression models?"
+## Overview
 
-## User Scenarios & Testing *(mandatory)*
+This project aims to build a predictive model that estimates steady-state gene expression levels from bulk chromatin accessibility profiles across multiple human cell lines. The work investigates the extent to which open chromatin regions serve as proxies for transcriptional activity.
 
-### User Story 1 - Download and preprocess paired multiomic data from ENCODE (Priority: P1)
+## User Stories
 
-The researcher MUST be able to download paired RNA-seq and DNase-seq/ATAC-seq count data for at least 5 human cell lines from the ENCODE portal, preprocess the accessibility signal within ±50kb windows of each gene's transcription start site (TSS), and filter genes with zero expression in all samples.
+### US1: Download and preprocess paired multiomic data
+As a researcher, I want to download and preprocess paired RNA-seq and DNase-seq/ATAC-seq data for at least 5 human cell lines so that I can train models on real biological data.
 
-**Why this priority**: This is the foundational data pipeline. Without valid input data, no downstream modeling or analysis can occur. This is the minimum viable product for any multiomic regression study.
+### US2: Train and validate interpretable regression models
+As a data scientist, I want to train Elastic Net models with cross-validation and calculate correlation coefficients with statistical corrections so that I can assess model performance and generalizability.
 
-**Independent Test**: Can be fully tested by verifying that the pipeline produces a matrix of accessibility features (rows=genes, columns=peaks) and a matrix of expression values (rows=genes, columns=samples) with matching gene identifiers, and that both matrices fit within 7GB RAM.
+### US3: Analyze feature importance and report regulatory insights
+As a biologist, I want to extract feature importance, map peaks to TSS, and compare model performance across gene categories so that I can derive biological insights about gene regulation.
 
-**Acceptance Scenarios**:
+## Functional Requirements
 
-1. **Given** the ENCODE portal is accessible, **When** the pipeline queries for 5 cell lines (GM12878, K562, and 3 others), **Then** the system downloads paired RNA-seq and DNase-seq/ATAC-seq count files for each cell line
-2. **Given** raw accessibility signal files exist, **When** the pipeline aggregates signal within ±50kb windows of each TSS using bedtools, **Then** a feature matrix is produced with dimensions ≤10,000 peaks × 5 cell lines
-3. **Given** expression matrices exist, **When** the pipeline filters genes with zero expression in all samples, **Then** at least 10,000 genes remain for downstream analysis
+### FR-001: Data Acquisition
+The system shall download paired RNA-seq and DNase-seq/ATAC-seq count data from the ENCODE portal for at least 5 human cell lines.
 
----
+### FR-002: Data Preprocessing
+The system shall aggregate accessibility signal within ±50kb windows of transcription start sites (TSS) and filter genes with zero expression across all samples.
 
-### User Story 2 - Train and validate interpretable regression models (Priority: P2)
+### FR-003: Model Training
+The system shall train Elastic Net regression models for each cell line with cross-validation to select the optimal regularization parameter.
 
-The researcher MUST be able to train Elastic Net regression models for each cell line using accessibility features to predict log-transformed expression values, perform cross-validation with multiple folds per cell line, and calculate Pearson correlation coefficients between predicted and actual expression.
+### FR-004: Statistical Validation
+The system shall calculate Pearson correlation coefficients between predicted and actual expression values and apply Bonferroni correction for multiple testing.
 
-**Why this priority**: This delivers the core scientific analysis. The model performance directly addresses the research question about predictability of expression from accessibility.
+### FR-005: Feature Importance
+The system shall extract non-zero coefficients from trained models and rank features by absolute magnitude.
 
-**Independent Test**: Can be fully tested by verifying that each cell line produces a trained model object, cross-validation scores, and a correlation matrix with p-values for all genes.
+### FR-006: Multiple Testing Correction
+The system shall implement Bonferroni correction for p-values derived from correlation analyses.
 
-**Acceptance Scenarios**:
+### FR-007: Regulatory Insight Generation
+The system shall calculate the percentage of top-ranked features within ±10kb of TSS and report performance gaps between housekeeping and cell-type-specific genes.
 
-1. **Given** preprocessed feature and expression matrices exist, **When** the system trains Elastic Net regression with α=0.5 and λ selected via cross-validation, **Then** the system reports the R² value for housekeeping genes for each cell line
-2. **Given** trained models exist, **When** the system performs 5-fold cross-validation, **Then** each fold produces a correlation coefficient and the mean correlation is recorded
-3. **Given** predictions are generated, **When** Pearson correlation is calculated between predicted and actual expression, **Then** p-values are computed and Bonferroni-corrected for multiple testing across genes
+### FR-008: External Validation
+The system shall perform external validation by training on a subset of cell lines and testing on held-out cell lines.
 
----
+### FR-009: Housekeeping Gene Analysis
+The system shall calculate R² metrics specifically for housekeeping genes (defined as genes with coefficient of variation ≤ 0.2).
 
-### User Story 3 - Analyze feature importance and report regulatory insights (Priority: P3)
+### FR-010: Performance Gap Analysis
+The system shall calculate and report the performance gap (ΔR²) between housekeeping and cell-type-specific genes.
 
-The researcher MUST be able to extract feature importance scores from the trained models, identify accessible regions near the TSS as primary predictors, and generate a report comparing model performance across cell types and gene categories.
+### FR-011: Memory Constraints
+The system shall operate within 7GB RAM constraints throughout the pipeline.
 
-**Why this priority**: This provides the interpretability component that distinguishes this work from black-box deep learning approaches, supporting the research goal of understanding the regulatory code.
+### FR-012: Runtime Constraints
+The system shall complete the full pipeline within 6 hours on standard CPU hardware.
 
-**Independent Test**: Can be fully tested by verifying that feature importance rankings are produced, TSS-proximal regions appear in the top 100 important features, and a summary report documents performance differences between housekeeping and cell-type-specific genes.
+### FR-013: Reproducibility
+The system shall use fixed random seeds for all stochastic operations to ensure reproducibility.
 
-**Acceptance Scenarios**:
+### FR-014: Gene Categorization
+The system shall identify and categorize genes as housekeeping or cell-type-specific based on expression variance metrics.
 
-1. **Given** trained Elastic Net models exist, **When** the system extracts non-zero coefficient features, **Then** a ranked list of the most important peaks is produced for each cell line
-2. **Given** feature importance rankings exist, **When** the system maps peaks to genomic coordinates, **Then** at least 50% of top 100 features fall within ±10kb of a TSS
-3. **Given** correlation results exist, **When** the system compares housekeeping vs. cell-type-specific genes, **Then** the system reports the performance gap (ΔR²) between the two gene sets
+## Non-Functional Requirements
 
----
+### NFR-001: Code Quality
+All Python code shall pass flake8 linting and follow black formatting standards.
 
-### Edge Cases
+### NFR-002: Documentation
+All public functions shall have docstrings describing parameters, return values, and behavior.
 
-- What happens when ENCODE data for a requested cell line is unavailable or incomplete? The system MUST retry up to 3 failed attempts with 60-second intervals before marking the cell line as unavailable and proceeding with remaining data.
-- How does the system handle genes with extremely low expression values (near zero on log scale)? The system MUST add a pseudocount before log transformation to avoid undefined values.
-- What happens when peak accessibility data contains missing values? The system MUST impute missing values using median imputation across samples for each peak.
+### NFR-003: Error Handling
+The system shall implement retry logic with fixed time intervals for network requests.
 
-## Requirements *(mandatory)*
+### NFR-004: Checksum Verification
+All output files shall have SHA256 checksums recorded for integrity verification.
 
-### Functional Requirements
+### NFR-005: Logging
+The system shall log memory usage and runtime metrics to support performance analysis.
 
-- **FR-001**: System MUST download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from ENCODE portal (See US-1)
-- **FR-002**: System MUST aggregate accessibility signal within ±50kb windows of each gene's TSS using bedtools (See US-1)
-- **FR-003**: System MUST filter genes with zero expression in all samples, retaining ≥10,000 genes for analysis (See US-1)
-- **FR-004**: System MUST train Elastic Net regression models (α=0.5) for each cell line using scikit-learn (See US-2)
-- **FR-005**: System MUST perform k-fold cross-validation, with k representing a reasonable number of folds. per cell line and record mean correlation coefficient (See US-2)
-- **FR-006**: System MUST apply Bonferroni correction for multiple testing across all genes when calculating p-values (See US-2)
-- **FR-007**: System MUST extract non-zero coefficient features and rank by absolute coefficient magnitude (See US-3)
-- **FR-008**: System MUST map peak coordinates to genomic location relative to nearest TSS (See US-3)
-- **FR-009**: System MUST calculate and report the R² value for the set of housekeeping genes for each cell line (See US-2)
-- **FR-010**: System MUST calculate and report the performance gap (ΔR²) between housekeeping and cell‑type‑specific genes (See US-3)
-- **FR-011**: System MUST select the top [deferred] most variable accessibility peaks across samples based on variance (See US-1)
-- **FR-012**: System MUST define housekeeping genes as the 500 genes with the lowest coefficient of variation (CV ≤ 0.2) across all cell lines (See US-2)
-- **FR-013**: System MUST define cell‑type‑specific genes as the 500 genes with the highest expression variance (variance > 0.5) across cell lines (See US-3)
-- **FR-014**: System MUST perform external validation by training on a subset of cell lines and testing on a held‑out cell line., reporting the R² for the held‑out line (See US-2)
+## Success Criteria
 
-### Key Entities
+### SC-001: Housekeeping Gene Performance
+The model shall achieve R² ≥ 0.3 for housekeeping genes across all cell lines.
 
-- **Cell Line**: Biological sample identifier (e.g., GM12878, K562) with associated RNA-seq and DNase-seq/ATAC-seq data
-- **Gene**: Genomic feature with expression value (log-transformed counts) and associated accessibility peaks
-- **Peak**: Genomic region with accessibility measurement (DNase-seq/ATAC-seq signal) mapped relative to gene TSS
-- **Model**: Elastic Net regression object trained on accessibility features to predict expression
+### SC-002: TSS Proximity
+At least 60% of the top 100 features shall be located within ±10kb of a TSS.
 
-## Success Criteria *(mandatory)*
+### SC-003: Feature Enrichment
+TSS-proximal regions shall be significantly enriched in the top-ranked features compared to random expectation (p < 0.05).
 
-### Measurable Outcomes
+### SC-004: Performance Gap
+The performance gap (ΔR²) between housekeeping and cell-type-specific genes shall be statistically significant (p < 0.05).
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+### SC-005: Resource Constraints
+The pipeline shall complete within measurable resource thresholds: Several CPU cores, sufficient RAM (≤7GB), and within 6 hours of runtime.
 
-- **SC-001**: R² for housekeeping genes is calculated and reported for each cell line (See US-2)
-- **SC-002**: Model generalization is measured against 5-fold cross-validation scores to assess overfitting risk (See US-2)
-- **SC-003**: Percentage of the top‑100 important features that fall within ±10 kb of a TSS is calculated and reported (See US-3)
-- **SC-004**: Statistical significance is measured against Bonferroni‑corrected p‑values to control family‑wise error rate (See US-2)
-- **SC-005**: Computational feasibility is measured against A limited number of CPU cores, sufficient RAM, and a runtime limit were imposed on each experiment.
+### SC-006: External Validation
+The model shall demonstrate generalizability with R² ≥ 0.2 on held-out cell lines for housekeeping genes.
 
-The research question is: How does the choice of activation function impact the performance of deep neural networks on image classification tasks?
+## Data Models
 
-The method is: We will train convolutional neural networks with ReLU, Sigmoid, and Tanh activation functions on the CIFAR-10 dataset and compare their accuracy and training time.
+### Input Data
+- **RNA-seq counts**: Matrix of gene expression values (genes × samples)
+- **DNase-seq/ATAC-seq peaks**: BED format file with genomic coordinates and signal values
+- **Gene annotations**: BED format file with gene coordinates and TSS information
 
-References: [], (Krizhevsky et al., 2009) (See US-1)
-- **SC-006**: External validation R² on the held‑out cell line is calculated and reported (See US-2)
+### Output Data
+- **Aggregated features**: CSV file with accessibility signal aggregated around TSS regions
+- **Filtered expression**: CSV file with genes filtered for zero expression
+- **Model artifacts**: Pickle files containing trained Elastic Net models
+- **Evaluation metrics**: CSV and JSON files with correlation coefficients, p-values, and R² scores
+- **Feature importance**: CSV file with ranked features and their coefficients
+- **Regulatory insights**: JSON and Markdown files summarizing biological findings
 
-## Assumptions
+## Implementation Notes
 
-- ENCODE portal contains paired RNA-seq and DNase-seq/ATAC-seq data for at least 5 common human cell lines (GM12878, K562, HMEC, IMR90, HepG2) with ≥3 biological replicates per cell line
-- All required variables for the analysis (accessibility peaks, gene expression values, TSS coordinates) are present in the ENCODE dataset; ENCODE does not provide pre‑computed peak‑to‑gene linkages, therefore the pipeline will implement a deterministic ±50 kb windowing algorithm to construct these links. This windowing approach is the standard community practice for bulk multiomic integration when single‑cell co‑assay data is unavailable.
-- The analysis is observational (no random assignment), so all findings will be framed as associational rather than causal
-- Housekeeping genes are defined as the 500 genes with the lowest coefficient of variation (CV ≤ 0.2) across all cell lines
-- Cell‑type‑specific genes are defined as the 500 genes with the highest expression variance (variance > 0.5) across cell lines
-- The most variable peaks, as determined by variance across samples, are selected for further analysis. ()
+### Caveats
+This project uses bulk chromatin accessibility profiles which provide a first-order approximation of gene regulation. Bulk profiles smooth over single-cell heterogeneity that is the true engine of differentiation. Prediction models should not be interpreted as causal laws but as statistical associations that capture major regulatory patterns.
 
-Research question: How do patterns of genomic variation relate to phenotypic diversity?
-Method: We will employ a genome-wide association study (GWAS) to identify genomic regions associated with variation in key phenotypic traits. to satisfy the RAM constraint
-- Elastic Net with α=0.5 is used as the default regularization balance between L1 and L2 penalties
-- Bonferroni correction is applied at α=0.05 significance threshold for multiple testing across all genes
-- No GPU/CUDA accelerators are available; all computation runs on a limited number of CPU cores with default precision
-- Gene expression values are log‑transformed using log₂(counts + 1) to handle zero counts and normalize distribution
-- Peak accessibility signal is aggregated as sum of reads within the ±50 kb window using bedtools coverage
-- The allocated runtime budget allows for complete pipeline execution including data download, preprocessing, model training, and validation
+### Limitations
+- Bulk profiling obscures cell-type-specific regulation within heterogeneous samples
+- Correlation does not imply causation; identified associations require experimental validation
+- The model may not generalize to cell lines not represented in the training data
+- Regulatory elements beyond ±50kb of TSS may contribute to gene expression but are not captured
+
+## References
+- ENCODE Consortium: The Encyclopedia of DNA Elements
+- Friedman et al. (2010). Regularization Paths for Generalized Linear Models via Coordinate Descent
+- Fisher et al. (1925). On a distribution yielding the error functions of several well known statistics
+
+## Version History
+- v1.0: Initial specification
+- v1.1: Added caveat regarding bulk profiling limitations and correlation vs causation
+- v1.2: Corrected SC-005 to specify measurable resource thresholds (Several CPU, sufficient RAM, 6h)

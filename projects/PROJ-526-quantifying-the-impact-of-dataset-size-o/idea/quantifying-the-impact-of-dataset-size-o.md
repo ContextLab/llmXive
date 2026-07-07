@@ -9,54 +9,54 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the prediction error of machine learning models for material properties (e.g., band gap, bulk modulus) scale as a function of training dataset size in materials informatics?
+Which material properties are most predictable from composition alone, and what structural or physical features determine the data efficiency of ML models for different property classes?
 
 ## Motivation
 
-Materials discovery efforts increasingly rely on machine learning to predict properties from composition or structure, but the data requirements for achieving target accuracy remain poorly quantified. Establishing scaling laws between dataset size and prediction error would guide resource allocation for future data generation and help researchers determine whether collecting additional experimental or DFT-computed data is cost-effective for their specific prediction task.
+While machine learning accelerates materials discovery, the "data hunger" of models varies drastically across properties, yet no systematic framework exists to predict which properties will yield accurate models with limited data. Understanding the intrinsic link between a property's physical nature (e.g., local vs. non-local, electronic vs. mechanical) and its data efficiency is critical for prioritizing high-throughput screening campaigns and avoiding wasteful data collection for inherently unpredictable targets.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-We queried Semantic Scholar / arXiv / OpenAlex using two distinct queries: (1) "dataset size scaling machine learning materials properties" and (2) "learning curves materials informatics dataset size". The search returned 8 results from the literature block, of which 4 were directly on-topic for materials science ML applications and 1 specifically addressed learning curves in supervised ML.
-
-### What is known
-
-- [Machine learning in materials informatics: recent applications and prospects (2017)](https://doi.org/10.1038/s41524-017-0056-5) — This review establishes the breadth of ML applications in materials science but does not quantify dataset size requirements for specific property predictions.
-- [Recent advances and applications of deep learning methods in materials science (2022)](https://doi.org/10.1038/s41524-022-00734-6) — Documents growing use of deep learning in materials data science but focuses on architectural advances rather than data quantity scaling.
-- [Recent advances and applications of machine learning in solid-state materials science (2019)](https://doi.org/10.1038/s41524-019-0221-0) — Surveys ML methods in solid-state materials science but provides no systematic analysis of dataset size versus prediction accuracy.
-- [Learning Curves for Decision Making in Supervised Machine Learning: A Survey (2022)](http://arxiv.org/abs/2201.12150v2) — This survey establishes learning curves as a concept for assessing ML performance with respect to resource constraints, but does not apply it to materials property prediction datasets.
-
-### What is NOT known
-
-No published work has systematically measured how prediction error scales with training set size across multiple material properties (band gap, formation energy, bulk modulus) using standard regression algorithms on public materials databases. The learning curve behavior for materials informatics datasets remains uncharacterized, and there is no consensus on whether materials property prediction follows the same power-law scaling observed in other domains.
-
-### Why this gap matters
-
-Materials researchers designing data collection campaigns need evidence-based guidance on whether additional DFT calculations or experimental measurements will meaningfully improve model accuracy. Filling this gap would enable more efficient allocation of computational resources in the Materials Genome Initiative and similar data-driven materials discovery efforts, potentially accelerating the identification of promising candidate materials.
-
-### How this project addresses the gap
-
-This project will construct learning curves by training standard regression models (Random Forest, Gradient Boosting) on systematically subsampled Materials Project and AFLOW datasets, measuring prediction error at multiple training set sizes. The resulting scaling laws directly quantify the relationship between dataset size and prediction accuracy for materials properties, providing the first empirical evidence for data requirements in this domain.
+- [Neural Scaling Laws Rooted in the Data Distribution (2024)](https://arxiv.org/abs/2412.07942) — Establishes that error decreases as a power law with data size across tasks, providing a theoretical baseline for analyzing whether materials properties follow universal scaling or exhibit property-specific deviations.
+- [A Generative Model for Extrapolation Prediction in Materials Informatics (2021)](https://arxiv.org/abs/2103.00157) — Demonstrates the difficulty of predicting diverse experimental properties from composition, highlighting that some property classes remain elusive even with advanced generative approaches.
+- [Learning Curves for Decision Making in Supervised Machine Learning: A Survey (2022)](https://arxiv.org/abs/2201.12150) — Defines the methodology for constructing learning curves to assess resource constraints, which this project adapts to specifically compare the data efficiency of different material property classes.
 
 ## Expected results
 
-We expect to observe a power-law relationship between training set size and prediction error, with the exponent varying by property and model complexity. Confirmation would be demonstrated by consistent scaling across multiple material properties and datasets, while a null result (no systematic scaling) would indicate that factors other than data quantity (e.g., feature quality, physics constraints) dominate prediction accuracy.
+We expect to identify distinct clusters of properties where data efficiency correlates with physical locality (e.g., formation energy being more data-efficient than band gap) and feature complexity. A positive result would reveal a predictive framework linking property physics to required dataset size, while a null result (no correlation) would suggest that current composition-based descriptors fail to capture the relevant physics for all property classes equally.
 
 ## Methodology sketch
 
-- Download Materials Project band gap and formation energy datasets via the public API (https://materialsproject.org) and AFLOW via direct HTTPS download; limit to ≤50,000 entries to fit within 7GB RAM.
-- Extract composition-based features using standard descriptors (e.g., Magpie, elemental property vectors) and split into train/test sets with 20% held out for final evaluation.
-- Generate 8-10 training set sizes ranging from 1,000 to 40,000 samples by random subsampling; ensure each size is repeated 3 times with different random seeds for variance estimation.
-- Train Random Forest and Gradient Boosting regressors (scikit-learn) on each subsampled training set; use default hyperparameters to avoid tuning overhead.
-- Measure mean absolute error (MAE) on the held-out test set for each training size; record computation time and memory usage per model.
-- Fit power-law scaling models (error = a × N^b) to the learning curves using linear regression on log-transformed data; compute 95% confidence intervals on the exponent b.
-- Compare scaling exponents across properties (band gap vs. formation energy) and models (Random Forest vs. Gradient Boosting) using t-tests on the fitted exponents.
-- Produce figures showing learning curves with confidence bands and a summary table of scaling exponents for each property-model combination.
+- **Data Acquisition**: Download standardized datasets for ~15 distinct material properties (electronic, mechanical, thermodynamic) from the Materials Project and AFLOW repositories via their public APIs/HTTPS, limiting to ~50,000 entries total to ensure execution within 7GB RAM constraints.
+- **Feature Engineering**: Compute composition-only descriptors (Magpie, elemental property vectors) for all entries to ensure a fair comparison of data efficiency across properties without structural bias.
+- **Learning Curve Construction**: For each property, generate 10 training subsets ranging from 1,000 to 40,000 samples (with 3 random seeds each) and train a fixed Random Forest regressor to measure Mean Absolute Error (MAE) on a held-out test set.
+- **Scaling Analysis**: Fit power-law models ($Error = a \cdot N^{-b}$) to the learning curves for each property; extract the scaling exponent $b$ as the primary metric of data efficiency.
+- **Correlation with Physical Features**: Quantify physical characteristics for each property (e.g., spatial locality, sensitivity to crystal symmetry, range of values) and perform a Pearson correlation analysis between these features and the fitted scaling exponents $b$.
+- **Statistical Validation**: Apply ANOVA to determine if the differences in scaling exponents between property classes (e.g., electronic vs. mechanical) are statistically significant, using the independent physical feature metrics as the explanatory variable.
+- **Visualization**: Generate comparative learning curves and a heatmap correlating physical property features with data efficiency exponents to identify "easy" vs. "hard" prediction targets.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None (no existing_idea_paths provided).
 - Closest match: None identified.
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-07T19:03:42Z
+**Outcome**: exhausted
+**Original term**: Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Models for Predicting Material Properties physics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Quantifying the Impact of Dataset Size on the Accuracy of Machine Learning Models for Predicting Material Properties physics | 3 |
+
+### Verified citations
+
+1. **Neural Scaling Laws Rooted in the Data Distribution** (2024). Ari Brill. arXiv. [2412.07942](https://arxiv.org/abs/2412.07942). PDF-sampled: No.
+2. **A Generative Model for Extrapolation Prediction in Materials Informatics** (2021). Kan Hatakeyama-Sato, Kenichi Oyaizu. arXiv. [2103.00157](https://arxiv.org/abs/2103.00157). PDF-sampled: No.
+3. **Learning Curves for Decision Making in Supervised Machine Learning: A Survey** (2022). Felix Mohr, Jan N. van Rijn. arXiv. [2201.12150](https://arxiv.org/abs/2201.12150). PDF-sampled: No.
