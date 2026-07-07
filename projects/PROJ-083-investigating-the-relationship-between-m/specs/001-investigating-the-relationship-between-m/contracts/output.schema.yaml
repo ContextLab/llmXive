@@ -6,7 +6,7 @@ properties:
   model_type:
     type: "string"
     description: "Type of model used."
-    enum: ["Poisson", "ZeroInflatedPoisson", "RandomForest", "BinaryClassifier"]
+    enum: ["Ordinal", "RandomForest", "Poisson"]
   r_squared:
     type: "number"
     description: "R-squared (or pseudo-R-squared) value."
@@ -35,10 +35,13 @@ properties:
     description: "Whether the model shows statistically significant correlation."
   distribution_check:
     type: "string"
-    description: "Description of the target variable distribution (e.g., 'degenerate', 'normal', 'zero-inflated')."
+    description: "Description of the target variable distribution (e.g., 'deterministic', 'constant')."
   deviation_from_linearity:
     type: "number"
     description: "Metric quantifying non-linearity in the structural correlation."
+  halt_reason:
+    type: "string"
+    description: "Reason for halting, e.g., 'Insufficient Variance'."
 required:
   - model_type
   - r_squared
@@ -50,4 +53,5 @@ required:
   - is_significant
   - distribution_check
   - deviation_from_linearity
+  - halt_reason
 additionalProperties: false

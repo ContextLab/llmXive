@@ -1,64 +1,64 @@
-# Data Model: Investigating the Relationship Between Molecular Topology and Reaction Selectivity
+# Data Model: Molecular Topology and Reaction Selectivity
 
-## Overview
+## 1. Overview
 
-This document defines the data structures, schemas, and transformations used in the pipeline. All data is stored in `data/` with checksums.
+This document defines the data structures used throughout the pipeline. All data is stored in `data/` with checksums recorded in the project state.
 
-## Entities
+## 2. Core Entities
 
-### 1. ReactionRecord
-Represents a single chemical reaction from the USPTO-50k dataset.
+### 2.1 ReactionRecord
+Represents a single chemical reaction.
+- **source**: `data/raw/uspto_50k.parquet` (or jsonl)
+- **derived**: `data/processed/eas_filtered.csv`
 
-**Fields**:
-- `reaction_id`: Unique identifier (string).
-- `reactant_smiles`: SMILES string of the reactant (string).
-- `reaction_type`: Inferred type (e.g., "EAS") (string).
-- `theoretical_regioisomer_count`: Integer count of distinct possible regioisomers derived via template enumeration (int).
-- `is_valid`: Boolean flag for data quality (bool).
-- `distribution_status`: String indicating the distribution check result (e.g., "normal", "degenerate", "zero-inflated") (string).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `reaction_id` | string | Unique identifier (hash of reactants+products). |
+| `reactant_smiles` | string | SMILES string of the reactant molecule. |
+| `product_smiles` | string | SMILES string(s) of the product molecule(s). |
+| `eas_confirmed` | boolean | True if reaction matches EAS pattern. |
+| `selectivity_target` | integer | **Theoretical Regioisomer Count** (derived from reactant symmetry). |
+| `topology_valid` | boolean | True if all descriptors calculated successfully. |
 
-**Source**: Raw USPTO-50k dataset.
-**Transformation**: Filtered for EAS, parsed, validated, and enumerated.
+### 2.2 TopologicalDescriptor
+Stores computed graph indices.
+- **source**: `data/processed/eas_filtered.csv`
+- **derived**: `data/processed/descriptors.parquet`
 
-### 2. TopologicalDescriptor
-Computed graph properties for a reactant molecule.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `reaction_id` | string | Foreign key to ReactionRecord. |
+| `wiener_index` | float | Wiener index value. |
+| `balaban_index` | float | Balaban index value. |
+| `zagreb_index` | float | Zagreb index value. |
+| `calculation_status` | string | "OK", "INVALID_GRAPH", "TIMEOUT". |
 
-**Fields**:
-- `reaction_id`: Foreign key to ReactionRecord (string).
-- `wiener_index`: Wiener index value (float).
-- `balaban_index`: Balaban index value (float).
-- `zagreb_index`: Zagreb index value (float).
-- `calculation_status`: "success", "invalid_topology", "failed" (string).
+### 2.3 ModelResult
+Stores model outputs and metrics.
+- **source**: `code/modeling.py`
+- **derived**: `data/models/results.json`
 
-**Source**: `rdkit` calculations on `reactant_smiles`.
-**Transformation**: Calculated in `descriptors.py`.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `model_type` | string | "Ordinal", "RandomForest", "Poisson" (baseline only). |
+| `cv_strategy` | string | "5-fold", "LOO". |
+| `r_squared` | float | R² or Pseudo-R². |
+| `rmse` | float | Root Mean Squared Error. |
+| `coefficients` | object | Map of feature name to coefficient. |
+| `p_values` | object | Map of feature name to p-value. |
+| `vif_scores` | object | Variance Inflation Factors. |
+| `fallback_triggered` | boolean | True if fallback model was used (always False for this project). |
+| `halt_reason` | string | "Insufficient Variance" if halted due to constant target. |
 
-### 3. ModelResult
-Output of the statistical analysis.
+## 3. Data Flow
 
-**Fields**:
-- `model_type`: "Poisson", "ZeroInflatedPoisson", "RandomForest", or "BinaryClassifier" (string).
-- `r_squared`: Coefficient of determination (float).
-- `rmse`: Root Mean Square Error (float).
-- `p_values`: Dictionary of p-values for each predictor (dict).
-- `vif_scores`: Dictionary of Variance Inflation Factor scores for predictors (dict).
-- `cross_validation_folds`: Number of folds used (int).
-- `distribution_check`: Description of target distribution (e.g., "degenerate", "normal", "zero-inflated") (string).
-- `deviation_from_linearity`: Metric quantifying non-linearity in the structural correlation (float).
+1.  **Ingestion**: Raw USPTO -> `ReactionRecord` (filtered EAS).
+2.  **Descriptor Calculation**: `ReactionRecord` -> `TopologicalDescriptor`.
+3.  **Target Derivation**: `ReactionRecord` (reactant SMILES) -> `selectivity_target` (symmetry count).
+4.  **Modeling**: `TopologicalDescriptor` + `selectivity_target` -> `ModelResult`.
 
-**Source**: `modeling.py`.
-**Transformation**: Aggregated from cross-validation runs.
+## 4. Constraints
 
-## Data Flow
-
-1.  **Raw**: `data/raw/uspto-50k.parquet` (Downloaded, checksummed).
-2.  **Filtered**: `data/processed/eas_reactions.csv` (Filtered EAS subset).
-3.  **Enriched**: `data/processed/descriptors.csv` (Joined with topological indices and theoretical counts).
-4.  **Results**: `data/processed/model_results.json` (Aggregated metrics).
-
-## Constraints
-
-- **SMILES Validity**: All SMILES must be valid according to `rdkit`.
-- **Index Range**: Indices must be non-negative floats.
-- **Count Range**: `theoretical_regioisomer_count` must be a positive integer (≥ 1).
-- **Distribution Status**: Must be one of ["normal", "degenerate", "zero-inflated"].
+- **Missing Data**: SMILES parsing errors -> log error, exclude row.
+- **Invalid Topology**: Descriptor failure -> flag row, exclude from regression.
+- **Degenerate Target**: Variance=0 -> halt with "Insufficient Variance".

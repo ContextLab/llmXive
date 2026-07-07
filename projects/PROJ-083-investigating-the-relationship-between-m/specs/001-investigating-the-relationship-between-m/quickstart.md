@@ -1,82 +1,60 @@
-# Quickstart: Investigating the Relationship Between Molecular Topology and Reaction Selectivity
+# Quickstart: Molecular Topology and Reaction Selectivity
 
 ## Prerequisites
 
-- Python 3.10+
-- `pip` or `conda`
-- Access to GitHub Actions (for CI) or local machine with 7GB+ RAM.
+- Python 3.11+
+- `git`
+- Access to GitHub Actions (for CI) or local environment with 7GB+ RAM.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-083-investigating-the-relationship-between-m
+    cd projects/PROJ-083-investigating-the-relationship-between-m/code/
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create Virtual Environment**:
     ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    source venv/bin/activate  # Linux/Mac
+    # or venv\Scripts\activate  # Windows
     ```
 
-3.  **Install dependencies**:
+3.  **Install Dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` contains pinned versions of `rdkit`, `scikit-learn`, `pandas`, etc.*
+    *Note: `requirements.txt` pins `rdkit`, `pandas`, `scikit-learn`, `statsmodels`.*
 
 ## Running the Pipeline
 
-### 1. Data Ingestion
-Download and filter the dataset:
+### 1. Data Ingestion & Filtering
 ```bash
-python code/ingest.py
+python ingestion.py --dataset-url "https://huggingface.co/datasets/pingzhili/uspto-50k/resolve/main/data/train-00000-of-00001.parquet"
 ```
-- Output: `data/processed/eas_reactions.csv`
-- Logs: `logs/ingest.log`
+*Output*: `data/processed/eas_filtered.csv`
 
 ### 2. Descriptor Calculation
-Compute topological indices:
 ```bash
-python code/descriptors.py
+python descriptors.py --input data/processed/eas_filtered.csv
 ```
-- Output: `data/processed/descriptors.csv`
-- Logs: `logs/descriptors.log`
+*Output*: `data/processed/descriptors.parquet`
 
-### 3. Target Enumeration
-Derive theoretical regioisomer count:
+### 3. Modeling
 ```bash
-python code/target_enumeration.py
+python modeling.py --input data/processed/descriptors.parquet
 ```
-- Output: `data/processed/descriptors.csv` (updated with target)
-- Logs: `logs/enumeration.log`
-
-### 4. Modeling
-Run regression and cross-validation:
-```bash
-python code/modeling.py
-```
-- Output: `data/processed/model_results.json`
-- Logs: `logs/modeling.log`
-
-### 5. Full Pipeline (Optional)
-Run the entire workflow:
-```bash
-python code/run_pipeline.py
-```
+*Output*: `data/models/results.json`, `data/reports/figures/`
 
 ## Verification
 
-To verify the descriptor calculations:
-```bash
-pytest tests/unit/test_descriptors.py -v
-```
-This checks benzene, toluene, and nitrobenzene against expected values.
+- **Check Descriptors**: Ensure `descriptors.parquet` contains rows for Benzene, Toluene, Nitrobenzene with correct Wiener indices.
+- **Check Metrics**: Verify `results.json` contains R² > 0.05 or "Insufficient Variance" halt message.
+- **Check Logs**: Ensure no "Critical Error: Insufficient Data" messages.
 
 ## Troubleshooting
 
-- **Memory Error**: Ensure the dataset is filtered before processing. If using a local machine, check RAM usage.
-- **SMILES Error**: Check `logs/ingest.log` for malformed entries.
-- **No EAS Reactions**: If the filtered dataset is empty, check the EAS pattern matching logic in `ingest.py`.
-- **Enumeration Failure**: If many records are excluded during enumeration, check the `sanitize` step in `target_enumeration.py` for overly strict filtering.
+- **Memory Error**: Reduce dataset size or use `--sample N` flag if available.
+- **Descriptor Failure**: Check `calculation_status` in `descriptors.parquet`.
+- **Target Variance**: If "Insufficient Variance" is logged, the dataset may contain only symmetric reactants (e.g., all benzene).

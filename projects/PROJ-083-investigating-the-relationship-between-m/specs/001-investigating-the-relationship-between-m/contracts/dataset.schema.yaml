@@ -1,49 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ReactionRecord Schema"
-description: "Schema for the filtered EAS reaction dataset with topological descriptors and theoretical regioisomer count."
-type: "object"
+title: ReactionRecordSchema
+description: "Schema for the filtered EAS reaction dataset."
+type: object
 properties:
   reaction_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the reaction."
   reactant_smiles:
-    type: "string"
-    description: "SMILES string of the reactant molecule."
-  reaction_type:
-    type: "string"
-    description: "Inferred reaction type, e.g., 'EAS'."
-  theoretical_regioisomer_count:
-    type: "integer"
-    description: "Number of distinct possible regioisomers derived via template enumeration."
-    minimum: 1
-  is_valid:
-    type: "boolean"
-    description: "Flag indicating if the record passed validation."
-  wiener_index:
-    type: "number"
-    description: "Computed Wiener index."
-    minimum: 0
-  balaban_index:
-    type: "number"
-    description: "Computed Balaban index."
-    minimum: 0
-  zagreb_index:
-    type: "number"
-    description: "Computed Zagreb index."
-    minimum: 0
-  calculation_status:
-    type: "string"
-    description: "Status of the descriptor calculation."
-    enum: ["success", "invalid_topology", "failed"]
-  distribution_status:
-    type: "string"
-    description: "Status of the target distribution check."
-    enum: ["normal", "degenerate", "zero-inflated"]
+    type: string
+    description: "SMILES string of the reactant."
+  product_smiles:
+    type: string
+    description: "SMILES string of the product."
+  eas_confirmed:
+    type: boolean
+    description: "Whether the reaction is an Electrophilic Aromatic Substitution."
+  selectivity_target:
+    type: integer
+    description: "Theoretical Regioisomer Count (derived from reactant symmetry)."
+  topology_valid:
+    type: boolean
+    description: "Whether topological descriptors were successfully calculated."
 required:
   - reaction_id
   - reactant_smiles
-  - theoretical_regioisomer_count
-  - is_valid
-  - calculation_status
-  - distribution_status
+  - product_smiles
+  - eas_confirmed
+  - selectivity_target
+  - topology_valid
 additionalProperties: false

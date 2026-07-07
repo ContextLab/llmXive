@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ModelResultSchema
+description: "Schema for model output and metrics."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "Ordinal"
+      - "RandomForest"
+      - "Poisson"
+    description: "Type of model used."
+  cv_strategy:
+    type: string
+    enum:
+      - "5-fold"
+      - "LOO"
+    description: "Cross-validation strategy."
+  r_squared:
+    type: number
+    description: "R² or Pseudo-R²."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  coefficients:
+    type: object
+    description: "Map of feature name to coefficient."
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "Map of feature name to p-value."
+    additionalProperties:
+      type: number
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors."
+    additionalProperties:
+      type: number
+  fallback_triggered:
+    type: boolean
+    description: "True if a fallback model was used (always False for this project)."
+  halt_reason:
+    type: string
+    description: "Reason for halting, e.g., 'Insufficient Variance'."
+required:
+  - model_type
+  - cv_strategy
+  - r_squared
+  - rmse
+  - fallback_triggered
+additionalProperties: false

@@ -1,21 +1,21 @@
-resolved_at: '2026-07-02T23:33:02.333448+00:00'
+resolved_at: '2026-07-07T05:01:08.704746+00:00'
 datasets:
 - intent: USPTO-50k
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/pingzhili/uspto-50k/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/Congliu/USPTO-50k-Instruction/resolve/main/uspto_test.json
     source: huggingface
     format: jsonl
     relevance: 1.0
     sample_check:
       downloaded_bytes: 22633
+      parsed: true
+  - url: https://huggingface.co/datasets/pingzhili/uspto-50k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
       parsed: true
   - url: https://huggingface.co/datasets/scaliaven/uspto-50k/resolve/main/forward_synthesis.jsonl
     source: huggingface
@@ -25,14 +25,14 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/pingzhili/uspto-50k/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/Congliu/USPTO-50k-Instruction/resolve/main/uspto_test.json
     source: huggingface
     status: verified
     format: jsonl
+  - url: https://huggingface.co/datasets/pingzhili/uspto-50k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
   - url: https://huggingface.co/datasets/scaliaven/uspto-50k/resolve/main/forward_synthesis.jsonl
     source: huggingface
     status: verified
@@ -45,26 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reflections_of_a_student_engagement_program_designed_and_delivered_by_academics/23005934
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/book/Australian_Aboriginal_Art/23043446
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -111,6 +108,13 @@ datasets:
 - intent: SMILES
   status: verified
   candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5591
+      parsed: true
   - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
     source: huggingface
     format: parquet
@@ -126,15 +130,19 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
   - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&response-content-type=text%2Fplain&Expires=1783038672&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMDM4NjcyfX19XX0_&Signature=MEUCICiMgteq33NjbjZMUzMWleL7w4vgeLbKr0k1FrOMUj4MAiEA0KMnpW-bFZZYEKqfwfqYyYoqQxLHnIyfD~2LfpqgRLQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&user_id=public&response-content-type=text%2Fplain&Expires=1783403901&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDAzOTAxfX19XX0_&Signature=MEQCIErqpJDam1~csiieG0g1XrMfD-K9zg6ul3F~j6UsKeSkAiB9q6Zjo~dTA4tT8IPBqReyKIqUtHGCvO0pI8R00KOChQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&user_id=public&X-Xet-Cas-Uid=public&Expires=1783038674&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzAzODY3NH19fV19&Signature=MEUCIBNoheIMldM7R8l9~x9QPOlTlofFJ2fDwapYN-WluzFeAiEAnGVMCjSGNg5WYkvGNquJwwNewgttu7g4oR3RV77gtak_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&Expires=1783403903&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzQwMzkwM319fV19&Signature=MEUCIQCgFRcCNcPXfQBtAUoS~tN7CHsk9pMHD1Ev2zSNLK7GvQIgFNl-KgI5yfwcVF9~iuWCJcsS3WYf2CTDUxNKvcOSkR0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,29 +150,34 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reflections_of_a_student_engagement_program_designed_and_delivered_by_academics/23005934
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/book/Australian_Aboriginal_Art/23043446
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
   - url: https://pubs.rsc.org/ct/article/120735
     source: zenodo
     status: wrong_format
@@ -173,44 +186,36 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
   - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://pubs.rsc.org/ct/article/207971
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/21139767
+  - url: https://arxiv.org/abs/2607.03007
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21139767
+  - url: https://zenodo.org/records/21228245
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://library.ucsd.edu/dc/object/bb56118946
+  - url: https://zenodo.org/records/21228245
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://library.ucsd.edu/dc/object/bb1479731z
+  - url: https://osf.io/7wgf5/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://library.ucsd.edu/dc/object/bb7999623d
+  - url: https://osf.io/hmcj4/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: EAS
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/eashuu/medical_qa/resolve/main/converted.csv
+  - url: https://huggingface.co/datasets/ASLP-lab/Easy-Turn-Trainset/resolve/main/trainset/backchannel_real.tar.gz
     source: huggingface
-    format: csv
+    format: gzip
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
@@ -221,36 +226,44 @@ datasets:
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Eason0438/OmniRef-Bench/resolve/main/subject/6/captions.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2052
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/eashuu/medical_qa/resolve/main/converted.csv
+  - url: https://huggingface.co/datasets/ASLP-lab/Easy-Turn-Trainset/resolve/main/trainset/backchannel_real.tar.gz
     source: huggingface
     status: verified
-    format: csv
+    format: gzip
   - url: https://huggingface.co/datasets/EaseZh/magicdata_ramc/resolve/main/dev.tar.gz
     source: huggingface
     status: verified
     format: gzip
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://huggingface.co/datasets/Eason0438/OmniRef-Bench/resolve/main/subject/6/captions.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reflections_of_a_student_engagement_program_designed_and_delivered_by_academics/23005934
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/book/Australian_Aboriginal_Art/23043446
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -266,31 +279,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/7941423
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://www.e-periodica.ch/digbib/view?pid=enh-006:2016:9::241
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.openicpsr.org/openicpsr/project/250749/version/V2/view
-    source: datacite
+  - url: https://zenodo.org/records/7941423
+    source: zenodo
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.openicpsr.org/openicpsr/project/250749/view
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/20579871
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21219385
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20579871
+  - url: https://zenodo.org/records/21219385
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.22855
+  - url: https://zenodo.org/records/21217064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211916
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -309,38 +322,39 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Lux_Mundi_University_Umuahia_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_/32885861
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reflections_of_a_student_engagement_program_designed_and_delivered_by_academics/23005934
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -348,27 +362,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21142462
+  - url: https://arxiv.org/abs/2311.10090
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21142462
+  - url: https://arxiv.org/abs/2607.05241
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21141797
+  - url: https://arxiv.org/abs/2607.05240
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21141732
+  - url: https://arxiv.org/abs/2607.04489
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21141732
+  - url: https://arxiv.org/abs/2607.04415
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -398,30 +408,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&Expires=1783038735&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMzg3MzV9fX1dfQ__&Signature=MEYCIQC6f1mHQv2SWX6MA8J8dtou3ocu24G2D7gbwzkqGU5WsAIhAOMQiV~99QpGronsQ3wy9Xv1BxNDEUeY8b2BqQhYVixE&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783404001&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MDQwMDF9fX1dfQ__&Signature=MEYCIQCs8Ij8rF8byrPF8poltFrkqYCOR97rN6ccj1d9rNwCcQIhALjBf4nl6CdeGvxBNThY6ONnlObpowlbmEdeEfjUTFV6&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Lux_Mundi_University_Umuahia_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_/32885861
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Reflections_of_a_student_engagement_program_designed_and_delivered_by_academics/23005934
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -441,27 +448,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17167994
+  - url: https://zenodo.org/records/10965999
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/14962
+  - url: https://zenodo.org/records/19637515
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16184
+  - url: https://zenodo.org/records/19637515
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16054
+  - url: https://arxiv.org/abs/2607.04898
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21144498
+  - url: https://arxiv.org/abs/2607.04414
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21144498
+  - url: https://arxiv.org/abs/2607.04183
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -475,49 +482,43 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/cy0307/awesome-loop-engineering/resolve/main/data/resource_source_audit.csv
+  - url: https://huggingface.co/datasets/OldKingMeister/LoongRL-Train-Data/resolve/main/2wikimqa_filtered_distractor_256_start_idx2500_end_idx5000_seq16384/train.parquet
     source: huggingface
-    format: csv
+    format: parquet
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 122161
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/api/resolve-cache/datasets/LooksJuicy/ruozhiba/2a39d86721e0109a7c598a25a1338e297c639d2f/ruozhiba_qa.json?%2Fdatasets%2FLooksJuicy%2Fruozhiba%2Fresolve%2Fmain%2Fruozhiba_qa.json=&etag=%227cd0d818999961f57b90ff819d814daf6f76286b%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://huggingface.co/datasets/camel-ai/loong/resolve/main/advanced_math/test-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/cy0307/awesome-loop-engineering/resolve/main/data/resource_source_audit.csv
+  - url: https://huggingface.co/datasets/OldKingMeister/LoongRL-Train-Data/resolve/main/2wikimqa_filtered_distractor_256_start_idx2500_end_idx5000_seq16384/train.parquet
     source: huggingface
     status: verified
-    format: csv
-  - url: https://bridges.monash.edu/articles/thesis/An_Investigation_of_City-scale_Heat_Climatology_Using_Observations_and_Modelling/32885855
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/An_Investigation_of_City-scale_Heat_Climatology_Using_Observations_and_Modelling/32885855
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Lux_Mundi_University_Umuahia_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_/32885861
+    format: parquet
+  - url: https://huggingface.co/datasets/Looogic/luotuoQA-B/resolve/main/Anki_Card.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -541,23 +542,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/9238
+  - url: https://osf.io/6fpgu/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132235
+  - url: https://osf.io/cxajv/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131138
+  - url: https://zenodo.org/records/19709177
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18479199
+  - url: https://zenodo.org/records/19709177
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18479199
+  - url: https://osf.io/yjswq/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -565,29 +566,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://bridges.monash.edu/articles/thesis/An_Investigation_of_City-scale_Heat_Climatology_Using_Observations_and_Modelling/32885855
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/An_Investigation_of_City-scale_Heat_Climatology_Using_Observations_and_Modelling/32885855
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Lux_Mundi_University_Umuahia_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_/32885861
+  - url: https://figshare.mq.edu.au/articles/thesis/Integration_of_Virtual_Power_Plant_and_Electric_Vehicles/32764722
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/A_Phase-Field_Fracture-Based_Multi-Scale_Framework_for_Damage_and_Failure_Prediction_in_Hybrid_Composites/32885849
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Maduka_University_Ekwegbe_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_nor/32885858
+  - url: https://figshare.com/articles/figure/Data_structure/29999152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Canine_Vaccination_A_Survey_of_Owner_Attitudes_and_Adherence_to_Vaccination_Protocols/32856236
+  - url: https://rs.figshare.com/articles/journal_contribution/Supporting_information_supplementary_methods_figures_and_tables_from_Earthworm_effects_on_plant_growth_defence_relationships_covary_with_rhizosphere_multitrophic_associations_under_low_nitrogen_availability/32798558
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Exact_physical_quantities_of_the_D_sub_2_sub_sup_2_sup_spin_chain_model_with_generic_open_boundary_conditions/32768586
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Altitudinal_transplants_uncover_climate-driven_Sphagnum_distribution_and_carbon_sink_capacity/32918873
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

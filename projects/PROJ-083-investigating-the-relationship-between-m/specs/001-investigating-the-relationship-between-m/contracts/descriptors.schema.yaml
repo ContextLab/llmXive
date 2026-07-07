@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TopologicalDescriptorSchema
+description: "Schema for computed molecular topological indices."
+type: object
+properties:
+  reaction_id:
+    type: string
+    description: "Foreign key to ReactionRecord."
+  wiener_index:
+    type: number
+    description: "Wiener index value."
+  balaban_index:
+    type: number
+    description: "Balaban index value."
+  zagreb_index:
+    type: number
+    description: "Zagreb index value."
+  calculation_status:
+    type: string
+    enum:
+      - "OK"
+      - "INVALID_GRAPH"
+      - "TIMEOUT"
+    description: "Status of the calculation."
+required:
+  - reaction_id
+  - wiener_index
+  - balaban_index
+  - zagreb_index
+  - calculation_status
+additionalProperties: false
