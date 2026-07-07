@@ -232,5 +232,17 @@
         "intent": "web TREC Track 2009 2012 qrels VERIFIED Primary dataset for permutation tests. If Robust 2004 is unavailable, this will be used exclusively."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-07T20:24:25.747622+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Relevance judgments for 249 topics queries with 50 documents per topic. Official Download via requests from verified URL or datasets.load_dataset"
+      }
+    ]
   }
 ]
