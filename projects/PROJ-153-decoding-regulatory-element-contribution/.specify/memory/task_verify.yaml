@@ -1,0 +1,13 @@
+T001 Create project directory structure per `plan.md` (code/, tests/, data/, results/): 2
+T002 Initialize Conda environment with `environment.yml` (fastp, bowtie2, MACS2, R, Python): 2
+? T003 [P] Create `manifest.yaml` with **verified, actual GEO/SRA accessions** for
+  ChIP-seq, eQTL, Hi-C, and ATAC-seq; the pipeline MUST abort if any accession cannot
+  be verified or data is missing (FR-001, Constitution Principle II)
+: 2
+T004 [P] Setup Git hooks for large file tracking (LFS) for raw data references: 2
+? T005 Implement `code/01_download_data.sh` to fetch raw FASTQ from GEO/SRA using
+  `manifest.yaml` and verify MD5 checksums (FR-001)
+: 2
+? "T006 Implement `code/02_preprocess_chipseq.sh` for adapter trimming (`fastp`) and\
+  \ alignment (`bowtie2`, \u22642 threads, MAPQ \u2265 30) (FR-002)"
+: 2

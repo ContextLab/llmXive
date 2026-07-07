@@ -1,0 +1,93 @@
+# Implementation Plan: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
+
+**Branch**: `001-yeast-cre-analysis` | **Date**: 2026-06-25 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-yeast-cre-analysis/spec.md`
+
+## Summary
+
+This plan implements a fully reproducible, CPU‑only bioinformatics pipeline that (1) downloads and validates raw ChIP‑seq and ATAC‑seq data for each TF‑condition pair via a manifest, (2) processes reads, calls peaks with a multi‑threshold FDR sweep, (3) merges and annotates peaks into CREs, (4) validates distal CRE‑gene links with motif and Hi‑C evidence, (5) defines a null‑region baseline and constructs a weighted predictor (`weighted_ΔPeakSignal`), (6) fits a Fixed‑Effects GLS per stress condition, (7) performs a spatially‑constrained block permutation test with **10,000** shuffles, (8) conducts a sensitivity analysis comparing full vs. filtered CRE sets, (9) verifies summit‑to‑bigWig alignment for the top‑ CREs, and (10) generates ranked markdown tables, bigWig tracks, and a comprehensive PDF report. All steps respect the 2‑core, 7 GB RAM, ≤6 h limits of the GitHub Actions free‑tier runner.
+
+## Constitution Check
+
+| Principle | Compliance Status | Implementation Strategy |
+|-----------|-------------------|-------------------------|
+| **I. Reproducibility** | **Compliant** | All scripts are version‑controlled, random seeds are pinned (`numpy.random.seed(42)`, `set.seed(42)`), and external data are fetched from fixed URLs with MD5 verification (FR‑001). |
+| **II. Verified Accuracy** | **Compliant** | The pipeline aborts if any entry in `manifest.yaml` cannot be downloaded or fails checksum verification; this is enforced in `01_download_data.sh`. |
+| **III. Data Hygiene** | **Compliant** | Raw files stored under `data/raw/` with checksums recorded in `state/`. Every transformation produces a new file under `data/processed/`. |
+| **IV. Single Source of Truth** | **Compliant** | `12_generate_manifest.R` records, for each output, the exact input rows, script version, and parameters used. |
+| **V. Versioning Discipline** | **Compliant** | Content hashes for all artifacts are stored in `state/projects/PROJ-153-decoding-regulatory-element-contribution.yaml` and timestamps updated on change. |
+| **VI. Computational Pipeline Transparency** | **Compliant** | All bioinformatic steps (fastp, bowtie2, MACS2, bedtools, deepTools, GLS fitting) are captured in scripts that log tool versions and full command lines. |
+| **VII. Statistical Reporting Rigor** | **Compliant** | GLS fitting, likelihood‑ratio tests, Benjamini‑Hochberg correction, block‑permutation, and all diagnostics are implemented in `06_fit_gls.R` and `07_permutation_test.R`. Full model objects are saved for inspection. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-yeast-cre-analysis/
+├── plan.md # This file (updated)
+├── research.md # Updated methodology description
+├── data-model.md # Updated schema definitions
+├── quickstart.md # Updated user instructions
+├── contracts/ # Schema files (updated)
+│ ├── cre_output.schema.yaml
+│ ├── cre_schema.schema.yaml
+│ ├── dataset.schema.yaml
+│ └── stats_output.schema.yaml
+└── tasks.md # (optional) high‑level task list
+```
+
+### Source Code (repository root)
+
+```text
+code/
+├── 01_download_data.sh # FR‑001: download & MD5 verify GEO/SRA data (manifest‑driven)
+├── 02_preprocess_chipseq.sh # FR‑002: fastp + bowtie2 (≤2 threads)
+├── 03_call_peaks.sh # FR‑003: MACS with FDR sweep (0.01,0.05,0.10)
+├── 04_merge_annotate.sh # FR‑004: merge peaks, annotate promoter/distal
+├── 05_fetch_atac.sh # FR‑013: download ATAC‑seq (optional); logs ATAC_MANDATORY_SKIP
+├── 05_validate_cre_gating.py # FR‑014/FR‑015: motif & Hi‑C validation, compute weights
+├── 06_define_null_region.sh # New: define distal null regions (>10 kb from any gene)
+├── 06_fit_gls.R # FR‑005, FR‑012, FR‑015: Fixed‑Effects GLS (no random intercept)
+├── 07_permutation_test.R # FR‑006: block‑permutation (10,000 shuffles)
+├── 08_sensitivity_analysis.R # FR‑017: compare β₁ estimates (full vs filtered)
+├── 09_summit_match.R # SC‑005: summit‑to‑bigWig alignment verification
+├── 10_generate_reports.R # FR‑010, includes GO enrichment, bias analysis, disclaimer
+├── 11_create_bigwig.sh # FR‑009: deepTools bamCoverage
+├── 12_generate_manifest.R # Principle IV traceability manifest
+├── run_pipeline.sh # Master script orchestrating steps 1‑12
+├── requirements.txt
+└── environment.yml
+```
+
+### Tests
+
+```text
+tests/
+├── contract/ # Schema validation tests
+├── integration/ # End‑to‑end pipeline tests on mock data
+└── unit/ # Unit tests for individual scripts
+```
+
+## Phase Descriptions (ordered)
+
+| Phase | Description | Key Scripts | Outputs |
+|------|-------------|-------------|----------|
+| 0 | **Data Acquisition** – download all required ChIP‑seq, ATAC‑seq, eQTL, Hi‑C files via `manifest.yaml`; abort if any required accession missing. | `01_download_data.sh`, `05_fetch_atac.sh` | `data/raw/` files, MD5 log |
+| 1 | **Pre‑processing** – adapter trimming (`fastp`), alignment (`bowtie2` ≤2 threads, MAPQ ≥ 30). | `02_preprocess_chipseq.sh` | Sorted BAMs (`data/processed/`) |
+| 2 | **Peak Calling & FDR Sweep** – run MACS2 at q ≤ 0.01, 0.05, 0.10; record peak counts and overlap of top‑20 CREs across thresholds. | `03_call_peaks.sh` | Peak BEDs per TF/condition, sweep summary |
+| 3 | **Merge & Annotate** – merge overlapping peaks across TFs/conditions, annotate promoter vs distal (>500 bp). | `04_merge_annotate.sh` | `CRE_merged.bed` |
+| 4 | **Validation & Weighting** – (a) motif scanning (PWM p‑value < 1e‑4) **or** Hi‑C contact frequency (>100 reads) for distal CREs; (b) compute observation weight = `log(motif_score + 1)` **or** `log(hi_c_score + 1)` (whichever is available); (c) compute VIF for each CRE and **exclude** any with VIF > 5 from downstream modeling (FR‑012). | `05_validate_cre_gating.py` | `CRE_validated.bed` with `motif_score`, `hi_c_score`, `weight`, `is_collinear` flag |
+| 5 | **Null‑Region Definition** – select distal genomic windows (>10 kb from any gene) as control; compute `null_region_signal`. | `06_define_null_region.sh` | `null_regions.bed` |
+| 6 | **GLS Modeling** – construct predictor `weighted_ΔPeakSignal = (CRE_signal – null_region_signal) × weight`; fit Fixed‑Effects GLS per stress condition, including covariates `PromoterSignal` and `GlobalExpr`; output raw and BH‑adjusted p‑values. | `06_fit_gls.R` | `gls_results_<stress>.csv` |
+| 7 | **Permutation Test** – spatial block‑permutation within 50 kb windows; **[deferred]** shuffles; compute empirical p‑value for β₁. | `07_permutation_test.R` | `permutation_<stress>.csv` |
+| 8 | **Sensitivity Analysis** – compare β₁ estimates from (a) **full** CRE set (all validated CREs) and (b) **filtered** set (post‑FR‑014, excluding collinear CREs). | `08_sensitivity_analysis.R` | `bias_analysis_<stress>.csv` |
+| 9 | **Summit‑Match Verification** – compute Spearman ρ between reported log₂FC and bigWig signal for top‑10 CREs; report % of summit matches within ±5 bp. | `09_summit_match.R` | `summit_match_<stress>.txt` |
+|10| **Report Generation** – assemble markdown tables (`results/CRE_ranked_<stress>.md`), PDF summary (`results/Statistical_summary.pdf`), GO enrichment (hypergeometric test), bias metrics, summit‑match stats, and disclaimer. | `10_generate_reports.R` | All result files |
+|11| **BigWig Creation** – convert BAM coverage to bigWig for IGV visualization. | `11_create_bigwig.sh` | `tracks/<stress>_CRE_signal.bw` |
+|12| **Traceability Manifest** – record for each output the exact input rows, script version, and parameters used. | `12_generate_manifest.R` | `manifest.json` |
+
+## Runtime Feasibility
+
+- All tools run on CPU only; no GPU or CUDA dependencies.
+- Memory usage is limited by streaming BAMs and sub‑sampling eQTL data to the gene‑CRE matched subset (≈ ≤ 5 GB).

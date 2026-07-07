@@ -1,0 +1,55 @@
+name: yeast-cre-analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  # Core Language & Runtime
+  - python=3.10
+  - r-base=4.3
+  - r-tidyverse
+  - r-ggplot2
+  - r-data.table
+  - r-dplyr
+  - r-lme4
+  - r-mgcv
+  - r-biobase
+  - r-genomicranges
+  - r-rtracklayer
+  - r-fgsea
+  - r-goseq
+
+  # Bioinformatics Tools (Bioconda)
+  - fastp
+  - bowtie2
+  - macs2
+  - samtools
+  - bedtools
+  - deeptools
+  - sra-tools
+  - biopython
+  - pyfaidx
+
+  # Python Libraries
+  - pip
+  - pip:
+      - pandas
+      - numpy
+      - scipy
+      - statsmodels
+      - requests
+      - pyyaml
+      - scikit-learn
+      - matplotlib
+      - seaborn
+
+  # System Utilities
+  - curl
+  - wget
+  - git
+  - git-lfs
+
+  # Optional: R dependencies for specific plots
+  - r-ggrepel
+  - r-cowplot
+  - r-pheatmap

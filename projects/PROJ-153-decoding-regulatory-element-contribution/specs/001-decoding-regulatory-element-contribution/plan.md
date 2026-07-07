@@ -16,7 +16,7 @@ This plan implements a fully reproducible, CPU‑only bioinformatics pipeline th
 | **III. Data Hygiene** | **Compliant** | Raw files stored under `data/raw/` with checksums recorded in `state/`. Every transformation produces a new file under `data/processed/`. |
 | **IV. Single Source of Truth** | **Compliant** | `12_generate_manifest.R` records, for each output, the exact input rows, script version, and parameters used. |
 | **V. Versioning Discipline** | **Compliant** | Content hashes for all artifacts are stored in `state/projects/PROJ-153-decoding-regulatory-element-contribution.yaml` and timestamps updated on change. |
-| **VI. Computational Pipeline Transparency** | **Compliant** | All bioinformatic steps (fastp, bowtie2, MACS2, bedtools, deepTools, GLS fitting) are captured in scripts that log tool versions and full command lines. |
+| **VI. Computational Pipeline Transparency** | **Compliant** | All bioinformatic steps (fastp, bowtie, MACS, bedtools, deepTools, GLS fitting) are captured in scripts that log tool versions and full command lines. |
 | **VII. Statistical Reporting Rigor** | **Compliant** | GLS fitting, likelihood‑ratio tests, Benjamini‑Hochberg correction, block‑permutation, and all diagnostics are implemented in `06_fit_gls.R` and `07_permutation_test.R`. Full model objects are saved for inspection. |
 
 ## Project Structure
@@ -82,7 +82,7 @@ tests/
 | 6 | **GLS Modeling** – construct predictor `weighted_ΔPeakSignal = (CRE_signal – null_region_signal) × weight`; fit Fixed‑Effects GLS per stress condition, including covariates `PromoterSignal` and `GlobalExpr`; output raw and BH‑adjusted p‑values. | `06_fit_gls.R` | `gls_results_<stress>.csv` |
 | 7 | **Permutation Test** – spatial block‑permutation within 50 kb windows; **[deferred]** shuffles; compute empirical p‑value for β₁. | `07_permutation_test.R` | `permutation_<stress>.csv` |
 | 8 | **Sensitivity Analysis** – compare β₁ estimates from (a) **full** CRE set (all validated CREs) and (b) **filtered** set (post‑FR‑014, excluding collinear CREs). | `08_sensitivity_analysis.R` | `bias_analysis_<stress>.csv` |
-| 9 | **Summit‑Match Verification** – compute Spearman ρ between reported log₂FC and bigWig signal for top‑10 CREs; report % of summit matches within ±5 bp. | `09_summit_match.R` | `summit_match_<stress>.txt` |
+| 9 | **Summit‑Match Verification** – compute Spearman ρ between reported log₂FC and bigWig signal for top-ranked CREs; report % of summit matches within ±5 bp. | `09_summit_match.R` | `summit_match_<stress>.txt` |
 |10| **Report Generation** – assemble markdown tables (`results/CRE_ranked_<stress>.md`), PDF summary (`results/Statistical_summary.pdf`), GO enrichment (hypergeometric test), bias metrics, summit‑match stats, and disclaimer. | `10_generate_reports.R` | All result files |
 |11| **BigWig Creation** – convert BAM coverage to bigWig for IGV visualization. | `11_create_bigwig.sh` | `tracks/<stress>_CRE_signal.bw` |
 |12| **Traceability Manifest** – record for each output the exact input rows, script version, and parameters used. | `12_generate_manifest.R` | `manifest.json` |
@@ -128,7 +128,7 @@ Key concepts:
 
 | Dataset | Description | Verified URL | Access Method |
 |---------|-------------|--------------|---------------|
-| **ChIP‑seq** | Raw FASTQ for Hsf1, Msn2, Msn4, Hog1 under control + each stress. Each TF‑condition pair has its own GEO/SRA accession (e.g., SRR123456). | User‑provided URLs in `manifest.yaml` (validated by Reference‑Validator). | `prefetch`/`fasterq-dump` + MD5 verification (FR‑001). |
+| **ChIP‑seq** | Raw FASTQ for Hsf1, Msn2, Msn4, Hog1 under control + each stress. Each TF‑condition pair has its own GEO/SRA accession (e.g., SRRXXXXXX). | User‑provided URLs in `manifest.yaml` (validated by Reference‑Validator). | `prefetch`/`fasterq-dump` + MD5 verification (FR‑001). |
 | **eQTL** | Stress‑specific expression fold‑changes and effect sizes for all genes. Example: GEO **GSE123456** (validated stress‑response eQTL study). | URL in `manifest.yaml`. | `datasets.load_dataset("gse123456")`. |
 | **Hi‑C** | Condition‑independent high‑resolution yeast 3D genome map (e.g., GEO **GSE123789**). | URL in `manifest.yaml`. | Load `.cool` file with `cooler`. |
 | **ATAC‑seq** | Independent chromatin accessibility data (optional). Multiple runs may be listed; if none are present the pipeline logs `ATAC_MANDATORY_SKIP`. | URLs in `manifest.yaml` (if provided). | Same download pipeline as ChIP‑seq. |

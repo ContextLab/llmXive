@@ -1,0 +1,4 @@
+# Dependencies for T009b (Shell script primarily, but requirements for Python tests)
+pytest>=7.0.0
+# Note: bedtools must be installed in the environment (via conda/apt)
+# fastp, bowtie2, samtools, MACS2 are required for upstream tasks (T005-T007)

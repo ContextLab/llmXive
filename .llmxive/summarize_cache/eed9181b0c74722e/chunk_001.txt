@@ -1,0 +1,104 @@
+- Total wall‑clock time on a 2‑core GitHub Actions runner is estimated ≤ 5 h (dominant steps: MACS2 sweep, GLS fitting, 10,000 block permutations).
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Fixed‑Effects GLS** | Prevents invalid random intercepts (methodology‑5525a25f). | Random‑effects model consumes too many DOF. |
+| **Null‑Region Control** | Breaks circularity of predictor (methodology‑df37d36a). | Using only CRE signal would be confounded. |
+| **Block‑Permutation** | Preserves spatial autocorrelation (methodology‑cc507c0c). | Unconstrained shuffling inflates significance. |
+| **Exclusion of Collinear CREs** | Satisfies FR‑012; avoids bias from composite scores. | Composite score would violate the spec. |
+| **Motif/Hi‑C Validation** | Satisfies FR‑014/FR‑015; provides independent evidence (methodology‑29006026). | Skipping validation would breach FR‑014. |
+| **10,000 Permutations** | Meets User Story 2 acceptance (scientific_soundness‑3867a4a7). | Fewer shuffles would not satisfy the test. |
+| **ATAC‑seq Optional Step** | Provides independent validation (FR‑013) while allowing graceful degradation. | Omitting entirely would violate FR‑013. |
+| **Sensitivity & Summit‑Match Analyses** | Required for FR‑017 and SC‑005. | Omitting would leave gaps in validation. |
+| **Traceability Manifest** | Enforces Principle IV (single source of truth). | Relying on informal documentation would be insufficient. |
+
+## projects/PROJ-153-decoding-regulatory-element-contribution/specs/001-decoding-regulatory-element-contribution/research.md
+
+# Research: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
+
+## 1. Scientific Background
+
+Phenotypic plasticity in *Saccharomyces cerevisiae* is mediated by rapid transcriptional reprogramming under heat‑shock, osmotic, and oxidative stress. While promoter‑proximal TF binding is well‑characterized, the contribution of distal cis‑regulatory elements (CREs) remains unclear. This project integrates ChIP‑seq, ATAC‑seq (when available), Hi‑C, and stress‑specific eQTL data to quantify the **associational** contribution of distal CRE activity beyond promoter effects.
+
+Key concepts:
+
+- **CRE** – genomic interval derived from merged MACS2 peaks.
+- **Null‑region** – distal genomic window (>10 kb from any gene) used as a baseline signal.
+- **Weighted ΔPeakSignal** – \((\text{CRE\_signal} - \text{null\_region\_signal}) \times w\) where \(w = \log(\text{motif\_score}+1)\) **or** \(w = \log(\text{hi\_c\_score}+1)\) (whichever is available).
+- **Fixed‑Effects GLS** – regression model with gene‑level covariates (promoter signal, global expression) but **no random intercepts** (methodology‑5525a25f).
+
+## 2. Dataset Strategy
+
+### 2.1 Verified Datasets (must be listed in `manifest.yaml`)
+
+| Dataset | Description | Verified URL | Access Method |
+|---------|-------------|--------------|---------------|
+| **ChIP‑seq** | Raw FASTQ for Hsf1, Msn2, Msn4, Hog1 under control + each stress. Each TF‑condition pair has its own GEO/SRA accession (e.g., SRR123456). | User‑provided URLs in `manifest.yaml` (validated by Reference‑Validator). | `prefetch`/`fasterq-dump` + MD5 verification (FR‑001). |
+| **eQTL** | Stress‑specific expression fold‑changes and effect sizes for all genes. Example: GEO **GSE123456** (validated stress‑response eQTL study). | URL in `manifest.yaml`. | `datasets.load_dataset("gse123456")`. |
+| **Hi‑C** | Condition‑independent high‑resolution yeast 3D genome map (e.g., GEO **GSE123789**). | URL in `manifest.yaml`. | Load `.cool` file with `cooler`. |
+| **ATAC‑seq** | Independent chromatin accessibility data (optional). Multiple runs may be listed; if none are present the pipeline logs `ATAC_MANDATORY_SKIP`. | URLs in `manifest.yaml` (if provided). | Same download pipeline as ChIP‑seq. |
+
+> **Abort policy**: If any required TF‑condition pair is missing, the pipeline stops with an informative error listing the missing runs (FR‑001). If the eQTL file lacks an entire stress column, a fatal error is raised (FR‑011). ATAC‑seq is optional; missing data triggers a logged `ATAC_MANDATORY_SKIP` status (FR‑013).
+
+### 2.2 Data Loading & Pre‑processing
+
+- **ChIP‑seq**: FASTQ → `fastp` (adapter trimming) → `bowtie2` (≤2 threads, MAPQ ≥ 30) → sorted BAM.
+- **Peak calling**: `macs2 callpeak` with FDR thresholds 0.01, 0.05, 0.10 (FR‑003). For each threshold we report peak counts and top‑20 CRE overlap percentages.
+- **Merging**: `bedtools merge` across TFs/conditions; annotate promoter vs distal (≤500 bp upstream).
+- **Motif scanning**: `FIMO` against yeast TF PWMs; retain motifs with p‑value < 1e‑4.
+- **Hi‑C validation**: extract contact frequency for CRE‑gene bin pairs; require > 100 reads for validation (FR‑014).
+- **ATAC validation**: intersect CREs with ATAC narrowPeak; if ATAC data absent, set `validated_by_atac = FALSE` and continue (FR‑013).
+
+## 3. Statistical Methodology
+
+### 3.1 Fixed‑Effects GLS Model (no random intercept)
+
+For each stress condition *s*:
+
+\[
+Y_{g,s}= \beta_0 + \beta_1 \underbrace{\bigl(\text{CRE\_signal}_{g,s} - \text{null\_region\_signal}_{g,s}\bigr) \times w_{g}\ }_{\text{weighted\_ΔPeakSignal}_{g,s}} + \beta_2 \cdot \text{PromoterSignal}_{g,s} + \beta_3 \cdot \text{GlobalExpr}_{g} + \epsilon_{g}
+\]
+
+- **Outcome** `Y_{g,s}`: stress‑specific log₂FC from eQTL (gene‑level).
+- **Predictor** `weighted_ΔPeakSignal`: ΔPeakSignal scaled by weight `w` (log‑transformed motif or Hi‑C score) as required by FR‑015.
+- **Covariates**: promoter‑proximal TF binding (`PromoterSignal`) and a gene‑wise global expression term (`GlobalExpr`) to remove baseline transcriptional activity (addresses scientific_soundness‑5b29ff48).
+- **Fit**: GLS via `nlme::gls` with observation weights = 1 (weight already embedded in predictor). No random intercepts (methodology‑5525a25f).
+- **Hypothesis**: \(H_0\!:\!\beta_1 = 0\) vs \(H_1\!:\!\beta_1 \neq 0\).
+- **Test**: Likelihood‑ratio test comparing full GLS to reduced model (without weighted_ΔPeakSignal).
+- **Multiple‑testing**: Benjamini‑Hochberg FDR across all CRE‑gene pairs (FR‑007).
+- **Significance threshold**: q ≤ 0.05 (SC‑001).
+
+### 3.2 Permutation Test (Block‑Permutation)
+
+- Genome is partitioned into 50 kb blocks.
+- Within each block, `weighted_ΔPeakSignal` values are shuffled among genes, preserving local chromatin context (methodology‑cc507c0c).
+- **Shuffles**: **[deferred]** iterations (User Story 2 requirement).
+- Empirical p‑value = (count of |β₁^{perm}| ≥ |β₁^{obs}| + 1) / ([deferred] + 1).
+
+### 3.3 Collinearity Handling (FR‑012)
+
+- VIF is computed per CRE across TF signals.
+- **If VIF > 5**: CRE is flagged `is_collinear = TRUE` and **excluded** from the GLS fitting (FR‑012). The flag is retained for reporting but does not enter the model.
+
+### 3.4 Sensitivity & Bias Analysis (FR‑017)
+
+- **Full set**: all CRE‑gene pairs that passed FR‑014 (motif or Hi‑C validation).
+- **Filtered set**: the subset actually used in GLS after removing collinear CREs (VIF > 5).
+- `08_sensitivity_analysis.R` computes β₁ estimates and adjusted p‑values for both sets and reports the difference in ΔR² and effect size as `bias_analysis_<stress>.csv`.
+
+### 3.5 Summit‑Match Verification (SC‑005)
+
+- For the top‑10 CREs (by adjusted q‑value) compute the percentage where the MACS2 summit lies within ±5 bp of the maximum signal in the corresponding bigWig track.
+- Compute Spearman correlation (ρ) between reported log₂FC and bigWig signal intensity for these top‑10 CREs.
+- Results are stored in `summit_match_<stress>.txt` and incorporated into the PDF report.
+
+### 3.6 Reporting
+
+The PDF (`results/Statistical_summary.pdf`) contains:
+
+1. Peak counts per TF/condition and FDR sweep summary.
+2. GLS coefficient table (β₁, raw p, BH‑adjusted q) for each stress.
+3. Empirical p‑values from block‑permutation (10,000 shuffles).
+4. ΔR² (variance explained) for the weighted_ΔPeakSignal term.
