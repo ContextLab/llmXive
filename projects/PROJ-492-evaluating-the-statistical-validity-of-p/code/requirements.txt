@@ -11,8 +11,6 @@ psutil
 ruff
 black
 pre-commit
-pydantic
 pytest
-mypy
-act
-docker
+pydantic
+scikit-learn
