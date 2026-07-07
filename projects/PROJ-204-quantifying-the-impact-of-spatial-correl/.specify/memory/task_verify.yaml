@@ -1,0 +1,13 @@
+'T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `state/`, `docs/`': 1
+? 'T002 Create `requirements.txt` containing pinned versions: numpy, scipy, scikit-learn,
+  pandas, hyperSpy, pyyaml, matplotlib, statsmodels, pygam, pytest'
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? T004 Implement `code/utils/update_state.py` to read `data/` checksums and update
+  `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` with `artifact_hashes`
+  map
+: 1
+? 'T005 [P] Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`,
+  `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`, `code/report/`,
+  `tests/`'
+: 1

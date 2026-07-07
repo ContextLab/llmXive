@@ -8,5 +8,4 @@ matplotlib>=3.7.0
 statsmodels>=0.14.0
 pygam>=0.9.0
 pytest>=7.3.0
-black>=23.0.0
-ruff>=0.0.280
+pydantic>=2.0.0

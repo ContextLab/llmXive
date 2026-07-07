@@ -1,0 +1,618 @@
+{
+  "fetched_at": "2026-07-07T04:31:11Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.944,
+    "ended_at": "2026-07-07T04:31:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "persistent AI agents"
+        ],
+        [
+          2,
+          "long-term memory in large language models"
+        ],
+        [
+          3,
+          "stateful conversational AI systems"
+        ],
+        [
+          4,
+          "digital colleagues and AI assistants"
+        ],
+        [
+          5,
+          "context retention in generative AI"
+        ],
+        [
+          6,
+          "evolving personal AI assistants"
+        ],
+        [
+          7,
+          "lifelong learning for language models"
+        ],
+        [
+          8,
+          "persistent user modeling with LLMs"
+        ],
+        [
+          9,
+          "agentic workflows in generative AI"
+        ],
+        [
+          10,
+          "continuous interaction with AI agents"
+        ],
+        [
+          11,
+          "memory-augmented language models"
+        ],
+        [
+          12,
+          "autonomous digital coworkers"
+        ],
+        [
+          13,
+          "longitudinal AI-human collaboration"
+        ],
+        [
+          14,
+          "persistent context in chatbots"
+        ],
+        [
+          15,
+          "adaptive AI personal assistants"
+        ],
+        [
+          16,
+          "stateful generative models"
+        ],
+        [
+          17,
+          "AI agents with long-term goals"
+        ],
+        [
+          18,
+          "persistent identity in conversational agents"
+        ],
+        [
+          19,
+          "continuous fine-tuning of LLMs for users"
+        ],
+        [
+          20,
+          "human-AI partnership evolution"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\" computer science": 0,
+        "long-term memory in large language models": 5,
+        "persistent AI agents": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "AI agent memory persistence long-term context",
+      "autonomous agent workflow multi-step reasoning",
+      "digital colleague human-AI teaming collaboration",
+      "LLM stateful interaction session continuity",
+      "persistent agent architecture knowledge retention"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2501.05032"
+      ]
+    },
+    "per_query_hit_count": {
+      "AI agent memory persistence long-term context": 3,
+      "LLM stateful interaction session continuity": 3,
+      "autonomous agent workflow multi-step reasoning": 3,
+      "digital colleague human-AI teaming collaboration": 3,
+      "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\" computer science": 3,
+      "persistent agent architecture knowledge retention": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from the user's question regarding \"persistent\" digital colleagues and the paradigm shift in LLM roles. While both involve LLMs, the candidate paper does not measure the mechanism of persistence, continuity, or the specific \"digital colleague\" paradigm, nor does it establish a baseline for that specific research domain, failing to meet criteria (a) through (f).",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific internal limitation of LLMs (character-level understanding) which is a distinct construct from the user's question about the \"paradigm shift toward persistent digital colleagues\" (a socio-technical or architectural concept regarding agent persistence and role evolution). It does not measure the same mechanism, variables, or empirical population required for a literature review on the shift to persistent digital colleagues, nor does it serve as a foundational ref",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        },
+        {
+          "primary_pointer": "2403.09676",
+          "rationale": "The paper focuses on AI deception, safety governance, and ethical risks, which are distinct constructs from the user's question regarding the paradigm shift of LLMs toward \"persistent digital colleagues\" (a concept centered on agency, continuity, and role evolution). While both topics concern LLMs, the paper does not measure the mechanism of persistence, the specific \"colleague\" construct, or the variables related to the shift from chatbot to colleague, failing to meet any of the inclusion crite",
+          "title": "Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models"
+        },
+        {
+          "primary_pointer": "2309.02144",
+          "rationale": "The paper focuses on improving LLM reasoning capabilities through alignment fine-tuning and chain-of-thought optimization, which does not address the user's specific question regarding \"persistent\" digital colleagues, long-term memory, or the paradigm shift toward persistent agents mentioned in the title. While both involve LLMs, the paper lacks the specific mechanism (persistence/colleague paradigm), domain (agent continuity), or variables required by the user's query, failing to meet any of th",
+          "title": "Making Large Language Models Better Reasoners with Alignment"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T04:30:16Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"from chatbot to digital colleague: the paradigm shift toward persisten\" computer science",
+      "raw": "llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Shift Toward Persisten\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM agents increasingly rely on persistent long-term memory, which creates a critical vulnerability that we study here: memory poisoning. An adversary can store untrusted content in one session that later steers a consequential action, such as a payment, a setting change, or data exfiltration, in a future session. Existing defenses base a memory item's authority to act on either its content (detection or trust-scoring) or its derivation history (lineage). We show that both signals are malleable. An attacker can launder an untrusted origin through three channels specific to LLM agents: the agent's own summarization, a trusted-tool echo, and manufactured corroboration. Each makes the content look benign and breaks or flips its derivation edge to ``trusted.'' We formalize malleability for the memory write-retrieve-act pipeline and prove a machine-checked separation theorem. No content- or lineage-based defense is sound under laundering (T1), write-time origin binding is necessary (T2), and non-malleable origin-bound authority with Sybil-resistant corroboration-gated elevation is sufficient (T3). Our construction, TMA-NM (Tamper-evident Memory Authority, Non-Malleable), instantiates non-malleable information-flow control (IFC) for LLM-agent memory. A cross-defense, cross-attack, and cross-model benchmark over eight frontier models shows that existing defenses fail exactly where the theory predicts (up to 68% laundering attack-success), while TMA-NM reaches 0% attack success on both direct and laundering attacks across all models and channels, at full legitimate utility. We release the benchmark, harness, and machine-checked TLA+ models to support reproducibility.",
+          "claimed_authors": [
+            "Yedidel Louck"
+          ],
+          "claimed_title": "Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.24322"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-agent LLM systems on edge devices face a memory management problem: device RAM is too small to hold every agent's KV cache simultaneously. On Apple M4 Pro with 10.2 GB of cache budget, only 3 agents fit at 8K context in FP16. A 10-agent workflow must constantly evict and reload caches. Without persistence, every eviction forces a full re-prefill through the model -- 15.7 seconds per agent at 4K context. We address this by persisting each agent's KV cache to disk in 4-bit quantized format and reloading it directly into the attention layer, eliminating redundant O(n) prefill computation via direct cache restoration. The system comprises three components: a block pool providing per-agent isolated Q4 KV caches in safetensors format, a BatchQuantizedKVCache for concurrent inference over multiple agents' quantized caches, and cross-phase context injection that accumulates attention state across conversation phases without re-computation. Evaluated on three architectures (Gemma 3 12B, dense GQA, 48 layers; DeepSeek-Coder-V2-Lite 16B, MoE MLA, 27 layers; Llama 3.1 8B, dense GQA, 32 layers), cache restoration reduces time-to-first-token by up to 136x (Gemma: 22--136x at 4K--32K; DeepSeek: 11--76x at 4K--32K; Llama: 24--111x at 4K--16K; 3--10x at 1K). Q4 quantization fits 4x more agent contexts into fixed device memory than FP16. Perplexity measured with actual Q4 KV caches shows -0.7% for Gemma, +2.8% for Llama, and +3.0% for DeepSeek. Open-source at https://github.com/yshk-mxim/agent-memory",
+          "claimed_authors": [
+            "Yakov Pyotr Shkolnikov"
+          ],
+          "claimed_title": "Agent Memory Below the Prompt: Persistent Q4 KV Cache for Multi-Agent LLM Inference on Edge Devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.04428"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Agent Memory Below the Prompt: Persistent Q4 KV Cache for Multi-Agent LLM Inference on Edge Devices')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Membership inference attacks (MIAs) test whether a target data record belongs to a system's private data, and have become a standard tool to measure privacy leakage in machine learning systems. Prior work has primarily focused on training corpora or retrieval databases. However, MIAs against agent memory have received less attention, even though such memory can contain sensitive user-agent interactions, retrieved facts, and user preferences. Therefore, in this work, we focus on chat agent memory MIAs, where an adversary infers whether a candidate memory unit belongs to the chat agent's memory store. We propose Multi-Recall Memory MIA (MRMMIA), a unified attack that utilizes multiple recall probes to the agent to extract the membership signal across black-box, gray-box, and white-box settings. Our experiments demonstrate that MRMMIA consistently outperforms baselines. Our results expose the privacy risk in agents and provide an initial evaluation framework for membership leakage in chat-agent memory systems.",
+          "claimed_authors": [
+            "Kai Chen",
+            "Yan Pang",
+            "Tianhao Wang"
+          ],
+          "claimed_title": "MRMMIA: Membership Inference Attacks on Memory in Chat Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27825"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='MRMMIA: Membership Inference Attacks on Memory in Chat Agents')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+          "claimed_authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence is reshaping scientific exploration, but most methods automate procedural tasks without engaging in scientific reasoning, limiting autonomy in discovery. We introduce Materials Agents for Simulation and Theory in Electronic-structure Reasoning (MASTER), an active learning framework where large language models autonomously design, execute, and interpret atomistic simulations. In MASTER, a multimodal system translates natural language into density functional theory workflows, while higher-level reasoning agents guide discovery through a hierarchy of strategies, including a single agent baseline and three multi-agent approaches: peer review, triage-ranking, and triage-forms. Across two chemical applications, CO adsorption on Cu-surface transition metal (M) adatoms and on M-N-C catalysts, reasoning-driven exploration reduces required atomistic simulations by up to 90% relative to trial-and-error selection. Reasoning trajectories reveal chemically grounded decisions that cannot be explained by stochastic sampling or semantic bias. Altogether, multi-agent collaboration accelerates materials discovery and marks a new paradigm for autonomous scientific exploration.",
+          "claimed_authors": [
+            "Samuel Rothfarb",
+            "Megan C. Davis",
+            "Ivana Matanovic",
+            "Baikun Li",
+            "Edward F. Holby",
+            "Wilton J. M. Kort-Kamp"
+          ],
+          "claimed_title": "Hierarchical Multi-agent Large Language Model Reasoning for Autonomous Functional Materials Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.13930"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Hierarchical Multi-agent Large Language Model Reasoning for Autonomous Functional Materials Discovery')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human-AI collaboration (HAIC) in decision-making aims to create synergistic teaming between human decision-makers and AI systems. Learning to defer (L2D) has been presented as a promising framework to determine who among humans and AI should make which decisions in order to optimize the performance and fairness of the combined system. Nevertheless, L2D entails several often unfeasible requirements, such as the availability of predictions from humans for every instance or ground-truth labels that are independent from said humans. Furthermore, neither L2D nor alternative approaches tackle fundamental issues of deploying HAIC systems in real-world settings, such as capacity management or dealing with dynamic environments. In this paper, we aim to identify and review these and other limitations, pointing to where opportunities for future research in HAIC may lie.",
+          "claimed_authors": [
+            "Diogo Leitão",
+            "Pedro Saleiro",
+            "Mário A. T. Figueiredo",
+            "Pedro Bizarro"
+          ],
+          "claimed_title": "Human-AI Collaboration in Decision-Making: Beyond Learning to Defer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.13202"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Human-AI Collaboration in Decision-Making: Beyond Learning to Defer')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_authors": [
+            "Chaeyeon Lim"
+          ],
+          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16770"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The recent rapid advancement of LLM-based AI systems has accelerated our search and production of information. While the advantages brought by these systems seemingly improve the performance or efficiency of human activities, they do not necessarily enhance human capabilities. Recent research has started to examine the impact of generative AI on individuals' cognitive abilities, especially critical thinking. Based on definitions of critical thinking across psychology and education, this position paper proposes the distinction between demonstrated and performed critical thinking in the era of generative AI and discusses the implication of this distinction in research and development of AI systems that aim to augment human critical thinking.",
+          "claimed_authors": [
+            "Katelyn Xiaoying Mei",
+            "Nic Weber"
+          ],
+          "claimed_title": "Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.14689"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Designing AI Systems that Augment Human Performed vs. Demonstrated Critical Thinking')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_authors": [
+            " Xiangrong",
+            " Zhu",
+            "Yuan Xu",
+            "Tianjian Liu",
+            "Jingwei Sun",
+            "Yu Zhang",
+            "Xin Tong"
+          ],
+          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.13684"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note summarizes the discussion session on diffractive Higgs production at the DIS2002 workshop.",
+          "claimed_authors": [
+            "A. De Roeck",
+            "C. Royon"
+          ],
+          "claimed_title": "Discussion session on diffractive Higgs production",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "hep-ph/0209171"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Discussion session on diffractive Higgs production')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a proposal for a flexible agent mobility architecture based on IEEE-FIPA standards and intended to be one of them. This proposal is a first step towards interoperable mobility mechanisms, which are needed for future agent migration between different kinds of platforms. Our proposal is presented as a flexible and robust architecture that has been successfully implemented in the JADE and AgentScape platforms. It is based on an open set of protocols, allowing new protocols and future improvements to be accommodated in the architecture. With this proposal we demonstrate that a standard architecture for agent mobility capable of supporting several agent platforms can be defined and implemented.",
+          "claimed_authors": [
+            "Jordi Cucurull",
+            "Ramon Marti",
+            "Sergi Robles",
+            "Joan Borrell",
+            "Guillermo Navarro"
+          ],
+          "claimed_title": "FIPA-based Interoperable Agent Mobility Proposal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0706.1860"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='FIPA-based Interoperable Agent Mobility Proposal')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper examines the evolution, architecture, and practical applications of AI agents from their early, rule-based incarnations to modern sophisticated systems that integrate large language models with dedicated modules for perception, planning, and tool use. Emphasizing both theoretical foundations and real-world deployments, the paper reviews key agent paradigms, discusses limitations of current evaluation benchmarks, and proposes a holistic evaluation framework that balances task effectiveness, efficiency, robustness, and safety. Applications across enterprise, personal assistance, and specialized domains are analyzed, with insights into future research directions for more resilient and adaptive AI agent systems.",
+          "claimed_authors": [
+            "Naveen Krishnan"
+          ],
+          "claimed_title": "AI Agents: Evolution, Architecture, and Real-World Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.12687"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='AI Agents: Evolution, Architecture, and Real-World Applications')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+          "claimed_authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "claimed_title": "Architectural Implications of Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.00804"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"From Chatbot to Digital Colleague: The Paradigm Sh', candidate_title='Architectural Implications of Graph Neural Networks')",
+        "failed_at": "2026-07-07T04:30:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sandro Rodriguez Garzon",
+            "Awid Vaziry",
+            "Enis Mert Kuzu",
+            "Dennis Enrique Gehrmann",
+            "Buse Varkan",
+            "Alexander Gaballa",
+            "Axel Küpper"
+          ],
+          "title": "AI Agents with Decentralized Identifiers and Verifiable Credentials",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.02841",
+        "summary": "A fundamental limitation of current LLM-based AI agents is their inability to build differentiated trust among each other at the onset of an agent-to-agent dialogue. However, autonomous and interoperable trust establishment becomes essential once agents start to operate beyond isolated environments and engage in dialogues across individual or organizational boundaries. A promising way to fill this gap in Agentic AI is to equip agents with long-lived digital identities and introduce tamper-proof and flexible identity-bound attestations of agents, provisioned by commonly trusted third parties and designed for cross-domain verifiability. This article presents a conceptual framework and a prototypical multi-agent system, where each agent is endowed with a self-sovereign digital identity. It combines a unique and ledger-anchored W3C Decentralized Identifier (DID) of an agent with a set of third-party issued W3C Verifiable Credentials (VCs). This enables agents at the start of a dialog to prove ownership of their self-controlled DIDs for authentication purposes and to establish various cross-domain trust relationships through the spontaneous exchange of their self-hosted DID-bound VCs. A comprehensive evaluation of the prototypical implementation demonstrates technical feasibility but also reveals limitations once an agent's LLM is in sole charge to control the respective security procedures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.02841",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T04:30:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
+          ],
+          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.05032",
+        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.05032",
+          "http_status": 200,
+          "pdf_sample_score": 0.1866,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T04:30:56Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"from chatbot to digital colleague: the paradigm shift toward persisten\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
