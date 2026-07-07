@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPredictionOutput"
+description: "Schema for CNN model predictions and error metrics"
+type: "object"
+properties:
+  prediction_id:
+    type: "string"
+    description: "Unique identifier for the prediction"
+  input_image_id:
+    type: "string"
+    description: "Reference to the input image ID"
+  predicted_tensor:
+    type: "object"
+    properties:
+      C11:
+        type: "number"
+        description: "Predicted stiffness component C11"
+      C12:
+        type: "number"
+        description: "Predicted stiffness component C12"
+      C22:
+        type: "number"
+        description: "Predicted stiffness component C22"
+      C66:
+        type: "number"
+        description: "Predicted stiffness component C66"
+    required:
+      - C11
+      - C12
+      - C22
+      - C66
+    description: "Predicted effective elastic stiffness tensor"
+  error_metrics:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error"
+      mse:
+        type: "number"
+        description: "Mean Squared Error"
+      r_squared:
+        type: "number"
+        description: "R-squared value"
+    required:
+      - mae
+      - mse
+      - r_squared
+  flags:
+    type: "object"
+    properties:
+      is_outlier:
+        type: "boolean"
+        description: "True if MAE > 5%"
+      is_ood_density:
+        type: "boolean"
+        description: "True if density is outside training distribution"
+    required:
+      - is_outlier
+      - is_ood_density
+required:
+  - prediction_id
+  - input_image_id
+  - predicted_tensor
+  - error_metrics
+  - flags
+additionalProperties: false

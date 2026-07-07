@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MicrostructureDataset"
+description: "Schema for generated microstructure images and stiffness tensors"
+type: "object"
+properties:
+  image_id:
+    type: "string"
+    description: "Unique identifier for the image"
+  resolution:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 2
+    maxItems: 2
+    description: "Image dimensions (height, width)"
+  void_density:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of void space in the image"
+  inclusion_density:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Fraction of inclusion space in the image"
+  stiffness_tensor:
+    type: "object"
+    properties:
+      C11:
+        type: "number"
+        description: "Stiffness component C11"
+      C12:
+        type: "number"
+        description: "Stiffness component C12"
+      C22:
+        type: "number"
+        description: "Stiffness component C22"
+      C66:
+        type: "number"
+        description: "Stiffness component C66"
+    required:
+      - C11
+      - C12
+      - C22
+      - C66
+    description: "Effective elastic stiffness tensor (Voigt notation)"
+  within_voigt_reuss_hill:
+    type: "boolean"
+    description: "Whether the calculated tensor is within theoretical bounds"
+required:
+  - image_id
+  - resolution
+  - void_density
+  - inclusion_density
+  - stiffness_tensor
+  - within_voigt_reuss_hill
+additionalProperties: false
