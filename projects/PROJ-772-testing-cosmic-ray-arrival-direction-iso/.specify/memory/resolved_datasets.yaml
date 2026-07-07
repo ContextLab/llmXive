@@ -1,0 +1,199 @@
+resolved_at: '2026-07-07T02:17:46.417528+00:00'
+datasets:
+- intent: RMS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liswei/rm-static-zhTW/resolve/main/data/test-00000-of-00001-f1ad0d8cdf705874.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bairdtech/rm-static-custom/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/Precious_Cornerstone_University_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_/32917316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32917304
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Atiba_University_Oyo_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_07040964654/32917301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Eko_University_of_Medical_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070409/32917295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supporting_Information_for_the_Wilson_Cycle_of_the_North_Altyn_Ocean_a_record_of_subduction_initiation_slab_rollback_and_final_closure/32916839
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/820150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8282213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10295171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18326854
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21228847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21228847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4792j/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EventCatalog
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/The_Afterlife_of_Organ_Transplants/32917172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Precious_Cornerstone_University_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_/32917316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32917304
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Atiba_University_Oyo_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_07040964654/32917301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Eko_University_of_Medical_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070409/32917295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18273917
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UHECR
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Spiritan_University_Nneochi_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704/32917319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/The_Afterlife_of_Organ_Transplants/32917172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Precious_Cornerstone_University_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_/32917316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/PAMO_University_of_Medical_Sciences_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32917304
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Atiba_University_Oyo_2026_2027_Admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_07040964654/32917301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19449153
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2559286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1480477
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4124113
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15045957
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.19997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.23203.62242
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20972429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20000889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20000889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

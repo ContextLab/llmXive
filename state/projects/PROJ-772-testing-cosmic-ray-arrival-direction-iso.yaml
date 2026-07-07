@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T03:21:44.788101Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-772-testing-cosmic-ray-arrival-direction-iso
-last_run_id: da90bb63-3eac-4026-a70d-0d284256e189
+last_run_id: 2cbd4ce5-e5d6-4b73-9841-068ca5980d7c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso
 title: "Testing Cosmic Ray Arrival Direction Isotropy with Public Ultra\u2011High\u2011\
   Energy Data"
-updated_at: '2026-06-27T20:56:46.875538Z'
+updated_at: '2026-07-07T02:53:57.674957Z'
