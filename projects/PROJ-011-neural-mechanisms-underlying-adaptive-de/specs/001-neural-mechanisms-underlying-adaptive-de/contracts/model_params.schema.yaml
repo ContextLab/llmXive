@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Parameters Schema"
+description: "Schema for hierarchical Bayesian model output (pymc/numpyro). Backend-agnostic."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  alpha:
+    type: number
+    description: "Belief updating rate (0 to 1)."
+  alpha_hdi_lower:
+    type: number
+ description: "HDI lower bound ([deferred])."
+  alpha_hdi_upper:
+    type: number
+ description: "HDI upper bound ([deferred])."
+  converged:
+    type: boolean
+    description: "True if MCMC/VI converged (R-hat < 1.01)."
+  log_likelihood:
+    type: number
+    description: "Log-likelihood of the fit."
+  backend:
+    type: string
+    enum:
+      - "numpyro"
+    description: "Inference backend used."
+  r_hat_max:
+    type: number
+    description: "Maximum R-hat value across all parameters."
+required:
+  - participant_id
+  - alpha
+  - alpha_hdi_lower
+  - alpha_hdi_upper
+  - converged
+  - log_likelihood
+  - backend
+  - r_hat_max
+additionalProperties: false

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Neural Signatures Schema"
+description: "Schema for GLM and correlation results (ROI-level)."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  region:
+    type: string
+    enum:
+      - "dlPFC"
+      - "ventral_striatum"
+      - "ACC"
+    description: "Anatomical region of interest."
+  beta_discrepancy:
+    type: number
+    description: "GLM beta for feedback discrepancy."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Uncorrected p-value."
+  fdr_q_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "FDR corrected q-value (across 3 ROIs)."
+  correlation_alpha:
+    type: number
+    description: "Partial correlation with updating rate (LOSO)."
+required:
+  - participant_id
+  - region
+  - beta_discrepancy
+  - p_value
+  - fdr_q_value
+  - correlation_alpha
+additionalProperties: false

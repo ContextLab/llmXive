@@ -1,0 +1,175 @@
+resolved_at: '2026-07-07T01:25:18.962680+00:00'
+datasets:
+- intent: ROIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3724
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33951
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/smolvla_classfication/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/eval_smolvla_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Jewel_University_Gombe_state_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070/32916800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Prime_University_Kuje_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704096465/32916791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Al-Bayan_University_Ankpa_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070409/32916788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Lighthouse_University_Evbobanosa_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR/32916782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/African_University_of_Economics_FCT_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32916776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7870529
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3971660
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/4462429/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6415420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13140203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/q5da9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/264971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uq5tw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000802451
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.6q573n6bh
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ACC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/free-law/Caselaw_Access_Project/resolve/main/alaska/alaska.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/poster/El-Amin_University_Minna_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704096/32916803
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Jewel_University_Gombe_state_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070/32916800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Prime_University_Kuje_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704096465/32916791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Al-Bayan_University_Ankpa_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_070409/32916788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Lighthouse_University_Evbobanosa_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR/32916782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8375323
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1246981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19108848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7526481
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7459517
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.971359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bqw2n/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://archive-ouverte.unige.ch/unige:194457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v6wwpzh8t
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/152910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ROI Data Schema"
+description: "Schema for preprocessed ROI time-series and behavioral data."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  region:
+    type: string
+    enum:
+      - "dlPFC"
+      - "ventral_striatum"
+      - "ACC"
+    description: "Anatomical region of interest."
+  beta_discrepancy:
+    type: number
+    description: "Pre-processed beta weight for discrepancy (if available)."
+  time_series:
+    type: array
+    items:
+      type: number
+    description: "BOLD signal values over time (if beta-map unavailable)."
+  motion_params:
+    type: array
+    items:
+      type: number
+    minItems: 6
+    maxItems: 6
+    description: "6 motion parameters (tx, ty, tz, rx, ry, rz) from logs."
+  is_valid:
+    type: boolean
+    description: "True if motion < 3mm threshold."
+required:
+  - participant_id
+  - region
+  - motion_params
+  - is_valid
+additionalProperties: false
