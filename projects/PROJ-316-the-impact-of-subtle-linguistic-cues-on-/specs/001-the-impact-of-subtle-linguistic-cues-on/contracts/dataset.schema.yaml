@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ConversationRecord Dataset Schema"
+description: "Schema for raw conversation records from verified dataset sources."
+type: "object"
+properties:
+  conversation_id:
+    type: "string"
+    description: "Unique identifier for the conversation record."
+  raw_text:
+    type: "string"
+    description: "Full text of the chatbot response."
+  length:
+    type: "integer"
+    description: "Word count of raw_text."
+  turn_count:
+    type: "integer"
+    description: "Number of speaker turns in the conversation."
+required:
+  - "conversation_id"
+  - "raw_text"
+  - "length"
+  - "turn_count"
+additionalProperties: false

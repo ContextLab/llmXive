@@ -1,0 +1,35 @@
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/annotation_instructions.md
+  attempts: 1
+  canonical: 10% of conversations rated by multiple annotators
+  claim_id: c_cc187f50
+  context: "Inter-rater Reliability: A subset of conversations (approx. 10%) will\
+    \ be rated by multiple annotators. We will calculate Krippendorff's Alpha to ensure\
+    \ agreement is \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A subset of conversations (approx. 10%) will be rated by multiple annotators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T20:04:48Z'
+- artifact_path: projects/PROJ-316-the-impact-of-subtle-linguistic-cues-on-/data/raw/annotation_instructions.md
+  attempts: 1
+  canonical: Krippendorff's Alpha agreement threshold of 0.7
+  claim_id: c_39a91418
+  context: "Inter-rater Reliability: A subset of conversations (approx. 10%) will\
+    \ be rated by multiple annotators. We will calculate Krippendorff's Alpha to ensure\
+    \ agreement is \u2265 0.7."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "We will calculate Krippendorff's Alpha to ensure agreement is \u2265\
+    \ 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T20:04:48Z'

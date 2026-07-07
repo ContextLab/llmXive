@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Output Schema"
+description: "Schema for final statistical output including correlations and regression diagnostics."
+type: "object"
+properties:
+  feature:
+    type: "string"
+    description: "Name of the linguistic feature (e.g., 'pronoun_rate', 'hedge_density', 'valence_score')."
+  correlation_type:
+    type: "string"
+    enum:
+      - "pearson"
+      - "spearman"
+    description: "Type of correlation coefficient computed."
+  coefficient:
+    type: "number"
+    description: "Correlation coefficient value."
+  p_value:
+    type: "number"
+    description: "Unadjusted p-value for the correlation test."
+  adjusted_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  regression_coefficient:
+    type:
+      - "number"
+      - "null"
+    description: "Regression coefficient for this feature (null if not in regression model)."
+  vif:
+    type:
+      - "number"
+      - "null"
+    description: "Variance Inflation Factor (null if not computed)."
+required:
+  - "feature"
+  - "correlation_type"
+  - "coefficient"
+  - "p_value"
+  - "adjusted_p_value"
+  - "ci_lower"
+  - "ci_upper"
+additionalProperties: false
