@@ -1,0 +1,32 @@
+# Ruff configuration for llmXive gut-microbiome project
+# Extends defaults with project-specific rules
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+    "ARG001", # Unused function arguments (often required by abstract base classes or tests)
+]
+
+[lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

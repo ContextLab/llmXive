@@ -1,0 +1,170 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema for Gut Microbiome and Cognitive Flexibility Study
+description: >
+  Defines the expected structure for the Participant and MicrobiomeProfile entities
+  used in the correlation analysis between gut microbiome composition and cognitive flexibility.
+type: object
+properties:
+  Participant:
+    type: object
+    description: Demographic and clinical metadata for each study participant.
+    properties:
+      participant_id:
+        type: string
+        description: Unique identifier for the participant.
+        pattern: "^P[0-9]{5}$"
+      age:
+        type: integer
+        description: Age of the participant in years.
+        minimum: 0
+      sex:
+        type: string
+        description: Biological sex of the participant.
+        enum: ["M", "F"]
+      bmi:
+        type: number
+        description: Body Mass Index (kg/m^2).
+        minimum: 0
+      fiber_intake:
+        type: number
+        description: Daily fiber intake in grams.
+        minimum: 0
+      antibiotic_use:
+        type: boolean
+        description: Whether the participant has used antibiotics in the last 3 months.
+      cognitive_score:
+        type: number
+        description: Standardized cognitive flexibility score (e.g., from Stroop or TMT).
+      shannon_diversity:
+        type: number
+        description: Shannon diversity index calculated from 16S data.
+        minimum: 0
+      required_fields:
+        - participant_id
+        - age
+        - sex
+        - bmi
+        - fiber_intake
+        - antibiotic_use
+    required:
+      - participant_id
+      - age
+      - sex
+      - bmi
+      - fiber_intake
+      - antibiotic_use
+      - cognitive_score
+      - shannon_diversity
+
+  MicrobiomeProfile:
+    type: object
+    description: >
+      Aggregated microbiome composition data for a participant, 
+      typically derived from 16S rRNA sequencing.
+    properties:
+      participant_id:
+        type: string
+        description: Foreign key linking to Participant.
+        pattern: "^P[0-9]{5}$"
+      phylum_counts:
+        type: object
+        description: >
+          Dictionary mapping phylum names to relative abundance (0.0-1.0) or counts.
+          Keys are taxonomic names, values are numeric.
+        additionalProperties:
+          type: number
+          minimum: 0
+      class_counts:
+        type: object
+        description: >
+          Dictionary mapping class names to relative abundance or counts.
+        additionalProperties:
+          type: number
+          minimum: 0
+      order_counts:
+        type: object
+        description: >
+          Dictionary mapping order names to relative abundance or counts.
+        additionalProperties:
+          type: number
+          minimum: 0
+      family_counts:
+        type: object
+        description: >
+          Dictionary mapping family names to relative abundance or counts.
+        additionalProperties:
+          type: number
+          minimum: 0
+      genus_counts:
+        type: object
+        description: >
+          Dictionary mapping genus names to relative abundance or counts.
+        additionalProperties:
+          type: number
+          minimum: 0
+      species_counts:
+        type: object
+        description: >
+          Dictionary mapping species names to relative abundance or counts.
+        additionalProperties:
+          type: number
+          minimum: 0
+      alpha_diversity:
+        type: object
+        description: >
+          Calculated alpha diversity metrics.
+        properties:
+          shannon:
+            type: number
+            minimum: 0
+          simpson:
+            type: number
+            minimum: 0
+          chao1:
+            type: number
+            minimum: 0
+        required:
+          - shannon
+          - simpson
+          - chao1
+      beta_diversity:
+        type: object
+        description: >
+          Placeholder for beta diversity matrix reference or specific distances.
+          In this schema, we store the distance to a reference centroid or similar scalar if needed,
+          but typically beta diversity is a pairwise matrix handled separately.
+          For this entity, we store the Bray-Curtis dissimilarity to the cohort median if applicable.
+        properties:
+          bray_curtis_to_median:
+            type: number
+            minimum: 0
+            maximum: 1
+      required_fields:
+        - participant_id
+        - alpha_diversity
+    required:
+      - participant_id
+      - alpha_diversity
+
+examples:
+  Participant:
+    participant_id: "P00001"
+    age: 68
+    sex: "F"
+    bmi: 24.5
+    fiber_intake: 22.0
+    antibiotic_use: false
+    cognitive_score: 85.2
+    shannon_diversity: 3.45
+  MicrobiomeProfile:
+    participant_id: "P00001"
+    phylum_counts:
+      Firmicutes: 0.45
+      Bacteroidetes: 0.35
+      Actinobacteria: 0.10
+      Proteobacteria: 0.05
+      Others: 0.05
+    alpha_diversity:
+      shannon: 3.45
+      simpson: 0.88
+      chao1: 120.5

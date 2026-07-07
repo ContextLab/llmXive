@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results."
+type: "object"
+properties:
+  test_id:
+    type: "string"
+    description: "Unique identifier for the test run."
+  test_type:
+    type: "string"
+    enum:
+      - "Pearson"
+      - "Spearman"
+      - "LinearRegression"
+      - "PERMANOVA"
+    description: "Type of statistical test performed."
+  metric_name:
+    type: "string"
+    description: "Name of the diversity metric tested (e.g., Shannon)."
+  correlation_coefficient:
+    type: "number"
+    description: "Correlation coefficient (r) or beta coefficient."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg adjusted p-value."
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used in the test."
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., R-squared)."
+required:
+  - "test_id"
+  - "test_type"
+  - "metric_name"
+  - "correlation_coefficient"
+  - "p_value"
+  - "adjusted_p_value"
+  - "confidence_interval_lower"
+  - "confidence_interval_upper"
+  - "sample_size"
+  - "effect_size"
+additionalProperties: false

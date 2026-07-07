@@ -1,0 +1,3 @@
+# This directory is for raw data files.
+# Do not commit large binary data files directly.
+# Use .gitkeep to preserve directory structure in git.

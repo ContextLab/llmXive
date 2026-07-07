@@ -1,0 +1,326 @@
+resolved_at: '2026-07-07T00:34:58.085935+00:00'
+datasets:
+- intent: ONLY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/krinal214/squad_ben_tel_que_only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/krinal214/squad_ben_tel_que_only/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Uselu_Benin-City_2026_2027_Admission_Form/32916530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916532
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_0_7047903330_Nile_University_of_Nigeria_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/545819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20480751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21134918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ruor.uottawa.ca/handle/10393/51806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230170
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Uselu_Benin-City_2026_2027_Admission_Form/32916530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Catalytic_Dehydrogenation_Enhanced_by_Controlling_Platinum_Nanoparticle_Density/32916532
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_0_7047903330_Nile_University_of_Nigeria_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/3779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/2319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/s8zvu/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u36qh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6knfd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/z8gvb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/c3e5bfc0-6d56-40ba-9de3-636a9dc4f56f
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916548
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916545
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916542
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Uselu_Benin-City_2026_2027_Admission_Form/32916530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: QIIME
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Zuma_Memorial_Hospital_Irrua_2026_2027_Admission_Form/32916539
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916551
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916548
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916545
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Influenza_A_Virus_Binding_to_2_3-_and_2_8-Linked_Sialo-Gangliosides_Reconstituted_in_Phase-Separated_Vesicles/32916542
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5071380
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4321396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19686584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/546479
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.hqbzkh1zg
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publikationen.uni-tuebingen.de/xmlui/handle/10900/176016
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/a5410834-1c38-455b-a850-3fb3434d4bb0
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5285/df829b9f-c4c5-4e53-9217-c9c1e5bd078d
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/20923232
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

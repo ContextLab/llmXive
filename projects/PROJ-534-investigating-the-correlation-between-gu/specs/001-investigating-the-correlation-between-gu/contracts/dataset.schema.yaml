@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cohort Dataset Schema"
+description: "Schema for the filtered cohort dataset used in analysis."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    minimum: 65
+    description: "Age of the participant (must be >= 65)."
+  sex:
+    type: "string"
+    enum:
+      - "Male"
+      - "Female"
+      - "Other"
+    description: "Biological sex of the participant."
+  bmi:
+    type: "number"
+    description: "Body Mass Index."
+  dietary_fiber_intake:
+    type: "number"
+    description: "Daily dietary fiber intake in grams."
+  antibiotic_use_history:
+    type: "boolean"
+    description: "Whether the participant has a history of antibiotic use."
+  cognitive_flexibility_score:
+    type: "number"
+    description: "Score from cognitive flexibility assessment."
+  microbiome_sample_id:
+    type: "string"
+    description: "Unique identifier for the microbiome sample."
+  shannon_diversity:
+    type: "number"
+    description: "Shannon diversity index."
+  simpson_diversity:
+    type: "number"
+    description: "Simpson diversity index."
+  chao1:
+    type: "number"
+    description: "Chao1 richness estimator."
+required:
+  - "participant_id"
+  - "age"
+  - "sex"
+  - "bmi"
+  - "dietary_fiber_intake"
+  - "antibiotic_use_history"
+  - "cognitive_flexibility_score"
+  - "microbiome_sample_id"
+  - "shannon_diversity"
+  - "simpson_diversity"
+  - "chao1"
+additionalProperties: false

@@ -1,0 +1,24 @@
+- artifact_path: projects/PROJ-534-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Cohen's d = 0.3 from Smith et al., 2020
+  claim_id: c_7b2d3ace
+  context: Calculation MUST use the observed effect size from T023. For sanity validation,
+    compare against a literature-derived effect size (e.g., Cohen's d = 0.3 from Smith
+    et al., 2020) and log the comparison.
+  evidence:
+    asserted: '0.3'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: For sanity validation, compare against a literature-derived effect size
+    (e.g., Cohen's d = 0.3 from Smith et al., 2020)
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T00:59:36Z'

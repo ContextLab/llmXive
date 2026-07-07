@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 8c2b01e9bb970d75e87bb3b3e9bc208a2b5b458ce0d6db58b4689cf7e4bd3ddd
+  artifact_path: projects/PROJ-534-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-07T00:44:32.170029Z'
