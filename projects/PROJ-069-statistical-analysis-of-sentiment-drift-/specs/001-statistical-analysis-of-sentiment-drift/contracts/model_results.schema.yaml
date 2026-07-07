@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for statistical test outputs (ADF, Granger, VAR)."
+type: "array"
+items:
+  type: "object"
+  properties:
+    test_type:
+      type: "string"
+      enum:
+        - "ADF"
+        - "Granger"
+        - "VAR"
+        - "MBB"
+      description: "Type of statistical test performed."
+    variable_pair:
+      type: "string"
+      description: "Variables being tested (e.g., 'Sentiment->GDP')."
+    statistic:
+      type: "number"
+      description: "Test statistic value."
+    p_value:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "P-value of the test."
+    lag_order:
+      type: "integer"
+      minimum: 0
+      description: "Optimal lag order selected (for VAR/Granger)."
+    stationary:
+      type: "boolean"
+      description: "Whether the series was found to be stationary."
+    transformation:
+      type: "string"
+      description: "Transformation applied (e.g., '1st_diff', 'log', 'none')."
+    confidence_interval:
+      type: "object"
+      properties:
+        lower:
+          type: "number"
+        upper:
+          type: "number"
+      description: "Bootstrap confidence interval (for MBB)."
+  required:
+    - test_type
+    - variable_pair
+    - statistic
+    - p_value
+    - stationary
+additionalProperties: false

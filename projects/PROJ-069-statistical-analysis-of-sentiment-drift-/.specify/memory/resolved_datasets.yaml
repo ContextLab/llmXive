@@ -1,0 +1,468 @@
+resolved_at: '2026-07-07T20:17:03.022710+00:00'
+datasets:
+- intent: FRED
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/freddie-dredd/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 233623
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/freddie-dredd/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/freddyaboulton/callback-test/7ad81131bc8dcbd47ff2f3901821c706b79eafee/data.csv?%2Fdatasets%2Ffreddyaboulton%2Fcallback-test%2Fresolve%2Fmain%2Fdata.csv=&etag=%2290dc408ef3ce2573b3438cbcc430cd607bf059e8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/freddyaboulton/callback-test-2/e1a9ac011531df8006bbf165baf12b56f595f3f4/data.csv?%2Fdatasets%2Ffreddyaboulton%2Fcallback-test-2%2Fresolve%2Fmain%2Fdata.csv=&etag=%22127550244592133f1027165b232b237588b9e310%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/freddyaboulton/callback-test-3/36311030984f9f573ce04a4c510a9ba56bb13967/data.csv?%2Fdatasets%2Ffreddyaboulton%2Fcallback-test-3%2Fresolve%2Fmain%2Fdata.csv=&etag=%22600eb6ca7c10d3c341af158c66eabb1ee42f913a%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Understanding_Processing_Structure_Property_Relationships_in_Spun_Spidroin-Mimetic_Fibers_Using_Molecular_Dynamics_Simulation/32927768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Development_of_a_Regional_Seafloor_Object_Scour_and_Burial_Model_in_Support_of_U_S_Naval_Operations/32924852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_08058556110_For_College_of_Nursing_Sciences_Idi-Aba_Abeokuta_Ogun_2026_2027_Admission_Form_Application_Form_Is_Out_Call_the_Registrar_08058556110_/32927765
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/_Won_t_You_Come_Too_The_Ecofeminist_Promise_of_Wilma_Dykeman_s_i_The_French_Broad_i_/32927417
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Embodied_Heat_Women_Farmworkers_Experiences_of_Heat_Stress_Care_And_Coping_in_Pierson_Florida/32927480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20393882
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6874890
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16561671
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13138686
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4654833
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bq69y/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bgmfw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cudl.colorado.edu/luna/servlet/verify?redirectUrl=https%3A%2F%2Fcudl.colorado.edu%2Fluna%2Fservlet%2Fdetail%2FUCBOULDERCB1~76~76~1102720~260826&helpUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FBrowsing%2Band%2BViewing%2BMedia%23BrowsingandViewingMedia-BrowsingandViewingMedia&showTip=false&showTipAdvancedSearch=false&advancedSearchUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FSearching%23Searching-Searching
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cudl.colorado.edu/luna/servlet/verify?redirectUrl=https%3A%2F%2Fcudl.colorado.edu%2Fluna%2Fservlet%2Fdetail%2FUCBOULDERCB1~76~76~1106649~260826&helpUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FBrowsing%2Band%2BViewing%2BMedia%23BrowsingandViewingMedia-BrowsingandViewingMedia&showTip=false&showTipAdvancedSearch=false&advancedSearchUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FSearching%23Searching-Searching
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cudl.colorado.edu/luna/servlet/verify?redirectUrl=https%3A%2F%2Fcudl.colorado.edu%2Fluna%2Fservlet%2Fdetail%2FUCBOULDERCB1~76~76~1106650~289032&helpUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FBrowsing%2Band%2BViewing%2BMedia%23BrowsingandViewingMedia-BrowsingandViewingMedia&showTip=false&showTipAdvancedSearch=false&advancedSearchUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FSearching%23Searching-Searching
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GDP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gdpval/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lislia/gdpr_train/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 259986
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gdpval/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ginkgo-datapoints/GDPa1/resolve/main/GDPa1_v1.2_20250814.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lislia/GDPR/resolve/main/answers.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/simonchristensen1/GDPR/resolve/main/answers.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lislia/gdpr_train/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlling_Chemical_Dynamics_of_Molecular_Assemblies_through_Nanoconfinement_o_Nitrosocumene_Pd_Nanocage/32927774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Understanding_Processing_Structure_Property_Relationships_in_Spun_Spidroin-Mimetic_Fibers_Using_Molecular_Dynamics_Simulation/32927768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Development_of_a_Regional_Seafloor_Object_Scour_and_Burial_Model_in_Support_of_U_S_Naval_Operations/32924852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_08058556110_For_College_of_Nursing_Sciences_Idi-Aba_Abeokuta_Ogun_2026_2027_Admission_Form_Application_Form_Is_Out_Call_the_Registrar_08058556110_/32927765
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/_Won_t_You_Come_Too_The_Ecofeminist_Promise_of_Wilma_Dykeman_s_i_The_French_Broad_i_/32927417
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19462201
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2581160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14176745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6056349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10598910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249343
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249343
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/dataRequests/PR00007830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kxcb9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cyberleninka.ru/article/n/transformatsiya-ekonomiki-kreativnyh-industriy-pod-vliyaniem-generativnogo-ii
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_08058556110_For_College_of_Nursing_Sciences_Ijebu-Ode_Ogun_State_2026_2027_Admission_Form_Application_Form_Is_Out_Call_the_Registrar_08058556110_/32927771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Self-Polarization_and_Zero-Bias_Piezoelectricity_Driven_by_Giant_Interfacial_Strain_Gradient_in_Lead-Free_BiFeO_sub_3_sub_BaTiO_sub_3_sub_Superlattices/32927776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlling_Chemical_Dynamics_of_Molecular_Assemblies_through_Nanoconfinement_o_Nitrosocumene_Pd_Nanocage/32927774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Understanding_Processing_Structure_Property_Relationships_in_Spun_Spidroin-Mimetic_Fibers_Using_Molecular_Dynamics_Simulation/32927768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Development_of_a_Regional_Seafloor_Object_Scour_and_Burial_Model_in_Support_of_U_S_Naval_Operations/32924852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21220969
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225143
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225143
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20832428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20832428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DOIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong_html/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jasong03/vnanet_doisong_html/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong_html/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jasong03/vnanet_doisong_html/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/doisoft/llama3data/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_08058556110_For_College_of_Nursing_Sciences_Ijebu-Ode_Ogun_State_2026_2027_Admission_Form_Application_Form_Is_Out_Call_the_Registrar_08058556110_/32927771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Self-Polarization_and_Zero-Bias_Piezoelectricity_Driven_by_Giant_Interfacial_Strain_Gradient_in_Lead-Free_BiFeO_sub_3_sub_BaTiO_sub_3_sub_Superlattices/32927776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlling_Chemical_Dynamics_of_Molecular_Assemblies_through_Nanoconfinement_o_Nitrosocumene_Pd_Nanocage/32927774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Understanding_Processing_Structure_Property_Relationships_in_Spun_Spidroin-Mimetic_Fibers_Using_Molecular_Dynamics_Simulation/32927768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Development_of_a_Regional_Seafloor_Object_Scour_and_Burial_Model_in_Support_of_U_S_Naval_Operations/32924852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4234312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6344388
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3597952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4813020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14265600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249537
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249537
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249477
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218413
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218413
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Call_08058556110_For_College_of_Nursing_Sciences_Ijebu-Ode_Ogun_State_2026_2027_Admission_Form_Application_Form_Is_Out_Call_the_Registrar_08058556110_/32927771
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Self-Polarization_and_Zero-Bias_Piezoelectricity_Driven_by_Giant_Interfacial_Strain_Gradient_in_Lead-Free_BiFeO_sub_3_sub_BaTiO_sub_3_sub_Superlattices/32927776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Controlling_Chemical_Dynamics_of_Molecular_Assemblies_through_Nanoconfinement_o_Nitrosocumene_Pd_Nanocage/32927774
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Understanding_Processing_Structure_Property_Relationships_in_Spun_Spidroin-Mimetic_Fibers_Using_Molecular_Dynamics_Simulation/32927768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://appstate.figshare.com/articles/thesis/Development_of_a_Regional_Seafloor_Object_Scour_and_Burial_Model_in_Support_of_U_S_Naval_Operations/32924852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249553
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249553
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

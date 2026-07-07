@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged TimeSeries Schema"
+description: "Schema for the aligned weekly time-series data used in Granger causality analysis."
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "Weekly timestamp (Monday start)."
+  sentiment_positive:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Ratio of positive sentiment predictions."
+  sentiment_negative:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Ratio of negative sentiment predictions."
+  sentiment_neutral:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Ratio of neutral sentiment predictions."
+  gdp_growth_qoq:
+    type: "number"
+    description: "Quarterly GDP growth rate, forward-filled to weekly."
+  unemployment_rate:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Unemployment rate percentage."
+  confidence_score:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Average prediction confidence for the week."
+  sample_size:
+    type: "integer"
+    minimum: 0
+    description: "Number of social media posts in the week."
+  is_low_confidence:
+    type: "boolean"
+    description: "True if sample_size < 100 or confidence_score < 0.7."
+  is_recession:
+    type: "boolean"
+    description: "True if date falls within NBER recession dates."
+required:
+  - date
+  - sentiment_positive
+  - sentiment_negative
+  - sentiment_neutral
+  - gdp_growth_qoq
+  - unemployment_rate
+  - confidence_score
+  - sample_size
+  - is_low_confidence
+  - is_recession
+additionalProperties: false
