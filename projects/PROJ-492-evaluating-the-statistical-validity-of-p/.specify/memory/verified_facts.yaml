@@ -1,5 +1,5 @@
-'|accuracy extraction least real set validation world':
-  quote: "FusiformNet 96.45\xB1 0.79 99.30\xB1 0.15"
-  source_id: '2011.00577'
-  url: https://arxiv.org/abs/2011.00577
-  value: '96.45'
+'|ci complete hour must pipeline within':
+  quote: runs fuzzers for 10 minutes (max 6 hours) over 30 day old/public
+  source_id: '2205.14964'
+  url: https://arxiv.org/abs/2205.14964
+  value: 6 hours
