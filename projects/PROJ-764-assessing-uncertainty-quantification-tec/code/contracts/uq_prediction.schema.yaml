@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: UQ Prediction
+description: Schema for uncertainty quantification predictions output.
+type: object
+required:
+  - sample_id
+  - method
+  - prediction
+  - variance
+  - lower_50
+  - upper_50
+  - lower_90
+  - upper_90
+  - uncertainty_type
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the material sample.
+  method:
+    type: string
+    enum:
+      - deep_ensemble
+      - mc_dropout
+      - sparse_gp
+    description: The UQ method used for prediction.
+  prediction:
+    type: number
+    description: Predicted formation energy (eV/atom).
+  variance:
+    type: number
+    minimum: 0
+    description: Predicted variance of the formation energy.
+  lower_50:
+    type: number
+    description: Lower bound of the 50% confidence interval.
+  upper_50:
+    type: number
+    description: Upper bound of the 50% confidence interval.
+  lower_90:
+    type: number
+    description: Lower bound of the 90% confidence interval.
+  upper_90:
+    type: number
+    description: Upper bound of the 90% confidence interval.
+  uncertainty_type:
+    type: string
+    enum:
+      - aleatoric
+      - epistemic
+      - total
+    description: Type of uncertainty decomposition.
+  aleatoric_variance:
+    type: number
+    minimum: 0
+    description: Aleatoric (data) variance component.
+  epistemic_variance:
+    type: number
+    minimum: 0
+    description: Epistemic (model) variance component.
+  metadata:
+    type: object
+    description: Additional metadata fields.
+    additionalProperties: true

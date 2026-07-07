@@ -1,0 +1,20 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[format]
+line-length = 88
+indent-width = 4
+quote-style = "double"
+skip-magic-trailing-comma = false
+docstring-code-format = true

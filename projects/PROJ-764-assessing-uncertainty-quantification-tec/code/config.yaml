@@ -1,0 +1,40 @@
+# Project Configuration
+seed: 42
+split_ratio: [0.8, 0.1, 0.1]
+split_type: stratified
+timeout_hours: 5.0
+
+# Model Hyperparameters
+baseline:
+  hidden_layers: [64, 64]
+  dropout_rate: 0.0
+  lr: 0.001
+  batch_size: 256
+  epochs: 100
+
+deep_ensemble:
+  n_models: 5
+  hidden_layers: [64, 64]
+  lr: 0.001
+  batch_size: 256
+  epochs: 100
+
+mc_dropout:
+  dropout_rate: 0.2
+  n_stochastic_passes: 30
+  hidden_layers: [64, 64]
+  lr: 0.001
+  batch_size: 256
+  epochs: 100
+
+sparse_gp:
+  n_inducing_points: 50
+  kernel: RBF
+  lr: 0.01
+  epochs: 100
+
+# Evaluation
+confidence_intervals:
+  - 0.5
+  - 0.9
+ece_bins: 15

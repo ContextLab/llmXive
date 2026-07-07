@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: UQPrediction
+type: object
+description: Output of a UQ method for a single sample.
+required:
+  - material_id
+  - method
+  - prediction
+  - variance
+  - lower_50
+  - upper_50
+  - lower_90
+  - upper_90
+  - uncertainty_type
+properties:
+  material_id:
+    type: string
+    description: Reference to MaterialSample.
+  method:
+    type: string
+    enum:
+      - deep_ensemble
+      - mc_dropout
+      - sparse_gp
+    description: Method used for prediction.
+  prediction:
+    type: number
+    description: Point estimate (mean).
+  variance:
+    type: number
+    description: Predictive variance.
+    minimum: 0
+  lower_50:
+    type: number
+    description: Lower bound of 50% CI.
+  upper_50:
+    type: number
+    description: Upper bound of 50% CI.
+  lower_90:
+    type: number
+    description: Lower bound of 90% CI.
+  upper_90:
+    type: number
+    description: Upper bound of 90% CI.
+  uncertainty_type:
+    type: string
+    enum:
+      - aleatoric
+      - epistemic
+      - total
+    description: Type of uncertainty reported.

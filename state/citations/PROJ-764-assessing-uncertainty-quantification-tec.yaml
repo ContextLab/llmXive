@@ -1,4 +1,4 @@
-- artifact_hash: d977abb25018ed31a4bb64c6bdb4c9e9a6b55d40d934eca6ef5bd517fe8c2f3e
+- artifact_hash: 07fa309038c11eeef9f22339823d02a68427e27c942d26de08a772b7d880f84e
   artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,37 @@
   value: https://materialsproject.org/open`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/open
-  verified_at: '2026-07-03T10:32:51.453440Z'
+  verified_at: '2026-07-07T15:40:46.693114Z'
+- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/oqmd/formation-energy`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
+  verified_at: '2026-07-07T15:48:05.533534Z'
+- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/oqmd/formation-energy
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
+  verified_at: '2026-07-07T15:48:05.533534Z'
+- artifact_hash: 6624b6f63911aaaf80a8ccac16ca4777e59da364844d4bdef14e25b918a7172b
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-07T15:48:26.220536Z'

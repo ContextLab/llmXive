@@ -1,0 +1,152 @@
+resolved_at: '2026-07-07T15:41:50.334412+00:00'
+datasets:
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Topotactic_Leap_2D_Layers_to_3D_Large-Pore_Zeolite/32925002
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/High-Flux_Halloysite_Nanotube-Reinforced_PVDF_Membranes_with_Zwitterionic_Coating_for_One-Step_Separation_of_Complex_Oil_Water_Emulsions/32924999
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Toward_Compostable_Packaging_Biodegradable_Polymer_Blends_with_Biobased_Components_for_Household_Chemical_Bottle-Layer_Applications/32924996
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mitochondrial_Redox_Cascade-Directed_Covalent_NIR_Fluorogenic_Imaging_of_Therapy-Induced_Senescence_Integrates_Tumor_and_Host_Responses/32924993
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/3D-printed_foot_orthoses_with_customized_somatosensory_stimulation_knobs_enhance_balance_and_stability_in_older_adults/32924990
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://napier-repository.worktribe.com/output/280470
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.09072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MC-dropout
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NoahSizemore/mc_dropout_weights/resolve/main/qualitative_samples_mc_dropout_l1.npz
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 230378
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/NoahSizemore/mc_dropout_weights/resolve/main/qualitative_samples_mc_dropout_l1.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://rs.figshare.com/articles/journal_contribution/see_file_ESM_Captions_from_Improving_children_s_mental_health_and_educational_outcomes_post-disaster_a_systematic_comparison_of_environmental_human_and_COVID-19_interventions/32925056
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/see_file_ESM_Captions_from_Improving_children_s_mental_health_and_educational_outcomes_post-disaster_a_systematic_comparison_of_environmental_human_and_COVID-19_interventions/32925053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/see_file_ESM_Captions_from_Improving_children_s_mental_health_and_educational_outcomes_post-disaster_a_systematic_comparison_of_environmental_human_and_COVID-19_interventions/32925050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/see_file_ESM_Captions_from_Improving_children_s_mental_health_and_educational_outcomes_post-disaster_a_systematic_comparison_of_environmental_human_and_COVID-19_interventions/32925047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/see_file_ESM_Captions_from_Improving_children_s_mental_health_and_educational_outcomes_post-disaster_a_systematic_comparison_of_environmental_human_and_COVID-19_interventions/32925044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/chapter/10.1007/978-3-031-44207-0_33
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18494073
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19721898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5584981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5584978
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05393
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02864
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217569
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21217569
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21210467
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

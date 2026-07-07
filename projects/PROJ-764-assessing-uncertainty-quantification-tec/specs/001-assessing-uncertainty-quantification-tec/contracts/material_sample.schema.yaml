@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MaterialSample
+type: object
+description: Represents a single inorganic compound from the Materials Project dataset.
+required:
+  - material_id
+  - composition
+  - structural_features
+  - formation_energy
+properties:
+  material_id:
+    type: string
+    description: Unique identifier from Materials Project.
+  composition:
+    type: object
+    description: Element fractions.
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  structural_features:
+    type: object
+    description: Descriptors like packing fraction, radius.
+    additionalProperties:
+      type: number
+  formation_energy:
+    type: number
+    description: Target property 1.
+    minimum: -100
+    maximum: 100
+  bulk_modulus:
+    type: number
+    description: Target property 2.
+    nullable: true
+  band_gap:
+    type: number
+    description: Target property 3.
+    nullable: true
+  is_stable:
+    type: boolean
+    description: Derived stability flag.
+    nullable: true
