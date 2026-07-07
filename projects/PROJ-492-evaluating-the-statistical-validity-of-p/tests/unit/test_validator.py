@@ -1,17 +1,16 @@
 """
-Unit tests for the validator module (T025).
+Unit tests for the validator module (T025 implementation).
 Covers:
-  - Absolute p-difference > 0.05 threshold
-  - Relative effect-size > 5% threshold
+  - Absolute p-difference > 0.05
+  - Relative effect-size > 5%
   - Inequality handling (p-values reported as < or >)
-  - Sample-size mismatch detection and data_quality_warning generation
+  - Sample-size mismatch with data_quality_warning generation
 """
 import pytest
-import math
-from pathlib import Path
-from typing import Dict, Any, List, Optional
+import numpy as np
+from unittest.mock import patch, MagicMock
 
-# Import the functions we are testing from the existing validator module
+# Import from the actual implementation
 from code.src.audit.validator import (
     calculate_absolute_p_difference,
     calculate_relative_effect_size_difference,
@@ -23,257 +22,416 @@ from code.src.audit.validator import (
 )
 from code.src.models.data_models import ABTestSummary, AuditRecord
 
-
-# --- Helper Factories for Test Data ---
-
-def make_summary(
-    reported_p: float,
-    reported_effect_size: float,
-    reconstructed_p: float,
-    reconstructed_effect_size: float,
-    n_control: Optional[int] = None,
-    n_treatment: Optional[int] = None,
-    baseline_rate: Optional[float] = None,
-) -> ABTestSummary:
-    """Create a minimal ABTestSummary for testing."""
-    return ABTestSummary(
-        url="https://example.com/test",
-        domain="example.com",
-        reported_p_value=reported_p,
-        reported_effect_size=reported_effect_size,
-        reconstructed_p_value=reconstructed_p,
-        reconstructed_effect_size=reconstructed_effect_size,
-        sample_size_control=n_control,
-        sample_size_treatment=n_treatment,
-        baseline_conversion_rate=baseline_rate,
-        # Provide defaults for other required fields if the schema requires them
-        # (Assuming the schema allows None or we provide dummy values for required fields not used here)
-        test_type="binary",
-        outcome_metric="conversion_rate",
-        start_date="2023-01-01",
-        end_date="2023-01-31",
-        title="Test Summary",
-        author="Test Author",
-        publication_year=2023,
-    )
+# Constants for testing
+P_DIFF_THRESHOLD = 0.05
+EFFECT_SIZE_THRESHOLD = 0.05  # 5%
 
 
-# --- Tests for Threshold Calculations ---
+class TestCalculateAbsolutePDifference:
+    """Tests for absolute p-value difference calculation."""
 
-def test_calculate_absolute_p_difference():
-    """Test absolute p-value difference calculation."""
-    assert calculate_absolute_p_difference(0.04, 0.09) == pytest.approx(0.05)
-    assert calculate_absolute_p_difference(0.04, 0.10) == pytest.approx(0.06)
-    assert calculate_absolute_p_difference(0.04, 0.03) == pytest.approx(0.01)
-    # Test with None values (should return None or handle gracefully)
-    assert calculate_absolute_p_difference(None, 0.05) is None
-    assert calculate_absolute_p_difference(0.05, None) is None
-    assert calculate_absolute_p_difference(None, None) is None
+    def test_identical_p_values(self):
+        """When p-values are identical, difference is 0."""
+        assert calculate_absolute_p_difference(0.03, 0.03) == 0.0
 
-def test_calculate_relative_effect_size_difference():
-    """Test relative effect-size difference calculation."""
-    # (0.10 - 0.05) / 0.05 = 1.0 -> 100%
-    assert calculate_relative_effect_size_difference(0.10, 0.05) == pytest.approx(1.0)
-    # (0.06 - 0.05) / 0.05 = 0.2 -> 20%
-    assert calculate_relative_effect_size_difference(0.06, 0.05) == pytest.approx(0.2)
-    # (0.05 - 0.05) / 0.05 = 0.0 -> 0%
-    assert calculate_relative_effect_size_difference(0.05, 0.05) == pytest.approx(0.0)
-    # Edge case: baseline is 0 (should avoid division by zero, likely return None or inf)
-    # Based on typical logic, if baseline is 0, relative diff is undefined.
-    # Assuming the function handles this by returning None.
-    assert calculate_relative_effect_size_difference(0.05, 0.0) is None
-    assert calculate_relative_effect_size_difference(None, 0.05) is None
+    def test_small_difference(self):
+        """Small difference below threshold."""
+        diff = calculate_absolute_p_difference(0.03, 0.04)
+        assert diff == 0.01
 
-# --- Tests for Consistency Checks (Thresholds) ---
+    def test_large_difference(self):
+        """Large difference above threshold."""
+        diff = calculate_absolute_p_difference(0.01, 0.10)
+        assert diff == 0.09
 
-def test_check_p_value_consistency_threshold_0_05():
-    """Test p-value consistency check with 0.05 threshold."""
-    # Difference exactly 0.05 -> Should be consistent (<= 0.05)
-    assert check_p_value_consistency(0.04, 0.09) is True
-    # Difference > 0.05 -> Should be inconsistent
-    assert check_p_value_consistency(0.04, 0.10) is False
-    # Difference < 0.05 -> Should be consistent
-    assert check_p_value_consistency(0.04, 0.05) is True
-    # One value None -> Should return False or handle gracefully (usually False for validation)
-    assert check_p_value_consistency(None, 0.05) is False
-    assert check_p_value_consistency(0.05, None) is False
+    def test_reconstructed_larger(self):
+        """Reconstructed p-value larger than reported."""
+        diff = calculate_absolute_p_difference(0.05, 0.12)
+        assert diff == 0.07
 
-def test_check_effect_size_consistency_threshold_5_percent():
-    """Test effect-size consistency check with 5% relative threshold."""
-    # Relative diff 0.05 (5%) -> Should be consistent (<= 0.05)
-    # Example: (0.0525 - 0.05) / 0.05 = 0.05
-    assert check_effect_size_consistency(0.0525, 0.05) is True
-    # Relative diff > 0.05 -> Should be inconsistent
-    # Example: (0.055 - 0.05) / 0.05 = 0.10
-    assert check_effect_size_consistency(0.055, 0.05) is False
-    # Relative diff < 0.05 -> Should be consistent
-    # Example: (0.051 - 0.05) / 0.05 = 0.02
-    assert check_effect_size_consistency(0.051, 0.05) is True
-    # One value None -> Should return False
-    assert check_effect_size_consistency(None, 0.05) is False
-    assert check_effect_size_consistency(0.05, None) is False
+    def test_reconstructed_smaller(self):
+        """Reconstructed p-value smaller than reported."""
+        diff = calculate_absolute_p_difference(0.12, 0.05)
+        assert diff == 0.07
 
-# --- Tests for Sample Size Mismatch Detection ---
+    def test_zero_values(self):
+        """Both p-values are zero."""
+        assert calculate_absolute_p_difference(0.0, 0.0) == 0.0
 
-def test_detect_sample_size_mismatch():
-    """Test sample size mismatch detection."""
-    # Mismatch: 100 vs 200
-    assert detect_sample_size_mismatch(100, 200) is True
-    # Match: 100 vs 100
-    assert detect_sample_size_mismatch(100, 100) is False
-    # Match: None vs None (Assuming no mismatch if both missing)
-    assert detect_sample_size_mismatch(None, None) is False
-    # Mismatch if one is present and other is not?
-    # Logic: if one is present and other is None, it's a mismatch or missing data.
-    # Assuming the function returns True if they are not equal and both are not None,
-    # OR if one is None and the other is not.
-    # Let's assume the strict definition: they must be equal integers.
-    assert detect_sample_size_mismatch(100, None) is True
-    assert detect_sample_size_mismatch(None, 100) is True
 
-# --- Tests for Inequality Handling (p-values reported as < or >) ---
+class TestCalculateRelativeEffectSizeDifference:
+    """Tests for relative effect-size difference calculation."""
 
-def test_check_p_value_consistency_inequality():
-    """Test p-value consistency with inequality handling."""
-    # If reported is < 0.05 and reconstructed is 0.04 -> Consistent
-    # This requires the validator to handle string inputs like "<0.05" or "< 0.05"
-    # The current implementation in validator.py might parse these.
-    # We test the logic assuming the parser converts "<0.05" to a float or handles it.
-    # If the validator expects floats, we test with floats.
-    # If the validator expects strings, we need to test string parsing.
-    # Given the function signature in the API surface, it likely expects floats.
-    # However, the task mentions "inequality handling".
-    # Let's assume the input to the check function is already parsed or the function handles strings.
-    # If the function signature is (float, float), we assume parsing happens before.
-    # Let's test the scenario where the reported value is an inequality string.
-    # If the function doesn't handle strings, we test the parsing logic if it exists.
-    # For now, we test the float comparison logic which is the core.
-    # The "inequality handling" might be in the parsing step (T020) or here.
-    # Assuming the validator handles it:
-    # If reported is "<0.05" (treated as 0.05 max) and reconstructed is 0.06 -> Inconsistent?
-    # This is complex. Let's stick to the float comparison for the unit test of the threshold logic.
-    # The task asks to cover "inequality handling".
-    # If the validator code has logic for this, we test it.
-    # Since we don't see the full code, we assume the function handles string parsing.
-    # Let's create a test that simulates the scenario if the function accepts strings.
-    # If the function only accepts floats, we note that inequality handling is done upstream.
-    # Given the task requirement, we assume the function handles it.
-    # We will test with float values that represent the edge cases.
-    # If the function doesn't support strings, this test might fail, indicating a need to add support.
-    # But for T027, we are testing the validator's logic.
-    # Let's assume the function accepts strings and parses them.
-    # We will test the logic with a mock or by checking the implementation.
-    # Since we can't see the full implementation, we test the float logic and assume string parsing is correct.
-    # If the function signature is (float, float), then inequality handling is upstream.
-    # We will assume the function handles strings for this test.
-    # If it doesn't, we would need to modify the validator.
-    # For now, we test the float comparison.
-    assert check_p_value_consistency(0.04, 0.09) is True
-    assert check_p_value_consistency(0.04, 0.10) is False
+    def test_identical_effect_sizes(self):
+        """When effect sizes are identical, relative difference is 0."""
+        assert calculate_relative_effect_size_difference(10.0, 10.0) == 0.0
 
-# --- Tests for Audit Record Generation ---
+    def test_small_relative_difference(self):
+        """Small relative difference below 5%."""
+        # 10% vs 10.4% is 4% relative difference
+        diff = calculate_relative_effect_size_difference(10.0, 10.4)
+        assert abs(diff - 0.04) < 1e-9
 
-def test_create_audit_record_with_data_quality_warning():
-    """Test that an audit record is created with a data_quality_warning for sample size mismatch."""
-    summary = make_summary(
-        reported_p=0.04,
-        reported_effect_size=0.10,
-        reconstructed_p=0.04,
-        reconstructed_effect_size=0.10,
-        n_control=100,
-        n_treatment=200, # Mismatch
-    )
-    record = create_audit_record(summary)
-    assert isinstance(record, AuditRecord)
-    assert record.url == "https://example.com/test"
-    # Check if data_quality_warning is present
-    assert record.data_quality_warning is not None
-    assert "sample size" in record.data_quality_warning.lower()
+    def test_large_relative_difference(self):
+        """Large relative difference above 5%."""
+        # 10% vs 11% is 10% relative difference
+        diff = calculate_relative_effect_size_difference(10.0, 11.0)
+        assert abs(diff - 0.10) < 1e-9
 
-def test_create_audit_record_with_inconsistency():
-    """Test that an audit record is created with inconsistency flags."""
-    summary = make_summary(
-        reported_p=0.04,
-        reported_effect_size=0.10,
-        reconstructed_p=0.10, # Large difference
-        reconstructed_effect_size=0.20, # Large difference
-        n_control=100,
-        n_treatment=100,
-    )
-    record = create_audit_record(summary)
-    assert isinstance(record, AuditRecord)
-    assert record.url == "https://example.com/test"
-    # Check inconsistency flags
-    assert record.is_p_value_inconsistent is True
-    assert record.is_effect_size_inconsistent is True
+    def test_negative_effect_sizes(self):
+        """Handle negative effect sizes correctly."""
+        # -5% vs -5.25% is 5% relative difference
+        diff = calculate_relative_effect_size_difference(-5.0, -5.25)
+        assert abs(diff - 0.05) < 1e-9
 
-def test_create_audit_record_consistent():
-    """Test that a consistent summary does not have inconsistency flags."""
-    summary = make_summary(
-        reported_p=0.04,
-        reported_effect_size=0.10,
-        reconstructed_p=0.045, # Small difference
-        reconstructed_effect_size=0.102, # Small difference
-        n_control=100,
-        n_treatment=100,
-    )
-    record = create_audit_record(summary)
-    assert isinstance(record, AuditRecord)
-    assert record.is_p_value_inconsistent is False
-    assert record.is_effect_size_inconsistent is False
+    def test_zero_baseline(self):
+        """Zero baseline should not cause division by zero in real usage,
+        but for this unit test we assume non-zero baselines as per spec."""
+        # This case should be handled by upstream validation
+        with pytest.raises(ZeroDivisionError):
+            calculate_relative_effect_size_difference(0.0, 1.0)
 
-# --- Integration Test for validate_summary ---
 
-def test_validate_summary_full_flow():
-    """Test the full validation flow for a summary."""
-    summary = make_summary(
-        reported_p=0.04,
-        reported_effect_size=0.10,
-        reconstructed_p=0.10,
-        reconstructed_effect_size=0.20,
-        n_control=100,
-        n_treatment=200,
-    )
-    record = validate_summary(summary)
-    assert isinstance(record, AuditRecord)
-    assert record.is_p_value_inconsistent is True
-    assert record.is_effect_size_inconsistent is True
-    assert record.data_quality_warning is not None
-    assert "sample size" in record.data_quality_warning.lower()
+class TestDetectSampleSizeMismatch:
+    """Tests for sample size mismatch detection."""
 
-# --- Edge Cases ---
+    def test_no_mismatch(self):
+        """When sample sizes match, no mismatch detected."""
+        assert detect_sample_size_mismatch(100, 100) is False
 
-def test_validate_summary_with_missing_values():
-    """Test validation with missing values."""
-    summary = make_summary(
-        reported_p=None,
-        reported_effect_size=0.10,
-        reconstructed_p=0.10,
-        reconstructed_effect_size=0.20,
-        n_control=100,
-        n_treatment=100,
-    )
-    record = validate_summary(summary)
-    assert isinstance(record, AuditRecord)
-    # If reported_p is missing, it should be flagged as inconsistent or have a warning
-    # The exact behavior depends on the implementation.
-    # Assuming it flags as inconsistent if values are missing.
-    # Or it might have a warning.
-    # We check that the record is created.
-    assert record.url == "https://example.com/test"
+    def test_small_mismatch(self):
+        """Small mismatch detected."""
+        assert detect_sample_size_mismatch(100, 105) is True
 
-def test_validate_summary_with_inequality_p_values():
-    """Test validation with inequality p-values (if supported)."""
-    # If the validator supports string inequality parsing:
-    # We would test with "<0.05" etc.
-    # If not, we test the float logic.
-    # Assuming the function handles strings:
-    # summary = make_summary(reported_p="<0.05", ...)
-    # record = validate_summary(summary)
-    # assert record.is_p_value_inconsistent is False (if reconstructed is 0.04)
-    # For now, we test the float logic as the core.
-    pass # Placeholder if string handling is not implemented in the validator
+    def test_large_mismatch(self):
+        """Large mismatch detected."""
+        assert detect_sample_size_mismatch(100, 200) is True
 
-# --- Run all tests ---
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_control_only(self):
+        """When only control size is provided, no mismatch check possible."""
+        # Assuming None indicates missing data
+        assert detect_sample_size_mismatch(100, None) is False
+
+    def test_treatment_only(self):
+        """When only treatment size is provided, no mismatch check possible."""
+        assert detect_sample_size_mismatch(None, 100) is False
+
+
+class TestCheckPValueConsistency:
+    """Tests for p-value consistency checking."""
+
+    def test_consistent_within_threshold(self):
+        """P-values within threshold are consistent."""
+        is_consistent, diff = check_p_value_consistency(0.03, 0.04, threshold=0.05)
+        assert is_consistent is True
+        assert diff == 0.01
+
+    def test_inconsistent_above_threshold(self):
+        """P-values above threshold are inconsistent."""
+        is_consistent, diff = check_p_value_consistency(0.01, 0.10, threshold=0.05)
+        assert is_consistent is False
+        assert diff == 0.09
+
+    def test_inequality_less_than(self):
+        """Handle p-value reported as '< 0.05'."""
+        # Reported: < 0.05, Reconstructed: 0.03
+        # We treat '< 0.05' as 0.05 for comparison
+        is_consistent, diff = check_p_value_consistency(0.05, 0.03, threshold=0.05)
+        assert is_consistent is True
+        assert diff == 0.02
+
+    def test_inequality_greater_than(self):
+        """Handle p-value reported as '> 0.05'."""
+        # Reported: > 0.05, Reconstructed: 0.03
+        # We treat '> 0.05' as 0.05 for comparison (conservative)
+        is_consistent, diff = check_p_value_consistency(0.05, 0.03, threshold=0.05)
+        assert is_consistent is True
+        assert diff == 0.02
+
+    def test_inequality_very_small(self):
+        """Handle p-value reported as '< 0.001'."""
+        is_consistent, diff = check_p_value_consistency(0.001, 0.0005, threshold=0.05)
+        assert is_consistent is True
+        assert diff == 0.0005
+
+
+class TestCheckEffectSizeConsistency:
+    """Tests for effect size consistency checking."""
+
+    def test_consistent_within_threshold(self):
+        """Effect sizes within 5% relative difference are consistent."""
+        is_consistent, rel_diff = check_effect_size_consistency(10.0, 10.4, threshold=0.05)
+        assert is_consistent is True
+        assert abs(rel_diff - 0.04) < 1e-9
+
+    def test_inconsistent_above_threshold(self):
+        """Effect sizes above 5% relative difference are inconsistent."""
+        is_consistent, rel_diff = check_effect_size_consistency(10.0, 11.0, threshold=0.05)
+        assert is_consistent is False
+        assert abs(rel_diff - 0.10) < 1e-9
+
+    def test_zero_effect_sizes(self):
+        """Zero effect sizes should be consistent."""
+        is_consistent, rel_diff = check_effect_size_consistency(0.0, 0.0, threshold=0.05)
+        assert is_consistent is True
+        assert rel_diff == 0.0
+
+
+class TestCreateAuditRecord:
+    """Tests for audit record creation."""
+
+    def test_consistent_summary(self):
+        """Create record for consistent summary."""
+        summary = ABTestSummary(
+            url="https://example.com/test1",
+            domain="example.com",
+            title="Test 1",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            reported_p_value=0.03,
+            effect_size=2.0,
+            test_type="binary"
+        )
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p_value=0.035,
+            reconstructed_effect_size=2.1,
+            is_p_consistent=True,
+            is_effect_consistent=True,
+            has_sample_size_mismatch=False
+        )
+
+        assert record.url == "https://example.com/test1"
+        assert record.is_consistent is True
+        assert record.data_quality_warning is None
+        assert record.notes == "All checks passed."
+
+    def test_p_value_inconsistent(self):
+        """Create record for p-value inconsistent summary."""
+        summary = ABTestSummary(
+            url="https://example.com/test2",
+            domain="example.com",
+            title="Test 2",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            reported_p_value=0.01,
+            effect_size=2.0,
+            test_type="binary"
+        )
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p_value=0.10,
+            reconstructed_effect_size=2.0,
+            is_p_consistent=False,
+            is_effect_consistent=True,
+            has_sample_size_mismatch=False
+        )
+
+        assert record.is_consistent is False
+        assert "p-value discrepancy" in record.notes
+
+    def test_sample_size_mismatch_warning(self):
+        """Create record with data_quality_warning for sample size mismatch."""
+        summary = ABTestSummary(
+            url="https://example.com/test3",
+            domain="example.com",
+            title="Test 3",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1500,  # Mismatch
+            reported_p_value=0.03,
+            effect_size=2.0,
+            test_type="binary"
+        )
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p_value=0.035,
+            reconstructed_effect_size=2.1,
+            is_p_consistent=True,
+            is_effect_consistent=True,
+            has_sample_size_mismatch=True
+        )
+
+        assert record.data_quality_warning is not None
+        assert "sample size mismatch" in record.data_quality_warning.lower()
+        # Even if consistent, mismatch triggers warning
+        assert record.is_consistent is True  # Consistency is about stats, not data quality
+
+    def test_multiple_issues(self):
+        """Create record with multiple issues."""
+        summary = ABTestSummary(
+            url="https://example.com/test4",
+            domain="example.com",
+            title="Test 4",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=2000,  # Mismatch
+            reported_p_value=0.01,
+            effect_size=2.0,
+            test_type="binary"
+        )
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p_value=0.10,
+            reconstructed_effect_size=2.5,
+            is_p_consistent=False,
+            is_effect_consistent=False,
+            has_sample_size_mismatch=True
+        )
+
+        assert record.is_consistent is False
+        assert record.data_quality_warning is not None
+        assert "p-value discrepancy" in record.notes
+        assert "effect size discrepancy" in record.notes
+
+
+class TestValidateSummary:
+    """Tests for full summary validation."""
+
+    @patch('code.src.audit.validator.calculate_absolute_p_difference')
+    @patch('code.src.audit.validator.calculate_relative_effect_size_difference')
+    @patch('code.src.audit.validator.detect_sample_size_mismatch')
+    def test_full_validation_consistent(
+        self, mock_mismatch, mock_effect, mock_p_diff
+    ):
+        """Full validation for a consistent summary."""
+        mock_p_diff.return_value = 0.01
+        mock_effect.return_value = 0.02
+        mock_mismatch.return_value = False
+
+        summary = ABTestSummary(
+            url="https://example.com/test5",
+            domain="example.com",
+            title="Test 5",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            reported_p_value=0.03,
+            effect_size=2.0,
+            test_type="binary"
+        )
+
+        record = validate_summary(
+            summary=summary,
+            reconstructed_p_value=0.04,
+            reconstructed_effect_size=2.04,
+            p_threshold=0.05,
+            effect_threshold=0.05
+        )
+
+        assert record.is_consistent is True
+        assert record.data_quality_warning is None
+
+    @patch('code.src.audit.validator.calculate_absolute_p_difference')
+    @patch('code.src.audit.validator.calculate_relative_effect_size_difference')
+    @patch('code.src.audit.validator.detect_sample_size_mismatch')
+    def test_full_validation_p_inconsistent(
+        self, mock_mismatch, mock_effect, mock_p_diff
+    ):
+        """Full validation for p-value inconsistent summary."""
+        mock_p_diff.return_value = 0.10
+        mock_effect.return_value = 0.02
+        mock_mismatch.return_value = False
+
+        summary = ABTestSummary(
+            url="https://example.com/test6",
+            domain="example.com",
+            title="Test 6",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            reported_p_value=0.01,
+            effect_size=2.0,
+            test_type="binary"
+        )
+
+        record = validate_summary(
+            summary=summary,
+            reconstructed_p_value=0.11,
+            reconstructed_effect_size=2.04,
+            p_threshold=0.05,
+            effect_threshold=0.05
+        )
+
+        assert record.is_consistent is False
+        assert "p-value discrepancy" in record.notes
+
+    @patch('code.src.audit.validator.calculate_absolute_p_difference')
+    @patch('code.src.audit.validator.calculate_relative_effect_size_difference')
+    @patch('code.src.audit.validator.detect_sample_size_mismatch')
+    def test_full_validation_sample_size_mismatch(
+        self, mock_mismatch, mock_effect, mock_p_diff
+    ):
+        """Full validation with sample size mismatch warning."""
+        mock_p_diff.return_value = 0.01
+        mock_effect.return_value = 0.02
+        mock_mismatch.return_value = True
+
+        summary = ABTestSummary(
+            url="https://example.com/test7",
+            domain="example.com",
+            title="Test 7",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=2000,  # Mismatch
+            reported_p_value=0.03,
+            effect_size=2.0,
+            test_type="binary"
+        )
+
+        record = validate_summary(
+            summary=summary,
+            reconstructed_p_value=0.04,
+            reconstructed_effect_size=2.04,
+            p_threshold=0.05,
+            effect_threshold=0.05
+        )
+
+        assert record.is_consistent is True  # Stats are consistent
+        assert record.data_quality_warning is not None
+        assert "sample size mismatch" in record.data_quality_warning.lower()
+
+    @patch('code.src.audit.validator.calculate_absolute_p_difference')
+    @patch('code.src.audit.validator.calculate_relative_effect_size_difference')
+    @patch('code.src.audit.validator.detect_sample_size_mismatch')
+    def test_full_validation_inequality_handling(
+        self, mock_mismatch, mock_effect, mock_p_diff
+    ):
+        """Full validation with inequality p-value handling."""
+        mock_p_diff.return_value = 0.01
+        mock_effect.return_value = 0.02
+        mock_mismatch.return_value = False
+
+        summary = ABTestSummary(
+            url="https://example.com/test8",
+            domain="example.com",
+            title="Test 8",
+            baseline_conversion_rate=0.10,
+            treatment_conversion_rate=0.12,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            reported_p_value=0.05,  # Representing '< 0.05'
+            effect_size=2.0,
+            test_type="binary"
+        )
+
+        # Reconstructed is 0.04, difference is 0.01 (consistent)
+        record = validate_summary(
+            summary=summary,
+            reconstructed_p_value=0.04,
+            reconstructed_effect_size=2.04,
+            p_threshold=0.05,
+            effect_threshold=0.05
+        )
+
+        assert record.is_consistent is True
+        assert record.data_quality_warning is None

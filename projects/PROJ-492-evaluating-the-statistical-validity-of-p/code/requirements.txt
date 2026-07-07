@@ -12,6 +12,7 @@ ruff
 black
 pre-commit
 pydantic
-matplotlib
-seaborn
-ipykernel
+pytest
+mypy
+act
+docker

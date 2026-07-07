@@ -235,7 +235,7 @@
   \ summaries. (binary AND continuous outcomes) **and verify both outcome types are\
   \ present** (constraint\u2011preservation\u20112958f04c) (verify files are created\
   \ and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
-: 1
+: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_125c2f03 \u2014 status=not_enough_info] (binary\
@@ -249,7 +249,7 @@
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
-: 1
+: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
@@ -297,11 +297,6 @@
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
-? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
-  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
-  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
-  \ T025]."
-: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
