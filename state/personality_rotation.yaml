@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-07-05T09:08:31.098938+00:00'
+last_used: daniel-kahneman
+last_used_at: '2026-07-07T07:18:55.443180+00:00'
 last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-23T14:20:46.460646+00:00'
-  ended_at: '2026-06-23T16:49:31.038178+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/_held/albert-einstein-simulated__2026-06-23__research.md
 - slug: albert-einstein
   started_at: '2026-06-23T16:49:31.038178+00:00'
   ended_at: '2026-06-23T17:37:01.985676+00:00'
@@ -1218,3 +1211,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-421-assessing-the-impact-of-data-resolution-/reviews/research/dan-rockmore-simulated__2026-07-05__research.md
+- slug: daniel-kahneman
+  started_at: '2026-07-05T09:08:31.098938+00:00'
+  ended_at: '2026-07-07T07:18:55.443180+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-534-investigating-the-correlation-between-gu/reviews/research/daniel-kahneman-simulated__2026-07-07__research.md
