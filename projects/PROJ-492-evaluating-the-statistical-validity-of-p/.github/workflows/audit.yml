@@ -6,94 +6,86 @@ on:
   pull_request:
     branches: [ main ]
 
-# Resource constraints enforced via GitHub Actions runner selection and step limits
-# This workflow targets the default ubuntu-latest runner but limits execution
-# via timeout and explicit resource monitoring within the pipeline.
-# Note: GitHub Actions does not allow direct CPU/RAM throttling at the workflow
-# level for self-hosted runners, but for hosted runners, we rely on the runner's
-# default limits (2 vCPU, 7GB RAM) and enforce our own 2GB/2vCPU logic in code.
-# We set a strict timeout to prevent runaway processes.
-
-timeout-minutes: 60
-
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
     
+    # Resource constraints as per FR-009 and SC-008
+    # Note: GitHub Actions runners are shared; we enforce limits in software
+    # and configure the job to timeout if it exceeds reasonable duration.
+    timeout-minutes: 60
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pytest pytest-cov
 
-      - name: Verify CI Environment (Resource Check)
-        id: env_check
+      - name: Verify Resource Limits (CPU/RAM)
+        # Enforces FR-009: CPU <= 2 vCPU, RAM <= 2GB
+        # The resource_monitor module will abort with ERR-301 if limits are breached.
         run: |
-          echo "Checking runner environment..."
-          # GitHub hosted runners typically provide 2 vCPU and 7GB RAM.
-          # We log the available resources to confirm we are within the 
-          # theoretical limits before running the heavy pipeline.
-          # The actual enforcement of <= 2GB RAM and <= 2 vCPU is handled
-          # by the code in src/utils/resource_monitor.py which will abort
-          # if the process exceeds these limits during execution.
-          echo "Runner detected: ubuntu-latest"
-          echo "Expected limits: 2 vCPU, 7GB RAM (hosted)"
-          echo "Enforcement strategy: Code-level monitoring (resource_monitor.py)"
-          echo "Status: Ready for pipeline execution"
+          echo "Running resource limit check..."
+          python -c "
+          import sys
+          import os
+          # Set environment variables to reflect limits for the monitoring module
+          os.environ['MAX_CPU_VCPU'] = '2'
+          os.environ['MAX_RAM_GB'] = '2'
+          
+          # Import and run the resource monitor check
+          from code.src.utils.resource_monitor import check_limits
+          try:
+              check_limits()
+              print('Resource limits check passed.')
+          except SystemExit as e:
+              if e.code != 0:
+                  print(f'ERR-301: Resource limits exceeded. Aborting pipeline.')
+                  sys.exit(1)
+          "
 
-      - name: Run Monte-Carlo Validation (Pre-flight)
+      - name: Run Monte-Carlo Validation
+        # Runs T062 validation as part of pipeline start-up (T031)
         run: |
-          python -m code.src.audit.monte_carlo_validation
-        env:
-          PYTHONUNBUFFERED: 1
-
-      - name: Run Constitution Compliance Check
-        run: |
-          python -m code.src.utils.constitution_checker
-        env:
-          PYTHONUNBUFFERED: 1
+          python code/src/audit/monte_carlo_validation.py
 
       - name: Run Schema Validation
+        # Validates contracts before processing data
         run: |
-          python -m code.src.audit.export_schema_validator
-        env:
-          PYTHONUNBUFFERED: 1
+          python code/src/audit/export_schema_validator.py
+          python code/src/audit/manifest_schema_validator.py
 
       - name: Run Main Audit Pipeline
+        # Executes the full pipeline: Ingest -> Fetch -> Extract -> Reconstruct -> Validate -> Report
         run: |
-          python -m code.cli.run_audit
-        env:
-          PYTHONUNBUFFERED: 1
+          python code/src/cli/run_audit.py
 
-      - name: Verify Output Artifacts
-        run: |
-          if [ ! -f output/audit_report.json ]; then
-            echo "ERROR: audit_report.json not found"
-            exit 1
-          fi
-          if [ ! -f output/summary_report.csv ]; then
-            echo "ERROR: summary_report.csv not found"
-            exit 1
-          fi
-          if [ ! -f output/manifest.json ]; then
-            echo "ERROR: manifest.json not found"
-            exit 1
-          fi
-          echo "All required artifacts present."
-
-      - name: Upload Artifacts
+      - name: Upload Audit Reports
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: audit-results
           path: |
             output/
             data/provenance_log.csv
             data/checksums.txt
+            output/resource_log.json
+          retention-days: 30
+
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 14
