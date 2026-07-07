@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Results Schema
+description: Schema for the JSON output containing statistical results.
+type: object
+properties:
+  analysis_metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      atlas_type:
+        type: string
+      n_subjects:
+        type: integer
+      power_warning:
+        type: boolean
+        description: "True if N < 30."
+      collinearity_warning:
+        type: boolean
+        description: "True if VIF > 5."
+      data_gap_halted:
+        type: boolean
+        description: "True if the pipeline halted due to missing data."
+    required:
+      - timestamp
+      - atlas_type
+      - n_subjects
+      - power_warning
+      - collinearity_warning
+      - data_gap_halted
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - "clustering_coefficient"
+            - "characteristic_path_length"
+        correlation_coefficient:
+          type: number
+        raw_p_value:
+          type: number
+        adjusted_p_value:
+          type: number
+        is_significant:
+          type: boolean
+      required:
+        - metric_name
+        - correlation_coefficient
+        - raw_p_value
+        - adjusted_p_value
+        - is_significant
+    description: "List of results for each topology metric. Empty if data_gap_halted is true."
+required:
+  - analysis_metadata
+  - results
+additionalProperties: false

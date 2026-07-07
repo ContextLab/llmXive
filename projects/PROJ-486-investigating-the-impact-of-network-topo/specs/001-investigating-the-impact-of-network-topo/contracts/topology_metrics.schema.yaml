@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Topology Metrics Schema
+description: Schema for the processed topology metrics CSV file.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  atlas_type:
+    type: string
+    description: "Parcellation atlas used (e.g., Schaefer, AAL)."
+    enum:
+      - "Schaefer"
+      - "AAL"
+      - "Power264"
+  clustering_coefficient:
+    type: number
+    description: "Weighted clustering coefficient for the subject."
+  characteristic_path_length:
+    type: number
+    description: "Characteristic path length for the subject."
+  entrainment_strength:
+    type: number
+    description: "Phase-locking value (PLV) for the subject."
+  vif:
+    type: number
+    description: "Variance Inflation Factor between clustering and path length."
+  is_significant:
+    type: boolean
+    description: "Whether the correlation is significant after Bonferroni correction."
+  adjusted_p_value:
+    type: number
+    description: "Bonferroni-corrected p-value."
+  raw_p_value:
+    type: number
+    description: "Raw p-value before correction."
+  correlation_coefficient:
+    type: number
+    description: "Spearman correlation coefficient (r)."
+required:
+  - subject_id
+  - atlas_type
+  - clustering_coefficient
+  - characteristic_path_length
+  - entrainment_strength
+additionalProperties: false
