@@ -184,5 +184,41 @@
         "intent": "robust 04 TREC 2004 Verified via datasets library datasets.load_dataset \"trec 2004\" Primary source for qrels. If direct URL fails 404 , the loader is"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-07T05:02:57.485164+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Search relevance judgments for 250 topics \u2705 Reachable HTTP 200 Primary dataset permutation tests"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/09/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 09 TREC Track 2009 2012 search relevance judgments \u2705 Reachable HTTP 200 Supplementary dataset for robustness checks"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/10/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 10 TREC Track 2009 2012 search relevance judgments \u2705 Reachable HTTP 200 Supplementary dataset for robustness checks"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/11/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 11 TREC Track 2009 2012 search relevance judgments \u2705 Reachable HTTP 200 Supplementary dataset for robustness checks"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/12/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 12 TREC Track 2009 2012 search relevance judgments \u2705 Reachable HTTP 200 Supplementary dataset for robustness checks"
+      }
+    ]
   }
 ]
