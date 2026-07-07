@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Descriptors Schema"
+description: "Schema for validated molecular electronic structure descriptors"
+type: object
+properties:
+  molecule_id:
+    type: string
+    description: "Unique identifier for the molecule (hash of SMILES)"
+  smiles:
+    type: string
+    description: "Canonical SMILES representation"
+  method:
+    type: string
+    enum:
+      - "DFTB"
+      - "DFT"
+    description: "Computational method used for descriptor generation"
+  homo_energy:
+    type: number
+    description: "HOMO energy in electron-volts (eV)"
+    minimum: -50.0
+    maximum: 50.0
+  lumo_energy:
+    type: number
+    description: "LUMO energy in electron-volts (eV)"
+    minimum: -50.0
+    maximum: 50.0
+  mulliken_charge_sum:
+    type: number
+    description: "Sum of Mulliken charges (should be within ±0.01 of net charge)"
+    minimum: -1.0
+    maximum: 1.0
+  mayer_bond_order:
+    type: number
+    description: "Average Mayer bond order"
+    minimum: 0.0
+    maximum: 10.0
+  calc_time:
+    type: number
+    description: "CPU time in seconds"
+    minimum: 0.0
+  dft_reference_energy:
+    type: number
+    description: "DFT-calculated conformational energy in kcal/mol"
+    minimum: -100.0
+    maximum: 100.0
+required:
+  - molecule_id
+  - smiles
+  - method
+  - homo_energy
+  - lumo_energy
+  - mulliken_charge_sum
+  - mayer_bond_order
+  - calc_time
+additionalProperties: false
