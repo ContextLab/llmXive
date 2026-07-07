@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the output of the statistical modeling pipeline."
+type: "object"
+required:
+  - "model_type"
+  - "fixed_effects"
+  - "permutation_p_value"
+  - "convergence_status"
+  - "vif_flags"
+  - "limitations"
+  - "is_synthetic"
+  - "independent_metric_status"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of statistical model used (e.g., 'LinearMixedLM')."
+    enum:
+      - "LinearMixedLM"
+      - "Bootstrap"
+  fixed_effects:
+    type: "object"
+    description: "Map of predictor names to their statistical results."
+    additionalProperties:
+      type: "object"
+      required:
+        - "beta"
+        - "std_err"
+        - "p_value"
+        - "conf_int"
+      properties:
+        beta:
+          type: "number"
+          description: "Coefficient estimate."
+        std_err:
+          type: "number"
+          description: "Standard error of the estimate."
+        p_value:
+          type: "number"
+          description: "Parametric p-value."
+        conf_int:
+          type: "array"
+          items:
+            type: "number"
+          description: "95% Confidence Interval [lower, upper]."
+  random_effects:
+    type: "object"
+    description: "Variance components for random effects."
+    additionalProperties:
+      type: "number"
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p-value derived from 1,000 permutations."
+  convergence_status:
+    type: "boolean"
+    description: "True if the model converged successfully."
+  vif_flags:
+    type: "object"
+    description: "Variance Inflation Factor for each predictor."
+    additionalProperties:
+      type: "number"
+    description: "If any value > 5, the joint relationship is descriptive only."
+  collinearity_mitigation:
+    type: "string"
+    description: "Method used to handle collinearity (e.g., 'PCA', 'Ridge', 'None', 'Descriptive')."
+    enum:
+      - "PCA"
+      - "Ridge"
+      - "None"
+      - "Descriptive"
+  limitations:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of limitations detected (e.g., 'n < 20', 'Missing PCS scores')."
+    examples:
+      - "Sample size < 20; switched to bootstrapping."
+      - "Cognitive scores missing for dataset; analysis skipped."
+      - "VIF > 5 detected for Global Efficiency; descriptive reporting only."
+      - "Synthetic data used for validation; no scientific hypothesis tested."
+  is_synthetic:
+    type: "boolean"
+    description: "True if the analysis was performed on synthetic data for validation purposes."
+  independent_metric_status:
+    type: "string"
+    description: "Status of independent metric validation (e.g., 'validated', 'missing', 'skipped')."
+    enum:
+      - "validated"
+      - "missing"
+      - "skipped"
+  mode:
+    type: "string"
+    description: "Execution mode of the pipeline."
+    enum:
+      - "scientific_analysis"
+      - "methodology_validation"
