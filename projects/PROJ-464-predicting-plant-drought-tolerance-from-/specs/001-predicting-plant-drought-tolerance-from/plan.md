@@ -1,45 +1,39 @@
 # Implementation Plan: Predicting Plant Drought Tolerance from RSA Data
 
-**Branch**: `001-predict-drought-tolerance` | **Date**: 2024-05-21 | **Spec**: `specs/001-predict-drought-tolerance/spec.md`
+**Branch**: `001-predict-drought-tolerance` | **Date**: 2024-05-21 | **Spec**: [spec.md]
 **Input**: Feature specification from `/specs/001-predict-drought-tolerance/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to predict plant physiological state (stomatal conductance/photosynthesis) from Root System Architecture (RSA) metrics. The approach involves: (1) ingesting and processing root images from the **MGB3 dataset** (verified source) to extract quantitative traits (depth, branching, surface area) via OpenCV/scikit-image; (2) merging these metrics with physiological data from the **TRY database** (verified subset); (3) applying **Linear Mixed Models (LMM)** to account for species non-independence (substituting for PGLS due to lack of verified tree); (4) fitting Ridge/Lasso Regression to predict physiological traits while preserving interpretability; and (5) performing sensitivity analysis and FDR correction. 
+This project implements a CPU-tractable pipeline to predict plant **physiological state** (stomatal conductance and photosynthetic rate) from Root System Architecture (RSA) metrics derived from public images. The approach involves: (1) extracting RSA traits (depth, branching, surface area) from root images using OpenCV/scikit-image; (2) merging these with physiological data from the TRY database; (3) fetching phylogenetic trees via the Open Tree of Life API (with a Phylogenetic Eigenvector Regression fallback) for correction; (4) handling collinearity via PCA and explicit size controls; (5) fitting Multiple Linear Regression (MLR) and Random Forest (RF) models with **Leave-One-Species-Out (LOSO)** cross-validation; and (6) performing sensitivity analysis *only* if an independent tolerance proxy exists. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (limited CPU, limited RAM, within the maximum allowed runtime).
 
-**Critical Note on Spec Gaps**: The project plan identifies several contradictions between the immutable spec text and available data/resources:
-1.  **FR-001/FR-002 (NPPN Images)**: No verified source exists for NPPN raw images. The plan uses MGB3 images to satisfy the *method* of image processing, but FR-001 (NPPN specific) is unfulfillable.
-2.  **FR-007/FR-008 (Classification)**: The spec mandates median-split binarization and Random Forest Classification. This creates circular validation. The plan **does not implement** these steps; it implements only regression. FR-007/FR-008 are flagged as 'Spec Gaps'.
-3.  **FR-010 (PGLS)**: No verified phylogenetic tree exists. The plan substitutes PGLS with LMM (Species as random effect). FR-010 is flagged as 'Spec Gap'.
-4.  **SC-001/SC-005 (Runtime/Success)**: Metrics are redefined for the MGB3 subset, not the NPPN subset.
+**Critical Constraint**: The pipeline will **halt** with a critical error if no real NPPN root images are found in `data/raw/nppn_images/`. Synthetic or mock data is strictly prohibited for the primary analysis to ensure construct validity.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `statsmodels`, `opencv-python-headless`, `scikit-image`, `requests`, `huggingface_hub`, `pytry` (or equivalent for TRY data)
-**Storage**: Local file system (`data/` for raw/derived CSVs/Parquet, `code/` for scripts)
-**Testing**: `pytest` (unit tests for image parsing, integration tests for model pipelines)
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7GB RAM, No GPU)
-**Project Type**: Data Science Pipeline / CLI
-**Performance Goals**: End-to-end processing of up to 1,000 sampled images within 6 hours on CPU; model training < 30 mins.
-**Constraints**: No GPU/CUDA; no large language models; strict memory limit (7GB); dataset sampled if raw size exceeds limits.
-**Scale/Scope**: A representative sample of images (sampled MGB3), A sufficient number of species for statistical analysis (if overlap permits).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Language/Version**: Python 3.10  
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `opencv-python-headless`, `scikit-image`, `matplotlib`, `seaborn`, `pyyaml`, `requests`, `huggingface_hub`, `treelib`, `ete3`, `statsmodels`  
+**Storage**: Local file system (`data/raw/`, `data/derived/`, `results/`)  
+**Testing**: `pytest` (unit and integration tests with synthetic data for format validation only; biological tests require real data)  
+**Target Platform**: Linux (GitHub Actions Free Runner)  
+**Project Type**: Data Science / Research Pipeline  
+**Performance Goals**: Process available real images in ≤6 hours; memory usage <7 GB; all operations CPU-only.  
+**Constraints**: No GPU/CUDA; no large-LLM inference; strict adherence to verified dataset URLs; explicit handling of missing data and collinearity.  
+**Scale/Scope**: Up to 10,000 root images (if available); merged dataset of a moderate number of species.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Status | Implementation Strategy |
+| Principle | Compliance Status | Evidence / Action Plan |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | All scripts in `code/` will pin random seeds (e.g., `np.random.seed(42)`). Dependencies pinned in `requirements.txt`. External data fetched via `huggingface_hub` with specific commit hashes or file names. |
-| **II. Verified Accuracy** | **Compliant** | All dataset URLs in `research.md` are sourced from the verified list. Citations in the final report will be validated against the primary source URLs provided in the spec. |
-| **III. Data Hygiene** | **Compliant** | Raw data (images, original CSVs) stored in `data/raw/` with checksums recorded in `state/`. Derived data (RSA metrics, merged tables) stored in `data/derived/` with no in-place modifications. |
-| **IV. Single Source of Truth** | **Compliant** | All figures and statistics in the final report will be generated programmatically from `data/derived/` and `code/` outputs. No manual data entry. Contracts in `contracts/` will be validated against pipeline outputs. |
-| **V. Versioning Discipline** | **Compliant** | Artifacts will be versioned via content hashes in `state/`. The `updated_at` timestamp will be managed by the Advancement-Evaluator. Stale review records are invalidated via the Advancement-Evaluator agent. |
-| **VI. Image-Based Phenotyping** | **Compliant** | RSA extraction will use `opencv-python-headless` and `scikit-image` with documented parameters. Raw images preserved in `data/raw/` and versioned in `state/projects/` per Principle VI. |
-| **VII. Biological Variation** | **Compliant** | Models will use k-fold cross-validation. and species-stratified splits. **LMM** (Species as random effect) will be applied. **Permutation tests (1000 iterations)** will be applied to derive confidence intervals for performance metrics as required. |
+| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/`; `requirements.txt` pins all versions; external datasets fetched via verified URLs. |
+| **II. Verified Accuracy** | **Pass** | `download_data.py` validates all URLs against a hardcoded whitelist derived from `research.md` before downloading. |
+| **III. Data Hygiene** | **Pass** | Raw data preserved in `data/raw/`; derived data in `data/derived/` with checksums recorded in `state/projects/...yaml` via `update_state.py`. |
+| **IV. Single Source of Truth** | **Pass** | All figures/stats trace to `data/derived/` and `code/`. No hand-typed numbers in reports. |
+| **V. Versioning Discipline** | **Pass** | `update_state.py` calculates SHA-256 hashes of every derived file and updates `state/projects/PROJ-464...yaml` under `artifact_hashes` immediately after write. |
+| **VI. Image-Based Standards** | **Pass** | RSA traits extracted via OpenCV/scikit-image with documented parameters; raw images preserved. |
+| **VII. Biological Variation** | **Pass** | **LOSO** cross-validation (species-level blocking); permutation tests with a sufficient number of iterations for CI; size control included. |
 
 ## Project Structure
 
@@ -52,45 +46,73 @@ specs/001-predict-drought-tolerance/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Generated by subsequent agent (not created here)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-464-predicting-plant-drought-tolerance-from-/
+code/
 ├── data/
-│   ├── raw/             # Downloaded images and raw CSVs (checksummed)
-│   └── derived/         # RSA metrics, merged tables, model inputs
-├── code/
-│   ├── __init__.py
-│   ├── config.py        # Paths, seeds, hyperparameters
-│   ├── download.py      # Fetches from MGB3 and TRY
-│   ├── preprocess.py    # Image analysis (OpenCV) and CSV merging
-│   ├── models.py        # Ridge/Lasso, LMM implementation
-│   ├── analysis.py      # Sensitivity analysis, VIF, correlation
-│   └── main.py          # Entry point for pipeline execution
+│   ├── raw/             # Downloaded images and trait tables (unmodified)
+│   └── derived/         # Processed RSA metrics, merged datasets, PCA outputs
+├── scripts/
+│   ├── download_data.py # Fetches NPPN images (if available) and TRY traits; validates URLs
+│   ├── fetch_phylogeny.py # Fetches tree from Open Tree of Life API; fallback to PVR
+│   ├── extract_rsa.py   # OpenCV/scikit-image image analysis (includes validation logic)
+│   ├── merge_data.py    # Joins RSA and Physio data; handles missing values
+│   ├── analyze_collinearity.py # VIF calculation, PCA, and Size Control
+│   ├── fit_models.py    # MLR, RF, PGLS/PVR, Sensitivity Analysis (conditional)
+│   └── generate_report.py # Figures and summary tables
 ├── tests/
-│   ├── unit/
-│   │   ├── test_image_processing.py
-│   │   └── test_model_fitting.py
-│   └── integration/
-│       └── test_pipeline.py
+│   ├── test_extract_rsa.py
+│   ├── test_merge_data.py
+│   └── test_models.py
 ├── requirements.txt
 └── README.md
+
+data/
+├── raw/
+│   ├── nppn_images/     # Raw root images
+│   └── try_traits/      # Raw trait CSVs
+└── derived/
+    ├── rsametrics.csv
+    ├── merged_data.csv
+    ├── pca_components.csv
+    └── model_results.json
+
+results/
+├── figures/             # Correlation plots, sensitivity curves
+└── reports/             # Final summary report (markdown/pdf)
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Download -> Process -> Model -> Analyze), fitting well within a single Python package structure. `data/` is split into `raw` and `derived` to satisfy Constitution Principle III.
+**Structure Decision**: Single project structure selected. The `code/scripts/` directory contains modular, runnable scripts for each pipeline stage. `data/` is split into `raw` (immutable) and `derived` (transformed). `tests/` mirrors the logic in `scripts/` for unit testing. Note: `tasks.md` is generated by the subsequent agent and is not created here.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+No complexity violations identified. The pipeline is linear and modular, adhering strictly to CPU constraints.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Spec Gap: NPPN Images** | FR-001/FR-002 require NPPN. No verified source exists. | MGB3 is the only verified image source. Plan uses MGB3 to demonstrate the *method* but flags the spec contradiction. |
-| **Spec Gap: PGLS** | FR-010 requires PGLS. No verified tree exists. | LMM (Species random effect) is the only valid alternative without a tree. |
-| **Spec Gap: Classification** | FR-007/FR-008 require median-split classification. | Circular validation makes this scientifically invalid. Plan drops it. |
-| **Spec Gap: Runtime** | SC-005 requires 10k NPPN images. | CI limits (restricted duration, limited storage) make large-scale image datasets impossible. Plan uses a set of MGB3 images.. |
+## Versioning Mechanism
+
+To satisfy Principle V:
+1. Every script that writes to `data/derived/` or `results/` calculates a SHA-256 hash of the output file.
+2. The `update_state.py` script is called after each major step to record these hashes in `state/projects/PROJ-464-predicting-plant-drought-tolerance-from-.yaml` under `artifact_hashes`.
+3. If the hash changes, the `updated_at` timestamp in the state file is updated.
+
+## Verified Accuracy Mechanism
+
+To satisfy Principle II:
+1. `download_data.py` contains a hardcoded list of verified URLs (from `research.md`).
+2. Before downloading, it verifies the URL against this list.
+3. After downloading, it verifies the file checksum against the expected value (if available) or logs a warning.
+4. Any mismatch causes the script to exit with code 1.
+
+## Implementation Task Dependencies (Logical Ordering)
+
+*Note: Task IDs (T001-T038) are managed by the subsequent agent. The following dependencies are enforced in the plan logic:*
+
+- **T001** (Create project structure) creates `data/raw/` and `data/derived/`. **T004** (Create data directories) is removed as it duplicates T001.
+- **T010/T011** (Tests) are written first but executed *after* **T012/T013** (Image extraction code) exist.
+- **T021** (Merge data) depends on **T015** (rsametrics.csv) AND **T020** (download_traits.py).
+- **T029** (Classification logic) depends on **T028** (Regression sensitivity output) to check for the 'N/A' flag.
+- **T014/T016** (Validation logic) are merged into **T013** and **T015** respectively.

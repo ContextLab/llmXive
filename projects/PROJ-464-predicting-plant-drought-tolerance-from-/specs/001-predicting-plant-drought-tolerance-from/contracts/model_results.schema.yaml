@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the JSON output of model fitting and sensitivity analysis."
+type: "object"
+properties:
+  regression:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        enum: ["MLR", "RandomForest"]
+      r_squared:
+        type: "number"
+        description: "R² score from LOSO cross-validation."
+      p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "P-values for each predictor, corrected for multiple comparisons."
+      coefficients:
+        type: "object"
+        description: "Mapping of predictor names to coefficients."
+  classification:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        const: "RandomForest"
+      f1_score:
+        type: "number"
+        description: "F1-score from LOSO cross-validation."
+      accuracy:
+        type: "number"
+        description: "Accuracy from LOSO cross-validation."
+      threshold_sensitivity:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            f1_score:
+              type: "number"
+            accuracy:
+              type: "number"
+        description: "Results of sensitivity analysis sweeping thresholds."
+    description: "Only present if tolerance_proxy exists. Otherwise, set to null."
+  collinearity:
+    type: "object"
+    properties:
+      vif_scores:
+        type: "object"
+        description: "VIF scores for each predictor before PCA."
+      pca_applied:
+        type: "boolean"
+        description: "Whether PCA was applied due to high VIF."
+  phylogeny:
+    type: "object"
+    properties:
+      tree_source:
+        type: "string"
+        description: "Source of the phylogenetic tree (e.g., Open Tree of Life or PVR)."
+      species_count:
+        type: "integer"
+        description: "Number of species in the tree."
+      method:
+        type: "string"
+        enum: ["PGLS", "PVR"]
+        description: "Method used for phylogenetic correction."
+required:
+  - "regression"
+  - "collinearity"
+  - "phylogeny"
+additionalProperties: false

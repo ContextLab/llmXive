@@ -1,69 +1,84 @@
 # Data Model: Predicting Plant Drought Tolerance from RSA Data
 
-## 1. Entity-Relationship Overview
+## Entity Relationship Overview
 
-The data model consists of three primary entities: `RootImage` (from MGB3), `RSAMetrics` (derived), and `PhysioTrait` (from TRY). These are merged into a single analysis table `StudyData`.
+The data model consists of three primary entities: `RootImage`, `RSAMetrics`, and `PhysioTrait`. These are linked via `species` and `image_id`.
 
-### Entities
+```mermaid
+erDiagram
+    RootImage ||--|{ RSAMetrics : "derived_from"
+    RSAMetrics ||--|| PhysioTrait : "linked_by_species"
+    
+    RootImage {
+        string image_id PK
+        string species_name
+        string file_path
+        string status "valid|invalid|missing"
+    }
+    
+    RSAMetrics {
+        string metric_id PK
+        string image_id FK
+        float depth
+        float branching_density
+        float surface_area
+        float total_length
+    }
+    
+    PhysioTrait {
+        string trait_id PK
+        string species_name FK
+        float stomatal_conductance
+        float photosynthesis_rate
+        string stress_condition
+        float tolerance_proxy "Optional: Independent proxy (e.g., survival rate)"
+    }
+```
 
-1.  **RootImage** (Source: MGB3)
-    *   `image_id`: Unique identifier for the image or sample.
-    *   `species_name`: Scientific name of the plant.
-    *   `raw_path`: Path to the raw image file.
+## Schema Definitions
 
-2.  **RSAMetrics** (Derived: Depth, Branching, Surface Area)
-    *   `metric_id`: Unique identifier.
-    *   `image_id`: Foreign key to `RootImage`.
-    *   `depth`: Maximum vertical extent (mm).
-    *   `branching_density`: Number of branches per unit length.
-    *   `surface_area`: Total surface area (mm²).
-    *   `total_length`: Total root length (mm).
+### 1. RootImage (Raw Input)
+- **Source**: Local file system or NPPN (if available).
+- **Format**: PNG/JPG.
+- **Metadata**: `image_id` (derived from filename), `species_name` (parsed from filename or metadata).
 
-3.  **PhysioTrait** (Source: TRY)
-    *   `trait_id`: Unique identifier.
-    *   `species_name`: Scientific name (Foreign key to `RSAMetrics` via species).
-    *   `stomatal_conductance`: Value (mmol m⁻² s⁻¹).
-    *   `photosynthetic_rate`: Value (µmol m⁻² s⁻¹).
-    *   `condition`: "stressed" or "optimal" (if available).
+### 2. RSAMetrics (Derived)
+- **Source**: `extract_rsa.py` output.
+- **Format**: CSV.
+- **Columns**:
+  - `image_id`: Unique identifier (string).
+  - `species_name`: Species name (string).
+  - `depth`: Maximum root depth (mm).
+  - `branching_density`: Number of branches per unit length (branches/mm).
+  - `surface_area`: Estimated root surface area (mm²).
+  - `total_length`: Total root length (mm).
 
-4.  **StudyData** (Merged Analysis Table)
-    *   `sample_id`: Unique identifier for the merged row.
-    *   `species_name`: String.
-    *   `depth`: Float.
-    *   `branching_density`: Float.
-    *   `surface_area`: Float.
-    *   `stomatal_conductance`: Float (Target 1).
-    *   `photosynthetic_rate`: Float (Target 2).
-    *   `drought_class`: **NULL** (Classification step FR-007/FR-008 is dropped).
+### 3. PhysioTrait (External)
+- **Source**: TRY database (`try.csv`).
+- **Format**: CSV.
+- **Columns**:
+  - `species_name`: Species name (string, primary key for joining).
+  - `stomatal_conductance`: Stomatal conductance (mol m⁻² s⁻¹).
+  - `photosynthesis_rate`: Photosynthetic rate (µmol m⁻² s⁻¹).
+  - `stress_condition`: "water_stress" or "optimal" (string).
+  - `tolerance_proxy`: Optional independent measure of drought tolerance (float).
 
-## 2. Data Flow
+### 4. MergedDataset (Analysis Ready)
+- **Source**: `merge_data.py`.
+- **Format**: CSV.
+- **Columns**:
+  - `species_name`: Join key.
+  - `depth`, `branching_density`, `surface_area`: RSA features.
+  - `total_length`: Size control covariate.
+  - `stomatal_conductance`, `photosynthesis_rate`: Targets.
+  - `drought_tolerance_class`: **Optional**. Binary (0/1) derived from `tolerance_proxy` median split. Only present if `tolerance_proxy` exists.
+  - `pca_components`: JSON string or separate columns (PC1, PC2, ...) if PCA applied.
+  - `phylo_eigen_vectors`: **Optional**. Eigenvectors used in PVR if Open Tree of Life API fails.
 
-1.  **Ingestion**: Raw MGB3 images -> `RSAMetrics` table (via OpenCV pipeline).
-2.  **Enrichment**: `RSAMetrics` + `PhysioTrait` (via `species_name`) -> `StudyData`.
-3.  **Preprocessing**:
-    *   Missing values: Listwise deletion or mean imputation (documented).
-    *   Collinearity Check: Calculate VIF. If > 5, apply Ridge/Lasso (or conditional PCA).
-    *   Normalization: Standardize predictors for Ridge/Lasso and LMM.
-4.  **Modeling**: `StudyData` -> `ModelResult` (Ridge/Lasso, LMM).
+## Data Flow
 
-## 3. Schema Definitions
-
-### Input Schema (MGB3 Images)
-- `image_id`: string
-- `species_name`: string
-- `image_path`: string
-
-### Input Schema (TRY CSV)
-- `species_name`: string
-- `stomatal_conductance`: float
-- `photosynthetic_rate`: float
-- `condition`: string (optional)
-
-### Output Schema (Model Results)
-- `model_type`: string ("Ridge", "Lasso", "LMM")
-- `target_variable`: string
-- `r_squared`: float
-- `p_value`: float
-- `coefficients`: dict
-- `vif_scores`: dict
-- `random_effects_variance`: float (for LMM)
+1. **Ingestion**: Raw images -> `data/raw/nppn_images/`.
+2. **Extraction**: Images -> `data/derived/rsametrics.csv`.
+3. **Merge**: `rsametrics.csv` + `try.csv` -> `data/derived/merged_data.csv`.
+4. **Transformation**: `merged_data.csv` -> `data/derived/pca_components.csv` (if collinearity detected).
+5. **Model Input**: `pca_components.csv` or `merged_data.csv` -> Model Training.

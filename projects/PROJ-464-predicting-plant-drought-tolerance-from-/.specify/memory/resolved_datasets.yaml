@@ -1,26 +1,26 @@
-resolved_at: '2026-07-05T14:40:46.194494+00:00'
+resolved_at: '2026-07-06T23:28:55.196701+00:00'
 datasets:
 - intent: NPPN
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Modified_starch-based_carriers_for_bioactive_compound_delivery_advances_in_modification_strategies_release_mechanisms_and_functional_performance/32902830
+  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Does_institutional_quality_moderate_the_adverse_effects_of_CO_sub_2_sub_on_hunger_among_developing_countries_/32902827
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/LPS_Survey/32744313
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Stability_of_the_halophilic_enzyme_d-2-hydroxyacid_dehydrogenase_from_i_H_mediterranei_i_under_different_conditions_and_media/32902821
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_effect_of_post-retrieval_imagery_rescripting_on_the_reinstatement_of_generalised_fear/32902818
+  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -79,64 +79,63 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Modified_starch-based_carriers_for_bioactive_compound_delivery_advances_in_modification_strategies_release_mechanisms_and_functional_performance/32902830
+  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Does_institutional_quality_moderate_the_adverse_effects_of_CO_sub_2_sub_on_hunger_among_developing_countries_/32902827
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/LPS_Survey/32744313
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Stability_of_the_halophilic_enzyme_d-2-hydroxyacid_dehydrogenase_from_i_H_mediterranei_i_under_different_conditions_and_media/32902821
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_effect_of_post-retrieval_imagery_rescripting_on_the_reinstatement_of_generalised_fear/32902818
+  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
     status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20759590
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
+  - url: https://zenodo.org/records/21221705
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21204132
+  - url: https://zenodo.org/records/21221705
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21204132
+  - url: https://zenodo.org/records/21228087
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17071173
+  - url: https://zenodo.org/records/21228087
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17071173
+  - url: https://zenodo.org/records/21227751
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,23 +154,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Modified_starch-based_carriers_for_bioactive_compound_delivery_advances_in_modification_strategies_release_mechanisms_and_functional_performance/32902830
+  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Does_institutional_quality_moderate_the_adverse_effects_of_CO_sub_2_sub_on_hunger_among_developing_countries_/32902827
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/LPS_Survey/32744313
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Stability_of_the_halophilic_enzyme_d-2-hydroxyacid_dehydrogenase_from_i_H_mediterranei_i_under_different_conditions_and_media/32902821
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_effect_of_post-retrieval_imagery_rescripting_on_the_reinstatement_of_generalised_fear/32902818
+  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -195,23 +194,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929536
+  - url: https://zenodo.org/records/21187760
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/hjurz/
+  - url: https://zenodo.org/records/21187760
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/c8jq2/
+  - url: https://osf.io/zjtwx/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21205894
+  - url: https://zenodo.org/records/21089111
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21205894
+  - url: https://zenodo.org/records/21019536
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,23 +255,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://tandf.figshare.com/articles/journal_contribution/Modified_starch-based_carriers_for_bioactive_compound_delivery_advances_in_modification_strategies_release_mechanisms_and_functional_performance/32902830
+  - url: https://figshare.com/articles/figure/Anchor_College_of_Nursing_Science_Asaba_Delta_State_2026_2027_Admission_Form/32916374
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Does_institutional_quality_moderate_the_adverse_effects_of_CO_sub_2_sub_on_hunger_among_developing_countries_/32902827
+  - url: https://figshare.com/articles/poster/_0_7047903330_Crawford_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916377
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/LPS_Survey/32744313
+  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Stability_of_the_halophilic_enzyme_d-2-hydroxyacid_dehydrogenase_from_i_H_mediterranei_i_under_different_conditions_and_media/32902821
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_effect_of_post-retrieval_imagery_rescripting_on_the_reinstatement_of_generalised_fear/32902818
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -288,31 +287,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5788732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7354564
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7354572
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/159459
+  - url: https://osf.io/9uj2h/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/77217
+  - url: https://osf.io/ycjz3/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/932787
+  - url: https://osf.io/keq72/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unitn.it/handle/11572/242958
+  - url: https://osf.io/wpcze/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/uv7zh/
+  - url: https://osf.io/t3nwe/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -320,23 +319,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Modified_starch-based_carriers_for_bioactive_compound_delivery_advances_in_modification_strategies_release_mechanisms_and_functional_performance/32902830
+  - url: https://figshare.com/articles/figure/Anchor_College_of_Nursing_Science_Asaba_Delta_State_2026_2027_Admission_Form/32916374
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Does_institutional_quality_moderate_the_adverse_effects_of_CO_sub_2_sub_on_hunger_among_developing_countries_/32902827
+  - url: https://figshare.com/articles/poster/_0_7047903330_Crawford_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916377
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/LPS_Survey/32744313
+  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Stability_of_the_halophilic_enzyme_d-2-hydroxyacid_dehydrogenase_from_i_H_mediterranei_i_under_different_conditions_and_media/32902821
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Investigating_the_effect_of_post-retrieval_imagery_rescripting_on_the_reinstatement_of_generalised_fear/32902818
+  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -348,16 +347,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14290885
+  - url: https://zenodo.org/records/10942573
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10942573
+  - url: https://zenodo.org/records/14290885
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://datadryad.org/dataset/doi:10.5061/dryad.08c4c
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.7d7wm387k
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20466302
@@ -373,10 +376,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://rs.figshare.com/articles/journal_contribution/Information_on_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881479/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/dataset/Full_statistical_outputs_for_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881473/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

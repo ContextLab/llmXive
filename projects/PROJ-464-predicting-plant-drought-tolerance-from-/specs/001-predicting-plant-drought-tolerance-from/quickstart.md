@@ -2,61 +2,82 @@
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.10+
 - Git
-- Access to the project repository
+- Access to a Linux environment (GitHub Actions runner or local Linux VM).
+- **Real NPPN Root Images**: Place root images in `data/raw/nppn_images/`. The pipeline will fail if this directory is empty.
 
 ## Installation
 
-1.  **Clone and Setup Environment**
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-464-predicting-plant-drought-tolerance-from-/
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-464-predicting-plant-drought-tolerance-from-/code
+   ```
 
-2.  **Verify Dependencies**
-    ```bash
-    python -c "import cv2, sklearn, statsmodels; print('Dependencies OK')"
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Data Preparation
+
+### Option A: Using Verified Datasets (Recommended)
+The pipeline will automatically download the TRY traits and the RSA benchmark dataset (for unit tests only) if raw images are missing.
+
+1. **Run the download script**:
+   ```bash
+   python scripts/download_data.py
+   ```
+   *Note: This script checks for raw images. If none are found, it downloads the `RSA (Parquet)` and `TRY` datasets to `data/raw/` for format validation, but the main pipeline will halt if no real images are present.*
+
+### Option B: Using Local Images
+1. Place root images in `data/raw/nppn_images/`.
+2. Ensure filenames follow the pattern: `{species_name}_{id}.png`.
+3. Run the download script (it will skip downloading if images exist).
 
 ## Running the Pipeline
 
-The pipeline is executed via the `main.py` entry point.
+Execute the full pipeline in sequence:
 
-### Step 1: Data Download (MGB3 & TRY)
-The script fetches MGB3 images and TRY data.
 ```bash
-python code/download.py
+# 0. Fetch Phylogeny (Mandatory, with PVR fallback)
+python scripts/fetch_phylogeny.py
+
+# 1. Extract RSA metrics
+python scripts/extract_rsa.py
+
+# 2. Merge data
+python scripts/merge_data.py
+
+# 3. Analyze collinearity & run PCA
+python scripts/analyze_collinearity.py
+
+# 4. Fit models & run sensitivity analysis (if proxy exists)
+python scripts/fit_models.py
+
+# 5. Generate report
+python scripts/generate_report.py
 ```
-*Output*: `data/raw/mgb3_images/`, `data/raw/try_data.csv`
 
-### Step 2: Preprocessing & Merging
-This step processes images (OpenCV) to generate RSA metrics and merges with physiological data.
-```bash
-python code/preprocess.py
-```
-*Output*: `data/derived/study_data.csv`
+## Verification
 
-### Step 3: Model Training & Analysis
-This step runs Ridge/Lasso and LMM, followed by sensitivity analysis.
-**Note**: Classification (FR-007/FR-008) is skipped due to circular validation.
-```bash
-python code/main.py
-```
-*Output*: `data/derived/model_results.json`, `figures/correlation_matrix.png`, `figures/sensitivity_plot.png`
+To verify the pipeline on a small scale (format validation only):
 
-## Validation
-
-Run the test suite to ensure the pipeline is reproducible:
 ```bash
 pytest tests/ -v
 ```
 
-## Troubleshooting
+This runs unit tests on image extraction (using a mock image) and data merging logic. **Note:** These tests do not validate biological predictions.
 
-- **Memory Error**: If the dataset is too large, reduce the sample size in `code/config.py` (e.g., `MAX_SAMPLES = 1000`).
-- **Missing Species**: If species names do not match between datasets, check the `species_name` column for formatting differences.
-- **Underpowered Study**: If N < 30, the pipeline will halt and report "Underpowered".
+## Output
+
+- **Results**: `results/reports/summary_report.md`
+- **Figures**: `results/figures/`
+- **Data**: `data/derived/merged_data.csv`, `data/derived/model_results.json`

@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-464-predicting-plant-drought-tolerance-from-
-last_run_id: c9783635-8d96-4346-952f-781143401e91
+last_run_id: 7b0d1443-097e-49a4-8dfc-f406f5b9ac3e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from
 title: Predicting Plant Drought Tolerance from Publicly Available Root System Architecture
   Data
-updated_at: '2026-07-05T15:20:21.083897Z'
+updated_at: '2026-07-07T00:17:54.547178Z'

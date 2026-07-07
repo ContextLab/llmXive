@@ -20,18 +20,26 @@ properties:
     type: number
     description: "Total root surface area in square millimeters"
     minimum: 0
+  total_length:
+    type: number
+    description: "Total root length in millimeters (Size Control)"
+    minimum: 0
   stomatal_conductance:
     type: number
     description: "Stomatal conductance in mmol m-2 s-1"
   photosynthetic_rate:
     type: number
     description: "Photosynthetic rate in umol m-2 s-1"
+  tolerance_proxy:
+    type: number
+    description: "Optional independent tolerance proxy (e.g., survival rate)"
 required:
   - sample_id
   - species_name
   - depth
   - branching_density
   - surface_area
+  - total_length
   - stomatal_conductance
   - photosynthetic_rate
 additionalProperties: false

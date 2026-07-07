@@ -1,64 +1,69 @@
 # Research: Predicting Plant Drought Tolerance from RSA Data
 
-## 1. Dataset Strategy
+## Dataset Strategy
 
-The project relies on the following verified datasets. Note that the NPPN and PGLS sources lack verified URLs in the current context; the plan addresses this by using available proxies or noting the gap.
+This project relies on two primary data sources: root images for RSA extraction and trait databases for physiological validation.
 
-| Dataset Name | Source URL (Verified) | Format | Usage in Plan |
-| :--- | :--- | :--- | :--- |
-| **RSA Images (MGB3)** | `https://huggingface.co/datasets/rsalshalan/MGB3` | Images/Parquet | **Primary Source for Image Processing.** Used to run the CPU-optimized image analysis pipeline (FR-002) to extract RSA traits. **Not** a pre-computed proxy; the pipeline will process images to generate metrics. |
-| **Physiological Traits (TRY)** | `https://huggingface.co/datasets/met/Meti_try` (Verified Subset) | CSV | Source for stomatal conductance and photosynthetic rate data. **Data Quality Warning:** Species overlap with MGB3 must be verified. If overlap < 30, study is underpowered. |
-| **Phylogenetic Tree** | **NO verified source found** | N/A | **Gap:** PGLS requires a specific tree. No verified source exists for the specific species overlap. **Resolution:** PGLS is dropped. **LMM (Linear Mixed Model)** with 'Species' as a random effect will be used instead. |
+| Dataset | Description | Verified Source URL | Usage |
+|:--- |:--- |:--- |:--- |
+| **NPPN (Root Images)** | Root System Architecture images for trait extraction. | **NO verified source found** (Per prompt instructions, no URL cited). | **Critical**: If no real images are found in `data/raw/`, the pipeline halts. No synthetic data is used for primary analysis. |
+| **RSA (Parquet)** | Pre-extracted RSA metrics (benchmark). | ` | Used **only** for unit testing pipeline format compatibility. Not used for biological analysis. |
+| **TRY (Traits)** | Physiological traits (stomatal conductance, photosynthesis) for species. | ` | Primary source for `PhysioTrait` (gs, A) to correlate with RSA. |
+| **TRY (Alternative)** | Additional TRY data or test sets. | ` | Fallback if primary TRY URL fails or for specific test subsets. |
+| **PGLS (Phylogeny)** | Phylogenetic trees for species correction. | **Open Tree of Life API** (`) | **Mandatory**: Script `fetch_phylogeny.py` uses `requests` to fetch a supertree. Fallback: Phylogenetic Eigenvector Regression (PVR) using taxonomic hierarchy if API fails. |
 
 ### Dataset Fit Analysis
-- **RSA Metrics**: The MGB3 dataset provides raw root images. The plan implements the full image processing pipeline (OpenCV/scikit-image) to extract depth, branching, and surface area. This satisfies the *method* of FR-002, though the *data source* (MGB3 vs NPPN) differs.
-- **Physiological Traits**: The `met/Meti_try` dataset contains the required variables.
-- **Overlap**: The plan must verify that species in the MGB3 dataset match those in the TRY dataset. If overlap is < 30 species, the analysis will be underpowered (see Statistical Rigor).
-- **Growth Condition Validation**: MGB3 images must be checked for growth conditions. If they are from optimal conditions only, the study will be explicitly framed as "Association under Optimal Conditions" and the "drought tolerance" hypothesis will be flagged as unverified.
+- **Variable Availability**: The TRY dataset (`try.csv`) is expected to contain `species`, `stomatal_conductance`, and `photosynthesis_rate`. If specific stress conditions are missing, the plan will filter for "water_stress" flags or default to general physiological rates with a "limitation" disclaimer.
+- **NPPN Gap**: Since no verified URL exists for NPPN raw images, the pipeline **must** halt if no local images are provided. The research question cannot be answered with simulated data.
+- **PGLS Strategy**: The Open Tree of Life API will be queried for the species in the merged dataset. If a tree cannot be constructed for >80% of species, the pipeline will use a **Phylogenetic Eigenvector Regression (PVR)** approach, deriving a distance matrix from taxonomic hierarchy (Genus/Family) as a proxy for phylogeny, satisfying the "equivalent correction" requirement of FR-010.
 
-## 2. Statistical Rigor & Methodology
+## Methodology & Statistical Rigor
 
-### Hypothesis Testing & Correction
-- **Multiple Comparisons**: The plan tests multiple RSA traits against multiple physiological outcomes.
-  - **Method**: **Benjamini-Hochberg (FDR)** correction will be applied. Bonferroni is deemed overly conservative for small, correlated biological datasets and risks Type II errors.
-  - **Reporting**: Adjusted p-values (q-values) will be reported alongside raw p-values.
+### 1. Data Ingestion & Cleaning (FR-001, FR-002)
+- **Image Processing**: Use `opencv-python-headless` and `scikit-image` for thresholding and skeletonization to extract depth, branching density, and surface area.
+- **Missing Data**: Listwise deletion for species missing in either RSA or TRY datasets. If sample size drops <30, the study will report a "power limitation" warning.
+- **Data Gap Protocol**: If `data/raw/nppn_images/` is empty, the pipeline exits with `Error: No real root images found. Primary analysis cannot proceed.`
 
-### Sample Size & Power (Stopping Rule)
-- **Limitation**: The project relies on the intersection of available RSA and TRY data.
-- **Stopping Rule**: If the merged dataset contains **N < 30 species**, the study will **halt** at the descriptive correlation phase. No predictive modeling (R², LMM) will be performed, and the report will explicitly state the study is "Underpowered". This defines a minimum viable sample size.
+### 2. Collinearity & Size Control (FR-006, FR-010)
+- **Size Control**: Include `total_root_length` as a covariate in all models to distinguish architectural effects from allometric size effects.
+- **VIF Check**: Calculate Variance Inflation Factor (VIF) for all RSA predictors.
+- **PCA**: If VIF > 5 for any predictor, apply PCA to the RSA features (after controlling for size). The resulting principal components (PCs) will be used as inputs for regression to ensure orthogonality.
+- **Reporting**: The report will explicitly state which variables were collinear and how they were transformed.
 
-### Causal Inference & Framing
-- **Observational Nature**: The data is observational. No randomization exists.
-- **Framing**: All results will be framed as "associational". Claims of "causation" or "forecasting" will be avoided. "Prediction" refers strictly to cross-validated statistical association (R²), not out-of-sample temporal forecasting.
+### 3. Statistical Modeling (FR-003, FR-004, FR-009)
+- **Primary Target**: "Physiological State" (stomatal conductance/photosynthesis). **Not** "Drought Tolerance" unless an independent proxy is found.
+- **Regression**:
+ - **Model 1**: Multiple Linear Regression (MLR) with PCA-transformed RSA features + Size Control predicting stomatal conductance.
+ - **Model 2**: Random Forest Regression (RFR) for non-linear relationships (Exploratory only).
+ - **Validation**: **Leave-One-Species-Out (LOSO)** cross-validation. Metric: $R^2$. *Note: 5-fold CV is insufficient for N<100 and risks species leakage.*
+ - **Correction**: Bonferroni correction applied to p-values if multiple hypotheses are tested.
+- **Causal Framing**: All results will be framed as "associational." No causal claims ("causes," "leads to") will be made.
+- **Phylogeny**: PGLS will be implemented using the tree fetched from the Open Tree of Life API. If the tree is incomplete, PVR (using taxonomic hierarchy) will be used as an equivalent correction.
 
-### Measurement Validity & Collinearity
-- **Collinearity**: RSA traits (e.g., depth and total length) are often definitionally related.
-  - **Method**: Variance Inflation Factor (VIF) will be calculated for all predictors.
-  - **Strategy**:
-    1.  **Primary**: Use **Ridge/Lasso Regression** to handle collinearity while preserving feature interpretability (addressing concern on PCA interpretability).
-    2.  **Secondary (Conditional)**: If VIF > 5 and Ridge/Lasso is insufficient, apply **PCA** *only if* components explain >80% of variance and are interpretable (Kaiser rule). Otherwise, report collinearity as a limitation.
-- **Instrument Validity**: Stomatal conductance and photosynthetic rate are standard physiological metrics.
+### 4. Classification & Sensitivity (FR-005, FR-007, FR-008)
+- **Conditional**: Classification is **only** performed if an independent tolerance proxy (e.g., survival rate, biomass loss) is found in the data.
+- **Binarization**: If a proxy exists, the continuous metric is binarized using the median value as the threshold.
+- **Classification**: Random Forest Classifier to predict the binary class. Metric: F1-score.
+- **Sensitivity Analysis**: Sweep the classification threshold by ±0.05 (and ±0.1). Plot F1-score, Accuracy, and AUC against the threshold.
+- **N/A Case**: If no independent proxy exists, the classification section is marked "N/A" with a justification that the research question is framed as "Physiological State Prediction" (Regression).
 
-### Phylogenetic Correction (PGLS vs LMM)
-- **Requirement**: FR-010 mandates PGLS.
-- **Resolution**: **PGLS is dropped** due to lack of verified phylogenetic tree.
-- **Implementation**: **Linear Mixed Model (LMM)** with 'Species' as a random effect will be used to account for species non-independence. This is statistically valid without a specific tree topology.
+## Compute Feasibility
 
-## 3. Compute Feasibility (CPU-Only)
+- **Hardware**: GitHub Actions Free Tier (CPU, ample RAM).
+- **Strategy**:
+ - **Image Processing**: Process images in batches to stay under 7 GB RAM.
+ - **Modeling**: Use `scikit-learn` with `n_jobs=2`. Limit `RandomForest` to `n_estimators=100` and `max_depth=10` to prevent overfitting and ensure speed.
+ - **Data Size**: If the dataset exceeds ~500MB, sampling will be applied to ensure runtime < 6 hours.
+ - **No GPU**: All libraries (`torch`, `tensorflow`, `bitsandbytes`) are excluded. `opencv-python-headless` is used to avoid GUI dependencies.
+ - **Phylogeny**: `requests` and `treelib`/`ete3` are CPU-tractable.
 
-- **Image Processing**: MGB3 images will be processed using `opencv-python-headless` and `scikit-image`. Batching will ensure < 7GB RAM usage.
-- **Modeling**: `scikit-learn` (Ridge/Lasso) and `statsmodels` (LMM) are CPU-native.
-- **Memory**: Data will be loaded in chunks or sampled if the full dataset exceeds 7GB. The target is a merged dataset of < 1,000 rows (sampled MGB3).
-- **Runtime**: The pipeline is designed to complete within 6 hours. The 10k image runtime (SC-005) is unattainable; the plan measures runtime on a [deferred] image subset.
-
-## 4. Decision Log
+## Decision Log
 
 | Decision | Rationale |
-| :--- | :--- |
-| **Use MGB3 for Image Processing** | NPPN raw images have no verified URL. MGB3 is the only verified source. The plan processes MGB3 images to satisfy the *method* of FR-002. |
-| **Drop Classification (FR-007/FR-008)** | Median-split binarization creates circular validation. The plan implements only regression. |
-| **Drop PGLS (FR-010)** | No verified tree exists. LMM (Species random effect) is the valid substitute. |
-| **Use FDR over Bonferroni** | More appropriate for small, correlated biological datasets to avoid Type II errors. |
-| **Prioritize Ridge/Lasso over PCA** | Preserves biological interpretability of RSA traits. PCA only used conditionally. |
-| **Stopping Rule (N < 30)** | Ensures statistical power. If N < 30, no predictive modeling is performed. |
-| **Growth Condition Validation** | Essential to frame the "drought" hypothesis correctly. If conditions are optimal, the hypothesis is unverified. |
+|:--- |:--- |
+| **LOSO CV over 5-fold** | N=30-100 is too small for 5-fold. LOSO maximizes data usage and respects species non-independence. |
+| **Median split removed** | Median splits on the target variable create circular validation. Classification is only valid with an independent proxy. |
+| **Open Tree of Life API + PVR Fallback** | Static tree files are unreliable. Fetching via API ensures the most up-to-date phylogeny. PVR fallback ensures FR-010 is met even if API fails. |
+| **Halt on missing images** | Using synthetic data invalidates the biological hypothesis. The pipeline must fail gracefully rather than produce false positives. |
+| **Size Control** | RSA traits are definitionally correlated with plant size. Controlling for size ensures the signal is architectural, not allometric. |
+| **Reframed Research Question** | "Drought Tolerance" is a capacity; "Physiological State" is an instantaneous measure. The study predicts state unless a capacity proxy is found. |

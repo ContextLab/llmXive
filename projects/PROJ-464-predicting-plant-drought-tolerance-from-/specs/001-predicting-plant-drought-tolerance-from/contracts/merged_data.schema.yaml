@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the merged dataset containing RSA metrics and physiological traits."
+type: "object"
+properties:
+  species_name:
+    type: "string"
+    description: "Species name used as the primary key for joining."
+  depth:
+    type: "number"
+    description: "Maximum root depth in mm."
+  branching_density:
+    type: "number"
+    description: "Number of branches per unit length (branches/mm)."
+  surface_area:
+    type: "number"
+    description: "Estimated root surface area in mm²."
+  total_length:
+    type: "number"
+    description: "Total root length in mm (Size Control)."
+  stomatal_conductance:
+    type: "number"
+    description: "Stomatal conductance in mol m⁻² s⁻¹."
+  photosynthesis_rate:
+    type: "number"
+    description: "Photosynthetic rate in µmol m⁻² s⁻¹."
+  tolerance_proxy:
+    type: ["number", "null"]
+    description: "Optional independent tolerance proxy. If null, classification is N/A."
+  drought_tolerance_class:
+    type: ["integer", "null"]
+    description: "Binary class (0=Low, 1=High) derived from tolerance_proxy median split. Only present if tolerance_proxy exists."
+  pca_pc1:
+    type: "number"
+    description: "First principal component from PCA on RSA traits."
+  pca_pc2:
+    type: "number"
+    description: "Second principal component from PCA on RSA traits."
+  phylo_eigen_vectors:
+    type: ["array", "null"]
+    description: "Eigenvectors used in PVR if Open Tree of Life API fails."
+required:
+  - "species_name"
+  - "depth"
+  - "branching_density"
+  - "surface_area"
+  - "total_length"
+  - "stomatal_conductance"
+  - "photosynthesis_rate"
+additionalProperties: false
