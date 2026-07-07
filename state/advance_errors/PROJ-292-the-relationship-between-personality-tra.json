@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-292-the-relationship-between-personality-tra",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'https://huggingface.co/datasets/ayazosha/toxic_AI_generated/resolve/main/df_final' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-07T08:36:16.806032+00:00",
+  "count": 1
+}

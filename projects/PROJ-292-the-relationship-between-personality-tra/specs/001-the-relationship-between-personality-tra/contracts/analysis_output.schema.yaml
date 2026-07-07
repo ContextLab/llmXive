@@ -1,0 +1,110 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results (stats.json). Note: Data is synthetic for pipeline validation."
+type: "object"
+required:
+  - "metadata"
+  - "correlations"
+  - "regressions"
+  - "sensitivity_analysis"
+properties:
+  metadata:
+    type: "object"
+    required:
+      - "sample_size"
+      - "n_tests"
+      - "fdr_method"
+      - "data_source_type"
+    properties:
+      sample_size:
+        type: "integer"
+        description: "Total number of participants after cleaning"
+      n_tests:
+        type: "integer"
+        description: "Total number of hypothesis tests performed (expected 15)"
+      fdr_method:
+        type: "string"
+        description: "Method used for multiple comparison correction (e.g., 'benjamini-hochberg')"
+      data_source_type:
+        type: "string"
+        description: "Type of data used (e.g., 'synthetic', 'real', 'mixed')"
+  correlations:
+    type: "array"
+    description: "List of correlation results for each trait-outcome pair"
+    items:
+      type: "object"
+      required:
+        - "trait"
+        - "outcome"
+        - "r"
+        - "p_value"
+      properties:
+        trait:
+          type: "string"
+          description: "Name of the personality trait"
+        outcome:
+          type: "string"
+          description: "Name of the outcome variable"
+        r:
+          type: "number"
+          description: "Pearson correlation coefficient"
+        p_value:
+          type: "number"
+          description: "Unadjusted p-value"
+        p_value_adjusted:
+          type: "number"
+          description: "Benjamini-Hochberg adjusted p-value"
+        significant:
+          type: "boolean"
+          description: "Whether the result is significant at alpha=0.05 after correction"
+  regressions:
+    type: "array"
+    description: "List of regression model results"
+    items:
+      type: "object"
+      required:
+        - "outcome"
+        - "r_squared"
+        - "coefficients"
+      properties:
+        outcome:
+          type: "string"
+          description: "Dependent variable name"
+        r_squared:
+          type: "number"
+          description: "R-squared value of the model"
+        coefficients:
+          type: "array"
+          description: "Coefficients for each predictor, including interaction terms"
+          items:
+            type: "object"
+            properties:
+              predictor:
+                type: "string"
+              coef:
+                type: "number"
+              p_value:
+                type: "number"
+  sensitivity_analysis:
+    type: "object"
+    description: "Significance status at different alpha levels"
+    required:
+      - "alpha_0.01"
+      - "alpha_0.05"
+      - "alpha_0.10"
+    properties:
+      alpha_0.01:
+        type: "object"
+        additionalProperties:
+          type: "boolean"
+          description: "True if significant at alpha=0.01"
+      alpha_0.05:
+        type: "object"
+        additionalProperties:
+          type: "boolean"
+          description: "True if significant at alpha=0.05"
+      alpha_0.10:
+        type: "object"
+        additionalProperties:
+          type: "boolean"
+          description: "True if significant at alpha=0.10"
