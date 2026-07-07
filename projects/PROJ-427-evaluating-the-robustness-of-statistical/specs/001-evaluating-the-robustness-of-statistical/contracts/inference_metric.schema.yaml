@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Inference Metric Schema"
+description: "Schema for statistical test results and robustness metrics."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Identifier of the dataset used."
+  test_type:
+    type: "string"
+    enum:
+      - "t-test"
+      - "anova"
+      - "chi-squared"
+      - "linear_regression"
+    description: "Type of statistical test performed."
+  error_type:
+    type: "string"
+    enum:
+      - "replacement"
+      - "misclassification"
+      - "mcar"
+      - "none"
+    description: "Type of error injected (or 'none' for clean data)."
+  error_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Rate of error injection."
+  p_value:
+    type: "number"
+    description: "P-value from the statistical test."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  effect_size:
+    type: "number"
+    description: "Estimated effect size (e.g., Cohen's d, regression coefficient)."
+  type_i_error:
+    type: "boolean"
+    description: "True if the null hypothesis was rejected when it was true."
+  ci_coverage:
+    type: "boolean"
+    description: "True if the confidence interval contains the true parameter."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+required:
+  - "dataset_id"
+  - "test_type"
+  - "error_type"
+  - "error_rate"
+  - "p_value"
+  - "ci_lower"
+  - "ci_upper"
+  - "effect_size"
+  - "type_i_error"
+  - "ci_coverage"
+  - "seed"

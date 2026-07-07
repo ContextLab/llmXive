@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ErrorInjectionConfigSchema"
+description: "Schema for error injection parameters"
+type: object
+properties:
+  injection_id:
+    type: string
+    description: "Unique ID for this injection run"
+  dataset_id:
+    type: string
+    description: "Reference to the raw dataset"
+  error_type:
+    type: string
+    enum:
+      - replacement
+      - misclassification
+      - mcar
+  error_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+ description: "Percentage of data to corrupt (e.g., 0.05 for [deferred])"
+  seed:
+    type: integer
+    description: "Random seed for reproducibility"
+  target_columns:
+    type: array
+    items:
+      type: string
+    description: "List of columns to apply error to (optional: all)"
+  derived_file_path:
+    type: string
+    description: "Output path for the corrupted dataset"
+required:
+  - injection_id
+  - dataset_id
+  - error_type
+  - error_rate
+  - seed
+  - derived_file_path

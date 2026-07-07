@@ -1,0 +1,287 @@
+resolved_at: '2026-07-07T22:11:16.807626+00:00'
+datasets:
+- intent: MCAR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 80470
+      parsed: true
+  - url: https://huggingface.co/datasets/mcarthuradal/arm-unicef/resolve/main/aug_full_features/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mcarthuradal/ghana/resolve/main/ghana_images.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcarthuradal/arm-unicef/resolve/main/aug_full_features/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcarthuradal/ghana/resolve/main/ghana_images.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/mcarmi/testing_dpr/7eb47fff0ed0bf7704f401c2c37aaf64ea1d6b07/myfile.json?%2Fdatasets%2Fmcarmi%2Ftesting_dpr%2Fresolve%2Fmain%2Fmyfile.json=&etag=%2225fa2727129fd28d4e035b95845343d7b4e0213c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/mcarbmont89/hr-seed-dataset/resolve/main/seed.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/_0_7047903330_Ritman_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/PcAuxNG/32928041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Benin-City_Edo_State_Post-UTME_Form_Diploma_Form_Notice_of_2026_2027_Academic_Session_Admissions_call_09036153255_/32928194
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Summit_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figure_6/32048223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13126896
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/233046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7828031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233523
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233523
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21233523
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2505.08721
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Mountain_Top_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928200
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_0_7047903330_Ritman_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/PcAuxNG/32928041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Benin-City_Edo_State_Post-UTME_Form_Diploma_Form_Notice_of_2026_2027_Academic_Session_Admissions_call_09036153255_/32928194
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Summit_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wgfdz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Mountain_Top_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928200
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_0_7047903330_Ritman_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928197
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/PcAuxNG/32928041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/College_of_Nursing_Sciences_Benin-City_Edo_State_Post-UTME_Form_Diploma_Form_Notice_of_2026_2027_Academic_Session_Admissions_call_09036153255_/32928194
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_0_7047903330_Summit_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications/32928188
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7627577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2gu37/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21243013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21243013
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.08446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2306.14851
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
