@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Input Schema"
+description: "Schema for the input CSV file containing image paths and fracture toughness values."
+type: object
+properties:
+  image_path:
+    type: string
+    description: "Relative or absolute path to the image file."
+  k_ic:
+    type: number
+    description: "Fracture toughness value in MPa√m."
+  alloy_family:
+    type: string
+    enum:
+      - "steel"
+      - "al"
+      - "ti"
+    description: "Alloy family classification."
+required:
+  - image_path
+  - k_ic
+  - alloy_family
+additionalProperties: false

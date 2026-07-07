@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Attribution Stability Schema"
+description: "Schema for InputXGrad stability results."
+type: object
+properties:
+  image_id:
+    type: string
+    description: "Identifier of the test image."
+  heatmap_paths:
+    type: array
+    items:
+      type: string
+    description: "List of paths to generated heatmap images."
+  iou_scores:
+    type: array
+    items:
+      type: number
+    description: "IoU scores between augmented views."
+  mean_iou:
+    type: number
+    description: "Average IoU score across augmentations."
+  stability_threshold_met:
+    type: boolean
+    description: "Whether the mean IoU meets the stability threshold."
+required:
+  - image_id
+  - heatmap_paths
+  - iou_scores
+  - mean_iou
+  - stability_threshold_met
+additionalProperties: false

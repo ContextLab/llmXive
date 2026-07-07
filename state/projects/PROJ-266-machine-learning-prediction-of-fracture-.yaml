@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:39:24.090851Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-266-machine-learning-prediction-of-fracture-
-last_run_id: 805b0de7-513c-4875-a3d6-08c5fbb3a1ab
+last_run_id: a8909941-c9ce-4d46-a045-7b024bcad9a7
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture
 title: Machine Learning Prediction of Fracture Toughness from Microstructure Images
-updated_at: '2026-06-28T14:38:35.235620Z'
+updated_at: '2026-07-07T12:21:59.870901Z'

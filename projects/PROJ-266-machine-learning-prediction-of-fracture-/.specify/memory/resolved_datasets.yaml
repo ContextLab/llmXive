@@ -1,0 +1,302 @@
+resolved_at: '2026-07-07T11:44:21.647993+00:00'
+datasets:
+- intent: SEM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tylerrouwhorst/SEMrush-videos/resolve/main/SEMrush_videos.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38547
+      parsed: true
+  - url: https://huggingface.co/datasets/MortenTabaka/LandCover-Aerial-Imagery-for-semantic-segmentation/resolve/main/landcover.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pentagoniac/SemiKong_Training_Datset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/tylerrouwhorst/SEMrush-videos/resolve/main/SEMrush_videos.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/MortenTabaka/LandCover-Aerial-Imagery-for-semantic-segmentation/resolve/main/landcover.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/pentagoniac/SemiKong_Training_Datset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lemon07r/bartowski-imatrix-v5-semantic/resolve/main/bartowski-imatrix-v5-semantic.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ox-ox/lace-semantic-compression/resolve/main/tasks.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Identifying_dominant_factors_of_domestic_thermal_demand_response_using_local_sensitivity_analysis_of_multiple_flexibility_metrics/28672451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_Datasets_for_the_Study_of_Cervical_Mobility/32922959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Premium_Volcanic_Water_Glass_Bottle_750ML_with_Kelzai/32922992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Choosing_a_Protection-Trained_German_Shepherd_Buyer_s_Handbook/32922986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_Assessment_of_Key_Landscape_Metrics_for_Small_Waterbodies_2001_2021_/31867681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15090126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/andp.19083311004
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/3669480
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18246886
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/andp.19083321412
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://unige.iris.cineca.it/handle/11567/932787
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150124
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150125
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TEM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/TempoFunk/webvid-10M/resolve/main/data/train/partitions/0000.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-1.67M-temp/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/TempoFunk/webvid-10M/resolve/main/data/train/partitions/0000.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/adalberto-temp/gsm8k-test-portuguese/5d3d1b8bfd11d9319b863b6de68c0d40295f4bc1/gsm8k_test_portuguese_final.json?%2Fdatasets%2Fadalberto-temp%2Fgsm8k-test-portuguese%2Fresolve%2Fmain%2Fgsm8k_test_portuguese_final.json=&etag=%22d62ba65882c8052dc69e6aff34c103dd137572ff%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-1.67M-temp/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f182afd/fa2a7b610966a8f44f93006c28ea6634c8f2aecf8dfeee202a4538fbb03cde15?X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train_data.txt%3B+filename%3D%22train_data.txt%22%3B&user_id=public&Expires=1783428190&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgyYWZkL2ZhMmE3YjYxMDk2NmE4ZjQ0ZjkzMDA2YzI4ZWE2NjM0YzhmMmFlY2Y4ZGZlZWUyMDJhNDUzOGZiYjAzY2RlMTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0cmFpbl9kYXRhLnR4dCUzQitmaWxlbmFtZSUzRCUyMnRyYWluX2RhdGEudHh0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MjgxOTB9fX1dfQ__&Signature=MEQCIBVAADZnH1NQNWdeq~6vh6liaGqiZrJsUskdvOFPdev3AiBnDQevkQY3VPjIDgQUh-3iI0TVkyOM616OZsLCMbWmAg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Identifying_dominant_factors_of_domestic_thermal_demand_response_using_local_sensitivity_analysis_of_multiple_flexibility_metrics/28672451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_Datasets_for_the_Study_of_Cervical_Mobility/32922959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Premium_Volcanic_Water_Glass_Bottle_750ML_with_Kelzai/32922992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Choosing_a_Protection-Trained_German_Shepherd_Buyer_s_Handbook/32922986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_Assessment_of_Key_Landscape_Metrics_for_Small_Waterbodies_2001_2021_/31867681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7712219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/004285b0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11111719
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6806876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/10271736/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1142528
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238475
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Expression_of_IMD-CBM_peptide_induces_the_autophagic_degradation_of_CAV1_caveolin_1_to_inhibit_LDL_transcytosis_and_retard_diabetic_atherosclerosis/31333880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Expression_of_IMD-CBM_peptide_induces_the_autophagic_degradation_of_CAV1_caveolin_1_to_inhibit_LDL_transcytosis_and_retard_diabetic_atherosclerosis/31333880/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/1.0.0/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/cestwc/cnn_dailymail-metaeval100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/cestwc/cnn_dailymail-snippets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/abisee/cnn_dailymail/resolve/main/1.0.0/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cestwc/cnn_dailymail-metaeval100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cestwc/cnn_dailymail-snippets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cestwc/cnn_dailymail-test50/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Identifying_dominant_factors_of_domestic_thermal_demand_response_using_local_sensitivity_analysis_of_multiple_flexibility_metrics/28672451
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Anonymized_Datasets_for_the_Study_of_Cervical_Mobility/32922959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Premium_Volcanic_Water_Glass_Bottle_750ML_with_Kelzai/32922992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Complete_Guide_to_Choosing_a_Protection-Trained_German_Shepherd_Buyer_s_Handbook/32922986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_Assessment_of_Key_Landscape_Metrics_for_Small_Waterbodies_2001_2021_/31867681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5909114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4048647
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7033859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20508671
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17335521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238861
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238861
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/south-africa-crop-comp
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

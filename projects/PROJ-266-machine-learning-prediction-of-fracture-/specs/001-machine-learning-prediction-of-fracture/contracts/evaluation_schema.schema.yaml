@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Results Schema"
+description: "Schema for the JSON output containing model performance metrics."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the training run."
+  model_type:
+    type: string
+    enum:
+      - "CNN"
+      - "LinearRegression"
+      - "RandomForest"
+    description: "Type of model evaluated."
+  seed:
+    type: integer
+    description: "Random seed used for this run."
+  r_squared:
+    type: number
+    description: "Coefficient of determination."
+  mae:
+    type: number
+    description: "Mean Absolute Error."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  alloy_family_metrics:
+    type: object
+    description: "Metrics broken down by alloy family."
+    additionalProperties:
+      type: object
+      properties:
+        r2:
+          type: number
+        mae:
+          type: number
+      required:
+        - r2
+        - mae
+  permutation_statistic:
+    type: number
+    description: "Permutation test statistic (if applicable)."
+  permutation_p_value:
+    type: number
+    description: "Permutation test p-value (if applicable)."
+required:
+  - run_id
+  - model_type
+  - seed
+  - r_squared
+  - mae
+  - rmse
+additionalProperties: false
