@@ -31,6 +31,16 @@
   *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!--
   ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
 : 1
+? 'T003 {{claim:c_ef1634da}} ({{claim:c_8fd76726}}, https://www.wikidata.org/wiki/Q19873191)
+  *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested -->'
+: 1
+? 'T003 {{claim:c_ef1634da}} ({{claim:c_8fd76726}}, https://www.wikidata.org/wiki/Q19873191)
+  *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!--
+  ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
 ? "T009 Set up structured logging infrastructure in `src/utils/logger.py` with error\u2011\
   code format `ERR-###` [UNRESOLVED-CLAIM: c_a556a205 \u2014 status=not_enough_info]\
   \ (verify logs contain correct codes)."
