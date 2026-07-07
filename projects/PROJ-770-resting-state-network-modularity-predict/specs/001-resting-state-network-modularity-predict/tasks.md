@@ -61,8 +61,8 @@
  ^) -->
 - [X] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
 - [X] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path)
-- [ ] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
-- [ ] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
+- [X] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
+- [X] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
