@@ -124,7 +124,9 @@ tests/
 ### Phase 4: Comparative Reporting
 1.  **Cross-Benchmark Comparison (FR-011)**: Explicitly compare results between HumanEval and MBPP datasets.
 2.  **Cross-Model Comparison (FR-013)**: Explicitly compare results between StarCoder and CodeGen models.
-3.  **Visualization**: Generate boxplots (LLM vs. Human) and bar charts (Top 5 CWEs) (FR-008).
+3.  **Visualization**: Generate boxplots (LLM vs. Human) and bar charts (Top CWEs
+
+The research question remains: What are the most prevalent software weaknesses? The method involves analyzing vulnerability databases to identify frequent patterns. References include [Citation].) (FR-008).
 4.  **Report Generation**: Create `results/summary.md` containing key statistics, FPR sensitivity metrics, and limitations.
 
 ## Complexity Tracking

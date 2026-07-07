@@ -1,0 +1,25 @@
+# Bandit configuration for vulnerability scanning
+# Excludes known false positives and focuses on high-impact security issues
+exclude_dirs:
+  - __pycache__
+  - .git
+  - .venv
+  - venv
+  - build
+  - dist
+
+skips:
+  - B101  # assert_used (common in tests)
+  - B104  # hard_bind_ip (not applicable to this context)
+  - B311  # random (acceptable for non-crypto usage in benchmarks)
+  - B506  # yaml_load (controlled input in pipeline)
+  - B603  # subprocess_no_shell (used safely in pipeline)
+  - B607  # subprocess_start (used safely in pipeline)
+
+# Focus on high severity issues
+severity:
+  - high
+  - medium
+confidence:
+  - high
+  - medium
