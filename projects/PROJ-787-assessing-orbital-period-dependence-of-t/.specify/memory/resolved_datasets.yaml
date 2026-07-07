@@ -1,0 +1,249 @@
+resolved_at: '2026-07-07T16:16:31.054620+00:00'
+datasets:
+- intent: DR25
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Constructing_characteristic_signals_of_head_acceleration_events_in_stock_car_racing/32925302
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16907928
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14221205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19445100
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6547193
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1488237
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.02778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/tf4bw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20557165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GMM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/euiyulsong/preprocess_gmm_ner/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/euiyulsong/preprocess_gmm_random_200k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/euiyulsong/ai2context_ner_gmm_30k_random_5k_.1std/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 160700
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/euiyulsong/preprocess_gmm_ner/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/euiyulsong/preprocess_gmm_random_200k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/euiyulsong/ai2context_ner_gmm_30k_random_5k_.1std/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/euiyulsong/ner_filtered_generated_data_gmm/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/euiyulsong/filtered_generated_data_gmm/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Acalabrutinib_monotherapy_as_a_first-line_treatment_for_CLL_3_years_follow-up_of_the_real-world_EPIC_study_/32877140
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7023930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7712937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5114013
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1012627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20229535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1197324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.indores.fr/dataset.xhtml?persistentId=doi:10.48579/PRO/YMNL2O
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.indores.fr/dataset.xhtml?persistentId=doi:10.48579/PRO/0UUSE1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.25431/11380_709055
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://osf.io/657ew/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Acalabrutinib_monotherapy_as_a_first-line_treatment_for_CLL_3_years_follow-up_of_the_real-world_EPIC_study_/32877140
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.15167/tigano-danilo_phd2018-04-20
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''iris.unige.it'',
+      port=443): Max retries exceeded with url: /handle/11567/929442 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''iris.unige.it'',
+      port=443) at 0x7ff8eea9f050>, ''Connection to iris.unige.it timed out. (connect
+      timeout=20.0)''))'
+  - url: https://napier-repository.worktribe.com/output/280470
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.09072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

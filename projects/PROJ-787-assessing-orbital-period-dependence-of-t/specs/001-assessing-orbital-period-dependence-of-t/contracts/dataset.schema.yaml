@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Kepler Filtered Planet Dataset"
+description: "Schema for the filtered Kepler DR25 dataset used in the analysis."
+type: object
+properties:
+  planet_id:
+    type: string
+    description: "Unique identifier for the planet."
+  radius:
+    type: number
+    description: "Planet radius in Earth radii."
+  radius_uncertainty:
+    type: number
+    description: "Uncertainty in planet radius."
+  period:
+    type: number
+    description: "Orbital period in days."
+  period_uncertainty:
+    type: number
+    description: "Uncertainty in orbital period."
+  stellar_radius:
+    type: number
+    description: "Stellar radius in solar radii."
+  stellar_mass:
+    type: number
+    description: "Stellar mass in solar masses."
+  stellar_temp:
+    type: number
+    description: "Stellar effective temperature in Kelvin."
+required:
+  - planet_id
+  - radius
+  - radius_uncertainty
+  - period
+  - period_uncertainty
+  - stellar_radius
+  - stellar_mass
+  - stellar_temp
+additionalProperties: false

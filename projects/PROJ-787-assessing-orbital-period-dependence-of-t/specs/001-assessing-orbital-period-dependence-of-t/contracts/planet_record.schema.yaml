@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PlanetRecord
+description: Schema for a single exoplanet observation record.
+type: object
+properties:
+  planet_id:
+    type: string
+    description: "Kepler object identifier (e.g., 'Kepler-10b')."
+  radius:
+    type: number
+    description: "Planet radius in Earth radii."
+  radius_uncertainty:
+    type: number
+    description: "Uncertainty in planet radius."
+  period:
+    type: number
+    description: "Orbital period in days."
+  period_uncertainty:
+    type: number
+    description: "Uncertainty in orbital period."
+  stellar_radius:
+    type: number
+    description: "Stellar radius in Solar radii."
+  stellar_mass:
+    type: number
+    description: "Stellar mass in Solar masses."
+  stellar_temp:
+    type: number
+    description: "Stellar effective temperature in Kelvin."
+  confirmed:
+    type: boolean
+    description: "Whether the planet is confirmed."
+  completeness_weight:
+    type: number
+    description: "Inverse probability weight from completeness map. Defaults to 1.0 if data unavailable."
+    default: 1.0
+  log_period:
+    type: number
+    description: "Log10 of the orbital period."
+required:
+  - planet_id
+  - radius
+  - radius_uncertainty
+  - period
+  - period_uncertainty
+  - stellar_radius
+  - stellar_mass
+  - stellar_temp
+  - confirmed
+  - log_period
+additionalProperties: false

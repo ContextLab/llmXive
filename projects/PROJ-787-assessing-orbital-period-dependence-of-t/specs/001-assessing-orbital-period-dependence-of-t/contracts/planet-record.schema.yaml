@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PlanetRecord
+description: Schema for a single filtered exoplanet record from Kepler DR25/KIC.
+type: object
+required:
+  - planet_id
+  - radius
+  - radius_uncertainty
+  - period
+  - period_uncertainty
+  - stellar_radius
+  - stellar_mass
+  - stellar_temp
+  - log_period
+  - log_period_uncertainty
+  - completeness_weight
+  - confirmed
+properties:
+  planet_id:
+    type: string
+    description: "Unique Kepler ID (e.g., Kepler-1234.01)"
+  radius:
+    type: number
+    description: "Planet radius in Earth radii (R_earth)"
+    minimum: 0
+  radius_uncertainty:
+    type: number
+    description: "Uncertainty in radius (R_earth)"
+    minimum: 0
+  period:
+    type: number
+    description: "Orbital period in days"
+    minimum: 0
+  period_uncertainty:
+    type: number
+    description: "Uncertainty in period (days)"
+    minimum: 0
+  stellar_radius:
+    type: number
+    description: "Stellar radius in Solar radii (R_sun)"
+    minimum: 0
+  stellar_mass:
+    type: number
+    description: "Stellar mass in Solar masses (M_sun)"
+    minimum: 0
+  stellar_temp:
+    type: number
+    description: "Stellar effective temperature in Kelvin"
+    minimum: 1000
+  log_period:
+    type: number
+    description: "Log10 of the orbital period"
+  log_period_uncertainty:
+    type: number
+    description: "Uncertainty in log10(period)"
+  completeness_weight:
+    type: number
+    description: "Weight derived from detection efficiency model"
+    minimum: 0
+  confirmed:
+    type: boolean
+    description: "Whether the planet is confirmed"
+additionalProperties: false
