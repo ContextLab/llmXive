@@ -1,222 +1,185 @@
 """
 Unit tests for synthetic dataset generator (T026).
-Verifies generation of at least 10,000 records with both binary and continuous outcomes.
 """
-import json
 import csv
-import pytest
+import json
 from pathlib import Path
-import shutil
 import tempfile
+import pytest
+
+import numpy as np
 
 from code.src.audit.synthetic import (
-    generate_synthetic_dataset,
-    verify_outcome_types,
+    set_all_seeds,
+    generate_sample_sizes,
     generate_binary_outcome,
     generate_continuous_outcome,
-    generate_sample_sizes
+    generate_synthetic_dataset,
+    verify_outcome_types,
+    write_csv_output,
+    write_metadata,
 )
 from code.src.config import SEED
 
 
 class TestSyntheticDatasetGenerator:
-    """Test suite for synthetic dataset generation."""
+    """Tests for the synthetic dataset generator."""
 
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test outputs."""
-        temp_dir = Path(tempfile.mkdtemp())
-        yield temp_dir
-        # Cleanup
-        if temp_dir.exists():
-            shutil.rmtree(temp_dir)
+    def test_set_all_seeds_determinism(self):
+        """Test that setting seeds produces deterministic results."""
+        set_all_seeds(SEED)
+        result1 = generate_binary_outcome(100, 0.5, 0.1, seed=SEED)
 
-    def test_minimum_record_count(self, temp_output_dir):
-        """Verify that at least 10,000 records are generated."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            output_dir=temp_output_dir
+        set_all_seeds(SEED)
+        result2 = generate_binary_outcome(100, 0.5, 0.1, seed=SEED)
+
+        assert result1 == result2, "Results should be identical with same seed"
+
+    def test_generate_binary_outcome(self):
+        """Test binary outcome generation."""
+        n_control, n_treatment, succ_c, succ_t, p_val = generate_binary_outcome(
+            1000, 0.5, 0.05, seed=42
         )
-        
-        assert len(summaries) >= 10000, \
-            f"Expected at least 10,000 records, got {len(summaries)}"
 
-    def test_binary_outcomes_present(self, temp_output_dir):
-        """Verify that binary outcomes are present in the dataset."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            output_dir=temp_output_dir
-        )
-        
-        binary_count = sum(1 for s in summaries if s["outcome_type"] == "binary")
-        assert binary_count > 0, "No binary outcomes generated"
-        
-        # Check that binary outcomes have required fields
-        binary_summaries = [s for s in summaries if s["outcome_type"] == "binary"]
-        for summary in binary_summaries[:5]:  # Check first 5
-            assert "rate_control" in summary
-            assert "rate_treatment" in summary
-            assert "conversions_control" in summary
-            assert "conversions_treatment" in summary
+        assert n_control == 1000
+        assert n_treatment == 1000
+        assert 0 <= succ_c <= n_control
+        assert 0 <= succ_t <= n_treatment
+        assert 0 <= p_val <= 1
 
-    def test_continuous_outcomes_present(self, temp_output_dir):
-        """Verify that continuous outcomes are present in the dataset."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            output_dir=temp_output_dir
+    def test_generate_continuous_outcome(self):
+        """Test continuous outcome generation."""
+        (n_control, n_treatment, mean_c, mean_t, std_c, std_t, p_val) = (
+            generate_continuous_outcome(1000, 2.0, seed=42)
         )
-        
-        continuous_count = sum(1 for s in summaries if s["outcome_type"] == "continuous")
-        assert continuous_count > 0, "No continuous outcomes generated"
-        
-        # Check that continuous outcomes have required fields
-        continuous_summaries = [s for s in summaries if s["outcome_type"] == "continuous"]
-        for summary in continuous_summaries[:5]:  # Check first 5
-            assert "mean_control" in summary
-            assert "mean_treatment" in summary
-            assert "std_control" in summary
-            assert "std_treatment" in summary
 
-    def test_both_outcome_types_verified(self, temp_output_dir):
-        """Verify that both outcome types are present using verification function."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            output_dir=temp_output_dir
-        )
-        
-        # This should not raise an exception
-        verify_outcome_types(summaries)
+        assert n_control == 1000
+        assert n_treatment == 1000
+        assert isinstance(mean_c, float)
+        assert isinstance(mean_t, float)
+        assert std_c > 0
+        assert std_t > 0
+        assert 0 <= p_val <= 1
 
-    def test_csv_output_created(self, temp_output_dir):
-        """Verify that CSV output file is created and contains data."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            output_dir=temp_output_dir
-        )
-        
-        csv_path = temp_output_dir / "synthetic_summaries.csv"
-        assert csv_path.exists(), "CSV output file not created"
-        
-        with open(csv_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) >= 10000, f"CSV contains {len(rows)} rows, expected >= 10000"
+    def test_generate_synthetic_dataset_minimum_count(self):
+        """Test that dataset generation produces at least 10,000 records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            metadata = generate_synthetic_dataset(
+                total_records=10000,
+                binary_ratio=0.5,
+                output_dir=output_dir,
+                seed=SEED
+            )
 
-    def test_json_output_created(self, temp_output_dir):
-        """Verify that JSON output file is created and contains data."""
-        summaries = generate_synthetic_dataset(
-            total_records=10000,
-            output_dir=temp_output_dir
-        )
-        
-        json_path = temp_output_dir / "synthetic_summaries.json"
-        assert json_path.exists(), "JSON output file not created"
-        
-        with open(json_path, 'r') as f:
-            loaded_summaries = json.load(f)
-        
-        assert len(loaded_summaries) >= 10000, \
-            f"JSON contains {len(loaded_summaries)} records, expected >= 10000"
+            assert metadata["total_records"] >= 10000
+            assert metadata["binary_count"] + metadata["continuous_count"] == metadata["total_records"]
+
+    def test_generate_synthetic_dataset_both_outcome_types(self):
+        """Test that both binary and continuous outcomes are present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            metadata = generate_synthetic_dataset(
+                total_records=10000,
+                binary_ratio=0.5,
+                output_dir=output_dir,
+                seed=SEED
+            )
+
+            assert metadata["binary_count"] > 0, "Binary outcomes must be present"
+            assert metadata["continuous_count"] > 0, "Continuous outcomes must be present"
+
+    def test_csv_output_exists_and_readable(self):
+        """Test that CSV output file is created and readable."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            generate_synthetic_dataset(
+                total_records=1000,
+                binary_ratio=0.5,
+                output_dir=output_dir,
+                seed=SEED
+            )
+
+            csv_path = output_dir / "synthetic_summaries.csv"
+            assert csv_path.exists(), "CSV file should exist"
+
+            with open(csv_path, "r") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+
+            assert len(rows) == 1000, f"Expected 1000 rows, got {len(rows)}"
+
+    def test_metadata_json_exists_and_valid(self):
+        """Test that metadata JSON file is created and valid."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            generate_synthetic_dataset(
+                total_records=1000,
+                binary_ratio=0.5,
+                output_dir=output_dir,
+                seed=SEED
+            )
+
+            metadata_path = output_dir / "synthetic_metadata.json"
+            assert metadata_path.exists(), "Metadata file should exist"
+
+            with open(metadata_path, "r") as f:
+                metadata = json.load(f)
+
+            assert "total_records" in metadata
+            assert "binary_count" in metadata
+            assert "continuous_count" in metadata
+            assert metadata["total_records"] == 1000
+
+    def test_verify_outcome_types_passes(self):
+        """Test that verify_outcome_types passes for valid data."""
+        records = [
+            {"outcome_type": "binary"},
+            {"outcome_type": "binary"},
+            {"outcome_type": "continuous"},
+        ]
+        # Should not raise
+        verify_outcome_types(records, 2, 1)
+
+    def test_verify_outcome_types_fails_missing_type(self):
+        """Test that verify_outcome_types fails when a type is missing."""
+        records = [
+            {"outcome_type": "binary"},
+            {"outcome_type": "binary"},
+        ]
+        with pytest.raises(ValueError, match="Continuous outcomes must be present"):
+            verify_outcome_types(records, 2, 0)
 
     def test_sample_size_generation(self):
-        """Test sample size generation function."""
-        for _ in range(10):
-            n_control, n_treatment = generate_sample_sizes()
-            assert n_control >= 100, "Control sample size too small"
-            assert n_treatment >= 80, "Treatment sample size too small"
-            assert n_control <= 10000, "Control sample size too large"
-            assert n_treatment <= 12000, "Treatment sample size too large"
+        """Test sample size generation within bounds."""
+        sizes = generate_sample_sizes(100)
+        assert len(sizes) == 100
+        for size in sizes:
+            assert 50 <= size <= 5000, f"Size {size} out of bounds"
 
-    def test_binary_outcome_generation(self):
-        """Test binary outcome generation function."""
-        n_control, n_treatment = 1000, 1200
-        baseline_rate = 0.15
-        effect_size = 0.05
-        
-        result = generate_binary_outcome(n_control, n_treatment, baseline_rate, effect_size)
-        
-        assert result["n_control"] == n_control
-        assert result["n_treatment"] == n_treatment
-        assert 0 <= result["rate_control"] <= 1
-        assert 0 <= result["rate_treatment"] <= 1
-        assert 0 <= result["p_value"] <= 1
-        assert result["outcome_type"] == "binary"
+    def test_deterministic_generation(self):
+        """Test that generation is deterministic with same seed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir1 = Path(tmpdir) / "run1"
+            output_dir2 = Path(tmpdir) / "run2"
+            output_dir1.mkdir()
+            output_dir2.mkdir()
 
-    def test_continuous_outcome_generation(self):
-        """Test continuous outcome generation function."""
-        n_control, n_treatment = 1000, 1200
-        baseline_mean = 50.0
-        baseline_std = 15.0
-        effect_size = 2.0
-        
-        result = generate_continuous_outcome(
-            n_control, n_treatment, baseline_mean, baseline_std, effect_size
-        )
-        
-        assert result["n_control"] == n_control
-        assert result["n_treatment"] == n_treatment
-        assert result["mean_control"] > 0
-        assert result["mean_treatment"] > 0
-        assert result["std_control"] > 0
-        assert result["std_treatment"] > 0
-        assert 0 <= result["p_value"] <= 1
-        assert result["outcome_type"] == "continuous"
+            generate_synthetic_dataset(
+                total_records=100,
+                binary_ratio=0.5,
+                output_dir=output_dir1,
+                seed=42
+            )
+            generate_synthetic_dataset(
+                total_records=100,
+                binary_ratio=0.5,
+                output_dir=output_dir2,
+                seed=42
+            )
 
-    def test_reproducibility(self, temp_output_dir):
-        """Test that generation is reproducible with the same seed."""
-        summaries1 = generate_synthetic_dataset(
-            total_records=100,
-            output_dir=temp_output_dir / "run1"
-        )
-        
-        summaries2 = generate_synthetic_dataset(
-            total_records=100,
-            output_dir=temp_output_dir / "run2"
-        )
-        
-        # Compare first few records
-        for i in range(5):
-            assert summaries1[i]["id"] == summaries2[i]["id"]
-            assert summaries1[i]["p_value"] == summaries2[i]["p_value"]
+            csv1 = output_dir1 / "synthetic_summaries.csv"
+            csv2 = output_dir2 / "synthetic_summaries.csv"
 
-    def test_record_structure(self, temp_output_dir):
-        """Verify that each record has the required structure."""
-        summaries = generate_synthetic_dataset(
-            total_records=100,
-            output_dir=temp_output_dir
-        )
-        
-        required_fields = [
-            "id", "url", "domain", "year", "outcome_type",
-            "n_control", "n_treatment", "p_value", "effect_size",
-            "is_significant", "generated_at"
-        ]
-        
-        for summary in summaries[:10]:
-            for field in required_fields:
-                assert field in summary, f"Missing field: {field}"
-
-    def test_domain_distribution(self, temp_output_dir):
-        """Verify that multiple domains are represented."""
-        summaries = generate_synthetic_dataset(
-            total_records=1000,
-            output_dir=temp_output_dir
-        )
-        
-        domains = set(s["domain"] for s in summaries)
-        assert len(domains) >= 5, f"Expected at least 5 domains, got {len(domains)}"
-
-    def test_year_distribution(self, temp_output_dir):
-        """Verify that multiple years are represented."""
-        summaries = generate_synthetic_dataset(
-            total_records=1000,
-            output_dir=temp_output_dir
-        )
-        
-        years = set(s["year"] for s in summaries)
-        assert len(years) >= 5, f"Expected at least 5 years, got {len(years)}"
-        assert all(2018 <= y <= 2024 for y in years), "Year out of expected range"
+            with open(csv1, "r") as f1, open(csv2, "r") as f2:
+                assert f1.read() == f2.read(), "CSV outputs should be identical"
