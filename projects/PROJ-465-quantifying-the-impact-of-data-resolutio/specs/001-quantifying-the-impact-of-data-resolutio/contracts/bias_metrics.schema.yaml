@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "BiasMetricsSchema"
+description: "Schema for bias and divergence metrics comparing downsampled posteriors against a high-resolution baseline posterior."
+properties:
+  posterior_id:
+    type: string
+    description: "Reference to the downsampled posterior distribution"
+  baseline_posterior_id:
+    type: string
+    description: "Reference to the high-resolution baseline posterior distribution"
+  hellinger_distance:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Hellinger distance between downsampled and baseline posterior"
+  consistency_deviation:
+    type: number
+    description: "Absolute deviation from catalog reference estimate"
+  absolute_bias:
+    type: number
+    description: "Absolute bias from injected truth (simulated only)"
+  exceeds_threshold:
+    type: boolean
+    description: "True if deviation/bias exceeds the baseline uncertainty threshold"
+  threshold_reference:
+    type: string
+    description: "Reference to the threshold used (e.g., 'baseline_90_ci_width')"
+  convergence_failure:
+    type: boolean
+    description: "True if the nested sampling did not converge (dlogz > threshold), indicating a resolution limit"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Time of metric calculation"
+required:
+  - posterior_id
+  - baseline_posterior_id
+  - hellinger_distance
+  - consistency_deviation
+  - absolute_bias
+  - exceeds_threshold
+  - threshold_reference
+  - convergence_failure
+additionalProperties: false

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "StrainDataSchema"
+description: "Schema for raw and processed gravitational wave strain data files."
+properties:
+  metadata:
+    type: object
+    properties:
+      event_id:
+        type: string
+        description: "Unique identifier for the GW event (e.g., GW150914)"
+      detector:
+        type: string
+        description: "Detector name (e.g., H1, L1)"
+      original_sampling_rate:
+        type: integer
+        description: "Original sampling rate in Hz"
+      processed_sampling_rate:
+        type: integer
+        description: "Sampling rate after downsampling (Hz)"
+      bit_depth:
+        type: integer
+        description: "Bit depth after quantization (16 or 32)"
+      checksum:
+        type: string
+        description: "SHA256 checksum of the file content"
+      derivation_log:
+        type: string
+        description: "Description of transformations applied (e.g., decimate order, filter type)"
+  data:
+    type: object
+    properties:
+      time:
+        type: array
+        items:
+          type: number
+        description: "Array of GPS timestamps"
+      strain:
+        type: array
+        items:
+          type: number
+        description: "Array of strain values"
+    required:
+      - time
+      - strain
+required:
+  - metadata
+  - data
+additionalProperties: false

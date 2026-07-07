@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BiasMetric
+description: Schema for bias, divergence, and consistency metrics calculated from posteriors
+type: object
+properties:
+  event_id:
+    type: string
+    description: "Identifier of the GW event"
+  resolution_config:
+    type: object
+    properties:
+      sampling_rate:
+        type: integer
+      bit_depth:
+        type: integer
+    required:
+      - sampling_rate
+      - bit_depth
+  hellinger_distance:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Hellinger distance between downsampled and baseline posterior (Divergence)"
+  consistency_deviation:
+    type: number
+    description: "Absolute deviation from catalog reference estimate (for catalog data)"
+  absolute_bias:
+    type: number
+    description: "Absolute bias from injected truth (for simulated data only, null otherwise)"
+  exceeds_threshold:
+    type: boolean
+    description: "True if deviation/bias exceeds the baseline uncertainty threshold"
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "inconclusive"
+      - "failed"
+    description: "Status of the metric calculation"
+required:
+  - event_id
+  - resolution_config
+  - hellinger_distance
+  - consistency_deviation
+  - absolute_bias
+  - exceeds_threshold
+  - status
