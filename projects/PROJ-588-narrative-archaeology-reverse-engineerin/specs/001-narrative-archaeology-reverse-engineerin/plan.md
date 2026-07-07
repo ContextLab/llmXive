@@ -1,23 +1,24 @@
-# Implementation Plan: Narrative Archaeology: Neural Pattern Classification and Reinstatement Analysis
+# Implementation Plan: Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
 **Branch**: `001-narrative-archaeology` | **Date**: 2026-06-28 | **Spec**: `specs/001-narrative-archaeology/spec.md`
-**Input**: Feature specification from `specs/001-narrative-archaeology/spec.md`
+**Input**: Feature specification from `/specs/001-narrative-archaeology/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to classify narrative elements (plot, characters, themes) from fMRI data and test for neural pattern reinstatement using the OpenNeuro ds000234 "Natural Stories" dataset. The approach involves downloading and preprocessing fMRI data using a lightweight CPU-optimized pipeline (nilearn/niworkflows), segmenting the timeline into discrete narrative events, comparing neural patterns within the encoding phase (early vs. late events) via Representational Similarity Analysis (RSA), and training linear classifiers (Ridge Regression/SVM) with semantic features (BERT/CLIP) to decode specific story categories. The implementation strictly adheres to CPU-only constraints (a limited number of vCPUs, a modest amount of RAM) and completes within a standard GitHub Actions job window. The scope is explicitly limited to *classification* of event types and *reinstatement* analysis, not generative text reconstruction.
+This project implements a computational pipeline to reverse-engineer narrative memories from fMRI data (OpenNeuro ds000234). The system will download and preprocess neuroimaging data, segment story events (plot, character, theme), and perform two core analyses: (1) Representational Similarity Analysis (RSA) to compare neural patterns between **early and late encoding events** (proxy for encoding vs. recognition due to dataset constraints), and (2) linear decoding to reconstruct specific narrative elements from neural activity. The implementation prioritizes CPU-feasibility, running entirely on GitHub Actions free-tier runners (limited vCPU, constrained RAM) within a 6-hour window.
+
+**Dataset Constraint Note**: The OpenNeuro ds000234 dataset does not contain a distinct "recognition" fMRI phase. The primary analysis is therefore scoped to **within-session pattern stability** (early vs. late encoding events) to test for temporal drift or semantic stabilization, rather than memory reconfiguration between distinct sessions. This is a necessary adaptation to data constraints; the source spec (spec.md) requires a formal amendment to reflect this pivot.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `nilearn`, `scikit-learn`, `transformers` (CPU-only), `pandas`, `numpy`, `niworkflows` (CPU-optimized), `openneuro-cli` (or direct HTTP).  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/derived`) with checksums.  
-**Testing**: `pytest` for unit tests on data loaders and model logic; integration tests for pipeline execution on a 2-subject subset.  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, 7GB RAM, no GPU).  
-**Project Type**: Computational Neuroscience / Data Analysis Pipeline.  
-**Performance Goals**: Preprocess A small cohort of subjects within 6 hours using lightweight pipeline; decoding models must converge within 2 hours.  
-**Constraints**: No GPU; strict memory limits (≤7GB RAM); no deep learning training from scratch; must handle missing data gracefully.  
-**Scale/Scope**: -subject subset of ds000234; A substantial set of plot points, approximately 10 character classes (aggregated if power is insufficient).
+**Primary Dependencies**: `nibabel`, `nilearn` (CPU-optimized), `scikit-learn`, `pandas`, `numpy`, `transformers` (for BERT), `requests`, `tqdm`  
+**Storage**: Local temporary storage on CI runner (scratch space), output artifacts in `data/` and `results/`  
+**Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline steps)  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
+**Project Type**: Computational Neuroscience Pipeline / Research Tool  
+**Performance Goals**: Complete preprocessing and analysis for a 10-subject subset within 6 hours.  
+**Constraints**: No GPU, no Docker containers (use native Python wrappers), memory footprint < 7GB, strict adherence to nilearn/niworkflows with documented deviation from fMRIPrep if required.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,13 +26,21 @@ This project implements a computational pipeline to classify narrative elements 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (Principle I)**: All random seeds will be pinned in `code/config.py`. External datasets will be fetched from the canonical OpenNeuro/HuggingFace sources. The pipeline will be runnable end-to-end via `bash/setup-plan.sh`.
-2.  **Verified Accuracy (Principle II)**: Citations for methods (RSA, nilearn, semantic features) will be validated against primary sources. The dataset URL will be strictly limited to the verified list provided in the prompt.
-3.  **Data Hygiene (Principle III)**: Raw data will be checksummed upon download. No in-place modifications; all preprocessing outputs will be new files. PII scanning will be enforced.
-4.  **Single Source of Truth (Principle IV)**: All figures and statistics in the final paper will trace back to specific rows in `data/derived` and code blocks in `code/`.
-5.  **Versioning Discipline (Principle V)**: Artifacts will carry content hashes. The state file will be updated on artifact changes.
-6.  **Neural Preprocessing Transparency (Principle VI)**: The exact version of `nilearn` and `niworkflows` and all preprocessing flags (e.g., smoothing, motion correction) will be pinned and documented in `code/config.py`. Any deviation from standard pipelines will be explicitly justified.
-7.  **Cross-Subject Validation (Principle VII)**: Decoding results will report both within-subject and across-subject performance. Statistical significance will be established through permutation testing and results will distinguish between early vs. late events at the group level.
+- **Principle I (Reproducibility)**: Plan ensures all random seeds are pinned in `code/` (seed=42). External datasets are fetched from canonical sources (OpenNeuro via HuggingFace mirror). Artifacts carry **content hashes**.
+- **Principle II (Verified Accuracy)**: All dataset URLs in `research.md` are cross-referenced against the "# Verified datasets" block. No fabricated URLs.
+- **Principle III (Data Hygiene)**: Pipeline includes checksum verification (SHA-256) for downloaded data. Raw data is preserved; derivations are documented in `data/derivation_log.json`. No PII in committed data.
+- **Principle IV (Single Source of Truth)**: Plan maps every FR/SC to a specific phase/step. No unverified metrics are introduced.
+- **Principle V (Versioning Discipline)**: Artifacts will carry content hashes; `state/` files will be updated on change.
+- **Principle VI (Neural Preprocessing Transparency)**: **Deviation Note**: FR-001 mandates fMRIPrep, but due to CI constraints (Docker/RAM), the plan uses `nilearn`/niworkflows (CPU-optimized). This deviation is documented here and in `data-model.md` with parameters recorded. The source spec requires amendment to reflect this change.
+- **Principle VII (Cross-Subject Validation)**: Analysis design includes both within-subject and across-subject aggregation strategies, with **1000 permutation tests** (pinned as `PERMUTATIONS=1000`) for significance. The CI window is sufficient for this with the 10-subject subset.
+
+## Deviation from Spec (FR-001)
+
+**FR-001** mandates preprocessing with **fMRIPrep**. Due to GitHub Actions free-tier constraints (2 vCPU, 7GB RAM, no Docker), the plan uses **nilearn**/niworkflows (CPU-optimized) instead. This deviation is documented in the Constitution Check and Technical Context. Parameters (realignment, slice-time correction, normalization, smoothing) are recorded in `data/derivation_log.json`. **Note**: The source spec (spec.md) still lists FR-001 as requiring fMRIPrep; a formal spec amendment is required to align the spec with this plan.
+
+## Deviation from Spec (FR-003, FR-004, US-2)
+
+**FR-003** and **FR-004** mandate an "encoding vs. recognition" phase comparison. The dataset ds000234 lacks a recognition phase. The plan implements **within-session pattern stability** (early vs. late encoding events) as a proxy. This is a methodological adaptation to data constraints, not a direct fulfillment of the original cognitive-state comparison. The source spec requires amendment to redefine the comparison target.
 
 ## Project Structure
 
@@ -44,76 +53,100 @@ specs/001-narrative-archaeology/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-588-narrative-archaeology-reverse-engineerin/
-├── code/
-│   ├── __init__.py
-│   ├── main.py                  # Entry point for pipeline orchestration
-│   ├── config.py                # Hyperparameters and paths
-│   ├── data/
-│   │   ├── download.py          # OpenNeuro/HF downloader
-│   │   ├── preprocess.py        # nilearn/niworkflows wrapper and ROI extraction
-│   │   └── segment.py           # Event segmentation and HRF convolution
-│   ├── models/
-│   │   ├── rsa.py               # Representational Similarity Analysis
-│   │   ├── decoder.py           # Linear classifiers (Ridge/SVM)
-│   │   └── semantic.py          # BERT/CLIP feature extraction
-│   └── utils/
-│       ├── stats.py             # Permutation tests, FDR correction
-│       └── viz.py               # Plotting utilities
+src/
 ├── data/
-│   ├── raw/                     # Downloaded raw NIfTI/JSON
-│   ├── processed/               # nilearn/niworkflows outputs
-│   └── derived/                 # Event tables, RSA matrices, model weights
-├── tests/
-│   ├── unit/
-│   └── integration/
-└── docs/
-    └── constitution.md          # Project constitution
+│   ├── download.py          # Fetches ds000234 from verified source (clane9/openneuro-fslr64k)
+│   ├── preprocess.py        # Wraps nilearn/niworkflows for CPU
+│   └── segment.py           # Aligns event labels to BOLD timecourse, outputs CSV
+├── models/
+│   ├── rsa.py               # Computes dissimilarity matrices (early vs. late encoding)
+│   ├── decoder.py           # Trains linear classifiers (ridge/SVM)
+│   └── semantic.py          # Extracts features via pre-trained BERT (transformers)
+├── utils/
+│   ├── roi_masker.py        # Extracts timecourses from hippocampus, mPFC, etc.
+│   └── stats.py             # Permutation testing, FDR correction
+└── viz/
+    └── plot_results.py      # Generates RSA matrices, decoding accuracy plots
+
+tests/
+├── contract/
+│   └── test_schema_validation.py
+├── integration/
+│   └── test_pipeline.py
+└── unit/
+    └── test_utils.py
 ```
 
-**Structure Decision**: A single Python package structure (`code/`) is selected to ensure modularity while maintaining a unified environment for the constrained CI runner. This avoids the overhead of microservices and simplifies dependency management for the 2 vCPU constraint.
+**Structure Decision**: Single `src/` directory structure chosen for simplicity and to align with the computational pipeline nature of the project. No separate frontend/backend. Tests are organized by scope (unit, integration, contract).
 
 ## Complexity Tracking
 
-The complexity is managed by:
-1.  **Subset Processing**: Limiting to 10 subjects to meet the 6-hour CI constraint.
-2.  **CPU-Tractability**: Using `nilearn`/`niworkflows` (CPU-optimized) instead of full fMRIPrep Docker containers, and using pre-trained semantic models (inference only) and linear classifiers (Ridge/SVM) instead of end-to-end deep learning.
-3.  **Robustness**: Implementing error handling for preprocessing failures (skip subject) and missing event labels (aggregate or exclude).
-4.  **Statistical Power**: Implementing a hierarchical aggregation strategy for low-power classes (N=20) to ensure valid results.
-5.  **Spec Constraint Mismatch**: The plan acknowledges that FR-001's requirement for "8-core parallelization" is infeasible on the target 2 vCPU hardware. The plan implements a "lightweight" pipeline to satisfy the *spirit* of FR-001 (preprocessing) while adapting to the *constraint* of the CI environment. This is flagged for spec revision.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| CPU-optimized preprocessing (nilearn vs fMRIPrep) | fMRIPrep requires Docker and >10GB RAM, exceeding CI constraints. | Using fMRIPrep directly would fail the strict time and storage constraints. |
+| Permutation testing (1000 iterations) | Required for statistical significance in RSA and decoding (Constitution VII). | Analytical p-values assume normality which may not hold for fMRI data. |
+| Semantic feature extraction (BERT) | Needed to map neural data to semantic space for decoding (FR-007). | Raw voxel data is too high-dimensional and noisy for direct classification. |
+| Early vs. Late Encoding Analysis | Dataset ds000234 lacks a recognition phase. | A recognition phase comparison is impossible; within-session stability is the only viable proxy. |
+| Binary Classification | Addresses class imbalance with N=10 subjects. | Multi-class classification (N=20) is underpowered and prone to overfitting. |
+| Dimensionality Reduction (PCA) | Reduces BERT features (768-dim) to 50-dim to avoid curse of dimensionality. | Direct mapping without reduction would fail due to high dimensionality. |
 
-## Spec Constraint Mismatch & Adaptation
+## Implementation Phases & Tasks
 
-- **FR-001 vs. CI Constraints**: The spec requires "8-core parallelization" for fMRIPrep. The target CI runner has 2 vCPU. The plan adapts by using `nilearn`/`niworkflows` (CPU-optimized) instead of full fMRIPrep Docker containers. This is a necessary adaptation to ensure the project can run.
-- **US-2 vs. Dataset**: The spec requires "Encoding vs. Recognition" comparison. The dataset lacks a recognition phase.
+### Phase 0: Foundational Setup (Constitution Compliance)
+- **T001**: Initialize project with `seed=42` pinned in all code files. (Constitution I)
+- **T007**: Implement `code/data/download.py` to fetch `ds000234` from verified HuggingFace mirror (`clane9/openneuro-fslr64k`) with **SHA-256 checksum verification**. (Constitution III)
+- **T008**: Create `code/data/preprocess.py` wrapper for `nilearn`/niworkflows (CPU-optimized, no Docker). **Pin versions** of nilearn/niworkflows and record preprocessing flags in `data/derivation_log.json`. (Constitution VI)
+- **T009**: Implement derivation logging to `data/derivation_log.json` for all transformed data. (Constitution III)
+- **T010**: Implement PII scan to exclude PII from committed data. (Constitution III)
+- **T011**: Implement artifact content hashing for all output files. (Constitution V)
 
-The research question remains: How does the absence of a recognition phase impact memory consolidation?
-The method will be: A systematic review of neuroimaging studies focusing on encoding and retrieval patterns.
-References: Smith et al. (2020), doi:10.1016/j.neuron.2020.01.001; Lee & Kim (2019), arXiv:1905.12345. The plan adapts by focusing on "Within-Session Pattern Stability" (early vs. late events) and "Event Segmentation". This is flagged for spec revision.
-- **SC-003 vs. Power**: The spec requires N=20 plot points. The plan acknowledges the power issue and implements a hierarchical aggregation strategy.
+### Phase 1: Data Ingestion & Preprocessing (US-1)
+- **T012**: Implement `code/data/download.py` to fetch a 10-subject subset (select first 10 subjects with motion < 0.5mm). (SC-005)
+- **T013**: Implement `code/data/preprocess.py` to run realignment, slice-time correction, normalization, and smoothing (standard FWHM) using nilearn.
+- **T014**: Implement `code/data/segment.py` to align event labels (from JSON) to BOLD timecourse using **HRF convolution** (canonical HRF). Output a CSV mapping timepoints to event labels. (FR-002)
+- **T015**: Implement error handling in preprocessing: log motion artifacts (FD > 0.5mm) to `data/errors.log` in JSON format, skip subject, raise `MotionArtifactError`. (FR-001)
 
-## Constitution Compliance Strategy
+### Phase 2: Pattern Stability Analysis (US-2)
+- **T016**: Implement `code/utils/roi_masker.py` to extract timecourses for **early** and **late** segments (proxy for encoding/recognition) from hippocampus, mPFC, PCC, lateral temporal cortex. (FR-003)
+- **T017**: Implement `code/models/rsa.py` to compute dissimilarity matrices for early vs. late segments. (FR-004)
+- **T018**: Implement permutation testing with **1000 iterations** to compare early-late dissimilarity against early-early dissimilarity. **Convergence criterion**: stop if p-value stabilizes within 0.01 over 100 iterations. (Constitution VII)
+- **T019**: Implement FDR correction (q < 0.05) across ROIs and categories. (FR-006)
+- **T020**: Implement both **within-subject** and **across-subject** aggregation strategies. Report effect sizes (Cohen's d) alongside p-values. (Constitution VII)
 
-- **Reproducibility**: Seeds pinned in `code/config.py`.
-- **Data Hygiene**: Checksums recorded in `data/.sha256`.
-- **Versioning**: Content hashes in `state/`.
-- **Transparency**: All preprocessing flags documented in `code/config.py`.
-- **Cross-Subject**: Permutation testing and group-level analysis.
+### Phase 3: Narrative Element Reconstruction (US-3)
+- **T021**: Implement `code/models/semantic.py` to extract features using `bert-base-uncased` (768-dim) and reduce to 50-dim via **PCA**. (FR-007)
+- **T022**: Implement **Canonical Correlation Analysis (CCA)** to align semantic space with neural patterns.
+- **T023**: Implement `code/models/decoder.py` to train **binary classifiers** (e.g., Plot vs. Non-Plot) using Ridge Regression. (FR-005)
+- **T024**: Implement **GridSearchCV** with `alpha=[0.1, 1.0, 10.0]` for hyperparameter tuning.
+- **T025**: Implement **Subject-level Leave-One-Out (K-fold)** cross-validation with **blocking by event** to handle temporal autocorrelation.
+- **T026**: Implement null model (label shuffling) with **1000 permutations**. (SC-001)
+- **T027**: Implement aggregation strategy for rare classes: merge categories with count < 5 into "miscellaneous".
+- **T028**: Implement FDR correction (q < 0.05) across categories and ROIs.
 
-## Feasibility Measurement (SC-005)
+### Phase 4: Validation & Reporting
+- **T029**: Implement `code/viz/plot_results.py` to generate RSA matrices and decoding accuracy plots.
+- **T030**: Run full pipeline on 10-subject subset and verify completion within 6 hours.
+- **T031**: Document results, including effect sizes, p-values, and any deviations from the spec.
 
-Success for SC-005 is defined as completing the **lightweight pipeline** (nilearn/niworkflows) on 10 subjects within 6 hours on the GitHub Actions free-tier runner. The plan explicitly states that full fMRIPrep is not feasible and the lightweight pipeline is the mechanism for measuring feasibility.
+## Success Criteria Mapping
 
-## Multiple Comparison Correction (FR-006)
+- **SC-001**: Decoding accuracy measured against a null distribution generated via permutation testing (1000 iterations).
+- **SC-002**: Pattern dissimilarity (early vs. late) measured against within-phase dissimilarity. **Effect size (Cohen's d)** reported; no fixed threshold.
+- **SC-003**: Decoding accuracy against chance level (1/N for binary classification).
+- **SC-005**: Computational feasibility measured against a fixed CI window for 10 subjects.
 
-FDR correction (q < 0.05) will be applied across all tested ROIs (Key regions including the hippocampus, mPFC, PCC, and lateral temporal cortex will be examined.) and narrative categories (plot, character, theme) to control family-wise error rate. This explicitly addresses the scope of FR-006.
+## Risk Mitigation
 
-## Chance Level (SC-003)
-
-The chance level is explicitly defined as 1/N, where N=20 for plot points and N=10 for characters, as per SC-003. The plan will attempt to train models for these specific N values, with a fallback to hierarchical aggregation if power is insufficient.
+- **Dataset Limitation**: ds000234 lacks recognition phase. Mitigation: Analyze early vs. late encoding events.
+- **Small Sample Size**: N=10. Mitigation: Prioritize within-subject permutation tests and effect sizes over FDR.
+- **Class Imbalance**: Mitigation: Binary classification primary, aggregation fallback.
+- **Dimensionality**: Mitigation: PCA to 50-dim, CCA alignment.
+- **Temporal Autocorrelation**: Mitigation: Blocking by event in cross-validation.

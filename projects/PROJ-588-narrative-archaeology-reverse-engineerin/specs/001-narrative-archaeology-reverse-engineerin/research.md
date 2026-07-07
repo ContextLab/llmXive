@@ -1,81 +1,80 @@
-# Research: Narrative Archaeology: Neural Pattern Classification and Reinstatement Analysis
+# Research: Narrative Archaeology
 
-## 1. Problem Statement
+## Executive Summary
 
-The project aims to determine if neural activity patterns during story listening (encoding) can be used to classify specific narrative elements (plot, characters, themes) and to test for neural pattern reinstatement (stability) within the encoding phase. This addresses the core question of how narrative information is represented and maintained in the brain during naturalistic listening. The scope is explicitly limited to *classification* of event types and *reinstatement* analysis, not generative text reconstruction.
+This research investigates the neural correlates of story memory by analyzing fMRI data from the Natural Stories dataset (OpenNeuro ds000234). The primary goal is to determine if neural patterns during **early encoding events** differ from those during **late encoding events** (within-session stability), and whether these patterns can be decoded to reconstruct specific narrative elements (plot, character, theme). Given the constraints of the GitHub Actions free-tier (2 vCPU, 7GB RAM, 6 hours), the pipeline employs CPU-optimized preprocessing (nilearn/niworkflows) and linear decoding models (ridge regression) with semantic feature extraction.
 
-## 2. Dataset Strategy
+**Dataset Constraint**: OpenNeuro ds is a single-session story-listening dataset. It does not contain a distinct "recognition" fMRI phase. The analysis is therefore scoped to **within-session pattern stability** (early vs. late encoding events) to test for temporal drift or semantic stabilization, rather than memory reconfiguration between distinct sessions. This is a necessary adaptation to data constraints.
 
-The primary dataset is **OpenNeuro ds000234** (Natural Stories).
+## Dataset Strategy
+
+The project relies on the **Natural Stories fMRI dataset** (OpenNeuro ds000234).
 
 **Verified Source**:
-The dataset is accessed via the HuggingFace mirror of the OpenNeuro data, as verified in the project inputs:
-- **URL**: ` (and associated arrow files).
-- **Note**: The prompt explicitly lists this as a verified dataset source. The raw BIDS data will be downloaded via the OpenNeuro CLI or direct HTTP from the canonical source, but for the purpose of this plan, we rely on the verified HuggingFace mirror for the parquet/arrow data which contains the necessary fMRI data structure.
+- **OpenNeuro ds000234**: Accessed via a verified HuggingFace mirror to ensure reachability and format compatibility on CI.
+  - Repository: `clane9/openneuro-fslr64k` (verified HuggingFace source).
+  - Access: `datasets.load_dataset("clane9/openneuro-fslr64k")`.
 
-**Dataset Fit Analysis**:
-- **Required Variables**: fMRI timecourses (BOLD), task labels (encoding), event onsets/durations, story text annotations.
-- **Verification**: ds is a well-known naturalistic fMRI dataset containing a substantial number of subjects listening to a 16-minute story. It includes event annotations for semantic segmentation.
-- **Gap Check**: The dataset does **not** contain a recognition/recall phase. The analysis is scoped to "Within-Session Pattern Stability" (early vs. late events) and "Event Segmentation" as per the spec's Assumptions and the dataset's actual content. The dataset contains sufficient temporal resolution for event-related analysis when convolved with HRF.
+**Dataset Characteristics**:
+- **Subjects**: ~50 total; analysis will use a 10-subject subset for CI feasibility.
+- **Phases**: Single encoding session (listening). **No recognition phase**.
+- **Annotations**: Event onset/duration files provided for story segmentation.
+- **Variables**: BOLD timecourses, event labels (plot, character, theme), ROI masks.
 
-## 3. Methodological Approach
+**Data Access Strategy**:
+1. Use `datasets.load_dataset("clane9/openneuro-fslr64k")` to fetch the data.
+2. Validate the presence of required files (NIfTI, JSON event tables).
+3. Select first 10 subjects with motion < 0.5mm.
 
-### 3.1 Data Ingestion & Preprocessing
-1. **Download**: Fetch data for a 10-subject subset from the verified source.
-2. **Preprocessing**: Run `nilearn`/`niworkflows` (CPU-optimized) to correct motion, normalize to MNI space, and smooth.
- - *Constraint*: Must complete 10 subjects in ≤6 hours on 2 vCPU.
- - *Strategy*: Parallelize across subjects. If a subject fails (motion artifacts), log and skip (Constitution Principle III).
- - *Adaptation*: Full fMRIPrep is replaced by a lightweight pipeline to meet the 2 vCPU constraint.
-3. **Segmentation**: Map story event annotations (plot, character, theme) to fMRI timepoints. Apply HRF convolution to align event labels with the BOLD signal lag.
+## Methodology
 
-### 3.2 Within-Session Pattern Stability (RSA)
-- **Method**: Representational Similarity Analysis (RSA).
-- **Procedure**:
- 1. Extract timecourses for ROIs: Hippocampus, mPFC, PCC, Lateral Temporal Cortex.
- 2. Compute dissimilarity matrices for early-early, late-late, and early-late event pairs.
- 3. **Hypothesis**: Early-late dissimilarity < Early-early (unrelated) dissimilarity, indicating pattern stability/reinstatement.
- 4. **Null Model**: Compare against 'Early vs. Unrelated-Story' patterns to establish a baseline.
-- **Significance**: Permutation testing (1000 iterations) with FDR correction (q < 0.05) across ROIs.
+### 1. Data Ingestion & Preprocessing (FR-001, FR-002)
+- **Download**: Fetch data from the verified HuggingFace repository.
+- **Preprocessing**: Use `nilearn` and `niworkflows` (CPU-optimized) instead of fMRIPrep due to Docker/RAM constraints.
+  - Steps: Realignment, slice-time correction, normalization to MNI space, smoothing with an appropriate kernel width.
+  - **Deviation Note**: fMRIPrep is the standard (FR-001), but `nilearn` is used here to meet the 6-hour/7GB constraint. This deviation is documented in `data-model.md` and justified by Constitution Principle VI. The source spec requires amendment.
+- **Segmentation**: Align event labels (from JSON) to the BOLD timecourse using **HRF convolution** (canonical HRF).
 
-### 3.3 Narrative Element Classification (Decoding)
-- **Method**: Linear Classifiers (Ridge Regression / SVM).
-- **Features**: Semantic features extracted from story text using a pre-trained model (e.g., BERT-base) to map text to a semantic space.
-- **Procedure**:
- 1. Train model to predict event labels (plot, character, theme) from neural patterns.
- 2. **Hypothesis**: Plot points are classified with higher accuracy than character details.
- 3. **Baseline**: Compare against chance level (1/N, where N=20 for plot points, N=10 for characters) and a null distribution (shuffled labels).
- 4. **Control**: Compare against a 'text-only' baseline model to disentangle semantic similarity from neural reinstatement.
- 5. **Fallback**: If N=20 classification fails due to power, aggregate classes into broader categories (e.g., 'Action', 'Description') while reporting the N=20 attempt.
-- **Correction**: Multiple-comparison correction (FDR) for testing across multiple categories and ROIs.
+### 2. Within-Session Pattern Stability (FR-003, FR-004, US-2)
+- **ROI Extraction**: Extract timecourses from hippocampus, mPFC, PCC, lateral temporal cortex for **early** and **late** segments of the story.
+- **RSA**: Compute dissimilarity matrices for early vs. late segments.
+- **Statistical Test**: Permutation test (**1000 iterations**, pinned as `PERMUTATIONS=1000`) to compare early-late dissimilarity against early-early dissimilarity.
+- **Correction**: FDR correction (q < 0.05) across ROIs.
+- **Hypothesis**: Hippocampus and mPFC will show significant **temporal drift** (dissimilarity difference) compared to sensory cortices. **Effect size (Cohen's d)** will be reported; no fixed threshold.
 
-## 4. Statistical Rigor & Limitations
+### 3. Narrative Element Reconstruction (FR-005, FR-006, FR-007, US-3)
+- **Semantic Features**: Extract features from story text using a pre-trained BERT model (`bert-base-uncased`, 768-dim). **Dimensionality Reduction**: Reduce to 50-dim via **PCA** to address the curse of dimensionality.
+- **Alignment**: Use **Canonical Correlation Analysis (CCA)** to align semantic space with neural patterns.
+- **Decoding**: Train **binary classifiers** (e.g., Plot vs. Non-Plot) using Ridge Regression to predict narrative labels from neural patterns. **Fallback**: Merge categories with count < 5 into "miscellaneous" to address class imbalance.
+- **Validation**: **Subject-level Leave-One-Out (10 folds)** cross-validation with **blocking by event** to handle temporal autocorrelation.
+- **Null Model**: Shuffle labels to establish chance baseline (1/N for binary classification) with **1000 permutations**.
+- **Correction**: FDR correction for multiple comparisons across categories and ROIs.
+- **Aggregation**: Merge categories with count < 5 into "miscellaneous" to address class imbalance.
 
-- **Multiple Comparisons**: FDR correction (Benjamini-Hochberg) applied to all ROI and category tests (explicitly mapping to FR-006 scope).
-- **Power Analysis**: Sample size (N=10 subjects) is limited. Power is acknowledged as a limitation; results will be framed as "associational" and "preliminary" rather than definitive causal claims. A hierarchical aggregation strategy is in place for low-power classes.
-- **Causal Inference**: Observational study. No randomization of story content. Claims are restricted to "neural correlates" and "associations."
-- **Collinearity**: Semantic features (e.g., "character" and "plot" may share words) are collinear. The plan will report descriptive statistics for feature correlations and avoid claiming independent effects for highly correlated predictors.
-- **Measurement Validity**: Relies on established `nilearn` pipelines and BERT embeddings for semantic validity.
-- **Circularity Control**: Validation uses held-out data and cross-subject generalization to ensure the model is learning neural patterns, not just text-text correlations.
+## Statistical Rigor
 
-## 5. Compute Feasibility Plan
+- **Multiple Comparisons**: FDR correction (q < 0.05) applied to RSA and decoding results across ROIs and categories.
+- **Power**: Acknowledged limitation: A small sample size is insufficient for group-level inference. **Within-subject permutation tests** are prioritized. **Effect sizes (Cohen's d)** are reported alongside p-values.
+- **Causal Inference**: Observational study; claims limited to associational patterns.
+- **Measurement Validity**: BOLD signal is an indirect measure of neural activity; semantic features are approximations.
+- **Collinearity**: Plot, character, and theme labels may be correlated; models will report feature importance and acknowledge potential confounding.
+- **Circular Validation Mitigation**: Narrative labels are derived from **human-annotated event types** (independent ground truth), not from the BERT features used for prediction. BERT features are predictors, not the labels themselves.
+- **Temporal Autocorrelation**: Handled by **blocking by event** in cross-validation splits.
 
-- **Hardware**: GitHub Actions Free Tier (multiple vCPU, substantial RAM).
-- **Strategy**:
- - **Preprocessing**: Use `nilearn`/`niworkflows` (CPU-optimized) instead of full fMRIPrep Docker containers.
- - **Data**: Downsample fMRI data to standard isotropic resolution.
- - **Models**: Use `scikit-learn` linear models (CPU-optimized). No GPU tensors.
- - **Semantic Features**: Use a distilled BERT model or pre-computed embeddings if memory is tight.
- - **Runtime**: 10 subjects × [deferred] preprocessing = 5 hours. Decoding < 1 hour. Total < 6 hours.
+## Decision Rationale
 
-## 6. Decision Log
+- **CPU-Only**: Chosen to ensure the pipeline runs on GitHub Actions free-tier.
+- **nilearn vs fMRIPrep**: fMRIPrep is too heavy for CI; nilearn provides a valid, documented alternative.
+- **Linear Models**: Ridge regression/SVM are interpretable and computationally feasible; deep learning is excluded.
+- **Permutation Testing**: Non-parametric approach avoids assumptions about data distribution. **1000 iterations** are pinned.
+- **Early vs. Late Encoding**: Dataset ds000234 lacks a recognition phase; within-session stability is the only viable proxy.
+- **Binary Classification**: Addresses class imbalance and under-sampling problems with N=10.
+- **Dimensionality Reduction**: PCA to 50-dim is necessary to avoid the curse of dimensionality.
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Subset of 10 subjects** | Required to meet 6-hour CI limit on 2 vCPU. Full dataset (30+ subjects) would exceed time/memory. |
-| **Lightweight Preprocessing** | Full fMRIPrep is infeasible on 2 vCPU. `nilearn`/`niworkflows` is a validated, lighter alternative. |
-| **Within-Session RSA** | ds000234 lacks a recognition phase. "Early vs. Late" analysis tests pattern stability within the encoding phase. |
-| **Linear Models (Ridge/SVM)** | Deep learning is not feasible on CPU-only CI. Linear models are interpretable and sufficient for semantic mapping. |
-| **HRF Convolution** | Essential to align discrete event labels with the slow BOLD signal (lag ~several seconds). |
-| **FDR Correction** | Necessary to control family-wise error rate across multiple ROIs and narrative categories (FR-006). |
-| **Dataset Source** | Strict adherence to verified HuggingFace/OpenNeuro links. No fabricated URLs. |
-| **N=20/10 Targets** | Explicitly targeting N=20 (plot) and N=10 (character) as per SC-003, with hierarchical aggregation fallback. |
+## Limitations
+
+- **Dataset**: The dataset lacks a distinct "recognition" phase; analysis is scoped to within-session stability.
+- **Sample Size**: A limited number of subjects limits generalizability; results are preliminary.
+- **Semantic Features**: BERT features are a proxy for narrative meaning; may not capture all nuances.
+- **Temporal Resolution**: HRF convolution is an approximation; rapid event transitions may be blurred.
+- **Effect Size**: No fixed effect-size threshold is imposed; results are reported as empirical measurements.

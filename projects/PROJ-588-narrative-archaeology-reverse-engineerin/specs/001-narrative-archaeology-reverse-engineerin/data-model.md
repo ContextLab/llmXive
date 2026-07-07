@@ -1,56 +1,60 @@
 # Data Model: Narrative Archaeology
 
-## 1. Overview
+## Overview
 
-This document defines the data structures, schemas, and flow for the Narrative Archaeology project. The data model supports the ingestion of raw fMRI data, the preprocessing into clean timecourses, the segmentation of events, and the storage of model outputs.
+This document defines the data structures, schemas, and transformations used in the Narrative Archaeology pipeline. All data artifacts are checksummed and stored in `data/` or `results/`.
 
-## 2. Data Flow
+## Entities
 
-1.  **Raw Data**: Downloaded from OpenNeuro ds000234 (BIDS format).
-2.  **Preprocessed Data**: fMRIPrep outputs (NIfTI, confounds JSON).
-3.  **Segmented Data**: Timecourses aligned with event labels (CSV/Parquet).
-4.  **Semantic Features**: Text embeddings (Parquet).
-5.  **Model Outputs**: Weights, predictions, and metrics (JSON/Parquet).
+### NeuralPattern
+- **Description**: A vector representing the BOLD signal amplitude across voxels in a specific ROI at a specific timepoint.
+- **Attributes**:
+  - `subject_id`: str
+  - `phase`: str ("early_encoding" or "late_encoding")
+  - `roi`: str ("hippocampus", "mPFC", "PCC", "lateral_temporal")
+  - `timepoints`: list[float]
+  - `event_labels`: list[str]
 
-## 3. Entity Definitions
+### NarrativeEvent
+- **Description**: A discrete unit of the story defined by its type, timestamp, and semantic content.
+- **Attributes**:
+  - `event_id`: str
+  - `type`: str ("plot", "character", "theme")
+  - `onset`: float (seconds)
+  - `duration`: float (seconds)
+  - `semantic_features`: list[float] (from BERT)
 
-### 3.1 Subject
-- **ID**: Unique identifier (e.g., `sub-01`).
-- **Metadata**: Age, sex, handedness (from BIDS participants.tsv).
+### DecodingModel
+- **Description**: A trained linear classifier mapping semantic features to narrative labels.
+- **Attributes**:
+  - `model_type`: str ("ridge", "svm")
+  - `weights`: list[float]
+  - `accuracy`: float
+  - `chance_level`: float
+  - `p_value`: float
 
-### 3.2 Session
-- **Type**: `encoding` (listening) or `recognition` (delayed task).
-- **Duration**: Length of the fMRI run in seconds.
+## Data Flow
 
-### 3.3 Event
-- **ID**: Unique event identifier.
-- **Type**: `plot`, `character`, `theme`, `misc`.
-- **Onset**: Start time in seconds (relative to scan start).
-- **Duration**: Duration in seconds.
-- **Text**: The specific story segment text.
+1. **Raw Data**: Downloaded from OpenNeuro (via HuggingFace).
+2. **Preprocessed Data**: NIfTI files after realignment, normalization, smoothing.
+3. **Segmented Data**: CSV mapping timepoints to event labels (output of `segment.py`).
+4. **ROI Timecourses**: Extracted from preprocessed data for specific ROIs.
+5. **Semantic Features**: Extracted from story text using BERT.
+6. **Decoding Results**: Accuracy metrics, weights, p-values.
 
-### 3.4 NeuralPattern
-- **SubjectID**: Reference to Subject.
-- **SessionID**: Reference to Session.
-- **EventID**: Reference to Event.
-- **ROI**: Region of Interest (e.g., `hippocampus`).
-- **Vector**: Array of voxel values (flattened).
+## Schema Definitions
 
-### 3.5 DecodingModel
-- **Type**: `ridge`, `svm`.
-- **Target**: `plot`, `character`, `theme`.
-- **Weights**: Model coefficients.
-- **Metrics**: Accuracy, F1, Permutation p-value.
+### Dataset Schema
+- **Input**: Raw NIfTI, JSON event files.
+- **Output**: Preprocessed NIfTI, segmented CSV.
 
-## 4. File Formats
+### Output Schema
+- **RSA Results**: JSON with dissimilarity matrices, p-values.
+- **Decoding Results**: JSON with accuracy, chance level, p-values per category.
 
-- **Raw**: BIDS (NIfTI, JSON).
-- **Processed**: NIfTI (MNI space), JSON (confounds).
-- **Derived**: Parquet (high-performance, columnar storage for timecourses and labels).
-- **Models**: JSON (weights) or Pickle (serialized sklearn models).
+## Transformation Rules
 
-## 5. Constraints
-
-- **PII**: No raw demographic data with names/IDs stored. Only anonymized subject IDs.
-- **Checksums**: All files in `data/` must have a corresponding `.sha256` file.
-- **Versioning**: All derived data files must include a `version` field in their metadata.
+- **HRF Convolution**: Event labels convolved with HRF to align with BOLD signal.
+- **ROI Masking**: Timecourses extracted using standard MNI masks.
+- **Normalization**: Z-score normalization per subject per ROI.
+- **Permutation**: Labels shuffled repeatedly to generate null distribution.

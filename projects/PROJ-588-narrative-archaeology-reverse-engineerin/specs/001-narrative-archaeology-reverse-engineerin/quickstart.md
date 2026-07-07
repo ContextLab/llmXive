@@ -3,78 +3,67 @@
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- Docker (for fMRIPrep, if used) or Singularity
+- `pip`
 - Access to GitHub Actions (for CI execution)
+- Internet connection (for dataset download)
 
-## Setup
+## Installation
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-588-narrative-archaeology-reverse-engineerin
-    ```
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-3.  **Configure Environment**:
-    Create a `.env` file in the root:
-    ```bash
-    export OPENNEURO_DATASET_ID=ds
-    export NUM_SUBJECTS=10
-    export RANDOM_SEED=42
-    ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
 
-### 1. Download and Preprocess
-Run the data ingestion script (subset mode for CI):
+### 1. Download Data
 ```bash
-python code/data/download.py --subset 10
-python code/data/preprocess.py --parallel 2
+python src/data/download.py
 ```
-*Note: This step may take several hours on a local machine or CI runner.*
+This script fetches the Natural Stories dataset from the verified HuggingFace repository and stores it in `data/raw/`.
 
-### 2. Segment Events
-Align story annotations with fMRI data:
+### 2. Preprocess Data
 ```bash
-python code/data/segment.py --hrf-convolve
+python src/data/preprocess.py --subjects 10
 ```
+This script runs nilearn/niworkflows preprocessing on a subject subset.
 
-### 3. Run RSA Analysis
-Compare encoding vs. recognition patterns:
+### 3. Segment Events
 ```bash
-python code/models/rsa.py --roi hippocampus,mPFC,PCC,temporal
+python src/data/segment.py
 ```
+Aligns event labels to the BOLD timecourse.
 
-### 4. Train Decoding Models
-Reconstruct narrative elements:
+### 4. Run RSA Analysis
 ```bash
-python code/models/decoder.py --type ridge --features bert --kfold 5
+python src/models/rsa.py
 ```
+Computes dissimilarity matrices and performs permutation testing.
 
-### 5. Generate Reports
+### 5. Run Decoding Analysis
 ```bash
-python code/utils/viz.py --output results/
+python src/models/decoder.py
 ```
+Trains linear classifiers and evaluates accuracy.
 
-## Verification
-
-To verify the pipeline on a minimal subset (2 subjects):
+### 6. Visualize Results
 ```bash
-python code/main.py --test-mode --subjects a_small_number_of
+python src/viz/plot_results.py
 ```
-Expected output:
-- Preprocessed NIfTI files in `data/processed/`.
-- Event CSV in `data/derived/events.csv`.
-- RSA matrix in `data/derived/rsa_matrix.npy`.
-- Decoding accuracy report in `data/derived/accuracy.json`.
+Generates plots of RSA matrices and decoding accuracy.
 
-## Troubleshooting
+## Testing
 
-- **Memory Error**: Reduce `NUM_SUBJECTS` or downsample fMRI resolution.
-- **fMRIPrep Fail**: Check logs in `logs/fmriprep/`. The pipeline will skip failed subjects automatically.
-- **Missing Labels**: Rare categories are aggregated into "misc" to prevent overfitting.
+```bash
+pytest tests/
+```
+
+## Notes
+
+- The pipeline is designed to run on GitHub Actions free-tier (limited vCPU and RAM).
+- Random seeds are pinned for reproducibility.
+- All data artifacts are checksummed.

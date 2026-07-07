@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for RSA and decoding results."
+type: "object"
+properties:
+  rsa_results:
+    type: "object"
+    properties:
+      dissimilarity_matrix:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "number"
+        description: "Dissimilarity matrix for early vs. late encoding."
+      p_value:
+        type: "number"
+        description: "P-value from permutation test."
+      fdr_corrected:
+        type: "boolean"
+        description: "Whether FDR correction was applied."
+  decoding_results:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Decoding accuracy."
+      chance_level:
+        type: "number"
+        description: "Chance level (1/N)."
+      p_value:
+        type: "number"
+        description: "P-value from null model comparison."
+      category:
+        type: "string"
+        description: "Narrative category (plot, character, theme)."
+required:
+  - "rsa_results"
+  - "decoding_results"

@@ -15,6 +15,7 @@ properties:
       - "plot"
       - "character"
       - "theme"
+      - "miscellaneous"
     description: "The narrative category being predicted."
   roi:
     type: "string"
