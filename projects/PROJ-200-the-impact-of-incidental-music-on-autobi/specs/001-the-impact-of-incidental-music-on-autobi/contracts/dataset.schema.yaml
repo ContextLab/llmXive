@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "User-Track Aggregated Analysis Dataset Schema"
+description: "Schema for the final dataset used in the mixed-effects model (FR-005). Contains one row per unique User-Track pair."
+type: "object"
+properties:
+  user_id:
+    type: "string"
+    description: "User ID for the random intercept (1|User)."
+  track_id:
+    type: "string"
+    description: "ID of the matched track from MSD."
+  residualized_exposure_score:
+    type: "number"
+    description: "Residualized proportion of listens during ages 12-18 (adjusted for popularity)."
+    minimum: -10.0
+    maximum: 10.0
+  overall_popularity_score:
+    type: "number"
+    description: "Log-scaled total listens for the track."
+  mean_vividness:
+    type: "number"
+    description: "Mean memory vividness rating for this user-track pair."
+    minimum: 0.0
+    maximum: 100.0
+  mean_valence:
+    type: "number"
+    description: "Mean emotional valence rating for this user-track pair."
+    minimum: -5.0
+    maximum: 5.0
+  memory_count:
+    type: "integer"
+    description: "Number of memory cues aggregated for this pair."
+    minimum: 1
+  match_distance:
+    type: "integer"
+    description: "Levenshtein distance used for matching."
+    maximum: 4
+required:
+  - user_id
+  - track_id
+  - residualized_exposure_score
+  - overall_popularity_score
+  - mean_vividness
+  - mean_valence
+  - memory_count
+  - match_distance
+additionalProperties: false

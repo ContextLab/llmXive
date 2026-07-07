@@ -1,0 +1,283 @@
+resolved_at: '2026-07-07T18:45:56.946059+00:00'
+datasets:
+- intent: MSD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MSD-Team/LLMTest/resolve/main/LLMPersian_Train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 25703
+      parsed: true
+  - url: https://huggingface.co/datasets/MicPie/unpredictable_msdn-microsoft-com/resolve/main/data/unpredictable_msdn-microsoft-com.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nagero/msdocs-ce/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 106305
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MicPie/unpredictable_msdn-microsoft-com/resolve/main/data/unpredictable_msdn-microsoft-com.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nagero/msdocs-ce/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/seungheondoh/LP-MusicCaps-MSD/resolve/main/data/test-00000-of-00001-dcf74b4dfad2da31.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/MSD-Team/LLMTest/resolve/main/LLMPersian_Train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nayohan/msdg-eval/resolve/main/data/test-00000-of-00001-d85dd0420f06476a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/A_Duplicate-Resolved_Paddlefish_Genome_Provides_Insights_into_the_Mechanisms_of_rediploidisation_and_Hox_Cluster_Evolution_-_Dearbhaile_Casey/31050064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Sesquiterpene-rich_and_antioxidant_activity_of_the_essential_oil_of_i_Simarouba_glauca_i_DC_leaves/32927571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Expert_classification_observation_landscape_characteristics_and_modeling_results_for_forest_dependent_species_in_Austria/32927543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Lifelong_Hypoxia_Produces_Multigenerational_Developmental_Lung_Disease_and_Pulmonary_Hypertension_in_Mice_b_-_Supplemental_Figure_1/32860406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/BaF_sub_2_sub_B_sub_2_sub_O_sub_3_sub_Fluorooxoborates_Insights_into_Electronic_Structure_Mechanical_Properties_and_High-Pressure_Stability/32927567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18221208
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10326742
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14861207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15924508
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/23406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/4638e8a2-b920-44d6-929a-e4bcdbd6aaab
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.22600
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/0f8f2c7d-275d-4d15-8fcf-315c0291f555
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195465
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21195465
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AMT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a-m-team/AM-Thinking-v1-Distilled/resolve/main/code.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/a-m-team/AM-Thinking-v1-RL-Dataset/resolve/main/code.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/a-m-team/AM-DeepSeek-R1-0528-Distilled/resolve/main/code.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/a-m-team/AM-Thinking-v1-Distilled/resolve/main/code.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/a-m-team/AM-Thinking-v1-RL-Dataset/resolve/main/code.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/a-m-team/AM-DeepSeek-R1-0528-Distilled/resolve/main/code.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ce-amtic/ProcCorpus-60M/resolve/main/bbox/Table30_arrange_flowers/episode_000000.bbox.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/gavinxing/amttl/resolve/main/amttl/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/A_Duplicate-Resolved_Paddlefish_Genome_Provides_Insights_into_the_Mechanisms_of_rediploidisation_and_Hox_Cluster_Evolution_-_Dearbhaile_Casey/31050064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Sesquiterpene-rich_and_antioxidant_activity_of_the_essential_oil_of_i_Simarouba_glauca_i_DC_leaves/32927571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Expert_classification_observation_landscape_characteristics_and_modeling_results_for_forest_dependent_species_in_Austria/32927543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Lifelong_Hypoxia_Produces_Multigenerational_Developmental_Lung_Disease_and_Pulmonary_Hypertension_in_Mice_b_-_Supplemental_Figure_1/32860406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/BaF_sub_2_sub_B_sub_2_sub_O_sub_3_sub_Fluorooxoborates_Insights_into_Electronic_Structure_Mechanical_Properties_and_High-Pressure_Stability/32927567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10688771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13373954
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13991268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3782655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10203437
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1116270
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://docs.swisstopo.admin.ch/?pub=ga25-erl-134
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2409.14086
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/h2c5a/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21229403
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MemoryCue
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/A_Duplicate-Resolved_Paddlefish_Genome_Provides_Insights_into_the_Mechanisms_of_rediploidisation_and_Hox_Cluster_Evolution_-_Dearbhaile_Casey/31050064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Sesquiterpene-rich_and_antioxidant_activity_of_the_essential_oil_of_i_Simarouba_glauca_i_DC_leaves/32927571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Expert_classification_observation_landscape_characteristics_and_modeling_results_for_forest_dependent_species_in_Austria/32927543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Lifelong_Hypoxia_Produces_Multigenerational_Developmental_Lung_Disease_and_Pulmonary_Hypertension_in_Mice_b_-_Supplemental_Figure_1/32860406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/BaF_sub_2_sub_B_sub_2_sub_O_sub_3_sub_Fluorooxoborates_Insights_into_Electronic_Structure_Mechanical_Properties_and_High-Pressure_Stability/32927567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenPsych
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Tetratics/2018-11-08-OpenPsychometrics-IPIP-FFM/resolve/main/dataset_parquet/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Tetratics/2018-11-08-OpenPsychometrics-IPIP-FFM/resolve/main/dataset_parquet/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/A_Duplicate-Resolved_Paddlefish_Genome_Provides_Insights_into_the_Mechanisms_of_rediploidisation_and_Hox_Cluster_Evolution_-_Dearbhaile_Casey/31050064
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Sesquiterpene-rich_and_antioxidant_activity_of_the_essential_oil_of_i_Simarouba_glauca_i_DC_leaves/32927571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Expert_classification_observation_landscape_characteristics_and_modeling_results_for_forest_dependent_species_in_Austria/32927543
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Lifelong_Hypoxia_Produces_Multigenerational_Developmental_Lung_Disease_and_Pulmonary_Hypertension_in_Mice_b_-_Supplemental_Figure_1/32860406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/BaF_sub_2_sub_B_sub_2_sub_O_sub_3_sub_Fluorooxoborates_Insights_into_Electronic_Structure_Mechanical_Properties_and_High-Pressure_Stability/32927567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15874716
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Intelligence_Trends_in_Ancient_Rome_The_Rise_and_Fall_of_Roman_Polygenic_Scores_b_/23807364
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Intelligence_Trends_in_Ancient_Rome_The_Rise_and_Fall_of_Roman_Polygenic_Scores_b_/23807364/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

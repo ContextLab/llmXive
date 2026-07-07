@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the regression summary and diagnostic outputs."
+type: "object"
+properties:
+  primary_model:
+    type: "object"
+    description: "Results for the primary analysis (threshold 4)."
+    properties:
+      coefficient:
+        type: "number"
+        description: "Coefficient for residualized_exposure_score."
+      std_error:
+        type: "number"
+        description: "Standard error of the coefficient."
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient."
+      vif:
+        type: "number"
+        description: "Variance Inflation Factor for predictors."
+    required:
+      - coefficient
+      - std_error
+      - p_value
+      - vif
+  sensitivity_analysis:
+    type: "array"
+    description: "Results for thresholds 2 and 6."
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "integer"
+        coefficient:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - threshold
+        - coefficient
+        - p_value
+  permutation_test:
+    type: "object"
+    description: "Null distribution statistics."
+    properties:
+      observed_statistic:
+        type: "number"
+      null_mean:
+        type: "number"
+      null_std:
+        type: "number"
+      p_value_perm:
+        type: "number"
+        description: "Proportion of null values exceeding observed."
+      iterations:
+        type: "integer"
+        description: "Number of permutations performed."
+      method:
+        type: "string"
+        description: "Description of permutation method (e.g., 'shuffle predictor across tracks')."
+    required:
+      - observed_statistic
+      - null_mean
+      - null_std
+      - p_value_perm
+      - iterations
+      - method
+  match_rate:
+    type: "number"
+    description: "Percentage of AMT cues successfully matched."
+    minimum: 0.0
+    maximum: 100.0
+  data_source_status:
+    type: "string"
+    description: "Status of data sources (e.g., 'Human Verified', 'Simulation Mode', 'Blocker: No Human Data')."
+required:
+  - primary_model
+  - sensitivity_analysis
+  - permutation_test
+  - match_rate
+  - data_source_status
+additionalProperties: false
