@@ -32,21 +32,18 @@ env/
 *.swo
 *~
 
-# Data (Raw and Processed)
+# Data (Generated)
 data/raw/
 data/processed/
 data/results/
-!data/.gitkeep
-
-# Figures
 figures/
-!figures/.gitkeep
 
 # Logs
 *.log
-logs/
-!logs/.gitkeep
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Environment
+.env
