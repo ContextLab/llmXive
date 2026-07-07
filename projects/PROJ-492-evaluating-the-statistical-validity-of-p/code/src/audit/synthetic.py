@@ -1,8 +1,8 @@
 """
-Synthetic Dataset Generator (FR-030)
+Synthetic dataset generator for A/B test validity evaluation (FR-030).
 
-Generates a synthetic dataset of at least 10,000 simulated A/B test summaries
-containing both binary and continuous outcomes for validation purposes.
+Generates at least 10,000 simulated A/B test summaries with both binary and continuous outcomes.
+Ensures statistical validity by using realistic distributions and parameters.
 """
 import csv
 import json
@@ -13,301 +13,297 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
-from scipy import stats
 
-from code.src.config import SEED, set_rng_seed
+from code.src.config import set_rng_seed, SEED
 from code.src.utils.logger import get_default_logger, AuditLogger
-from code.src.models.data_models import ABTestSummary
 
+# Initialize logger
 logger = get_default_logger(__name__)
-
-# Constants for synthetic data generation
-MIN_SAMPLE_SIZE = 50
-MAX_SAMPLE_SIZE = 5000
-BASELINE_RANGE = (0.05, 0.50)
-EFFECT_SIZE_RANGE = (-0.10, 0.10)
-CONTINUOUS_MEAN_BASELINE = 100.0
-CONTINUOUS_STD_BASELINE = 15.0
-CONTINUOUS_EFFECT_RANGE = (-5.0, 5.0)
-DOMAINS = ["tech", "finance", "health", "e-commerce", "education"]
-YEARS = list(range(2018, 2025))
+audit_logger = AuditLogger(logger)
 
 def set_all_seeds(seed: int = SEED) -> None:
-    """Set random seeds for reproducibility."""
-    set_rng_seed(seed)
+    """Set all random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    logger.info(f"Random seeds set to {seed}")
+    audit_logger.info(f"Seeds set to {seed}")
 
-def generate_sample_sizes(n: int) -> List[int]:
-    """Generate n sample sizes uniformly distributed."""
-    return [random.randint(MIN_SAMPLE_SIZE, MAX_SAMPLE_SIZE) for _ in range(n)]
+def generate_sample_sizes(n_min: int = 100, n_max: int = 10000) -> Tuple[int, int]:
+    """
+    Generate realistic sample sizes for control and treatment groups.
+    Uses a log-normal distribution to mimic real-world A/B test sizes.
+    """
+    # Use log-normal to generate sizes that cluster around typical values
+    mean_log = np.log(2000)
+    std_log = 1.0
+    
+    n_control = int(np.clip(np.random.lognormal(mean_log, std_log), n_min, n_max))
+    n_treatment = int(np.clip(np.random.lognormal(mean_log, std_log), n_min, n_max))
+    
+    return n_control, n_treatment
 
 def generate_binary_outcome(
-    n: int,
-    baseline_rate: float,
-    effect_size: float,
-    seed: Optional[int] = None
-) -> Tuple[int, int, int, int, float]:
-    """
-    Generate binary outcome A/B test data.
-
-    Returns:
-        (n_control, n_treatment, successes_control, successes_treatment, p_value)
-    """
-    if seed is not None:
-        np.random.seed(seed)
-
-    n_control = n
-    n_treatment = n
-
-    # Apply effect size to baseline
-    treatment_rate = baseline_rate + effect_size
-    treatment_rate = max(0.0, min(1.0, treatment_rate))  # Clamp to [0, 1]
-
-    # Generate successes
-    successes_control = np.random.binomial(n_control, baseline_rate)
-    successes_treatment = np.random.binomial(n_treatment, treatment_rate)
-
-    # Perform two-proportion z-test
-    # Using scipy.stats.proportions_ztest
-    try:
-        count = np.array([successes_control, successes_treatment])
-        nobs = np.array([n_control, n_treatment])
-        z_stat, p_value = stats.proportions_ztest(count, nobs)
-    except Exception as e:
-        logger.warning(f"Z-test failed: {e}, using fallback p-value")
-        p_value = 0.5
-
-    return n_control, n_treatment, successes_control, successes_treatment, p_value
-
-def generate_continuous_outcome(
-    n: int,
-    effect_size: float,
-    seed: Optional[int] = None
-) -> Tuple[int, int, float, float, float, float, float]:
-    """
-    Generate continuous outcome A/B test data.
-
-    Returns:
-        (n_control, n_treatment, mean_control, mean_treatment,
-         std_control, std_treatment, p_value)
-    """
-    if seed is not None:
-        np.random.seed(seed)
-
-    n_control = n
-    n_treatment = n
-
-    # Generate data
-    data_control = np.random.normal(CONTINUOUS_MEAN_BASELINE, CONTINUOUS_STD_BASELINE, n_control)
-    data_treatment = np.random.normal(
-        CONTINUOUS_MEAN_BASELINE + effect_size,
-        CONTINUOUS_STD_BASELINE,
-        n_treatment
-    )
-
-    mean_control = float(np.mean(data_control))
-    mean_treatment = float(np.mean(data_treatment))
-    std_control = float(np.std(data_control, ddof=1))
-    std_treatment = float(np.std(data_treatment, ddof=1))
-
-    # Perform Welch's t-test
-    try:
-        t_stat, p_value = stats.ttest_ind(
-            data_control, data_treatment, equal_var=False
-        )
-    except Exception as e:
-        logger.warning(f"T-test failed: {e}, using fallback p-value")
-        p_value = 0.5
-
-    return n_control, n_treatment, mean_control, mean_treatment, std_control, std_treatment, p_value
-
-def generate_synthetic_dataset(
-    total_records: int = 10000,
-    binary_ratio: float = 0.5,
-    output_dir: Path = Path("data/generated"),
-    seed: int = SEED
+    n_control: int,
+    n_treatment: int,
+    baseline_rate: Optional[float] = None,
+    effect_size: Optional[float] = None
 ) -> Dict[str, Any]:
     """
-    Generate a synthetic dataset of A/B test summaries.
-
+    Generate binary outcome data for an A/B test.
+    
     Args:
-        total_records: Total number of records to generate (>= 10000)
-        binary_ratio: Ratio of binary outcomes (0.5 = 50% binary, 50% continuous)
-        output_dir: Directory to write output files
-        seed: Random seed for reproducibility
-
+        n_control: Sample size for control group
+        n_treatment: Sample size for treatment group
+        baseline_rate: Conversion rate for control group (default: random 0.05-0.30)
+        effect_size: Relative effect size (default: random -0.2 to 0.5)
+        
     Returns:
-        Metadata dictionary about the generated dataset
+        Dictionary with n_control, n_treatment, successes_control, successes_treatment,
+        rate_control, rate_treatment, effect_size, outcome_type
     """
-    if total_records < 10000:
-        raise ValueError(f"total_records must be >= 10000, got {total_records}")
-
-    set_all_seeds(seed)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    num_binary = int(total_records * binary_ratio)
-    num_continuous = total_records - num_binary
-
-    logger.info(f"Generating {num_binary} binary and {num_continuous} continuous records")
-
-    records = []
-    record_id = 1
-
-    # Generate binary outcomes
-    for i in range(num_binary):
-        n = random.randint(MIN_SAMPLE_SIZE, MAX_SAMPLE_SIZE)
-        baseline = random.uniform(*BASELINE_RANGE)
-        effect = random.uniform(*EFFECT_SIZE_RANGE)
-        domain = random.choice(DOMAINS)
-        year = random.choice(YEARS)
-
-        n_control, n_treatment, succ_c, succ_t, p_val = generate_binary_outcome(
-            n, baseline, effect
-        )
-
-        effect_size = (succ_t / n_treatment) - (succ_c / n_control)
-
-        record = {
-            "id": record_id,
-            "outcome_type": "binary",
-            "domain": domain,
-            "year": year,
-            "n_control": n_control,
-            "n_treatment": n_treatment,
-            "successes_control": succ_c,
-            "successes_treatment": succ_t,
-            "baseline_rate": baseline,
-            "treatment_rate": succ_t / n_treatment if n_treatment > 0 else 0.0,
-            "effect_size": effect_size,
-            "p_value": p_val,
-            "significant": p_val < 0.05,
-            "url": f"https://example.com/test/{record_id}",
-            "title": f"Test {record_id}: {domain} experiment",
-        }
-        records.append(record)
-        record_id += 1
-
-    # Generate continuous outcomes
-    for i in range(num_continuous):
-        n = random.randint(MIN_SAMPLE_SIZE, MAX_SAMPLE_SIZE)
-        effect = random.uniform(*CONTINUOUS_EFFECT_RANGE)
-        domain = random.choice(DOMAINS)
-        year = random.choice(YEARS)
-
-        (n_control, n_treatment, mean_c, mean_t, std_c, std_t, p_val) = (
-            generate_continuous_outcome(n, effect)
-        )
-
-        effect_size = mean_t - mean_c
-
-        record = {
-            "id": record_id,
-            "outcome_type": "continuous",
-            "domain": domain,
-            "year": year,
-            "n_control": n_control,
-            "n_treatment": n_treatment,
-            "mean_control": mean_c,
-            "mean_treatment": mean_t,
-            "std_control": std_c,
-            "std_treatment": std_t,
-            "effect_size": effect_size,
-            "p_value": p_val,
-            "significant": p_val < 0.05,
-            "url": f"https://example.com/test/{record_id}",
-            "title": f"Test {record_id}: {domain} continuous experiment",
-        }
-        records.append(record)
-        record_id += 1
-
-    # Write CSV output
-    csv_path = output_dir / "synthetic_summaries.csv"
-    write_csv_output(records, csv_path)
-
-    # Write metadata
-    metadata = {
-        "total_records": len(records),
-        "binary_count": num_binary,
-        "continuous_count": num_continuous,
-        "domains": DOMAINS,
-        "years": YEARS,
-        "generation_timestamp": datetime.now().isoformat(),
-        "seed": seed,
-        "output_file": str(csv_path),
+    if baseline_rate is None:
+        baseline_rate = random.uniform(0.05, 0.30)
+    
+    if effect_size is None:
+        # Effect size: relative change in conversion rate
+        effect_size = random.uniform(-0.2, 0.5)
+    
+    rate_control = baseline_rate
+    rate_treatment = baseline_rate * (1 + effect_size)
+    
+    # Ensure rates are valid probabilities
+    rate_treatment = np.clip(rate_treatment, 0.01, 0.99)
+    
+    # Generate successes
+    successes_control = np.random.binomial(n_control, rate_control)
+    successes_treatment = np.random.binomial(n_treatment, rate_treatment)
+    
+    return {
+        "n_control": n_control,
+        "n_treatment": n_treatment,
+        "successes_control": int(successes_control),
+        "successes_treatment": int(successes_treatment),
+        "rate_control": round(rate_control, 6),
+        "rate_treatment": round(rate_treatment, 6),
+        "effect_size": round(effect_size, 6),
+        "outcome_type": "binary",
+        "test_type": "two_proportion_z"
     }
-    metadata_path = output_dir / "synthetic_metadata.json"
-    write_metadata(metadata, metadata_path)
 
-    # Verify outcome types
-    verify_outcome_types(records, num_binary, num_continuous)
+def generate_continuous_outcome(
+    n_control: int,
+    n_treatment: int,
+    baseline_mean: Optional[float] = None,
+    baseline_std: Optional[float] = None,
+    effect_size: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Generate continuous outcome data for an A/B test.
+    
+    Args:
+        n_control: Sample size for control group
+        n_treatment: Sample size for treatment group
+        baseline_mean: Mean for control group (default: random 10-100)
+        baseline_std: Standard deviation for control group (default: random 5-20)
+        effect_size: Cohen's d effect size (default: random -0.5 to 1.0)
+        
+    Returns:
+        Dictionary with n_control, n_treatment, mean_control, mean_treatment,
+        std_control, std_treatment, effect_size, outcome_type
+    """
+    if baseline_mean is None:
+        baseline_mean = random.uniform(10, 100)
+    
+    if baseline_std is None:
+        baseline_std = random.uniform(5, 20)
+    
+    if effect_size is None:
+        # Cohen's d effect size
+        effect_size = random.uniform(-0.5, 1.0)
+    
+    mean_control = baseline_mean
+    std_control = baseline_std
+    
+    # Treatment mean based on effect size (Cohen's d)
+    mean_treatment = mean_control + effect_size * std_control
+    std_treatment = std_control * random.uniform(0.8, 1.2)  # Small variation in std
+    
+    # Ensure positive values for typical metrics
+    mean_treatment = max(1.0, mean_treatment)
+    std_treatment = max(0.1, std_treatment)
+    
+    return {
+        "n_control": n_control,
+        "n_treatment": n_treatment,
+        "mean_control": round(mean_control, 4),
+        "mean_treatment": round(mean_treatment, 4),
+        "std_control": round(std_control, 4),
+        "std_treatment": round(std_treatment, 4),
+        "effect_size": round(effect_size, 6),
+        "outcome_type": "continuous",
+        "test_type": "welch_t"
+    }
 
-    logger.info(f"Successfully generated {len(records)} synthetic records")
-    return metadata
-
-def verify_outcome_types(
-    records: List[Dict[str, Any]],
-    expected_binary: int,
-    expected_continuous: int
-) -> None:
-    """Verify that the generated dataset contains the expected number of each outcome type."""
-    binary_count = sum(1 for r in records if r["outcome_type"] == "binary")
-    continuous_count = sum(1 for r in records if r["outcome_type"] == "continuous")
-
-    if binary_count != expected_binary:
-        raise ValueError(
-            f"Binary count mismatch: expected {expected_binary}, got {binary_count}"
-        )
-    if continuous_count != expected_continuous:
-        raise ValueError(
-            f"Continuous count mismatch: expected {expected_continuous}, got {continuous_count}"
-        )
-    if binary_count == 0 or continuous_count == 0:
-        raise ValueError(
-            "Both binary and continuous outcomes must be present in the dataset"
-        )
-
-    logger.info(
-        f"Verification passed: {binary_count} binary, {continuous_count} continuous"
-    )
-
-def write_csv_output(records: List[Dict[str, Any]], path: Path) -> None:
-    """Write records to a CSV file."""
-    if not records:
-        raise ValueError("No records to write")
-
-    fieldnames = list(records[0].keys())
-    with open(path, "w", newline="", encoding="utf-8") as f:
+def generate_synthetic_dataset(
+    n_records: int = 10000,
+    binary_ratio: float = 0.5,
+    output_dir: str = "data",
+    filename: str = "synthetic_summaries.csv"
+) -> Path:
+    """
+    Generate a synthetic dataset of A/B test summaries.
+    
+    Args:
+        n_records: Total number of records to generate (minimum 10000)
+        binary_ratio: Proportion of binary outcomes (default 0.5)
+        output_dir: Output directory
+        filename: Output filename
+        
+    Returns:
+        Path to the generated CSV file
+    """
+    if n_records < 10000:
+        logger.warning(f"Requested {n_records} records, minimum is 10000. Setting to 10000.")
+        n_records = 10000
+    
+    set_all_seeds()
+    
+    output_path = Path(output_dir) / filename
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    audit_logger.info(f"Generating {n_records} synthetic A/B test summaries")
+    
+    records = []
+    binary_count = 0
+    continuous_count = 0
+    
+    for i in range(n_records):
+        # Determine outcome type
+        if random.random() < binary_ratio:
+            n_control, n_treatment = generate_sample_sizes()
+            record = generate_binary_outcome(n_control, n_treatment)
+            binary_count += 1
+        else:
+            n_control, n_treatment = generate_sample_sizes()
+            record = generate_continuous_outcome(n_control, n_treatment)
+            continuous_count += 1
+        
+        # Add metadata
+        record["id"] = f"syn_{i:06d}"
+        record["generated_at"] = datetime.now().isoformat()
+        record["domain"] = random.choice([
+            "e-commerce", "finance", "healthcare", "technology", "education"
+        ])
+        
+        records.append(record)
+    
+    # Write to CSV
+    fieldnames = [
+        "id", "outcome_type", "test_type", "n_control", "n_treatment",
+        "rate_control", "rate_treatment", "successes_control", "successes_treatment",
+        "mean_control", "mean_treatment", "std_control", "std_treatment",
+        "effect_size", "domain", "generated_at"
+    ]
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(records)
+        for record in records:
+            # Handle missing fields gracefully
+            row = {k: record.get(k, "") for k in fieldnames}
+            writer.writerow(row)
+    
+    audit_logger.info(f"Generated {binary_count} binary and {continuous_count} continuous outcomes")
+    audit_logger.info(f"Output written to {output_path}")
+    
+    return output_path
 
-    logger.info(f"Wrote {len(records)} records to {path}")
+def verify_outcome_types(
+    filepath: Path,
+    min_binary: int = 1000,
+    min_continuous: int = 1000
+) -> Tuple[bool, Dict[str, int]]:
+    """
+    Verify that the generated dataset contains both outcome types.
+    
+    Args:
+        filepath: Path to the CSV file
+        min_binary: Minimum required binary records
+        min_continuous: Minimum required continuous records
+        
+    Returns:
+        Tuple of (is_valid, counts_dict)
+    """
+    counts = {"binary": 0, "continuous": 0}
+    
+    with open(filepath, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            outcome_type = row.get('outcome_type', '')
+            if outcome_type in counts:
+                counts[outcome_type] += 1
+    
+    is_valid = counts["binary"] >= min_binary and counts["continuous"] >= min_continuous
+    
+    audit_logger.info(f"Verification: {counts['binary']} binary, {counts['continuous']} continuous")
+    
+    if not is_valid:
+        audit_logger.error(
+            f"Verification failed: need at least {min_binary} binary and {min_continuous} continuous"
+        )
+    
+    return is_valid, counts
 
-def write_metadata(metadata: Dict[str, Any], path: Path) -> None:
-    """Write metadata to a JSON file."""
-    with open(path, "w", encoding="utf-8") as f:
+def write_metadata(output_dir: str = "data", filename: str = "synthetic_metadata.json") -> Path:
+    """Write metadata about the synthetic dataset generation."""
+    metadata = {
+        "generated_at": datetime.now().isoformat(),
+        "total_records": 10000,
+        "binary_ratio": 0.5,
+        "random_seed": SEED,
+        "description": "Synthetic A/B test summaries for validity evaluation",
+        "outcome_types": ["binary", "continuous"],
+        "test_types": ["two_proportion_z", "welch_t"]
+    }
+    
+    metadata_path = Path(output_dir) / filename
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(metadata_path, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, indent=2)
+    
+    audit_logger.info(f"Metadata written to {metadata_path}")
+    return metadata_path
 
-    logger.info(f"Wrote metadata to {path}")
-
-def main() -> int:
+def main():
     """Main entry point for synthetic dataset generation."""
+    output_dir = "data"
+    csv_filename = "synthetic_summaries.csv"
+    
     try:
-        output_dir = Path("data/generated")
-        metadata = generate_synthetic_dataset(
-            total_records=10000,
+        # Generate dataset
+        csv_path = generate_synthetic_dataset(
+            n_records=10000,
             binary_ratio=0.5,
             output_dir=output_dir,
-            seed=SEED
+            filename=csv_filename
         )
-        print(f"Generated {metadata['total_records']} records")
-        print(f"Binary: {metadata['binary_count']}, Continuous: {metadata['continuous_count']}")
+        
+        # Verify outcome types
+        is_valid, counts = verify_outcome_types(csv_path)
+        
+        if not is_valid:
+            audit_logger.error("Synthetic dataset verification failed")
+            return 1
+        
+        # Write metadata
+        write_metadata(output_dir)
+        
+        audit_logger.info("Synthetic dataset generation completed successfully")
         return 0
+        
     except Exception as e:
-        logger.error(f"Failed to generate synthetic dataset: {e}", exc_info=True)
-        return 1
+        audit_logger.error(f"Error generating synthetic dataset: {e}")
+        raise
 
 if __name__ == "__main__":
     import sys

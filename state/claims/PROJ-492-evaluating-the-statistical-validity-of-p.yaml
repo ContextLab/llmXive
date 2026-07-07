@@ -35128,22 +35128,6 @@
   updated_at: '2026-07-05T16:52:53Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
-  canonical: CI execution completes within 6 hours
-  claim_id: c_9080c29d
-  context: "T075 Verify SC\u2011008: CI execution completes within 6 h, \u2264 2 GB\
-    \ RAM, \u2264 2 vCPU."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: CI execution completes within 6 hours.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T16:53:18Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
   canonical: CI execution uses at most 2 GB RAM
   claim_id: c_6c326eaf
   context: "T075 Verify SC\u2011008: CI execution completes within 6 h, \u2264 2 GB\
@@ -45332,44 +45316,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T06:04:23Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: synthetic validation precision >= 90% recall >= 80%
-  claim_id: c_44de39ae
-  context: "T084 Verify SC\u2011030: Synthetic validation precision \u2265 90 % and\
-    \ recall \u2265 80 %."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/synthetic_validation_precision_%3E=_90%25_recall_%3E=_80%25
-  kind: magnitude
-  raw_text: Synthetic validation precision is greater than or equal to 90% and recall
-    is greater than or equal to 80%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T06:05:00Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: real-world validation precision >= 85% recall >= 75%
-  claim_id: c_2b6152be
-  context: "T085 Verify SC\u2011031b: Real\u2011world validation precision \u2265\
-    \ 85 % and recall \u2265 75 %."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/real-world_validation_precision_%3E=_85%25_recall_%3E=_75%25
-  kind: magnitude
-  raw_text: Real-world validation precision is greater than or equal to 85% and recall
-    is greater than or equal to 75%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T06:05:22Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: real_world_labels.csv contains 20 annotated summaries per domain for
@@ -60434,21 +60380,6 @@
   updated_at: '2026-07-07T01:47:57Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
-  canonical: parsing-error rate <= 5%
-  claim_id: c_0a342719
-  context: "T074 Verify SC\u2011005: The parsing-error rate is \u2264 5%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The parsing-error rate is \u2264 5%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T01:48:08Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
   canonical: CI execution completes within 6 hours with <= 2 GB RAM and <= 2 vCPU
   claim_id: c_19978088
   context: "T075 Verify SC\u2011008: CI execution completes within 6\u202Fh, \u2264\
@@ -61016,26 +60947,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T02:34:44Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 3
-  canonical: Subgroup analysis produces Fisher's exact test results for groups with
-    at least 10 summaries
-  claim_id: c_b7bb77de
-  context: "T086 Verify SC\u2011032: Subgroup analysis produces Fisher's exact test\
-    \ results for groups \u2265 10"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Subgroup_analysis_produces_Fisher's_exact_test_results_for_g
-  kind: magnitude
-  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
-    at least 10 summaries.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T02:34:56Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: Quickstart guide enables audit of 30 URLs in less than or equal to 30
@@ -62467,26 +62378,6 @@
   source_type: external
   status: verified
   updated_at: '2026-07-07T04:34:17Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: Synthetic dataset generator outputs at least 10000 simulated summaries
-  claim_id: c_6c8655a2
-  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
-    030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-    \ summaries. (binary AND continuous outcomes)"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generator_outputs_at_least_10000_simulated
-  kind: magnitude
-  raw_text: "The synthetic dataset generator outputs at least 10\u202F000 simulated\
-    \ summaries."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T04:36:12Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 2
   canonical: Monte-Carlo validation runs 1010000 replicates per statistical test
@@ -67341,26 +67232,6 @@
   status: not_enough_info
   updated_at: '2026-07-07T10:01:59Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 5
-  canonical: real-world validation set contains at least 20 annotated summaries per
-    domain
-  claim_id: c_6f1a9068
-  context: T069d Verify that real_world_labels.csv contains at least20 annotated summaries
-    per each of the five required domains.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Real-world_validation_set_contains_at_least_20_annotated_sum
-  kind: magnitude
-  raw_text: Real-world validation set contains at least 20 annotated summaries per
-    each of the five required domains.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T10:02:56Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: Quickstart runs on 2 vCPU 7 GB RAM runner
   claim_id: c_780b861c
@@ -67792,22 +67663,6 @@
   status: not_enough_info
   updated_at: '2026-07-07T10:43:04Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 5
-  canonical: Quickstart guide covers execution on 30 URLs within 30 minutes
-  claim_id: c_7838e5af
-  context: "T049 Add Quickstart guide docs/README_QUICKSTART.md covering execution\
-    \ on 30 URLs within 30 minutes (FR\u2011028)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The Quickstart guide covers execution on 30 URLs within 30 minutes.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T10:43:42Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: real-world validation set contains at least 20 annotated summaries per
     domain
@@ -67935,42 +67790,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T10:50:20Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 4
-  canonical: synthetic dataset generator outputs at least 10000 simulated summaries
-  claim_id: c_2f3c8a77
-  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
-    030) \u2013 The synthetic dataset generator outputs at least 10 000 simulated\
-    \ summaries."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generator_outputs_at_least_10000_simulated
-  kind: magnitude
-  raw_text: The synthetic dataset generator outputs at least 10 000 simulated summaries.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T10:57:56Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: Monte-Carlo validation runs 1010000 replicates per statistical test
-  claim_id: c_0bd179f7
-  context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in src/audit/monte_carlo_validation.py\
-    \ that runs 10 10000 replicates for each statistical test."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Monte\u2011Carlo validation module runs 10 10000 replicates for each\
-    \ statistical test."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T10:58:24Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 2
   canonical: real-world validation set contains at least 20 annotated summaries per
@@ -68768,26 +68587,6 @@
   updated_at: '2026-07-07T12:11:47Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 2
-  canonical: synthetic dataset outputs at least 10000 simulated summaries
-  claim_id: c_2012f401
-  context: "T026 Implement synthetic dataset generator in `src/audit/synthetic.py`\
-    \ (FR\u2011030) \u2013 The synthetic dataset generator outputs at least 10\u202F\
-    000 simulated summaries."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_outputs_at_least_10000_simulated_summaries
-  kind: magnitude
-  raw_text: "The synthetic dataset generator outputs at least 10\u202F000 simulated\
-    \ summaries."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T12:18:54Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 2
   canonical: Monte-Carlo validation runs 1010000 replicates per test
   claim_id: c_9c8a9a6b
   context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
@@ -69237,24 +69036,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T12:37:54Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 3
-  canonical: Quickstart guide enables audit of 30 URLs in 30 minutes on default GitHub
-    Actions runner
-  claim_id: c_f8bb00a3
-  context: "T083 Verify SC\u2011028: Quickstart guide enables audit of 30 URLs in\
-    \ \u2264 30 minutes on default GitHub Actions runner (2 vCPU, 7 GB RAM)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The Quickstart guide enables audit of 30 URLs in \u2264 30 minutes on\
-    \ default GitHub Actions runner (2 vCPU, 7 GB RAM)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T12:38:22Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: synthetic validation precision is 90 percent and recall is 80 percent
@@ -71850,42 +71631,6 @@
   status: not_enough_info
   updated_at: '2026-07-07T15:53:58Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 3
-  canonical: parsing-error rate <= 5%
-  claim_id: c_63a8d544
-  context: "T074 Verify SC\u2011005: The parsing-error rate is \u2264 5%."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/parsing-error_rate_%3C=_5%25
-  kind: magnitude
-  raw_text: The parsing-error rate must be less than or equal to 5%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T15:54:10Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 3
-  canonical: sensitivity analysis variation < 0.02
-  claim_id: c_ec701a05
-  context: "T078 Verify SC\u2011015: Sensitivity analysis variation is less than 0.02\
-    \ across baseline range.."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/sensitivity_analysis_variation_%3C_0.02
-  kind: magnitude
-  raw_text: Sensitivity analysis variation must be less than 0.02 across the baseline
-    range.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-07T15:54:23Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 2
   canonical: extraction precision 85% recall 75% real-world validation
   claim_id: c_43788e1d
@@ -73429,3 +73174,1137 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T17:35:34Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 3
+  canonical: synthetic dataset outputs at least 10000 simulated summaries
+  claim_id: c_2012f401
+  context: "T026 Implement synthetic dataset generator in `src/audit/synthetic.py`\
+    \ (FR\u2011030) \u2013 The synthetic dataset generator outputs at least 10\u202F\
+    000 simulated summaries."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_outputs_at_least_10000_simulated_summaries
+  kind: magnitude
+  raw_text: "The synthetic dataset generator outputs at least 10\u202F000 simulated\
+    \ summaries."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T17:59:46Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Monte-Carlo validation runs 10100000 replicates per test
+  claim_id: c_fcc65353
+  context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+    \ that runs 10\u202F10000 replicates for each statistical test"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Monte\u2011Carlo validation module runs 10,100,000 replicates for each\
+    \ statistical test."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:00:16Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Monte-Carlo validation checks absolute difference <= 0.005
+  claim_id: c_380919f3
+  context: "T062 ... runs 10\u202F10000 replicates for each statistical test (z-test,\
+    \ Fisher's, Welch's, binomial) and checks the absolute difference \u2264 0.005"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Monte\u2011Carlo validation module checks the absolute difference\
+    \ \u2264 0.005."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:00:30Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: real-world validation precision >= 85% recall >= 75%
+  claim_id: c_0385fc22
+  context: "T071 Verify SC\u2011031b: Real\u2011world validation precision \u2265\
+    \ 85\u202F% and recall \u2265 75\u202F%"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Real-world validation precision must be \u2265 85% and recall \u2265\
+    \ 75%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:00:44Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: extraction accuracy >= 95% on manual validation set
+  claim_id: c_485176a3
+  context: "T072 Verify SC\u2011001: Extraction accuracy \u2265 95\u202F% on `data/manual_validation/real_world_labels.csv`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extraction accuracy must be \u2265 95% on the manual validation set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:00:58Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: parsing-error rate <= 5%
+  claim_id: c_0a342719
+  context: "T074 Verify SC\u2011005: The parsing-error rate is \u2264 5%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The parsing-error rate is \u2264 5%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:01:12Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI execution within 6 hours <= 2 GB RAM <= 2 vCPU
+  claim_id: c_570ae6d2
+  context: "T075 Verify SC\u2011008: CI execution completes within 6\u202Fh, \u2264\
+    \u202F2\u202FGB RAM, \u2264\u202F2\u202FvCPU"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CI execution completes within 6 hours, \u2264 2 GB RAM, and \u2264 2\
+    \ vCPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:01:43Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI pipeline exits 0 and produces manifest.json in >= 99% of runs
+  claim_id: c_7b787702
+  context: "T076 Verify SC\u2011013: The CI pipeline must exit with status 0 and produce\
+    \ manifest.json in \u2265 99% of runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The CI pipeline must exit with status 0 and produce manifest.json in\
+    \ \u2265 99% of runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:02:17Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis variation < 0.02 across baseline range
+  claim_id: c_dd30821e
+  context: "T078 Verify SC\u2011015: Sensitivity analysis variation is less than 0.02\
+    \ across baseline range.."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sensitivity_analysis_variation_%3C_0.02_across_baseline_range
+  kind: magnitude
+  raw_text: Sensitivity analysis variation is less than 0.02 across baseline range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:03:09Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Quickstart audits 30 URLs in <= 30 minutes on default GitHub Actions
+    runner
+  claim_id: c_8db04cfd
+  context: "T083 Verify SC\u2011028: Quickstart guide enables audit of 30 URLs in\
+    \ \u2264\u202F30\u202Fminutes on **default GitHub Actions runner**"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Quickstart guide enables audit of 30 URLs in \u2264 30 minutes on default\
+    \ GitHub Actions runner."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:03:35Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: synthetic validation precision >= 90% recall >= 80%
+  claim_id: c_bc8257fc
+  context: "T084 Verify SC\u2011030: Synthetic validation precision \u2265 90\u202F\
+    % and recall \u2265 80\u202F%"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synthetic validation precision must be \u2265 90% and recall \u2265 80%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:03:49Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: subgroup analysis Fisher's exact test for groups >= 10
+  claim_id: c_14a5e561
+  context: "T086 Verify SC\u2011032: Subgroup analysis produces Fisher's exact test\
+    \ results for groups \u2265\u202F10"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Subgroup analysis produces Fisher's exact test results for groups \u2265\
+    \ 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:04:03Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: benchmark on 5000 synthetic URLs <= 6 hours
+  claim_id: c_e6ed7ed0
+  context: "T093 Run full benchmark on 5\u202F000 synthetic URLs; record wall\u2011\
+    clock time in `output/benchmark.log` and ensure \u2264\u202F6\u202Fhours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Benchmark on 5,000 synthetic URLs must ensure wall-clock time \u2264\
+    \ 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:04:31Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: real-world validation has at least 20 annotated summaries per domain
+    across 5 domains
+  claim_id: c_ffa6ddbc
+  context: T069d **[P]** Run `tests/unit/test_stratification_counts.py` to verify
+    that `real_world_labels.csv` contains at least20 annotated summaries per each
+    of the five required domains.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real-world_validation_has_at_least_20_annotated_summaries_pe
+  kind: magnitude
+  raw_text: Real-world validation set must contain at least 20 annotated summaries
+    per each of the five required domains.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:05:02Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 0
+  canonical: Parsing-error rate is less than or equal to 5%
+  claim_id: c_62bd22a4
+  context: "T074 Verify SC\u2011005: The parsing-error rate is \u2264 5%."
+  evidence:
+    entailment_evidence: Parsing-error rate is 5%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Parsing-error_rate_is_5%25
+  kind: magnitude
+  raw_text: The parsing-error rate is less than or equal to 5%.
+  resolved_value: parsing-error rate is 5%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T18:12:20Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 0
+  canonical: Document cites arXiv:2506.09162
+  claim_id: c_848c94f7
+  context: T100 (2506.09162, https://arxiv.org/abs/2506.09162) a [P] {{claim:c_23dc9564}}
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The document cites arXiv:2506.09162.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T18:13:36Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 0
+  canonical: Document cites arXiv:1807.00365
+  claim_id: c_7f81ac68
+  context: "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365,\
+    \ https://arxiv.org/abs/1807.00365)"
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The document cites arXiv:1807.00365.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T18:13:50Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: Synthetic dataset generator outputs at least 10000 simulated summaries
+  claim_id: c_6c8655a2
+  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
+    030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+    \ summaries. (binary AND continuous outcomes)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generator_outputs_at_least_10000_simulated
+  kind: magnitude
+  raw_text: "The synthetic dataset generator outputs at least 10\u202F000 simulated\
+    \ summaries."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:14:11Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Monte-Carlo validation runs 1010000 replicates for z-test, Fisher's,
+    Welch's, binomial
+  claim_id: c_e99c390c
+  context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in src/audit/monte_carlo_validation.py\
+    \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
+    \ Welch's, binomial) and checks the absolute difference \u2264 0.005"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Monte\u2011Carlo validation module runs 10\u202F10000 replicates\
+    \ for each statistical test (z-test, Fisher's, Welch's, binomial)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:14:41Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 6
+  canonical: Quickstart guide covers execution on 30 URLs within 30 minutes
+  claim_id: c_7838e5af
+  context: "T049 Add Quickstart guide docs/README_QUICKSTART.md covering execution\
+    \ on 30 URLs within 30 minutes (FR\u2011028)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Quickstart guide covers execution on 30 URLs within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:15:08Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Manual annotation results in at least 20 annotated summaries per domain
+    for five domains
+  claim_id: c_0ecc714c
+  context: T069d Verify that real_world_labels.csv contains at least20 annotated summaries
+    per each of the five required domains.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Manual_annotation_results_in_at_least_20_annotated_summaries
+  kind: causal
+  raw_text: The manual annotation protocol results in real-world_labels.csv with at
+    least 20 annotated summaries per each of the five required domains.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:15:24Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Full benchmark runs on 5000 synthetic URLs
+  claim_id: c_aadd28c8
+  context: "T093 Run full benchmark on 5\u202F000 synthetic URLs; record wall\u2011\
+    clock time in output/benchmark.log and ensure \u2264 6 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full benchmark runs on 5\u202F000 synthetic URLs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:16:00Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Chunked processing keeps RAM usage at or below 1.5 GB for large corpora
+  claim_id: c_8870a296
+  context: "T090 Performance optimization: replace in\u2011memory DataFrame joins\
+    \ with chunked processing in src/audit/preprevalence.py to keep RAM \u2264 1.5\u202F\
+    GB for large corpora"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Replacement of in\u2011memory DataFrame joins with chunked processing\
+    \ keeps RAM usage at or below 1.5\u202FGB for large corpora."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:17:12Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Real-world validation requires precision at least 85% and recall at least
+    75%
+  claim_id: c_8fd958e1
+  context: "Independent Test: Compute extraction precision \u2265 85\u202F% and recall\
+    \ \u2265 75\u202F% (F1 \u2265 0.80) on the real\u2011world validation set"
+  evidence:
+    candidates:
+    - - ''
+      - 85.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Real-world_validation_requires_precision_at_least_85%25_and_re
+  kind: magnitude
+  raw_text: The real-world validation set requires extraction precision of at least
+    85% and recall of at least 75%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-07T18:17:46Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Synthetic validation requires precision at least 90% and recall at least
+    80%
+  claim_id: c_9f36af91
+  context: "Independent Test: Run the pipeline on the synthetic validation dataset\
+    \ and verify precision \u2265 90\u202F% and recall \u2265 80\u202F%"
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Synthetic_validation_requires_precision_at_least_90%25_and_rec
+  kind: magnitude
+  raw_text: The synthetic validation dataset requires precision of at least 90% and
+    recall of at least 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-07T18:18:18Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Binomial test and CI width must be less than or equal to 0.10
+  claim_id: c_9994ea21
+  context: "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365,\
+    \ https://arxiv.org/abs/1807.00365)"
+  evidence:
+    entailment_evidence: Binomial test and CI width must be less than or equal to
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Binomial_test_and_CI_width_must_be_less_than_or_equal_to_0.1
+  kind: magnitude
+  raw_text: The binomial test and CI width must be less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-07T18:18:52Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis variation is less than 0.02 across baseline range
+  claim_id: c_3ac6d495
+  context: "T078 Verify SC\u2011015: Sensitivity analysis variation is less than 0.02\
+    \ across baseline range.."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_variation_is_less_than_0.02_across_base
+  kind: magnitude
+  raw_text: The sensitivity analysis variation is less than 0.02 across baseline range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:19:08Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Monte-Carlo validation checks absolute difference less than or equal
+    to 0.005
+  claim_id: c_1a40c6ea
+  context: "T062 Implement Monte\u2011Carlo validation module ... and checks the absolute\
+    \ difference \u2264 0.005"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monte-Carlo_validation_checks_absolute_difference_less_than
+  kind: magnitude
+  raw_text: The Monte-Carlo validation checks that the absolute difference is less
+    than or equal to 0.005.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:19:45Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI execution must complete within 6 hours
+  claim_id: c_d3bd4656
+  context: "T075 Verify SC\u2011008: CI execution completes within 6\u202Fh, \u2264\
+    \ 2\u202FGB RAM, \u2264 2\u202FvCPU"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI execution must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:20:24Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI resource limits are 2 GB RAM and 2 vCPU
+  claim_id: c_8f83b2f5
+  context: "T075 Verify SC\u2011008: CI execution completes within 6\u202Fh, \u2264\
+    \ 2\u202FGB RAM, \u2264 2\u202FvCPU"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI resource limits are 2 GB RAM and 2 vCPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:20:57Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: No single domain should exceed 30% before bias adjustment
+  claim_id: c_2d73d7cd
+  context: "T044 Domain Bias Subsampling \u2013 create a balanced subsample of the\
+    \ corpus so that no single domain exceeds 30\u202F% before bias adjustment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No single domain should exceed 30% before bias adjustment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:21:11Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 4
+  canonical: Quickstart guide enables audit of 30 URLs in 30 minutes on default GitHub
+    Actions runner
+  claim_id: c_f8bb00a3
+  context: "T083 Verify SC\u2011028: Quickstart guide enables audit of 30 URLs in\
+    \ \u2264 30 minutes on default GitHub Actions runner (2 vCPU, 7 GB RAM)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Quickstart guide enables audit of 30 URLs in \u2264 30 minutes on\
+    \ default GitHub Actions runner (2 vCPU, 7 GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:21:25Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Default GitHub Actions runner has 2 vCPU and 7 GB RAM
+  claim_id: c_50d77f79
+  context: "T083 Verify SC\u2011028: Quickstart guide enables audit of 30 URLs in\
+    \ \u2264 30 minutes on default GitHub Actions runner (2 vCPU, 7 GB RAM)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default GitHub Actions runner has 2 vCPU and 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:21:54Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Audited corpus must meet N at least 300 or N at least calculated minimum
+  claim_id: c_71a39a41
+  context: "T028 Implement power\u2011analysis utility ... and asserts audited corpus\
+    \ meets N \u2265 300 OR N \u2265 calculated_minimum"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Audited_corpus_must_meet_N_at_least_300_or_N_at_least_calcul
+  kind: magnitude
+  raw_text: "The audited corpus must meet N \u2265 300 or N \u2265 calculated_minimum."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:22:54Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Extraction accuracy must be at least 95% on the real-world validation
+    set
+  claim_id: c_89b5d49f
+  context: "T072 Verify SC\u2011001: Extraction accuracy \u2265 95\u202F% on data/manual_validation/real_world_labels.csv"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extraction_accuracy_must_be_at_least_95%25_on_the_real-world_v
+  kind: magnitude
+  raw_text: The extraction accuracy must be at least 95% on the real-world validation
+    set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:23:35Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 4
+  canonical: Subgroup analysis produces Fisher's exact test results for groups with
+    at least 10 summaries
+  claim_id: c_b7bb77de
+  context: "T086 Verify SC\u2011032: Subgroup analysis produces Fisher's exact test\
+    \ results for groups \u2265 10"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subgroup_analysis_produces_Fisher's_exact_test_results_for_g
+  kind: magnitude
+  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
+    at least 10 summaries.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:24:14Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Absolute p-difference threshold for inconsistency is greater than 0.05
+  claim_id: c_5b7f29c1
+  context: "T025 Implement inconsistency validator ... applying FR\u2011004 thresholds\
+    \ (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F%)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Absolute_p-difference_threshold_for_inconsistency_is_greater
+  kind: magnitude
+  raw_text: The absolute p-difference threshold for inconsistency is greater than
+    0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:24:41Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Relative effect-size threshold for inconsistency is greater than 5%
+  claim_id: c_057fb5ab
+  context: "T025 Implement inconsistency validator ... applying FR\u2011004 thresholds\
+    \ (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F%)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Relative_effect-size_threshold_for_inconsistency_is_greater
+  kind: magnitude
+  raw_text: The relative effect-size threshold for inconsistency is greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:25:09Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction is calculated as alpha = 0.05 divided by the number
+    of subgroups
+  claim_id: c_4d27b1ce
+  context: "T042 Implement binomial prevalence test, Wilson CI, and sensitivity analysis\
+    \ ... including dynamic Bonferroni correction (\u03B1 = 0.05\u202F/\u202Fnumber_of_subgroups)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction is calculated as alpha = 0.05 divided by the
+    number of subgroups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:25:37Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 5
+  canonical: synthetic dataset generator outputs at least 10000 simulated summaries
+  claim_id: c_2f3c8a77
+  context: "T026 Implement synthetic dataset generator in src/audit/synthetic.py (FR\u2011\
+    030) \u2013 The synthetic dataset generator outputs at least 10 000 simulated\
+    \ summaries."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_generator_outputs_at_least_10000_simulated
+  kind: magnitude
+  raw_text: The synthetic dataset generator outputs at least 10 000 simulated summaries.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:34:04Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: Monte-Carlo validation runs 1010000 replicates per statistical test
+  claim_id: c_0bd179f7
+  context: "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in src/audit/monte_carlo_validation.py\
+    \ that runs 10 10000 replicates for each statistical test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Monte\u2011Carlo validation module runs 10 10000 replicates for each\
+    \ statistical test."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:34:34Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 6
+  canonical: real-world validation set contains at least 20 annotated summaries per
+    domain
+  claim_id: c_6f1a9068
+  context: T069d Verify that real_world_labels.csv contains at least20 annotated summaries
+    per each of the five required domains.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real-world_validation_set_contains_at_least_20_annotated_sum
+  kind: magnitude
+  raw_text: Real-world validation set contains at least 20 annotated summaries per
+    each of the five required domains.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:35:04Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: CI pipeline exits with status 0 and produces manifest.json in 99% of
+    runs
+  claim_id: c_77b45ddb
+  context: "T076 Verify SC\u2011013: The CI pipeline must exit with status 0 and produce\
+    \ manifest.json in \u2265 99% of runs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_pipeline_exits_with_status_0_and_produces_manifest.json_i
+  kind: magnitude
+  raw_text: The CI pipeline must exit with status 0 and produce manifest.json in at
+    least 99% of runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:35:19Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Quickstart enables 30 URLs audit in 30 minutes
+  claim_id: c_395028fd
+  context: "T083 Verify SC\u2011028: Quickstart guide enables audit of 30 URLs in\
+    \ \u2264 30 minutes on default GitHub Actions runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Quickstart guide enables audit of 30 URLs in 30 minutes on default GitHub
+    Actions runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:35:34Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: benchmark on 5000 synthetic URLs completes in 6 hours
+  claim_id: c_096d8a44
+  context: "T093 Run full benchmark on 5 000 synthetic URLs; record wall\u2011clock\
+    \ time in output/benchmark.log and ensure \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Full benchmark on 5 000 synthetic URLs ensures wall-clock time is within
+    6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:36:00Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Quickstart covers 30 URLs in 30 minutes
+  claim_id: c_96b211cd
+  context: T049 Add Quickstart guide docs/README_QUICKSTART.md covering execution
+    on 30 URLs within 30 minutes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Quickstart guide covers execution on 30 URLs within 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:36:14Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: audited corpus meets N >= 300 or N >= calculated minimum
+  claim_id: c_d5b2ab47
+  context: "T028 Implement power\u2011analysis utility ... and asserts audited corpus\
+    \ meets N \u2265 300 OR N \u2265 calculated_minimum."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power-analysis utility asserts audited corpus meets N \u2265 300\
+    \ OR N \u2265 calculated_minimum."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:36:28Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Monte-Carlo validation checks absolute difference <= 0.005
+  claim_id: c_665815f5
+  context: "T062 ... checks the absolute difference \u2264 0.005."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monte-Carlo_validation_checks_absolute_difference_%3C=_0.005
+  kind: magnitude
+  raw_text: The Monte-Carlo validation checks the absolute difference is less than
+    or equal to 0.005.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:36:42Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: inconsistency validator thresholds p-difference > 0.05 and effect-size
+    > 5%
+  claim_id: c_4debfe19
+  context: "T025 Implement inconsistency validator ... applying FR\u2011004 thresholds\
+    \ (absolute p\u2011difference > 0.05, relative effect\u2011size > 5 %)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inconsistency validator applies thresholds of absolute p-difference
+    > 0.05 and relative effect-size > 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:36:57Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: binomial test CI width <= 0.10
+  claim_id: c_d3b52f51
+  context: "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365,\
+    \ https://arxiv.org/abs/1807.00365)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/binomial_test_CI_width_%3C=_0.10
+  kind: magnitude
+  raw_text: The binomial test and CI width is less than or equal to 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:37:25Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: no single domain exceeds 30% before bias adjustment
+  claim_id: c_866f623a
+  context: T044 Create a balanced subsample of the corpus so that no single domain
+    exceeds 30 % before bias adjustment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No single domain exceeds 30% before bias adjustment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:37:39Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: subgroup analysis produces Fisher exact test for groups >= 10
+  claim_id: c_be93c51f
+  context: "T051 Unit tests for subgroup analysis covering groups with \u2265 10 summaries."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/subgroup_analysis_produces_Fisher_exact_test_for_groups_%3E=_1
+  kind: magnitude
+  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
+    at least 10 summaries.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:37:53Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 4
+  canonical: parsing-error rate <= 5%
+  claim_id: c_63a8d544
+  context: "T074 Verify SC\u2011005: The parsing-error rate is \u2264 5%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/parsing-error_rate_%3C=_5%25
+  kind: magnitude
+  raw_text: The parsing-error rate must be less than or equal to 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:38:31Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 4
+  canonical: sensitivity analysis variation < 0.02
+  claim_id: c_ec701a05
+  context: "T078 Verify SC\u2011015: Sensitivity analysis variation is less than 0.02\
+    \ across baseline range.."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/sensitivity_analysis_variation_%3C_0.02
+  kind: magnitude
+  raw_text: Sensitivity analysis variation must be less than 0.02 across the baseline
+    range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:39:04Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: CI execution completes within 6 hours
+  claim_id: c_9080c29d
+  context: "T075 Verify SC\u2011008: CI execution completes within 6 h, \u2264 2 GB\
+    \ RAM, \u2264 2 vCPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI execution completes within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:39:35Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI execution <= 2 GB RAM
+  claim_id: c_4b422c26
+  context: "T075 Verify SC\u2011008: CI execution completes within 6 h, \u2264 2 GB\
+    \ RAM, \u2264 2 vCPU."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_execution_%3C=_2_GB_RAM
+  kind: magnitude
+  raw_text: CI execution uses less than or equal to 2 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:40:03Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI execution <= 2 vCPU
+  claim_id: c_b1b1e7ac
+  context: "T075 Verify SC\u2011008: CI execution completes within 6 h, \u2264 2 GB\
+    \ RAM, \u2264 2 vCPU."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_execution_%3C=_2_vCPU
+  kind: magnitude
+  raw_text: CI execution uses less than or equal to 2 vCPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:40:34Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: default GitHub Actions runner 2 vCPU 7 GB RAM
+  claim_id: c_3c7d4e8f
+  context: "T083 Verify SC\u2011028: ... on default GitHub Actions runner (2 vCPU,\
+    \ 7 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default GitHub Actions runner has 2 vCPU and 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:40:48Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: synthetic validation precision >= 90% recall >= 80%
+  claim_id: c_44de39ae
+  context: "T084 Verify SC\u2011030: Synthetic validation precision \u2265 90 % and\
+    \ recall \u2265 80 %."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/synthetic_validation_precision_%3E=_90%25_recall_%3E=_80%25
+  kind: magnitude
+  raw_text: Synthetic validation precision is greater than or equal to 90% and recall
+    is greater than or equal to 80%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:41:33Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: real-world validation precision >= 85% recall >= 75%
+  claim_id: c_2b6152be
+  context: "T085 Verify SC\u2011031b: Real\u2011world validation precision \u2265\
+    \ 85 % and recall \u2265 75 %."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/real-world_validation_precision_%3E=_85%25_recall_%3E=_75%25
+  kind: magnitude
+  raw_text: Real-world validation precision is greater than or equal to 85% and recall
+    is greater than or equal to 75%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:42:00Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: extraction accuracy >= 95% on real-world labels
+  claim_id: c_a94c6d5c
+  context: "T072 Verify SC\u2011001: Extraction accuracy \u2265 95 % on data/manual_validation/real_world_labels.csv."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 90.01% 94.47% 97.39% 97.15% 98.11%
+      source_id: '1407.6748'
+      url: https://arxiv.org/abs/1407.6748
+      value: 98.11%
+    filled: true
+  kind: magnitude
+  raw_text: Extraction accuracy is greater than or equal to 95% on real-world labels.
+  resolved_value: 98.11%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T18:42:31Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: RAM <= 1.5 GB for large corpora
+  claim_id: c_b6020d2d
+  context: "T090 Performance optimization ... to keep RAM \u2264 1.5 GB for large\
+    \ corpora."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_%3C=_1.5_GB_for_large_corpora
+  kind: magnitude
+  raw_text: RAM usage is less than or equal to 1.5 GB for large corpora.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:43:22Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: dependencies include requests beautifulsoup4 pandas numpy scipy statsmodels
+    tqdm pyyaml jsonschema psutil
+  claim_id: c_9f7ce1ab
+  context: 'T002 Initialize Python project: pyproject.toml with required dependencies
+    (requests, beautifulsoup4, pandas, numpy, scipy, statsmodels, tqdm, pyyaml, jsonschema,
+    psutil).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies_include_requests_beautifulsoup4_pandas_numpy_sc
+  kind: entity_fact
+  raw_text: The Python project dependencies include requests, beautifulsoup4, pandas,
+    numpy, scipy, statsmodels, tqdm, pyyaml, jsonschema, and psutil.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T18:44:16Z'
