@@ -18,7 +18,7 @@
 - [X] T000 Create CLI interface skeleton (`src/cli/main.py`) – verify script runs with `--help`. *(Alias of PT000)*
 - [X] T001 Set up GitHub Actions workflow (`.github/workflows/audit.yml`) – verify CI triggers on push. *(Alias of PT001)*
 - [X] T002 Implement Monte‑Carlo framework core (`src/audit/monte_carlo_core.py`) – verify core functions importable. *(Alias of PT002)*
-- [X] T003 {{claim:c_ef1634da}} (Wikidata Q19873191, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)* <!-- FAILED: unspecified -->
+- [ ] T003 {{claim:c_ef1634da}} ({{claim:c_8fd76726}}, https://www.wikidata.org/wiki/Q19873191) *(Alias of PT003)* <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T004 Implement power‑analysis utility (`src/audit/power_analysis.py`) – verify it outputs JSON with required fields. *(Alias of PT004)*
 - [ ] T005C **[P]** Implement Constitution compliance checker in `src/utils/constitution_checker.py` that validates all seven Principles (I–VII). Run this checker in CI and abort with an error if any principle fails. (verify checker script exists, runs in CI, and passes all seven checks). *(Alias of PT005C)*
 
@@ -208,12 +208,12 @@
 **⚠️ NOTE**: All Phase X tasks depend on completion of Phases 3‑7 implementation artifacts.
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
-- [ ] T073 Verify SC‑003: The Monte-Carlo vs library difference must be ≤ 0.005 for each statistical test. [UNRESOLVED-CLAIM: c_48b662cd — status=not_enough_info] for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T074 Verify SC‑005: The parsing-error rate is ≤ 5%. [UNRESOLVED-CLAIM: c_6f7e9135 — status=not_enough_info] (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
+- [ ] T073 Verify SC‑003: The Monte-Carlo vs library difference must be ≤ 0.005 for each statistical test. for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
+- [ ] T074 Verify SC‑005: The parsing-error rate is ≤ 5%. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
 - [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce `manifest.json` in ≥ 99% of runs. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
-- [ ] T077 Verify SC‑014: Binomial test output meets formatting and CI width ≤ 0.10 (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation is less than 0.02 across baseline range. [UNRESOLVED-CLAIM: c_69fe80ac — status=not_enough_info]. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T077 Verify SC‑014: Binomial test output meets CI width ≤ 0.10 (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation is less than 0.02 across baseline range. [UNRESOLVED-CLAIM: c_1d467154 — status=not_enough_info]. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
 - [ ] T080 Verify SC‑020: The audited corpus size N is at least 300 (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
