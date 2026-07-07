@@ -12,4 +12,5 @@ ruff
 black
 pre-commit
 pytest
+pytest-cov
 mypy
