@@ -220,5 +220,17 @@
         "intent": "web 12 TREC Track 2009 2012 search relevance judgments \u2705 Reachable HTTP 200 Supplementary dataset for robustness checks"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-07T06:35:26.678350+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/web/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web TREC Track 2009 2012 qrels VERIFIED Primary dataset for permutation tests. If Robust 2004 is unavailable, this will be used exclusively."
+      }
+    ]
   }
 ]
