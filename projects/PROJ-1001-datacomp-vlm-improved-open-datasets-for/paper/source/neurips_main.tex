@@ -1,0 +1,299 @@
+\documentclass{article}
+
+
+\PassOptionsToPackage{numbers, compress, sort}{natbib}
+
+ \usepackage[main, final]{neurips_2026}
+
+
+
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\usepackage{hyperref}       %
+\usepackage{url}            %
+\usepackage{booktabs}       %
+\usepackage{amsfonts}       %
+\usepackage{nicefrac}       %
+\usepackage{microtype}      %
+\usepackage{xcolor}         %
+
+\newcommand{\ip}[2]{\left\langle #1, #2 \right \rangle}
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumitem}
+\usepackage{xfrac}
+\usepackage{numprint}
+\usepackage{booktabs} %
+\usepackage[textsize=scriptsize,textwidth=1.9cm]{todonotes}
+\usepackage{xspace}
+\usepackage{subcaption}
+\usepackage{etoolbox}
+\usepackage[fixed]{fontawesome5}
+\usepackage{etoc}
+\usepackage{wrapfig}
+\usepackage{placeins}
+\usepackage{makecell}
+\usepackage{etoc}
+\usepackage{amsfonts}       %
+\usepackage{nicefrac}       %
+\usepackage{mathtools}
+\usepackage{multirow}
+\usepackage[table,svgnames]{xcolor}
+\usepackage{babel}
+\usepackage{todonotes}
+\usepackage{caption,tikz}
+\usepackage{tcolorbox}
+\usepackage{titletoc} %
+\usepackage{longtable} %
+
+\usepackage{minitoc}
+\noptcrule
+\renewcommand \thepart{}
+\renewcommand \partname{}
+
+\newcommand{\customfootnotetext}[2]{{%
+  \renewcommand{\thefootnote}{#1}%
+  \footnotetext[0]{#2}}}%
+
+\newcommand{\takeawaybox}[1]{%
+  \begin{tcolorbox}[
+    colback=blue!10,
+    colframe=blue!50,
+    boxrule=0.5pt,
+    arc=0mm,
+    left=5pt,
+    right=5pt,
+    top=2pt,
+    bottom=2pt,
+    fontupper={\fontsize{9.5pt}{11.75pt}\selectfont}
+  ]
+    \textbf{Takeaway:} #1
+  \end{tcolorbox}%
+  \vspace*{-0.1cm}
+}
+
+\usepackage{hyperref}
+\hypersetup{
+		colorlinks=true,
+		linkcolor=blue!70!black,
+		citecolor=blue!70!black,
+		urlcolor=blue!70!black}
+\usepackage[hyperpageref]{backref}
+\renewcommand*{\backref}[1]{}
+\renewcommand*{\backrefalt}[4]{%
+  \ifcase #1 %
+    \\\textit{\footnotesize Not cited.}%
+  \or
+    \\\textit{\footnotesize Cited on page #2.}%
+  \else
+    \\\textit{\footnotesize Cited on pages #2.}%
+  \fi
+}
+\usepackage{adjustbox}
+\usepackage{color, colortbl}
+\definecolor{Gray}{gray}{0.9}
+\definecolor{textcolor}{HTML}{DCDCDC}
+
+\usepackage{nicematrix}
+\usepackage{siunitx}
+
+\hypersetup{
+  colorlinks   = true, %
+  urlcolor     = RoyalBlue, %
+  linkcolor    = RoyalBlue, %
+  citecolor   = RoyalBlue %
+}
+
+\usepackage{rotating}
+\usepackage{placeins}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{xspace}
+\usepackage{fvextra}
+\usepackage{tablefootnote}
+\usepackage{arydshln}
+\usepackage{tabularx}
+\usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{adjustbox}
+\usepackage{subcaption}
+
+\usepackage{fontawesome5}
+
+\definecolor{nicergreen}{RGB}{34,139,34}
+\definecolor{light-light-gray}{gray}{0.92}
+
+\definecolor{light}{rgb}{0.68, 0.90, 0.77}
+\definecolor{orange}{rgb}{0.93, 0.74, 0.60}
+\definecolor{lightorange}{rgb}{1, 0.87, 0.68}
+\definecolor{lightgreen}{rgb}{0.76, 0.88, 0.76}
+\definecolor{lightgray}{rgb}{0.92, 0.92, 0.92}
+\definecolor{lightred}{rgb}{0.92, 0.29, 0.36}
+\definecolor{lightcyan}{rgb}{0.424, 0.651, 0.804}
+
+\newcommand{\smallsec}[1]{\vspace{1pt}\noindent\textbf{#1}}
+
+\usepackage{pifont}%
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\newcommand{\teo}[1]{\textcolor{cyan}{Matteo: #1}}
+
+\definecolor{lightgray}{rgb}{0.95, 0.95, 0.97}
+
+\usepackage{cleveref}
+\crefformat{footnote}{#2\footnotemark[#1]#3}
+\Crefname{table}{Table}{Tables}
+\crefname{table}{Tab.}{Tabs.}
+\Crefname{figure}{Figure}{Figure}
+\crefname{figure}{Fig.}{Figs.}
+\Crefname{appendix}{Appendix}{Appendix}
+\crefname{appendix}{Appx.}{Apps.}
+\Crefname{algorithm}{Algorithm}{Algorithm}
+\crefname{algorithm}{Alg.}{Algs.}
+\Crefname{section}{Section}{Section}
+\crefname{section}{Sec.}{Secs.}
+
+\newcommand{\dcvlm}{\textsc{DCVLM}\xspace}
+\newcommand{\fv}{\textsc{FineVision}\xspace}
+\newcommand{\ie}{\emph{i.e.}\xspace}
+\newcommand{\eg}{\emph{e.g.}\xspace}
+\newcommand{\etal}{\emph{et al.}\xspace}
+\newcommand{\wrt}{w.r.t.\xspace}
+
+\newcommand{\vishaal}[1]{\textcolor{purple}{[Vishaal: #1]}}
+\newcommand{\matteo}[1]{\textcolor{cyan}{[Matteo: #1]}}
+\newcommand{\massi}[1]{\textcolor{olive}{[Massi: #1]}}
+\newcommand{\torun}[1]{\textcolor{red}{[Experiment ongoing]}}
+\newcommand{\minortorun}[1]{\textcolor{red}{[Minor reruns required]}}
+
+\definecolor{mm-green}{HTML}{8ce5a1}
+
+\input{figures/figures}
+
+\title{DataComp-VLM:\\Improved Open Datasets for Vision-Language Models}
+
+
+
+
+\author{%
+\begin{tabular}{c}
+\hspace*{-1.4cm}
+\textbf{Matteo Farina}$^{*1,2}$\quad \textbf{Vishaal Udandarao}$^{*2,3}$\quad \textbf{Thao Nguyen}$^{*15}$\quad \textbf{Selim Kuzucu}$^{\dagger,5}$\quad \textbf{Maximilian Böther}$^{\dagger,7}$\\
+\textbf{Andreas Hochlehnert}$^{\dagger,2}$\quad \textbf{Adhiraj Ghosh}$^{\dagger,2}$\quad \textbf{Marianna Nezhurina}$^{\dagger,8,9}$\quad \textbf{Karsten Roth}$^{\dagger,10}$\\
+\textbf{Joschka Struber}$^{2}$, \textbf{Yuhui Zhang}$^{4}$, \textbf{Sebastian Dziadzio}$^{2}$, \textbf{Elaine Sui}$^{4}$, \textbf{Soumya Jahagirdar}$^{2}$,\\
+\textbf{Dhruba Ghosh}$^{4}$, \textbf{Hasan Hammoud}$^{11}$, \textbf{Thomas De Min}$^{1}$, \textbf{Simone Caldarella}$^{1}$, \textbf{Jehanzeb Mirza}$^{12}$,\\
+\textbf{Sedrick Keh}$^{13}$, \textbf{Mehdi Cherti}$^{8,9}$, \textbf{Hilde Kuehne}$^{2}$, \textbf{Bernt Schiele}$^{5,6}$, \textbf{Serena Yeung-Levy}$^{4}$,\\
+\textbf{Muhammad Ferjad Naeem}$^{6}$, \textbf{Federico Tombari}$^{6}$, \textbf{Ana Klimovic}$^{7}$, \textbf{Elisa Ricci}$^{1,14}$, \textbf{Matthias Bethge}$^{2}$,\\
+\textbf{Sewoong Oh}$^{15}$, \textbf{Ameya Prabhu}$^{2}$, \textbf{Alessio Tonioni}$^{6}$, \textbf{Jenia Jitsev}$^{8,9}$, \textbf{Massimiliano Mancini}$^{1}$\\
+\textbf{Ludwig Schmidt}$^{\ddagger,4}$\quad \textbf{Nikhil Parthasarathy}$^{\ddagger,10}$\\[4pt]
+{\small $^{*}$Project leads\quad $^{\dagger}$Core contributors\quad $^{\ddagger}$Equal supervision}
+\end{tabular}%
+}
+
+
+\begin{document}
+
+\maketitle
+\customfootnotetext{}{%
+\noindent\hspace*{-1.8em}%
+$^{1}$University of Trento,
+$^{2}$T\"ubingen AI Center, University of T\"ubingen,
+$^{3}$University of Cambridge,
+$^{4}$Stanford University,
+$^{5}$Max Planck Institute for Informatics,
+$^{6}$Google,
+$^{7}$ETH Z\"urich,
+$^{8}$LAION,
+$^{9}$Juelich Supercomputing Center (JSC), Research Center Juelich (FZJ),
+$^{10}$Google DeepMind,
+$^{11}$KAUST,
+$^{12}$MIT,
+$^{13}$Toyota Research Institute,
+$^{14}$Fondazione Bruno Kessler (FBK),
+$^{15}$University of Washington%
+}
+
+
+\begin{center}
+    \vspace{-2em}
+    \faGithub\ Code: \url{https://github.com/mlfoundations/dcvlm} \vspace{2pt} \\
+    
+    \faHome\ Website: \url{https://www.datacomp.ai/dcvlm}
+\end{center}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methodology}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/conclusion}
+
+\section*{Acknowledgements}
+The authors would like to thank (in no particular order): Jeffrey Li, Etash Guha, Alex Fang, Pratyush Maini, Hritik Bansal, Moreno D'Incá, Songlong Xing, Olivier Henaff, Matthew Leavitt, Siddharth Joshi, Wieland Brendel, Samuel Albanie, Francesco Tonini, and Evgenia Rusak, for thoughtful feedback and comments throughout the project.
+
+VU, AH, AG, SD and JS thank the
+International Max Planck Research School for Intelligent Systems (IMPRS-IS). VU, SK and SD also thank
+the European Laboratory for Learning and Intelligent Systems (ELLIS) PhD program for support.
+AH acknowledges funding by the Federal Ministry of Research, Technology and Space (BMFTR), FKZ: 16IS24079A.
+SD acknowledges support by the Tübingen AI Center.
+AP acknowledges funding by the Federal Ministry of Research, Technology and Space (BMFTR), FKZ: 16IS24085B.
+VU was supported by a Google PhD Fellowship in Machine Intelligence.
+This work was supported by the German Research Foundation (DFG): SFB 1233, Robust
+Vision: Inference Principles and Neural Mechanisms, TP4, project number: 276693517 and the UKRI
+grant: Turing AI Fellowship EP/W002981/1. MB is a member of the Machine Learning Cluster of
+Excellence, funded by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation)
+under Germany’s Excellence Strategy – EXC number 2064/1 – Project number 390727645.
+The authors gratefully acknowledge LAION and the Gauss Centre for Supercomputing e.V. for funding this work
+by providing computing time on the JUWELS Booster at Jülich Supercomputing Centre (JSC). AG, MM, ER, JJ and HK receive funding
+from the European Union’s Horizon Europe research and innovation program under ELLIOT - Grant Agreement No
+101214398.
+MN and JJ acknowledge co-funding by EU from Digital Europe Programme under grant no. 101195233 (openEuroLLM), co-funding from EU under Digital Europe Programme under grant no. 101198470 (LLMs4EU) and from EuroHPC Joint Undertaking programme under grant no. 101182737 (MINERVA), funding by the German Federal Ministry of Research, Technology and Space (BMFTR) under grant no. 01IS24085C (OPENHAFM), under the grant 01IS22094B (WestAI -- AI Service Center West), and under the grant 16HPC117K (MINERVA).
+SJ is funded by the European Research Council (ERC) under the Starting Grant GraViLa (101117556).
+MF acknowledges travel support
+from ELIAS (GA no 101120237). MB acknowledge financial support by the Federal Ministry of Education and
+Research (BMBF), FKZ: 011524085B and Open Philanthropy Foundation funded by the Good Ventures Foundation.
+The authors acknowledge the CINECA award under the ISCRA initiative for the availability of high-performance computing resources and support, and the projects EU Horizon projects ELIAS (No. 101120237) and ELLIOT (No. 101214398). The authors also acknowledge the Leonardo supercomputing hours awarded by through the project EHPC-AIF-2025SC03-174.
+TN and SO acknowledge NSF grants 2505865, 2229876, 2229876, and 2502281. 
+The entire team wishes to acknowledge the Gauss Centre for Supercomputing e.V. (GCS) for funding this work by providing computing time through the John von Neumann Institute for Computing (NIC) on the supercomputer JUWELS Booster and JUPITER at J"ulich Supercomputing Centre (JSC), storage resources on JUST granted and operated by JSC and supported by Helmholtz Data Federation (HDF), computing time granted by the JARA and JSC on the supercomputer JURECA at JSC, computing time granted on prototype JEDI via JUREAP (JUPITER Early Access Program) grant at JSC and computing time granted via Gauss AI Competition (reformo) on JUPITER through GCS and German Federal Ministry of Research, Technology and Space (BMFTR). 
+LAION further acknowledges public storage grant by HuggingFace that allows us to provide convenient access to the output of the open-source research to broad community via HF repository. 
+Further thanks go for support provided by supercomputing facilities and their teams, especially to Bjoern Hagemeier and Mathis Bode from Juelich Supercomputer Center (JSC, Germany).
+SK is supported by the CS at Max Planck Doctoral Program, VIA Center and Saarland Informatics Campus. The authors acknowledge the GCP Credit Award Program by Google with award GCP444206605 for supporting the project with computational credits on GCP.
+MBö is supported by the Swiss National Science Foundation (project number 200021\_204620).
+
+\newpage
+
+\bibliographystyle{abbrvnat}
+\bibliography{bibliography}
+
+\newpage
+
+\addcontentsline{toc}{section}{Appendix} %
+\part{Appendix}
+\parttoc
+
+
+\appendix
+\startcontents[sections]
+\printcontents[sections]{l}{1}{\setcounter{tocdepth}{2}}
+\clearpage
+\input{sections/appendix}
+
+
+\newpage
+\input{checklist.tex}
+
+
+\end{document}

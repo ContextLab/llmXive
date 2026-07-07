@@ -1,0 +1,111 @@
+\section{The \dcvlm Benchmark}\label{sec:methodology}
+
+\begin{figure}[t!]
+  \centering
+  \includegraphics[width=0.9\linewidth]{figures/test_main_fig.pdf}
+  \caption{\textbf{\dcvlm allows researchers to construct effective multimodal datasets.} Participants can choose one of four scales (\texttt{small}, \texttt{medium}, \texttt{large}, and \texttt{x-large}) according to their compute availability. 
+  We provide tools to format, filter, and mix the data pool so that participants can create their own datasets. 
+  The resulting datasets are then used to train an autoregressive VLM using a fixed training recipe. 
+  Models are comprehensively evaluated across a broad spectrum of capabilities.}
+  \label{fig:dcvlm-schema}
+  \vspace{-0.5cm}
+\end{figure}
+
+
+
+\dcvlm provides a controlled framework (\cref{fig:dcvlm-schema}) for constructing VLM training sets. 
+We fix the model and training recipe, and participants propose ways to filter and mix data from our pool. 
+We next describe the pool (\cref{sec:pool}), training recipe (\cref{modeltrainingrecipe}), scales (\cref{sec:scales}), and evaluation (\cref{sec:eval-protocol}).
+
+
+ 
+\subsection{Data Pool Construction}\label{sec:pool}
+
+Our data pool aggregates 160 publicly available datasets organized into four data types. For the full list of source datasets, pool composition, visualizations, and sample and token counts, see\textcolor{black}{~\cref{app:dataset_pool}}.
+ 
+\ding{172} \textbf{Image-caption pairs} form the largest component, with great variability in their constituent datasets.
+At one end, sources like DataComp-1B~\citep{gadre2023datacomp} and ReLAION-2B~\citep{schuhmann2022laion} provide abundant, CLIP-score-filtered image-alt-text pairs from web crawls. 
+At the other, datasets like the synthetic ShareGPT-4o~\citep{cui2025comprehensive} and the human-annotated Pixmo-Cap~\citep{deitke2025molmo} offer fewer yet higher quality samples.
+
+\ding{173} \textbf{Multimodal interleaved documents} consist of web-crawled interleaved image-text sequences as they appear on websites, PDF documents, and academic papers.
+Sources include MINT-1T-HTML~\citep{awadalla2024mint}, MINT-1T-PDF~\citep{awadalla2024mint}, WanJuan~\citep{he2023wanjuan}, OmniCorpus~\citep{li2024omnicorpus}, and Multimodal-Textbook~\citep{zhang2025textbook}.
+These are the least curated sources in our pool. 
+Most are scraped directly from the web with minimal URL-based and heuristic filtering, and thus tend to have lower quality scores on average. 
+
+\ding{174} \textbf{Text-only data} preserve the language model's capabilities during multimodal training, following recent VLMs~\citep{zhu2025internvl3,bai2025qwen3}. Examples include FLAN~\citep{longpre2023flan}, SlimOrca~\citep{lian2023slimorca}, and Dolly~\citep{conover2023dolly}, alongside image-free science and knowledge sources such as Numina-Math-1.5~\cite{numina_math_15} and xCoder80k~\cite{wang2024xcoder}.
+ 
+ 
+\ding{175} \textbf{Multimodal instruction-tuning data} comprise single or multi-turn instruction-tuning datasets, typically with human-written or model-generated question-answer pairs grounded in one or multiple images.
+We manually categorize these into eight capabilities following \cite{wiedmann2025finevision}: knowledge, chart \& table understanding, general-QA, grounding \& counting, math, naive OCR, OCR-QA, and science.
+For a complete breakdown of the capability distribution of instruction-tuning data, see\textcolor{black}{~\cref{app:pool-composition}}.
+
+Our \dcvlm{} pool contains 6T multimodal tokens (measured using the InternVL-2.5~\citep{chen2024expanding} tokenizer). It is highly heterogeneous in source quality, data types, instruction-tuning capabilities (e.g., grounding, OCR, chart and table understanding, captioning), visual and textual domains (e.g., natural, synthetic, tabular images), and languages (over $20$ including English and Chinese, see \textcolor{black}{\cref{app:multilingual}}). This heterogeneity is \emph{deliberate}: it lets participants study curation recipes in a realistic setup with several confounders to control for.
+To avoid train-test overlap, we decontaminate our entire pool against our \textbf{Extended} eval suite of 52 benchmarks (\cref{sec:eval-protocol}): multimodal samples are filtered with a ResNet-50 SSCD embedding model~\citep{pizzi2022self} (cosine-sim $>0.75$ to any test image) and text-only samples with MinHash~\citep{broder1997resemblance} Jaccard similarity ($>0.55$). 
+The exact details of decontamination are in \cref{app:decontamination}.
+
+
+\subsection{Model Architecture and Training Recipe}\label{modeltrainingrecipe}
+To ensure \dcvlm employs a state-of-the-art training recipe, we use an architecture that mimics InternVL3 models \cite{zhu2025internvl3}: an InternViT-300M vision encoder \cite{chen2024expanding}, a 2-layer MLP projector, and a Qwen2.5-Base language model~\citep{qwen25} (we show that our central findings transfer to Instruct backbones as well in~\cref{sec:controls}).
+We adopt \textit{AnyRes}~\citep{liu2024llavanext} tiling, where images are dynamically split into $448{\times}448$ tiles, each encoded into 256 visual tokens after pixel shuffling \cite{chen2024expanding,shi2016real}. 
+We use the AdamW \cite{loshchilov2017decoupled} optimizer, a linear ${3}{\%}$ warmup, and a cosine decay with peak learning rate of $2\times10^{-5}$, identified after an initial sweep to ensure optimal hyperparameters. 
+For more details, refer to \cref{app:architecture,app:hparams}.
+
+\subsection{Competition Scales and Design Principles}\label{sec:scales}
+
+
+\input{tables/scales}
+
+A key principle of \dcvlm is to evaluate data curation strategies \emph{across scales}, because findings at small scales may not transfer to larger ones~\citep{goyal2024scaling,mizrahi2025language,nezhurina2025scaling,maithinking1}.
+To simultaneously (\textit{i}) approach the scale of foundation models like InternVL-3~\citep{zhu2025internvl3} and (\textit{ii)} ensure accessibility for researchers with fewer resources, we define four scales: \texttt{small}, \texttt{medium}, \texttt{large}, and \texttt{x-large}.
+Model sizes and token budgets are illustrated in \cref{tab:scales}. %
+We design the \texttt{small}, \texttt{medium}, and \texttt{large} scales such that a step corresponds to an $8\times$ compute increase: models become $2\times$ larger and tokens increase by $4\times$.
+At the \texttt{x-large} scale, our entire pool of 6T tokens is the candidate for dataset construction.
+We design all scales to fix pool-to-training token ratio at ${30}{\times}$,
+i.e, the pool always contains $30\times$ more tokens than the training budget.
+The primary reason for keeping this ratio constant is to enable participants to experiment with aggressive filtering at all scales while hitting a constant number of data repetitions.
+ 
+ 
+ 
+
+\subsection{Evaluation Protocol}\label{sec:eval-protocol}
+Participants in \dcvlm can evaluate models on up to 52 benchmarks. 
+To get reliable signal, we
+start from a candidate set of 65 benchmarks, which we categorize across 9 domains based on the majority consensus of prior work \cite{zhu2025internvl3, chen2024expanding, wang2024qwen2,mckinzie2024mm1,tong2024cambrian}: General Understanding, Knowledge-Centric, OCR \& Charts, Vision-Centric, Multilingual, Text-Only, Safety, Hallucination, and Reasoning benchmarks. 
+We then filter them for (\textit{i}) \textit{stability}, removing those with high seed variance~\citep{udandarao2025active,madaan2024quantifying}, and (\textit{ii}) \textit{monotonicity}, removing those that do not improve from \texttt{small} to \texttt{medium} scales~\citep{heineman2025signal,penedo2024fineweb}.
+We organize benchmarks into three nested tiers, each a superset of the previous: a \textbf{Validation set}, used for rapid iteration (13 benchmarks), a \textbf{Core set}, the primary tier used for main results (33 benchmarks), and an \textbf{Extended set} (52 benchmarks), including all benchmarks for comprehensive analysis. 
+Safety, Hallucination, and Reasoning are deferred to the extended tier, as they are typically targeted by (and thus most relevant for) post-training methods. 
+Unless otherwise specified, we report the average accuracy across all benchmarks in a given tier. %
+For full details of benchmark selection, see \cref{app:eval_details}.
+
+
+
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

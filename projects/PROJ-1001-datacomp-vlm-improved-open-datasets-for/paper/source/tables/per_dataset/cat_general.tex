@@ -1,0 +1,33 @@
+\begin{table}[ht]
+\centering
+\caption{\textbf{Per-dataset Core results: General Understanding (Gen).} Per-dataset breakdown of the \textbf{Gen} column of \cref{tab:main-results}. The final \textbf{Gen} column is the row mean over these 7 datasets and reproduces \cref{tab:main-results}. \textbf{Bold} = best per scale.}
+\label{tab:per-dataset-general}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Method} & \textbf{MMB-EN} & \textbf{MMB-CN} & \textbf{MMB-EN$_{\text{v1.1}}$} & \textbf{MMB-CN$_{\text{v1.1}}$} & \textbf{SEED-IMG} & \textbf{MMT} & \textbf{VMC} & \textbf{Gen} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{9}{l}{\texttt{small} scale (1B model, 6.25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 12.0 & 22.3 & 11.5 & 21.7 & 35.1 & 22.5 & 31.9 & 22.4 \\
+\textsc{Nemotron-VL-2} & 16.4 & 5.4 & 14.0 & 4.6 & 38.6 & 29.2 & 31.7 & 20.0 \\
+\textsc{FineVision} & \textbf{39.2} & 34.3 & 36.7 & 33.2 & \textbf{50.7} & \textbf{39.5} & 47.4 & 40.1 \\
+\textsc{\dcvlm-Baseline} (ours) & 38.7 & \textbf{38.3} & \textbf{36.9} & \textbf{37.2} & 46.6 & 38.3 & \textbf{47.5} & \textbf{40.5} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{9}{l}{\texttt{medium} scale (2B model, 25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 29.9 & 31.1 & 29.1 & 30.4 & 44.2 & 29.9 & 38.2 & 33.3 \\
+\textsc{Nemotron-VL-2} & 49.2 & 48.5 & 46.4 & 47.0 & 62.1 & 41.1 & 46.2 & 48.6 \\
+\textsc{FineVision} & 59.3 & 49.8 & 57.4 & 47.3 & \textbf{64.8} & 47.4 & 61.2 & 55.3 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{66.2} & \textbf{62.6} & \textbf{64.2} & \textbf{60.9} & 64.5 & \textbf{51.6} & \textbf{66.0} & \textbf{62.3} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{9}{l}{\texttt{large} scale (4B model, 100B tokens)} \\
+\textsc{Nemotron-VL-2} & 27.1 & 26.3 & 21.8 & 23.1 & 42.5 & 35.2 & 44.6 & 31.5 \\
+\textsc{FineVision} & 67.1 & 53.4 & 64.0 & 51.5 & 66.5 & 42.7 & 67.5 & 59.0 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{72.2} & \textbf{71.2} & \textbf{69.3} & \textbf{68.0} & \textbf{71.5} & \textbf{57.8} & \textbf{69.1} & \textbf{68.4} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{9}{l}{\texttt{x-large} scale (8B model, 200B tokens)} \\
+\textsc{FineVision} & 67.3 & 69.2 & 63.9 & 66.1 & 66.0 & 46.2 & 65.6 & 63.5 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{79.0} & \textbf{75.2} & \textbf{76.7} & \textbf{73.0} & \textbf{74.1} & \textbf{59.7} & \textbf{73.4} & \textbf{73.0} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

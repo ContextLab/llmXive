@@ -1,0 +1,235 @@
+\section{Towards a Strong Baseline on \dcvlm}\label{sec:experiments}
+
+
+
+
+
+
+We now present a suite of controlled experiments showing how to obtain a strong baseline dataset on \dcvlm{}, along two primary axes: 
+data filtering (\cref{sec:filtering}) and data mixing (\cref{sec:mixing}). 
+For additional axes (including data formatting, synthetic captions, and temperature sampling), refer to~\cref{app:filtering-details}.
+We also run control experiments validating the generality of our results (\cref{sec:controls}). 
+Unless specified, all filtering experiments use a base mixture of $75$\% image-caption, $18$\% text-only, $4$\% multimodal documents, and $3$\% instruction-tuning data, derived by length-proportional sampling across the pool. 
+In this section, we always report results on our 33-task Core evaluation suite.
+
+
+ 
+ 
+\subsection{Data Filtering}\label{sec:filtering}
+Quality-based filtering has been central to pretraining strong language~\citep{li2024datacomp,penedo2024fineweb,olmo20242,olmo2025olmo} and CLIP models~\citep{gadre2023datacomp,fang2023data,udandarao2025active,evans2024data}, hence a natural question is whether these gains transfer to VLMs as well.
+We answer this question in the \emph{negative} 
+by testing \textbf{more than 60 filter configurations} at both \texttt{small} and \texttt{medium} scales (for an exhaustive report, refer to {\cref{app:filtering-dont-help-sec}}). 
+To illustrate our findings, here we report and discuss \texttt{medium} scale results for filters shown to be successful in prior work (in {\cref{app:filtering-dont-help-sec}}, we describe several other variants across scales, yielding the same conclusions):
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=0pt, parsep=0pt, partopsep=0pt]
+    \item \textbf{CLIP-score}. We experiment with filtering image-caption pairs according to three different CLIP models: OpenAI's CLIP ViT-L/14~\citep{radford2021learning}, DFN-CLIP~\citep{fang2023data}, and SigLIP-2-B/16@384~\citep{tschannen2025siglip}. 
+    \item \textbf{Text quality classifiers}. We experiment with filtering samples according to the quality of their constituent text snippet(s), as judged by three classifiers: DCLM's fasttext classifier~\cite{li2024datacomp}, as well as NVIDIA's Nemotron and Mixtral educational-quality classifiers~\cite{su2025nemotron}. 
+    \item \textbf{Multimodal filters}. We additionally experiment with (i) filtering with two UniFilter models \cite{wang2025unifilter} (Qwen2.5-1.5B and Qwen3-0.6B), and (ii) filters grounded in perplexity~\citep{ankner2024perplexed}: text-only perplexity (computed on text tokens by \textit{excluding} image tokens), multimodal perplexity (computed on text tokens by \textit{including} image tokens), and Conditional Mutual Information \cite{lee2026selective}, which measures their difference (i.e., the reduction in perplexity with and without image tokens).
+\end{itemize}
+
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_filtering_single_medium.pdf}
+
+
+    \caption{\textbf{Filtering rarely helps, but changing the data composition does move performance substantially.}
+     Established data filtering techniques do \emph{not} significantly outperform a no-filter baseline. 
+     This observation holds consistently at both the \texttt{small} (\cref{fig:filtering-small}) and \texttt{medium} scales of our benchmark.
+    At the same time, inducing a different data mixture via global filtering (hatched bars) leads to significant performance variations compared to locally filtered datasets (solid bars).}
+    \label{fig:filtering}
+\vspace{-0.5em}
+\end{figure}
+ 
+Importantly, we study two different filtering paradigms to isolate the impact of data filtering and that of implicit data mixing:
+\ding{172} \textbf{Local filtering}, which computes filtering percentile thresholds independently within each source dataset. 
+This preserves the global mixture by construction: every dataset loses the same sample fraction, and 
+\ding{173} \textbf{Global filtering}, which computes a single filtering threshold across the entire pool of samples to which the filter can be applied. 
+Because different data sources have systematically different score distributions, 
+a global cut implicitly \emph{reshapes the data mixture}. 
+Following prior evidence that smaller models benefit from more aggressive filtering~\citep{allal2025smollm2,mizrahi2025language}, we retain the top-10\% of samples at the \texttt{small} scale, and the top-40\% at the \texttt{medium} scale. 
+
+\cref{fig:filtering} illustrates the results. 
+We make two key observations:
+(\textit{i}) 
+regardless of whether the mixture is held fixed, no quality filter we tested produces a robust and significant improvement over a no-filter baseline; and (\textit{ii}) local and global filtering yield notably different results. We expand on each below.
+
+\textbf{Filtering rarely helps, but why?} The best filtering outcome is given by SigLIP-2 when globally filtering image-text pairs (rightmost bar in \cref{fig:filtering}), 
+yet this result is defined by a marginal $+0.8$pp improvement, far below the gains one would apriori expect from quality-based filtering~\citep{schuhmann2022laion,li2024datacomp,gadre2023datacomp,su2025nemotron,udandarao2025active,evans2024data}.
+Other filters 
+either leave the baseline mostly unchanged or actively hurt performance. 
+This observation holds across both \texttt{small} and \texttt{medium} scales (see \cref{fig:filtering-small} for the \texttt{small} figure).
+
+
+
+
+
+ 
+ 
+ 
+
+
+\begin{wrapfigure}[17]{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_raw_vs_filtered.pdf}
+    \caption{Upstream filtering leads to diminishing returns from additional (i.e., ``downstream'') filtering.}
+    \label{fig:raw-vs-filtered}
+\end{wrapfigure}
+
+
+This failure is surprising, especially in light of strong results from prior works.
+We hypothesize this is because \emph{there is no significant noise to remove from our base pool}: unlike raw Common Crawl (used in DCLM~\cite{li2024datacomp}) or raw web-crawled image-text pairs (used in DataComp-CLIP~\citep{gadre2023datacomp}), existing VLM training sets 
+aggregate datasets that have already undergone a level of upstream filtering (e.g. CLIP-score filtering) by their original creators, and our pool follows this data collection process. 
+To validate our hypothesis, we create three sub-pools from our original pool, varying the effective percentage (25\%, 65\%, and 100\%) of ``pre-filtered'' data samples in the mixture (see\textcolor{black}{~\cref{app:filtering-exp}} for more details). 
+From each of these sub-pools, we create three more training sets by applying further CLIP-score filtering to the image-caption data. 
+For each pair of datasets, we then train \texttt{small} scale models and measure the performance gain due to downstream filtering (\cref{fig:raw-vs-filtered}). For 25\% pre-filtering (i.e., when the sub-pool is dominated by unfiltered data), the gain is significant ($+2.4$pp). However, this decreases the more the 
+sub-pool is pre-filtered (dropping to $+1.3$pp at 65\% and $+0.6$pp at 100\%).
+In other words, \textit{additional filtering on top of already-curated data operates in a regime of diminishing returns}. 
+
+
+
+\textbf{Interaction between filtering and implicit mixing.} The second takeaway from \cref{fig:filtering} is \emph{local and global filtering produce very different results}. 
+The inconsistent trends suggests that global filtering is not a reliable strategy. 
+However, given significant performance fluctuations between local and global filtering, we hypothesize the underlying mixture distribution is the lever that dictates performance. %
+
+
+\subsection{Data Mixing}\label{sec:mixing}
+
+Having established that filtering over the base mixture provides negligible gains on our pool, we turn to data mixing, i.e., the allocation of training samples across data types, as our primary curation lever.
+
+\textbf{Setup.}
+We optimize the mix along an important axis based on prior work~\citep{liu2023visual,karamcheti2024prismatic,mckinzie2024mm1,zhang2024mm1,shukor2025scaling,chen2024internvl,tong2024cambrian}:
+the ratio of \emph{image-caption pairs} to \emph{instruction-tuning data}. 
+Text-only samples and multimodal documents are fixed at $15$\% and $5$\%, respectively, as supporting components. 
+Here, we study three ratios along the image-caption $\leftrightarrow$ instruction-tuning axis: (\textit{i}) a \textbf{Caption-heavy} mixture with $65$\% image-caption pairs and $15$\% instruction-tuning data; a (\textit{ii}) \textbf{Balanced} mixture with $40$\% image-caption and $40$\% instruction; and
+(\textit{iii}) an \textbf{Instruction-heavy} mixture with $10$\% image-caption and $70$\% instruction-tuning data (see \cref{app:data-mixing-fine-sweep} for finer sweeps across scales).
+Each mixture is evaluated across a scaling grid of 3 model sizes (1B, 2B, 4B) $\times$ 3 token budgets (6.25B, 12.5B, 25B). %
+
+
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_mixing_panels_core.pdf}
+    \caption{\textbf{Instruction-heavy mixtures scale better with compute.}
+    For the 1B model (\textit{left}), the Instruction-heavy mix (red) starts as the worst mixture with 6.25B training tokens, but recovers quickly up to becoming the second-best with 25B training tokens. 
+    For the 2B model (\textit{middle}), all mixtures have comparable performance with 6.25B tokens, but performance gains consistently grow in favor of the Instruction-heavy mixture as training tokens grow.
+    For the 4B model (\textit{right}), yet again, the Instruction-heavy mix starts as the worst with 6.25B tokens, and becomes the best at 25B tokens.}
+    \label{fig:mixing-panels}
+    \vspace{-1.75em}
+\end{figure}
+
+\begin{wraptable}{r}{0.4\linewidth}
+    \centering
+    \caption{Instruction-heavy mixes are robust to moderate data repetitions.}
+    \label{tab:it-repeats}
+    \small
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Configuration} & \textbf{Core Avg} \\
+        \midrule
+        Instruction-heavy, unique    & 51.7 \\
+        Instruction-heavy, $\sim$2$\times$  & 50.2 \\
+        Instruction-heavy, $\sim$4$\times$  & 49.8 \\
+        Instruction-heavy, $\sim$8$\times$  & 48.6 \\
+        \midrule
+        \multicolumn{2}{l}{\textit{Other mixes (unique data)}} \\
+        \quad Balanced & 50.9 \\
+        \quad Caption-heavy & 50.3 \\
+        \quad Base mix           & 48.8 \\
+        \bottomrule
+    \end{tabular}
+\end{wraptable}
+
+\textbf{Data mixing cannot be scale agnostic.}\label{sec:scale-mixing} \cref{fig:mixing-panels} reveals a striking interaction between data mixture and compute scale:
+as both model size and token budget increase, the Instruction-heavy mix exhibits a markedly steeper scaling slope.
+It starts as the \emph{worst} mixture at 1B$\times$6.25B (\texttt{small} scale) but becomes the \emph{best} at 2B$\times$25B (\texttt{medium} scale), and remains so at 4B$\times$25B. 
+This crossover pattern has an important practical implication: \emph{mixture rankings established at small scale do not transfer reliably to larger scales}.
+In our setting, optimizing the data mix at the \texttt{small} scale (1B$\times$6.25B) would select the Caption-heavy mix and miss the Instruction-heavy configuration that ultimately performs best.
+This underscores the need for \textit{scale-aware data curation} that validates mixture choices across multiple points on the scaling ladder, rather than at a single small-scale proxy~\citep{nezhurina2025scaling,nguyen2025mixturevitae,mizrahi2025language,goyal2024scaling,shukor2025scaling,mohri2026bitter,gao2021empirical}.
+
+
+\textbf{Repeatability of instruction-tuning data.}\label{sec:it-repeats} Given our previous finding that Instruction-heavy mixes scale better,
+a natural concern about \emph{scalability} arises: instruction-tuning datasets are typically orders of magnitude smaller in size than web-crawled image-caption pairs.
+A 70\% allocation might require extreme data repetitions to fill the token budget, a known cause of performance degradation~\citep{muennighoff2023scaling,hernandez2022scaling,fang2025datasets,carlini2022quantifying,liu2026infolaw}.
+We test this effect by holding all non-instruction data sources fixed and randomly subsampling instruction-tuning data to induce up to 2$\times$, 4$\times$, and 8$\times$ repetitions at the \texttt{medium} scale of our benchmark. 
+From~\cref{tab:it-repeats}, we find that performance degrades gracefully: each doubling of repetition factor costs roughly 0.5--1.0\% in performance.
+Notably, the Instruction-heavy mix with 2$\times$ repetitions (50.2\%) still matches the Caption-heavy mix with fully unique data (50.3\%), and at 4$\times$ repetitions it remains above the base mix (49.8\% vs 48.8\%).
+The mix ultimately degrades at ${\sim}8\times$ repetitions.
+This result has a practical takeaway: 
+\textit{the benefits of a good mixture outweigh 
+the costs of moderate data repetition.}
+Our results corroborate similar findings from the language domain regarding the benefits of including instruction-like data during pretraining~\citep{baek2026finetuner,akter2025front,washbourne2026zaya1,zeng2025glm,li2026legalone,feng2026early,allen2023physics}.
+
+\subsection{Control Experiments}\label{sec:controls}
+We now verify the generality of our findings before scaling up. 
+Specifically, we ask:
+\textit{(i)} Does the effectiveness of pretraining data curation hold after supervised fine-tuning (SFT)?, and \textit{(ii)} Are our findings tied to the LM backbone (Qwen2.5-Base) used for initialization? We provide answers next.
+ 
+ 
+ 
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_control_exp.pdf}
+    \caption{\textbf{Control experiments.}
+    \textit{(Left)} Pretraining performance predicts post-SFT performance with near-perfect fidelity.
+    \textit{(Right)} Data mixture rankings are preserved when switching the LM backbone from Qwen2.5-Base to Qwen2.5-Instruct, verifying robustness of our results to choice of backbone.}
+    \label{fig:sft-correlation}
+    \vspace{-0.5em}
+\end{figure}
+
+\textbf{Pretraining results transfer reliably post-SFT.} A common concern with pretraining-only evaluations is the worry that SFT will overwrite differences induced by pretraining data choices~\citep{kumar2022fine}. 
+In particular, given the findings in \cref{sec:mixing}, it is natural to hypothesize that SFT (which also uses instruction-tuning data by definition) may interfere with or diminish the effect of using an Instruction-heavy pretraining mixture. %
+We study this by SFT-ing all 27 pretrained checkpoints from our previous scaling grid (3 mixes $\times$ 3 model sizes $\times$ 3 token budgets) using two different SFT datasets: LLaVA-665K~\citep{liu2023visual} and Mammoth-VL-12M~\citep{guo2025mammoth}, for a total of 54 SFT runs.
+We set the total SFT tokens to $0.29\times$ the pretraining tokens by estimating InternVL3's~\citep{zhu2025internvl3} SFT-to-pretraining token ratio.
+ \cref{fig:sft-correlation} (left) shows the results with LLaVA-665K (refer to \textcolor{black}{\cref{app:sft}} for identical results with Mammoth-VL-12M).
+ We observe that pretraining and post-SFT scores are near-perfectly correlated (Pearson ${r}{=}{0.99}$; Spearman ${\rho}{=}{0.99}$), 
+and \textit{the pretraining ordering is preserved across all runs}.
+
+
+ 
+
+\textbf{Our findings are robust to LM initialization.}
+So far, we've used Qwen2.5-Base as the language model backbone. 
+To verify that our findings are not specific to this particular choice, we repeat the full 2B-model sweep (3 mixes $\times$ 3 token budgets) with Qwen2.5-Instruct-2B as the LM.
+This allows us to verify whether instruction-heavy mixes are better even when the LM has been ``unimodally'' instruction-tuned already. 
+As shown in \cref{fig:sft-correlation} (right), it produces nearly identical mixture rankings to Qwen2.5-Base (Pearson $r{=}0.97$), especially at larger token budgets (denoted by larger markers). 
+These results provide some evidence of generality of our results---particularly, the advantage of instruction-heavy mixes after training at scale may be agnostic to the LM initialization choice.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

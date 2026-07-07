@@ -1,0 +1,1018 @@
+
+\section{Contributions}\label{app:contributions}
+
+This was a large collaborative effort, and the work spanned data curation, infrastructure, experimentation, and analysis. Below we summarize the main contribution areas. Within each area, contributors are listed in a random shuffled order. An author may appear under multiple areas.
+
+\smallsec{Project coordination.} Matteo Farina, Vishaal Udandarao, Thao Nguyen, Nikhil Parthasarathy, Ludwig Schmidt
+
+\smallsec{Data pool construction.} Thao Nguyen, Vishaal Udandarao, Matteo Farina, Selim Kuzucu, Andreas Hochlehnert, Adhiraj Ghosh, Mehdi Cherti, Karsten Roth, Joschka Struber, Yuhui Zhang, Sebastian Dziadzio, Elaine Sui, Dhruba Ghosh, Hasan Hammoud, Thomas De Min, Simone Caldarella, Sedrick Keh 
+
+\smallsec{Data filtering.} Vishaal Udandarao, Matteo Farina, Selim Kuzucu, Thao Nguyen, Maximilan Böther, Andreas Hochlehnert, Marianna Nezhurina, Adhiraj Ghosh, Soumya Jahagirdar, Elaine Sui, Jehanzeb Mirza
+
+\smallsec{Train--test decontamination.} Matteo Farina, Vishaal Udandarao, Maximilian Böther, Adhiraj Ghosh, Marianna Nezhurina
+
+\smallsec{Annotation infrastructure.} Maximilian Böther, Matteo Farina, Marianna Nezhurina
+
+\smallsec{Data mixing.} Vishaal Udandarao, Matteo Farina
+
+\smallsec{Training infrastructure and scaling.} Matteo Farina, Marianna Nezhurina, Vishaal Udandarao
+
+\smallsec{Evaluation suite.} Matteo Farina, Sebastian Dziadzio, Karsten Roth
+
+\smallsec{Transfer and controlled experiments.} Vishaal Udandarao, Matteo Farina, Thao Nguyen, Andreas Hochlehnert, Adhiraj Ghosh
+
+\smallsec{Writing.} Vishaal Udandarao, Matteo Farina, Adhiraj Ghosh, Soumya Jahagirdar, Massimiliano Mancini, Nikhil Parthasarathy, Ludwig Schmidt
+
+\smallsec{Advising and supervision.} Nikhil Parthasarathy, Ludwig Schmidt, Massimiliano Mancini, Jenia Jitsev, Alessio Tonioni, Ameya Prabhu, Sewoong Oh, Matthias Bethge, Elisa Ricci, Ana Klimovic, Federico Tombari, Muhammad Ferjad Naeem, Serena Yeung-Levy, Bernt Schiele, Hilde Kuehne
+
+\clearpage
+
+
+\section{Extended Related Work}\label{app:related-work}
+
+In the main paper, we provided a brief overview of the most relevant recent papers for our work. Here, we provide a deeper dive into these related papers.
+
+
+
+\smallsec{Vision-Language Model Training Regimes.}
+The development of modern autoregressive VLMs has converged on a modular architecture, consisting of a pretrained vision encoder, a language model backbone, and a lightweight connector between the two. Early methods differed in how this connection was implemented.  Notable works include BLIP-2~\citep{li2023blip} which used a Q-former to compress visual tokens and Flamingo~\citep{alayrac2022flamingo}, which inserted cross-attention layers between frozen vision and language features. The dominant blueprint can be attributed to  LLaVA~\citep{liu2023visual,liu2024improved,liu2024llavanext} which popularized the simpler recipe of ``pretraining" the connector on predominantly image-text pairs ~\citep{an2025llava}, before conducting supervised fine-tuning (SFT) on curated instruction data. 
+
+In contrast, recent works have considerably relaxed these constraints. First, frontier works like InternVL3\cite{zhu2025internvl3}, InternVL3.5\cite{wang2025internvl3} and LLaVA-OneVision-1.5~\citep{an2025llava} fine-tune all model parameters from scratch. The relationship between these training choices and model scale, image resolution and data composition have been studied too~\citep{mckinzie2024mm1,zhang2024mm1}. Concurrently, the focus has also shifted to making the data composition more heterogeneous while training VLMs, moving away from an over-reliance on image-text pairs. Idefics~\citep{laurenccon2023obelics,laurenccon2024idefics2} trains on interleaved image-text sequences, UReader uses multimodal documents~\citep{ye2023ureader}, PaliGemma~\citep{beyer2024paligemma} combines image-text pairs with generated VQA, multi-object detection and OCR,  Cambrian~\citep{tong2024cambrian} includes text-only corpora for preserving language capabilities, etc. Most notably, ~\citep{zhu2025internvl3,wiedmann2025finevision} advocate for using instruction-tuning data during pretraining itself. However, the precise mixture ratios, filtering criteria, and formatting choices that drive these systems remain proprietary or only coarsely documented, motivating our systematic benchmark.
+
+
+\smallsec{Benchmarking Data Curation.}
+Controlled data-curation benchmarks keep model architectures and training pipelines fixed and only vary the data distribution fed to the model.  DataPerf~\citep{mazumder2023dataperf} established this paradigm, while
+DataComp~\citep{gadre2023datacomp} brought it to CLIP pretraining, enabling principled comparison of curation strategies at scale. DCLM~\citep{li2024datacomp} extended this to language model pretraining, demonstrating that a simple fasttext classifier trained on high-quality text can substantially improve downstream performance.
+FineWeb~\citep{penedo2024fineweb} and its educational-quality variant, FineWeb-Edu, showed similar gains through quality-based filtering of Common Crawl. In general, quality-based data filtering has shown strong results for text~\citep{penedo2024fineweb,li2024datacomp} and image-text pairs~\citep{gadre2023datacomp,wang2025unifilter}.
+
+
+Existing data curation methods can be categorized into two groups:   filtering and mixing. Common filtering approaches include CLIP-score filtering~\citep{hessel2021clipscore}, image quality assessment~\citep{agnolucci2024arniqa}, text quality classifiers~\citep{su2025nemotron,deshmukh2025nvidia}, and learned multimodal quality estimators~\citep{wang2025unifilter}. These filtering methods have proved to be quite effective in driving downstream performance for single data-type (image-text or text-only) datasets, training better CLIP models being an example \citep{gadre2023datacomp}. Using pretrained data-selector models or multimodal quality scores 
+are more recent approaches to quantify whether a data sample is likely to improve pretraining~\citep{mahmoud2024sieve,wang2024cliploss,wang2024variance,chen2024internvl,kim2024hype}.
+
+Beyond model-based filters, offline curation also comprises deduplication, recaptioning and concept-aware selection. Deduplication ranges from general pruning~\citep{sorscher2022beyond} to semantic deduplication~\citep{abbas2023semdedup,abbas2024effective}. Recaptioning methods aims to replace weak web-scale alt-text with synthetic or fused captions using VLMs or caption augmentation ~\citep{li2024if,yu2024capsfusion,fan2024improving,nguyen2024improving,nguyen2024multilingual,ghosh2025concept}. Concept-aware methods control the training distribution through concept filtering or balancing  ~\citep{ghosh2025concept,xu2023demystifying,oquab2023dinov2}. Put together, it has specifically been shown that the offline curation of noisy web-scale data results in large pretraining efficiency gains~\citep{jia2021scaling,changpinyo2021conceptual,gadre2023datacomp,fang2023data,vo2024automatic,maini2023t}.
+
+
+Prior works have also explored data mixing instead of filtering, with standard approaches relying on strategies such as domain weighting~\citep{xie2023doremi,olmo20242}, mixture optimization~\citep{chen2026olmix,berasi2026linear,diao2025nemotron,kang2024autoscale,ye2024data,liu2024regmix} and temperature-scaled sampling~\citep{deitke2025molmo,clark2026molmo2}. %
+Despite the efforts in releasing curated datasets (e.g., \fv~\citep{wiedmann2025finevision}), there exists no systematic study ablating filtering or mixing strategies in the VLM setting.  Our work fills this gap by providing a controlled testbed for multimodal data curation, providing the first \emph{scale-aware} study of data-type mixing for VLMs. 
+
+
+
+
+
+\smallsec{Train-Test (De)contamination.}
+Train-test overlap (contamination) is a well-documented concern, especially in language model evaluation, where several works have demonstrated how benchmark scores can be inflated when test-set or their near-duplicate samples appear in the pretraining data pool ~\citep{jiang2024investigating,magar2022data,sainz2024data,bordt2024much,schaeffer2026quantifying}.
+This is a problem for VLM training as well as the contamination can stem from many sources: text, duplicate or near-duplicate images or documents, etc. To mitigate such concerns, and also to ensure that models do not degrade to rote memorization of the training sets, several works conduct robust decontamination procedures on their training sets~\citep{beyer2024paligemma,zhai2022scaling,oquab2023dinov2,trinh2018simple,gao2020pile,mizrahi2025language,allal2025smollm2}, i.e, they attempt to remove training examples too similar (or, at worst, identical) to evaluation examples. 
+Some canonical methods include embedding-based similarity search~\citep{oquab2023dinov2,wiedmann2025finevision}, MinHash signatures for approximate text-matching ~\citep{penedo2024fineweb,li2024datacomp,broder1997resemblance} and direct string-search using suffix arrays~\citep{lee2022deduplicating}. 
+In our work, we employ two-way decontamination: a form of embedding-based decontamination for multimodal samples and MinHash signatures for text-only samples. 
+
+\smallsec{Scaling Laws and Scale-Aware Curation.}
+An important consequence of scaling-law studies is that a data curation strategy chosen at one scale may not remain optimal at others. A growing body of evidence suggests that the effectiveness of these filters is \emph{scale-dependent}: \citet{goyal2024scaling} and \citet{mizrahi2025language} show that optimal filtering aggressiveness decreases with compute budget. Our work successfully extends this finding to the multimodal setting.
+showing that \emph{at sufficient scale and with optimized mixtures, no individual quality filter provides reliable and consistent gains}.
+
+\clearpage
+
+\input{sections/architecture}
+\clearpage
+
+\section{Training and hyperparameter details}\label{app:hparams}
+
+We provide the exact hyperparameters we use for all our training runs in~\cref{tab:hparams}. For the most part, these were derived from the InternVL-2.5~\citep{chen2024expanding} and InternVL-3~\citep{zhu2025internvl3} configurations. However, we did run a small learning rate (LR) sweep of our own to confirm that these were indeed the best performing on a subset of downstream evaluations. 
+
+\begin{table}[!h]
+    \centering
+    \caption{\textbf{Pretraining hyperparameters.} All values are fixed across scales unless noted in \cref{tab:scales}.} 
+    \label{tab:hparams}
+    \small
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Hyperparameter} & \textbf{Value} \\
+        \midrule
+        \rowcolor{textcolor}\multicolumn{2}{l}{\textit{Optimization}} \\
+        Optimizer & AdamW~\citep{loshchilov2017decoupled} ($\beta_{1}{=}{0.9}$, $\beta_{2}{=}{0.999}$, ${\epsilon}{=}{1}{e}{-}{8}$) \\
+        Learning rate (pretraining) & $2 \times 10^{-5}$ \\
+        LR scheduler & Cosine decay~\citep{loshchilov2016sgdr} \\
+        Warmup ratio & 0.03 \\
+        Weight decay & 0.01 \\
+        Precision & BF16~\citep{dean2012large} \\
+        Global batch size & 1024 \\
+        Per-device batch size & 1 \\
+        Gradient checkpointing & \cmark \\
+        Parallelism & DeepSpeed ZeRO-1~\citep{rajbhandari2020zero} \\
+        \midrule
+        \rowcolor{textcolor}\multicolumn{2}{l}{\textit{Sequence packing}} \\
+        Max sequence length & 8192 tokens \\
+        Max packed tokens & 8192 tokens \\
+        Max packed images & 24 \\
+        Sampling & With replacement \\
+        \midrule
+        \rowcolor{textcolor}\multicolumn{2}{l}{\textit{Loss}} \\
+        Loss reduction & Square-averaging~\citep{chen2024expanding} \\
+        \midrule
+        \rowcolor{textcolor}\multicolumn{2}{l}{\textit{Architecture}} \\
+        Vision encoder & InternViT-300M-448px-V2.5 \\
+        Image resolution & $448 \times 448$ (dynamic tiling) \\
+        Pixel shuffle & down-sample ratio 0.5 \\
+        Include thumbnail image & \cmark \\
+        Vision layer for features & last \\
+        Drop path rate & 0.0 \\
+        Connector & 2-layer MLP \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{Learning Rate Selection}\label{app:lr-sweep}
+
+To ensure that the InternVL LR configurations were optimal, we conducted a small LR-sweep ourselves\footnote{We did this LR-sweep quite early on in the project when we had a slightly different experimental setup: (i) we were using the Qwen-Instruct backbones instead of the Qwen-Base LM, and (ii) we had not yet finalized the validation or core evaluation sets, and hence used 12 randomly selected benchmarks for tracking our average-metric.}. We select the learning rate by sweeping five values ($2 \times 10^{-4}$, $4 \times 10^{-5}$, $2 \times 10^{-5}$, $8.91 \times 10^{-6}$, $2 \times 10^{-6}$) at each model scale using 10B training tokens with the base mixture.
+All other hyperparameters are held fixed (global batch size 1024, cosine schedule, 3\% warmup) according to those specified in~\cref{tab:hparams}.
+As shown in \cref{tab:lr-sweep}, $\text{lr} = 2 \times 10^{-5}$ achieves the best or second-best performance at every model scale and LM backbone setting.
+Learning rates above $4 \times 10^{-5}$ cause training instability---particularly at the 1B scale, where $\text{lr} = 2 \times 10^{-4}$ collapses to near-chance performance. This behaviour has also been observed in prior works~\citep{wortsman2023small,zhang2026empirical,roth2024practitioner}.
+Learning rates below $10^{-5}$ underfit, with the gap widening at larger model sizes.
+We therefore adopt $\text{lr} = 2 \times 10^{-5}$ for all our experiments. This hence also corroborates the LR order-of-magnitude used in InternVL-2.5 and InternVL-3.
+
+\begin{table}[!h]
+    \centering
+    \caption{\textbf{Learning rate sweep across model scales.} All runs use 10B training tokens with the base mixture. Bold indicates the best average per model-size and LLM-backbone group. $\text{lr} = 2 \times 10^{-5}$ is consistently optimal across scales and backbones.}
+    \label{tab:lr-sweep}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{llccccccccccccc}
+        \toprule
+        \textbf{LR} & \textbf{LLM} & \rotatebox{70}{\textbf{MMMU}} & \rotatebox{70}{\textbf{3DSRBench}} & \rotatebox{70}{\textbf{AI2D}} & \rotatebox{70}{\textbf{BLINK}} & \rotatebox{70}{\textbf{COCO}} & \rotatebox{70}{\textbf{Hall.Bench}} & \rotatebox{70}{\textbf{MMB-CN}} & \rotatebox{70}{\textbf{MMB-EN}} & \rotatebox{70}{\textbf{MMStar}} & \rotatebox{70}{\textbf{Mantis}} & \rotatebox{70}{\textbf{TextVQA}} & \rotatebox{70}{\textbf{SEED}} & \rotatebox{70}{\textbf{Average}} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{15}{l}{\textit{1B model}} \\
+        $2 \times 10^{-4}$    & Qwen-Inst.  & 21.0 & 44.1 & 24.6 & 38.6 & 13.4 & 29.9 &  2.2 &  1.1 & 25.2 & 30.4 & 42.1 & 26.0 & 24.9 \\
+        $4 \times 10^{-5}$    & Qwen-Inst.  & 30.2 & 45.3 & 35.4 & 37.6 & 15.1 & 28.4 & 35.6 & 42.4 & 33.5 & 35.0 & 49.6 & 44.6 & 36.0 \\
+        $2 \times 10^{-5}$    & Qwen-Inst.  & 30.2 & 45.3 & 36.7 & 37.8 & 15.2 & 24.7 & 43.1 & 42.9 & 34.7 & 35.0 & 44.5 & 46.0 & \textbf{36.3} \\
+        $8.91 \times 10^{-6}$ & Qwen-Inst.  & 30.4 & 45.0 & 36.3 & 35.9 & 14.8 & 31.9 & 35.5 & 38.7 & 34.4 & 36.9 & 42.2 & 44.6 & 35.5 \\
+        $2 \times 10^{-6}$    & Qwen-Inst.  & 30.8 & 45.0 & 39.6 & 36.4 & 12.7 & 26.8 & 32.0 & 35.5 & 34.1 & 40.6 & 13.4 & 43.2 & 32.5 \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{15}{l}{\textit{2B model}} \\
+        \cdashline{1-15}
+        $4 \times 10^{-5}$    & Qwen-Inst.  & 38.0 & 45.1 & 53.6 & 39.0 & 16.6 & 37.6 & 57.2 & 57.5 & 35.8 & 45.2 & 53.1 & 59.2 & 44.8 \\
+        $2 \times 10^{-5}$    & Qwen-Inst.  & 38.0 & 45.8 & 53.6 & 39.2 & 18.1 & 36.6 & 57.9 & 59.7 & 35.8 & 44.7 & 53.8 & 58.2 & \textbf{45.1} \\
+        $8.91 \times 10^{-6}$ & Qwen-Inst.  & 40.2 & 45.1 & 54.7 & 38.8 & 13.7 & 37.3 & 57.5 & 59.3 & 35.5 & 47.0 & 51.7 & 56.4 & 44.8 \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{15}{l}{\textit{4B model}} \\
+        $2 \times 10^{-4}$    & Qwen-Inst.  & 31.2 & 44.6 & 44.2 & 38.4 & 21.9 & 34.2 & 51.9 & 51.3 & 38.0 & 40.6 & 53.7 & 54.3 & 42.0 \\
+        $4 \times 10^{-5}$    & Qwen-Inst.  & 40.3 & 47.4 & 59.3 & 39.0 & 21.1 & 39.7 & 63.3 & 63.1 & 39.1 & 51.6 & 58.8 & 64.4 & 48.9 \\
+        $2 \times 10^{-5}$    & Qwen-Inst.  & 42.2 & 46.1 & 61.4 & 39.5 & 20.5 & 37.5 & 63.6 & 64.0 & 40.5 & 54.8 & 59.1 & 63.7 & \textbf{49.4} \\
+        $8.91 \times 10^{-6}$ & Qwen-Inst.  & 42.0 & 46.4 & 57.0 & 38.0 & 15.7 & 35.8 & 58.5 & 60.3 & 40.5 & 49.3 & 52.1 & 61.1 & 46.4 \\
+        $2 \times 10^{-6}$    & Qwen-Inst.  & 40.6 & 45.4 & 54.8 & 37.4 & 17.0 & 31.3 & 50.3 & 51.0 & 35.2 & 43.3 & 19.9 & 53.4 & 40.0 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+\clearpage
+
+
+
+\section{DCVLM Pool Details}\label{app:dataset_pool}
+
+Our DCVLM pool aggregates 160 publicly available datasets across four data types:
+\textbf{image-caption pairs} (13 datasets), \textbf{multimodal interleaved documents} (5),
+\textbf{text-only} (33), and \textbf{multimodal instruction-tuning} (109,
+spanning 8 capability categories following \cite{wiedmann2025finevision}: Captioning \& Knowledge, Chart \& Table,
+General QA, Grounding \& Counting, Math, Naive OCR, OCR QA, and Science).
+Our full pool contains 3.9B samples and 6.0T
+multimodal tokens, averaging 1.5K tokens per sample. All token counts
+are measured using the InternVL-2.5~\citep{chen2024expanding} tokenizer
+over the full pool.
+The complete per-dataset breakdown of our DCVLM pool is given in \cref{tab:dcvlm-datamix-samples} (showing number of \textit{samples} per dataset) and \cref{tab:dcvlm-datamix-tokens} (showing number of multimodal \textit{tokens} per dataset).
+
+\subsection{Pool Composition}\label{app:pool-composition}
+
+\figpoolcomposition
+\input{tables/datasets_table}
+\cref{fig:pool-composition} summarises how our pool is split across the four data types, in terms of both samples and multimodal tokens. 
+The detailed per-category sample and token totals are given in \cref{tab:dcvlm-datamix-samples,tab:dcvlm-datamix-tokens}.
+The two views differ in informative ways:
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item \textbf{Image-caption pairs} dominate both axes (74\% of samples, 83\% of tokens). 
+The token share exceeds the sample share because every image-caption sample contributes $  $256 visual tokens \textit{per-tile} on top of a short caption, inflating the per-sample token count relative to the text-only data.
+\item \textbf{Text-only} data shows the opposite asymmetry: 19\% of samples but only 5\% of tokens, because individual text samples are short (440 tok/sample on average) and contribute no visual tokens.
+\item \textbf{Multimodal documents}, despite making up just 4\% of samples, contribute 7\% of tokens. 
+They are the densest data type, having $\sim$3K tok/sample on average, since each sample typically interleaves several images with surrounding text.
+\item \textbf{Instruction-tuning} data spans 8 capability categories and sits between image-caption pairs and multimodal documents in density ($\sim$2.2K tok/sample). 
+Also in this case, the presence of multi-image samples contributes to a greater per-sample token average.
+\end{itemize}
+
+
+\subsection{Per-Dataset Variation}\label{app:pool-perdataset}
+
+\figpoolscatter
+
+The 160 datasets in the pool span six orders of magnitude in sample count---from $\sim$1K (e.g.\ ChartLlama, LIMA, ViQuAE) to $\sim$1.5B (ReLAION-2B-en, DataComp-1B)---and four orders of magnitude in tokens-per-sample (\cref{fig:pool-scatter}). We dig into the per-data-type statistics below:
+
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item \textbf{Image-caption datasets} cluster tightly along the 1--2K tok/sample diagonal (\cref{fig:pool-scatter}). The narrow band reflects that image-caption tokens are dominated by the fixed-cost visual-token contribution ($\sim$256 tokens for a single $448{\times}448$ tile after pixel shuffling), with caption length contributing only secondary variation.
+\item \textbf{Multimodal documents} sit a decade higher, in the 3--6K tok/sample regime, because each sample carries multiple images and longer interleaved text spans.
+\item \textbf{Text-only datasets} occupy the widest tokens-per-sample band of any data type (100--15K), with two distinct clusters: short-form instruction data (Dolly, Unnatural-Instructions, MathQA, GSM8K-Socratic) at $\sim$200--400 tok/sample, and long-context corpora (LongCite-45K, LongInstruct-Para., LongAlpaca, Long-QLoRA) above 5K tok/sample.
+\item \textbf{Instruction-tuning datasets} span the largest dynamic range in size but a relatively narrow tokens-per-sample band ($\sim$1--3K). The handful of high-density outliers (MMDU, MapQA, MathWriting) correspond to multi-turn or multi-image conversations.
+\end{itemize}
+
+
+\subsection{Data Sources and Licensing}\label{appsub:licensing}
+
+We source our \dcvlm{} pool from four different data-types, each with a distinct sourcing strategy. Image-caption pairs are primarily sourced from web-crawled image-alt-text corpora (DataComp-1B~\citep{gadre2023datacomp}, ReLAION-2B~\citep{schuhmann2022laion}) and synthetic/human-curated caption datasets (PixMo-Cap~\citep{deitke2025molmo}, ShareGPT-4o~\citep{chen2024sharegpt4v}, GRIT~\citep{peng2023kosmos2}).
+Multimodal documents come from web-crawled interleaved sources (MINT-1T-HTML~\citep{awadalla2024mint}, OmniCC~\citep{li2024omnicorpus}, WanJuan~\citep{he2023wanjuan}) and curated PDF corpora (Multimodal-Textbook~\citep{zhang2025textbook}, MINT-1T-PDF~\citep{awadalla2024mint}).
+Instruction-tuning data is aggregated from academic benchmarks with train splits, synthetic generation pipelines, and existing curated datasets across 8 capability categories.
+Text-only data combines general instruction sets (Dolly, FLAN/FLAN-v2, SlimOrca) with long-context (LongAlpaca, LongCite-45K) and code/math reasoning (Numina-Math, MetaMathQA, Glaive-Code) corpora. In~\cref{tab:dcvlm-datamix-licenses}, we provide the licensing information and original sources from which we collected each sub-dataset in our \dcvlm{} pool.
+
+\input{tables/licenses_table}
+
+\subsection{Sample visualizations}
+To enable quick and easy visualization of random samples from each of our 160 source datasets, we provide a visualization tool built with Streamlit here: \href{https://dcvlm-dataset-browser.streamlit.app/}{https://dcvlm-dataset-browser.streamlit.app/}.
+The tool enables browsing samples from datasets, categorized by data type and afforded capability (for multimodal instruction tuning datasets).
+
+
+
+\subsection{Multilingual Nature}\label{app:multilingual}
+
+As can be seen from~\cref{tab:dcvlm-datamix-licenses}, the \dcvlm{} pool is sourced primarily from English-centric web corpora (DataComp~\citep{gadre2023datacomp}, ReLAION-2B-en~\citep{schuhmann2022laion}) and English instruction-tuning datasets, but it inherits a non-trivial multilingual tail from datasets that target other languages explicitly (e.g.\ Chinese instruction corpora, multilingual OCR generators) and from the natural multilingual contamination present in any large web crawl. To quantify this, we annotate every sample in the pool with two independent language detectors and take their top-1 prediction.
+
+\paragraph{Annotation methodology.} For each sample we run two language detectors over the per-sample text (caption, instruction, or document content):
+\begin{itemize}[leftmargin=15pt,topsep=2pt,itemsep=2pt]
+  \item \textbf{Lingua}\footnote{\url{https://github.com/pemistahl/lingua-py}}: a lightweight character-$n$-gram detector covering 75 languages with good coverage of European tongues but limited support for languages with non-Latin scripts.
+  \item \textbf{NLLB-218}~\citep{costa2022no}: the multilingual classifier shipped with the No-Language-Left-Behind translation model, covering 218 languages and substantially better than Lingua on Cyrillic, Devanagari, and Southeast-Asian scripts.
+\end{itemize}
+Each annotation stores the top-3 language hypotheses with calibrated scores. For the analysis below we report only the top-1 prediction from each detector. Both detectors operate on text with images stripped, so they describe the linguistic distribution of the \emph{textual} content of the pool, not of any visual content.
+
+\paragraph{Pool-wide distribution.} Figure~\ref{fig:lang-distribution} shows the top-15 languages by sample count under each detector, over our small pool (each dataset is capped at 100{,}000 samples as a representative subset). We notice that the distribution is heavily tailed---English alone accounts for $91.1\%$ (Lingua) / $92.8\%$ (NLLB) of all samples. The single largest non-English language is Chinese at $3.9\%$ / $3.5\%$. Beyond Chinese, the remaining languages are spread thinly: French, German, Japanese, Korean, and Russian each contribute $0.2\%$--$0.8\%$, and the rest of the long tail (a further 70-110 languages depending on detector) sums to under $1\%$. Despite the long tail Lingua and NLLB largely agree---the two detectors return the same top-1 language on $96.6\%$ of samples---so our statistics are robust to the choice of detector.
+
+\figlangdistribution
+
+\paragraph{Where does the non-English content come from?} Roughly half of the pool's non-English samples trace to a small number of datasets that were either built for a specific non-English language or rely on synthetic multilingual generation:
+\begin{itemize}[leftmargin=15pt,topsep=2pt,itemsep=2pt]
+  \item \textbf{Chinese:} \texttt{firefly} (a general-purpose Chinese instruction corpus, $\sim$91\% non-English, contributing $\sim$33\% of all Chinese samples), \texttt{wanjuan} (curated Chinese multimodal interleaved documents, $\sim$84\% non-English), \texttt{internvl\_sa1b\_caption} (Chinese-translated SA-1B captions), and \texttt{magpie\_qwen2\_pro} (Chinese instruction synthesis).
+  \item \textbf{French / German / Russian:} dominated by \texttt{flanv2}, whose translation tasks bundle large numbers of parallel corpora---alone responsible for $72.4\%$ of the pool's French, $78.3\%$ of its German, and $64.6\%$ of its Russian samples.
+  \item \textbf{Japanese / Korean:} \texttt{synthdog}, a synthetic OCR-style image-text generator, supplies $76\%$ of Japanese and $88\%$ of Korean samples; the remaining mass comes from \texttt{eaten}, \texttt{mavis\_geometry}, and small instruction sets such as \texttt{kopen-hq-hermes-25-60K} ($100\%$ non-English).
+  \item \textbf{Vietnamese / Arabic / Indonesian:} largely supplied by \texttt{sea-vl}, a Southeast-Asian vision-language dataset ($93\%$ Vietnamese, with smaller contributions to Arabic and Indonesian).
+\end{itemize}
+The remaining non-English content is the natural multilingual residue of the web crawls---although \texttt{relaion-2b-en} and \texttt{datacomp\_1b} are English-filtered upstream, $\sim$5\% of their captions are still flagged as non-English by NLLB, predominantly European languages (German, French, Italian, Dutch). This also corroborates the findings from~\citet{nguyen2024multilingual} and~\citet{pouget2024no}.
+
+\paragraph{Implications.} The pool is overwhelmingly English by design: this matches the practice of most recent open VLM pretraining corpus we are aware of and reflects the asymmetry of available web data~\citep{udandarao2024no,parashar2024neglected}. The Chinese sub-pool is large enough to plausibly support Chinese-capable downstream models, as we show in our experiments in~\cref{sec:experiments}. Languages outside the top five are too sparse to sustain meaningful pretraining signal on their own---this is a limitation of the underlying source data rather than of \dcvlm{} per se, and addressing it would require deliberate ingestion of non-English vision-language datasets.
+
+\paragraph{How much does English data drive downstream performance?} To test how dominant the English pretraining data is in our pool, we run a set of language ablation experiments at the \texttt{medium} scale (2B model, 25B tokens). Using the per-sample NLLB top-1 language annotations described above, we partition the pool into English and non-English samples and construct three training sets, holding the data mixture fixed: (\textit{i}) \textbf{All languages}, our default pool with no language-based selection; (\textit{ii}) \textbf{English-only}, which retains only samples whose detected language is English; and (\textit{iii}) \textbf{Non-English-only}, which retains only the complementary non-English tail. Since English accounts for ${\sim}92\%$ of the pool (\cref{fig:lang-distribution}), the English-only set is close in size to the full pool, whereas the non-English-only set is far smaller and is consequently seen with more repetitions to fill the same 25B-token budget. We report core-set results in \cref{tab:lang-ablation}.
+
+\begin{table}[h]
+    \centering
+    \caption{\textbf{Language ablation experiments.} We partition the \dcvlm{} pool by language and train on (\textit{i}) all languages, (\textit{ii}) English-only samples, and (\textit{iii}) non-English-only samples. The English-only model nearly matches the full pool, while training only on the non-English tail is substantially worse. Multilingual benchmark performance is essentially unchanged across all three pools.}
+    \label{tab:lang-ablation}
+    \small
+    \begin{tabular}{lccccccc}
+        \toprule
+        \textbf{Training pool} & \textbf{Gen} & \textbf{Know} & \textbf{OCR} & \textbf{Vision} & \textbf{MTL} & \textbf{Text} & \textbf{Core Avg} \\
+        \midrule
+        All languages (no filter) & 58.5 & 58.4 & 41.8 & 44.3 & 39.8 & 48.2 & \textbf{49.1} \\
+        English-only               & 57.3 & 58.5 & 41.5 & 41.9 & 39.9 & 48.4 & 48.5 \\
+        Non-English-only           & 53.2 & 56.6 & 38.5 & 42.0 & 39.1 & 45.4 & 46.1 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Three observations stand out. First, \textbf{English data carries almost all of the signal}: the English-only model trails the full pool by only $0.6$pp, despite discarding ${\sim}8\%$ of the pool. Second, \textbf{the non-English tail alone is insufficient}: training exclusively on non-English samples drops performance by $3.0$pp relative to the full pool, with the largest regressions on General ($-5.3$pp), OCR ($-3.3$pp), and Text-Only ($-2.8$pp). Third, and most notably, \textbf{multilingual benchmark performance is essentially flat across all three pools} ($39.8$ / $39.9$ / $39.1$): neither removing non-English data nor training solely on it meaningfully moves the Multilingual score. 
+
+We caution, however, that two confounders complicate the interpretation of this experiment: (\textit{i})
+  since English makes up ${\sim}92\%$ of the pool, the non-English-only run draws from far fewer unique
+  samples and incurs substantially more repetition than the English-only run to fill the same token budget, so
+  its performance drop cannot be cleanly attributed to language as opposed to repetition; and (\textit{ii})
+  our per-sample language annotations are noisy---especially for multilingual samples, where the detector is
+  biased toward the head (high-resource) languages---making the English/non-English partition imperfect.
+
+
+\clearpage
+
+\section{Evaluation Suite Details}\label{app:eval_details}
+
+In this section, we highlight our protocol to select and categorize benchmarks for evaluating models. 
+We start with a candidate pool of 65 benchmarks, which we categorize according to the majority consensus of previous work: Cambrian-1 \cite{tong2024cambrian}, InternVL2.5 \& InternVL-3 \cite{chen2024expanding, zhu2025internvl3}, MM-1 \cite{mckinzie2024mm1}, Qwen2-VL \& Qwen2.5-VL \cite{wang2024qwen2, bai2025qwen25vltechnicalreport} into 9 distinct categories:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item General Understanding: this category includes established multimodal benchmarks, as well as comprehensive, all-round benchmarks assessing several capabilities at once. 
+    \item Knowledge-Centric benchmarks: these test factual, scientific and/or educational knowledge. 
+    \item OCR \& Charts, testing the ability of models to read and understand visually rendered characters, diagrams, layout, and PDFs. 
+    \item Vision-Centric benchmarks, requiring models to perceive spatially, perform fine-grained visual processing such as counting, and compare items across multiple images. 
+    \item Multilingual benchmarks, which assess general knowledge in less common languages. 
+    \item Text-Only benchmarks, testing whether the unimodal, language-only capabilities of the language model are preserved; 
+    \item Safety benchmarks, which measure the ability of models to detect and, potentially, refuse to respond to, unsafe queries (e.g., violent, harmful and/or explicit content). 
+    \item Hallucination benchmarks, stress-testing the capabilities of models to assess evident facts such as the existence of explicit objects in images; 
+    \item Reasoning benchmarks, with a math- and logic-centric focus (including visual tasks such as rendered geometry problems and language-only tasks such as GSM-8K \cite{cobbe2021gsm8k}). 
+\end{itemize}
+
+Prior works are far from unanimous in how they organize these benchmarks: the same task is frequently placed in different categories by different works. For instance, AI2D is treated as a Knowledge benchmark by Cambrian-1 but as an OCR/document task by Qwen2-VL and InternVL, and MMMU is variously labelled as Knowledge, Mathematics, or Reasoning.
+To obtain a single consistent taxonomy, we collect the category each prior work assigns to every benchmark and resolve disagreements by majority vote wherever a consensus exists, adjudicating the remaining ambiguous cases ourselves.
+\Cref{tab:benchmark-categorization} reports, for each benchmark, the verbatim category given by every prior work alongside our final \dcvlm assignment. \Cref{tab:benchmarks} then lists the resulting mapping from each \dcvlm category to its benchmarks.
+Whenever possible, we use benchmark implementations in VLMEvalKit \cite{duan2024vlmevalkit} and OpenCompass \cite{2023opencompass}, which we integrate into the toolkit we plan to release.
+
+\input{tables/eval_categorization}
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/monotonic_evals.pdf}
+    \caption{\textbf{Not all benchmarks monotonically increase with scale.} 
+    We report the performance of 65 benchmarks (averaged over three runs at both the small and the medium scales) with a focus on their scaling behaviour. Average performance at the \texttt{small} scale is arranged on the x-axis; the y-axis displays average performance at the \texttt{medium} scale.
+    Benchmarks falling below the identity line (highlighted in red in the figure) do \textit{not} improve from the \texttt{small} to the \texttt{medium} scale.}
+    \label{fig:monotonic-evals}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/global_stability.png}
+    \caption{\textbf{Seed variance of the initial 65-benchmark pool.} We conduct runs at \texttt{small} and \texttt{medium} scales, to measure the seed variance of benchmarks in our initial 65 candidates. We remove POPE \cite{li2023evaluating}, as it leads to a standard deviation of up to 16\% over three runs at the small scale.}
+    \label{fig:eval-stability}
+\end{figure}
+
+\textbf{Monotonicity selection}.
+We filter 12 out of 65 benchmarks because they do not pass our first selection criterion: \textit{monotonicity}. 
+To ensure reliable evaluation of data-centric decisions across scales, we filter our initial benchmark pool to retain only tasks that exhibit \textit{consistent improvement} with scale. 
+Concretely, we train models at two scales (\texttt{small} and \texttt{medium}) for three different random seeds, for a total of six runs. We evaluate all resulting checkpoints and compute the per-scale average.
+Since \dcvlm is a scale-centric benchmark, we rule out benchmarks for which performance does \textit{not} monotonically improve from small to medium scale, as such benchmarks would risk obscuring the signal attributable to data curation choices. 
+This yields a curated subset of benchmarks (shown in \cref{fig:monotonic-evals} as points above the diagonal) that exhibit reliable scale-monotonic behavior. 
+
+\textbf{Stability selection.} In parallel to assessing monotonicity, we also search for stable evaluations. 
+For this reason, we further inspect the \textit{seed variance} of benchmarks using the same six runs. 
+We perform stability filtering in two steps: globally and locally within each category. 
+
+To provide an initial global picture, we display the standard deviation for all the initial 65 benchmarks at both scales in \cref{fig:eval-stability}.
+We find striking instability with POPE \cite{li2023evaluating} compared to all other benchmarks ($16\%$ seed variance over three runs at the \texttt{small} scale), and we therefore discard it from our pool. 
+This decreases the total from 53 to 52 remaining benchmarks, which we jointly call our \textbf{Extended} set. 
+
+\input{tables/all_evals}
+\input{tables/evals/extended}
+\input{tables/evals/core}
+\input{tables/evals/validation}
+\textbf{Extended, Core, and Validation suites.} Since we are primarily interested in evaluating pretrained models (according to our definition in \cref{sec:intro}), we create a smaller subset of tasks by excluding verticals that are mostly of interest for post-training strategies than they are for pretraining \cite{zong2024safety, guha2025openthoughts}: Safety, Hallucination, and Reasoning benchmarks. 
+We then apply a second iteration of stability filtering that removes the most unreliable tasks per category according to the average of their standard deviation across small and medium scale runs. 
+This corresponds to removing: (i) MME \cite{fu2023mme} from the General category, (ii) 
+TextVQA and DocVQA from the OCR \& Charts category, (iii) C3 and HellaSwag from the Text-Only category, (iv) MMVP and MantisEval from the Vision-Centric category. 
+We do not remove additional tasks from the Knowledge-Centric and the Multilingual categories, as they already contain a more modest number of tasks compared to other categories. 
+This additional selection yields a 33-task suite, which we call our \textbf{Core} set.
+As highlighted in the main body, we use this set to report all major results.
+We additionally create a 13-task \textbf{Validation} set, which we use for faster experimentation, by picking the most established subset of benchmarks per category. 
+
+To enumerate benchmarks and illustrate tier organization, we list Extended benchmarks in \cref{tab:extended-benchmarks}, Core in \cref{tab:core-benchmarks}, and Validation in \cref{tab:validation-benchmarks}.
+
+
+
+
+\subsection{Issues with Grounding Benchmarks}
+\label{app:grounding-detection-issues}
+
+We initially considered including grounding and dense recognition benchmarks, such as
+RefCOCO~\citep{kazemzadeh2014referitgame}, RefCOCO+~\citep{yu2016modeling},
+RefCOCOg~\citep{nagaraja2016modeling}, and related COCO-derived tasks, in the
+\dcvlm evaluation suite.
+We ultimately excluded them, not because grounding is unimportant, but because the
+standard grounding benchmarks introduce unusually severe contamination and split
+ambiguities. These issues make it difficult to interpret them as reliable held-out
+evaluations in a data-centric benchmark at the scale of \dcvlm.
+
+The main issue is that many grounding, VQA, and captioning benchmarks are built on
+overlapping subsets of MS COCO images~\citep{lin2014microsoft}. The RefCOCO family
+uses COCO images, as do COCO Captions~\citep{chen2015cococaptions,karpathy2015deep},
+OK-VQA~\citep{marino2019okvqa}, VSR~\citep{liu2023vsr}, and
+TolokaVQA~\citep{ustalov2023tolokavqa}. As a result, the same underlying image can
+appear as a training example for one task and as an evaluation example for another,
+possibly with a different annotation format, e.g., a caption, a VQA pair, or a
+referring expression. This makes image-level decontamination across the full training
+pool difficult, especially when downstream datasets rename files, construct custom
+splits, or mix COCO2014 and COCO2017 images in non-standard ways.
+
+The RefCOCO variants further complicate this picture because they are not independent
+held-out datasets. RefCOCO and RefCOCO+ were collected through ReferItGame and
+commonly use the \texttt{unc} split, where train/test separation is performed at the
+image level~\citep{kazemzadeh2014referitgame,yu2016modeling}. RefCOCOg was collected
+through AMT and commonly uses the Google split, where the split is defined at the
+object or annotation level~\citep{nagaraja2016modeling}. The variants also differ in
+their linguistic supervision: RefCOCO contains relatively short expressions, RefCOCOg
+contains longer and more detailed expressions, and RefCOCO+ restricts expressions to
+appearance-based descriptions by excluding certain spatial phrases such as ``person on
+the right''~\citep{yu2016modeling,nagaraja2016modeling}. Thus, a model trained on one
+variant may have already seen the same image-object pair that appears in another
+variant, only paired with a different referring expression.
+
+This concern is amplified by common VLM pretraining practices. In several open training
+recipes, grounding data is not treated as a single isolated benchmark split, but appears to group annotations from RefCOCO and RefCOCOg under the same
+image~\footnote{\url{https://internvl.readthedocs.io/en/latest/get_started/chat_data_format.html\#grounding-detection-data}}. In such cases, evaluation on a nominally separate
+RefCOCO-style split may partially measure familiarity with recurring COCO
+image-object pairs rather than genuine grounding generalization.
+
+For these reasons, we exclude grounding benchmarks from the main \dcvlm evaluation
+suite. Including them would make it difficult to attribute performance differences
+cleanly to data mixing, filtering and other curation choices, since gains could arise from uncontrolled overlap between COCO-derived training and evaluation data.
+\clearpage
+
+\section{Train-Test Decontamination}\label{app:decontamination}
+To ensure that conclusions from our data-centric experiments are not confounded by train-test overlap, we perform strict two-way decontamination of all training sources against the \dcvlm-Extended evaluation suite.
+We apply separate procedures for multimodal and text-only samples.
+
+\subsection{Image-Based Decontamination}\label{appsub:image-decont}
+For the multimodal portion of our pool, we decontaminate at the image level using the self-supervised copy-detection descriptor SSCD model~\citep{pizzi2022self} (ResNet-50 backbone). We embed every image in both the training pool and the \dcvlm-Extended evaluation suite under an \emph{identical} transform: we resize the shorter edge to $288$px while preserving aspect ratio, then apply ImageNet normalization. We deliberately favor fidelity over speed here~\citep{beyer2024vitspeed}---the $288$px input and the absence of any center crop avoid truncating charts, tables, and documents.
+
+\smallsec{Matching procedure.}
+We build a single exact (brute-force, flat $L_2$) FAISS index~\citep{douze2025faiss} over all evaluation-image descriptors. For each training image we retrieve its top-1 nearest evaluation image and convert the squared-$L_2$ distance $d$ to a cosine similarity $s = 1 - d/2$ (valid because SSCD descriptors are unit-normalized). 
+A training sample is discarded if \emph{any} of its images attains $s \geq 0.75$ to \emph{any} evaluation image. For multi-image samples (e.g.\ multimodal documents) we thus aggregate by the maximum similarity over the sample's images. Because the evaluation index is small, exact search resolves millions of queries per second on a single GPU, so we use no approximate indexing. Our pipeline relies on a distributed implementation that builds on top of exact FAISS~\cite{douze2025faiss} search.
+
+\smallsec{Choosing the threshold.}
+We use a similarity threshold of $0.75$, deliberately more conservative than the $0.95$ adopted by FineVision~\citep{wiedmann2025finevision}. \cref{fig:imagedecont-qualitative} shows representative train/test matches across the SSCD similarity scale, drawn from four pool sources that together span natural photographs (ViQuAE, DataComp-1B), diagrams (AI2D), and mixed document/chart-style imagery (MMDU). Only near-pixel-identical copies score $\geq 0.95$. The $0.75$--$0.95$ range is instead dominated by \emph{genuine} duplicates that have undergone benign transformations---diagrams with labels stripped or re-typeset, re-crops with added text overlays, and re-scans of the same source image. A $0.95$ threshold retains all of these, i.e.\ it admits many false negatives. We found this effect to be systematic for non-natural image domains---charts, tables, documents, and UI screenshots---where genuine train/test near-duplicates receive lower SSCD scores than natural photographs do. Our stricter $0.75$ cutoff removes this band at the cost of some false positives: we knowingly discard a modest amount of clean training data in exchange for substantially stronger decontamination guarantees. Below $0.75$, matches are visually or semantically similar but distinct images (different photographs of the same landmark, same-layout documents with different content) and are correctly retained. Note that even below the $0.75$ threshold, there are indeed some false negatives, however we found $0.75$ to be a stable threshold that balanced both precision and recall, enabling us to perform decontamination in a faithful manner while minimizing discard rates.
+
+\smallsec{Comparison to FineVision's threshold.}
+\cref{fig:imagedecont-sweep} quantifies the gap between the two protocols: for each of the four sources of \cref{fig:imagedecont-qualitative} we plot the fraction of pool images removed as a function of the threshold. The region between $0.75$ and $0.95$ is overlap that FineVision's protocol leaves in the pool---for AI2D, the $0.75$ threshold removes $16.9\%$ of pool images versus only $10.9\%$ at $0.95$, i.e.\ over a third of the detected overlap survives the lenient threshold.
+
+\smallsec{Removal rates on our DCVLM pool.}
+The fraction of training images flagged varies sharply by source and is concentrated in datasets whose training and evaluation splits are drawn from the same underlying image distribution. At the $0.75$ threshold, notable per-source removal rates on our DCVLM-pool \texttt{large} scale include ScienceQA ($60.4\%$), ChartQA ($25.6\%$), AI2D ($25.0\%$), OCR-VQA ($2.8\%$), and InfoVQA ($100\%$, as its training and evaluation images entirely coincide). 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/fig_imagedecont_threshold_sweep.png}
+    \caption{\textbf{Image-decontamination removal rate vs.\ SSCD similarity threshold.} Fraction of pool images removed as a function of the similarity threshold for four sources. The shaded band between our threshold ($0.75$, green) and FineVision's ($0.95$, red) is detected train/test overlap that FineVision's protocol leaves in the training pool.}
+    \label{fig:imagedecont-sweep}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_imagedecont_qualitative.pdf}
+    \caption{\textbf{Qualitative train/test image matches by SSCD similarity band.} Each pair shows a training-pool image (left) and its top-1 match in the \dcvlm-Extended evaluation suite (right). Rows are grouped by the maximum SSCD cosine similarity of the pair, and labels above each pair give the pool source. Only near-pixel-identical copies score $\geq 0.95$ (top row, removed by both protocols). The $0.75$--$0.95$ band (orange) consists almost entirely of genuine duplicates under benign transformations---label-stripped or re-typeset diagrams, re-crops with text overlays, re-scans---which FineVision's $0.95$ threshold \emph{keeps} but our $0.75$ threshold removes. Below $0.75$ (gray), matches are similar but genuinely distinct images (different photographs of the same statue, different maps of the same country, same-layout documents) and are retained by both protocols.}
+    \label{fig:imagedecont-qualitative}
+\end{figure}
+
+\subsection{Text-Based Decontamination}\label{appsub:text-decont}
+For the text-only portion of our pool, we decontaminate at the \emph{prompt/question level}, following the protocol of Tulu-3~\citep{lambert2024t}: for each training sample we concatenate its human turns into a single query string and match it against the prompts of every text-only evaluation. We decontaminate against all text-only benchmarks in the InternVL-3 evaluation pool ($16$ benchmarks, namely MMLU, CMMLU, C-Eval, GaoKao, TriviaQA, NaturalQuestions, RACE, WinoGrande, HellaSwag, BBH, GSM8K, MATH, HumanEval, MBPP, MBPP-CN, TheoremQA). We use a two-stage MinHash + exact-substring pipeline, detailed below. \cref{fig:textdecont-sweep,fig:textdecont-threshold} justify our hyperparameter choices, and~\cref{tab:textdecont-examples} shows representative detected overlaps.
+
+\smallsec{Matching procedure.}
+We tokenize text with the Tulu-3 regular-expression tokenizer (lowercasing and splitting on whitespace and punctuation) and represent each sample by the set of its \emph{word-level} $5$-grams.\footnote{This tokenizer is tuned for whitespace-delimited languages and does not segment Chinese well; we treat the resulting under-matching of Chinese text as a known limitation.} We summarize each set with a $128$-permutation MinHash signature~\citep{broder1997resemblance} and estimate the Jaccard similarity between a training sample and its nearest evaluation sample by \emph{exact} (brute-force) signature comparison. Because the evaluation index is small (${\sim}86$k samples), exact top-1 search is fast enough that we do not require LSH-based approximate matching.
+
+\smallsec{Two-stage filtering.}
+In the first stage, we discard every training sample whose top-1 Jaccard similarity to any evaluation prompt exceeds $0.55$. In the second stage, training samples falling in the ambiguous band ($0.3 \leq \text{Jaccard} < 0.55$) are subjected to a \emph{bi-directional} exact-substring check: a sample is discarded if either the training query is contained verbatim in the matched evaluation prompt or vice versa. The second stage recovers true positives whose Jaccard score is diluted below $0.55$---for example, a short evaluation question embedded inside a longer training prompt. This combination balances recall (fuzzy near-duplicates caught by MinHash) with precision (the substring check filters out spurious matches in the intermediate band). Training samples too short to form a single $5$-gram are always retained.
+
+\smallsec{Choosing the hyperparameters.}
+We sweep the three free parameters of the MinHash stage and report per-dataset match rates over $10$ instruction datasets in~\cref{fig:textdecont-sweep}. (i) \emph{Signature size}: increasing the number of permutations from $128$ to $1024$ leaves match rates essentially unchanged (\cref{fig:textdecont-sigsize}), so we use $128$ for faster processing. (ii) \emph{$n$-gram length}: $5$-grams detect overlaps at meaningful rates, whereas $8$- and $13$-grams detect almost nothing (\cref{fig:textdecont-ngram13}), because many evaluation prompts are shorter than $8$ (let alone $13$) tokens and therefore never form a matching $n$-gram. We therefore use $5$-grams for higher recall. (iii) \emph{Threshold}: across all datasets the match rate falls steeply with the similarity threshold and is already below ${\sim}0.1\%$ by $0.5$ (\cref{fig:textdecont-ngram5}). At our operating point of $0.55$ fewer than $0.02\%$ of text samples are removed, so a conservative threshold costs almost no data.
+
+\smallsec{Selecting the threshold via human annotation.}
+The match-rate sweep does not by itself tell us \emph{which} threshold separates genuine contamination from coincidental overlap. To answer this quantitatively, we ran a small human-annotation study: we drew candidate matches spanning all similarity bins from the $10$ datasets above, and seven of the authors independently labeled each candidate as a true overlap (the two prompts ask the same question) or a false positive. Aggregating the true-positive (TPR) and false-positive (FPR) rates per similarity bin (\cref{fig:textdecont-threshold}), we find that below ${\sim}0.55$ the FPR is high (most matches are spurious, e.g.\ questions that share a template but have different answers), while the TPR rises steeply just above it and the two curves cross around $0.55$--$0.6$. We therefore adopt $0.55$ as the first-stage threshold, and rely on the second-stage substring check to recover the genuine matches that fall just below it.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[t]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/fig_textdecont_sigsize.png}
+        \caption{signature size has no effect.}
+        \label{fig:textdecont-sigsize}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/fig_textdecont_ngram5.png}
+        \caption{match rate vs.\ threshold.}
+        \label{fig:textdecont-ngram5}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \includegraphics[width=\linewidth]{figures/fig_textdecont_ngram13.png}
+        \caption{$13$-grams detect almost nothing.}
+        \label{fig:textdecont-ngram13}
+    \end{subfigure}
+    \caption{\textbf{Text-decontamination hyperparameter sweep.} Per-dataset match rate (\% of training queries flagged) across the three MinHash design choices. Signature size is immaterial (a), so we use $128$ permutations. Longer $n$-grams miss short evaluation prompts and detect almost no overlap (c), so we use $5$-grams (b). Match rates are small in absolute terms and fall steeply with the threshold.}
+    \label{fig:textdecont-sweep}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/fig_textdecont_tpr_fpr.png}
+    \caption{\textbf{Threshold selection via human annotation.} True-positive (TPR, green) and false-positive (FPR, red) rates of MinHash matches at each similarity bin, aggregated over seven annotators. Below ${\sim}0.55$ most matches are spurious (high FPR). The TPR climbs steeply just above it and the curves cross around $0.55$--$0.6$, motivating our first-stage threshold of $0.55$.}
+    \label{fig:textdecont-threshold}
+\end{figure}
+
+\begin{table}[t]
+    \centering
+    \small
+    \caption{\textbf{Representative text overlaps detected by our pipeline.} We present some training/evaluation prompt pairs with their estimated Jaccard similarity. High-similarity pairs are genuine near-duplicates and are removed (Stage 1). Pairs just below the $0.55$ threshold typically share a template but have different answers and are correctly retained.}
+    \label{tab:textdecont-examples}
+    \begin{tabularx}{\linewidth}{@{}c X X c@{}}
+        \toprule
+        \textbf{Jaccard} & \textbf{Training prompt} & \textbf{Evaluation prompt} & \textbf{Decision} \\
+        \midrule
+        $1.00$ & What is the loudest animal on Earth? & What is the loudest animal on earth? & \textcolor{lightred}{Removed} \\
+        $1.00$ & Who was the first man to walk on the moon? & Who was the first man to walk on the Moon? & \textcolor{lightred}{Removed} \\
+        $1.00$ & What is the capital city of Croatia? & What is the capital city of Croatia? & \textcolor{lightred}{Removed} \\
+        $0.65$ & in which city was the first public opera house opened & Opened in 1637, in which city was the first public opera house? & \textcolor{lightred}{Removed} \\
+        $0.62$ & According to Greek mythology, who was the first woman on earth? & In Greek mythology, who was the first woman on Earth? & \textcolor{lightred}{Removed} \\
+        $0.59$ & What is the largest state in the US? & Which is the largest state in the US? & \textcolor{lightred}{Removed} \\
+        \addlinespace
+        $0.55$ & What is the tallest building in Seattle? & What is the tallest building in London? & \textcolor{nicergreen}{Kept} \\
+        $0.51$ & who is considered the father of computers? & who is considered the father of modern cosmology & \textcolor{nicergreen}{Kept} \\
+        $0.48$ & Write a Python function to find the maximum of three given numbers. & Write a Python function to find the maximum of two numbers. & \textcolor{nicergreen}{Kept} \\
+        $0.48$ & What is the largest lake in Switzerland? & What is the largest lake in Central America? & \textcolor{nicergreen}{Kept} \\
+        $0.45$ & What is the capital city of Malaysia? & What is the capital city of Colombia? & \textcolor{nicergreen}{Kept} \\
+        $0.45$ & Who is the founder of SpaceX? & Who is the founder of Sikhism? & \textcolor{nicergreen}{Kept} \\
+        $0.30$ & Caroline of Ansbach was the wife of which British monarch? & Mrs Maria Fitzherbert was the wife of which British monarch? & \textcolor{nicergreen}{Kept} \\
+        $0.30$ & Nancy earns \$28 for working 4 hours. How many hours does she have to work to earn \$70? & Mai earns \$5.50 per hour at her after-school job. How many hours does she have to work to earn \$132? & \textcolor{nicergreen}{Kept} \\
+        $0.28$ & What are the types of RVs? & What are the types of scanning? & \textcolor{nicergreen}{Kept} \\
+        $0.28$ & What is the best way to make Indian ginger tea? & Which is the best way to make friends with an American? & \textcolor{nicergreen}{Kept} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\subsection{Overall removal rates}
+\cref{fig:decont-removal-rates} reports per-dataset removal rates of the full decontamination protocol (image- and text-based combined) over our \texttt{medium} DCVLM-pool as a representative. Removal is concentrated in datasets whose training and evaluation splits are drawn from the same underlying distribution---InfoVQA loses $100\%$ of its samples (its training and evaluation images almost entirely coincide), ScienceQA $66.4\%$, TabMWP $63.4\%$, FigureQA $56.6\%$, ChartQA $41.7\%$, and AI2D $21.9\%$. At the pool level, however, decontamination is cheap---only $0.29\%$ of all training samples are removed. Strict decontamination therefore costs almost no data while removing precisely the samples most likely to inflate benchmark scores.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.62\linewidth]{figures/fig_decont_removal_rates.pdf}
+    \caption{\textbf{Per-dataset removal rates of the full decontamination protocol.} The $30$ pool sources with the highest fraction of samples removed by the combined image-based (SSCD $s \geq 0.75$) and text-based (MinHash Jaccard $\geq 0.55$ + substring check) decontamination against the \dcvlm-Extended evaluation suite. Removal concentrates in sources whose training and evaluation splits share an underlying distribution (InfoVQA, ScienceQA, TabMWP). At the pool level only $0.29\%$ of samples are removed.}
+    \label{fig:decont-removal-rates}
+\end{figure}
+
+\clearpage
+
+
+\section{Additional Experiments and Details}\label{app:filtering-details}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_filtering_single_small.pdf}
+    \caption{\textbf{Filtering rarely helps, but changing the data composition does move performance substantially (\textit{cont}).} Complementary experiments at the \texttt{small} scale of our benchmark confirm the outcome of \cref{sec:filtering}: established quality filtering rarely provides significant gains over a no-filter baseline, yet variations between global and local filtering remain frequent.}
+    \label{fig:filtering-small}
+\end{figure}
+
+\subsection{Filtering rarely helps}\label{app:filtering-dont-help-sec}
+\input{tables/local-filtering-val}
+\Cref{fig:filtering-small} reports the filtering results at the \texttt{small} scale (1B model, 6.25B tokens), complementing the \texttt{medium}-scale results in \Cref{sec:filtering}. 
+The conclusions are fully consistent: local filtering uniformly fails to improve over the no-filter baseline. 
+The only positive outcomes still arise from global CLIP-score filtering (SigLIP-2 $+1.1$pp and OpenAI-CLIP $+0.6$pp), in line with \cref{fig:filtering}, yet, once again, these gains are lower than what one would expect from prior work.
+
+Consistently, global filtering and local filtering produce different results also at this scale. 
+Overall, these results reinforce the central finding of \cref{sec:filtering} that filtering is not a reliable curation strategy, and lead to hypotheses that observed performance variations might be primarily driven by the underlying mixture changes.
+
+\input{tables/global-filtering-val}
+
+\textbf{Additional filtering experiments.} For completeness, we report the full benchmarking we conducted with a variety of additional configurations for the filters in \cref{sec:filtering}. 
+Specifically, we tested several local filtering variants of the common filters presented in \cref{sec:filtering}:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=0pt, parsep=0pt, partopsep=0pt]
+    \item for CLIP-score, we experiment with filtering not only image-caption pairs alone, but also multimodal documents and instruction tuning data. For the former, we score a document according to the average CLIP-score of all its adjacent image-text snippets. For the latter, we employ image-to-question similarity. In case of multi-image examples, we use an identical strategy to multimodal documents and score the closest image to the question in the conversation history. For multi-turn samples, we average across all adjacent pairs as we do for multimodal documents. We use the same three models described in \cref{sec:filtering}
+    \item for text quality classifiers, we additionally experiment with filtering only the language portion of our pool. This experiment is motivated by the hypothesis that text-only sources might be more in-distribution with respect to the classifiers themselves. Identically to CLIP-score, we report all three classifiers of the main body.
+    \item For Text-Only Perplexity, Multimodal Perplexity, and Conditional Mutual Information filters we experiment with applying them to all multimodal data types jointly (image-caption pairs, instruction-tuning data, multimodal documents), as well as subset combinations. 
+\end{itemize}
+
+We additionally experimented with basic filtering strategies:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=0pt, parsep=0pt, partopsep=0pt]
+    \item Length heuristics, that remove the shortest and the longest samples (removes bottom-10\% shortest and top-90\% longest at both scales). We experiment with several interpretations of ``length'': (i) the count of all tokens, (ii) the count of answer tokens, on top of which the loss is ultimately computed during training; and (iii) the count of language tokens (i.e., question + answer tokens); 
+    \item Image Quality Assessment (IQA) models, to remove low-quality images. We test with the ARNIQA~\citep{agnolucci2024arniqa} suite of image quality models. Specifically, we use the regressors trained on the Kadid-10k~\citep{lin2019kadid} and Tid-2013~\citep{ponomarenko2013color} datasets, since they are one of the highest performing image quality assessment classifiers on standard IQA benchmarks.  
+\end{itemize}
+
+
+Except for length heuristics, which use the same (bottom-10\%, top-90\%) percentiles on both scales, all experiments are conducted with an aggressive top-10\% filtering threshold on the small scale and a more lenient top-40\% threshold on the medium scale, following \cref{sec:filtering}. 
+
+Given the large number of experiments, we opted for faster iterations on our 13-task Validation suite. 
+As anticipated in the main body, no configuration provides significant gains. 
+
+For completeness, we report Validation results for global filtering in \cref{tab:global-filtering-val} as well (we did not test all variants here, but rather only those presented in \cref{fig:filtering}).
+
+
+
+
+
+
+\subsection{Data formatting}\label{appsec:formatting}
+
+
+We use the Chat Markup Language (ChatML) format~\citep{openai2022chatml} for training, which assigns a role (``system'', ``user'', or ``assistant'') to all messages in a conversation. 
+ChatML is a structured format explicitly separating conversation roles (e.g., system, user, assistant) and demarcating message boundaries using specific tokens (e.g., \verb+<|im_start|>+ and \verb+<|im_end|>+).
+Text-only and instruction-tuning data typically come in this format already, while image-caption pairs can be easily formatted using templates such as ``\textit{Describe the image}'' to serve as user messages. 
+However, 
+there is no consensus on how to format multimodal documents,
+with prior works exploring contrasting methods~\citep{awadalla2024mint,li2024omnicorpus,zhu2023multimodal,laurenccon2023obelics}. 
+
+\begin{wraptable}{r}{0.27\textwidth}
+    \vspace{-12pt}
+    \centering
+    \caption{Multi-turn is better than in-context formatting.}
+    \label{tab:mmdoc-formatting}
+    \small
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Format} & \textbf{Val Avg} \\
+        \midrule
+        In-context  & 35.5 \\
+        Multi-turn  & 37.9 \\
+        \bottomrule
+    \end{tabular}
+    \vspace{-8pt}
+\end{wraptable}
+
+We thus conduct an experiment at the \texttt{small} scale to compare two strategies:
+\textbf{in-context}, which uses the last text chunk as assistant response, and concatenates everything %
+except the last text chunk into the user message
+vs \textbf{multi-turn}, which interleaves images and text chunks into multiple turns, so that images are user messages and all text chunks are assistant responses
+To ensure reliable signal, we use a uniform mixture across data types ($25$\% for all data types). 
+From~\cref{tab:mmdoc-formatting}, we find multi-turn formatting superior to in-context formatting.
+We thus adopt multi-turn formatting for all our experiments. %
+
+\subsection{Diminishing returns of downstream filtering}
+\label{app:filtering-exp}
+This section provides further details on the upstream vs.\ downstream filtering experiment in~\cref{sec:filtering}.
+
+We start from the base \dcvlm{} small-pool of 160 source datasets. By virtue of our collection procedure (\cref{sec:pool}), this pool has already been ``upstream-filtered'' by the source dataset providers, so we treat it as the ``Upstream-filtered=100\%'' setting. It follows our pool's base mixture ratio: $75$\% image-caption pairs, $18$\% text-only, $4$\% multimodal documents, and $3$\% multimodal instruction-tuning data. The \texttt{datacomp\_1b} subset alone accounts for roughly $47$\% of the image-caption portion.
+
+To construct the other two settings, we progressively replace pre-filtered image-caption data with raw, unfiltered pairs crawled directly from the released \href{https://huggingface.co/datasets/mlfoundations/datacomp_pools}{CommonPool} URLs:
+\begin{itemize}
+    \item \textbf{Upstream-filtered=65\%:} replace pre-filtered \texttt{datacomp\_1b} with its unfiltered counterpart, yielding $0.47 \times 75 \approx 35$\% unfiltered data.
+    \item \textbf{Upstream-filtered=25\%:} replace the \emph{entire} image-caption portion with raw unfiltered \texttt{datacomp\_1b}, yielding $75$\% unfiltered data.
+\end{itemize}
+
+For each setting, we apply CLIP-score downstream filtering on image-caption pairs using OpenAI-CLIP-ViT-L/14~\citep{radford2021learning}, and train \texttt{small}-scale models on the resulting datasets.
+
+The gain from downstream filtering shrinks monotonically with the level of upstream curation: $+2.4$pp at Upstream-filtered=25\%, $+1.3$pp at $65$\%, and only $+0.6$pp at $100$\%. The first result confirms that filtering \emph{does} help on genuinely noisy data, but the trend establishes that \textit{additional filtering on top of already-curated data operates in a regime of diminishing returns}.
+
+\subsection{Temperature-scaled sampling}\label{appsub:temperature}
+
+Several of our most task-relevant datasets are already present in the pretraining pool: the training splits of ScienceQA, AI2D, ChartQA, InfoVQA and OCR-VQA all live in our instruction-tuning sources.
+It is therefore natural to ask why the corresponding benchmarks do not benefit more, and a simple hypothesis presents itself---these datasets may be \emph{severely undersampled} during training.
+By default we sample sources \emph{within} each data type in proportion to their size, $p(d) \propto \mathrm{len}(d)$ (where $\mathrm{len}(d)$ is the number of samples $d$ contributes to the pool), so a handful of large web-scale sources can dominate the mixture and drown out small but high-quality or diverse datasets.
+
+Prior work tackles this imbalance in two ways: by hand-setting mixture ratios based on intuition (e.g.\ the Nemotron~\citep{diao2025nemotron} and OLMo-2~\citep{olmo20242} series, and FineWeb~\citep{penedo2024fineweb}), or by principled downweighting of large sources---most notably the square-root sampling used in the Molmo line of work~\citep{deitke2025molmo,clark2026molmo2}.
+We study this finer, within-type sampling in a principled manner via temperature-scaled sampling,
+\begin{equation}
+    p(d) \;\propto\; \mathrm{len}(d)^{1/T}\,,
+\end{equation}
+where $T=1$ recovers length-proportional sampling, $T=2$ corresponds exactly to the square-root sampling of Molmo, and $T\rightarrow\infty$ approaches uniform sampling over datasets (\emph{flattening}, which upweights small sources). We additionally explore $T<1$, which \emph{sharpens} the distribution toward the largest sources.
+We apply the sweep $T \in \{0.5, 0.8, 1.0, 2.0, 4.0\}$ to our balanced mixture ($40$\% image-caption, $5$\% multimodal documents, $15$\% text, $40$\% instruction-tuning, see \cref{sec:mixing}), holding all other settings fixed, and report results on our 13-task Validation suite. We run these experiments at the \texttt{small} scale of our benchmark.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.72\linewidth]{figures/fig_temperature_sampling.pdf}
+    \caption{\textbf{Length-proportional sampling ($T=1$) is near-optimal.} Validation average as a function of sampling temperature $T$ in $p(d)\propto\mathrm{len}(d)^{1/T}$. Both sharpening ($T<1$) and flattening ($T>1$) degrade performance relative, with the near-uniform $T=4$ setting losing $4.1$pp.}
+    \label{fig:temperature}
+\end{figure}
+
+As shown in \cref{fig:temperature}, the undersampling hypothesis does not hold.
+The default $T=1$ is already near-optimal, and flattening the distribution---which upweights exactly the small, task-relevant datasets we suspected of being undersampled---consistently \emph{hurts}: square-root sampling ($T=2$) drops to $42.4$\% ($-1.7$pp) and the near-uniform $T=4$ falls to $40.0$\% ($-4.1$pp), below even the \fv{} baseline.
+Sharpening offers no benefit either ($T=0.8$: $43.6$\%, $-0.5$pp; $T=0.5$: $43.2$\%, $-0.9$pp).
+We hypothesize the contradicting results between ours and the Molmo series are due to the differing mixture ratios and pool composition---we believe there might be some non-trivial effects between the broader data-type mixing ratios and the within-data-type source sampling, which would be an interesting exploration for future work.
+Given our results, we hence retain length-proportional ($T=1$) sampling throughout---noting that the cross-type mixing ratios of \cref{sec:mixing} are a far more impactful lever than the within-type temperature.
+
+
+
+\subsection{Synthetic recaptioning}\label{appsub:recaptioning}
+
+Replacing noisy web-crawled alt-text with synthetic captions is a well-established lever for improving contrastive (CLIP-style) pretraining~\citep{li2024if,yu2024capsfusion,ghosh2025concept}.
+We test whether the same holds for generative VLM pretraining.
+We hold the images and their training order fixed and vary \emph{only} the caption text on the DataComp~\citep{gadre2023datacomp} subset of our image-caption pool, comparing three variants:
+\begin{itemize}[leftmargin=*, itemsep=2pt, topsep=0pt, parsep=0pt, partopsep=0pt]
+    \item \textbf{Alt-text (original):} the raw web alt-text from the original DataComp-1B image-caption pairs.
+    \item \textbf{Synthetic short:} concise captions generated by Qwen2-VL-7B~\citep{wang2024qwen2}, conditioned on the image, its alt-text, and a set of detected concepts~\citep{ghosh2025concept}.
+    \item \textbf{Synthetic spatial:} the short captions further augmented with explicit 2D/3D spatial-relationship descriptions, to probe whether richer, layout-aware captions help the more vision-centric benchmarks.
+\end{itemize}
+We source all caption variants using the released datasets of~\citet{ghosh2025concept}. We run these experiments on a mixture of $65$\% image-caption, $5$\% multimodal documents, $15$\% text, and $15$\% instruction-tuning data, at the \texttt{small} scale of our benchmark.
+Crucially, the caption intervention is applied \emph{only} to DataComp-1B, not to the entire image-caption portion: since DataComp-1B accounts for roughly $47$\% of the image-caption data, the captions are rewritten for only $\approx\!47\%\times65\% \approx 30\%$ of the \emph{overall} training mixture, while every other source (including image-caption datasets that already come with synthetic captions) retains its original text.
+The images, mixture ratios, and data order are identical across the three runs, so any difference is attributable solely to DataComp-1B captions. As with other experiments, we report on the 13-task Validation suite.
+
+\input{tables/recaptioning-val}
+
+\Cref{tab:recaptioning-val} shows that \textbf{neither synthetic captioning scheme provides a meaningful improvement}: original alt-text reaches $44.1$\% average, synthetic-short $43.2$\% ($-0.9$pp), and synthetic-spatial $44.0$\% ($-0.1$pp).
+Per-category, the changes are small and inconsistent in sign---spatial captions help General ($+0.7$) and MTL ($+1.2$) but hurt OCR ($-0.9$) and Vision ($-0.9$), netting essentially zero overall.
+This contrasts with the consistent gains recaptioning brings to CLIP training, and we hypothesize that the difference is in our pretraining setup: the instruction-tuning portion of the mixture already supplies abundant high-quality, densely-described image-text pairs, so perhaps the marginal value of rewriting the image-caption captions is low.
+In other words, at the VLM pretraining stage the \emph{text content} of image-caption pairs matters far less than their \emph{proportion} in the overall mixture (\cref{sec:mixing})---given the substantial cost of running a 7B captioner over the full pool, we use the original alt-text throughout.
+
+We caveat that this null result is specific to our setup, and a different configuration could plausibly surface gains.
+Two factors likely dampen the effect here.
+First, the intervention touches only $\approx\!30\%$ of the training mixture (the DataComp subset)---recaptioning a larger fraction of the pool, or starting from a pool that is entirely alt-text, may tell a different story.
+Second, and more importantly, our image-caption pool \emph{already} contains several sources beyond DataComp-1B and ReLAION that come with high-quality synthetic or re-written captions.
+In their presence, rewriting the captions of one additional subset has little marginal effect---much as additional filtering yields diminishing returns once a pool is already well-curated (\cref{app:filtering-exp}).
+The benefit of recaptioning may thus be largely realized already, and washed out, by the synthetic captions present elsewhere in the pool.
+
+
+\subsection{Online Filtering}\label{appsub:online_filtering}
+
+Prior data curation benchmarks such as DataComp~\citep{gadre2023datacomp} and DCLM~\citep{li2024datacomp} employ \emph{offline resharding}: given a raw pool and a set of metadata annotations, the entire dataset is filtered according to a predicate and written to disk as a new, smaller dataset, which is then used for training.
+While this makes training efficient---the dataloader never encounters rejected samples---it incurs substantial storage costs, particularly when sweeping over filtering configurations.
+For example, determining the optimal CLIP-score threshold requires training runs at several percentiles, each of which produces a separate copy of the filtered pool on disk.
+With dozens of filters and multiple threshold values, storage requirements can grow by an order of magnitude.
+
+Both DataComp and DCLM cite the computational cost of \emph{online filtering}---applying predicate conditions during training---as the reason for preferring offline resharding.
+We revisit this assumption and find that, in our setting, online filtering matches the throughput of unfiltered training, effectively eliminating the storage bottleneck.
+We describe our implementation in detail below.
+
+\subsubsection{Metadata Annotation}
+
+Each sample in our pool is annotated with scores from every filter we consider.
+Concretely, for a given filter $f$ (e.g., \texttt{oai-clip-vit-b-32}), we run a batch inference job over the entire pool that computes a scalar quality score $s_f(x) \in \mathbb{R}$ for each sample $x$.
+These scores are stored as sidecar metadata files alongside the original WebDataset shards: for each shard \texttt{xxxxx.tar}, we produce a corresponding \texttt{xxxxx.json} file containing a dictionary mapping sample keys to their scores across all filters.
+A single sample's metadata entry looks like:
+\begin{verbatim}
+  "sample_00042_017": {
+      ...
+      "clip_score_clip_vitl14_224_standard": 31.984,
+      "clip_score_siglip2_b16_224_standard": 5.421,
+      "text_quality_dclmbaseline_fasttext_score": 0.091,
+      "text_quality_nvidia_edu_mixtral_score": 0.122,
+      "iqa_kadid10k": 0.574
+      ...
+  }
+\end{verbatim}
+This annotation step is performed once per pool and is fully parallelizable across shards.
+Adding a new filter (e.g., a new CLIP model variant) requires scoring the entire pool only with the new filter; existing annotations are preserved and do not need to be recomputed.
+In total, our small pool ships with over 100 precomputed metadata annotations per sample.
+
+\subsubsection{Threshold Pre-Computation}
+
+Given a filter $f$ and a desired retention rate $p$ (e.g., ``keep the top 60\%''), we need a threshold $\tau_{f,d}$ for each sub-dataset $d$ (in the local filtering setting) or a single global threshold $\tau_f$ (in the global filtering setting).
+We pre-compute these thresholds for all filters at percentile increments of 5 (i.e., $p \in \{0.1, 0.15, 0.2, 0.25, \ldots, 0.9, 0.95\}$) using \texttt{torch.quantile()} with linear interpolation over the full score distribution of each sub-dataset (for local filtering) or the full merged score distribution across all sub-datasets (for global filtering).
+The output is a lightweight JSON lookup table that maps each filter to the score value corresponding to each percentile, which is then used as the filtering threshold:
+\begin{verbatim}
+    filter_name: {
+      "0.10": 0.052,   # 10th percentile
+      "0.15": 0.095,   # 15th percentile
+      "0.20": 0.118,   # 20th percentile
+      ...
+      "0.90": 0.891    # 90th percentile
+      "0.95": 0.945    # 95th percentile
+    }
+\end{verbatim}
+
+\subsubsection{Runtime Integration}
+
+During training, the dataloader reads samples from WebDataset shards as usual, but before a sample is yielded to the training loop, it passes through a lightweight predicate function registered via \texttt{wds.select()}.
+The predicate performs the following steps for each sample:
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+    \item Look up the sample's pre-computed filter scores from the sidecar metadata (loaded into a hash map at initialization).
+    \item For each active filter, compare the sample's score against the corresponding threshold for that particular sub-dataset.
+    \item If the score falls below the threshold (i.e., the sample is in the rejected percentile), return \texttt{False}; the sample is silently skipped and the dataloader advances to the next sample in the shard.
+    \item If all active filters pass, return \texttt{True}; the sample proceeds to tokenization, packing, and batching as normal.
+\end{enumerate}
+For multi-filter configurations (e.g., applying both a CLIP-score filter and a text-quality filter simultaneously), the predicates are composed with logical AND: a sample must pass \emph{all} active filters to be retained.
+Since the predicate evaluation involves only a dictionary lookup and a scalar comparison per filter, the per-sample cost is on the order of microseconds---negligible compared to the millisecond-scale cost of image decoding, tokenization, and GPU transfer.
+
+Switching between filtering configurations requires changing only the filter names and percentile values in a configuration file; no data needs to be resharded or copied.
+This enables rapid iteration: practitioners can launch dozens of filtering experiments against the same on-disk pool, varying filters, thresholds, and combinations, without any storage overhead beyond the original pool and its sidecar metadata.
+
+\subsubsection{Overhead Measurement}\label{sec:exp_online_filtering}
+
+A natural concern is that high rejection rates will cause the dataloader to ``spin''---reading and discarding many samples before finding one that passes the filter, thereby starving the GPUs.
+We benchmark this directly on 2 nodes (8 A100 GPUs), with per-device batch size 4 and effective sequence length 8192, across two representative datasets with different characteristics: ShareGPT4V (high-quality synthetic captions, relatively uniform scores) and MINT-HTML (web-crawled multimodal documents, highly variable scores).
+
+\cref{fig:online-filtering-overhead} summarizes the results across three experimental axes.
+
+First, when varying the rejection percentile of a single filter from 0\% to 90\% (\cref{fig:online-filtering-overhead}, left), runtime at 50M tokens remains within 3.5\% of the unfiltered baseline, and this spread shrinks to just 0.3\% at 500M tokens (\cref{fig:online-filtering-overhead}, center)---well within normal run-to-run variance.
+The lack of degradation even at 90\% rejection (where 9 out of 10 samples are discarded) can be attributed to two factors: (i)~the predicate check is cheap relative to downstream processing, allowing the dataloader to skip rejected samples faster than the GPU can consume accepted ones; and (ii)~our models are more compute-bound than the CLIP models trained in DataComp, since every sample passes through both a vision encoder and a full language model---this leaves more headroom in the data-loading pipeline, making it naturally tolerant of the additional filtering overhead.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_online_filtering_overhead.pdf}
+    \caption{\textbf{Online filtering adds negligible overhead to training.}
+    \textbf{Left:} Runtime for 50M tokens (2 nodes, 8 GPUs, 1 filter) across rejection percentiles---total spread is 3.5\%, within normal run-to-run variance.
+    \textbf{Center:} Same measurement at 500M tokens, where the spread shrinks to 0.3\%, confirming that any per-sample overhead is amortized over longer runs.
+    \textbf{Right:} Scaling the number of simultaneous filters at 80\% rejection each.
+    Even with 3 filters applied concurrently, the overhead is only $1.10\times$ baseline, confirming that online filtering is a scalable approach.}
+    \label{fig:online-filtering-overhead}
+\end{figure}
+
+Second, when scaling the number of simultaneous filters at a fixed 80\% rejection rate per filter (\cref{fig:online-filtering-overhead}, right), applying 1--2 filters actually runs \emph{faster} than the unfiltered baseline ($0.98\times$), likely because rejected samples bypass the more expensive downstream stages (image decoding, pixel-shuffle, tokenization, packing).
+Even with 3 concurrent filters---the most aggressive configuration we tested, where the compound rejection rate exceeds 99\%---the overhead is only $1.10\times$ the unfiltered baseline.
+
+These results demonstrate that our online filtering is a practical and storage-efficient alternative to offline resharding for VLM pretraining at our scale, enabling rapid iteration over filtering configurations without materializing each filtered subset on disk.
+\clearpage
+
+
+\section{Fine-grained sweep of mixture optimization experiments}\label{app:data-mixing-fine-sweep}
+
+
+In~\cref{sec:mixing} of the main paper, we conducted a full scaling grid across $3$ model sizes (1B, 2B, 4B), $3$ token budgets (6.25B, 12.5B, 25B) and $3$ mixing ratios (Instruction-heavy, Balanced, Caption-heavy). Here, we aim to do a finer-grained sweep over $9$ total mixtures. 
+To that end, we conduct a dense line search between the orpotion of image-caption data and instruction-tuning data, which means that we gradually decrease the proportion of crawled Image-Text data in favour of Instruction Tuning data. We keep the multimodal docs and text proportion fixed at $5$\% and $15$\% respectively, and only vary the image-caption to instruction-tuning data proportion from $65$\% captioning-$15$\% instruction to $10$\% captioning-$70$\% instruction.
+
+In~\cref{sec:mixing} of the main paper, we conducted a full scaling grid across $3$ model sizes (1B, 2B, 4B), $3$ token budgets (6.25B, 12.5B, 25B), and $3$ mixing ratios (\textit{Instruction-heavy}, \textit{Balanced}, \textit{Caption-heavy}). Here we complement that grid with a finer-grained sweep over $9$ mixtures at two scales: \texttt{small} (1B model, 6.25B tokens) and \texttt{medium} (2B model, 25B tokens). Concretely, we conduct a dense line search between image-caption and instruction-tuning data gradually trading off image-text data for instruction-tuning data, while keeping the multimodal-document and text-only shares fixed at $5\%$ and $15\%$ respectively. The image-caption-to-instruction-tuning split is varied from $65\%$ caption / $15\%$ instruction (Caption-heavy mix in~\cref{sec:mixing}) down to $10\%$ caption / $70\%$ instruction (Instruction-heavy mix in~\cref{sec:mixing}) in 8 increments, yielding the $9$ operating points reported in~\cref{fig:fine-mixing}.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/fig_dense_mixing_panels_validation.pdf}
+    \caption{\textbf{The optimal pretraining data mixture is scale-dependent.} At the \texttt{small} scale, performance is flat or slightly degrades as the instruction-tuning share grows; at the \texttt{medium} scale, the trend reverses, with performance improving monotonically and peaking at $65$\% instruction-tuning data. This highlights the need for scale-aware data curation.}
+    \label{fig:fine-mixing}
+\end{figure}
+
+We find that the optimal data mixture at the \texttt{small} scale is the $65$\% caption-$15$\% instruction mix, and performance gracefully degrades as we increase the proportion of instruction-tuning data in the mixture. Conversely, the trend reverses for the \texttt{medium} experiment, wherein the best mixture ratio is exactly at the opposite operating point of $10$\% caption-$70$\% instruction. This highlights the importance of \textit{scale-aware data-curation}---strategies that are optimal at one scale need not transfer to larger ones, and hence one must be prudent while making such transfer decisions, which has also been discussed in prior works~\citep{goyal2024scaling,mizrahi2025language,maithinking1}.
+
+\clearpage
+
+
+
+
+
+
+
+\section{Packing Implementation Details}\label{app:packing}
+
+Our pretraining corpus mixes data types whose sequence lengths span several orders of magnitude---from single image-caption pairs of a few hundred tokens to multimodal documents and multi-turn instruction conversations that approach the full context window.
+Training on such data without packing forces every example to be padded to a common length, wasting a large fraction of every batch on padding tokens that carry no gradient.
+The standard remedy is \emph{sequence packing}: concatenating several short samples into one fixed-length training example so that almost every token is a real token.
+For vision-language models, however, packing must respect a constraint that text-only packing does not: each image is split by dynamic tiling into a variable number of tiles, and every tile expands into a fixed block of visual tokens that the vision encoder must process.
+A pack is therefore bounded by \emph{two} budgets at once, and we pack against both.
+
+\subsection{Dual constraints}
+
+Each emitted training example must simultaneously satisfy:
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item \textbf{Token budget} $L = 8192$: the total number of (text $+$ visual) tokens may not exceed the LLM context length we train at.
+    \item \textbf{Image-tile budget} $M = 24$: the total number of image tiles---summed over all images of all samples in the pack---may not exceed $M$. This caps the vision-encoder footprint of a single forward pass and is the constraint unique to the multimodal setting.
+\end{itemize}
+A pack is considered \emph{complete} as soon as it reaches \emph{either} budget exactly, since a single text-heavy multimodal document can saturate $L$ with few images, while a gallery of single-tile thumbnails can saturate $M$ while leaving $L$ far from full.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig_packing_schematic.pdf}
+    \caption{\textbf{Streaming best-fit sequence packing.}
+    \textbf{(a)}~Incoming samples are assigned online to a pool of open buffers kept sorted from fullest to emptiest. A sample $S_i$ is placed in the \emph{first} (hence fullest) buffer whose token budget $L$ \emph{and} image-tile budget $M$ both still accommodate it. Here $b_1$ would overflow $L$, so $S_i$ lands in $b_2$. A buffer is emitted once it hits either budget exactly (or when the pool overflows its size cap).
+    \textbf{(b)}~Within a completed pack, a variable-length attention mask enforces block-diagonal causal attention, so each packed sample attends only within its own segment and position ids restart per segment---numerically identical to unpacked training.}
+    \label{fig:packing-schematic}
+\end{figure}
+
+\subsection{Streaming best-fit bin-packing}
+
+Samples are produced one at a time by the WebDataset mixing stream described in \cref{appsub:online_filtering}---already filtered, templated, and tokenized---so we never see the full dataset and cannot solve the offline (optimal) bin-packing problem.
+We instead maintain a pool of \emph{open buffers}, each a partially-filled pack, and assign samples greedily as they arrive (\cref{fig:packing-schematic}a).
+The pool is kept sorted in order of \emph{decreasing} image-tile occupancy (fullest first), an invariant we exploit to make assignment a single linear scan.
+For each incoming sample $S_i$:
+\begin{enumerate}[leftmargin=*, itemsep=2pt]
+    \item \textbf{Best-fit search.} Scan the pool from fullest to emptiest and select the \emph{first} buffer $b$ for which adding $S_i$ would violate neither budget, i.e.\ $\mathrm{tiles}(b) + \mathrm{tiles}(S_i) \le M$ \emph{and} $\mathrm{tokens}(b) + \mathrm{tokens}(S_i) \le L$. Because the pool is fullest-first, this returns the most-occupied pack that can still host $S_i$---a best-fit choice that drives buffers toward completion rather than leaving many half-full.
+    \item \textbf{Assignment.} If such a buffer is found, $S_i$ is concatenated into it. Otherwise $S_i$ seeds a fresh singleton buffer. Each token of $S_i$ is tagged with a within-pack sample index (\texttt{data\_index}), recording which original sample it belongs to (used below to prevent cross-sample attention).
+    \item \textbf{Re-insertion.} The (possibly grown) buffer is re-inserted at the position that restores the fullest-first ordering.
+\end{enumerate}
+
+A buffer is emitted as a finished training example under one of two conditions:
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item \textbf{Exactly full:} it reaches either budget exactly ($\mathrm{tiles}=M$ or $\mathrm{tokens}=L$). If this happens, these are the fully well-packed examples and are emitted immediately, fullest first.
+    \item \textbf{Pool overflow:} if the number of open buffers exceeds a cap $B = 20$, the fullest buffer is force-emitted even if not exactly full. This bounds the memory and latency cost of holding many partially-filled packs and is the only source of imperfectly-filled examples in practice.
+\end{itemize}
+No explicit padding is introduced during packing itself. The only padding is whatever the collator adds to align tensors within a micro-batch, and is compensated for by per-sample loss weighting (see details below).
+
+\subsection{Preventing cross-sample contamination}
+
+A single pack contains several independent samples that must not attend to one another, or the model would condition predictions on unrelated context.
+We enforce this at the attention level rather than by re-padding.
+The per-token \texttt{data\_index} tags are converted at collation time into cumulative segment boundaries (\texttt{cu\_seqlens}) and passed---in place of a dense attention mask---into a patched attention kernel (\texttt{flash\_attn\_varlen\_func}) for the LM backbone.
+This yields exact \textbf{block-diagonal attention} (\cref{fig:packing-schematic}b): every sample attends only within its own segment, and position ids restart at zero at each segment boundary, so a packed sample is numerically identical to the same sample trained in isolation.
+Finally, because samples within a pack have very different lengths, we re-weight the per-token loss by a function of each segment's effective (loss-bearing) token count, so that a single long sample does not dominate the pack's gradient relative to the other short samples in a pack.
+
+\subsection{Stateful and resumable packing}
+
+Packing is both streaming and stateful: at any instant a worker holds a pool of partially-filled buffers that are not derivable from the dataloader position alone.
+To make training resumable without re-seeing or dropping data at a checkpoint boundary, each \texttt{(rank, worker)} pair persists its open buffer pool to disk (\texttt{rank<r>\_worker<w>\_buffers.pt}) alongside the WebDataset shard/sample/epoch cursors that record exactly how far each source has been consumed.
+On resume, the pool and cursors are restored and packing continues from precisely the state it was checkpointed in.
+This buffer state is written as part of the same \texttt{dataset\_state} mechanism used for dataloader resumption.
+
+In all our runs we pack to $L = 8192$ tokens and $M = 24$ image tiles, with a pool cap of $B = 20$ open buffers.
+
+\clearpage
+
+
+
+
+\section{Annotation Infrastructure}\label{app:annotation}
+
+To run our filtering experiments, we need to \emph{annotate} all samples in our data pool with the respective filtering metric---for every sample, and for every filter, we compute a scalar score for each filter (e.g., compute the CLIP score or the decontamination score according to a set of reference images).
+At our scale, this amounts to scoring trillions of tokens under many filters whose resource profiles range from cheap CPU-only text-based classifiers (e.g., length) to GPU-bound encoders (e.g., CLIP score).
+We build a Ray-based\footnote{\href{https://github.com/ray-project/ray}{https://github.com/ray-project/ray}} annotation framework that runs inside a Slurm allocation, parallelizes across nodes, and tolerates common failures (decode errors, OOMs, transient file-system issues, Slurm preemption) that any multi-day multi-node annotation job encounters.
+We plan to release the framework as part of the DCVLM benchmark.
+
+\subsection{Pipeline and Actor Model}\label{app:annotation-pipeline}
+
+A run is parameterised by an input directory of WebDataset~\citep{webdataset} shards and a list of filter names.
+Each filter declares its per-actor CPU, GPU, and memory requirements via a \texttt{BaseFilter} interface.
+Because a worker runs the selected filters sequentially on a shared decoded batch, the framework sizes the actor pool from the maximum declared requirement across filters on each axis (CPU, GPU, DRAM).
+A run proceeds in three overlapping phases:
+
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+\item \textbf{Extraction.} One Ray task per tar reads the raw bytes (without decoding any sample components like images, json files etc.), groups samples into batches of $B$ samples, and places each batch in the Ray object store.
+Decoding is deferred so that PIL images never round-trip through the object store, which keeps inter-node traffic to compressed bytes only.
+\item \textbf{Processing.} A fixed pool of \texttt{FilterExecutionWorker} actors is created once at the start of the run. 
+For each batch, the actor decodes once and runs every filter on the decoded samples in sequence, returning per-sample results and per-filter statistics.
+The actor model where each actor has some form of state is important.
+Loading the scoring model dominates per-batch cost for most filters, so we want to pay for it once per actor rather than once per batch, and decoding once per batch lets multi-filter runs share work.
+\item \textbf{Streaming writes.} As soon as all batches for a tar resolve, we schedule a write task.
+This decouples write IO from active extraction and inference, and enables continuation after a Slurm interruption.
+\end{enumerate}
+
+We support two output modes.
+In \texttt{--only-write-metadata} mode, each input tar \texttt{xxxxx.tar} creates a sibling \texttt{xxxxx.json} mapping every sample key to a flat dict of filter scores.
+The original shards are left untouched.
+In the alternative full-rewrite mode, the same scores are embedded as a \texttt{filters.json} field inside a freshly written tar.
+This is convenient when a downstream consumer wants a self-contained WebDataset.
+
+
+\subsection{Backpressure and Fault Tolerance}\label{app:annotation-fault-tolerance}
+
+A \texttt{max\_batches\_in\_flight} cap bounds the number of outstanding processing tasks, which in turn bounds the working set of the Ray object store.
+Without it, extraction outruns the GPU pool by orders of magnitude and PIL-decoded images blow up RAM (and trigger costly object-store spilling).
+
+We tolerate failures at four levels with intentionally minimal recovery logic.
+(i) Sample decode errors are retried $N$ times then skipped or raised per a configurable handler.
+(ii) A batch that raises during filtering is resubmitted up to \texttt{max\_resubmits} times (default $5$); the actor is health-checked via a \texttt{ping} before being returned to the idle pool.
+(iii) If an actor dies (\texttt{RayActorError}, e.g.\ kernel OOM-kill or a CUDA fault), the in-flight task is resubmitted and a best-effort replacement actor is spawned, so the pool does not shrink monotonically over the run.
+(iv) At the job level, atomic .tmp+rename writes are combined with a startup pass that skips tars whose final output already exists, so an interrupted job can be resumed by simply re-running it.
+The core assumption we rely on is that filters are deterministic, which makes duplicate computation under retry safe.
+\clearpage
+
+\section{Additional SFT Results}\label{app:sft}
+
+The SFT control experiments in \cref{sec:controls} rely on two design choices that we fix once and reuse across all 54 runs: the SFT token budget and the peak learning rate. We first describe how we set both (\cref{app:sft-hparams}), and then verify that our conclusions are robust to the choice of SFT dataset (\cref{app:sft-dataset}).
+
+\subsection{SFT Compute Budget and Learning-Rate Selection}\label{app:sft-hparams}
+
+\smallsec{SFT token budget.} Rather than fine-tuning each checkpoint with an arbitrary fixed schedule, we scale the SFT budget proportionally to each checkpoint's pretraining budget. We estimate the SFT-to-pretraining token ratio of InternVL3~\citep{zhu2025internvl3} to be $\approx\!0.29$ and apply this multiplier to each of our three pretraining budgets, yielding SFT budgets of $1.8$B, $3.6$B, and $7.2$B tokens for checkpoints pretrained on $6.25$B, $12.5$B, and $25$B tokens, respectively. Holding this ratio fixed ensures that larger-compute checkpoints receive proportionally more fine-tuning, rather than coupling our conclusions to a single absolute SFT schedule.
+
+\smallsec{Hyperparameter considerations.} For pretraining we use a fixed peak LR of $2\times10^{-5}$ across all scales, chosen via a sweep spanning three orders of magnitude. For SFT, common practice across recent VLMs is to keep the LR within the same order of magnitude as pretraining: InternVL-2.5~\citep{chen2024expanding} and Nemotron Nano-V2-VL~\citep{deshmukh2025nvidia} reuse the pretraining LR unchanged, MM1~\citep{mckinzie2024mm1} and MiMo-VL~\citep{coreteam2025mimovltechnicalreport} stay within the same order of magnitude (the latter increasing it slightly), and PerceptionLM~\citep{cho2025perceptionlm} reuses the LR but halves the global batch size, effectively doubling it under the linear-scaling rule. Only Molmo~\citep{deitke2025molmo} drops by a full order of magnitude (from $2\times10^{-4}$ to $1\times10^{-5}$), and additionally uses separate LRs for the language model, projector, and vision encoder.
+
+\smallsec{Learning-rate sweep.} Guided by this, we keep the global batch size fixed at $1024$ (matching pretraining) and sweep the SFT peak LR over $\{4\times10^{-6},\, 2\times10^{-5},\, 4\times10^{-5}\}$, i.e.\ one order of magnitude around the pretraining value. All runs use a cosine-decay schedule with $3\%$ warmup and weight decay $0.01$. We sweep on two representative $2$B checkpoints---both pretrained on the Instruction-heavy mix that is optimal at this scale---one pretrained for $6.25$B tokens (fine-tuned for $1.8$B SFT tokens) and one for $12.5$B tokens (fine-tuned for $3.6$B), using LLaVA-665K~\citep{liu2023visual} as the SFT dataset.
+
+\cref{tab:sft-lr-sweep} reports the results. The lowest LR, $4\times10^{-6}$, is best on Core Avg at both checkpoints, while the highest LR, $4\times10^{-5}$, is consistently worst---most visibly on Text ($-4.4$pp and $-4.5$pp relative to $4\times10^{-6}$ at the $6.25$B and $12.5$B checkpoints), indicating that an overly aggressive SFT LR erodes the language capabilities established during pretraining. The pretraining LR ($2\times10^{-5}$) is a close runner-up. We therefore adopt a peak LR of $4\times10^{-6}$ for all SFT runs in this work. Reassuringly, SFT lifts every checkpoint above its pretrained starting point at the chosen LR ($+2.4$ and $+2.8$), without altering the underlying pretraining ranking.
+
+\begin{table}[!h]
+    \centering
+    \caption{\textbf{SFT learning-rate sweep.} We fine-tune two $2$B checkpoints (pretrained on the Instruction-heavy mix for $6.25$B and $12.5$B tokens) with LLaVA-665K~\citep{liu2023visual} at three peak LRs, keeping the global batch size fixed at $1024$. The lowest LR ($4\times10^{-6}$) is best at both checkpoints, while the highest LR degrades Text performance. Best Core Avg per block in \textbf{bold}. Categories follow \cref{tab:main-results}.}
+    \label{tab:sft-lr-sweep}
+    \small
+    \begin{tabular}{lccccccc}
+        \toprule
+        \textbf{Setting} & \textbf{Gen} & \textbf{Know} & \textbf{OCR} & \textbf{Vision} & \textbf{MTL} & \textbf{Text} & \textbf{Core Avg} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{8}{l}{\texttt{2B} model, $6.25$B pretraining tokens $\rightarrow$ $1.8$B SFT tokens} \\
+        Pretrained (no SFT)             & 55.1 & 56.9 & 41.0 & 45.0 & 39.6 & 47.2 &  47.9 \\
+        \quad + SFT, LR $4\times10^{-6}$ & 59.9 & 60.5 & 43.1 & 45.9 & 43.8 & 47.2 & \textbf{50.3} \\
+        \quad + SFT, LR $2\times10^{-5}$ & 61.3 & 60.5 & 42.4 & 45.7 & 43.6 & 45.0  & 49.9 \\
+        \quad + SFT, LR $4\times10^{-5}$ & 59.5 & 58.3 & 40.3 & 44.1 & 41.6 & 42.8 & 47.8 \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{8}{l}{\texttt{2B} model, $12.5$B pretraining tokens $\rightarrow$ $3.6$B SFT tokens} \\
+        Pretrained (no SFT)             & 59.0 & 59.0 & 43.9 & 45.1 & 42.4 & 48.1  & 50.0 \\
+        \quad + SFT, LR $4\times10^{-6}$ & 63.8 & 62.1 & 48.6 & 47.6 & 44.4 & 48.0 & \textbf{52.8} \\
+        \quad + SFT, LR $2\times10^{-5}$ & 64.5 & 61.1 & 46.4 & 47.8 & 45.9 & 45.6 & 52.0 \\
+        \quad + SFT, LR $4\times10^{-5}$ & 63.8 & 59.9 & 44.8 & 47.5 & 44.6 & 43.5  & 50.8 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Robustness to the SFT Dataset}\label{app:sft-dataset}
+
+\Cref{fig:sft-correlation-mammoth} replicates the analysis of \Cref{sec:controls} using Mammoth-VL-12M~\citep{guo2025mammoth} as the SFT dataset in place of LLaVA-665K \cite{li2024llava}.
+Results are fully consistent: pretraining and post-SFT scores remain near-perfectly correlated (Pearson $r{=}0.99$; Spearman $\rho{=}0.99$), and the pretraining ranking is preserved across all 27 checkpoints.
+These results confirm that the conclusion is robust to the choice of SFT dataset: a stronger pretraining checkpoint consistently yields a stronger fine-tuned model.
+In particular, the advantage of Instruction-heavy pretraining mixtures is \textit{not} diminished by the additional instruction-tuning signal introduced during SFT.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/fig_sft_correlation_mammoth.pdf}
+    \caption{\textbf{Pretraining performance predicts post-SFT performance (\textit{cont.}).} We extend the analysis of \cref{sec:controls} (\cref{fig:sft-correlation}) to another SFT dataset, i.e., Mammoth-VL-12M \cite{guo2025mammoth}. Remarkably, this leaves our main observation that \textit{pretraining predicts post-SFT performance} unchanged.}
+    \label{fig:sft-correlation-mammoth}
+\end{figure}
+\clearpage
+
+
+
+\clearpage
+
+\section{Extended Suite Evaluations}\label{app:extended-evals}
+
+\Cref{tab:extended-results} reports results on our 52-task Extended evaluation suite, which augments the Core suite with Hallucination (\textbf{Hall}), Safety (\textbf{Safety}), and Reasoning (\textbf{Reason}) categories.
+
+\textsc{\dcvlm-Baseline} maintains its overall advantage over \textsc{FineVision} at both scales, achieving $+3.0$pp and $+3.9$pp gains at \texttt{large} and \texttt{x-large}, respectively. Gains are most pronounced in Vision-Centric ($+23.1$pp / $+21.3$pp) and General Understanding ($+8.4$pp / $+8.5$pp) tasks, consistent with the Core suite trends. 
+
+Regarding newly added categories, Hallucination scores also favor \textsc{\dcvlm-Baseline} at both scales ($+3.4$pp / $+3.0$pp), suggesting our data mixture yields better-calibrated visual grounding.
+However, two notable weaknesses emerge. 
+First, \textsc{\dcvlm-Baseline} substantially underperforms on Safety ($-17.7$pp / $-19.2$pp across both scales). Second, \textsc{FineVision} retains an advantage on OCR ($+6.5$pp / $+5.2$pp) and Reasoning ($+4.3$pp / $+4.9$pp), suggesting its document-rich sources benefit reading and understanding details, text, figures, and equations in images. 
+We leave the exploration of how to address these gaps, particularly regarding safety alignment, for future work.
+
+\input{tables/extended}
+
+\clearpage
+
+\section{Safety Preprocessing: Harmful, Toxic and Biased Content}\label{app:safety}
+As with all large uncurated data-pools (largely sourced from the web), especially for ones that are fully open-sourced, there can be concerns regarding releasing harmful and unsafe content openly. We invested some efforts into ensuring that our raw data-pool has as little unsafe content as possible, via two main analysis methods---(1) Text-based removal and (2) Image-level Safety Analysis.
+\subsection{Unsafe, Biased and Toxic Text Removal}
+To ensure data quality and safety, we filter unsafe, biased, and toxic content in DCVLM pool using Detoxify \cite{Detoxify}, a transformer-based multilingual toxicity classifier. The classifier produces scores across multiple harm categories which include toxicity, severe toxicity, obscenity, threat, insult and identity attack. We retain a sample only if every category score falls at or below a threshold of $0.1$, following the filtering criteria used in DataComp-CLIP \cite{gadre2023datacomp}. 
+
+\subsection{Image-level Safety Analysis}
+We analyze a subset of $20,000$ image–text pairs to assess image safety. For this purpose, we employ ShieldGemma2 \cite{zeng2025shieldgemma2}, a 4B-parameter image content moderation model built on Gemma 3, which provides robust safety risk predictions across multiple categories, including sexually explicit content, violence and gore, and dangerous content. Within the sampled dataset, the model classifies $19$ images as dangerous, $117$ as sexually explicit, and $4$ as containing violence and gore, each with a confidence score of at least $90\%$. This suggests that potentially unsafe content represents only a small fraction of the dataset, indicating a relatively low overall presence of harmful imagery and further supports using the analyzed subset as a representative estimate of the safety characteristics of the full dataset.
+\clearpage
+
+\input{sections/per_dataset_evals}
+\clearpage
+
+\section{Limitations and Future Directions}\label{app:future-directions}
+Here, we highlight some limitations and open questions of our work which may be useful for exciting future research. 
+\subsection{Limitations}\label{appsub:limitations}
+\begin{itemize}
+    \item \textbf{Scaling to longer token budgets.} In this work, we see clear scaling trends in downstream performance across our model and token budget scales from \texttt{small} (1B, 6.25B tokens) to \texttt{x-large} (8B, 200B tokens), however we remain compute-limited to  a 200B token pretraining budget. Competitive open-weight alternatives such as Qwen2-VL and Qwen3-VL train on 1.4T and 2.2T tokens during pretraining respectively.  
+    \item \textbf{Scaling to larger model sizes.} In addition to scaling token budgets during the pretraining stage, stress-testing our our data pool and data mixture conclusions at model sizes $\geq$20B is an important research question not empirically addressed in this work.
+    \item \textbf{Testing DCVLM data on native multimodal pretraining.} The pretraining strategy adopted in this work starts with already pretrained vision encoders and language models. However, recent works have advocated for native pretraining paradigms to enable training VLMs from scratch, which is not something we have implemented in this work. Effectively the dominance of instruction-heavy data mixtures may not exist when the inductive biases of separately pretrained encoders are absent, and is an important research question worth addressing.
+    \item \textbf{More principled scaling ladder. } Our four-scale ladder is not tied to the joint optimization of model size and data token budgets, currently set up as practical defaults instead of theoretical optimal estimates. Designing a more principled scaling ladder, especially for vision-language models that use pretrained components, is a research problem of its own and we consider this out-of-scope in this work. 
+    \item \textbf{Capability Coverage.} While \dcvlm{} spans a broad range of capabilities in both the extended and core set of evaluations, certain tasks like \emph{grounding and detection} are absent. While we observe issues with these benchmarks and tasks and highlighted them in \cref{app:grounding-detection-issues}, incorporating these tasks in a faithful evaluation setup is a natural and critical followup.
+    \item \textbf{Poor OCR performance.} We conclude that our OCR performance lags behind \fv{} due to their better coverage and priority given to high-resolution scanned documents and pdf-derived sources. Whether simply scaling up OCR data or curating extremely high-quality and information-dense samples can bridge this gap is not adequately resolved in this work.
+\end{itemize}
+
+\subsection{Future Work}
+
+\begin{itemize}
+    \item \textbf{Towards instructional multimodal documents.} Our results suggest that instruction-heavy mixtures scale more favorably with compute, raising an important question: how can we better exploit and transform the vast supply of raw multimodal documents? 
+    Such transformations may preserve the breadth and diversity of naturally occurring multimodal data while providing a denser and more targeted learning signal for instruction-tuned multimodal models.
+    \item \textbf{Fine-grained mixture optimization.} Our mixing experiments only involved dense line-search sweeps over the proportion of image-caption pairs and instruction-tuning data in the mixture. A direction worth exploring is to use swarm-based methods~\citep{liu2024regmix,xie2023doremi,chen2026olmix} using proxy models and verify if they discover similar findings of instruction-heavy mixes being more scalable.
+    \item \textbf{Token-level mixing.} Our mixing experiments operationalized data mixing at the \textit{sample level}, i.e. we fix the data type ratios based on the number of samples in each dataset. However, a good direction to explore would be to operationalize mixing at the token-level. As seen from~\cref{app:pool-perdataset}, the distribution of token-counts and sample-counts per-dataset can vary, and hence it would be an interesting avenue to compare and contrast different mixing strategies across.  
+    \item \textbf{Quality-aware upsampling.} In our work, we only used all the quality-scores for data filtering, i.e. to discard data samples below a certain threshold. This is exclusionary by nature, and might induce harmful biases into models~\citep{hong2024s,dodge2021documenting}. Another potential use for such quality-scores which does not involved discarding data is using those scores for upsampling data samples rather than filtering. 
+\end{itemize}
+\clearpage

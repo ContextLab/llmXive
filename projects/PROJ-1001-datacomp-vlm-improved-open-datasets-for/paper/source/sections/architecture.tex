@@ -1,0 +1,154 @@
+
+\section{Model Architecture Details}\label{app:architecture}
+
+All our experiments use a single VLM architecture template, parameterised across the four scales of the scaling ladder (\cref{tab:scales}). The template follows the InternVL-3~\citep{zhu2025internvl3} family: a vision encoder $\rightarrow$ a randomly-initialised MLP projector $\rightarrow$ an autoregressive language-model backbone, with all three components trained jointly from the start (single-stage pretraining, no frozen components). Across our four scales, only the language-model backbone changes; the vision encoder and the projector recipe are held fixed. We document each component in turn.
+
+\subsection{Vision Encoder}\label{app:arch-vision}
+
+We use \textbf{InternViT-300M-448px-V2.5}~\citep{chen2024expanding} for all experiments. It is a Vision Transformer~\citep{dosovitskiy2020image} with the modifications introduced in the InternVL series~\citep{chen2024internvl,chen2024expanding,zhu2025internvl3}, kept identical across our four scales. \cref{tab:arch-vision} reports its key structural choices.
+
+\begin{table}[!h]
+\centering
+\caption{\textbf{Vision encoder architecture (InternViT-300M-448px-V2.5).} The same vision encoder is used across all four scales. 
+The encoder is fully unfrozen and updated jointly with the projector and the LM backbone.}
+\label{tab:arch-vision}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Component} & \textbf{Value} \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Input}} \\
+Image resolution & $448 \times 448$ (one tile; dynamic high-res tiling, see \cref{sec:methodology}) \\
+Patch size & $14 \times 14$ \\
+Tokens per tile (pre-pixel-shuffle) & $32 \times 32 = 1024$ \\
+Tokens per tile (post-pixel-shuffle, fed to LM) & $16 \times 16 = 256$ \\
+Channels & 3 (RGB) \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Transformer trunk}} \\
+Depth (layers) & 24 \\
+Hidden size & 1024 \\
+Attention heads & 16 \\
+Head dim & 64 \\
+FFN intermediate size & 4096 \\
+FFN activation & GELU \\
+FFN style & 2-layer MLP (Linear $\rightarrow$ GELU $\rightarrow$ Linear) \\
+Attention style & Standard multi-head; QKV bias \cmark, O-proj bias \xmark \\
+QK normalisation & \xmark \\
+Normalisation & Pre-LayerNorm, $\varepsilon = 10^{-6}$ \\
+Positional embeddings & Learned absolute (interpolated to 448px) \\
+Flash attention & \cmark (FA-2~\citep{dao2023flashattention}) \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Total}} \\
+Parameters & $\sim$304M \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The tile-based tokenisation produces $32 \times 32 = 1024$ patches per $448 \times 448$ tile. After the projector's pixel-shuffle reduction (\cref{app:arch-projector}), this becomes $16 \times 16 = 256$ visual tokens per tile ($4{\times}$ reduction) that are fed to the language model. 
+Multiple tiles and a thumbnail image are concatenated into the LM input, following the dynamic high-resolution scheme of InternVL-2.5~\citep{chen2024expanding}.
+
+\subsection{Projector}\label{app:arch-projector}
+
+The vision encoder and the language model are bridged by a small randomly-initialised MLP-style projector (often called the ``connector'' in VLM literature~\citep{mckinzie2024mm1,liu2023visual}). It is the only module that is randomly initialised at the start of training, everything else is loaded from pretrained checkpoints. \cref{tab:arch-projector} gives the exact structure.
+\begin{table}[!h]
+\centering
+\caption{\textbf{Projector architecture.} The projector is a fixed-depth, fixed-activation 2-layer MLP whose width is the only quantity that varies across scales (it tracks $D_{\mathrm{LM}}$, the language-model hidden size).}
+\label{tab:arch-projector}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Stage} & \textbf{Operation} \\
+\midrule
+0. Pre-projection & Pixel shuffle, factor $0.5$: $1024$ tokens of dim $D_{V} \rightarrow 256$ tokens of dim $4 D_{V}$ \\
+1. Norm & LayerNorm$(4 D_{V})$, $\varepsilon = 10^{-5}$ \\
+2. Linear-1 & Linear$(4 D_{V} \rightarrow D_{\mathrm{LM}})$, bias \cmark \\
+3. Activation & GELU \\
+4. Linear-2 & Linear$(D_{\mathrm{LM}} \rightarrow D_{\mathrm{LM}})$, bias \cmark \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Per-scale projector parameter count}} \\
+Small (1B; $D_{\mathrm{LM}}{=}896$)   & $\sim$4.5M \\
+Medium (2B; $D_{\mathrm{LM}}{=}1536$) & $\sim$8.6M \\
+Large (4B; $D_{\mathrm{LM}}{=}2048$)  & $\sim$12.6M \\
+X-Large (8B; $D_{\mathrm{LM}}{=}3584$) & $\sim$27.5M \\
+\bottomrule
+\end{tabular}
+\end{table}
+Following InternVL-2.5/3, we keep depth and activation fixed across scales; only the projector's hidden width tracks the LM. 
+
+\subsection{Language Model Backbones}\label{app:arch-lm}
+
+For the four points on our scaling ladder we use four different sizes from the \textbf{Qwen2.5} family~\citep{qwen25}: $0.5$B, $1.5$B, $3$B, and $7$B parameters. All four share the Qwen2 transformer architecture~\citep{yang2024qwen2technicalreport}---SwiGLU FFN~\citep{shazeer2020glu}, RMSNorm~\citep{zhang2019root}, RoPE position embeddings~\citep{su2024roformer}, grouped-query attention (GQA)~\citep{ainslie2023gqa}, no QK-normalisation. 
+They differ only in their depth/width/head budget and in two minor configuration knobs (max position length and embedding tying), summarised in \cref{tab:arch-lm}. 
+Unless specified, we always initialise from the \textit{Base} (non-Instruct) checkpoints by default. 
+
+\begin{table}[!h]
+\centering
+\caption{\textbf{Language-model backbone architecture across the four scaling-ladder scales.} All are Qwen2.5 base checkpoints~\citep{qwen25}. ``Head dim'' is hidden size divided by query head count. Vocabularies are the standard Qwen2.5 tokenizer.}
+\label{tab:arch-lm}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Scale} & \textbf{Small (1B)} & \textbf{Medium (2B)} & \textbf{Large (4B)} & \textbf{X-Large (8B)} \\
+\textbf{Qwen2.5 size} & 0.5B & 1.5B & 3B & 7B \\
+\midrule
+\rowcolor{textcolor}\multicolumn{5}{l}{\textit{Shared structural choices (all scales)}} \\
+Architecture family & \multicolumn{4}{c}{Qwen2 transformer~\citep{yang2024qwen2technicalreport}} \\
+Normalisation & \multicolumn{4}{c}{Pre-RMSNorm, $\varepsilon = 10^{-6}$} \\
+QK-normalisation & \multicolumn{4}{c}{\xmark} \\
+FFN style & \multicolumn{4}{c}{SwiGLU (gated MLP, SiLU activation)} \\
+Attention style & \multicolumn{4}{c}{Grouped-query attention (GQA), QKV bias \cmark, O-proj bias \xmark} \\
+Positional embeddings & \multicolumn{4}{c}{RoPE, base $\theta = 10^{6}$, no scaling} \\
+\midrule
+\rowcolor{textcolor}\multicolumn{5}{l}{\textit{Per-scale dimensions}} \\
+Layers & 24 & 28 & 36 & 28 \\
+Hidden size & 896 & 1536 & 2048 & 3584 \\
+Query heads & 14 & 12 & 16 & 28 \\
+KV heads (GQA) & 2 & 2 & 2 & 4 \\
+Head dim & 64 & 128 & 128 & 128 \\
+FFN intermediate & 4{,}864 & 8{,}960 & 11{,}008 & 18{,}944 \\
+\midrule
+\rowcolor{textcolor}\multicolumn{5}{l}{\textit{Per-scale config knobs}} \\
+Max position embedding & 32{,}768 & 131{,}072 & 32{,}768 & 131{,}072 \\
+Tied input/output embed. & \cmark & \cmark & \cmark & \xmark \\
+Vocabulary size & 151{,}936 & 151{,}936 & 151{,}936 & 152{,}064 \\
+LM parameters & $\sim$494M & $\sim$1.54B & $\sim$3.09B & $\sim$7.62B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A few cross-scale observations are worth flagging because they surface in our scaling experiments:
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+\item \textbf{Head dimension is not constant.} The $0.5$B model uses $64$-dim heads, while $1.5$B/$3$B/$7$B all use $128$-dim heads. Practitioners scaling pretraining recipes should be aware that the small scale therefore has a slightly different attention behaviour than the rest of the ladder, even though the rest of the architecture is uniform.
+\item \textbf{KV-head count is heavily compressed.} GQA ratios are $14{:}2$, $12{:}2$, $16{:}2$, and $28{:}4$ from Small to X-Large---all sub-7B models share the same minimal $2$ KV heads.
+\item \textbf{Tied embeddings only at sub-7B.} The $7$B model is the only scale where input/output embeddings are not tied. This costs $\sim$50M extra LM parameters at the X-Large scale.
+\item \textbf{Layer count is non-monotonic.} The $3$B model is deeper (36 layers) than the $7$B model (28 layers); $7$B grows primarily by widening (hidden size $2048 \rightarrow 3584$) rather than deepening.
+\end{itemize}
+
+These idiosyncrasies are inherited from the Qwen2.5 release and we deliberately do \emph{not} smooth them out, since our purpose is to produce a benchmark whose scaling axis can be reproduced from publicly-released checkpoints rather than to study clean architectural scaling.
+
+\subsection{End-to-end Parameter Accounting}\label{app:arch-totals}
+
+\cref{tab:arch-totals} sums the three components per scale, giving the total trainable-parameter count behind the ``1B / 2B / 4B / 8B'' labels used throughout the paper. The vision encoder and projector together contribute roughly $5$--$60$\% of parameters at the small scale and $\sim$5\% at the X-Large scale.
+
+\begin{table}[!h]
+\centering
+\caption{\textbf{Total parameter count per scale.} Vision encoder (InternViT-300M-448px-V2.5) is fixed; LM backbone is the corresponding Qwen2.5 size.}
+\label{tab:arch-totals}
+\small
+\begin{tabular}{lcccc}
+\toprule
+& \textbf{Small} & \textbf{Medium} & \textbf{Large} & \textbf{X-Large} \\
+\midrule
+Vision encoder & 304M & 304M & 304M & 304M \\
+Projector & 4.5M & 8.6M & 12.6M & 27.5M \\
+LM backbone & 494M & 1.54B & 3.09B & 7.62B \\
+\midrule
+\textbf{Total trainable} & \textbf{$\sim$0.80B} & \textbf{$\sim$1.85B} & \textbf{$\sim$3.40B} & \textbf{$\sim$7.95B} \\
+Paper label & 1B & 2B & 4B & 8B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All parameters are trained jointly---there is no frozen-encoder pretraining stage, no LoRA~\citep{hu2022lora} adapter, and no separate connector-warmup phase. We refer the reader to \cref{tab:hparams} for the optimizer, schedule, and packing settings used during this joint training.

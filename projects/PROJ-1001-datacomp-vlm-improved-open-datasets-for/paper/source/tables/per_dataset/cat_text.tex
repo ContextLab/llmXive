@@ -1,0 +1,33 @@
+\begin{table}[ht]
+\centering
+\caption{\textbf{Per-dataset Core results: Text-Only Understanding (Text).} Per-dataset breakdown of the \textbf{Text} column of \cref{tab:main-results}. The final \textbf{Text} column is the row mean over these 8 datasets and reproduces \cref{tab:main-results}. \textbf{Bold} = best per scale.}
+\label{tab:per-dataset-text}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lccccccccc}
+\toprule
+\textbf{Method} & \textbf{C-Eval} & \textbf{CMMLU} & \textbf{GAOKAO} & \textbf{MMLU} & \textbf{NQ} & \textbf{RACE} & \textbf{TriviaQA} & \textbf{WinoG} & \textbf{Text} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{10}{l}{\texttt{small} scale (1B model, 6.25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 1.5 & 0.0 & 6.3 & 13.3 & 2.9 & 12.9 & 16.9 & 1.0 & 6.8 \\
+\textsc{Nemotron-VL-2} & 17.0 & 14.2 & 19.6 & 32.3 & 0.6 & 44.1 & 5.8 & 32.3 & 20.7 \\
+\textsc{FineVision} & 21.9 & 20.2 & 17.9 & 37.4 & \textbf{9.7} & 55.6 & \textbf{23.0} & 45.3 & 28.9 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{26.5} & \textbf{49.3} & \textbf{21.6} & \textbf{46.2} & 7.0 & \textbf{58.8} & 18.3 & \textbf{50.3} & \textbf{34.8} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{10}{l}{\texttt{medium} scale (2B model, 25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 10.7 & 0.5 & 23.0 & 24.7 & 8.3 & 24.3 & 33.0 & 3.6 & 16.0 \\
+\textsc{Nemotron-VL-2} & 22.8 & 29.9 & 25.2 & 43.5 & 0.3 & 59.2 & 5.8 & 41.8 & 28.6 \\
+\textsc{FineVision} & 31.9 & 61.1 & 38.3 & 59.7 & \textbf{15.5} & 75.6 & \textbf{37.1} & 51.3 & 46.3 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{32.8} & \textbf{64.5} & \textbf{39.7} & \textbf{61.6} & 13.6 & \textbf{80.0} & 35.3 & \textbf{55.2} & \textbf{47.8} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{10}{l}{\texttt{large} scale (4B model, 100B tokens)} \\
+\textsc{Nemotron-VL-2} & 30.7 & 55.5 & 35.2 & 48.9 & 4.0 & 57.2 & 9.9 & 49.6 & 36.4 \\
+\textsc{FineVision} & 33.0 & 66.8 & 37.4 & 65.1 & 18.4 & 82.0 & \textbf{46.1} & 60.8 & 51.2 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{35.5} & \textbf{69.5} & \textbf{41.4} & \textbf{66.2} & \textbf{19.5} & \textbf{86.8} & 43.8 & \textbf{67.8} & \textbf{53.8} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{10}{l}{\texttt{x-large} scale (8B model, 200B tokens)} \\
+\textsc{FineVision} & 36.0 & 72.5 & 46.3 & 70.4 & 21.5 & 85.0 & 51.4 & 62.2 & 55.7 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{38.2} & \textbf{75.4} & \textbf{51.9} & \textbf{71.5} & \textbf{26.9} & \textbf{90.7} & \textbf{55.5} & \textbf{78.9} & \textbf{61.1} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

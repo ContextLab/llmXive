@@ -1,0 +1,33 @@
+\begin{table}[ht]
+\centering
+\caption{\textbf{Per-dataset Core results: Knowledge-Centric (Know).} Per-dataset breakdown of the \textbf{Know} column of \cref{tab:main-results}. The final \textbf{Know} column is the row mean over these 4 datasets and reproduces \cref{tab:main-results}. \textbf{Bold} = best per scale.}
+\label{tab:per-dataset-knowledge}
+\resizebox{0.8\linewidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Method} & \textbf{MMMU} & \textbf{SciQA} & \textbf{AI2D} & \textbf{AI2D$_{\text{nm}}$} & \textbf{Know} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{6}{l}{\texttt{small} scale (1B model, 6.25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 21.4 & 40.7 & 38.2 & 39.0 & 34.8 \\
+\textsc{Nemotron-VL-2} & 24.7 & 48.9 & 42.1 & 43.0 & 39.7 \\
+\textsc{FineVision} & 35.7 & \textbf{58.1} & \textbf{43.3} & \textbf{45.5} & \textbf{45.7} \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{36.8} & 52.4 & 42.0 & 43.4 & 43.6 \\
+\midrule
+\rowcolor{gray!8} \multicolumn{6}{l}{\texttt{medium} scale (2B model, 25B tokens)} \\
+\textsc{LLaVA-OneVision-1.5} & 25.6 & 48.4 & 47.2 & 51.0 & 43.0 \\
+\textsc{Nemotron-VL-2} & 28.2 & 65.1 & 59.3 & 65.6 & 54.5 \\
+\textsc{FineVision} & 42.7 & \textbf{72.2} & \textbf{63.0} & \textbf{72.7} & \textbf{62.7} \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{44.4} & 70.6 & 58.5 & 68.5 & 60.5 \\
+\midrule
+\rowcolor{gray!8} \multicolumn{6}{l}{\texttt{large} scale (4B model, 100B tokens)} \\
+\textsc{Nemotron-VL-2} & 32.7 & 65.2 & 54.6 & 62.7 & 53.8 \\
+\textsc{FineVision} & 40.9 & \textbf{89.5} & \textbf{69.7} & \textbf{82.6} & \textbf{70.7} \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{47.1} & 75.8 & 68.2 & 79.5 & 67.7 \\
+\midrule
+\rowcolor{gray!8} \multicolumn{6}{l}{\texttt{x-large} scale (8B model, 200B tokens)} \\
+\textsc{FineVision} & 46.1 & \textbf{87.4} & 73.3 & 84.4 & 72.8 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{51.1} & 79.5 & \textbf{75.1} & \textbf{86.3} & \textbf{73.0} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

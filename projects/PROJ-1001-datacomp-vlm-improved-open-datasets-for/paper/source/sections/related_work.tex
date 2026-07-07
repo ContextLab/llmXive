@@ -1,0 +1,23 @@
+\section{Related Work}\label{sec:related}
+
+\smallsec{Vision-Language Pretraining.}
+Modern VLMs adopt a modular architecture consisting of a pretrained vision encoder, a language model backbone, and a connector~\citep{liu2023visual,li2024llava,an2025llava,zhu2025internvl3,wang2025internvl3,bai2025qwen25vltechnicalreport,bai2025qwen3,shapourian2026zaya1}.
+Originally, ``pretraining'' involved training the connector on large-scale data, predominantly image-caption pairs~\citep{an2025llava}. %
+In contrast, recent SoTA models train all parameters~\cite{zhu2025internvl3, wang2025internvl3} and incorporate diverse data types. %
+However, the precise mixture ratios, filtering criteria, and formatting choices largely remain proprietary and poorly documented across leading VLMs, motivating our %
+benchmark.
+
+\smallsec{Benchmarking Data Curation.}
+DataComp~\citep{gadre2023datacomp} and DataPerf~\citep{mazumder2023dataperf} established the paradigm of fixing model architecture and training procedure while \textit{varying only data}.
+DCLM~\citep{li2024datacomp} extended this paradigm to language models, demonstrating that a fasttext classifier trained on high-quality samples can substantially boost performance.
+FineWeb~\citep{penedo2024fineweb} and its educational-quality variant, FineWeb-Edu, showed similar gains through filtering. 
+Generally, quality-based filtering has shown strong results for text~\citep{penedo2024fineweb,li2024datacomp} and image-text pairs~\citep{gadre2023datacomp,wang2025unifilter}.
+Common approaches include CLIP-score filtering~\citep{hessel2021clipscore}, image quality assessment~\citep{mao2026wan,wu2025qwen}, text quality classifiers~\citep{su2025nemotron,deshmukh2025nvidia}, and multimodal quality estimators~\citep{wang2025unifilter}. 
+Beyond filtering, prior works have also explored data mixing approaches such as domain weighting~\citep{xie2023doremi,olmo20242}, mixture optimization~\citep{chen2026olmix,berasi2026linear,diao2025nemotron,kang2024autoscale,ye2024data,liu2024regmix}, and temperature-sampling~\citep{deitke2025molmo,clark2026molmo2}. %
+Despite recent released datasets (e.g., \fv~\citep{wiedmann2025finevision}, \textsc{Cauldron}~\citep{laurenccon2024matters}), there exists no systematic study on filtering and mixing strategies in the VLM setting.  %
+Our work fills this gap by 
+providing the first \emph{scale-aware} study of data curation for VLMs.
+
+
+
+

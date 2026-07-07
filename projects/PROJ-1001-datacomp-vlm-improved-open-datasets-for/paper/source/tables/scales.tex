@@ -1,0 +1,18 @@
+\begin{table}[!t]
+\centering
+\caption{\textbf{\dcvlm scales.} Each scale specifies model size ($N$), number of training tokens ($D$), and token size of the original pool to be used for curation (`Pool'). We also present the vision encoder and language model that we initialize training runs from, along with compute estimates (`H100 hrs').}
+\label{tab:scales}
+\begin{adjustbox}{width=.9\linewidth}
+\footnotesize
+\begin{tabular}{lccccccc}
+\toprule
+\textbf{Scale} & $\boldsymbol{N}$ & $\boldsymbol{D}$ & \textbf{Vision init.} & \textbf{LLM init.} & \textbf{H100 hrs} & \textbf{Pool} \\
+\midrule
+\texttt{small}   & 1B & 6.25B & InternViT-300M & Qwen2.5-0.5B & 80    & 187.5B \\
+\texttt{medium}  & 2B & 25B   & InternViT-300M & Qwen2.5-1.5B   & 640  & 750B \\
+\texttt{large}   & 4B & 100B  & InternViT-300M & Qwen2.5-3B   & 5,120  & 3T \\
+\texttt{x-large} & 8B & 200B  & InternViT-300M & Qwen2.5-7B   & 20,480 & 6T \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

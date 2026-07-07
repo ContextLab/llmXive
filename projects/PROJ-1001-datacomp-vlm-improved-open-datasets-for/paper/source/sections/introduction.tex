@@ -1,0 +1,58 @@
+
+\section{Introduction}\label{sec:intro}
+
+
+
+
+The performance of foundation models is fundamentally shaped by the composition and quality of their pretraining\footnote{The VLM literature is highly fragmented in its terminology, with stages variously called ``pretraining,'' ``alignment,'' or ``instruction tuning'' depending on the data type used. We refer to VLM ``pretraining'' as in \cite{chen2024expanding,zhu2025internvl3,wang2025internvl3}, i.e., the first or only multimodal training stage of a VLM, starting from an independently pretrained vision encoder and language model, bridged by a randomly initialized connector~\citep{liu2023visual}. When a VLM is trained in multiple stages, ``pretraining'' denotes the first stage; otherwise, it denotes the sole training cycle.}data~\citep{gadre2023datacomp,li2024datacomp,grattafiori2024llama,penedo2024fineweb,nguyen2022quality,fang2022data,udandarao2025data,ghosh2025concept,penedo2023refinedweb,schuhmann2022laion}.
+This has led to a rise of systematic studies of pretraining data curation, including 
+DataComp~\citep{gadre2023datacomp} for contrastive vision-language models, DCLM~\citep{li2024datacomp}, Nemotron-CC~\citep{su2025nemotron}, and FineWeb~\citep{penedo2024fineweb} for language models, and OlmoASR~\citep{ngo2025olmoasr} in the speech domain.
+The core design principle of these works is to fix model architecture and pretraining procedure while varying \emph{only} the data, enabling isolated measurement of data-centric interventions. 
+However, progress in \emph{autoregressive} vision-language models (VLMs) has mostly focused on novel  architectures~\citep{deitke2025molmo,xu2025qwen3,hong2025glm,gemmateam2025gemma3technicalreport,coreteam2025mimovltechnicalreport,deshmukh2025nvidia,yang2025kwai,wu2024deepseek,abouelenin2025phi,bevli2026falcon,beyer2024paligemma}, training recipes~\citep{tong2024cambrian,zhu2025internvl3,wang2025internvl3,an2025llava,cho2025perceptionlm,liu2023visual,liu2024improved,liu2024llavanext,li2025xiaomi,marafioti2025smolvlm,mckinzie2024mm1,guo2025seed1,lu2024deepseek,steiner2024paligemma}, or evaluation protocols~\citep{duan2024vlmevalkit,zhang2025lmms,joshi2026datbench,ghosh2025onebench}, treating data as a second-class citizen. 
+The data curation strategies behind their success (which datasets to include, how to filter them, what ratios to mix them in) remain poorly understood and largely irreproducible~\citep{gemmateam2025gemma3technicalreport,mckinzie2024mm1, tong2024cambrian,zhu2025internvl3,wang2025internvl3,an2025llava,cho2025perceptionlm,joshi202620}.
+Our goal is precisely to fill this gap and enable \emph{open} data curation research for the latest class of modern autoregressive VLMs.
+
+\fighero
+Several factors make VLM data curation more challenging compared to other domains.
+\textbf{First}, unlike early text or vision-language models that often train directly on raw web crawls (e.g., CommonCrawl), modern VLMs are typically trained by aggregating existing datasets from a wide variety of data types---web-crawled image-caption pairs, interleaved multimodal documents, text-only corpora, and multimodal instruction-tuning data---that differ in quality and downstream utility. 
+Because these datasets have already undergone varying degrees of upstream curation, what actually drives quality under this aggregation-based regime---filtering, mixing ratios, or something else---remains an open question. Indeed, existing models largely sidestep it, drawing on a single data type~\citep{liu2023visual} or, at most, an ad-hoc subset~\citep{alayrac2022flamingo,bai2025qwen25vltechnicalreport}.
+\textbf{Second}, existing open training datasets~\citep{wiedmann2025finevision,an2025llava,deshmukh2025nvidia,zhao2023svit,deitke2025molmo,tong2024cambrian} operate at the scale of millions of samples, far below the trillions of tokens used by state-of-the-art (SoTA) models~\citep{team2025kimi,wang2025internvl3,bai2025qwen3,coreteam2025mimovltechnicalreport}. This limits the scope of curation experiments that can be conducted. 
+\textbf{Third}, the interaction between data types, model scale, and 
+training budget creates a 
+design space that is too large for exhaustive experimentation.
+\textbf{Fourth}, VLM evaluation lacks standardization~\citep{joshi2026datbench}: different papers use different benchmark suites, making fair comparisons across datasets difficult.
+
+To mitigate these challenges and enable controlled comparisons, we introduce \underline{D}ata\underline{C}omp for \underline{VLM}s (\dcvlm), the first benchmark designed to systematically study data curation strategies within a realistic VLM-practitioner's paradigm.
+\dcvlm provides the following:
+\begin{enumerate}[leftmargin=*, itemsep=0pt, topsep=0pt, parsep=0pt, partopsep=0pt]
+    \item A \textbf{standardized data pool} of 160 existing datasets spanning four data types: image-caption pairs, multimodal documents, text-only data, and (multimodal) instruction-tuning data. 
+    Our pool contains 6T multimodal tokens, enabling a diverse range of data-centric experiments.
+    \item A \textbf{principled scaling ladder} spanning 1B--8B model parameters and 6.25B--200B training tokens. This enables researchers to test curation strategies across a wide range of compute scales.
+    \item A \textbf{comprehensive evaluation protocol} with 52 downstream benchmarks organized across 9 domains, split into validation, core, and extended tiers, filtered for stability and reliability. 
+\end{enumerate}
+ 
+Using our benchmark, we conduct more than 1,000 experiments yielding multiple findings, including:
+
+\smallsec{Mixing, \emph{not} filtering, is the dominant lever.}
+Recent VLM technical reports often apply additional downstream quality filters (e.g., CLIP-score or image quality) on top of existing public datasets~\citep{zhang2026penguin,team2025kimi,yu2026minicpm}. Yet, through controlled experiments with common quality filters, we find that such downstream filtering provides diminishing, and sometimes negative, returns (\cref{sec:filtering}). We trace this to the modern data landscape: unlike models trained directly on raw web crawls (e.g., CommonCrawl), today's VLM datasets have already undergone moderate to significant upstream curation. While curating VLM training data directly from raw pools remains an important direction for future work, our results show that applying additional filters to already-curated data is largely ineffective. In contrast, optimizing mixture ratios, which specifically interpolate instruction-tuning and image-caption proportions, yields significant, scale-dependent gains: instruction-heavy mixtures scale better than caption-heavy ones, and this gap widens with model size and token budget (\cref{sec:mixing}).
+ 
+\smallsec{Pretraining decisions reliably transfer after supervised fine-tuning and across backbones.}
+We show that pretraining performance predicts post-SFT performance with near-perfect fidelity (Pearson $r = 0.99$ across 54 SFT runs), and that our findings are robust to the choice of LLM initialization, i.e., initializing from Qwen2.5-Base or Qwen2.5-Instruct \cite{qwen25}
+produces similar data rankings.
+This validates the use of pretraining-only metrics for data curation research with DCVLM (\cref{sec:controls}). 
+ 
+Our controlled experiments yield \textsc{\dcvlm-Baseline}, a new state-of-the-art open VLM training dataset (\cref{fig:hero}). 
+At the \texttt{x-large} scale (8B model, 200B tokens), a \textsc{\dcvlm-Baseline}-trained model achieves $63.6\%$ on our core set, outperforming \fv~\cite{wiedmann2025finevision}, the previous best open dataset, by ${+5.4}$ pp (\cref{sec:results}).
+We release the full data pool, evaluation suite, model checkpoints at four scales, and all experimental infrastructure to serve as a reproducible testbed for future research.
+
+
+
+
+
+
+
+
+
+
+
+

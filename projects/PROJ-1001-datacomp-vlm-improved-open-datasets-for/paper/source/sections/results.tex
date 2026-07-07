@@ -1,0 +1,80 @@
+
+\begin{table}[t]
+    \centering
+    \caption{\textbf{DCVLM results across scales.} We compare our \textsc{\dcvlm-Baseline} against the best open pretraining datasets (\textsc{LLaVA-OneVision-1.5}, \textsc{Nemotron-VL-2}, \textsc{FineVision}) on the core evaluation suite, across all four scales. 
+    We also report pretrained InternVL models for reference. Benchmark categories: \textbf{Gen} = General Understanding -- \textbf{Know} = Knowledge-Centric -- \textbf{OCR} = OCR \& Charts -- \textbf{Vision} = Vision-Centric -- \textbf{MTL} = Multilingual -- \textbf{Text} = Text-Only Understanding.}
+    \label{tab:main-results}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lccccccccc}
+        \toprule
+        \textbf{Method} & \textbf{Model} & \textbf{Tokens} & \rotatebox{0}{\textbf{Gen}} & \rotatebox{0}{\textbf{Know}} & \rotatebox{0}{\textbf{OCR}} & \rotatebox{0}{\textbf{Vision}} & \rotatebox{0}{\textbf{MTL}} & \rotatebox{0}{\textbf{Text}} & \textbf{Core Avg} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{10}{l}{\texttt{small} scale} \\
+        LLaVA-OneVision-1.5          & 1B & 6.25B & 22.4 & 34.8 & 8.2 & 27.8 & 13.5 & 6.9 & 17.6 \\
+        Nemotron-VL-2                & 1B & 6.25B & 20.0 & 39.7 & 7.9 & 33.5 & 16.1 & 20.7 & 22.1 \\
+        FineVision                   & 1B & 6.25B & 40.1 & 45.6 & 35.0 & 41.0 & 28.2 & 28.9 & 36.2 \\
+        \dcvlm-Baseline (ours) & 1B & 6.25B & 40.5 & 43.6 & 33.0 & 39.1 & 25.4 & 34.7 & \textbf{36.5} \\
+
+
+        \midrule
+        \rowcolor{gray!8} \multicolumn{10}{l}{\texttt{medium} scale} \\
+        LLaVA-OneVision-1.5          & 2B & 25B   & 33.3 & 43.0 & 21.0 & 30.4 & 21.5 & 16.0 & 26.5 \\
+        Nemotron-VL-2                & 2B & 25B   & 48.6 & 54.6 & 19.9 & 41.1 & 36.7 & 28.6 & 37.0 \\
+        FineVision                   & 2B & 25B   & 55.3 & 62.6 & 51.9 & 45.8 & 40.6 & 46.3 & 50.6 \\
+        \dcvlm-Baseline (ours)       & 2B & 25B   & 62.3 & 60.5 & 45.8 & 47.3 & 44.2 & 47.8 & \textbf{51.7} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{10}{l}{\texttt{large} scale} \\
+        Nemotron-VL-2                & 4B & 100B  & 31.5 & 53.8 & 23.6 & 38.6 & 27.5 & 36.4 & 34.7 \\
+        FineVision                   & 4B & 100B  & 59.0 & 70.7 & 58.9 & 39.1 & 45.1 & 51.2 & 54.2 \\
+        \dcvlm-Baseline (ours)       & 4B & 100B  & 68.4 & 67.6 & 54.1 & 57.2 & 50.9 & 53.8 & \textbf{58.9} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{10}{l}{\texttt{x-large} scale} \\
+        FineVision                   & 8B & 200B  &  63.5 &  72.8 &  57.5 &  49.6 &  48.4 &  55.7 &  58.2 \\
+        \dcvlm-Baseline (ours)       & 8B & 200B  & 73.0 & 73.0 & 53.4  & 63.5 & 56.1 & 61.1 & \textbf{63.6} \\
+        \midrule
+        \rowcolor{gray!8} \multicolumn{10}{l}{{\textit{open-weight, closed-data reference models}}} \\
+        InternVL-2.5-8B              & 8B & $\sim$98B    & 68.2 & 70.7 & 52.2 & 52.3 & 45.6 & 63.3 & 60.0 \\
+        InternVL-3-8B                & 8B & $\sim$200B    & 78.8 & 81.1 & 64.1 & 65.1 & 60.7 & 61.4 & 68.5 \\
+        InternVL-3.5-8B              & 8B &$\sim$250B    & 77.2 & 80.2 & 63.6 & 63.7 & 59.7 & 63.1 & 68.1 \\
+        \bottomrule
+    \end{tabular}
+    }
+\vspace{-0.25em}
+\end{table}
+
+\section{Scaling Up Our Findings}\label{sec:results}
+Building on our findings, we propose \textsc{\dcvlm-Baseline}---a simple data recipe that forgoes filtering and instead focuses on carefully tuned data mixtures. 
+\textcolor{black}{Accordingly, we use the Instruction-heavy mix: 10\% Image-Caption data, 5\% Multimodal Documents, 15\% Text-Only data, and 70\% Instruction-Tuning data (see the full mix in~\cref{fig:hero}), which was found to be optimal for \texttt{medium} and \texttt{large} scales (\cref{sec:mixing}). For simplicity, we use this as well for the \texttt{small} scale---however, we reiterate the \textit{scale-aware} nature of data curation and the fact that the ``optimal'' mixture for the \texttt{small} scale was in fact the Caption-heavy one (\cref{fig:mixing-panels}).}
+For each data type, we fill the token budget by drawing samples from its constituent sources via simple length-proportional sampling.
+
+We compare \textsc{\dcvlm-Baseline} to three open VLM pretraining datasets: \ding{172} LLaVA-OneVision-1.5-Midtraining-85M, used to pretrain the \textsc{LLaVA-OneVision-1.5} family~\cite{an2025llava}; \ding{173} the public data released with \textsc{Nemotron-VL-2}~\cite{deshmukh2025nvidia}; and \ding{174} \textsc{FineVision}~\cite{wiedmann2025finevision}, the prior largest effort to unify existing sources into a single open dataset. As upper-bound reference points, we also report results from the pretrained InternVL 8B models (\textsc{InternVL-2.5}, \textsc{InternVL-3}, \textsc{InternVL-3.5}).
+
+We train models on \textsc{\dcvlm-Baseline} and the \textsc{FineVision} baseline at all compute scales of our benchmark (\texttt{small}, \texttt{medium}, \texttt{large}, and \texttt{x-large}). For the other baselines (\textsc{LLaVA-OneVision-1.5} and \textsc{Nemotron-VL-2}), we observe that performance is quite poor at smaller scales and hence did not use those datasets for training at the larger scales. We report all results in \cref{tab:main-results}.
+These results, across all scales, confirm that \textbf{\textsc{\dcvlm-Baseline} outperforms open pretraining dataset for VLMs.}
+Specifically, compared with \textsc{FineVision} (the previous best open pretraining dataset), we observe consistent gains that \emph{increase with scale}: \textsc{\dcvlm-Baseline} achieves progressive gains of $+0.3$pp (\texttt{small}), $+1.1$pp (\texttt{medium}), $+4.7$pp (\texttt{large}), and $+5.4$pp (\texttt{x-large}) on our 33-task Core evaluations.
+Remarkably, a 4B model trained for 100B tokens on \textsc{\dcvlm-Baseline} (our \texttt{large} scale) \emph{outperforms} an 8B model trained for 200B tokens on \textsc{FineVision} (\texttt{x-large}).
+
+\textbf{52-task Extended results.} These trends are further confirmed by our 52-task Extended evaluation suite (\cref{app:extended-evals}), where a \dcvlm-Baseline-trained model at the \texttt{x-large} scale, scores $60.5\%$ vs. $56.6\%$ for the corresponding \texttt{x-large} scale \textsc{FineVision}-trained model (an absolute improvement of $+3.9$pp). 
+In fact, with a score of $56.0$, the \dcvlm-Baseline-trained model at the \texttt{large} scale nearly achieves the same performance as the FineVision \texttt{x-large} model.   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,109 @@
+\begin{footnotesize}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{@{}l *{5}{>{\raggedright\arraybackslash}p{1.95cm}}@{}}
+\caption{\textbf{Benchmark categorization across prior works versus \dcvlm.} For each benchmark in our candidate pool we show the category assigned by Cambrian-1~\citep{tong2024cambrian}, MM-1~\citep{mckinzie2024mm1}, Qwen2-VL/Qwen2.5-VL~\citep{wang2024qwen2,bai2025qwen25vltechnicalreport}, and InternVL2.5/InternVL-3~\citep{chen2024expanding,zhu2025internvl3}, each \emph{verbatim} as reported by that work. Rows are grouped by the unified \dcvlm category. Prior works frequently disagree (e.g.\ AI2D is placed in Knowledge, OCR, or Diagram understanding by different works). We resolve each benchmark by majority consensus where one exists and adjudicate ambiguous cases ourselves. ``--'' marks a benchmark not categorized (or not used) by that work. 
+} 
+\\
+\label{tab:benchmark-categorization}\\
+\toprule
+\textbf{Benchmark} & \textbf{Cambrian-1} & \textbf{MM-1} & \textbf{Qwen2/2.5-VL} & \textbf{InternVL2.5} & \textbf{InternVL-3} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Benchmark} & \textbf{Cambrian-1} & \textbf{MM-1} & \textbf{Qwen2/2.5-VL} & \textbf{InternVL2.5} & \textbf{InternVL-3} \\
+\midrule
+\endhead
+\bottomrule
+\multicolumn{6}{r}{\footnotesize\itshape continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{General Understanding}}\\
+\addlinespace[1pt]
+MM-Bench & General & -- & General VQA & General & General \\
+MM-Bench v1.1 & General & -- & General VQA & General & General \\
+MME & General & -- & General VQA & General & General \\
+GQA & General & -- & -- & -- & -- \\
+SEEDBench-IMG & General & -- & -- & -- & -- \\
+MMT-Bench & -- & -- & General VQA & -- & -- \\
+MMStar & -- & -- & General VQA & General & General \\
+COCO-Caption & -- & -- & -- & -- & -- \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Knowledge}}\\
+\addlinespace[1pt]
+MMMU & Knowledge & -- & Maths, Edu & Reasoning \& Maths & Reasoning \& Maths \\
+ScienceQA & Knowledge & -- & -- & -- & -- \\
+AI2D & Knowledge & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{OCR \& Charts}}\\
+\addlinespace[1pt]
+CharXiv & -- & -- & -- & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+DocVQA & OCR \& Charts & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+ChartQA & OCR \& Charts & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+OCRBench & OCR \& Charts & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+TextVQA & OCR \& Charts & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+InfoVQA & -- & -- & OCR, Docs, Diagram & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+SEEDBench2+ & -- & -- & -- & OCR, Charts \& Docs & OCR, Charts \& Docs \\
+OCRVQA & -- & -- & -- & -- & -- \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Vision-Centric}}\\
+\addlinespace[1pt]
+CV-Bench & Vision-Centric & -- & -- & -- & -- \\
+Mantis-Eval & -- & -- & -- & Multi-Image Understanding & Multi-Image Understanding \\
+3DSRBench & -- & -- & -- & -- & -- \\
+MMT-Bench-MI & -- & -- & -- & Multi-Image Understanding & Multi-Image Understanding \\
+BLINK & -- & -- & -- & Multi-Image Understanding & Multi-Image Understanding \\
+MuirBench & -- & -- & -- & Multi-Image Understanding & Multi-Image Understanding \\
+NaturalBench & -- & -- & -- & -- & -- \\
+MMVP & Vision-Centric & -- & -- & -- & -- \\
+RealWorldQA & Vision-Centric & -- & General VQA & Real-World Comprehension & Real-World Comprehension \\
+MME-RealWorld & -- & -- & -- & Real-World Comprehension & Real-World Comprehension \\
+VizWiz & -- & -- & -- & -- & -- \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Multilingual}}\\
+\addlinespace[1pt]
+MMMB & -- & -- & -- & Multilingual & Multilingual \\
+MTL-MMBench & -- & -- & -- & Multilingual & Multilingual \\
+MTVQA & -- & -- & OCR, Docs, Diagram & Multilingual & Multilingual \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Reasoning}}\\
+\addlinespace[1pt]
+MathVista & Knowledge & -- & Maths, Edu & Reasoning \& Maths & Reasoning \& Maths \\
+MathVision & -- & -- & Maths, Edu & Reasoning \& Maths & Reasoning \& Maths \\
+MathVerse & -- & -- & -- & Reasoning \& Maths & Reasoning \& Maths \\
+WeMath & -- & -- & -- & -- & Reasoning \& Maths \\
+DynaMath & -- & -- & -- & -- & Reasoning \& Maths \\
+GSM8K & -- & -- & Maths & Maths & Maths \\
+MATH & -- & -- & Maths & Maths & Maths \\
+TheoremQA & -- & -- & -- & Maths & Maths \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Text-Only}}\\
+\addlinespace[1pt]
+GaoKao & -- & -- & -- & Comprehensive & Comprehensive \\
+C-EVAL & -- & -- & -- & Comprehensive & Comprehensive \\
+MMLU & -- & -- & -- & Comprehensive & Comprehensive \\
+CMMLU & -- & -- & -- & Comprehensive & Comprehensive \\
+TriviaQA & -- & General & -- & General & General \\
+NaturalQ & -- & -- & -- & General & General \\
+C3 & -- & -- & -- & General & General \\
+RACE & -- & -- & -- & General & General \\
+Winogrande & -- & General & -- & Reasoning & Reasoning \\
+Hellaswag & -- & General & -- & Reasoning & Reasoning \\
+HumanEval & -- & -- & Coding & Coding & Coding \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Hallucination}}\\
+\addlinespace[1pt]
+AMBER & -- & -- & -- & -- & -- \\
+HallusionBench & -- & -- & General VQA & Hallucination & Hallucination \\
+CRPE & -- & -- & -- & Hallucination & Hallucination \\
+POPE & -- & -- & -- & Hallucination & Hallucination \\
+\addlinespace[2pt]
+\multicolumn{6}{@{}l}{\cellcolor{gray!12}\textbf{Safety}}\\
+\addlinespace[1pt]
+MMSafetyBench & -- & -- & -- & -- & -- \\
+MLLMGuard & -- & -- & -- & -- & -- \\
+VLGuard & -- & -- & -- & -- & -- \\
+\end{longtable}
+\end{footnotesize}

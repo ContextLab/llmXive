@@ -1,0 +1,19 @@
+\begin{table}[h!]
+\caption{\textbf{Extended} benchmark results comparing \textsc{\dcvlm-Baseline} to \textsc{FineVision} at \texttt{large} (top) and \texttt{x-large} (bottom) scales. Category acronyms: \textbf{Gen} = General -- \textbf{Know} = Knowledge-Centric -- \textbf{OCR} = OCR \& Charts -- \textbf{Vision} = Vision-Centric -- \textbf{MTL} = Multilingual -- \textbf{Hall} = Hallucination -- \textbf{Text} = Text-Only -- \textbf{Reason} = Reasoning.}\label{tab:extended-results}
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcccccccccc}
+\toprule
+\textbf{Dataset}  & \textbf{Gen} & \textbf{Know} & \textbf{OCR} & \textbf{Vision} & \textbf{MTL} & \textbf{Hall} & \textbf{Safety} & \textbf{Text} & \textbf{Reason} & \textbf{Ext Avg} \\
+\midrule
+\rowcolor{gray!8} \multicolumn{11}{l}{\texttt{large} scale (4B model, 100B tokens)} \\
+\textsc{FineVision} & 60.7 & 70.7 & \textbf{65.2} & 30.9 & 45.1 & 65.6 & 39.8 & 56.3 & 38.9 & 53.0 \\
+\textsc{\dcvlm-Baseline} (ours) & 69.1 & 67.6 & 58.7 & 54.0 & 50.9 & \textbf{69.0} & 22.1 & 59.7 & 34.6 & 56.0 \\
+\midrule
+\rowcolor{gray!8} \multicolumn{11}{l}{\texttt{x-large} scale (8B model, 200B tokens)} \\
+\textsc{FineVision} & 65.3 & 72.8 & 64.1 & 39.2 & 48.4 & 65.9 & \textbf{43.5} & 60.4 & \textbf{44.4} & 56.6 \\
+\textsc{\dcvlm-Baseline} (ours) & \textbf{73.8} & \textbf{73.0} & 58.9 & \textbf{60.5} & \textbf{56.1} & 68.9 & 24.3 & \textbf{67.1} & 39.5 & \textbf{60.5} \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

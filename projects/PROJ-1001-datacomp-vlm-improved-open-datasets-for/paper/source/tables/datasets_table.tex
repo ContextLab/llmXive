@@ -1,0 +1,530 @@
+
+
+\definecolor{capcolor}{HTML}{BFDEFF}      %
+\definecolor{textcolor}{HTML}{FFCBA9}     %
+\definecolor{mmdoccolor}{HTML}{96E19B}    %
+\definecolor{instructcolor}{HTML}{FFC6C4} %
+
+\begin{table}[!h]
+\centering
+\caption{\textbf{DCVLM pool per-dataset sample counts.} The mix combines \colorbox{capcolor}{captioning data}, \colorbox{mmdoccolor}{multimodal documents}, \colorbox{instructcolor}{visual instruction-tuning data} (organised by capability), and \colorbox{textcolor}{text-only data}. Across all 160 datasets, our pool contains \textbf{3.9B} samples.}
+\label{tab:dcvlm-datamix-samples}
+\scriptsize
+\setlength{\tabcolsep}{1.2pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{capcolor}\multicolumn{2}{l}{\textit{Captioning}} \\
+Dataset & Size \\
+\midrule
+ReLAION-2B-en~\cite{schuhmann2022laion} & 1.5B \\
+DataComp-1B~\cite{gadre2023datacomp} & 1.4B \\
+AS-100M~\cite{wang2024allseeing} & 2.8M \\
+GRIT (Cap.)~\cite{peng2023kosmos2} & 14.4M \\
+InternVL-SA1B~\cite{chen2024internvl} & 11.9M \\
+FaceCaption-15M~\cite{dai2024facecaption} & 11.2M \\
+PixMo-Cap~\cite{deitke2025molmo} & 575K \\
+ShareGPT-4o~\cite{chen2024sharegpt4v} & 56K \\
+TextOCR-GPT4V~\cite{carter2024textocrgpt4v} & 25K \\
+TextCaps~\cite{sidorov2020textcaps} & 109K \\
+COCO (Cap.)~\cite{chen2015cococaptions} & 569K \\
+OpenImages (Cap.)~\cite{kuznetsova2020openimages} & 508K \\
+SEA-VL~\cite{cahyawijaya2025seavl} & 1.3M \\
+\midrule
+\textbf{Total} & \textbf{2.9B} \\
+\midrule
+\rowcolor{mmdoccolor}\multicolumn{2}{l}{\textit{Multimodal Docs}} \\
+Dataset & Size \\
+\midrule
+MINT-HTML~\cite{awadalla2024mint} & 63.0M \\
+MINT-PDF~\cite{awadalla2024mint} & 2.6M \\
+OmniCC~\cite{li2024omnicorpus} & 78.4M \\
+Multimodal Textbook~\cite{zhang2025textbook} & 602K \\
+WanJuan~\cite{he2023wanjuan} & 809K \\
+\midrule
+\textbf{Total} & \textbf{145M} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Cap. \& Know.}} \\
+Dataset & Size \\
+\midrule
+Art500K~\cite{mao2017art500k} & 470K \\
+LLaVA-595K~\cite{liu2024improved} & 595K \\
+MMInstruct~\cite{liu2024mminstruct} & 386K \\
+ShareGPT4V~\cite{chen2024sharegpt4v} & 1.2M \\
+SVIT~\cite{zhao2023svit} & 3.8M \\
+\midrule
+\textbf{Total} & \textbf{6.5M} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Chart \& Table}} \\
+Dataset & Size \\
+\midrule
+BigDocsBench~\cite{rodriguez2025bigdocs} & 406K \\
+Chart2Text~\cite{kantharaj2022chart2text} & 8.7K \\
+ChartGemma~\cite{masry2024chartgemma} & 150K \\
+ChartLlama~\cite{han2023chartllama} & 1.1K \\
+ChartQA~\cite{masry2022chartqa} & 30K \\
+ChartX~\cite{xia2024chartx} & 17K \\
+CoSyn-400K~\cite{yang2025scaling} & 404K \\
+DocStruct4M~\cite{hu2024docowl15} & 4.7M \\
+DVQA~\cite{kafle2018dvqa} & 2.3M \\
+FigureQA~\cite{kahou2017figureqa} & 1.3M \\
+FinTabNet~\cite{zheng2021globaltable} & 8.4M \\
+MMC-Instruct~\cite{liu2024mmc} & 408K \\
+PixMo-Docs~\cite{deitke2025molmo} & 252K \\
+PlotQA~\cite{methani2020plotqa} & 20.2M \\
+PosterSum~\cite{saxena2025postersum} & 10K \\
+SBSFigures~\cite{shinoda2024sbsfigures} & 4.2M \\
+SciGraphQA~\cite{li2023scigraphqa} & 296K \\
+SimChart9K~\cite{xia2023structchart} & 70K \\
+SPIQA~\cite{pramanick2024spiqa} & 262K \\
+TabMWP~\cite{lu2023tabmwp} & 23K \\
+UniChart~\cite{masry2023unichart} & 7.2M \\
+VisText~\cite{tang2023vistext} & 9.9K \\
+\midrule
+\textbf{Total} & \textbf{50.6M} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{General QA}} \\
+Dataset & Size \\
+\midrule
+AlgoPuzzleVQA~\cite{ghosal2024algopuzzlevqa} & 1.7K \\
+ALLaVA~\cite{chen2024allava} & 1.7M \\
+A-OKVQA~\cite{schwenk2022aokvqa} & 17K \\
+Cambrian-GPT4o~\cite{tong2024cambrian} & 58K \\
+EST-VQA~\cite{wang2020estvqa} & 20K \\
+GQA~\cite{hudson2019gqa} & 944K \\
+Hateful Memes~\cite{kiela2020hateful} & 8.5K \\
+IconQA~\cite{lu2021iconqa} & 62K \\
+iNaturalist-2018~\cite{vanhorn2018inaturalist} & 438K \\
+LVIS-Instruct4V~\cite{wang2023lvisinstruct4v} & 223K \\
+MMDU~\cite{liu2024mmdu} & 50K \\
+OK-VQA~\cite{marino2019okvqa} & 9.0K \\
+ProVision-10M~\cite{zhang2024provision} & 19.9M \\
+SoM-LLaVA~\cite{yan2024listitems} & 631K \\
+Spot-the-Diff~\cite{jhamtani2018spotthediff} & 9.5K \\
+ViQuAE~\cite{lerner2022viquae} & 1.2K \\
+VisDial~\cite{das2017visdial} & 124K \\
+Visual7W~\cite{zhu2016visual7w} & 31K \\
+VQAv2~\cite{goyal2017making} & 444K \\
+VSR~\cite{liu2023vsr} & 7.4K \\
+\midrule
+\textbf{Total} & \textbf{24.7M} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Grounding \& Counting}} \\
+Dataset & Size \\
+\midrule
+All-Seeing-V2~\cite{wang2024allseeingv2} & 123K \\
+LRV-Instruction~\cite{liu2024mitigating} & 341K \\
+Objects365~\cite{shao2019objects365} & 1.7M \\
+PixMo-Points~\cite{deitke2025molmo} & 276K \\
+RefCOCO/+/g~\cite{kazemzadeh2014referitgame,yu2016modeling} & 59K \\
+TallyQA~\cite{acharya2019tallyqa} & 249K \\
+TolokaVQA~\cite{ustalov2023tolokavqa} & 39K \\
+V3Det~\cite{wang2023v3det} & 177K \\
+\midrule
+\textbf{Total} & \textbf{3.0M} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Math}} \\
+Dataset & Size \\
+\midrule
+CLEVR-Math~\cite{lindstrom2022clevrmath} & 788K \\
+Geometry3K~\cite{lu2021intergps} & 9.6K \\
+GeomVerse~\cite{kazemi2023geomverse} & 9.3K \\
+GeoQA+~\cite{cao2022geoqa} & 17K \\
+MAVIS-Function~\cite{zhang2024mavis} & 200K \\
+MAVIS-Geometry~\cite{zhang2024mavis} & 1.2M \\
+UniGeo (Calc.)~\cite{chen2022unigeo} & 5.0K \\
+UniGeo (Proof)~\cite{chen2022unigeo} & 9.8K \\
+\midrule
+\textbf{Total} & \textbf{2.2M} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Naive OCR}} \\
+Dataset & Size \\
+\midrule
+AnyWord-3M~\cite{tuo2023anytext} & 2.9M \\
+ArT~\cite{chng2019icdar} & 50K \\
+CASIA~\cite{liu2011casia} & 1.1M \\
+Chinese-OCR~\cite{xu2018chineseocr} & 5.8K \\
+COCO-Text~\cite{veit2016cocotext} & 17K \\
+CTW~\cite{yuan2019ctw} & 23K \\
+EATEN~\cite{guo2019eaten} & 470K \\
+HME-100K~\cite{yuan2022hme100k} & 74K \\
+IAM~\cite{marti2002iam} & 5.6K \\
+LSVT~\cite{sun2019icdar} & 400K \\
+MTWI~\cite{he2018mtwi} & 9.9K \\
+ParSynth-OCR-200K~\cite{singh2021parsynth} & 180K \\
+POIE~\cite{kuang2023poie} & 2.3K \\
+ReCTS~\cite{zhang2019icdar} & 20K \\
+RenderedText~\cite{wendlerf2023renderedtext} & 12.0M \\
+SROIE-2019~\cite{huang2019icdar} & 34K \\
+SynthDoG~\cite{kim2022donut} & 2.0M \\
+SynthText~\cite{gupta2016synthtext} & 856K \\
+\midrule
+\textbf{Total} & \textbf{20.2M} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{OCR QA}} \\
+Dataset & Size \\
+\midrule
+ArXivQA~\cite{li2024multimodalarxiv} & 100K \\
+Docmatix~\cite{laurencon2024building} & 1.3M \\
+DocReason25K~\cite{hu2024docowl15} & 22K \\
+DocVQA~\cite{mathew2021docvqa} & 40K \\
+InfoVQA~\cite{mathew2022infographicvqa} & 1.2K \\
+KVQA~\cite{shah2019kvqa} & 25K \\
+LLaVAR~\cite{zhang2023llavar} & 437K \\
+MapQA~\cite{chang2022mapqa} & 483K \\
+MathWriting~\cite{gervais2024mathwriting} & 625K \\
+MultiUI~\cite{liu2024harnessing} & 7.3M \\
+OCR-VQA~\cite{mishra2019ocrvqa} & 803K \\
+Screen2Words~\cite{wang2021screen2words} & 16K \\
+ST-VQA~\cite{biten2019stvqa} & 26K \\
+TextOCR~\cite{singh2021textocr} & 22K \\
+TextVQA~\cite{singh2019towards} & 23K \\
+VisualMRC~\cite{tanaka2021visualmrc} & 11K \\
+\midrule
+\textbf{Total} & \textbf{11.2M} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Science}} \\
+Dataset & Size \\
+\midrule
+AI2D~\cite{kembhavi2016ai2d} & 16K \\
+ImageCLEF~\cite{ionescu2024imageclef} & 80K \\
+LLaVA-Med (FT)~\cite{li2023llavamed} & 51K \\
+LLaVA-Med (PT)~\cite{li2023llavamed} & 467K \\
+PathVQA~\cite{he2020pathvqa} & 20K \\
+PMC-VQA~\cite{zhang2023pmcvqa} & 330K \\
+ScienceQA~\cite{lu2022learn} & 6.3K \\
+SLAKE~\cite{liu2021slake} & 9.5K \\
+TQA~\cite{kembhavi2017tqa} & 25K \\
+VisualWebInstruct~\cite{jia2025visualwebinstruct} & 1.1M \\
+VQA-RAD~\cite{lau2018vqarad} & 1.8K \\
+WebSight~\cite{laurencon2024unlocking} & 2.0M \\
+\midrule
+\textbf{Total} & \textbf{4.1M} \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Text}} \\
+Dataset & Size \\
+\midrule
+FLAN~\cite{wei2022finetuned} & 265M \\
+FLAN-v2~\cite{longpre2023flan} & 457M \\
+SlimOrca~\cite{lian2023slimorca} & 518K \\
+UltraChat-200K~\cite{ding2023enhancing} & 463K \\
+UltraFeedback~\cite{cui2024ultrafeedback} & 256K \\
+WizardLM-Evol-70K~\cite{xu2024wizardlm} & 70K \\
+LIMA~\cite{zhou2023lima} & 1.3K \\
+No Robots~\cite{rajani2023no_robots} & 9.6K \\
+Unnatural Instr.~\cite{honovich2023unnatural} & 69K \\
+MOSS~\cite{sun2024moss} & 571K \\
+Llama3-Magpie-Pro~\cite{xu2024magpie} & 1.0M \\
+Magpie-Qwen2-Pro~\cite{xu2024magpie} & 1.0M \\
+Firefly~\cite{yang2023firefly} & 1.6M \\
+Dolly~\cite{conover2023dolly} & 15K \\
+KOpen-Hermes-25~\cite{kopenhermes2024} & 60K \\
+OpenAI-TLDR~\cite{stiennon2020learning} & 117K \\
+Saraswati-CoT~\cite{saraswaticot2024} & 150K \\
+CodeFeedback~\cite{zheng2024opencodeinterpreter} & 66K \\
+Glaive-Code~\cite{glaive2023} & 136K \\
+xCoder-80K~\cite{wang2024xcoder} & 80K \\
+LeetCode~\cite{leetcode2023} & 2.4K \\
+Evol-Code~\cite{luo2024wizardcoder} & 78K \\
+LongCite-45K~\cite{zhang2024longcite} & 45K \\
+LongInstruct-Para.~\cite{longinstruct2024} & 14K \\
+Long-QLoRA~\cite{yang2023longqlora} & 37K \\
+LongAlpaca~\cite{chen2024longlora} & 12K \\
+GSM8K (Socratic)~\cite{cobbe2021gsm8k} & 7.5K \\
+MetaMathQA~\cite{yu2024metamath} & 395K \\
+MathQA~\cite{amini2019mathqa} & 30K \\
+Numina-Math-1.5~\cite{numina_math_15} & 767K \\
+Numina-Math-TIR~\cite{numina_math_tir} & 73K \\
+Orca-Math~\cite{mitra2024orcamath} & 200K \\
+InfinityMath~\cite{zhang2024infinitymath} & 101K \\
+\midrule
+\textbf{Total} & \textbf{730M} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+
+\begin{table}[!h]
+\centering
+\caption{\textbf{DCVLM pool per-dataset multimodal-token counts.} The mix combines \colorbox{capcolor}{captioning data}, \colorbox{mmdoccolor}{multimodal documents}, \colorbox{instructcolor}{visual instruction-tuning data} (organised by capability), and \colorbox{textcolor}{text-only data}. Token counts are measured using the InternVL-2.5 tokenizer~\citep{chen2024expanding}. Across all 160 datasets, the our pool contains \textbf{6.0T} multimodal tokens (${1536}$ tokens/sample on average).}
+\label{tab:dcvlm-datamix-tokens}
+\scriptsize
+\setlength{\tabcolsep}{1.2pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{capcolor}\multicolumn{2}{l}{\textit{Captioning}} \\
+Dataset & Size \\
+\midrule
+ReLAION-2B-en~\cite{schuhmann2022laion} & 2.6T \\
+DataComp-1B~\cite{gadre2023datacomp} & 2.3T \\
+AS-100M~\cite{wang2024allseeing} & 6.2B \\
+GRIT (Cap.)~\cite{peng2023kosmos2} & 26.8B \\
+InternVL-SA1B~\cite{chen2024internvl} & 26.5B \\
+FaceCaption-15M~\cite{dai2024facecaption} & 23.2B \\
+PixMo-Cap~\cite{deitke2025molmo} & 1.5B \\
+ShareGPT-4o~\cite{chen2024sharegpt4v} & 160M \\
+TextOCR-GPT4V~\cite{carter2024textocrgpt4v} & 66.4M \\
+TextCaps~\cite{sidorov2020textcaps} & 284M \\
+COCO (Cap.)~\cite{chen2015cococaptions} & 1.4B \\
+OpenImages (Cap.)~\cite{kuznetsova2020openimages} & 1.3B \\
+SEA-VL~\cite{cahyawijaya2025seavl} & 2.6B \\
+\midrule
+\textbf{Total} & \textbf{5.0T} \\
+\midrule
+\rowcolor{mmdoccolor}\multicolumn{2}{l}{\textit{Multimodal Docs}} \\
+Dataset & Size \\
+\midrule
+MINT-HTML~\cite{awadalla2024mint} & 190B \\
+MINT-PDF~\cite{awadalla2024mint} & 14.8B \\
+OmniCC~\cite{li2024omnicorpus} & 228B \\
+Multimodal Textbook~\cite{zhang2025textbook} & 2.6B \\
+WanJuan~\cite{he2023wanjuan} & 4.3B \\
+\midrule
+\textbf{Total} & \textbf{440B} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Cap. \& Know.}} \\
+Dataset & Size \\
+\midrule
+Art500K~\cite{mao2017art500k} & 1.1B \\
+LLaVA-595K~\cite{liu2024improved} & 195M \\
+MMInstruct~\cite{liu2024mminstruct} & 920M \\
+ShareGPT4V~\cite{chen2024sharegpt4v} & 3.0B \\
+SVIT~\cite{zhao2023svit} & 9.5B \\
+\midrule
+\textbf{Total} & \textbf{14.7B} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Chart \& Table}} \\
+Dataset & Size \\
+\midrule
+BigDocsBench~\cite{rodriguez2025bigdocs} & 979M \\
+Chart2Text~\cite{kantharaj2022chart2text} & 17.6M \\
+ChartGemma~\cite{masry2024chartgemma} & 366M \\
+ChartLlama~\cite{han2023chartllama} & 3.0M \\
+ChartQA~\cite{masry2022chartqa} & 57.0M \\
+ChartX~\cite{xia2024chartx} & 37.7M \\
+CoSyn-400K~\cite{yang2025scaling} & 1.1B \\
+DocStruct4M~\cite{hu2024docowl15} & 9.8B \\
+DVQA~\cite{kafle2018dvqa} & 745M \\
+FigureQA~\cite{kahou2017figureqa} & 2.4B \\
+FinTabNet~\cite{zheng2021globaltable} & 15.8B \\
+MMC-Instruct~\cite{liu2024mmc} & 861M \\
+PixMo-Docs~\cite{deitke2025molmo} & 664M \\
+PlotQA~\cite{methani2020plotqa} & 43.9B \\
+PosterSum~\cite{saxena2025postersum} & 27.0M \\
+SBSFigures~\cite{shinoda2024sbsfigures} & 11.4B \\
+SciGraphQA~\cite{li2023scigraphqa} & 670M \\
+SimChart9K~\cite{xia2023structchart} & 154M \\
+SPIQA~\cite{pramanick2024spiqa} & 469M \\
+TabMWP~\cite{lu2023tabmwp} & 42.0M \\
+UniChart~\cite{masry2023unichart} & 13.1B \\
+VisText~\cite{tang2023vistext} & 20.8M \\
+\midrule
+\textbf{Total} & \textbf{103B} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{General QA}} \\
+Dataset & Size \\
+\midrule
+AlgoPuzzleVQA~\cite{ghosal2024algopuzzlevqa} & 4.3M \\
+ALLaVA~\cite{chen2024allava} & 3.3B \\
+A-OKVQA~\cite{schwenk2022aokvqa} & 42.3M \\
+Cambrian-GPT4o~\cite{tong2024cambrian} & 136M \\
+EST-VQA~\cite{wang2020estvqa} & 44.6M \\
+GQA~\cite{hudson2019gqa} & 2.3B \\
+Hateful Memes~\cite{kiela2020hateful} & 17.9M \\
+IconQA~\cite{lu2021iconqa} & 115M \\
+iNaturalist-2018~\cite{vanhorn2018inaturalist} & 1.1B \\
+LVIS-Instruct4V~\cite{wang2023lvisinstruct4v} & 608M \\
+MMDU~\cite{liu2024mmdu} & 324M \\
+OK-VQA~\cite{marino2019okvqa} & 21.5M \\
+ProVision-10M~\cite{zhang2024provision} & 47.9B \\
+SoM-LLaVA~\cite{yan2024listitems} & 1.7B \\
+Spot-the-Diff~\cite{jhamtani2018spotthediff} & 5.7M \\
+ViQuAE~\cite{lerner2022viquae} & 2.9M \\
+VisDial~\cite{das2017visdial} & 322M \\
+Visual7W~\cite{zhu2016visual7w} & 82.2M \\
+VQAv2~\cite{goyal2017making} & 1.1B \\
+VSR~\cite{liu2023vsr} & 19.3M \\
+\midrule
+\textbf{Total} & \textbf{59.2B} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Grounding \& Counting}} \\
+Dataset & Size \\
+\midrule
+All-Seeing-V2~\cite{wang2024allseeingv2} & 364M \\
+LRV-Instruction~\cite{liu2024mitigating} & 820M \\
+Objects365~\cite{shao2019objects365} & 4.9B \\
+PixMo-Points~\cite{deitke2025molmo} & 582M \\
+RefCOCO/+/g~\cite{kazemzadeh2014referitgame,yu2016modeling} & 151M \\
+TallyQA~\cite{acharya2019tallyqa} & 611M \\
+TolokaVQA~\cite{ustalov2023tolokavqa} & 98.3M \\
+V3Det~\cite{wang2023v3det} & 469M \\
+\midrule
+\textbf{Total} & \textbf{8.0B} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Math}} \\
+Dataset & Size \\
+\midrule
+CLEVR-Math~\cite{lindstrom2022clevrmath} & 1.5B \\
+Geometry3K~\cite{lu2021intergps} & 17.5M \\
+GeomVerse~\cite{kazemi2023geomverse} & 27.0M \\
+GeoQA+~\cite{cao2022geoqa} & 27.3M \\
+MAVIS-Function~\cite{zhang2024mavis} & 728M \\
+MAVIS-Geometry~\cite{zhang2024mavis} & 2.9B \\
+UniGeo (Calc.)~\cite{chen2022unigeo} & 8.3M \\
+UniGeo (Proof)~\cite{chen2022unigeo} & 17.6M \\
+\midrule
+\textbf{Total} & \textbf{5.2B} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Naive OCR}} \\
+Dataset & Size \\
+\midrule
+AnyWord-3M~\cite{tuo2023anytext} & 1.2B \\
+ArT~\cite{chng2019icdar} & 85.5M \\
+CASIA~\cite{liu2011casia} & 2.0B \\
+Chinese-OCR~\cite{xu2018chineseocr} & 15.8M \\
+COCO-Text~\cite{veit2016cocotext} & 43.9M \\
+CTW~\cite{yuan2019ctw} & 81.4M \\
+EATEN~\cite{guo2019eaten} & 833M \\
+HME-100K~\cite{yuan2022hme100k} & 132M \\
+IAM~\cite{marti2002iam} & 11.5M \\
+LSVT~\cite{sun2019icdar} & 687M \\
+MTWI~\cite{he2018mtwi} & 18.5M \\
+ParSynth-OCR-200K~\cite{singh2021parsynth} & 318M \\
+POIE~\cite{kuang2023poie} & 4.9M \\
+ReCTS~\cite{zhang2019icdar} & 39.0M \\
+RenderedText~\cite{wendlerf2023renderedtext} & 31.8B \\
+SROIE-2019~\cite{huang2019icdar} & 70.4M \\
+SynthDoG~\cite{kim2022donut} & 5.1B \\
+SynthText~\cite{gupta2016synthtext} & 1.8B \\
+\midrule
+\textbf{Total} & \textbf{44.2B} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{OCR QA}} \\
+Dataset & Size \\
+\midrule
+ArXivQA~\cite{li2024multimodalarxiv} & 268M \\
+Docmatix~\cite{laurencon2024building} & 4.4B \\
+DocReason25K~\cite{hu2024docowl15} & 64.5M \\
+DocVQA~\cite{mathew2021docvqa} & 132M \\
+InfoVQA~\cite{mathew2022infographicvqa} & 2.5M \\
+KVQA~\cite{shah2019kvqa} & 67.0M \\
+LLaVAR~\cite{zhang2023llavar} & 696M \\
+MapQA~\cite{chang2022mapqa} & 1.6B \\
+MathWriting~\cite{gervais2024mathwriting} & 1.2B \\
+MultiUI~\cite{liu2024harnessing} & 18.2B \\
+OCR-VQA~\cite{mishra2019ocrvqa} & 1.8B \\
+Screen2Words~\cite{wang2021screen2words} & 32.8M \\
+ST-VQA~\cite{biten2019stvqa} & 64.5M \\
+TextOCR~\cite{singh2021textocr} & 82.7M \\
+TextVQA~\cite{singh2019towards} & 62.0M \\
+VisualMRC~\cite{tanaka2021visualmrc} & 21.7M \\
+\midrule
+\textbf{Total} & \textbf{28.7B} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.245\textwidth}
+\centering
+\begin{tabular}{lr}
+\toprule
+\rowcolor{instructcolor}\multicolumn{2}{l}{\textit{Science}} \\
+Dataset & Size \\
+\midrule
+AI2D~\cite{kembhavi2016ai2d} & 34.6M \\
+ImageCLEF~\cite{ionescu2024imageclef} & 171M \\
+LLaVA-Med (FT)~\cite{li2023llavamed} & 116M \\
+LLaVA-Med (PT)~\cite{li2023llavamed} & 1.0B \\
+PathVQA~\cite{he2020pathvqa} & 38.5M \\
+PMC-VQA~\cite{zhang2023pmcvqa} & 640M \\
+ScienceQA~\cite{lu2022learn} & 12.9M \\
+SLAKE~\cite{liu2021slake} & 9.6M \\
+TQA~\cite{kembhavi2017tqa} & 18.4M \\
+VisualWebInstruct~\cite{jia2025visualwebinstruct} & 1.5B \\
+VQA-RAD~\cite{lau2018vqarad} & 4.0M \\
+WebSight~\cite{laurencon2024unlocking} & 5.8B \\
+\midrule
+\textbf{Total} & \textbf{9.3B} \\
+\midrule
+\rowcolor{textcolor}\multicolumn{2}{l}{\textit{Text}} \\
+Dataset & Size \\
+\midrule
+FLAN~\cite{wei2022finetuned} & 141B \\
+FLAN-v2~\cite{longpre2023flan} & 177B \\
+SlimOrca~\cite{lian2023slimorca} & 208M \\
+UltraChat-200K~\cite{ding2023enhancing} & 490M \\
+UltraFeedback~\cite{cui2024ultrafeedback} & 116M \\
+WizardLM-Evol-70K~\cite{xu2024wizardlm} & 31.4M \\
+LIMA~\cite{zhou2023lima} & 691K \\
+No Robots~\cite{rajani2023no_robots} & 3.1M \\
+Unnatural Instr.~\cite{honovich2023unnatural} & 9.9M \\
+MOSS~\cite{sun2024moss} & 184M \\
+Llama3-Magpie-Pro~\cite{xu2024magpie} & 530M \\
+Magpie-Qwen2-Pro~\cite{xu2024magpie} & 418M \\
+Firefly~\cite{yang2023firefly} & 338M \\
+Dolly~\cite{conover2023dolly} & 2.2M \\
+KOpen-Hermes-25~\cite{kopenhermes2024} & 30.0M \\
+OpenAI-TLDR~\cite{stiennon2020learning} & 50.7M \\
+Saraswati-CoT~\cite{saraswaticot2024} & 43.2M \\
+CodeFeedback~\cite{zheng2024opencodeinterpreter} & 93.1M \\
+Glaive-Code~\cite{glaive2023} & 55.3M \\
+xCoder-80K~\cite{wang2024xcoder} & 75.4M \\
+LeetCode~\cite{leetcode2023} & 915K \\
+Evol-Code~\cite{luo2024wizardcoder} & 31.2M \\
+LongCite-45K~\cite{zhang2024longcite} & 650M \\
+LongInstruct-Para.~\cite{longinstruct2024} & 207M \\
+Long-QLoRA~\cite{yang2023longqlora} & 120M \\
+LongAlpaca~\cite{chen2024longlora} & 99.7M \\
+GSM8K (Socratic)~\cite{cobbe2021gsm8k} & 2.0M \\
+MetaMathQA~\cite{yu2024metamath} & 112M \\
+MathQA~\cite{amini2019mathqa} & 6.8M \\
+Numina-Math-1.5~\cite{numina_math_15} & 423M \\
+Numina-Math-TIR~\cite{numina_math_tir} & 55.2M \\
+Orca-Math~\cite{mitra2024orcamath} & 79.9M \\
+InfinityMath~\cite{zhang2024infinitymath} & 45.3M \\
+\midrule
+\textbf{Total} & \textbf{323B} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}

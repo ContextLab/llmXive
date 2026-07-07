@@ -1,0 +1,205 @@
+
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth}>{\raggedright\arraybackslash}p{0.59\textwidth}>{\raggedright\arraybackslash}p{0.17\textwidth}@{}}
+\caption{\textbf{DCVLM pool per-dataset licenses.} Licenses are grouped according to the datamix categories: \colorbox{capcolor}{captioning data}, \colorbox{mmdoccolor}{multimodal documents}, \colorbox{instructcolor}{visual instruction-tuning data}, and \colorbox{textcolor}{text-only data}. ``Unknown'' indicates that a public license was not clearly specified in the listed source.}
+\label{tab:dcvlm-datamix-licenses} \\
+\toprule
+Dataset & License & Source \\
+\midrule
+\endfirsthead
+\caption[]{\textbf{DCVLM pool per-dataset licenses and sources} (continued).} \\
+\toprule
+Dataset & License & Source \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\textit{Continued on next page}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+\rowcolor{capcolor}\multicolumn{3}{l}{\textit{Captioning}} \\
+ReLAION-2B-en & CC BY 4.0 (gated; access requires accepting HF terms/contact sharing) & \href{https://huggingface.co/datasets/laion/relaion2B-en-research}{source} \\
+DataComp-1B & CC BY 4.0 & \href{https://huggingface.co/datasets/mlfoundations/datacomp_1b}{source} \\
+AS-100M & Apache-2.0 & \href{https://huggingface.co/datasets/OpenGVLab/AS-100M}{source} \\
+GRIT (Cap.) & MS-PL & \href{https://huggingface.co/datasets/zzliang/GRIT}{source} \\
+InternVL-SA1B & MIT & \href{https://huggingface.co/datasets/OpenGVLab/InternVL-SA-1B-Caption}{source} \\
+FaceCaption-15M & CC BY 4.0 + research/education notice & \href{https://huggingface.co/datasets/OpenFace-CQUPT/FaceCaption-15M}{source} \\
+PixMo-Cap & ODC-BY-1.0 & \href{https://huggingface.co/datasets/allenai/pixmo-cap}{source} \\
+ShareGPT-4o & MIT; HF-gated contact-sharing/access terms; source video copyrights/platform terms and academic-research notice apply & \href{https://huggingface.co/datasets/OpenGVLab/ShareGPT-4o}{source} \\
+TextOCR-GPT4V & Apache-2.0 & \href{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data/tree/main/textocr(gpt4v)}{source} \\
+TextCaps & CC BY 4.0 & \href{https://dl.fbaipublicfiles.com/textvqa/data/textcaps/TextCaps_0.1_train.json}{source 1}; \href{https://dl.fbaipublicfiles.com/textvqa/images/train_val_images.zip}{source 2} \\
+COCO (Cap.) & CC BY 4.0 for annotations; images retain original COCO/Flickr licenses & \href{https://storage.googleapis.com/sfr-vision-language-research/datasets/coco_karpathy_train.json}{source} \\
+OpenImages (Cap.) & CC BY 4.0 for annotations; images retain original Open Images licenses & \href{https://storage.googleapis.com/localized-narratives/annotations/open_images_train_v6_localized_narratives-0000*-of-00010.jsonl}{source} \\
+SEA-VL & CC BY-SA 4.0 & \href{https://huggingface.co/datasets/SEACrowd/sea-vl_crowdsourced}{source 1}; \href{https://huggingface.co/datasets/SEACrowd/sea-vl_crawling}{source 2} \\
+\midrule
+\rowcolor{mmdoccolor}\multicolumn{3}{l}{\textit{Multimodal Docs}} \\
+MINT-HTML & CC BY 4.0 & \href{https://huggingface.co/datasets/mlfoundations/MINT-1T-HTML}{source} \\
+MINT-PDF & CC BY 4.0 & \href{https://huggingface.co/collections/mlfoundations/mint-1t-6690216ca4d0df7e518dde1c}{source} \\
+OmniCC & CC BY 4.0 & \href{https://huggingface.co/datasets/OpenGVLab/OmniCorpus-CC}{source} \\
+Multimodal Textbook & Apache-2.0 & \href{https://huggingface.co/datasets/DAMO-NLP-SG/multimodal_textbook}{source} \\
+WanJuan & CC BY 4.0 & \href{https://opendatalab.org.cn/WanJuan1.0}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Cap. \& Know.}} \\
+Art500K & Custom non-commercial research-only terms; images retain third-party rights & \href{https://drive.google.com/file/d/1sWqPDINj7xSBaYmYxOsaYOLBwJZvg4BB/view}{source 1}; \href{https://drive.google.com/file/d/1HpEiuC7cQRBu0ykpbEH0iKb1Hh5rrvtE/view}{source 2} \\
+LLaVA-595K & Other: must comply with CC-3M license and BLIP license (HF tag: other) & \href{https://huggingface.co/datasets/liuhaotian/LLaVA-CC3M-Pretrain-595K}{source} \\
+MMInstruct & Apache-2.0 & \href{https://huggingface.co/datasets/yuecao0119/MMInstruct-GPT4V}{source} \\
+ShareGPT4V & CC BY-NC 4.0 + OpenAI ToU & \href{https://huggingface.co/datasets/Lin-Chen/ShareGPT4V}{source} \\
+SVIT & CC BY 4.0; OpenAI ToU and original Visual Genome/MS-COCO image/annotation licenses apply; HF-gated usage notice applies & \href{https://huggingface.co/datasets/BAAI/SVIT}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Chart \& Table}} \\
+BigDocsBench & CC BY 4.0 for ServiceNow-generated parts; per-sample upstream terms and Llama 3.1 terms may apply & \href{https://huggingface.co/datasets/ServiceNow/BigDocs-Bench}{source} \\
+Chart2Text & Unknown / not publicly specified & \href{https://github.com/JasonObeid/Chart2Text}{source 1}; \href{https://github.com/JasonObeid/Chart2TextImages}{source 2} \\
+ChartGemma & Unknown / not publicly specified & \href{https://huggingface.co/datasets/ahmed-masry/ChartGemma}{source} \\
+ChartLlama & Unknown / not publicly specified & \href{https://huggingface.co/datasets/listen2you002/ChartLlama-Dataset}{source} \\
+ChartQA & Apache-2.0 for Cambrian-10M formatted version; original ChartQA terms may also apply & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/chartqa.tar.gz}{source 1}; \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/jsons/Cambrian10M.jsonl}{source 2} \\
+ChartX & Apache-2.0 & \href{https://huggingface.co/datasets/U4R/ChartX}{source} \\
+CoSyn-400K & ODC-BY-1.0 (plus AI-generated-output/provider terms stated in card) & \href{https://huggingface.co/datasets/allenai/CoSyn-400K}{source} \\
+DocStruct4M & Apache-2.0 & \href{https://huggingface.co/datasets/mPLUG/DocStruct4M}{source} \\
+DVQA & Apache-2.0 for Cambrian-10M formatted version; original DVQA terms may also apply & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/dvqa.tar.gz}{source 1}; \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/jsons/Cambrian10M.jsonl}{source 2} \\
+FigureQA & Unknown / dataset files license not clearly stated; generation code MIT & \href{https://download.microsoft.com/download/c/3/1/c315c9d8-8239-487e-a895-2d3ff805b508/figureqa-train1-v1.tar.gz}{source} \\
+FinTabNet & CDLA-Permissive-2.0 & \href{https://huggingface.co/datasets/bsmock/FinTabNet.c}{source} \\
+MMC-Instruct & CC BY-SA 4.0 & \href{https://huggingface.co/datasets/xywang1/MMC}{source} \\
+PixMo-Docs & ODC-BY-1.0 (plus AI-generated-output/provider terms stated in card) & \href{https://huggingface.co/datasets/allenai/pixmo-docs}{source} \\
+PlotQA & CC BY 4.0 & \href{https://drive.google.com/file/d/1AYuaPX-Lx7T0GZvnsPgN11Twq2FZbWXL/view?usp=sharing}{source 1}; \href{https://drive.google.com/file/d/1bBSUutd-Die27ZH3QTMVhBjW9l5hAwrr/view?usp=sharing}{source 2}; \href{https://drive.google.com/file/d/1UNvkdq1YJD_ne6D3zbWtoQij37AtfpNp/view?usp=sharing}{source 3}; \href{https://drive.google.com/file/d/1VzWwxBVrlep17BGZU17GpLuGpwjyWbzq/view?usp=sharing}{source 4} \\
+PosterSum & Unknown / not publicly specified & \href{https://huggingface.co/datasets/rohitsaxena/PosterSum}{source} \\
+SBSFigures & Unknown / not publicly specified & \href{https://huggingface.co/datasets/omron-sinicx/sbsfigures}{source} \\
+SciGraphQA & MIT & \href{https://huggingface.co/datasets/alexshengzhili/SciGraphQA-295K-train}{source} \\
+SimChart9K & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1M_NA3sIJNwCUfqB1HH0p4lsnEm3NbvsI/view?usp=sharing}{source} \\
+SPIQA & CC BY 4.0 & \href{https://huggingface.co/datasets/google/spiqa}{source} \\
+TabMWP & CC BY-NC-SA 4.0 for TabMWP dataset; MIT for repository code & \href{https://github.com/lupantech/PromptPG.git}{source} \\
+UniChart & MIT for UniChart-pretrain-images; UniChart-pretrain-data license not publicly specified & \href{https://huggingface.co/datasets/ahmed-masry/UniChart-pretrain-images}{source 1}; \href{https://huggingface.co/datasets/ahmed-masry/unichart-pretrain-data}{source 2} \\
+VisText & Unknown / not publicly specified on The Cauldron repo; original VisText terms may apply & \href{https://huggingface.co/datasets/HuggingFaceM4/the_cauldron/tree/main/vistext}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{General QA}} \\
+AlgoPuzzleVQA & Apache-2.0 & \href{https://huggingface.co/datasets/declare-lab/AlgoPuzzleVQA}{source} \\
+ALLaVA & CC BY-NC 4.0 & \href{https://huggingface.co/datasets/FreedomIntelligence/ALLaVA-4V}{source} \\
+A-OKVQA & Apache-2.0 for official repository; dataset archive has no separate license file; COCO image licenses apply & \href{https://prior-datasets.s3.us-east-2.amazonaws.com/aokvqa/aokvqa_v1p0.tar.gz}{source} \\
+Cambrian-GPT4o & Apache-2.0 & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M}{source} \\
+EST-VQA & Unknown / not publicly specified & \href{https://drive.google.com/file/d/15q8Hqx3uQm8mx4w3PZtactJVe1BRXug5/view}{source 1}; \href{https://drive.google.com/file/d/1M3fWhFWltjM_nFR0ALynUIwXatwKXb26/view}{source 2} \\
+GQA & CC BY 4.0 & \href{https://downloads.cs.stanford.edu/nlp/data/gqa/questions1.2.zip}{source 1}; \href{https://downloads.cs.stanford.edu/nlp/data/gqa/images.zip}{source 2} \\
+Hateful Memes & Custom non-commercial/research dataset terms & \href{https://www.kaggle.com/datasets/parthplc/facebook-hateful-meme-dataset}{source} \\
+IconQA & CC BY-NC-SA 4.0 & \href{https://iconqa2021.s3.us-west-1.amazonaws.com/iconqa_data.zip}{source} \\
+iNaturalist-2018 & Mixed image licenses; check per-image iNaturalist metadata & \href{https://github.com/visipedia/inat_comp/blob/master/2018/README.md}{source 1}; \href{https://ml-inat-competition-datasets.s3.amazonaws.com/2018/train_val2018.tar.gz}{source 2}; \href{https://ml-inat-competition-datasets.s3.amazonaws.com/2018/train2018.json.tar.gz}{source 3}; \href{https://ml-inat-competition-datasets.s3.amazonaws.com/2018/categories.json.tar.gz}{source 4} \\
+LVIS-Instruct4V & Unknown / not publicly specified & \href{https://huggingface.co/datasets/X2FD/LVIS-Instruct4V}{source} \\
+MMDU & CC BY-NC 4.0 + OpenAI ToU & \href{https://huggingface.co/datasets/laolao77/MMDU}{source} \\
+OK-VQA & CC BY 4.0 for annotations; images retain original COCO/Flickr licenses & \href{https://okvqa.allenai.org/static/data/mscoco_train2014_annotations.json.zip}{source 1}; \href{https://okvqa.allenai.org/static/data/OpenEnded_mscoco_train2014_questions.json.zip}{source 2} \\
+ProVision-10M & CC BY-NC 4.0 & \href{https://huggingface.co/datasets/Salesforce/ProVision-10M}{source} \\
+SoM-LLaVA & Apache-2.0 & \href{https://huggingface.co/datasets/zzxslp/SoM-LLaVA}{source} \\
+Spot-the-Diff & Unknown / not publicly specified on The Cauldron repo; original Spot-the-Diff terms may apply & \href{https://huggingface.co/datasets/HuggingFaceM4/the_cauldron/tree/main/spot_the_diff}{source} \\
+ViQuAE & Unknown / not publicly specified & \href{https://huggingface.co/datasets/PaulLerner/viquae_dataset/resolve/main/train.jsonl}{source 1}; \href{https://huggingface.co/datasets/PaulLerner/viquae_images/resolve/main/images.tar.gz}{source 2} \\
+VisDial & Unknown / not publicly specified & \href{https://huggingface.co/datasets/HuggingFaceM4/VisDial}{source} \\
+Visual7W & MIT for Visual7W toolkit/repo; COCO image licenses apply; annotation license not separately specified & \href{http://vision.stanford.edu/yukezhu/visual7w_images.zip}{source 1}; \href{https://ai.stanford.edu/~yukez/papers/resources/dataset_v7w_telling.zip}{source 2}; \href{https://ai.stanford.edu/~yukez/papers/resources/dataset_v7w_pointing.zip}{source 3} \\
+VQAv2 & CC BY 4.0 for annotations; images retain original COCO/Flickr licenses & \href{https://huggingface.co/datasets/HuggingFaceM4/the_cauldron/tree/main/vqav2}{source} \\
+VSR & Apache-2.0 & \href{https://raw.githubusercontent.com/cambridgeltl/visual-spatial-reasoning/refs/heads/master/data/splits/random/train.jsonl}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Grounding \& Counting}} \\
+All-Seeing-V2 & Apache-2.0 & \href{https://huggingface.co/datasets/OpenGVLab/AS-V2}{source} \\
+LRV-Instruction & BSD-3-Clause for repository; source image/data terms may also apply & \href{https://github.com/FuxiaoLiu/LRV-Instruction?tab=readme-ov-file\#instruction-data}{source} \\
+Objects365 & Academic-purpose only; annotations/website CC BY 4.0; images under Flickr terms and must not be redistributed; software MIT & \href{https://dorc.ks3-cn-beijing.ksyun.com/data-set/2020Objects365\%E6\%95\%B0\%E6\%8D\%AE\%E9\%9B\%86/train/zhiyuan_objv2_train.tar.gz}{source 1}; \href{https://dorc.ks3-cn-beijing.ksyun.com/data-set/2020Objects365\%E6\%95\%B0\%E6\%8D\%AE\%E9\%9B\%86/train/patch*.tar.gz}{source 2} \\
+PixMo-Points & ODC-BY-1.0 & \href{https://huggingface.co/datasets/allenai/pixmo-points}{source} \\
+RefCOCO/+/g & MS COCO image licenses; annotations license not clearly specified & \href{https://web.archive.org/web/20220413011718/https://bvisionweb1.cs.unc.edu/licheng/referit/data/refcoco.zip}{source 1}; \href{https://web.archive.org/web/20220413011656/https://bvisionweb1.cs.unc.edu/licheng/referit/data/refcocog.zip}{source 2}; \href{https://web.archive.org/web/20220413012904/https://bvisionweb1.cs.unc.edu/licheng/referit/data/refcoco+.zip}{source 3} \\
+TallyQA & Apache-2.0 for TallyQA repo/annotations; referenced VQA 2.0/Visual Genome terms may apply & \href{https://github.com/manoja328/TallyQA_dataset/raw/master/tallyqa.zip}{source} \\
+TolokaVQA & CC BY 4.0; images from CC BY-licensed MS COCO subset & \href{https://www.kaggle.com/datasets/dustalov/toloka-wsdm-cup-2023-vqa}{source} \\
+V3Det & CC BY 4.0 for annotations/category tree/tools; Flickr/image terms for images & \href{https://huggingface.co/datasets/yhcao/V3Det_Backup}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Math}} \\
+CLEVR-Math & CC BY 4.0 & \href{https://huggingface.co/datasets/dali-does/clevr-math}{source} \\
+Geometry3K & Apache-2.0 & \href{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data/tree/main/Geometry3K(MathV360K)}{source} \\
+GeomVerse & Unknown / not publicly specified on The Cauldron repo; original GeomVerse terms may apply & \href{https://huggingface.co/datasets/HuggingFaceM4/the_cauldron/tree/main/geomverse}{source} \\
+GeoQA+ & Apache-2.0 & \href{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data/tree/main/GeoQA+(MathV360K)}{source} \\
+MAVIS-Function & Unknown / not publicly specified & \href{https://huggingface.co/datasets/CaraJ/MAVIS-Function}{source} \\
+MAVIS-Geometry & Unknown / not publicly specified & \href{https://huggingface.co/datasets/CaraJ/MAVIS-Geometry}{source} \\
+UniGeo (Calc.) & Unknown / not publicly specified & \href{https://drive.google.com/drive/folders/1weZAzuxCyNsXK3NoUGo_7FWCAMnG4Mh4}{source} \\
+UniGeo (Proof) & Unknown / not publicly specified & \href{https://drive.google.com/drive/folders/1weZAzuxCyNsXK3NoUGo_7FWCAMnG4Mh4}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Naive OCR}} \\
+AnyWord-3M & Apache-2.0 & \href{https://huggingface.co/datasets/stzhao/AnyWord-3M}{source} \\
+ArT & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1BH6H75V-vW8G74ih9AXcsiucpqv4eshu/view}{source} \\
+CASIA & Other / free for non-commercial use; Kaggle mirror license is other; original CASIA terms apply & \href{https://www.kaggle.com/datasets/pascalbliem/handwritten-chinese-character-hanzi-datasets}{source} \\
+Chinese-OCR & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1pM2F04X3itsGi3n-8d7Ppxg6MFqBLKbX/view?usp=sharing}{source} \\
+COCO-Text & CC BY 4.0 & \href{https://github.com/bgshih/cocotext/releases/download/dl/cocotext.v2.zip}{source} \\
+CTW & Unknown / not publicly specified & \href{https://cloud.tsinghua.edu.cn/d/6f1cfc516c324f41a07b/files/?p=\%2Fctw-public\%2Fctw-annotations.tar.gz&dl=1}{source 1}; \href{https://cloud.tsinghua.edu.cn/d/6f1cfc516c324f41a07b/files/?p=\%2Fctw-public\%2Fimages-trainval\%2Fctw-trainval-*-of-26.tar&dl=1}{source 2} \\
+EATEN & Unknown / not publicly specified & \href{https://drive.google.com/file/d/10QPeNGbsCzUOdxESuiA6CROHVx2AkITb/view?usp=sharing}{source} \\
+HME-100K & Apache-2.0 & \href{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data/tree/main/hme100k}{source} \\
+IAM & Custom non-commercial/research license & \href{https://huggingface.co/datasets/alpayariyak/IAM_Sentences}{source} \\
+LSVT & Unknown / not publicly specified & \href{https://drive.google.com/file/d/18c4u7W_dDacJhe-mABYjleX3CekHb6lN/view}{source} \\
+MTWI & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1DDVa81xldAAy9iSAggvNvAIXhCVyBnQo/view?usp=drive_link}{source 1}; \href{https://drive.google.com/file/d/1MNZ3lVZzj6oXBkMKLRb_qdBenWF1s5ew/view?usp=drive_link}{source 2} \\
+ParSynth-OCR-200K & Unknown / not publicly specified & \href{https://huggingface.co/datasets/hezarai/parsynth-ocr-200k}{source} \\
+POIE & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1eEMNiVeLlD-b08XW_GfAGfPmmII-GDYs/view}{source} \\
+ReCTS & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1orMtLhJt3rQl3pMoLm31eh-SmDG74W1K/view}{source} \\
+RenderedText & Unknown / not publicly specified & \href{https://huggingface.co/datasets/wendlerc/RenderedText}{source} \\
+SROIE-2019 & Unknown / not publicly specified & \href{https://huggingface.co/datasets/priyank-m/SROIE_2019_text_recognition}{source} \\
+SynthDoG & MIT for SynthDoG code; generated dataset license not specified on listed HF repos & \href{https://huggingface.co/datasets/naver-clova-ix/synthdog-en}{source 1}; \href{https://huggingface.co/datasets/naver-clova-ix/synthdog-zh}{source 2}; \href{https://huggingface.co/datasets/naver-clova-ix/synthdog-ja}{source 3}; \href{https://huggingface.co/datasets/naver-clova-ix/synthdog-ko}{source 4} \\
+SynthText & Custom research-only/non-commercial terms & \href{https://www.kaggle.com/datasets/wassefy/synthtext}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{OCR QA}} \\
+ArXivQA & CC BY-SA 4.0 & \href{https://huggingface.co/datasets/MMInstruction/ArxivQA}{source} \\
+Docmatix & MIT & \href{https://huggingface.co/datasets/HuggingFaceM4/Docmatix}{source} \\
+DocReason25K & Apache-2.0 & \href{https://huggingface.co/datasets/mPLUG/DocReason25K}{source} \\
+DocVQA & Apache-2.0 for formatted HF version; original DocVQA terms may also apply & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/docvqa.tar.gz}{source 1}; \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/jsons/Cambrian10M.jsonl}{source 2} \\
+InfoVQA & Apache-2.0 & \href{https://huggingface.co/datasets/LIME-DATA/infovqa}{source} \\
+KVQA & Unknown / not publicly specified & \href{https://huggingface.co/datasets/wusize/kvqa}{source} \\
+LLaVAR & CC BY-NC 4.0; research-only/non-commercial; CLIP/LLaMA/Vicuna/GPT-4/LLaVA terms may apply & \href{https://drive.google.com/uc?id=1zWpqnAcaG_dUwkJJUvP9FH9zq__c-ODY}{source 1}; \href{https://drive.google.com/uc?id=1Ms7OCjcFQ18Whmujszpc9bTp0Jy0Dye4}{source 2}; \href{https://drive.google.com/uc?id=1_GCHFwrPGjp-9tZlDBwVkdz-L1ymchKY}{source 3}; \href{https://drive.google.com/uc?id=1NHO8lly6pUo-fdyOAyWeGiQJWRb9qggk}{source 4} \\
+MapQA & Unknown / not publicly specified on The Cauldron repo; original MapQA terms may apply & \href{https://huggingface.co/datasets/HuggingFaceM4/the_cauldron/tree/main/mapqa}{source} \\
+MathWriting & CC BY-NC-SA 4.0 & \href{https://storage.googleapis.com/mathwriting_data/mathwriting-2024.tgz}{source} \\
+MultiUI & ODC-BY-1.0; HF-gated contact-sharing/access terms; public-web source content and LLM-provider terms may apply & \href{https://huggingface.co/datasets/neulab/MultiUI}{source} \\
+OCR-VQA & Unknown / not publicly specified & \href{https://huggingface.co/datasets/howard-hou/OCR-VQA}{source} \\
+Screen2Words & CC BY 4.0 & \href{https://huggingface.co/datasets/rootsautomation/RICO-Screen2Words}{source} \\
+ST-VQA & Unknown / not publicly specified & \href{https://huggingface.co/datasets/vikhyatk/st-vqa}{source} \\
+TextOCR & CC BY 4.0 & \href{https://dl.fbaipublicfiles.com/textvqa/images/train_val_images.zip}{source 1}; \href{https://dl.fbaipublicfiles.com/textvqa/data/textocr/TextOCR_0.1_train.json}{source 2} \\
+TextVQA & Apache-2.0 for Cambrian/LLaVA formatted version; original TextVQA terms may also apply & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/textvqa.tar.gz}{source 1}; \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/jsons/Cambrian10M.jsonl}{source 2} \\
+VisualMRC & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1kxCIG6Nns7L79i5s7xmvKS92foIDRm4T/view}{source} \\
+\midrule
+\rowcolor{instructcolor}\multicolumn{3}{l}{\textit{Science}} \\
+AI2D & Apache-2.0 for Cambrian/LLaVA formatted version; original AI2D terms may also apply & \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/ai2d.tar.gz}{source 1}; \href{https://huggingface.co/datasets/nyu-visionx/Cambrian-10M/resolve/main/jsons/Cambrian10M.jsonl}{source 2} \\
+ImageCLEF & Unknown / not publicly specified & \href{https://drive.google.com/file/d/1ZJcd15D699x0WO3ZPS_3CessN2ed17qR/view?usp=drive_link}{source} \\
+LLaVA-Med (FT) & CC BY-NC 4.0; research/non-clinical-use restrictions; LLaMA/Vicuna/GPT-4 terms may apply & \href{https://huggingface.co/datasets/Shubhangi29/llava_med_instruct_60k_inline_mention_filtered}{source} \\
+LLaVA-Med (PT) & CC BY-NC 4.0; research/non-clinical-use restrictions; LLaMA/Vicuna/GPT-4 terms may apply & \href{https://huggingface.co/datasets/Shubhangi29/llava_med_alignment_500k_chunk_1}{source 1}; \href{https://huggingface.co/datasets/Shubhangi29/llava_med_alignment_500k_chunk_2}{source 2}; \href{https://huggingface.co/datasets/Shubhangi29/llava_med_alignment_500k_chunk_3}{source 3}; \href{https://huggingface.co/datasets/Shubhangi29/llava_med_alignment_500k_chunk_4}{source 4}; \href{https://huggingface.co/datasets/Shubhangi29/llava_med_alignment_500k_chunk_5}{source 5} \\
+PathVQA & MIT & \href{https://huggingface.co/datasets/flaviagiammarino/path-vqa}{source} \\
+PMC-VQA & CC BY-SA (source PMC OA images/articles CC0 or CC BY) & \href{https://huggingface.co/datasets/xmcmic/PMC-VQA}{source} \\
+ScienceQA & CC BY-SA 4.0 & \href{https://huggingface.co/datasets/derek-thomas/ScienceQA}{source} \\
+SLAKE & CC BY 4.0 & \href{https://huggingface.co/datasets/BoKelvin/SLAKE}{source} \\
+TQA & CC BY-NC 3.0 & \href{https://s3.amazonaws.com/ai2-vision-textbook-dataset/dataset_releases/tqa/tqa_train_val_test.zip}{source} \\
+VisualWebInstruct & Apache-2.0 & \href{https://huggingface.co/datasets/TIGER-Lab/VisualWebInstruct}{source} \\
+VQA-RAD & CC0-1.0 & \href{https://huggingface.co/datasets/flaviagiammarino/vqa-rad}{source} \\
+WebSight & CC BY 4.0 + source-content licenses/disclosure condition & \href{https://huggingface.co/datasets/HuggingFaceM4/WebSight}{source} \\
+\midrule
+\rowcolor{textcolor}\multicolumn{3}{l}{\textit{Text}} \\
+FLAN & CC BY 4.0 (Open-Orca/FLAN HF repo) & \href{https://huggingface.co/datasets/Open-Orca/FLAN}{source} \\
+FLAN-v2 & Apache-2.0 & \href{https://huggingface.co/datasets/SirNeural/flan_v2}{source} \\
+SlimOrca & MIT & \href{https://huggingface.co/datasets/Open-Orca/SlimOrca}{source} \\
+UltraChat-200K & MIT & \href{https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k}{source} \\
+UltraFeedback & MIT & \href{https://huggingface.co/datasets/openbmb/UltraFeedback}{source} \\
+WizardLM-Evol-70K & MIT & \href{https://huggingface.co/datasets/WizardLMTeam/WizardLM_evol_instruct_70k}{source} \\
+LIMA & Other; source-stricter license if applicable, otherwise CC BY-NC-SA & \href{https://huggingface.co/datasets/GAIR/lima}{source} \\
+No Robots & CC BY-NC 4.0 & \href{https://huggingface.co/datasets/HuggingFaceH4/no_robots}{source} \\
+Unnatural Instr. & MIT & \href{https://github.com/orhonovich/unnatural-instructions/raw/main/data/core_data.zip}{source} \\
+MOSS & CC BY 4.0 & \href{https://huggingface.co/datasets/fnlp/moss-002-sft-data}{source} \\
+Llama3-Magpie-Pro & Llama 3 license (HF license tag: llama3) & \href{https://huggingface.co/datasets/Magpie-Align/Llama-3-Magpie-Pro-1M-v0.1}{source} \\
+Magpie-Qwen2-Pro & Unknown / not publicly specified on listed HF repo; generated with Qwen2, so Qwen terms may apply & \href{https://huggingface.co/datasets/Magpie-Align/Magpie-Qwen2-Pro-1M-v0.1}{source} \\
+Firefly & Unknown / not publicly specified & \href{https://huggingface.co/datasets/YeungNLP/firefly-train-1.1M}{source} \\
+Dolly & CC BY-SA 3.0 & \href{https://huggingface.co/datasets/databricks/databricks-dolly-15k}{source} \\
+KOpen-Hermes-25 & MIT & \href{https://huggingface.co/datasets/MarkrAI/KOpen-HQ-Hermes-2.5-60K}{source} \\
+OpenAI-TLDR & Unknown / source OpenAI TL;DR data terms not clearly specified & \href{https://huggingface.co/datasets/CarperAI/openai_summarize_tldr}{source} \\
+Saraswati-CoT & OpenRAIL & \href{https://huggingface.co/datasets/knowrohit07/know-saraswati-cot}{source} \\
+CodeFeedback & Apache-2.0 for source m-a-p/Code-Feedback; listed HF formatted repo has no license tag; OpenAI usage policy may apply & \href{https://huggingface.co/datasets/HuggingFaceH4/Code-Feedback}{source} \\
+Glaive-Code & Apache-2.0 & \href{https://huggingface.co/datasets/glaiveai/glaive-code-assistant}{source} \\
+xCoder-80K & Unknown / not publicly specified & \href{https://huggingface.co/datasets/banksy235/XCoder-80K}{source} \\
+LeetCode & Llama 2 license (HF license tag: llama2) & \href{https://huggingface.co/datasets/RayBernard/leetcode}{source} \\
+Evol-Code & CC BY-NC-SA 4.0 & \href{https://huggingface.co/datasets/nickrosh/Evol-Instruct-Code-80k-v1}{source} \\
+LongCite-45K & Apache-2.0 & \href{https://huggingface.co/datasets/THUDM/LongCite-45k}{source} \\
+LongInstruct-Para. & CC BY-SA 4.0 & \href{https://huggingface.co/datasets/yuyijiong/Long-Instruction-with-Paraphrasing}{source} \\
+Long-QLoRA & Unknown / no license specified on listed HF repo; source dataset licenses may apply & \href{https://huggingface.co/datasets/YeungNLP/LongQLoRA-Dataset}{source} \\
+LongAlpaca & CC BY-NC 4.0 for data/weights; research/non-commercial only & \href{https://huggingface.co/datasets/Yukang/LongAlpaca-12k}{source} \\
+GSM8K (Socratic) & MIT & \href{https://huggingface.co/datasets/openai/gsm8k}{source} \\
+MetaMathQA & MIT & \href{https://huggingface.co/datasets/meta-math/MetaMathQA}{source} \\
+MathQA & Apache-2.0 & \href{https://math-qa.github.io/math-QA/data/MathQA.zip}{source} \\
+Numina-Math-1.5 & Apache-2.0 & \href{https://huggingface.co/datasets/AI-MO/NuminaMath-1.5}{source} \\
+Numina-Math-TIR & Apache-2.0 & \href{https://huggingface.co/datasets/AI-MO/NuminaMath-TIR}{source} \\
+Orca-Math & MIT & \href{https://huggingface.co/datasets/microsoft/orca-math-word-problems-200k}{source} \\
+InfinityMath & Apache-2.0 & \href{https://huggingface.co/datasets/BAAI/InfinityMATH}{source} \\
+\end{longtable}
+\endgroup

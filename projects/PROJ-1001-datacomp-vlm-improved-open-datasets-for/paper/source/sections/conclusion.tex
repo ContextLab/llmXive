@@ -1,0 +1,9 @@
+\section{Conclusion}\label{sec:conclusion}
+
+We introduced \dcvlm, a systematic benchmark for studying data curation strategies for VLM pretraining.
+Through extensive experimentation across a principled scaling ladder, we established two central findings:
+(i) individual quality filters provide negligible benefits when the source pools are pre-filtered, which is typical for VLMs, and
+(ii) data mixture optimization (specifically, instruction-heavy mixtures) is the most effective curation lever, providing gains that scale reliably with model size and compute;
+at our largest scale (8B model, 200B tokens), \textsc{\dcvlm-Baseline} outperforms \fv by $+5.4$pp on our comprehensive 33-benchmark core set.
+We release the full data pool (160 datasets), evaluation suite (52 benchmarks in total), model checkpoints at 4 scales, and all experimental infrastructure
+to serve as a reproducible testbed for future data research.
