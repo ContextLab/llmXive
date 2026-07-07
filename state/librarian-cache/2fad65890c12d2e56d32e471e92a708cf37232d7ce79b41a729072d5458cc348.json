@@ -1,0 +1,502 @@
+{
+  "fetched_at": "2026-07-07T16:01:58Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.696,
+    "ended_at": "2026-07-07T16:01:58Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Knowledge-intensive video reasoning with large language models"
+        ],
+        [
+          2,
+          "Multimodal large language models for video question answering"
+        ],
+        [
+          3,
+          "Integrating external knowledge bases into video understanding systems"
+        ],
+        [
+          4,
+          "Video comprehension requiring complex reasoning and world knowledge"
+        ],
+        [
+          5,
+          "Large language model agents for video-based reasoning tasks"
+        ],
+        [
+          6,
+          "Grounding large language models in video content with external knowledge"
+        ],
+        [
+          7,
+          "Reasoning over video sequences using pretrained language models"
+        ],
+        [
+          8,
+          "Knowledge-augmented video-language pretraining"
+        ],
+        [
+          9,
+          "Multimodal reasoning challenges in video understanding"
+        ],
+        [
+          10,
+          "Enhancing video LLMs with structured knowledge graphs"
+        ],
+        [
+          11,
+          "Video question answering requiring multi-hop reasoning"
+        ],
+        [
+          12,
+          "Bridging visual perception and semantic knowledge in video analysis"
+        ],
+        [
+          13,
+          "Large-scale video-language models with knowledge retrieval"
+        ],
+        [
+          14,
+          "Cognitive video understanding using generative AI"
+        ],
+        [
+          15,
+          "Video reasoning benchmarks for knowledge-intensive tasks"
+        ],
+        [
+          16,
+          "Retrieval-augmented generation for video understanding"
+        ],
+        [
+          17,
+          "Semantic video parsing with external knowledge integration"
+        ],
+        [
+          18,
+          "Multimodal reasoning in long-form video comprehension"
+        ],
+        [
+          19,
+          "Video understanding with symbolic and neural knowledge fusion"
+        ],
+        [
+          20,
+          "Advanced video-language models for complex inference"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Knowledge-intensive video reasoning with large language models": 5,
+        "llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal video reasoning knowledge-intensive benchmarks",
+      "VideoKR temporal action localization video question answering",
+      "video-language pretraining temporal alignment reasoning",
+      "video understanding evaluation benchmarks reasoning datasets",
+      "hallucination mitigation video reasoning factual consistency"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2309.02144"
+      ]
+    },
+    "per_query_hit_count": {
+      "VideoKR temporal action localization video question answering": 3,
+      "hallucination mitigation video reasoning factual consistency": 1,
+      "llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin\" computer science": 3,
+      "multimodal video reasoning knowledge-intensive benchmarks": 3,
+      "video understanding evaluation benchmarks reasoning datasets": 1,
+      "video-language pretraining temporal alignment reasoning": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2604.14214",
+          "rationale": "The paper focuses on optimizing prompt length and token efficiency for reasoning in LLMs, which does not address the user's specific question regarding \"VideoKR\" (Knowledge- and Reasoning-Intensive Video Understanding) or the extension of video-specific mechanisms. While both involve reasoning, the domain (text vs. video) and the core mechanism (prompt optimization vs. video knowledge integration) are distinct, failing to meet the criteria for same-mechanism evidence or domain overlap.",
+          "title": "CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization"
+        },
+        {
+          "primary_pointer": "2510.00071",
+          "rationale": "The paper focuses on \"Large Reasoning Language Models\" (text-based) and \"overthinking\" in mathematical reasoning, which is a distinct construct and domain from the user's specific question about \"VideoKR\" (video understanding) and the \"llmXive\" follow-up. While both involve reasoning in LLMs, the paper does not measure the same mechanism, variables, or empirical population (video data) required for inclusion in a literature review specifically targeting video-centric knowledge and reasoning exte",
+          "title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T16:01:11Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"videokr: towards knowledge- and reasoning-intensive video understandin\" computer science",
+      "raw": "llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human processes video reasoning in a sequential spatio-temporal reasoning logic, we first identify the relevant frames (\"when\") and then analyse the spatial relationships (\"where\") between key objects, and finally leverage these relationships to draw inferences (\"what\"). However, can Video Large Language Models (Video-LLMs) also \"reason through a sequential spatio-temporal logic\" in videos? Existing Video-LLM benchmarks primarily focus on assessing object presence, neglecting relational reasoning. Consequently, it is difficult to measure whether a model truly comprehends object interactions (actions/events) in videos or merely relies on pre-trained \"memory\" of co-occurrences as biases in generating answers. In this work, we introduce a Video Spatio-Temporal Reasoning (V-STaR) benchmark to address these shortcomings. The key idea is to decompose video understanding into a Reverse Spatio-Temporal Reasoning (RSTR) task that simultaneously evaluates what objects are present, when events occur, and where they are located while capturing the underlying Chain-of-thought (CoT) logic. To support this evaluation, we construct a dataset to elicit the spatial-temporal reasoning process of Video-LLMs. It contains coarse-to-fine CoT questions generated by a semi-automated GPT-4-powered pipeline, embedding explicit reasoning chains to mimic human cognition. Experiments from 14 Video-LLMs on our V-STaR reveal significant gaps between current Video-LLMs and the needs for robust and consistent spatio-temporal reasoning.",
+          "claimed_authors": [
+            "Zixu Cheng",
+            "Jian Hu",
+            "Ziquan Liu",
+            "Chenyang Si",
+            "Wei Li",
+            "Shaogang Gong"
+          ],
+          "claimed_title": "V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.11495"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='V-STaR: Benchmarking Video-LLMs on Video Spatio-Temporal Reasoning')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To produce a domain-agnostic question answering model for the Machine Reading Question Answering (MRQA) 2019 Shared Task, we investigate the relative benefits of large pre-trained language models, various data sampling strategies, as well as query and context paraphrases generated by back-translation. We find a simple negative sampling technique to be particularly effective, even though it is typically used for datasets that include unanswerable questions, such as SQuAD 2.0. When applied in conjunction with per-domain sampling, our XLNet (Yang et al., 2019)-based submission achieved the second best Exact Match and F1 in the MRQA leaderboard competition.",
+          "claimed_authors": [
+            "Shayne Longpre",
+            "Yi Lu",
+            "Zhucheng Tu",
+            "Chris DuBois"
+          ],
+          "claimed_title": "An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.02145"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='An Exploration of Data Augmentation and Sampling Techniques for Domain-Agnostic Question Answering')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Temporal action localization aims to localize starting and ending time with action category. Limited by GPU memory, mainstream methods pre-extract features for each video. Therefore, feature quality determines the upper bound of detection performance. In this technical report, we explored classic convolution-based backbones and the recent surge of transformer-based backbones. We found that the transformer-based methods can achieve better classification performance than convolution-based, but they cannot generate accuracy action proposals. In addition, extracting features with larger frame resolution to reduce the loss of spatial information can also effectively improve the performance of temporal action localization. Finally, we achieve 42.42% in terms of mAP on validation set with a single SlowFast feature by a simple combination: BMN+TCANet, which is 1.87% higher than the result of 2020's multi-model ensemble. Finally, we achieve Rank 1st on the CVPR2021 HACS supervised Temporal Action Localization Challenge.",
+          "claimed_authors": [
+            "Zhiwu Qing",
+            "Xiang Wang",
+            "Ziyuan Huang",
+            "Yutong Feng",
+            "Shiwei Zhang",
+            "jianwen Jiang",
+            "Mingqian Tang",
+            "Changxin Gao",
+            "Nong Sang"
+          ],
+          "claimed_title": "Exploring Stronger Feature for Temporal Action Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.13014"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Exploring Stronger Feature for Temporal Action Localization')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this report, we introduce the Winner method for HACS Temporal Action Localization Challenge 2019. Temporal action localization is challenging since a target proposal may be related to several other candidate proposals in an untrimmed video. Existing methods cannot tackle this challenge well since temporal proposals are considered individually and their temporal dependencies are neglected. To address this issue, we propose sparse 2D temporal adjacent networks to model the temporal relationship between candidate proposals. This method is built upon the recent proposed 2D-TAN approach. The sampling strategy in 2D-TAN introduces the unbalanced context problem, where short proposals can perceive more context than long proposals. Therefore, we further propose a Sparse 2D Temporal Adjacent Network (S-2D-TAN). It is capable of involving more context information for long proposals and further learning discriminative features from them. By combining our S-2D-TAN with a simple action classifier, our method achieves a mAP of 23.49 on the test set, which win the first place in the HACS challenge.",
+          "claimed_authors": [
+            "Songyang Zhang",
+            "Houwen Peng",
+            "Le Yang",
+            "Jianlong Fu",
+            "Jiebo Luo"
+          ],
+          "claimed_title": "Learning Sparse 2D Temporal Adjacent Networks for Temporal Action Localization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.03612"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Learning Sparse 2D Temporal Adjacent Networks for Temporal Action Localization')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language models (LMs) are trained on web text originating from many points in time and, in general, without any explicit temporal grounding. This work investigates the temporal chaos of pretrained LMs and explores various methods to align their internal knowledge to a target time, which we call \"temporal alignment.\" To do this, we first automatically construct a dataset containing 20K time-sensitive questions and their answers for each year from 2000 to 2023. Based on this dataset, we empirically show that pretrained LMs (e.g., LLaMa2), despite having a recent pretraining cutoff (e.g., 2022), mostly answer questions using earlier knowledge (e.g., in 2019). We then develop several methods, from prompting to finetuning, to align LMs to use their most recent knowledge when answering questions, and investigate various factors in this alignment. Our experiments demonstrate that aligning LLaMa2 to the year 2022 can enhance its performance by up to 62% according to that year's answers. This improvement occurs even without explicitly mentioning time information, indicating the possibility of aligning models' internal sense of time after pretraining. Finally, we find that alignment to a historical time is also possible, with up to 2.8$\\times$ the performance of the unaligned LM in 2010 if finetuning models to that year. These findings hint at the sophistication of LMs' internal knowledge organization and the necessity of tuning them properly.",
+          "claimed_authors": [
+            "Bowen Zhao",
+            "Zander Brumbaugh",
+            "Yizhong Wang",
+            "Hannaneh Hajishirzi",
+            "Noah A. Smith"
+          ],
+          "claimed_title": "Set the Clock: Temporal Alignment of Pretrained Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.16797"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Set the Clock: Temporal Alignment of Pretrained Language Models')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most existing video-and-language (VidL) research focuses on a single dataset, or multiple datasets of a single task. In reality, a truly useful VidL system is expected to be easily generalizable to diverse tasks, domains, and datasets. To facilitate the evaluation of such systems, we introduce Video-And-Language Understanding Evaluation (VALUE) benchmark, an assemblage of 11 VidL datasets over 3 popular tasks: (i) text-to-video retrieval; (ii) video question answering; and (iii) video captioning. VALUE benchmark aims to cover a broad range of video genres, video lengths, data volumes, and task difficulty levels. Rather than focusing on single-channel videos with visual information only, VALUE promotes models that leverage information from both video frames and their associated subtitles, as well as models that share knowledge across multiple tasks. We evaluate various baseline methods with and without large-scale VidL pre-training, and systematically investigate the impact of video input channels, fusion methods, and different video representations. We also study the transferability between tasks, and conduct multi-task learning under different settings. The significant gap between our best model and human performance calls for future study for advanced VidL models. VALUE is available at https://value-benchmark.github.io/.",
+          "claimed_authors": [
+            "Linjie Li",
+            "Jie Lei",
+            "Zhe Gan",
+            "Licheng Yu",
+            "Yen-Chun Chen",
+            "Rohit Pillai",
+            "Yu Cheng",
+            "Luowei Zhou",
+            "Xin Eric Wang",
+            "William Yang Wang",
+            "Tamara Lee Berg",
+            "Mohit Bansal",
+            "Jingjing Liu",
+            "Lijuan Wang",
+            "Zicheng Liu"
+          ],
+          "claimed_title": "VALUE: A Multi-Task Benchmark for Video-and-Language Understanding Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.04632"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='VALUE: A Multi-Task Benchmark for Video-and-Language Understanding Evaluation')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose \\textbf{PSRD} (\\textbf{Phase-wise \\textbf{S}elf-\\textbf{R}eward \\textbf{D}ecoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Chuyang Sun",
+            "Kehai Chen",
+            "Xuefeng Bai",
+            "Yang Xiang",
+            "Min Zhang"
+          ],
+          "claimed_title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17982"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VideoKR: Towards Knowledge- and Reasoning-Intensiv', candidate_title='Mitigating Multimodal Hallucination via Phase-wise Self-reward')",
+        "failed_at": "2026-07-07T16:01:40Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaohu Huang",
+            "Hao Zhou",
+            "Kai Han"
+          ],
+          "title": "PruneVid: Visual Token Pruning for Efficient Video Large Language Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.16117",
+        "summary": "In this paper, we introduce PruneVid, a visual token pruning method designed to enhance the efficiency of multi-modal video understanding. Large Language Models (LLMs) have shown promising performance in video tasks due to their extended capabilities in comprehending visual modalities. However, the substantial redundancy in video data presents significant computational challenges for LLMs. To address this issue, we introduce a training-free method that 1) minimizes video redundancy by merging spatial-temporal tokens, and 2) leverages LLMs' reasoning capabilities to selectively prune visual features relevant to question tokens, enhancing model efficiency. We validate our method across multiple video benchmarks, which demonstrate that PruneVid can prune over 80% of tokens while maintaining competitive performance combined with different model networks. This highlights its superior effectiveness and efficiency compared to existing pruning methods. Code: https://github.com/Visual-AI/PruneVid.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.16117",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T16:01:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": 0.4087,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T16:01:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chang Tian",
+            "Matthew B. Blaschko",
+            "Mingzhe Xing",
+            "Xiuxing Li",
+            "Yinliang Yue",
+            "Marie-Francine Moens"
+          ],
+          "title": "Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.04848",
+        "summary": "Reinforcement learning (RL) has become a key technique for enhancing the reasoning abilities of large language models (LLMs), with policy-gradient algorithms dominating the post-training stage because of their efficiency and effectiveness. However, most existing benchmarks evaluate large-language-model reasoning under idealized settings, overlooking performance in realistic, non-ideal scenarios. We identify three representative non-ideal scenarios with practical relevance: summary inference, fine-grained noise suppression, and contextual filtering. We introduce a new research direction guided by brain-science findings that human reasoning remains reliable under imperfect inputs. We formally define and evaluate these challenging scenarios. We fine-tune three LLMs and a state-of-the-art large vision-language model (LVLM) using RL with a representative policy-gradient algorithm and then test their performance on eight public datasets. Our results reveal that while RL fine-tuning improves baseline reasoning under idealized settings, performance declines significantly across all three non-ideal scenarios, exposing critical limitations in advanced reasoning capabilities. Although we propose a scenario-specific remediation method, our results suggest current methods leave these reasoning deficits largely unresolved. This work highlights that the reasoning abilities of large models are often overstated and underscores the importance of evaluating models under non-ideal scenarios. The code and data will be released at XXXX.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.04848",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T16:01:47Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"videokr: towards knowledge- and reasoning-intensive video understandin\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

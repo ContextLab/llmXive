@@ -1,66 +1,128 @@
+"""
+Directory setup module for the Exoplanetary Atmospheres Characterization project.
+
+This module handles the creation and verification of required directory structures
+for code organization, testing, and data storage.
+"""
 import os
 import sys
 from pathlib import Path
 import logging
 from utils import setup_logging
 
-def create_directories():
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS = [
+    "code",
+    "tests/unit",
+    "tests/contract",
+    "tests/integration",
+    "data/raw",
+    "data/processed",
+    "results/plots",
+    "figures",
+]
+
+def create_directories(base_path: Path = None) -> dict:
     """
-    Create code and test directory structure for the project.
-    Verifies existence of all required directories.
-    
+    Create all required directories if they do not exist.
+
+    Args:
+        base_path: The project root directory. Defaults to the directory
+                   containing this script's parent (project root).
+
     Returns:
-        bool: True if all directories were created/verified successfully, False otherwise.
+        dict: A dictionary mapping directory paths to their creation status
+              {'created': bool, 'exists': bool}.
     """
+    if base_path is None:
+        # Assume project root is the parent of the 'code' directory
+        # or the current working directory if running from root
+        base_path = Path.cwd()
+
+    results = {}
     logger = logging.getLogger(__name__)
-    
-    # Define the directories to create relative to the project root
-    # Assuming the script runs from the project root or code/ directory
-    # We use the parent of this file's directory to find the project root
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-    
-    directories = [
-        project_root / "code",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-    ]
-    
-    success = True
-    
-    for dir_path in directories:
-        try:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-            else:
-                logger.info(f"Directory already exists: {dir_path}")
-                
-            # Verify it's actually a directory
-            if not dir_path.is_dir():
-                logger.error(f"Path exists but is not a directory: {dir_path}")
-                success = False
-                
-        except OSError as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            success = False
-    
-    return success
+
+    for dir_name in REQUIRED_DIRS:
+        full_path = base_path / dir_name
+        created = False
+        exists = full_path.exists()
+
+        if not exists:
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+                created = True
+                logger.info(f"Created directory: {full_path}")
+            except OSError as e:
+                logger.error(f"Failed to create directory {full_path}: {e}")
+                results[dir_name] = {"created": False, "exists": False, "error": str(e)}
+                continue
+        else:
+            logger.debug(f"Directory already exists: {full_path}")
+
+        results[dir_name] = {"created": created, "exists": True}
+
+    return results
+
+def verify_directories(base_path: Path = None) -> bool:
+    """
+    Verify that all required directories exist.
+
+    Args:
+        base_path: The project root directory.
+
+    Returns:
+        bool: True if all directories exist, False otherwise.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+
+    logger = logging.getLogger(__name__)
+    all_exist = True
+
+    for dir_name in REQUIRED_DIRS:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        elif not full_path.is_dir():
+            logger.error(f"Path exists but is not a directory: {full_path}")
+            all_exist = False
+
+    if all_exist:
+        logger.info("All required directories verified successfully.")
+    else:
+        logger.warning("Some required directories are missing or invalid.")
+
+    return all_exist
 
 def main():
-    """Main entry point for directory setup."""
+    """
+    Main entry point for directory setup script.
+    Creates directories and verifies their existence.
+    """
     # Setup logging
-    logger = setup_logging("setup_directories")
-    
-    logger.info("Starting directory creation and verification...")
-    
-    if create_directories():
-        logger.info("All directories created and verified successfully.")
-        sys.exit(0)
+    log_path = Path("results") / "setup_logs"
+    log_path.mkdir(parents=True, exist_ok=True)
+    log_file = log_path / "directory_setup.log"
+
+    logger = setup_logging(log_file=log_file, level=logging.INFO)
+    logger.info("Starting directory setup for PROJ-554...")
+
+    base_path = Path.cwd()
+    logger.info(f"Project root identified as: {base_path}")
+
+    # Create directories
+    creation_results = create_directories(base_path)
+
+    # Verify directories
+    is_valid = verify_directories(base_path)
+
+    if is_valid:
+        logger.info("Directory setup completed successfully.")
+        return 0
     else:
-        logger.error("Directory creation failed for one or more paths.")
-        sys.exit(1)
+        logger.error("Directory setup failed verification.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

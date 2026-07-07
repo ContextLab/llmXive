@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.16117",
+  "judged_at": "2026-07-07T16:01:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"videokr: towards knowledge- and reasoning-intensive video understandin\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core domain of \"Video Large Language Models\" (VideoLLMs) and investigates the mechanism of efficiency optimization through token pruning, which is a critical component of the \"VideoKR\" research area regarding reasoning-intensive video understanding. Even though it focuses on efficiency rather than the specific \"Knowledge- and Reasoning-Intensive\" benchmarking of the original paper, it provides essential prior work on the architectural",
+  "relevant": true
+}

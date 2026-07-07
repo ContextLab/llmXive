@@ -39,11 +39,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
-- [ ] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
-- [ ] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
-- [ ] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
-- [ ] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
+- [~] T004a [P] Create data directory structure (`data/raw`, `data/processed`, `data/explainability`)
+- [~] T004b [P] Implement checksum validation infrastructure in `code/data/ingest.py`
+- [~] T005 [P] Implement synthetic microstructure generator in `code/data/synthetic_gen.py` to produce ≥2,000 images (Plan-driven correction to Spec's ≥500; see Plan 'Spec Assumption Correction' note) with physics-informed K_IC values. **Includes verification step to confirm count ≥2,000.**
+- [~] T005b [P] Benchmark synthetic generator runtime for [deferred] images on 2-core CPU to verify ≤6h constraint (SC-004)
+- [~] T006a [P] Create base data contracts in `contracts/` (dataset_schema, evaluation_schema)
 - [ ] T006b [P] Create attribution schema contract `contracts/attribution_schema.schema.yaml` (required for T048)
 - [ ] T007 Implement configuration management for random seeds (fixed 42 for splits, variable for training) in `code/utils/config.py`
 - [ ] T008 Setup error handling and logging infrastructure in `code/utils/logger.py`
@@ -171,8 +171,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Review Enhancements (Phase 6)**: Can run in parallel with US1/US2 implementation but must be complete before final validation. **T037 depends on T009, T005, T012b, T013.**
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -242,9 +242,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 + Phase 6 (Metadata)
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1 + Phase 6 (Metadata)
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,112 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Fracture Toughness Microstructure Dataset Schema
+description: >
+  Schema defining the structure and validation rules for the microstructure
+  dataset used in the machine learning prediction of fracture toughness.
+  This schema ensures data integrity across ingestion, preprocessing, and
+  model training pipelines.
+type: object
+required:
+  - metadata
+  - samples
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - generated_at
+      - generator_config
+    properties:
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: Semantic version of the dataset schema
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset generation
+      generator_config:
+        type: object
+        description: Configuration parameters used for synthetic generation
+        properties:
+          seed:
+            type: integer
+          n_samples:
+            type: integer
+            minimum: 2000
+          alloy_families:
+            type: array
+            items:
+              type: string
+              enum:
+                - steel
+                - aluminum
+                - titanium
+          physics_model:
+            type: string
+            description: Name of the physics model used for K_IC calculation
+      resolution_limits:
+        type: object
+        description: Minimum resolvable feature sizes based on imaging parameters
+        properties:
+          min_feature_size_um:
+            type: number
+            minimum: 0
+          max_feature_size_um:
+            type: number
+            minimum: 0
+          resolution_um:
+            type: number
+            minimum: 0
+            description: Pixels per micrometer
+  samples:
+    type: array
+    items:
+      type: object
+      required:
+        - image_path
+        - k_ic
+        - alloy_family
+        - metadata
+      properties:
+        image_path:
+          type: string
+          description: Relative path to the image file from data/raw
+          pattern: "^data/raw/.*\\.(png|jpg|jpeg)$"
+        k_ic:
+          type: number
+          minimum: 0
+          description: Fracture toughness in MPa√m
+        alloy_family:
+          type: string
+          enum:
+            - steel
+            - aluminum
+            - titanium
+          description: Metallurgical alloy family classification
+        metadata:
+          type: object
+          required:
+            - magnification
+            - resolution_um
+            - preparation_protocol
+          properties:
+            magnification:
+              type: integer
+              minimum: 1
+              description: Imaging magnification factor
+            resolution_um:
+              type: number
+              minimum: 0
+              description: Spatial resolution in micrometers per pixel
+            preparation_protocol:
+              type: string
+              enum:
+                - SEM
+                - TEM
+              description: Sample preparation method simulation flag
+            checksum:
+              type: string
+              pattern: "^[a-fA-F0-9]{64}$"
+              description: SHA-256 checksum of the image file
+additionalProperties: false

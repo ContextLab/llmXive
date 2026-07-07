@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.00071",
+  "judged_at": "2026-07-07T16:01:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"videokr: towards knowledge- and reasoning-intensive video understandin\" computer science",
+  "rationale": "The paper focuses on \"Large Reasoning Language Models\" (text-based) and \"overthinking\" in mathematical reasoning, which is a distinct construct and domain from the user's specific question about \"VideoKR\" (video understanding) and the \"llmXive\" follow-up. While both involve reasoning in LLMs, the paper does not measure the same mechanism, variables, or empirical population (video data) required for inclusion in a literature review specifically targeting video-centric knowledge and reasoning exte",
+  "relevant": false
+}

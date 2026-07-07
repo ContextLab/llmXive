@@ -1,7 +1,3 @@
-"""
-Diagnostics module for grain boundary data analysis.
-Implements T016: Collinearity diagnostics using Mutual Information.
-"""
 import json
 import logging
 import os
@@ -10,33 +6,90 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
 import numpy as np
-from scipy.stats import entropy
+import pandas as pd
 
+# Import from utils for logging setup
+from utils import setup_logging, load_metadata, update_metadata_entry, save_metadata
+
+# Import from error_handling for data checks
+from error_handling import DataInsufficiencyError
+
+# Configure logger
 logger = logging.getLogger(__name__)
+
+# --- Helper Functions ---
+
+def calculate_sigma_from_misorientation(misorientation_deg: float) -> int:
+    """
+    Calculate the Sigma (Σ) value from a misorientation angle using CSL theory.
+    
+    This implementation uses a lookup table for common low-Σ boundaries
+    and a fallback approximation for others.
+    
+    Args:
+        misorientation_deg: Misorientation angle in degrees.
+        
+    Returns:
+        Sigma value (integer). Returns -1 if no match found.
+    """
+    # Common CSL boundaries for cubic systems (approximate)
+    # Format: (angle_deg, sigma_value, tolerance_deg)
+    csl_lookup = [
+        (0.0, 1, 0.5),      # Coincident (perfect alignment)
+        (38.94, 3, 0.5),    # Σ3 (Twin)
+        (50.48, 9, 0.5),    # Σ9
+        (60.00, 3, 0.5),    # Σ3 (alternative)
+        (70.53, 3, 0.5),    # Σ3 (alternative)
+        (48.19, 11, 0.5),   # Σ11
+        (54.74, 9, 0.5),    # Σ9 (alternative)
+        (36.87, 5, 0.5),    # Σ5
+        (28.07, 5, 0.5),    # Σ5 (alternative)
+        (62.96, 13, 0.5),   # Σ13
+        (22.62, 13, 0.5),   # Σ13 (alternative)
+        (40.61, 17, 0.5),   # Σ17
+        (24.09, 17, 0.5),   # Σ17 (alternative)
+        (53.13, 25, 0.5),   # Σ25
+        (25.84, 25, 0.5),   # Σ25 (alternative)
+    ]
+
+    for angle, sigma, tol in csl_lookup:
+        if abs(misorientation_deg - angle) <= tol:
+            return sigma
+
+    # Fallback: Approximation for general angles if not in lookup
+    # Σ ≈ 1 / (sin(theta/2))^2 is a rough approximation for some systems,
+    # but strictly speaking, CSL requires specific rational relationships.
+    # For this diagnostic, if not in lookup, we estimate based on density of coincident sites.
+    # A common heuristic for general angles in cubic systems:
+    # We return -1 to indicate "unknown/high Sigma" to avoid false positives in MI calculation
+    # if exact CSL is not found, or we can use a formula.
+    # Let's use a simple heuristic: Sigma = round(1 / (abs(np.sin(np.radians(misorientation_deg/2)))**2))
+    # But this often yields very large numbers.
+    # Better approach for this task: If not in lookup, assume high Sigma (low coincidence).
+    # We will return a calculated value based on the formula: Sigma = 1 / (1 - cos(theta)) is not standard.
+    # Standard CSL for cubic: Sigma = (u^2 + v^2 + w^2) / gcd(...)
+    # Since we only have angle, we stick to the lookup or return a high value.
+    # Let's implement the approximation: Sigma = round(1 / (sin(theta/2)^2)) for general case,
+    # but cap it to avoid overflow for small angles.
+    try:
+        val = 1.0 / (np.sin(np.radians(misorientation_deg / 2.0)) ** 2)
+        return max(1, int(round(val)))
+    except Exception:
+        return -1
 
 def compute_mutual_information(x: np.ndarray, y: np.ndarray, n_bins: int = 10) -> float:
     """
-    Compute the Mutual Information (MI) between two continuous variables using histogram-based estimation.
+    Compute Mutual Information (MI) between two 1D arrays using histogram estimation.
     
     Args:
-        x: First variable array
-        y: Second variable array
-        n_bins: Number of bins for histogram discretization
-    
+        x: First variable (misorientation angles).
+        y: Second variable (Sigma values).
+        n_bins: Number of bins for histogram discretization.
+        
     Returns:
-        Mutual Information value in bits (or nats depending on log base)
+        Mutual Information value in bits (or nats depending on log base).
     """
-    if len(x) != len(y):
-        raise ValueError("Input arrays must have the same length")
-    
-    if len(x) == 0:
-        return 0.0
-    
-    # Check for constant arrays
-    if np.std(x) == 0 or np.std(y) == 0:
-        return 0.0
-    
-    # Discretize the continuous variables
+    # Discretize continuous variables
     x_hist, x_edges = np.histogram(x, bins=n_bins)
     y_hist, y_edges = np.histogram(y, bins=n_bins)
     
@@ -44,165 +97,127 @@ def compute_mutual_information(x: np.ndarray, y: np.ndarray, n_bins: int = 10) -
     joint_hist, _, _ = np.histogram2d(x, y, bins=[x_edges, y_edges])
     
     # Normalize to probabilities
-    p_x = x_hist / len(x)
-    p_y = y_hist / len(y)
-    p_xy = joint_hist / (len(x) * len(y))
+    px = x_hist / len(x)
+    py = y_hist / len(y)
+    pxy = joint_hist / len(x)
     
     # Avoid log(0)
-    p_x = p_x[p_x > 0]
-    p_y = p_y[p_y > 0]
-    p_xy = p_xy[p_xy > 0]
+    px = px[px > 0]
+    py = py[py > 0]
+    pxy = pxy[pxy > 0]
     
-    # Calculate MI: I(X;Y) = sum(p(x,y) * log(p(x,y) / (p(x)*p(y))))
-    # Using base 2 for bits
-    mi = 0.0
-    for i in range(len(p_xy)):
-        # Find corresponding p_x and p_y for the bin
-        # This is a simplified approach; a more robust one would iterate over 2D grid
-        pass
+    # Calculate MI: Sum p(x,y) * log(p(x,y) / (p(x)p(y)))
+    mi = np.sum(pxy * np.log(pxy / (np.outer(px, py) + 1e-10)))
     
-    # Correct calculation over 2D grid
-    mi = 0.0
-    for i in range(n_bins):
-        for j in range(n_bins):
-            if joint_hist[i, j] > 0:
-                p_xy_val = joint_hist[i, j] / (len(x) * len(y))
-                p_x_val = x_hist[i] / len(x) if x_hist[i] > 0 else 0
-                p_y_val = y_hist[j] / len(y) if y_hist[j] > 0 else 0
-                
-                if p_x_val > 0 and p_y_val > 0:
-                    mi += p_xy_val * np.log2(p_xy_val / (p_x_val * p_y_val))
-    
-    return mi
+    return float(mi)
 
-def calculate_sigma_from_misorientation(misorientation_angle: float) -> int:
+def run_collinearity_diagnostic(data_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Estimate Sigma value from misorientation angle using CSL approximation.
-    This is a simplified lookup/approximation for common angles.
-    In a real scenario, this would use a more robust CSL algorithm.
+    Run the collinearity diagnostic on the raw dataset.
+    
+    Steps:
+    1. Load data (expecting 'misorientation_angle' and potentially 'sigma_value').
+    2. If 'sigma_value' is missing, calculate it from 'misorientation_angle'.
+    3. Compute Mutual Information between the two.
+    4. Log warning if MI > 0.8.
+    5. Save results to JSON.
     
     Args:
-        misorientation_angle: Angle in degrees
-    
+        data_path: Path to the input parquet/CSV file (parsed geometry).
+        output_path: Path to save the diagnostic JSON report.
+        
     Returns:
-        Approximate Sigma value
+        Dictionary containing the diagnostic results.
     """
-    # Common CSL angles for cubic systems (approximate)
-    # This is a simplified mapping for demonstration
-    # Real implementation would use pymatgen or a proper CSL library
-    csl_mapping = {
-        36.87: 5,
-        53.13: 5,
-        28.07: 13,
-        32.21: 13,
-        41.41: 17,
-        46.40: 17,
-        50.48: 25,
-        55.05: 25,
-        60.00: 3,
-        70.53: 3,
-        90.00: 5,
-    }
+    logger.info(f"Running collinearity diagnostic on {data_path}")
     
-    # Find closest match
-    best_sigma = 999
-    min_diff = float('inf')
+    if not os.path.exists(data_path):
+        # If the file doesn't exist yet, we might be running before T010.
+        # However, T016 is listed as a dependency for T012, but T010/T011 must run first.
+        # We assume the input file exists. If not, we raise an error.
+        raise FileNotFoundError(f"Input data file not found: {data_path}. "
+                                "Ensure T010 (geometry_parser) has run.")
     
-    for angle, sigma in csl_mapping.items():
-        diff = abs(misorientation_angle - angle)
-        if diff < min_diff:
-            min_diff = diff
-            best_sigma = sigma
-    
-    # If no close match, use a heuristic or return a default
-    if min_diff > 5.0:
-        # Fallback: rough approximation based on angle
-        # Sigma ~ 1 / (1 - cos(theta)) is not accurate but used for fallback
-        theta_rad = np.radians(misorientation_angle)
-        denom = 1 - np.cos(theta_rad)
-        if denom > 0:
-            best_sigma = int(round(1.0 / denom))
-        else:
-            best_sigma = 1
-    
-    return best_sigma
-
-def run_collinearity_diagnostic(
-    misorientation: np.ndarray,
-    sigma: np.ndarray,
-    output_path: str
-) -> Dict[str, Any]:
-    """
-    Compute Mutual Information between misorientation angle and Sigma value.
-    Log warnings and save diagnostic report.
-    
-    Args:
-        misorientation: Array of misorientation angles
-        sigma: Array of Sigma values
-        output_path: Path to save the JSON report
-    
-    Returns:
-        Dictionary containing the diagnostic results
-    """
-    logger.info("Running collinearity diagnostic between misorientation and Sigma value.")
-    
-    # Compute MI
-    mi_value = compute_mutual_information(misorientation, sigma, n_bins=20)
-    
-    result = {
-        "mutual_information": float(mi_value),
-        "misorientation": {
-            "min": float(np.min(misorientation)),
-            "max": float(np.max(misorientation)),
-            "mean": float(np.mean(misorientation)),
-            "count": len(misorientation)
-        },
-        "sigma": {
-            "min": int(np.min(sigma)),
-            "max": int(np.max(sigma)),
-            "mean": float(np.mean(sigma)),
-            "count": len(sigma)
-        }
-    }
-    
-    # Check threshold and add warning
-    if mi_value > 0.8:
-        warning_msg = "MI > 0.8 indicates strong dependency; relationship is descriptive, not causal."
-        result["warning"] = warning_msg
-        logger.warning(warning_msg)
+    # Load data
+    if data_path.endswith('.parquet'):
+        df = pd.read_parquet(data_path)
     else:
-        logger.info(f"MI ({mi_value:.4f}) is below threshold (0.8). No strong dependency detected.")
+        df = pd.read_csv(data_path)
+    
+    required_col = 'misorientation_angle'
+    if required_col not in df.columns:
+        raise ValueError(f"Required column '{required_col}' not found in {data_path}")
+    
+    misorientation = df[required_col].values.astype(float)
+    
+    # Handle Sigma calculation
+    if 'sigma_value' in df.columns:
+        sigma = df['sigma_value'].values.astype(float)
+        logger.info("Using existing 'sigma_value' column.")
+    else:
+        logger.info("Calculating 'sigma_value' from misorientation angles.")
+        sigma = np.array([calculate_sigma_from_misorientation(angle) for angle in misorientation])
+    
+    # Filter out invalid sigma values (-1) for MI calculation if necessary
+    valid_mask = sigma > 0
+    if np.sum(valid_mask) < 2:
+        logger.warning("Not enough valid Sigma values to compute MI.")
+        mi_result = 0.0
+    else:
+        mi_result = compute_mutual_information(misorientation[valid_mask], sigma[valid_mask])
+    
+    # Log warning
+    if mi_result > 0.8:
+        logger.warning("MI > 0.8 indicates strong dependency; relationship is descriptive, not causal.")
+    else:
+        logger.info(f"Mutual Information between misorientation and Sigma: {mi_result:.4f}")
+    
+    # Prepare report
+    report = {
+        "task_id": "T016",
+        "input_file": data_path,
+        "output_file": output_path,
+        "mutual_information": mi_result,
+        "threshold_warning": mi_result > 0.8,
+        "warning_message": "MI > 0.8 indicates strong dependency; relationship is descriptive, not causal." if mi_result > 0.8 else None,
+        "sample_size": int(np.sum(valid_mask)),
+        "timestamp": str(pd.Timestamp.now())
+    }
     
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     # Save report
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+        json.dump(report, f, indent=2)
     
     logger.info(f"Diagnostic report saved to {output_path}")
-    
-    return result
+    return report
 
 def main():
     """
-    Main entry point for running the diagnostic on sample data.
-    This function is intended to be called by a script or pipeline.
+    Main entry point for the diagnostics script.
     """
-    # Example usage with dummy data
-    # In a real pipeline, data would be loaded from data/processed/
-    np.random.seed(42)
-    misorientation = np.random.uniform(0, 180, 1000)
-    # Create a correlated Sigma for demonstration (some correlation)
-    sigma = np.array([calculate_sigma_from_misorientation(m) for m in misorientation])
+    # Setup logging
+    setup_logging()
     
-    output_path = "artifacts/reports/collinearity_diagnostic.json"
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    input_file = project_root / "data" / "processed" / "parsed_geometry.parquet"
+    output_file = project_root / "artifacts" / "reports" / "collinearity_diagnostic.json"
     
-    run_collinearity_diagnostic(misorientation, sigma, output_path)
+    # Check if input exists
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please run T010 (geometry_parser.py) first to generate parsed_geometry.parquet")
+        sys.exit(1)
     
-    print(f"Diagnostic complete. Report saved to {output_path}")
+    try:
+        run_collinearity_diagnostic(str(input_file), str(output_file))
+        logger.info("T016 Diagnostics completed successfully.")
+    except Exception as e:
+        logger.error(f"T016 Diagnostics failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

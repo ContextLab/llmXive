@@ -2,212 +2,151 @@ import logging
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy import stats
 
 from config import get_config
 from utils import setup_logging
 
-logger = logging.getLogger(__name__)
+# Ensure seaborn style is applied for professional plots
+sns.set(style="whitegrid", context="talk", font_scale=1.1)
 
-def load_analysis_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_analysis_data() -> pd.DataFrame:
     """
-    Load metadata and retrieval results, merging them for plotting.
-    Returns:
-        metadata_df: DataFrame with temperature, metallicity, SNR, Resolution
-        retrieval_df: DataFrame with water abundance, uncertainty, censorship flags
+    Load the processed metadata and detection limits required for the plot.
+    Expects data/processed/metadata.csv and data/processed/detection_limits.csv.
     """
     config = get_config()
-    metadata_path = Path(config["data"]["processed"]) / "metadata.csv"
-    retrieval_path = Path(config["data"]["processed"]) / "retrieval_results.csv"
+    metadata_path = config['paths']['processed_metadata']
+    detection_limits_path = config['paths']['detection_limits']
 
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
-    if not retrieval_path.exists():
-        raise FileNotFoundError(f"Retrieval results file not found: {retrieval_path}")
+    if not os.path.exists(metadata_path):
+        raise FileNotFoundError(f"Required metadata file not found: {metadata_path}. "
+                                "Run download.py first.")
+    if not os.path.exists(detection_limits_path):
+        raise FileNotFoundError(f"Required detection limits file not found: {detection_limits_path}. "
+                                "Run analysis.py (T035) first.")
 
-    metadata_df = pd.read_csv(metadata_path)
-    retrieval_df = pd.read_csv(retrieval_path)
+    df_meta = pd.read_csv(metadata_path)
+    df_det = pd.read_csv(detection_limits_path)
 
-    # Merge on planet name or ID
-    merge_key = "planet_name" if "planet_name" in metadata_df.columns else "planet_id"
-    if merge_key not in retrieval_df.columns:
-        merge_key = "planet_id" if "planet_id" in retrieval_df.columns else None
-
-    if merge_key is None:
-        raise ValueError("Could not find a common key to merge metadata and retrieval results.")
-
-    merged_df = pd.merge(metadata_df, retrieval_df, on=merge_key, how="inner")
-    logger.info(f"Merged {len(merged_df)} records for plotting.")
-    return metadata_df, retrieval_df, merged_df
-
-def plot_water_vs_temperature(
-    df: pd.DataFrame,
-    output_path: Path,
-    x_col: str = "equilibrium_temperature_k",
-    y_col: str = "log10_water_mixing_ratio",
-    err_col: str = "log10_water_std",
-    censor_col: str = "is_censored"
-) -> None:
-    """
-    Generate a scatter plot of Water Abundance vs. Temperature.
-    Includes error bars for detected values and arrows for upper limits (censored).
-    """
-    if not df.empty:
-        plt.figure(figsize=(10, 6))
-        ax = plt.gca()
-
-        # Separate detected and censored
-        detected = df[df[censor_col] == False] if censor_col in df.columns else df
-        censored = df[df[censor_col] == True] if censor_col in df.columns else pd.DataFrame()
-
-        # Plot detected values with error bars
-        if not detected.empty:
-            ax.errorbar(
-                detected[x_col],
-                detected[y_col],
-                yerr=detected[err_col] if err_col in detected.columns else 0,
-                fmt='o',
-                color='blue',
-                label='Detected',
-                ecolor='blue',
-                capsize=3,
-                alpha=0.7
-            )
-
-        # Plot censored values (upper limits) as arrows pointing down
-        if not censored.empty:
-            for _, row in censored.iterrows():
-                ax.annotate(
-                    '',
-                    xy=(row[x_col], row[y_col]),
-                    xytext=(row[x_col], row[y_col] - 1.0), # Approximate arrow length
-                    arrowprops=dict(arrowstyle='->', color='red', lw=1.5)
-                )
-                # Add a small horizontal bar at the limit
-                ax.plot([row[x_col] - 50, row[x_col] + 50], [row[y_col], row[y_col]], color='red', lw=1.5)
-
-        ax.set_xlabel("Equilibrium Temperature (K)")
-        ax.set_ylabel("log10(H2O Mixing Ratio)")
-        ax.set_title("Exoplanet Water Abundance vs. Equilibrium Temperature")
-        ax.legend()
-        ax.grid(True, linestyle='--', alpha=0.6)
-
-        plt.tight_layout()
-        plt.savefig(output_path, dpi=300)
-        plt.close()
-        logger.info(f"Saved water vs temperature plot to {output_path}")
+    # Merge on planet name or ID if available, otherwise assume row alignment or merge by index
+    # Assuming 'planet_name' or 'planet_id' exists in both. If not, we merge on index.
+    common_cols = set(df_meta.columns) & set(df_det.columns)
+    if 'planet_name' in common_cols:
+        df = pd.merge(df_meta, df_det, on='planet_name', how='inner')
+    elif 'planet_id' in common_cols:
+        df = pd.merge(df_meta, df_det, on='planet_id', how='inner')
     else:
-        logger.warning("No data available to plot water vs temperature.")
+        # Fallback: assume they are in the same order and merge by index
+        logging.warning("No common key found for merge. Assuming row alignment.")
+        df = pd.concat([df_meta, df_det], axis=1)
 
-def plot_residuals(
-    df: pd.DataFrame,
-    output_path: Path,
-    y_col: str = "log10_water_mixing_ratio",
-    pred_col: str = "predicted_log10_water"
-) -> None:
+    # Ensure numeric types for SNR and Resolution
+    if 'SNR' in df.columns:
+        df['SNR'] = pd.to_numeric(df['SNR'], errors='coerce')
+    if 'Resolution' in df.columns:
+        df['Resolution'] = pd.to_numeric(df['Resolution'], errors='coerce')
+    if 'detection_limit' in df.columns:
+        df['detection_limit'] = pd.to_numeric(df['detection_limit'], errors='coerce')
+
+    return df
+
+def plot_instrumental_noise_vs_signal(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Generate a residuals plot (Residuals vs Predicted) for the Tobit model.
+    Generate the 'Instrumental Noise vs. Signal' plot.
+    Visualizes SNR distribution and the calculated detection limit threshold.
+    Per SC-003, this plot validates the signal-to-noise ratio against the detection floor.
     """
-    if y_col in df.columns and pred_col in df.columns:
-        df["residuals"] = df[y_col] - df[pred_col]
+    plt.figure(figsize=(12, 8))
 
-        plt.figure(figsize=(10, 6))
-        ax = plt.gca()
+    # Determine the threshold column. T035 generates 'detection_limit'.
+    threshold_col = 'detection_limit'
+    signal_col = 'SNR'
 
-        # Plot residuals
-        ax.scatter(df[pred_col], df["residuals"], color='green', alpha=0.6, edgecolors='black')
+    if threshold_col not in df.columns:
+        raise KeyError(f"Column '{threshold_col}' not found in dataframe. "
+                       "Ensure T035 (calculate_detection_limit) has run.")
+    if signal_col not in df.columns:
+        raise KeyError(f"Column '{signal_col}' not found in dataframe. "
+                       "Ensure metadata extraction includes SNR.")
 
-        # Add zero line
-        ax.axhline(0, color='red', linestyle='--', lw=1)
+    # Filter out rows where SNR or detection limit is NaN
+    valid_df = df[[signal_col, threshold_col]].dropna()
 
-        ax.set_xlabel("Predicted log10(H2O Mixing Ratio)")
-        ax.set_ylabel("Residuals")
-        ax.set_title("Tobit Model Residuals")
-        ax.grid(True, linestyle='--', alpha=0.6)
+    if valid_df.empty:
+        raise ValueError("No valid data points found to plot after removing NaNs.")
 
-        plt.tight_layout()
-        plt.savefig(output_path, dpi=300)
-        plt.close()
-        logger.info(f"Saved residuals plot to {output_path}")
-    else:
-        logger.warning(f"Columns '{y_col}' or '{pred_col}' not found for residual plot.")
+    # Plot 1: Distribution of SNR (Signal)
+    ax1 = plt.subplot(2, 1, 1)
+    sns.histplot(valid_df[signal_col], kde=True, color='skyblue', edgecolor='black', ax=ax1)
+    ax1.axvline(valid_df[signal_col].mean(), color='red', linestyle='--', label=f'Mean SNR: {valid_df[signal_col].mean():.2f}')
+    ax1.axvline(valid_df[signal_col].median(), color='green', linestyle='--', label=f'Median SNR: {valid_df[signal_col].median():.2f}')
+    ax1.set_title('Distribution of Signal-to-Noise Ratio (SNR)')
+    ax1.set_xlabel('SNR')
+    ax1.set_ylabel('Frequency')
+    ax1.legend()
 
-def plot_correlation_matrix(
-    df: pd.DataFrame,
-    output_path: Path,
-    cols: Optional[List[str]] = None
-) -> None:
-    """
-    Generate a correlation matrix heatmap for key variables.
-    """
-    if cols is None:
-        cols = ["equilibrium_temperature_k", "host_star_metallicity", "log10_water_mixing_ratio", "mass_jupiter"]
-        # Filter to only available columns
-        cols = [c for c in cols if c in df.columns]
+    # Plot 2: Signal vs Detection Limit (Noise Floor)
+    # This visualizes the "Instrumental Noise vs Signal" relationship.
+    # We plot SNR against the calculated detection limit for each planet.
+    ax2 = plt.subplot(2, 1, 2)
+    
+    # Scatter plot: SNR (y) vs Detection Limit (x)
+    # Alternatively, if detection_limit is a threshold value (scalar) for the whole dataset,
+    # we might plot a horizontal line. However, T035 suggests per-spectrum limits.
+    # Let's assume detection_limit is the minimum SNR required for a robust detection.
+    
+    sns.scatterplot(x=threshold_col, y=signal_col, data=valid_df, ax=ax2, alpha=0.7, edgecolor='w')
+    
+    # Add a diagonal line where Signal = Limit (The "detectability" boundary)
+    lim_range = [valid_df[[threshold_col, signal_col]].min().min(), valid_df[[threshold_col, signal_col]].max().max()]
+    ax2.plot(lim_range, lim_range, 'r--', label='Signal = Detection Limit', linewidth=2)
+    
+    # Highlight points below the line (Undetected/Low Confidence)
+    below_line = valid_df[valid_df[signal_col] < valid_df[threshold_col]]
+    if not below_line.empty:
+        ax2.scatter(below_line[threshold_col], below_line[signal_col], 
+                    color='orange', label='Below Detection Threshold', alpha=0.7, edgecolor='w')
 
-    if len(cols) < 2:
-        logger.warning("Not enough columns available for correlation matrix.")
-        return
+    ax2.set_title('Instrumental Noise vs. Signal: SNR vs. Detection Limit')
+    ax2.set_xlabel('Calculated Detection Limit (SNR Threshold)')
+    ax2.set_ylabel('Measured SNR')
+    ax2.legend()
+    ax2.grid(True, linestyle=':', alpha=0.6)
 
-    corr_matrix = df[cols].corr()
-
-    plt.figure(figsize=(8, 6))
-    ax = plt.gca()
-    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0, fmt=".2f", ax=ax)
-    ax.set_title("Correlation Matrix of Key Variables")
-
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.suptitle('Instrumental Noise vs. Signal Analysis', fontsize=16, fontweight='bold')
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    logger.info(f"Saved correlation matrix plot to {output_path}")
+    logging.info(f"Saved plot to {output_path}")
 
-def main():
-    """
-    Main entry point to generate all diagnostic plots.
-    """
+def main() -> None:
+    """Main entry point for T036."""
     setup_logging()
     config = get_config()
-    results_plots_dir = Path(config["results"]["plots"])
-    results_plots_dir.mkdir(parents=True, exist_ok=True)
-
+    
+    # Load data
     try:
-        # Load data
-        # Note: We expect metadata and retrieval results to be present from previous steps
-        metadata_df, retrieval_df, merged_df = load_analysis_data()
+        df = load_analysis_data()
+    except (FileNotFoundError, KeyError, ValueError) as e:
+        logging.error(f"Failed to load data for plotting: {e}")
+        return
 
-        # 1. Water vs Temperature
-        plot_water_vs_temperature(
-            merged_df,
-            results_plots_dir / "water_abundance_vs_temperature.png"
-        )
-
-        # 2. Residuals (if prediction column exists, e.g., from T027/T028)
-        if "predicted_log10_water" in merged_df.columns:
-            plot_residuals(
-                merged_df,
-                results_plots_dir / "residuals_vs_predicted.png"
-            )
-        else:
-            logger.info("Skipping residuals plot: 'predicted_log10_water' column not found.")
-
-        # 3. Correlation Matrix
-        plot_correlation_matrix(
-            merged_df,
-            results_plots_dir / "correlation_matrix.png"
-        )
-
-        logger.info("All diagnostic plots generated successfully.")
-
-    except FileNotFoundError as e:
-        logger.error(f"Data files missing: {e}")
-        raise
+    # Define output path: results/plots/instrumental_noise_vs_signal.png
+    output_dir = Path(config['paths']['results_plots'])
+    output_path = output_dir / 'instrumental_noise_vs_signal.png'
+    
+    try:
+        plot_instrumental_noise_vs_signal(df, output_path)
+        logging.info("Task T036 completed successfully.")
     except Exception as e:
-        logger.error(f"Error generating plots: {e}")
+        logging.error(f"Failed to generate plot: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

@@ -1,8 +1,9 @@
-? 'T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`,
-  `tests/integration/`; verify existence'
-: 2
-T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result): 1
-T008 [P] Configure environment variable handling for API keys (if needed) and random seeds: 1
+T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result): 2
+T008 [P] Configure environment variable handling for API keys (if needed) and random seeds: 2
 ? T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py`
   implementing `validate_metadata_schema` function. **Depends on T011b**.
+: 2
+? T010 [US1] Integration test for API download in `tests/integration/test_download.py`
+  implementing `test_download_returns_valid_metadata` with specific mock parameters.
+  **Depends on T011b**.
 : 1

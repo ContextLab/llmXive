@@ -60,7 +60,7 @@
 - [X] T005b [P] Implement error handling wrapper in `code/utils.py` (custom exceptions, retry logic)
 - [X] T005c [P] Implement censored data helpers in `code/utils.py` (upper limit handling functions)
 - [X] T006a [P] Create data directories: `data/raw/`, `data/processed/`; verify existence
-- [ ] T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`, `tests/integration/`; verify existence
+- [X] T006b [P] Create code and test directories: `code/`, `tests/unit/`, `tests/contract/`, `tests/integration/`; verify existence
 - [ ] T007 [P] Create base data models in `code/data_models.py` (Exoplanet Spectrum, Retrieval Result)
 - [ ] T008 [P] Configure environment variable handling for API keys (if needed) and random seeds
 
@@ -79,11 +79,11 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [US1] Contract test for metadata schema in `tests/contract/test_metadata_schema.py` implementing `validate_metadata_schema` function. **Depends on T011b**.
-- [~] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T011b**.
+- [ ] T010 [US1] Integration test for API download in `tests/integration/test_download.py` implementing `test_download_returns_valid_metadata` with specific mock parameters. **Depends on T011b**.
 
 ### Implementation for User Story 1
 
-- [~] T011a [P] [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
+- [X] T011a [P] [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
 - [~] T011b [P] [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`
 - [~] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR)
 - [~] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv`
@@ -153,11 +153,18 @@
 ### Implementation for Review Responses
 
 - [~] T032 [US3] **Review Response**: Implement `compute_correlation_uncertainty` in `code/analysis.py` to calculate standard error of the slope and CI width per FR-003/SC-003.
-- [ ] T033 [US3] **Review Response**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002.
-- [ ] T034 [US1] **Review Response**: Enhance `code/download.py` to log and store spectral resolution (R) and SNR for every spectrum per FR-001.
-- [ ] T035 [US3] **Review Response**: Implement `calculate_detection_limit` in `code/analysis.py` taking SNR and Resolution as inputs, outputting to `data/processed/detection_limits.csv` per FR-002.
-- [ ] T036 [US3] **Review Response**: Generate "Instrumental Noise vs. Signal" plot in `results/plots/` visualizing SNR distribution and threshold per SC-003.
-- [ ] T037 [US3] **Review Response**: Implement `run_loo_correlation_check` in `code/analysis.py` to calculate `max_correlation_drift` metric per SC-004.
+- [~] T033 [US3] **Review Response**: Implement `quality_control_filter` in `code/analysis.py` to flag low SNR spectra and include them as censored values per FR-002. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 3, column 1:
+ **Task**: T033 - Implement `qual...
+ ^
+expected alphabetic or numeric character, but found '*'
+ in "<unicode string>", line 3, column 2:
+ **Task**: T033 - Implement `quali...
+ ^) -->
+- [~] T034 [US1] **Review Response**: Enhance `code/download.py` to log and store spectral resolution (R) and SNR for every spectrum per FR-001.
+- [~] T035 [US3] **Review Response**: Implement `calculate_detection_limit` in `code/analysis.py` taking SNR and Resolution as inputs, outputting to `data/processed/detection_limits.csv` per FR-002.
+- [~] T036 [US3] **Review Response**: Generate "Instrumental Noise vs. Signal" plot in `results/plots/` visualizing SNR distribution and threshold per SC-003.
+- [~] T037 [US3] **Review Response**: Implement `run_loo_correlation_check` in `code/analysis.py` to calculate `max_correlation_drift` metric per SC-004.
 
 **Checkpoint**: All review responses implemented and verified
 
@@ -167,11 +174,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T039 Code cleanup and refactoring
-- [ ] T040 Performance optimization across all stories (ensure pipeline runs < 6 hours)
-- [ ] T041 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T042 Run quickstart.md validation
+- [~] T038 [P] Documentation updates in `README.md` and `quickstart.md`
+- [~] T039 Code cleanup and refactoring
+- [~] T040 Performance optimization across all stories (ensure pipeline runs < 6 hours) <!-- ATOMIZE: requested -->
+- [~] T041 [P] Additional unit tests (if requested) in `tests/unit/`
+- [~] T042 Run quickstart.md validation
 
 ---
 
