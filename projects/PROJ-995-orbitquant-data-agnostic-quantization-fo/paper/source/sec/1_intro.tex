@@ -1,0 +1,88 @@
+\vspace{-2mm}
+\section{Introduction}
+\label{sec:intro}
+\vspace{-2mm}
+Diffusion models have become the dominant paradigm for high-fidelity image and video generation. Traditionally, these models employ a convolutional U-Net as the denoising backbone~\cite{rombach2022high, saharia2022photorealistic, singer2022make, ho2020denoising}. More recently, however, the field has shifted to transformer-based denoisers. Diffusion Transformers (DiTs)~\cite{peebles2023scalable, bao2023all} replace the U-Net with a stack of attention blocks that scales favorably with model size and data, and now underpin state-of-the-art image~\cite{chen2024pixart, esser2024scaling, labs2025flux1kontextflowmatching, xie2024sana, wu2025qwen, cai2025z} and video generators~\cite{sora2024, yang2025cogvideox, kong2024hunyuanvideo, wan2025wan}.
+
+Despite their quality, DiTs are expensive to run at inference for two reasons. First, the transformer trunk is evaluated repeatedly across many sequential denoising timesteps. Second, unlike LLM decoding, where latency is dominated by weight loading~\cite{lin2024awq, frantar2022gptq}, DiT inference is compute-bound even at a single batch, so weight-only quantization yields no measured speedup~\cite{li2024svdquant}. Low-bit post-training quantization (PTQ) of both weights and activations is therefore the natural remedy, since it compresses both the memory footprint and the compute of every step without any retraining.
+
+PTQ is most mature for large language models (LLMs), where activation outliers are handled by scaling them into the weights~\cite{xiao2023smoothquant} or rotating them away~\cite{ashkboos2024quarot, liu2025spinquant, chee2023quip, tseng2024quip}. Both assume activation statistics that a single calibration pass can capture, which holds for LLMs but breaks for diffusion transformers. DiT activations exhibit channel-wise outliers~\cite{wu2024ptq4dit} and shift across timesteps, prompts, and classifier-free-guidance branches~\cite{chen2025q, zhao2024vidit}. Existing DiT PTQ methods absorb this drift with calibration~\cite{zhao2024vidit, li2024svdquant, zhang2026adatsq}, so each new checkpoint, resolution, or modality requires a calibration set to be re-collected and re-fit.
+
+% PTQ is most mature for large language models, where activation quantization is the hard part, handled by scaling outliers into the weights~\cite{xiao2023smoothquant} or rotating them away with a transform that folds into the weights~\cite{ashkboos2024quarot, liu2025spinquant, chee2023quip, tseng2024quip}. Both assume activation statistics that a single calibration pass can capture, which holds for LLMs but breaks for diffusion transformers. DiT activations fail this assumption in two ways~\cite{li2024svdquant, zhao2024vidit}: channel-wise outliers~\cite{wu2024ptq4dit}, where a few input channels carry extreme magnitudes that dominate per-tensor scales, and input-dependent variability~\cite{li2023q}, where the distribution shifts across timesteps, prompts, and classifier-free-guidance branches. Existing DiT PTQ methods absorb this with calibration. ViDiT-Q~\cite{zhao2024vidit} pairs per-channel scaling with timestep-aware mixed precision, SVDQuant~\cite{li2024svdquant} fits a high-precision low-rank branch on calibration prompts, and AdaTSQ~\cite{zhang2026adatsq} prioritizes the most quantization-sensitive timesteps. Yet they share a structural cost. Each needs a calibration set of prompts, often with matching resolutions and timestep schedules, re-collected and re-fit for every new checkpoint, resolution, or modality.
+
+We propose \textbf{OrbitQuant}, a rotation-based PTQ framework for diffusion transformers. A DiT activation offers no stable range to calibrate against, since it moves with every input. Rather than chase that moving target with per-input scales, OrbitQuant rotates it away. A random rotation turns a normalized activation into coordinates that follow one fixed, known distribution regardless of the input~\cite{zandieh2025turboquant}, so a single Lloyd--Max codebook built offline quantizes every activation and is shared across all denoising steps. OrbitQuant realizes this as a randomized permuted block-Hadamard (RPBH) rotation, and we find that a uniform random permutation suffices to keep the rotated marginal well-behaved at low bit-width on DiT activations. The same rotation is folded into the weight rows offline, so it cancels inside each linear layer, with weights and activations quantized in one shared basis, leaving only a single forward RPBH rotation at inference. The main contributions of our work are as follows:
+
+\begin{itemize}
+    \item We cast low-bit DiT activation quantization as a distributional codebook problem, replacing per-timestep range calibration with a single Lloyd--Max codebook fit to a fixed post-rotation marginal and shared across all denoising steps.
+    \item We extend the same quantizer to the weight rows with a shared-rotation design that quantizes weights and activations in one common basis.
+    \item We propose the RPBH rotation, an efficient rotation whose uniform random permutation keeps activations well-quantizable at low bit-width without calibration.
+    \item We evaluate OrbitQuant on image and video DiTs, achieving state-of-the-art PTQ on GenEval and VBench without calibration data. At W2A4, where prior PTQ baselines collapse to noise, OrbitQuant is the only method that still produces usable images, shown in Figure~\ref{fig:teaser}.
+\end{itemize}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/overall.pdf}
+\vspace{-6mm}
+\caption{\textbf{Overview of OrbitQuant.} \textbf{(1)} DiT activations drift across timesteps and CFG branches, so calibrated scales do not transfer. \textbf{(2)} The RPBH rotation $\Pi_d$ maps raw activations to well-behaved coordinates. Folded into the weights, it cancels inside each layer ($\hat{W}'\hat{x}' \approx Wx$). \textbf{(3)} Rotated coordinates concentrate around one fixed marginal $f_d \approx \mathcal{N}(0,1/d)$, so a single Lloyd--Max codebook $\mathcal{C}_{d,b}$ per dimension serves all layers, timesteps, prompts, and both image and video DiTs, with no calibration.}
+\vspace{-3mm}
+\label{fig:overview}
+\end{figure*}
+
+\vspace{-2mm}
+\section{Related Work}
+\label{sec:related}
+\vspace{-2mm}
+% \paragraph{Diffusion Transformers.}
+% Diffusion models have become the dominant generative framework for visual content, beginning with denoising diffusion probabilistic models~\cite{ho2020denoising} and scaling through latent diffusion~\cite{rombach2022high}. Early systems used a convolutional U-Net as the denoising backbone, but the diffusion transformer (DiT) replaced it with a transformer that scales more favorably and removes the U-Net inductive bias~\cite{peebles2023scalable}. The architecture now underlies the strongest image generators, including PixArt-$\Sigma$~\cite{chen2024pixart}, Stable Diffusion~3~\cite{esser2024scaling}, FLUX.1~\cite{labs2025flux1kontextflowmatching}, SANA~\cite{xie2024sana}, Qwen-Image~\cite{wu2025qwen}, and Z-Image~\cite{cai2025z}, as well as the leading video generators, including Sora~\cite{sora2024}, CogVideoX~\cite{yang2025cogvideox}, HunyuanVideo~\cite{kong2024hunyuanvideo}, and Wan~\cite{wan2025wan}. Despite differences in conditioning and modality, these models share a common trunk of self-attention and feed-forward layers modulated by AdaLN. Generating a sample evaluates this trunk repeatedly across denoising steps, which is the dominant cost at inference.
+
+\paragraph{LLM Quantization.}
+In LLMs, Weight-only methods quantize weights alone and suit the memory-bound decoding regime~\cite{frantar2022gptq, lin2024awq, kim2023squeezellm, dettmers2023spqr}, while quantizing activations requires handling outlier channels, either by scaling them into the weights~\cite{xiao2023smoothquant} or by rotating them away. Rotation-based methods~\cite{ashkboos2024quarot, liu2025spinquant, chee2023quip, tseng2024quip, sun2024flatquant, hu2025ostquant} fold a Hadamard or learned rotation into the weights by computational invariance, leaving the output unchanged while making activations easy to quantize. 
+
+Recent block rotations pair the rotation with a calibrated permutation. DuQuant~\cite{lin2024duquant} orders channels by outlier magnitude, and PeRQ~\cite{sanjeet2026pushing} fits a permutation that balances per-block mass, which its analysis shows governs block-Hadamard outlier suppression. Random rotations also enable calibration-free vector quantization. PolarQuant~\cite{han2026polarquant} quantizes KV embeddings in polar coordinates, building a codebook from the analytically known angle distribution after random preconditioning. TurboQuant~\cite{zandieh2025turboquant} brings this distributional codebook to Cartesian coordinates with a dense Haar rotation and a Beta-marginal Lloyd--Max codebook. Both are standalone KV-cache vector quantizers that rotate back to reconstruct. OrbitQuant instead applies the rotation-plus-codebook idea inside DiT projections, where the shared rotation cancels rather than being inverted, and replaces the dense Haar with an efficient RPBH rotation. Unlike prior permuted rotations, it draws the permutation uniformly at random, with a probabilistic guarantee that the rotated coordinates stay well-behaved.
+
+% \paragraph{LLM Quantization.}
+% Post-training quantization is most mature for large language models. Weight-only methods quantize weights alone and suit the memory-bound decoding regime~\cite{frantar2022gptq, lin2024awq}, while quantizing activations requires handling outlier channels, either by scaling them into the weights~\cite{xiao2023smoothquant} or by rotating them away. Rotation-based methods~\cite{ashkboos2024quarot, liu2025spinquant, chee2023quip, tseng2024quip, sun2024flatquant, hu2025ostquant, lin2024duquant} fold a Hadamard or learned rotation into the weights by computational invariance, leaving the output unchanged while making activations easy to quantize. Among these, Recent block rotations pair the rotation with a calibrated permutation. DuQuant~\cite{lin2024duquant} orders channels by outlier magnitude, and PeRQ~\cite{sanjeet2026mixquant} fits a permutation that balances per-block mass, which its analysis shows governs block-Hadamard outlier suppression.
+% TurboQuant~\cite{zandieh2025turboquant} adds a distributional codebook, sending each coordinate of a rotated unit-norm vector to a known Beta marginal that one precomputed Lloyd--Max codebook quantizes without calibration, though as a standalone vector quantizer that uses a dense Haar rotation and rotates back to reconstruct. OrbitQuant applies the rotation-plus-codebook idea inside DiT projections, where the shared rotation cancels rather than being inverted, and replaces the dense Haar with an efficient RPBH rotation. Unlike prior permuted rotations, it draws the permutation uniformly at random, with guaranteeing the rotated coordinates stay well-behaved.
+
+\vspace{-2mm}
+\paragraph{Diffusion Quantization.}
+Most existing DiT quantization methods are calibration-based. SVDQuant~\cite{li2024svdquant} absorbs activation outliers with a high-precision low-rank branch fit on a calibration set, PTQ4DiT~\cite{wu2024ptq4dit} balances salient channels with block reconstruction, AdaTSQ~\cite{zhang2026adatsq} fits per-channel scales with timestep-sensitive precision allocation, and ViDiT-Q~\cite{zhao2024vidit} pairs per-channel calibration with mixed precision on both image and video DiTs. LRQ-DiT~\cite{yang2025lrq} adds calibrated DuQuant-style~\cite{lin2024duquant} rotations on outlier-heavy layers, PermuQuant~\cite{cheng2026permuquant} calibrates channel reordering for per-group quantization, and S$^2$Q-VDiT~\cite{feng2025s} selects calibration data by Hessian-aware saliency with token-level distillation on video DiTs. QVGen~\cite{huang2025qvgen} and RobuQ~\cite{yang2025robuq} depart from PTQ with quantization-aware training (QAT), the latter reaching ternary weights on ImageNet DiTs. Closer to our setting, DVD-Quant~\cite{li2025dvd} is data-free, pairing a rotated quantizer with grid refinement and adaptive bit allocation, but it is tailored to video DiTs with per-model machinery, and ConvRot~\cite{huang2025convrot} pairs calibration-free group-wise regular Hadamard rotations with a uniform grid on FLUX. In contrast, OrbitQuant uses a fully analytic distribution-derived codebook that requires no model evaluation at quantizer construction, and transfers unchanged between image and video DiTs.
+
+
+% Most existing DiT quantization methods are calibration-based. SVDQuant~\cite{li2024svdquant} migrates activation outliers into weights and absorbs them with a high-precision low-rank branch fit on a calibration set. PTQ4DiT~\cite{wu2024ptq4dit} addresses salient channels through channel-wise salience balancing with block reconstruction. AdaTSQ~\cite{zhang2026adatsq} fits per-channel scales with timestep-sensitive precision allocation. ViDiT-Q~\cite{zhao2024vidit} combines per-channel calibration with metric-decoupled mixed precision and extends its image protocol to video DiTs. SVDQuant's fine-grained variant remains the strongest published PTQ on Wan~\cite{wan2025wan} and CogVideoX~\cite{yang2025cogvideox}, and QVGen~\cite{huang2025qvgen} departs from PTQ with quantization-aware fine-tuning. LRQ-DiT~\cite{yang2025lrq} pairs a log-domain weight quantizer with calibrated DuQuant-style~\cite{lin2024duquant} rotations on outlier-heavy layers. DVD-Quant~\cite{li2025dvd} is data-free, pairing a rotated quantizer with grid refinement and adaptive bit allocation, but it is tailored to video DiTs with per-model machinery. ConvRot~\cite{huang2025convrot} is also calibration-free, pairing group-wise regular Hadamard rotations with a uniform grid and fused INT4 kernels on FLUX. Concurrent work ports the distributional codebook to LLM weight-only quantization~\cite{vicentino2026polarquant} and calibrates channel reordering for DiTs~\cite{ma2026permuquant}. In contrast, OrbitQuant uses a fully analytic distribution-derived codebook that requires no model evaluation at quantizer construction, and transfers unchanged between image and video DiTs.
+
+
+\vspace{-2mm}
+\section{Preliminaries}
+\label{sec:prelim}
+\vspace{-1mm}
+This section fixes notation and reviews the two ingredients we inherit from TurboQuant~\cite{zandieh2025turboquant}, namely a Haar-random orthogonal rotation and a Lloyd--Max scalar codebook designed against the post-rotation coordinate distribution.
+
+% \vspace{-1mm}
+\subsection{Notation}
+\label{sec:prelim:notation}
+\vspace{-0.9mm}
+We write matrices in bold uppercase (e.g., $\mathbf{W}$), vectors in bold lowercase (e.g., $\mathbf{x}$), and scalars in plain type. A DiT block is built from linear projections
+\begin{equation}
+\mathbf{y} = \mathbf{W}\mathbf{x}, \quad \mathbf{W} \in \mathbb{R}^{m \times d},\ \mathbf{x} \in \mathbb{R}^d,
+\label{eq:linear}
+\end{equation}
+applied token-wise to image- or text-token streams. We write $\mathbf{w}_i^\top \in \mathbb{R}^d$ for the $i$-th row of $\mathbf{W}$ and $r_i = \|\mathbf{w}_i\|_2$ for its $\ell_2$ norm. Given weight and activation bit-widths $b_w$ and $b_a$, our goal is to replace $\mathbf{W}$ and $\mathbf{x}$ with quantized surrogates $\hat{\mathbf{W}}$ and $\hat{\mathbf{x}}$ at $b_w$ and $b_a$ bits per coordinate, so that $\hat{\mathbf{W}}\hat{\mathbf{x}} \approx \mathbf{W}\mathbf{x}$ at every denoising step and for every prompt, without calibration data. We write $\mathcal{L}$ for the set of target linear layers and $\mathcal{D}$ for the distinct input dimensions in $\mathcal{L}$.
+
+
+\subsection{TurboQuant}
+\label{sec:prelim:turboquant}
+\vspace{-1mm}
+TurboQuant~\cite{zandieh2025turboquant} is a calibration-free vector quantizer, originally for KV-cache compression, that quantizes a vector in two steps. First, it normalizes $\mathbf{x}$ to $\tilde{\mathbf{x}} = \mathbf{x} / \|\mathbf{x}\|_2$, keeps the norm, and applies a Haar-random orthogonal rotation $\boldsymbol{\Phi}_d \in \mathbb{R}^{d \times d}$~\cite{mezzadri2006generate}. Regardless of $\mathbf{x}$, each coordinate of $\boldsymbol{\Phi}_d \tilde{\mathbf{x}}$ then follows the fixed marginal
+\begin{equation}
+f_d(t) = \frac{\Gamma(d/2)}{\sqrt{\pi}\,\Gamma((d-1)/2)} (1 - t^2)^{(d-3)/2}, \quad t \in [-1, 1],
+\label{eq:beta-marginal}
+\end{equation}
+where $\Gamma(\cdot)$ is the Gamma function. For $d \geq 64$, this marginal is tightly approximated by $\mathcal{N}(0, 1/d)$, and distinct coordinates are nearly independent. Second, since $f_d$ is known offline, we precompute an MSE-optimal Lloyd--Max codebook~\cite{lloyd1982least, max1960quantizing} for each $(d, b) \in \mathcal{D} \times \{b_w, b_a\}$, giving $2^b$ centroids $\mathcal{C}^{(d,b)} = \{c_1^{(d,b)}, \ldots, c_{2^b}^{(d,b)}\}$ and the nearest-centroid map
+\begin{equation}
+\hat{q}_b^{(d)}(t) = \operatorname*{arg\,min}_{c \,\in\, \mathcal{C}^{(d,b)}} |t - c|,
+\label{eq:lloyd-max}
+\end{equation}
+applied coordinate-wise via $\hat{Q}_b^{(d)}(\mathbf{u})_k = \hat{q}_b^{(d)}(u_k)$ for any $\mathbf{u} \in \mathbb{R}^d$. The codebook uses no scales or zero-points and is shared by all layers and rows of the same input dimension $d$. Dequantization looks up centroids, rotates back by $\boldsymbol{\Phi}_d^\top$, and rescales by the stored norm.
+

@@ -1,0 +1,25 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "paper.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/acl_natbib.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/plainnat.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "paper.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

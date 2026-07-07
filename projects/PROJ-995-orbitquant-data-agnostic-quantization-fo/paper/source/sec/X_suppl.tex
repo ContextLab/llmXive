@@ -1,0 +1,322 @@
+\clearpage
+\setcounter{page}{1}
+\maketitlesupplementary
+\appendix
+
+
+\section{Proof Sketch for RPBH Incoherence}
+\label{sec:supp-proof-srht}
+
+% \paragraph{Proof sketch.}
+% The permutation $\mathbf{P}_{\pi}$ redistributes the $d$ coordinates of a fixed unit vector $\tilde{\mathbf{x}}$ uniformly at random across $k=d/b$ Hadamard blocks. By a balls-and-bins union bound, every block input mass concentrates around $1/k$ within a multiplicative $1 + O(\sqrt{\log d / b})$ factor with high probability over $\pi$. Conditional on this balancing event, each output coordinate is a Rademacher-symmetrized linear combination of the corresponding block's $b$ coordinates. A Hoeffding bound within each block, followed by a union bound over the $d$ output coordinates, gives
+% \begin{equation}
+%   \mathrm{Pr}\!\left[\|\boldsymbol{\Pi}_d \tilde{\mathbf{x}}\|_{\infty} > \sqrt{\frac{2\log(2d/\delta)}{b}}\right] \leq \delta.
+% \end{equation}
+% Without the leading permutation, the same argument requires the input vector to be block-balanced as an additional assumption. The permutation removes this assumption and makes the incoherence bound uniform over fixed inputs. See \cite{tropp2011improved} for the classical SRHT concentration statement and \cite{halko2011} for a broader randomized linear algebra treatment.
+
+\paragraph{Setup.}
+Fix a unit vector $\tilde{\mathbf{x}} \in \mathbb{R}^d$ and write $d = kh$. Let $\mathbf{y} = \mathbf{P}_\pi \tilde{\mathbf{x}}$ have blocks $\mathbf{y}^{(j)} \in \mathbb{R}^h$ with masses $M_j = \|\mathbf{y}^{(j)}\|_2^2$ summing to $1$, outputs $\mathbf{z}^{(j)} = \mathbf{H}_h \mathbf{D}_j \mathbf{y}^{(j)}$ with $(\mathbf{H}_h)_{li} = \pm 1/\sqrt{h}$ and $\mathbf{D}_j$ Rademacher, and $\mu_\infty = \|\tilde{\mathbf{x}}\|_\infty^2$. Write $\mathbf{z} = (\mathbf{z}^{(1)}, \dots, \mathbf{z}^{(k)})$ for the full output $\boldsymbol{\Pi}_d \tilde{\mathbf{x}}$.
+\begin{lemma}[Per-block incoherence]
+\label{lem:block-incoherence}
+For any fixed partition (any $\pi$), with probability at least $1 - \delta/2$ over $\{\mathbf{D}_j\}$,
+\begin{equation}
+\|\mathbf{z}\|_\infty \le \sqrt{2 \log(4d/\delta)/h}.
+\label{eq:lem1}
+\end{equation}
+\end{lemma}
+\begin{proof}
+Each output coordinate $z^{(j)}_l = \sum_i (\mathbf{H}_h)_{li}\, \sigma^{(j)}_i\, y^{(j)}_i$ is a mean-zero Rademacher sum with variance $\sum_i (\mathbf{H}_h)_{li}^2 (y^{(j)}_i)^2 = M_j/h \le 1/h$. Hoeffding gives $\Pr[|z^{(j)}_l| > t] \le 2 e^{-t^2 h/2}$, and a union bound over the $d$ coordinates yields Equation~\eqref{eq:lem1}.
+\end{proof}
+\begin{lemma}[Mass balancing]
+\label{lem:balancing}
+With probability at least $1 - \delta/2$ over $\pi$, for all $j$,
+\begin{equation}
+\big| M_j - \tfrac{1}{k} \big| \le \mu_\infty \sqrt{(h/2)\log(4k/\delta)}.
+\label{eq:lem2}
+\end{equation}
+\end{lemma}
+\begin{proof}
+Each $M_j$ is a sum of $h$ values drawn without replacement from $\{\tilde{x}_i^2\} \subseteq [0, \mu_\infty]$ with mean $1/k$. By Hoeffding's bound for sampling without replacement, $\Pr[|M_j - 1/k| \ge \epsilon] \le 2 e^{-2\epsilon^2 / (h\mu_\infty^2)}$, and a union bound over the $k$ blocks gives Equation~\eqref{eq:lem2}.
+\end{proof}
+\medskip
+\noindent\textit{Proposition~\ref{prop:marginal} (restated).}\\
+Let $\rho = d\,\mu_\infty \sqrt{(1/2h)\log(4k/\delta)}$. With probability at least $1-\delta$ over $\boldsymbol{\Pi}_d$, every coordinate of $\mathbf{z} = \boldsymbol{\Pi}_d\tilde{\mathbf{x}}$ is mean-zero with conditional variance $\mathrm{Var}(z_i \mid \pi) \in \frac{1}{d}(1 \pm \rho)$, and
+\begin{equation}
+\|\boldsymbol{\Pi}_d \tilde{\mathbf{x}}\|_\infty \le \sqrt{\tfrac{2}{d}(1 + \rho)\log(4d/\delta)}.
+\label{eq:thm}
+\end{equation}
+\begin{proof}
+Each $z_i$ is a mean-zero Rademacher sum, so $\mathbb{E}[z_i] = 0$. On the event of Lemma~\ref{lem:balancing}, $M_j \in \tfrac{1}{k}(1 \pm \rho)$, so each coordinate has variance $M_j/h \in \tfrac{1}{d}(1 \pm \rho)$. Equation~\eqref{eq:thm} then follows by repeating the proof of Lemma~\ref{lem:block-incoherence} with $M_j/h \le \tfrac{1}{d}(1 + \rho)$, after a union bound over the two events, each holding with probability at least $1 - \delta/2$.
+\end{proof}
+\begin{remark}
+Lemma~\ref{lem:block-incoherence} uses only $M_j \le 1$, so it holds with or without the permutation. The permutation enters through Lemma~\ref{lem:balancing} alone, equalizing every per-coordinate variance to $1/d$ regardless of how outlier channels fall into blocks, which is what the no-permutation variant loses at low bit-width (Section~\ref{sec:ablation:rotation}).
+\end{remark}
+
+\begin{remark}
+Variance concentration upgrades to a quantitative Gaussian approximation. Conditional on $\pi$, each coordinate $z_i$ in block $j$ is a sum of $h$ independent bounded terms with total variance $M_j/h$, so the Berry--Esseen inequality bounds its Kolmogorov distance to $\mathcal{N}(0, M_j/h)$ by $C \sum_i |y^{(j)}_i|^3 / M_j^{3/2} \le C\sqrt{\mu_\infty / M_j}$ for a universal constant $C$. On the event of Lemma~\ref{lem:balancing} this is at most $C\sqrt{\mu_\infty k/(1-\rho)}$, so whenever no coordinate carries an outsized share of the norm, every rotated coordinate is close to $\mathcal{N}(0, 1/d)$ in distribution, not only in variance. Figure~\ref{fig:distribution} confirms this empirically.
+\end{remark}
+
+% \subsection{Activation rotation latency}
+% \label{sec:supp-latency}
+% Table~\ref{tab:ablation-rotation-cost} breaks down the per-image activation rotation cost on FLUX.1-schnell. Realized as a dense matmul, every rotation costs about 9.8\,s, so the speedup comes entirely from the fast FWHT butterfly, which brings Block-RHT and SRHT to roughly 4.3\,s. The SRHT permutation gather adds about 5\% over Block-RHT and is what makes the marginal bound input-universal, leaving SRHT at 2.20$\times$ the Haar throughput with Haar-level quality.
+
+
+% \begin{table}[t]
+% \centering
+% \small
+% \caption{Activation-quantization hook cost per generated image on FLUX.1-schnell v2 (NVIDIA H100, $4096$ tokens, BF16, $4$ denoising steps, $1520$ hook calls). SRHT achieves Haar-level quality (Table~\ref{tab:ablation-rotation-class}) at $2.20\times$ the throughput of Haar. The permutation gather adds $\sim\!5\%$ over block-RHT FWHT and is what makes the bound input-universal.}
+% \label{tab:ablation-rotation-cost}
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{lcc}
+% \toprule
+% \textbf{Hook variant} & \textbf{Cost / image (ms)} & \textbf{Speedup vs.\ Haar} \\
+% \midrule
+% Haar, dense matmul & $9{,}799$ & $1.00\times$ \\
+% Block-RHT, dense matmul & $9{,}798$ & $1.00\times$ \\
+% SRHT, dense matmul & $9{,}799$ & $1.00\times$ \\
+% Block-RHT, FWHT (PyTorch butterfly) & $4{,}247$ & $2.31\times$ \\
+% \textbf{SRHT}, FWHT $+$ permutation gather & $\mathbf{4{,}459}$ & $\mathbf{2.20\times}$ \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
+
+
+% \subsection{Rotation scope: shared vs.\ per-layer}
+% \label{sec:supp-ablation-rotation-scope}
+
+% A natural design alternative to sharing $\boldsymbol{\Pi}_d$ across every layer of input dimension $d$ (the shared-rotation design in the main paper) is to draw a \emph{fresh} rotation $\boldsymbol{\Pi}_{d,\ell}$ per layer $\ell$, as TurboQuant~\cite{turboquant2026} originally does in its KV-cache setting. The per-layer variant has higher rotation-buffer memory ($O(L \cdot d^2)$ vs.\ $O(|\mathcal{D}| \cdot d^2)$ for $L \!\gg\! |\mathcal{D}|$; for FLUX.1-dev, $L \!=\!380$ vs.\ $|\mathcal{D}|\!=\!2$, so $190\times$ more rotation memory) and precludes the algebraic fusion of $\boldsymbol{\Pi}_d$ into the upstream LayerNorm/AdaLN affine that the shared-$\boldsymbol{\Pi}_d$ design enables. Our internal measurement on FLUX.1-schnell W3A3 (April 2026, Haar rotation, AdaLN $W4$) found per-layer rotations to give no measurable GenEval improvement over shared per-dimension while costing the additional memory and forfeiting the fusion. We therefore adopt shared per-dimension as the default. A side-by-side table will be added once the experiment is re-run under the $v2$ SVDQuant-matched scope and the SRHT rotation; we leave it as future ablation.
+
+% \subsection{Codebook: direct Lloyd--Max vs.\ TurboQuantMSE wrapper}
+% \label{sec:supp-ablation-turboquant-mse}
+
+% TurboQuant's reference MSE quantizer (\texttt{TurboQuantMSE}) composes a \emph{second}, internal Haar rotation $\boldsymbol{\Pi}'$ with the Lloyd--Max codebook, so that the codebook only ever sees vectors already in a freshly-rotated frame. Because our external $\boldsymbol{\Pi}_d$ (the main paper's rotation and normalization path) already decorrelates the coordinates of $\tilde{\mathbf{W}}'$ and $\tilde{\mathbf{x}}'$ to within the incoherence bound of the SRHT incoherence result in the main paper, the internal $\boldsymbol{\Pi}'$ is redundant. Table~\ref{tab:ablation-codebook} reports a side-by-side at FLUX.1-schnell $W3A3$ on an earlier internal scope (April 2026, Haar rotation, $304$ main layers; the $v2$ scope of the target-layer scope in the main paper reproduces the same qualitative trend).
+
+% \begin{table}[t]
+% \centering
+% \small
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{lccc}
+% \toprule
+% \textbf{Codebook} & \textbf{GenEval Overall} & \textbf{Extra FLOPs / forward} & \textbf{Notes} \\
+% \midrule
+% Direct Lloyd--Max (OrbitQuant default)    & $0.676$            & $0$                                              & fixed centroids \& boundaries \\
+% \texttt{TurboQuantMSE} (internal rot.) & $\mathbf{0.690}$   & $+1.17$ PFLOPs (per-image)                       & $2 \!\times\! O(d^2)$ matmul \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \caption{\textbf{Codebook ablation} on FLUX.1-schnell $W3A3$ (April 2026 internal scope; Haar rotation, AdaLN $W4$). \texttt{TurboQuantMSE} buys $+0.014$ Overall ($\sim\!2\%$ relative) at the cost of $1.17$ PFLOPs of internal $d\!\times\!d$ rotation per generated image. We therefore use the direct Lloyd--Max codebook by default; the lost $+0.014$ is recovered (and exceeded) by the SRHT switch of the SRHT construction in the main paper, which costs $-2.20\times$ rather than $+1.17$ PFLOPs.}
+% \label{tab:ablation-codebook}
+% \end{table}
+
+% In other words, \texttt{TurboQuantMSE}'s internal rotation duplicates work the external $\boldsymbol{\Pi}_d$ already does --- and the marginal $+1.3\%$ it buys is too small to justify nearly doubling the rotation FLOP budget per layer per step. The direct codebook is also a strict prerequisite for the FWHT-based hook (the rotation ablation in the main paper): \texttt{TurboQuantMSE}'s internal Haar rotation does not admit a Fast Walsh--Hadamard rewrite and would block the $2.20\times$ speedup.
+
+
+% % =====================================================================
+% \section{Rotation-Cost Microbenchmark}
+% \label{app:bench}
+
+% We measure the cost of three rotation paths as a function of input dimension $d$, on a single NVIDIA H100 80GB, with FP32 activations and $N \!=\! 4096$ tokens per layer (matching the FLUX-schnell $1024 \!\times\! 1024$ patch grid). The three paths are: (A)~dense matmul $\mathbf{x}\boldsymbol{\Pi}_d^\top$ via \texttt{torch.matmul}; (B)~block-diagonal dense matmul via \texttt{torch.einsum} over $d/b$ blocks of $b \!\times\! b$; (C)~the Fast Walsh--Hadamard Transform of the SRHT construction in the main paper, realized as a PyTorch butterfly (no custom CUDA). Times are averaged over $200$ iterations after $20$ warmup runs.
+
+% \begin{table}[h]
+% \centering
+% \small
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{rrrrr r}
+% \toprule
+% $d$    & block $b$ & blocks & (A) dense & (B) block & (C) FWHT \\
+% \midrule
+% $3072$ & $1024$ & $3$ & $1.520$\,ms & $0.582$\,ms & $1.348$\,ms \\
+% $12288$ & $4096$ & $3$ & $24.746$\,ms & $8.558$\,ms & $\mathbf{6.013}$\,ms \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \caption{Rotation cost on H100 (FP32, $N\!=\!4096$ tokens). The $4.1\times$ FWHT speedup at $d\!=\!12288$ dominates the end-to-end hook gain of the hook-cost results in the main paper because FLUX-schnell has $76$ FF-down layers at this dimension.}
+% \label{tab:appendix-bench}
+% \end{table}
+
+% The advantage of (C) over (A) grows with $d$: at $d \!=\! 3072$ the dense matmul is already efficient on H100 tensor cores and the PyTorch FWHT loop launch overhead nearly cancels the asymptotic win, but at $d \!=\! 12288$ the dense matmul is $4.1\times$ slower than FWHT. Path (B) is reported only for diagnostic purposes; it corresponds to a hypothetical implementation that exploits block sparsity at the matmul level without resorting to FWHT. The OrbitQuant Hadamard pipeline uses (C).
+
+\section{Additional Experimental Details}
+\label{sec:supp-additional}
+
+\subsection{Generation settings}
+\label{sec:supp-gen}
+Image models use the sampler and step count of their public checkpoints, FLUX.1-schnell at 4 steps and guidance 0.0, FLUX.1-dev at 50 steps and guidance 3.5, and Z-Image-Turbo at 10 steps and guidance 0.0. Video models use Wan~2.1-1.3B at 81 frames, $480{\times}832$, 50 steps, CFG 5.0, and CogVideoX-2B at 49 frames, $480{\times}720$, 50 steps, CFG 6.0. NVIDIA H100 GPUs are used for experiments.
+
+\subsection{Quantized and skipped layers}
+\label{sec:supp-layers}
+We quantize every linear projection in the transformer block through the OrbitQuant path, namely the image- and text-side $Q$, $K$, $V$ and output projections and the feed-forward layers of every block, including the text-conditioning $K$ and $V$ projections that consume text-encoder hidden states (the joint-attention text path in FLUX and Z-Image, the cross-attention projections in Wan and CogVideoX). 
+AdaLN modulation projections are the one exception. Their output parameterizes a timestep-dependent elementwise scale-and-shift. A static norm affine can be folded into neighboring weights, as rotation-based LLM quantizers do~\cite{ashkboos2024quarot}, but this dynamic modulation cannot. The shared-rotation cancellation of Section~\ref{sec:method} therefore has no counterpart here. Their input is also a single conditioning token per step, leaving no activation compute to save. We therefore quantize only their weights, with INT4 RTN at group size 64 and BF16 activations. Embeddings, the timestep MLP, the final un-patchify head, and the text encoder stay in BF16.
+
+\begin{table*}[t]
+\caption{GenEval results at the lowest bit-widths, W3A3 and W2A3, on three image diffusion transformers. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best PTQ result within each (model, bit-width) group. $\uparrow$ means higher is better.$\dagger$ represents our implementation.}
+\label{tab:geneval-low}
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tabular}{clcccccccc}
+\toprule
+Model & Method & Bit & Single object~$\uparrow$ & Two object~$\uparrow$ & Counting~$\uparrow$ & Colors~$\uparrow$ & Position~$\uparrow$ & Color attribution~$\uparrow$ & Overall~$\uparrow$ \\
+\midrule
+\multirow{8}{*}{FLUX.1-schnell}
+  & FP16                                  & 16/16 & 0.997 & 0.884 & 0.600 & 0.742 & 0.275 & 0.488 & 0.664 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & SVDQuant~\cite{li2024svdquant}        & W3A3 & 0.820 & 0.647 & 0.466 & 0.560 & 0.160 & 0.373 & 0.504 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W3A3 & \textbf{0.997} & \textbf{0.920} & \underline{0.530} & \underline{0.688} & \textbf{0.230} & \underline{0.440} & \underline{0.634} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\underline{0.978} & \cellcolor{gray!25}\underline{0.861} & \cellcolor{gray!25}\textbf{0.684} & \cellcolor{gray!25}\textbf{0.777} & \cellcolor{gray!25}\underline{0.223} & \cellcolor{gray!25}\textbf{0.542} & \cellcolor{gray!25}\textbf{0.678} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A3 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A3 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A3 & 0.009 & 0.000 & 0.000 & 0.003 & 0.000 & 0.000 & 0.002 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}\textbf{0.947} & \cellcolor{gray!25}\textbf{0.573} & \cellcolor{gray!25}\textbf{0.431} & \cellcolor{gray!25}\textbf{0.691} & \cellcolor{gray!25}\textbf{0.140} & \cellcolor{gray!25}\textbf{0.318} & \cellcolor{gray!25}\textbf{0.517} \\
+\midrule
+\multirow{8}{*}{FLUX.1-dev}
+  & FP16                                  & 16/16 & 0.984 & 0.823 & 0.769 & 0.771 & 0.203 & 0.450 & 0.667 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & SVDQuant~\cite{li2024svdquant}        & W3A3 & 0.869 & 0.288 & 0.425 & 0.524 & 0.033 & 0.123 & 0.377 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W3A3 & \underline{0.956} & \underline{0.548} & \textbf{0.628} & \underline{0.656} & \underline{0.083} & \underline{0.290} & \underline{0.527} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\textbf{0.981} & \cellcolor{gray!25}\textbf{0.684} & \cellcolor{gray!25}\underline{0.606} & \cellcolor{gray!25}\textbf{0.734} & \cellcolor{gray!25}\textbf{0.128} & \cellcolor{gray!25}\textbf{0.372} & \cellcolor{gray!25}\textbf{0.584} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A3 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A3 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A3 & 0.0013 & 0.000 & 0.000 & 0.003 & 0.000 & 0.000 & 0.002 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}\textbf{0.906} & \cellcolor{gray!25}\textbf{0.235} & \cellcolor{gray!25}\textbf{0.338} & \cellcolor{gray!25}\textbf{0.582} & \cellcolor{gray!25}\textbf{0.050} & \cellcolor{gray!25}\textbf{0.120} & \cellcolor{gray!25}\textbf{0.372} \\
+\midrule
+\multirow{8}{*}{Z-Image-Turbo}
+  & FP16                                  & 16/16 & 1.000 & 0.907 & 0.709 & 0.859 & 0.468 & 0.583 & 0.754 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & SVDQuant~\cite{li2024svdquant}        & W3A3 & 0.005 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W3A3 & \textbf{0.994} & \textbf{0.870} & \underline{0.550} & \textbf{0.885} & \textbf{0.410} & \underline{0.455} & \underline{0.694} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\textbf{0.994} & \cellcolor{gray!25}\underline{0.846} & \cellcolor{gray!25}\textbf{0.750} & \cellcolor{gray!25}\underline{0.859} & \cellcolor{gray!25}\underline{0.395} & \cellcolor{gray!25}\textbf{0.598} & \cellcolor{gray!25}\textbf{0.740} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A3 & 0.013 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.002 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A3 & 0.009 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.002 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A3 & 0.000 & 0.000 & 0.000 & 0.003 & 0.000 & 0.000 & 0.000 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}\textbf{0.272} & \cellcolor{gray!25}\textbf{0.023} & \cellcolor{gray!25}\textbf{0.028} & \cellcolor{gray!25}\textbf{0.269} & \cellcolor{gray!25}\textbf{0.018} & \cellcolor{gray!25}\textbf{0.023} & \cellcolor{gray!25}\textbf{0.105} \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\begin{table*}[t]
+\caption{VBench results on Wan~14B at W4A4. Per-dimension scores over eight VBench dimensions. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best PTQ result. QVGen is a QAT method, shown for reference and excluded from the PTQ ranking. $\uparrow$ means higher is better. $\dagger$ represents our implementation.}
+\label{tab:vbench-wan14b}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{clcccccccccc}
+\toprule
+Model & Method & Bit & \makecell{Imaging\\Quality~$\uparrow$} & \makecell{Aesthetic\\Quality~$\uparrow$} & \makecell{Motion\\Smoothness~$\uparrow$} & \makecell{Dynamic\\Degree~$\uparrow$} & \makecell{Background\\Consistency~$\uparrow$} & \makecell{Subject\\Consistency~$\uparrow$} & Scene~$\uparrow$ & \makecell{Overall\\Consistency~$\uparrow$} \\
+\midrule
+\multirow{5}{*}{Wan~14B}
+  & BF16                                    & 16/16 & 0.6514 & 0.6136 & 0.9738 & 0.7389 & 0.9632 & 0.9365 & 0.3330 & 0.2629 \\
+  \cdashline{2-12}\\[-1.75ex]
+  % & QVGen~\cite{huang2025qvgen}           & QAT & W4A4  & 0.6687 & 0.5941 & 0.9771 & 0.7611 & 0.9650 & 0.9471 & 0.1984 & 0.2570 \\
+  
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant}  & W4A4 & 0.5971 & 0.5263 & \textbf{0.9763} & 0.4472 & 0.9390 & 0.9171 & 0.1439 & 0.2327 \\
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W4A4 & \underline{0.6332} & \underline{0.5686} & 0.9701 & \underline{0.5500} & 0.9504 & 0.9185 & \underline{0.2589} & \underline{0.2541} \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W4A4 & 0.5948 & 0.5373 & 0.9672 & 0.5417 & \underline{0.9533} & \underline{0.9202} & 0.1849 & 0.2432 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.6405} & \cellcolor{gray!25}\textbf{0.6022} & \cellcolor{gray!25}\underline{0.9754} & \cellcolor{gray!25}\textbf{0.6250} & \cellcolor{gray!25}\textbf{0.9559} & \cellcolor{gray!25}\textbf{0.9363} & \cellcolor{gray!25}\textbf{0.3285} & \cellcolor{gray!25}\textbf{0.2615} \\
+\midrule
+\multirow{6}{*}{HunyuanVideo}
+  & BF16                                                 & 16/16 & 0.6478 & 0.6253 & 0.9930 & 0.5139 & 0.9701 & 0.9605 & 0.4281 & 0.2586 \\
+  \cdashline{2-12}\\[-1.75ex]
+  & SmoothQuant~\cite{xiao2023smoothquant}    & W4A4  & 0.5946 & 0.4841 & 0.9879 & 0.0139 & 0.9672 & 0.9497 & 0.0784 & 0.2109 \\
+  & QuaRot~\cite{ashkboos2024quarot}          & W4A4  & 0.5430 & 0.4485 & 0.9222 & \textbf{0.8750} & \underline{0.9769} & 0.9264 & 0.0094 & 0.1733 \\
+  & ViDiT-Q~\cite{zhao2024vidit}              & W4A4  & 0.4010 & 0.4536 & \textbf{0.9943} & 0.0000 & 0.9719 & \textbf{0.9729} & 0.0785 & 0.1966 \\
+  & DVD-Quant~\cite{li2025dvd}           & W4A4  & \underline{0.6182} & \textbf{0.6196} & 0.9915 & \underline{0.5694} & \textbf{0.9782} & \underline{0.9661} & \underline{0.2994} & \textbf{0.2568} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.6209} & \cellcolor{gray!25}\underline{0.6072} & \cellcolor{gray!25}\underline{0.9930}& \cellcolor{gray!25}0.4417& \cellcolor{gray!25}0.9751 & \cellcolor{gray!25}0.9622 & \cellcolor{gray!25}\textbf{0.3052} & \cellcolor{gray!25}\underline{0.2283} \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\section{Additional Experiments}
+\label{supple:add-exp}
+\subsection{Lowest bit-widths: W3A3 and W2A3}
+\label{supple:low_bit}
+We push to the lowest bit-widths, W3A3 and W2A3, on three image diffusion transformers. Table~\ref{tab:geneval-low} reports GenEval. At W3A3 we compare against the low-bit image quantizers SVDQuant~\cite{li2024svdquant} and AdaTSQ~\cite{zhang2026adatsq}, and at W2A3 against the rotation and smoothing baselines.
+At W3A3 OrbitQuant has the best Overall on all three models and stays close to FP16. AdaTSQ is competitive and leads on a few individual dimensions, but OrbitQuant is the most consistent across them, while SVDQuant collapses entirely on Z-Image-Turbo.
+W2A3 is the harder test. The rotation and smoothing baselines collapse to near zero on every model, since a 3-bit uniform grid cannot place its levels where the rotated activations are dense. OrbitQuant is the only method that stays functional, remaining usable on the FLUX models. Z-Image-Turbo is the exception, where even OrbitQuant degrades sharply, marking the limit of a calibration-free codebook at this bit-width.
+
+
+\begin{table*}[t]
+\caption{Seed robustness of OrbitQuant on GenEval. Mean and standard deviation over three random seeds on three image diffusion transformers at W4A4 and W2A4. $\uparrow$ means higher is better.}
+\label{tab:robustness}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccccc}
+\toprule
+Model & Bit & Single object~$\uparrow$ & Two object~$\uparrow$ & Counting~$\uparrow$ & Colors~$\uparrow$ & Position~$\uparrow$ & Color attribution~$\uparrow$ & \textbf{Overall}~$\uparrow$  \\
+\midrule
+\multirow{2}{*}{FLUX.1-schnell}
+  & W4A4 & $0.991 \pm 0.003$ & $0.879 \pm 0.019$ & $0.685 \pm 0.018$ & $0.793 \pm 0.011$ & $0.280 \pm 0.039$ & $0.510 \pm 0.014$ & $\mathbf{0.690 \pm 0.012}$  \\
+  & W2A4 & $0.963 \pm 0.011$ & $0.692 \pm 0.013$ & $0.577 \pm 0.010$ & $0.754 \pm 0.025$ & $0.164 \pm 0.038$ & $0.423 \pm 0.031$ & $\mathbf{0.595 \pm 0.008}$  \\
+\midrule
+\multirow{2}{*}{FLUX.1-dev}
+  & W4A4 & $0.990 \pm 0.002$ & $0.763 \pm 0.005$ & $0.721 \pm 0.027$ & $0.761 \pm 0.007$ & $0.177 \pm 0.010$ & $0.421 \pm 0.009$ & $\mathbf{0.639 \pm 0.004}$ \\
+  & W2A4 & $0.943 \pm 0.014$ & $0.395 \pm 0.032$ & $0.480 \pm 0.011$ & $0.668 \pm 0.012$ & $0.079 \pm 0.027$ & $0.198 \pm 0.007$ & $\mathbf{0.460 \pm 0.014}$ \\
+\midrule
+\multirow{2}{*}{Z-Image-Turbo}
+  & W4A4 & $0.998 \pm 0.002$ & $0.880 \pm 0.009$ & $0.766 \pm 0.022$ & $0.875 \pm 0.015$ & $0.464 \pm 0.017$ & $0.618 \pm 0.020$ & $\mathbf{0.767 \pm 0.001}$ \\
+  & W2A4 & $0.616 \pm 0.149$ & $0.165 \pm 0.045$ & $0.243 \pm 0.090$ & $0.433 \pm 0.086$ & $0.100 \pm 0.037$ & $0.103 \pm 0.029$ & $\mathbf{0.276 \pm 0.072}$\\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Video-generation results on Wan~2.1-1.3B and CogVideoX-2B at W4A4. Scores are percentages. P/Q marks each method as quantization-aware training (QAT) or post-training quantization (PTQ). \textbf{Bold} and \underline{underlined} indicate the best and second-best result across all methods within each model; full-precision rows are references.}
+\label{tab:vbench-qat}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{clcccccccccc}
+\toprule
+Model & Method & P/Q & Bit & \makecell{Imaging\\Quality~$\uparrow$} & \makecell{Aesthetic\\Quality~$\uparrow$} & \makecell{Motion\\Smoothness~$\uparrow$} & \makecell{Dynamic\\Degree~$\uparrow$} & \makecell{Background\\Consistency~$\uparrow$} & \makecell{Subject\\Consistency~$\uparrow$} & Scene~$\uparrow$ & \makecell{Overall\\Consistency~$\uparrow$} \\
+\midrule
+\multirow{11}{*}{Wan~2.1-1.3B}
+  & Full Prec.       & --  & 16/16 & 64.30 & 58.21 & 97.37 & 70.28 & 95.94 & 93.84 & 28.05 & 24.67 \\
+  \cdashline{2-12}\\[-1.75ex]
+  & LSQ~\cite{lloyd1982least}              & QAT & W4A4 & 59.11 & 49.09 & \textbf{98.35} & 71.11 & 92.66 & 91.67 & 10.38 & 18.83 \\
+  & Q-DM~\cite{li2023qdm}                  & QAT & W4A4 & 60.40 & 52.50 & 97.22 & \underline{76.67} & 93.37 & 89.26 & 13.28 & 21.63 \\
+  & EfficientDM~\cite{he2024efficientdm}   & QAT & W4A4 & \underline{60.70} & \underline{53.57} & 96.18 & 56.39 & 93.74 & 91.70 & 11.77 & 21.19 \\
+  & QVGen~\cite{huang2025qvgen}            & QAT & W4A4 & \textbf{63.08} & \textbf{54.67} & \underline{98.25} & \textbf{77.78} & \textbf{94.08} & \underline{92.57} & \underline{15.32} & \underline{23.01} \\
+  \cdashline{2-12}\\[-1.75ex]
+  & SmoothQuant~\cite{xiao2023smoothquant} & PTQ & W4A4 & 46.32 & 36.33 & 96.39 & 51.94 & \underline{95.85} & 90.39 & 2.79 & 15.05 \\
+  & QuaRot~\cite{ashkboos2024quarot}       & PTQ & W4A4 & 51.42 & 40.49 & 96.21 & 52.78 & 95.76 & 88.80 & 5.31 & 17.98 \\
+  & ViDiT-Q~\cite{zhao2024vidit}           & PTQ & W4A4 & 44.51 & 36.43 & 96.16 & 58.06 & \textbf{95.92} & 89.59 & 1.85 & 13.11 \\
+  & SVDQuant~\cite{li2024svdquant}         & PTQ & W4A4 & 57.57 & 46.30 & 94.21 & \underline{72.22} & 93.16 & 77.96 & 12.73 & 21.91 \\
+  & \cellcolor{gray!25}OrbitQuant          & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}58.58 & \cellcolor{gray!25}53.41 & \cellcolor{gray!25}97.42 & \cellcolor{gray!25}53.89 & \cellcolor{gray!25}95.30 & \cellcolor{gray!25}\textbf{92.98} & \cellcolor{gray!25}\textbf{18.81} & \cellcolor{gray!25}\textbf{23.86} \\
+\midrule
+\multirow{11}{*}{CogVideoX-2B}
+  & Full Prec.       & --  & 16/16 & 59.15 & 54.49 & 97.43 & 67.78 & 94.79 & 92.82 & 36.24 & 25.06 \\
+  \cdashline{2-12}\\[-1.75ex]
+  & LSQ~\cite{lloyd1982least}              & QAT & W4A4 & \underline{58.73} & \underline{54.20} & 97.57 & 45.00 & 92.97 & \underline{92.41} & 24.06 & 23.17 \\
+  & Q-DM~\cite{li2023qdm}                  & QAT & W4A4 & 54.96 & 52.71 & 98.00 & \underline{48.61} & 93.82 & 91.86 & 28.02 & 23.87 \\
+  & EfficientDM~\cite{he2024efficientdm}   & QAT & W4A4 & 55.96 & 51.97 & \underline{98.03} & 46.67 & \underline{94.10} & 91.70 & 27.76 & \underline{24.28} \\
+  & QVGen~\cite{huang2025qvgen}            & QAT & W4A4 & \textbf{60.16} & \textbf{54.61} & \textbf{98.06} & \textbf{67.22} & \textbf{94.38} & \textbf{93.01} & \textbf{31.42} & \textbf{24.61} \\
+  \cdashline{2-12}\\[-1.75ex]
+  & SmoothQuant~\cite{xiao2023smoothquant} & PTQ & W4A4 & 39.90 & 35.50 & 97.80 & 1.90 & 95.90 & 92.90 & 3.60 & 12.80 \\
+  & QuaRot~\cite{ashkboos2024quarot}       & PTQ & W4A4 & 49.60 & 47.10 & 96.90 & 9.20 & 94.80 & 90.20 & 19.70 & 21.70 \\
+  & ViDiT-Q~\cite{zhao2024vidit}           & PTQ & W4A4 & 44.80 & 42.10 & 97.30 & 4.40 & 95.60 & 90.30 & 10.50 & 18.40 \\
+  & SVDQuant~\cite{li2024svdquant}         & PTQ & W4A4 & 51.60 & 49.40 & 97.69 & 42.22 & 94.03 & 91.78 & 25.67 & 22.89 \\
+  & \cellcolor{gray!25}OrbitQuant          & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}52.62 & \cellcolor{gray!25}51.66 & \cellcolor{gray!25}96.99 & \cellcolor{gray!25}42.78 & \cellcolor{gray!25}94.50 & \cellcolor{gray!25}91.65 & \cellcolor{gray!25}\underline{28.53} & \cellcolor{gray!25}23.86 \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Video Generation on Huge Model}
+We evaluate the two largest video diffusion transformers in our study, Wan~14B~\cite{wan2025wan} and HunyuanVideo~\cite{kong2024hunyuanvideo}, at W4A4. Table~\ref{tab:vbench-wan14b} reports VBench per-dimension scores.
+On Wan~14B, OrbitQuant is the best PTQ on seven of the eight dimensions and stays within noise of BF16 on most. The rotation and smoothing baselines drop sharply on the motion and scene dimensions, where the activation outliers are largest. On HunyuanVideo we compare against DVD-Quant~\cite{li2025dvd}, a quantizer designed specifically for the video model, with all baseline and DVD-Quant numbers taken from the DVD-Quant paper. Although OrbitQuant is calibration-free and uses one recipe across all backbones, it is competitive with DVD-Quant, ahead of it on imaging quality, motion smoothness, and scene. This suggests the distributional codebook still transfers to a model it was never tuned for, retaining usable quality without any per-model design.
+
+
+
+\subsection{Robustness}
+OrbitQuant is calibration-free, so the only stochastic parts of the pipeline are the RPBH rotation and the sampling noise. To confirm the results are not an artifact of a single random draw, we rerun the full pipeline with three random seeds and report the mean and standard deviation of GenEval. Table~\ref{tab:robustness} covers the three image models at W4A4 and W2A4.
+At W4A4 the Overall standard deviation is at most 0.005 on every model, so a single seed is representative. The FLUX models stay similarly stable at W2A4, within 0.013 on Overall, and only Z-Image-Turbo at W2A4 shows larger variance. The analytic codebook and the random rotation otherwise give consistent results across seeds.
+
+
+\subsection{Comparison with QAT}
+\label{sec:supp-qat}
+Table~\ref{tab:vbench-qat} places OrbitQuant alongside QAT methods that fine-tune the quantized model. As a calibration-free PTQ method, OrbitQuant is generally a step below the strongest QAT baseline QVGen~\cite{huang2025qvgen}, whose fine-tuned objective targets video quality directly. Even so, it stays close across most VBench dimensions and surpasses every QAT method on several, leading on Subject Consistency, Scene, and Overall Consistency on Wan~2.1-1.3B. That a fine-tuning-free quantizer matches or beats QAT on part of the benchmark, without any gradient step or per-model design, shows how strong OrbitQuant's rotated, calibration-free design is.
+
+
+\section{Limitations and Future Work}
+\label{sec:limit}
+OrbitQuant inherits the online rotation that comes with rotation-based quantization. Unlike weight-only or BF16 inference, it applies the RPBH to activations at every forward pass, so a runtime rotation cost accompanies the memory savings, though this cost is small. We compute the per-block Hadamard transform with the fused \texttt{fast\_hadamard\_transform} kernel together with the random permutation, running at 0.451\,s per image on a single H100 at $1024^2$. This is an implementation limitation rather than a method one. Integer tensor cores compute on uniform grids, where the matmul runs directly on the quantized codes, while Lloyd--Max centroids are non-uniform, so no off-the-shelf kernel computes a codebook GEMM. Our current path therefore dequantizes codes and runs the matmul in BF16, as do all baselines under fake quantization. Lookup-table GEMM kernels for non-uniform weight quantization~\cite{park2024lut, guo2024fast} suggest the path forward, and we will build a fused kernel that gathers centroids in the GEMM prologue and computes in a native low-bit format.

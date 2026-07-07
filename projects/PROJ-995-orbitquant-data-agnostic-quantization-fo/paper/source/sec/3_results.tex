@@ -1,0 +1,296 @@
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Setup}
+\label{sec:exp:setup}
+
+
+\begin{table*}[t]
+\caption{GenEval results on three image diffusion transformers at W4A4 and W2A4. Values are scores on six compositional sub-tasks and Overall. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best result within each (model, bit-width) group. $\uparrow$ means higher is better. $\dagger$ represents our implementation.}
+\vspace{-2mm}
+\label{tab:geneval}
+\small
+\centering
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{clcccccccc}
+\toprule
+Model & Method & Bit & Single object~$\uparrow$ & Two object~$\uparrow$ & Counting~$\uparrow$ & Colors~$\uparrow$ & Position~$\uparrow$ & Color attribution~$\uparrow$ & Overall~$\uparrow$ \\
+\midrule
+\multirow{12}{*}{FLUX.1-schnell}
+  & FP16                                  & 16/16 & 0.997 & 0.884 & 0.600 & 0.742 & 0.275 & 0.488 & 0.664 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & Q-DiT~\cite{chen2025q}                  & W4A4 & 0.741 & 0.424 & 0.378 & 0.418 & 0.073 & 0.208 & 0.373 \\
+  & SmoothQuant~\cite{xiao2023smoothquant} & W4A4 & 0.619 & 0.293 & 0.272 & 0.317 & 0.043 & 0.143 & 0.281 \\
+  & QuaRot~\cite{ashkboos2024quarot}      & W4A4 & 0.819 & 0.543 & 0.472 & 0.519 & 0.118 & 0.275 & 0.458 \\
+  & ViDiT-Q~\cite{zhao2024vidit}          & W4A4 & 0.888 & 0.586 & 0.516 & 0.585 & 0.130 & 0.268 & 0.495 \\
+  & SVDQuant~\cite{li2024svdquant}        & W4A4 & \underline{0.994} & \textbf{0.910} & 0.450 & 0.708 & 0.260 & 0.420 & 0.624 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W4A4 & \textbf{0.997} & \underline{0.894} & \underline{0.622} & \underline{0.793} & \underline{0.278} & \underline{0.498} & \underline{0.680} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}0.991 & \cellcolor{gray!25}0.881 & \cellcolor{gray!25}\textbf{0.706} & \cellcolor{gray!25}\textbf{0.803} & \cellcolor{gray!25}\textbf{0.323} & \cellcolor{gray!25}\textbf{0.512} & \cellcolor{gray!25}\textbf{0.703} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A4 & 0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A4 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A4 & 0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}\textbf{0.972} & \cellcolor{gray!25}\textbf{0.697} & \cellcolor{gray!25}\textbf{0.575} & \cellcolor{gray!25}\textbf{0.766} & \cellcolor{gray!25}\textbf{0.198} & \cellcolor{gray!25}\textbf{0.420} & \cellcolor{gray!25}\textbf{0.604} \\
+\midrule
+\multirow{12}{*}{FLUX.1-dev}
+  & FP16                                  & 16/16 & 0.984 & 0.823 & 0.769 & 0.771 & 0.203 & 0.450 & 0.667 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & Q-DiT~\cite{chen2025q}                  & W4A4 & 0.047 & 0.000 & 0.009 & 0.024 & 0.000 & 0.003 & 0.014 \\
+  & SmoothQuant~\cite{xiao2023smoothquant} & W4A4 & 0.003 & 0.000 & 0.003 & 0.011 & 0.000 & 0.000 & 0.007 \\
+  & QuaRot~\cite{ashkboos2024quarot}      & W4A4 & 0.634 & 0.106 & 0.294 & 0.346 & 0.025 & 0.050 & 0.243 \\
+  & ViDiT-Q~\cite{zhao2024vidit}          & W4A4 & 0.709 & 0.147 & 0.325 & 0.410 & 0.028 & 0.060 & 0.280 \\
+  & SVDQuant~\cite{li2024svdquant}        & W4A4 & \underline{0.981} & 0.710 & 0.610 & 0.698 & 0.140 & 0.300 & 0.573 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W4A4 & \underline{0.981} & \textbf{0.770} & \underline{0.640} & \underline{0.708} & \textbf{0.260} & \underline{0.350} & \underline{0.618} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.988} & \cellcolor{gray!25}\underline{0.768} & \cellcolor{gray!25}\textbf{0.691} & \cellcolor{gray!25}\textbf{0.755} & \cellcolor{gray!25}\underline{0.178} & \cellcolor{gray!25}\textbf{0.420} & \cellcolor{gray!25}\textbf{0.633} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A4 &0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A4 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A4 & 0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+& \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}\textbf{0.956} & \cellcolor{gray!25}\textbf{0.424} & \cellcolor{gray!25}\textbf{0.481} & \cellcolor{gray!25}\textbf{0.678} & \cellcolor{gray!25}\textbf{0.110} & \cellcolor{gray!25}\textbf{0.203} & \cellcolor{gray!25}\textbf{0.475} \\
+\midrule
+\multirow{11}{*}{Z-Image-Turbo}
+  & FP16                                  & 16/16 & 1.000 & 0.907 & 0.709 & 0.859 & 0.468 & 0.583 & 0.754 \\
+  \cdashline{2-10}\\[-1.75ex]
+  & SmoothQuant~\cite{xiao2023smoothquant} & W4A4 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+  & QuaRot~\cite{ashkboos2024quarot}      & W4A4 & 0.906 & 0.505 & 0.416 & 0.692 & 0.250 & 0.343 & 0.519 \\
+  & ViDiT-Q~\cite{zhao2024vidit}          & W4A4 & 0.972 & 0.705 & 0.584 & 0.777 & 0.435 & 0.533 & 0.668 \\
+  & SVDQuant~\cite{li2024svdquant}        & W4A4 & \underline{0.994} & 0.843 & 0.633 & 0.833 & \underline{0.485} & 0.520 & 0.718 \\
+  & AdaTSQ~\cite{zhang2026adatsq}         & W4A4 & \underline{0.994} & \textbf{0.891} & \underline{0.681} & \underline{0.872} & \textbf{0.520} & \textbf{0.613} & \underline{0.762} \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.997} & \cellcolor{gray!25}\underline{0.889} & \cellcolor{gray!25}\textbf{0.781} & \cellcolor{gray!25}\textbf{0.888} & \cellcolor{gray!25}0.450 & \cellcolor{gray!25}\underline{0.598} & \cellcolor{gray!25}\textbf{0.767} \\
+  \cdashline{2-10}\\[-1.75ex]
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}      & W2A4 & 0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W2A4 & 0.006 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.001 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}          & W2A4 & 0.003 & 0.000 & 0.000 & 0.003 & 0.000 & 0.000 & 0.001 \\
+  & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}\textbf{0.703} & \cellcolor{gray!25}\textbf{0.194} & \cellcolor{gray!25}\textbf{0.275} & \cellcolor{gray!25}\textbf{0.500} & \cellcolor{gray!25}\textbf{0.128} & \cellcolor{gray!25}\textbf{0.113} & \cellcolor{gray!25}\textbf{0.319} \\
+\bottomrule
+\end{tabular}}
+\vspace{-5mm}
+\end{table*}
+
+% \begin{table*}[t]
+% \caption{GenEval results on three image diffusion transformers. Values are accuracy on six compositional sub-tasks and Overall. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best PTQ result within each (model, bit-width) group.}
+% \label{tab:geneval}
+% \centering
+% \resizebox{0.95\textwidth}{!}{%
+% \begin{tabular}{clcccccccc}
+% \toprule
+% Model & Method & Bit & Single object~$\uparrow$ & Two object~$\uparrow$ & Counting~$\uparrow$ & Colors~$\uparrow$ & Position~$\uparrow$ & Color attribution~$\uparrow$ & Overall~$\uparrow$ \\
+
+% \midrule
+% \multirow{13}{*}{FLUX.1-schnell}
+%   & FP16                                  & 16/16 & 0.997 & 0.884 & 0.600 & 0.742 & 0.275 & 0.488 & 0.664 \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & Q-DiT~\cite{chen2025q}                 & W4A4 & 0.741 & 0.424 & 0.378 & 0.418 & 0.073 & 0.208 & 0.373 \\
+%   & SmoothQuant~\cite{xiao2023smoothquant}    & W4A4 & 0.619 & 0.293 & 0.272 & 0.317 & 0.043 & 0.143 & 0.281 \\
+%   & QuaRot~\cite{ashkboos2024quarot}              & W4A4 & 0.819 & 0.543 & 0.472 & 0.519 & 0.118 & 0.275 & 0.458 \\
+%   & ViDiT-Q~\cite{zhao2024vidit}             & W4A4 & 0.888 & 0.586 & 0.516 & 0.585 & 0.130 & 0.268 & 0.495 \\
+%   & SVDQuant~\cite{li2024svdquant}          & W4A4 & \underline{0.994} & \textbf{0.910} & 0.450 & 0.708 & 0.260 & 0.420 & 0.624 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}              & W4A4 & \textbf{0.997} & \underline{0.894} & \underline{0.622} & \textbf{0.793} & \underline{0.278} & \textbf{0.498} & \underline{0.680} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\underline{0.994} & \cellcolor{gray!25}0.899 & \cellcolor{gray!25}\textbf{0.669} & \cellcolor{gray!25}\underline{0.766} & \cellcolor{gray!25}\textbf{0.308} & \cellcolor{gray!25}\underline{0.488} & \cellcolor{gray!25}\textbf{0.687} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & SVDQuant~\cite{li2024svdquant}                              & W3A3 & 0.820 & 0.647 & 0.466 & 0.560 & 0.160 & 0.373 & 0.504 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}                                & W3A3 & \textbf{0.997} & \textbf{0.920} & \underline{0.530} & \underline{0.688} & \underline{0.230} & \underline{0.440} & \underline{0.634} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\underline{0.972} & \cellcolor{gray!25}\underline{0.846} & \cellcolor{gray!25}\textbf{0.600} & \cellcolor{gray!25}\textbf{0.763} & \cellcolor{gray!25}\textbf{0.265} & \cellcolor{gray!25}\textbf{0.483} & \cellcolor{gray!25}\textbf{0.655} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}0.963 & \cellcolor{gray!25}0.755 & \cellcolor{gray!25}0.553 & \cellcolor{gray!25}0.774 & \cellcolor{gray!25}0.190 & \cellcolor{gray!25}0.478 & \cellcolor{gray!25}0.619 \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}0.959 & \cellcolor{gray!25}0.677 & \cellcolor{gray!25}0.484 & \cellcolor{gray!25}0.766 & \cellcolor{gray!25}0.158 & \cellcolor{gray!25}0.450 & \cellcolor{gray!25}0.582 \\
+% \midrule
+% \multirow{13}{*}{FLUX.1-dev}
+%   & FP16                                  & 16/16 & 0.984 & 0.823 & 0.769 & 0.771 & 0.203 & 0.450 & 0.667 \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & Q-DiT~\cite{chen2025q}                                 & W4A4 & 0.047 & 0.000 & 0.009 & 0.024 & 0.000 & 0.003 & 0.014 \\
+%   & SmoothQuant~\cite{xiao2023smoothquant}                           & W4A4 & 0.003 & 0.000 & 0.003 & 0.011 & 0.000 & 0.000 & 0.007 \\
+%   & QuaRot~\cite{ashkboos2024quarot}                                & W4A4 & 0.634 & 0.106 & 0.294 & 0.346 & 0.025 & 0.050 & 0.243 \\
+%   & ViDiT-Q~\cite{zhao2024vidit}                               & W4A4 & 0.709 & 0.147 & 0.325 & 0.410 & 0.028 & 0.060 & 0.280 \\
+%   & SVDQuant~\cite{li2024svdquant}                              & W4A4 & \underline{0.981} & 0.710 & 0.610 & 0.698 & 0.140 & 0.300 & 0.573 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}                                & W4A4 & \underline{0.981} & \textbf{0.770} & \underline{0.640} & \underline{0.708} & \textbf{0.260} & \underline{0.350} & \underline{0.618} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.988} & \cellcolor{gray!25}\underline{0.768} & \cellcolor{gray!25}\textbf{0.691} & \cellcolor{gray!25}\textbf{0.755} & \cellcolor{gray!25}\underline{0.178} & \cellcolor{gray!25}\textbf{0.420} & \cellcolor{gray!25}\textbf{0.633} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & SVDQuant~\cite{li2024svdquant}                              & W3A3 & 0.869 & 0.288 & 0.425 & 0.524 & 0.033 & 0.123 & 0.377 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}                                & W3A3 & \underline{0.956} & \underline{0.548} & \underline{0.628} & \underline{0.656} & \underline{0.083} & \underline{0.290} & \underline{0.527} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\textbf{0.981} & \cellcolor{gray!25}\textbf{0.667} & \cellcolor{gray!25}\textbf{0.641} & \cellcolor{gray!25}\textbf{0.747} & \cellcolor{gray!25}\textbf{0.123} & \cellcolor{gray!25}\textbf{0.390} & \cellcolor{gray!25}\textbf{0.591} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}0.959 & \cellcolor{gray!25}0.498 & \cellcolor{gray!25}0.522 & \cellcolor{gray!25}0.707 & \cellcolor{gray!25}0.105 & \cellcolor{gray!25}0.248 & \cellcolor{gray!25}0.507 \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}0.938 & \cellcolor{gray!25}0.333 & \cellcolor{gray!25}0.444 & \cellcolor{gray!25}0.673 & \cellcolor{gray!25}0.060 & \cellcolor{gray!25}0.200 & \cellcolor{gray!25}0.441 \\
+% \midrule
+% \multirow{12}{*}{Z-Image-Turbo}
+%   & FP16                                  & 16/16 & 1.000 & 0.907 & 0.709 & 0.859 & 0.468 & 0.583 & 0.754 \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & SmoothQuant~\cite{xiao2023smoothquant}                           & W4A4 & 0.003 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+%   & QuaRot~\cite{ashkboos2024quarot}                                & W4A4 & 0.906 & 0.505 & 0.416 & 0.692 & 0.250 & 0.343 & 0.519 \\
+%   & ViDiT-Q~\cite{zhao2024vidit}                               & W4A4 & 0.972 & 0.705 & 0.584 & 0.777 & 0.435 & 0.533 & 0.668 \\
+%   & SVDQuant~\cite{li2024svdquant}                              & W4A4 & \underline{0.994} & 0.843 & 0.633 & 0.833 & \underline{0.485} & 0.520 & 0.718 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}                                & W4A4 & \underline{0.994} & \textbf{0.891} & \underline{0.681} & \underline{0.872} & \textbf{0.520} & \textbf{0.613} & \underline{0.762} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{0.997} & \cellcolor{gray!25}\underline{0.889} & \cellcolor{gray!25}\textbf{0.781} & \cellcolor{gray!25}\textbf{0.888} & \cellcolor{gray!25}0.450 & \cellcolor{gray!25}\underline{0.598} & \cellcolor{gray!25}\textbf{0.767} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & SVDQuant~\cite{li2024svdquant}                              & W3A3 & 0.005 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+%   & AdaTSQ~\cite{zhang2026adatsq}                                & W3A3 & \textbf{0.994} & \textbf{0.870} & \underline{0.550} & \textbf{0.885} & \textbf{0.410} & \underline{0.455} & \underline{0.694} \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W3A3 & \cellcolor{gray!25}\textbf{0.994} & \cellcolor{gray!25}\underline{0.846} & \cellcolor{gray!25}\textbf{0.750} & \cellcolor{gray!25}\underline{0.859} & \cellcolor{gray!25}\underline{0.395} & \cellcolor{gray!25}\textbf{0.598} & \cellcolor{gray!25}\textbf{0.740} \\
+%   \cdashline{2-10}\\[-1.75ex]
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A4 & \cellcolor{gray!25}0.703 & \cellcolor{gray!25}0.194 & \cellcolor{gray!25}0.275 & \cellcolor{gray!25}0.500 & \cellcolor{gray!25}0.128 & \cellcolor{gray!25}0.113 & \cellcolor{gray!25}0.319 \\
+%   & \cellcolor{gray!25}OrbitQuant            & \cellcolor{gray!25}W2A3 & \cellcolor{gray!25}0.272 & \cellcolor{gray!25}0.023 & \cellcolor{gray!25}0.028 & \cellcolor{gray!25}0.269 & \cellcolor{gray!25}0.018 & \cellcolor{gray!25}0.023 & \cellcolor{gray!25}0.105 \\
+% \bottomrule
+% \end{tabular}}
+% \end{table*}
+
+% \paragraph{Models and bit-widths.}
+% We evaluate OrbitQuant on three image DiTs and two video DiTs. For image generation we report FLUX.1-schnell (4-step, guidance 0.0), FLUX.1-dev (50-step, guidance 3.5), and Z-Image-Turbo (10-step, guidance 0.0) at W4A4, W3A3, W2A4, and W2A3. For video generation we report Wan~2.1-1.3B (49 frames, $480{\times}832$, 50 steps, CFG 6.0) and CogVideoX-2B (49 frames, $720{\times}480$, 50 steps, CFG 6.0) at W4A4 and W4A6. The FP16 baseline is reported in every table. We quantize all transformer-trunk projections with OrbitQuant and keep AdaLN modulation at INT4 weight round-to-nearest (RTN)~\cite{li2024svdquant}, with the full list of quantized and skipped layers in the supplementary.
+
+\paragraph{Models and bit-widths.}
+We evaluate OrbitQuant on three image DiTs and two video DiTs. For image generation we report FLUX.1-schnell (4-step, guidance 0.0), FLUX.1-dev (50-step, guidance 3.5), and Z-Image-Turbo (10-step, guidance 0.0) at W4A4 and W2A4. For video generation we report Wan~2.1-1.3B (81 frames, $480{\times}832$, 50 steps, CFG 5.0) and CogVideoX-2B (49 frames, $480{\times}720$, 50 steps, CFG 6.0) at W4A6 and W4A4. We quantize all transformer-block projections with OrbitQuant and keep the adaptive layer normalization (AdaLN) modulation projections, where present, at INT4 weight round-to-nearest (RTN)~\cite{li2024svdquant}. This AdaLN treatment is identical across all methods we implement. Wan~2.1-1.3B has no AdaLN modulation, so only its transformer-block projections are quantized. The full list of quantized and skipped layers is given in the supplementary material~\ref{sec:supp-additional}.
+
+% \paragraph{Target layers.}
+% We quantize every linear projection in the transformer trunk through the OrbitQuant path of Section~\ref{sec:method}, namely the image- and text-side $Q$, $K$, $V$ and output projections and the feed-forward layers of every block, including the cross-attention $K$ and $V$ projections. AdaLN modulation projections are the one exception, since the rotation does not commute through the elementwise scale-and-shift they feed, so we quantize them with int4 weight round-to-nearest (RTN)~\cite{li2024svdquant}. Embeddings, the timestep MLP, the final un-patchify head, and the text encoder stay in BF16.
+
+\paragraph{Baselines.}
+Image baselines are the calibration-based SVDQuant~\cite{li2024svdquant}, AdaTSQ~\cite{zhang2026adatsq}, and ViDiT-Q~\cite{zhao2024vidit}, together with Q-DiT~\cite{chen2025q}, QuaRot~\cite{ashkboos2024quarot}, and SmoothQuant~\cite{xiao2023smoothquant}. Video baselines are ViDiT-Q, SVDQuant, QuaRot, and SmoothQuant. Baseline numbers are taken primarily from AdaTSQ~\cite{zhang2026adatsq} for image and QVGen~\cite{huang2025qvgen} for video.
+
+
+
+
+
+
+
+% \begin{table*}[t]
+% \caption{VBench video-generation results on Wan~2.1-1.3B and CogVideoX-2B. Scores are percentages, and P/Q denotes PTQ vs.\ QAT. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best PTQ result within each (model, bit-width) group.}
+% \label{tab:vbench}
+% \centering
+% \resizebox{0.9\textwidth}{!}{%
+% \begin{tabular}{clcccccccccc}
+% \toprule
+% Model & Method & Bit & P/Q & \makecell{Imaging\\Quality~$\uparrow$} & \makecell{Aesthetic\\Quality~$\uparrow$} & \makecell{Motion\\Smoothness~$\uparrow$} & \makecell{Dynamic\\Degree~$\uparrow$} & \makecell{Background\\Consistency~$\uparrow$} & \makecell{Subject\\Consistency~$\uparrow$} & Scene~$\uparrow$ & \makecell{Overall\\Consistency~$\uparrow$} \\
+% \midrule
+% \multirow{12}{*}{Wan~2.1-1.3B}
+%   & Full Prec.                  & 16/16 & --  & 64.30 & 58.21 & 97.37 & 70.28 & 95.94 & 93.84 & 28.05 & 24.67 \\
+%   & Full Fine-tuning            & 16/16 & --  & 64.59 & 58.85 & 97.46 & 83.61 & 94.30 & 93.68 & 27.55 & 24.86 \\
+%   \cdashline{2-12}\\[-1.75ex]
+%   & ViDiT-Q~\cite{zhao2024vidit}                     & W4A6 & PTQ & 56.24 & 50.18 & 94.81 & 52.43 & 89.67 & 82.53 & 13.45 & 19.58 \\
+%   & SVDQuant~\cite{li2024svdquant}                    & W4A6 & PTQ & \underline{58.16} & \underline{51.27} & \underline{97.05} & \underline{49.44} & \underline{93.74} & \underline{91.71} & \underline{14.18} & \underline{23.26} \\
+%   & \cellcolor{gray!25}OrbitQuant  & \cellcolor{gray!25}W4A6 & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}\textbf{61.25} & \cellcolor{gray!25}\textbf{56.08} & \cellcolor{gray!25}\textbf{97.76} & \cellcolor{gray!25}\textbf{59.78} & \cellcolor{gray!25}\textbf{95.51} & \cellcolor{gray!25}\textbf{94.23} & \cellcolor{gray!25}\textbf{24.88} & \cellcolor{gray!25}\textbf{24.35} \\
+%   \cdashline{2-11}\\[-1.75ex]
+%   & LSQ~\cite{lloyd1982least}          & W4A4 & QAT & 59.11 & 49.09 & \underline{98.35} & 71.11 & 92.66 & 91.67 & 10.38 & 18.83 \\
+%   & Q-DM~\cite{chen2025qdm}         & W4A4 & QAT & 60.40 & 52.50 & 97.22 & 76.67 & 93.37 & 89.26 & 13.28 & 21.63 \\
+%   & EfficientDM~\cite{he2024efficientdm} & W4A4 & QAT & 60.70 & \underline{53.57} & 96.18 & 56.39 & 93.74 & 91.70 & 11.77 & 21.19 \\
+%   & QVGen~\cite{huang2025qvgen}      & W4A4 & QAT & \textbf{63.08} & \textbf{54.67} & \textbf{98.25} & \textbf{77.78} & 94.08 & 92.57 & 15.32 & \underline{23.01} \\
+%   \cdashline{2-12}\\[-1.75ex]
+%   & SVDQuant~\cite{li2024svdquant}                 & W4A4 & PTQ & 57.57 & 46.30 & 94.21 & \underline{72.22} & 93.16 & 77.96 & 12.73 & 21.91 \\
+%   & \cellcolor{gray!25}OrbitQuant  & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}\underline{58.58} & \cellcolor{gray!25}53.41 & \cellcolor{gray!25}97.42 & \cellcolor{gray!25}53.89 & \cellcolor{gray!25}\textbf{95.30} & \cellcolor{gray!25}\textbf{92.98} & \cellcolor{gray!25}\textbf{18.81} & \cellcolor{gray!25}\textbf{23.86} \\
+% \midrule
+% \multirow{12}{*}{CogVideoX-2B}
+%   & Full Prec.                  & 16/16 & --  & 59.15 & 54.49 & 97.43 & 67.78 & 94.79 & 92.82 & 36.24 & 25.06 \\
+%   & Full Fine-tuning            & 16/16 & --  & 61.34 & 56.53 & 98.59 & 65.39 & 93.84 & 93.43 & 34.99 & 25.50 \\
+%   \cdashline{2-12}\\[-1.75ex]
+%   & ViDiT-Q~\cite{zhao2024vidit}                     & W4A6 & PTQ & 54.72 & 43.01 & 92.18 & 43.22 & 90.76 & 81.02 & 26.25 & 20.41 \\
+%   & SVDQuant~\cite{li2024svdquant}                    & W4A6 & PTQ & \textbf{58.27} & \underline{47.06} & \underline{95.28} & \underline{40.83} & \underline{92.41} & \underline{87.45} & \underline{27.69} & \underline{21.34} \\
+%   & \cellcolor{gray!25}OrbitQuant  & \cellcolor{gray!25}W4A6 & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}\underline{52.62} & \cellcolor{gray!25}\textbf{51.66} & \cellcolor{gray!25}\textbf{96.99} & \cellcolor{gray!25}\textbf{42.78} & \cellcolor{gray!25}\textbf{94.50} & \cellcolor{gray!25}\textbf{91.65} & \cellcolor{gray!25}\textbf{28.53} & \cellcolor{gray!25}\textbf{23.86} \\
+%   \cdashline{2-12}\\[-1.75ex]
+%   & LSQ~\cite{lloyd1982least}
+%   & W4A4 & QAT & \underline{58.73} & 54.20 & 97.57 & 45.00 & 92.97 & 92.41 & 24.06 & 23.17 \\
+%   & Q-DM~\cite{chen2025qdm}                        & W4A4 & QAT & 54.96 & 52.71 & 98.00 & 48.61 & 93.82 & 91.86 & 28.02 & 23.87 \\
+%   & EfficientDM~\cite{he2024efficientdm}                 & W4A4 & QAT & 55.96 & 51.97 & \underline{98.03} & 46.67 & 94.10 & 91.70 & 27.76 & 24.28 \\
+%   & QVGen~\cite{huang2025qvgen}                       & W4A4 & QAT & \textbf{60.16} & \textbf{54.61} & \textbf{98.06} & \textbf{67.22} & 94.38 & \textbf{93.01} & 31.42 & \textbf{24.61} \\
+%   \cdashline{2-12}\\[-1.75ex]
+%   & SVDQuant~\cite{li2024svdquant}                  & W4A4 & PTQ & 51.60 & 49.40 & 97.69 & 42.22 & 94.03 & 91.78 & 25.67 & 22.89 \\
+%   & \cellcolor{gray!25}OrbitQuant  & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}PTQ & \cellcolor{gray!25}55.59 & \cellcolor{gray!25}\underline{54.42} & \cellcolor{gray!25}97.02 & \cellcolor{gray!25}\underline{57.50} & \cellcolor{gray!25}\textbf{94.78} & \cellcolor{gray!25}\underline{92.56} & \cellcolor{gray!25}\textbf{32.51} & \cellcolor{gray!25}\underline{24.55} \\
+% \bottomrule
+% \end{tabular}}
+% \end{table*}
+
+\subsection{Image generation: GenEval}
+\label{sec:exp:image}
+Table~\ref{tab:geneval} reports GenEval Overall and per-task scores. At W4A4, OrbitQuant is essentially lossless, exceeding FP16 on Overall on FLUX.1-schnell and Z-Image-Turbo and trailing it by 0.034 on FLUX.1-dev, while outperforming every PTQ baseline to set the state of the art on GenEval. The advantage widens at W2A4, where the rotation and smoothing baselines collapse to near-zero on all three backbones while OrbitQuant stays functional, retaining most of its quality on the FLUX models and remaining the only method that produces meaningful scores on Z-Image-Turbo. Results at W3A3 and W2A3 are presented in the supplementary material~\ref{supple:low_bit}.
+
+\begin{table*}[t]
+\caption{VBench PTQ video-generation results on Wan~2.1-1.3B and CogVideoX-2B. Scores are percentages. \textbf{Bold} and \underline{underlined} entries indicate the best and second-best result within each (model, bit-width) group. $\dagger$ represents our implementation.}
+\vspace{-2mm}
+\label{tab:vbench}
+\centering
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{clccccccccc}
+\toprule
+Model & Method & Bit & \makecell{Imaging\\Quality~$\uparrow$} & \makecell{Aesthetic\\Quality~$\uparrow$} & \makecell{Motion\\Smoothness~$\uparrow$} & \makecell{Dynamic\\Degree~$\uparrow$} & \makecell{Background\\Consistency~$\uparrow$} & \makecell{Subject\\Consistency~$\uparrow$} & Scene~$\uparrow$ & \makecell{Overall\\Consistency~$\uparrow$} \\
+\midrule
+\multirow{11}{*}{Wan~2.1-1.3B}
+  & Full Prec. & 16/16 & 64.30 & 58.21 & 97.37 & 70.28 & 95.94 & 93.84 & 28.05 & 24.67 \\
+  \cdashline{2-11}\\[-1.75ex]
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W4A6 & 53.51 & 49.19 & \textbf{98.01} & 34.44 & 94.89 & \underline{92.66} & 12.81 & 22.15 \\
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}       & W4A6 & 56.92 & 50.36 & 96.94 & \underline{54.17} & \underline{95.36} & 91.65 & \underline{14.88} & 22.65 \\
+  & ViDiT-Q~\cite{zhao2024vidit}           & W4A6 & 56.24 & 50.18 & 94.81 & 52.43 & 89.67 & 82.53 & 13.45 & 19.58 \\
+  & SVDQuant~\cite{li2024svdquant}         & W4A6 & \underline{58.16} & \underline{51.27} & 97.05 & 49.44 & 93.74 & 91.71 & 14.18 & \underline{23.26} \\
+  & \cellcolor{gray!25}OrbitQuant & \cellcolor{gray!25}W4A6 & \cellcolor{gray!25}\textbf{61.25} & \cellcolor{gray!25}\textbf{56.08} & \cellcolor{gray!25}\underline{97.76} & \cellcolor{gray!25}\textbf{59.78} & \cellcolor{gray!25}\textbf{95.51} & \cellcolor{gray!25}\textbf{94.23} & \cellcolor{gray!25}\textbf{24.88} & \cellcolor{gray!25}\textbf{24.35} \\
+  \cdashline{2-11}\\[-1.75ex]
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W4A4 & 46.32 & 36.33 & \underline{96.39} & 51.94 & \underline{95.85} & \underline{90.39} & 2.79 & 15.05 \\
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}       & W4A4 & 51.42 & 40.49 & 96.21 & 52.78 & 95.76 & 88.80 & 5.31 & 17.98 \\
+  & ViDiT-Q$\dagger$~\cite{zhao2024vidit}           & W4A4 & 44.51 & 36.43 & 96.16 & \underline{58.06} & \textbf{95.92} & 89.59 & 1.85 & 13.11 \\
+  & SVDQuant~\cite{li2024svdquant}         & W4A4 & \underline{57.57} & \underline{46.30} & 94.21 & \textbf{72.22} & 93.16 & 77.96 & \underline{12.73} & \underline{21.91} \\
+  & \cellcolor{gray!25}OrbitQuant & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{58.58} & \cellcolor{gray!25}\textbf{53.41} & \cellcolor{gray!25}\textbf{97.42} & \cellcolor{gray!25}53.89 & \cellcolor{gray!25}95.30 & \cellcolor{gray!25}\textbf{92.98} & \cellcolor{gray!25}\textbf{18.81} & \cellcolor{gray!25}\textbf{23.86} \\
+\midrule
+\multirow{11}{*}{CogVideoX-2B}
+  & Full Prec. & 16/16 & 59.15 & 54.49 & 97.43 & 67.78 & 94.79 & 92.82 & 36.24 & 25.06 \\
+  \cdashline{2-11}\\[-1.75ex]
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W4A6 & 51.50 & 49.70 & \textbf{97.20} & 30.00 & \underline{94.70} & 91.10 & 21.90 & 23.20 \\
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}       & W4A6 & 54.11 & \underline{52.25} & 96.92 & \underline{49.72} & 94.60 & \underline{91.82} & \underline{30.73} & \underline{24.03} \\
+  & ViDiT-Q~\cite{zhao2024vidit}           & W4A6 & 54.72 & 43.01 & 92.18 & 43.22 & 90.76 & 81.02 & 26.25 & 20.41 \\
+  & SVDQuant~\cite{li2024svdquant}         & W4A6 & \textbf{58.27} & 47.06 & 95.28 & 40.83 & 92.41 & 87.45 & 27.69 & 21.34 \\
+  & \cellcolor{gray!25}OrbitQuant & \cellcolor{gray!25}W4A6 & \cellcolor{gray!25}\underline{55.59} & \cellcolor{gray!25}\textbf{54.42} & \cellcolor{gray!25}\underline{97.02} & \cellcolor{gray!25}\textbf{57.50} & \cellcolor{gray!25}\textbf{94.78} & \cellcolor{gray!25}\textbf{92.56} & \cellcolor{gray!25}\textbf{32.51} & \cellcolor{gray!25}\textbf{24.55} \\
+  \cdashline{2-11}\\[-1.75ex]
+  & SmoothQuant$\dagger$~\cite{xiao2023smoothquant} & W4A4 & 39.90 & 35.50 & \textbf{97.80} & 1.90 & \textbf{95.90} & \textbf{92.90} & 3.60 & 12.80 \\
+  & QuaRot$\dagger$~\cite{ashkboos2024quarot}       & W4A4 & 49.60 & 47.10 & 96.90 & 9.20 & 94.80 & 90.20 & 19.70 & 21.70 \\
+  & ViDiT-Q$\dagger~$\cite{zhao2024vidit}           & W4A4 & 44.80 & 42.10 & 97.30 & 4.40 & \underline{95.60} & 90.30 & 10.50 & 18.40 \\
+  & SVDQuant~\cite{li2024svdquant}         & W4A4 & \underline{51.60} & \underline{49.40} & \underline{97.69} & \underline{42.22} & 94.03 & \underline{91.78} & \underline{25.67} & \underline{22.89} \\
+  & \cellcolor{gray!25}OrbitQuant & \cellcolor{gray!25}W4A4 & \cellcolor{gray!25}\textbf{52.62} & \cellcolor{gray!25}\textbf{51.66} & \cellcolor{gray!25}96.99 & \cellcolor{gray!25}\textbf{42.78} & \cellcolor{gray!25}94.50 & \cellcolor{gray!25}91.65 & \cellcolor{gray!25}\textbf{28.53} & \cellcolor{gray!25}\textbf{23.86} \\
+\bottomrule
+\end{tabular}}
+\vspace{-2mm}
+\end{table*}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/comparison.pdf}
+\vspace{-7mm}
+\caption{Qualitative comparison of OrbitQuant against QuaRot~\cite{ashkboos2024quarot} and ViDiT-Q~\cite{zhao2024vidit}, with the BF16 full-precision output shown for reference. \textbf{(a)} Image generation at W3A3 on FLUX.1-dev, FLUX.1-schnell, and Z-Image-Turbo, with one prompt per model. \textbf{(b)} Video generation at W4A4 on Wan 14B, showing three sampled frames per method.}
+\label{fig:qualitative}
+\vspace{-2.5mm}
+\end{figure*}
+
+\subsection{Video generation: VBench}
+\label{sec:exp:video}
+OrbitQuant applies to Wan~2.1-1.3B~\cite{wan2025wan} and CogVideoX-2B~\cite{yang2025cogvideox} with the identical recipe used for the image experiments, and Table~\ref{tab:vbench} reports the full VBench comparison. At W4A6, OrbitQuant is the strongest PTQ method on both backbones, leading on Overall Consistency and most per-dimension scores over the calibration-based ViDiT-Q~\cite{zhao2024vidit} and SVDQuant~\cite{li2024svdquant}. The advantage holds at W4A4, where the baselines lose ground on the harder dimensions while OrbitQuant stays closest on most dimensions, again ranking first on Overall Consistency on both backbones. Comparisons against quantization-aware training (QAT) and results on the huge model, including Wan~14B~\cite{wan2025wan} and HunyuanVideo~\cite{kong2024hunyuanvideo}, are given in the supplementary material~\ref{supple:add-exp}.
+
+
+% \subsection{Video generation: VBench}
+% \label{sec:exp:video}
+% OrbitQuant applies to Wan~2.1-1.3B~\cite{wan2025wan} and CogVideoX-2B~\cite{yang2025cogvideox} with the identical recipe used for the image experiments, and Table~\ref{tab:vbench} reports the full VBench-8 comparison. At W4A6, OrbitQuant is the strongest PTQ method on both backbones, including SVDQuant~\cite{li2024svdquant} and ViDiT-Q~\cite{zhao2024vidit}.
+
+% The advantage holds even against quantization-aware training (QAT). At W4A4, OrbitQuant is the best PTQ method on both backbones and, despite using no fine-tuning, matches or exceeds several QAT baselines such as LSQ~\cite{esser2019learned} and EfficientDM~\cite{he2024efficientdm} on most VBench dimensions. Only QVGen~\cite{huang2025qvgen}, whose fine-tuned video-DiT loss targets motion directly, keeps an edge on dynamic degree and motion smoothness, which a calibration-free PTQ method does not aim to replace. Results on the large video models Wan~14B~\cite{wan2025wan} and HunyuanVideo~\cite{kong2024hunyuanvideo} are shown in the supplementary material.
+
+\subsection{Qualitative Comparison}
+\label{sec:exp:qualitative}
+Figure~\ref{fig:qualitative} shows generations from OrbitQuant, QuaRot~\cite{ashkboos2024quarot}, and ViDiT-Q~\cite{zhao2024vidit} alongside the BF16 reference. For images at W3A3, OrbitQuant stays close to BF16 on FLUX.1-dev, FLUX.1-schnell, and Z-Image-Turbo, retaining fine structure and color, while the other methods lose fidelity and collapse to noise on Z-Image-Turbo. For Wan~14B video at W4A4, OrbitQuant preserves scene layout and stays consistent across frames, whereas the other methods drift in color and structure.
+
+
+\subsection{Latency and Memory Analysis}
+We measure end-to-end latency and peak memory on FLUX.1-dev for image (NVIDIA H100, $1024^2$, $50$ steps, guidance $3.5$) and on Wan~2.1-1.3B for video ($480{\times}832$, $81$ frames, $50$ steps, CFG $5.0$). All methods are evaluated under fake quantization, with weights and activations dequantized to BF16 and the matmul computed in BF16. The comparison therefore measures quantization overhead, not realized low-bit speedup. As shown in Figure~\ref{fig:efficiency}, OrbitQuant has the lowest overhead among the weight-and-activation quantization methods on both, with SmoothQuant~\cite{xiao2023smoothquant}, QuaRot~\cite{ashkboos2024quarot}, and ViDiT-Q~\cite{zhao2024vidit} running $1.09\times$, $1.28\times$, and $1.40\times$ slower on image and in the same relative order on video. OrbitQuant keeps the lowest peak memory on image, matching the unquantized footprint.
+
+OrbitQuant has the lowest overhead because its activation quantization is a fixed, shared-codebook nearest-centroid lookup, which empirically undercuts the dynamic per-token uniform quantization of QuaRot and the additional channel-wise smoothing of SmoothQuant and ViDiT-Q. On video, where activations dominate, the lookup materializes an index and gather tensor that lifts OrbitQuant's peak memory above QuaRot and SmoothQuant (20.3 vs 19.3~GB), though still below ViDiT-Q (23.2~GB). 
+
+% This overhead is a fake-quantization artifact that a fused low-bit kernel removes.
+
+
+
+% All methods are evaluated under fake quantization, with weights and activations dequantized to BF16 and the matmul computed in BF16. As shown in Figure~\ref{fig:efficiency}, OrbitQuant is the fastest weight-and-activation quantization method on both, with SmoothQuant~\cite{xiao2023smoothquant}, QuaRot~\cite{ashkboos2024quarot}, and ViDiT-Q~\cite{zhao2024vidit} running $1.32\times$, $1.50\times$, and $1.64\times$ slower on image and in the same order on video. OrbitQuant also keeps the lowest peak memory on image, matching the unquantized footprint.
+
+% OrbitQuant is fastest because its activation quantization is a single nearest-centroid lookup in the shared codebook. This is much cheaper than the baselines' dynamic per-token uniform quantization and channel-wise smoothing. Its peak memory matches the full-precision model on image, where weights dominate. On video, where activations dominate, the lookup materializes a small index tensor that lifts OrbitQuant's peak slightly above the baselines. The extra memory is a fake-quant artifact that a fused low-bit kernel removes.
+
+
+% The rotation is not the source of the latency gap. All rotation-based methods share the same fused \texttt{fast\_hadamard\_transform} kernel, and a kernel breakdown (supplementary material) attributes only about $3\%$ of per-step time to the Hadamard transform. The overhead is instead dominated by per-token activation quantization, where OrbitQuant is the cheapest. OrbitQuant maps each token to its nearest centroid in the shared Lloyd--Max codebook with a single lookup, replacing the baselines' dynamic per-token uniform quantization and their FP32 rotation round-trips, with ViDiT-Q and SmoothQuant adding a channel-wise smoothing multiply on top. That the rotation-free SmoothQuant is still slower than OrbitQuant confirms it is the quantization arithmetic, not the rotation, that drives the cost.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/efficiency.pdf}
+\caption{Latency and peak memory together, with lower-left being better. The left panel is image generation on FLUX.1-dev, the right panel video on Wan~2.1-1.3B.}
+
+\label{fig:efficiency}
+\end{figure}
+

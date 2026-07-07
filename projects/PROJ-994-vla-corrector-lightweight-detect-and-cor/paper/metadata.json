@@ -1,0 +1,60 @@
+{
+  "arxiv_id": "2607.01804",
+  "arxiv_url": "https://arxiv.org/abs/2607.01804",
+  "title": "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon",
+  "authors": [
+    "Yi Pan",
+    "Miao Pan",
+    "Qi Lu",
+    "Jiaming Huang",
+    "Man Zhang",
+    "Siteng Huang",
+    "Xin Li",
+    "Jie Zhang",
+    "Yongliang Shen",
+    "Xuhong Zhang",
+    "Wenqi Zhang"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Vision-Language-Action (VLA) foundation models have recently achieved strong progress in embodied intelligence. To reduce policy-call frequency while preserving temporal coherence, most generative policies adopt an action chunk mechanism, executing multiple future actions in an open-loop manner under a fixed action horizon. However, this \"predict-then-blindly-execute\" paradigm sacrifices closed-loop reactivity: in contact-rich physical interactions, even small local perturbations can rapidly amplify within the open-loop blind spot, leading to compounding errors and ultimately task failure. To address this limitation, we propose VLA-Corrector, a lightweight corrective inference framework for action-chunked VLA policies. Without modifying the backbone policy weights, VLA-Corrector introduces a lightweight Latent-space Vision Monitor (LVM) that continuously compares predicted and actual visual feature evolution, enabling online detection of visual dynamics deviations. Once persistent deviation is detected, the system triggers a truncation event, discards the remaining stale actions, and invokes corrective replanning via Online Gradient Guidance (OGG). The detect-and-correct mechanism of VLA-Corrector naturally induces an event-triggered adaptive action horizon: it preserves long-horizon execution when the current chunk remains reliable, and invokes short-horizon corrective replanning when execution begins to drift. In doing so, VLA-Corrector mitigates the trade-off imposed by static horizons between execution robustness and policy-call frequency. It can be integrated into different VLA models without further retraining the VLA backbone, interrupting compounding errors while preserving much of the efficiency benefit of action chunking and substantially improving robustness in long-horizon, contact-rich robotic manipulation tasks.",
+  "submitted_via": "llmXive dashboard, GitHub issue #522",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/ZJU-OmniAI/vla-corrector"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/acl_natbib.bst",
+    "assets/plainnat.bst",
+    "fairmeta.cls",
+    "others",
+    "others/logo.png",
+    "others/ZJU.png",
+    "paper.bib",
+    "paper.tex",
+    "plots",
+    "plots/critical_noncritical_2x3_nas10_v4.pdf",
+    "plots/Et_combined.pdf",
+    "plots/Failure_Analysis_Meltdown_Counts.pdf",
+    "plots/Fig_StyleB_Pareto-2.pdf",
+    "plots/open_loop_vs_closed_loop_v4.pdf",
+    "plots/overview_v4.pdf",
+    "plots/Pi05_Comparison_Pareto-2.pdf",
+    "plots/Pi05_Efficiency_Gain-2.pdf",
+    "plots/qualitative_recovery_v2.pdf",
+    "plots/recovery_rate_v2.pdf",
+    "plots/task_blue_bowl.pdf",
+    "plots/task_drawer.pdf",
+    "plots/task_white_bowl.pdf",
+    "sec",
+    "sec/0_abstract.tex",
+    "sec/vla_appendix.tex",
+    "sec/vla_main.tex"
+  ]
+}

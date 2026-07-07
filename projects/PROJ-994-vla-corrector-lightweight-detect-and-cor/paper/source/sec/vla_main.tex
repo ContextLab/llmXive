@@ -1,0 +1,636 @@
+\section{Introduction}
+
+Vision-Language-Action (VLA) foundation models have emerged as a promising path toward general-purpose robot control, unifying perception, language, and action generation within a single framework~\cite{zitkovich2023rt,o2024open,kim2024openvla,black2024pi_0,li2023vision,bjorck2025gr00t,intelligence2025pi_,ma2024survey,wang2026vla,cen2025rynnvla,jiang2025rynnvla}. 
+Modern VLA policies often rely on generative action models, such as diffusion models and flow matching, to capture the high-dimensional and multi-modal nature of continuous robot actions~\cite{black2024pi_0,chi2025diffusion,jiang2025streaming,wang2024one,lipman2022flow}. 
+However, the per-step latency of generative models precludes closed-loop replanning, creating a fundamental tension between action expressiveness and high-frequency feedback control.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{plots/open_loop_vs_closed_loop_v4.pdf}
+    \caption{
+         \textbf{Open-loop vs. Closed-loop execution.}
+         The top row ($H=10$) illustrates how blindly executing long action chunks leads to compounding errors, causing the robot to get stuck during a drawer-opening task. In contrast, the bottom row ($H=1$) demonstrates strict closed-loop execution, which maintains environmental reactivity and yields a smooth, successful manipulation.
+    }
+    \label{fig:open_loop_vs_closed_loop}
+\end{figure}
+
+A common engineering compromise is to use an \textbf{action chunk}~\cite{zhao2023learning}: in a single forward pass, the policy predicts a sequence of future actions, while the controller only executes the first $H$ steps as the \textbf{action horizon}~\cite{jing2025mixture,liu2024bidirectional,sendai2025leave,chi2025diffusion,khan2025test,so2025improving}. This design amortizes policy-call frequency and improves temporal smoothness, but it also creates an \textbf{open-loop blind spot}~\cite{wang2026open,xu2026vgas} that introduces two compounding risks. \textbf{First, the policy lacks real-time reactivity}. Fresh observations arrive at every control step, yet the system ignores them until the horizon ends, leaving it unable to respond to unexpected slippage, collision, or pose drift as they occur. \textbf{Second, errors can accumulate beyond the point that replanning can recover from during the blind spot}. If deviations go uncorrected long enough, the robot may drift into an out-of-distribution state that the policy has rarely encountered during training, at which point even the next replanning call cannot steer execution back to the intended trajectory~\cite{wang2026open,liu2024bidirectional,sendai2025leave,wu2026closed,xuvla}, and the task ultimately fails.
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{plots/Fig_StyleB_Pareto-2.pdf}
+    \caption{
+    \textbf{Performance--efficiency trade-off across fixed action horizons.}
+    Smaller horizon achieves higher success rates, while larger horizon preserves the chunking efficiency.
+    }
+    \label{fig:teaser_pareto}
+    \vspace{0pt}
+\end{wrapfigure}
+Crucially, both risks worsen as the horizon grows longer. As illustrated in Fig.~\ref{fig:open_loop_vs_closed_loop}, under a long horizon ($H=10$), the robot keeps executing stale actions after a deviation and eventually gets stuck; in contrast, with $H=1$, the policy replans at every step and avoids the same error accumulation.
+
+
+Yet $H=1$ is not a practical solution: it requires a full VLA inference at every control step, negating the efficiency gains that action chunking was designed to provide. The contrast between these two extremes thus exposes a fundamental trade-off: smaller horizons improve closed-loop responsiveness but multiply policy-call frequency, while larger horizons amortize computation but widen the blind spot where errors silently accumulate.
+
+
+To quantify this trade-off, we conduct systematic experiments comparing task success rate and policy frequency across a range of action horizons on three VLA backbones. As shown in Fig.~\ref{fig:teaser_pareto}, larger horizons substantially reduce policy calls but also lead to lower success rates, and this trend is consistently observed across all three backbones. For $\pi_{0.5}$~\cite{intelligence2025pi_}, for example, increasing the horizon reduces policy calls by about $4\times$, but lowers success from about 64\% to below 49\%; similar trends hold for SmolVLA~\cite{shukor2025smolvla} and X-VLA~\cite{zheng2025x}. Furthermore, since the best horizon depends on task difficulty, environmental dynamics, and sim-to-real mismatch, it is difficult to predefine a single static horizon that remains optimal across scenarios. This suggests that the key is not to choose a better fixed horizon, but to decide when the current chunk should stop being trusted. 
+
+The above analysis raises two key questions: (1) How to \textbf{detect execution deviations in time} and \textbf{terminate stale actions} before errors compound beyond recovery;  (2) How to \textbf{correct the trajectory after truncation}---since naive replanning alone is often insufficient: the VLA may re-generate actions that still fail to escape the deviated state, leaving the robot trapped again.
+
+
+Motivated by these insights, we propose \textbf{VLA-Corrector}, a lightweight corrective inference framework that addresses both questions. For the first, VLA-Corrector introduces a \textbf{Latent-space Vision Monitor} (LVM) that continuously compares predicted and actual visual evolution during open-loop execution; once persistent deviation is detected, it triggers an \textbf{interrupt event} that immediately truncates the remaining stale actions and invokes a new action generation. For the second, rather than relying on naive replanning, VLA-Corrector activates \textbf{Online Gradient Guidance} (OGG), which exploits the discrepancy between predicted and observed visual dynamics to inject a corrective gradient during new action generation---actively steering the robot back toward the intended trajectory, instead of simply hoping that re-inference will naturally recover. Together, LVM-triggered truncation and OGG-guided re-inference transform a fixed action horizon into an \textbf{adaptive action horizon} with \textbf{self-correcting re-inference}, preserving long-horizon efficiency and short-horizon responsiveness.
+
+These two mechanisms jointly improve success-per-call efficiency: the robot avoids wasting long chunks on stale actions, so each policy query contributes more effectively to task completion. For $\pi_{0.5}$ at horizon 50, success rises from 48.7\% to 58.7\% while average policy calls drop from 5.15 to 4.98---a $+24.6\%$ success-per-call efficiency gain. Gains are consistent across all three backbones and grow larger at longer horizons, where the open-loop blind spot is widest. Beyond robustness, VLA-Corrector also improves sample efficiency: on LIBERO, a few-shot fine-tuned model augmented with VLA-Corrector reaches 97.8\% average success, \emph{surpassing} the fully fine-tuned baseline (96.9\%).
+
+Our contributions are summarized as follows:
+
+\textbullet~We systematically quantify the performance--efficiency trade-off induced by fixed action horizon in action-chunked VLA policies, showing that the open-loop blind spot consistently affects robustness across different VLA backbones.
+
+\textbullet~We propose VLA-Corrector, a lightweight inference-time framework that augments a frozen VLA backbone with latent-space monitoring, event-triggered truncation, and guidance toward recovery-oriented inference.
+
+\textbullet~We validate VLA-Corrector across simulation and real-world tasks, showing that it achieves stronger robustness, higher success-per-call efficiency, and adaptive correction behavior.
+
+
+
+\section{Preliminaries}
+
+\textbf{VLA Policies with Action Chunks.}
+In embodied continuous control, the current visual observation $o_t$ is first encoded into a latent representation $Z_t^{\mathrm{real}} = \mathcal{E}(o_t)$ by a visual encoder $\mathcal{E}$. To balance policy-call frequency and action smoothness, modern generative VLA policies parameterized by $\theta$ commonly predict an \textbf{action chunk} in a single inference call,
+\begin{equation}
+A_t = [a_t, a_{t+1}, \dots, a_{t+C-1}] \sim \pi_\theta(\cdot \mid Z_t^{\mathrm{real}}, l),
+\label{eq:action_chunk}
+\end{equation}
+where $a_t$ denotes a single control action and $l$ is the language instruction. During deployment, only the first $H$ actions, with $H \leq C$, are executed sequentially, and we refer to this execution window as the \emph{action horizon}. The corresponding execution queue is $Q_t = [a_t, a_{t+1}, \dots, a_{t+H-1}]$, during which the controller does not query the VLA policy again.
+
+% \textbf{Horizon-Induced Trade-off.}
+% The action horizon $H$ determines the degree of open-loop execution. When $H$ is small, the controller re-queries the VLA frequently and can react quickly to new observations, but policy-call frequency increases sharply. When $H$ is large, each policy call is amortized over more actions, but the robot may continue executing stale actions even after the state has drifted. This creates the performance--efficiency trade-off shown in Fig.~\ref{fig:teaser_pareto}, and motivates our goal of replacing a fixed $H$ with an event-triggered adaptive horizon.
+
+\section{VLA-Corrector: A Lightweight Corrective Inference Framework}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{plots/overview_v4.pdf}
+    \caption{
+        \textbf{Overview of VLA-Corrector.}
+        Starting from a standard chunked VLA pipeline (\textbf{A}), we add a \textbf{Latent-space Vision Monitor} (LVM) that detects persistent execution drift and triggers an interrupt event (\textbf{B}). The event truncates stale actions and switches the next replan from normal flow matching to OGG-guided flow matching (\textbf{C}). OGG uses the expected and observed latent evolution to guide the replan back toward a recoverable trajectory (\textbf{D}).
+    }
+    \label{fig:method_overview}
+\end{figure}
+VLA-Corrector addresses the open-loop blind spot of action-chunked VLA policies. During the action horizon, fresh observations are available, but the policy does not use them until the horizon ends. We therefore decouple \emph{action generation} from \emph{execution monitoring}: the VLA backbone generates action chunks, while VLA-Corrector monitors whether execution remains on track and intervenes only when drift emerges. We organize the method as follows: \textbf{(1) Corrector Training} describes the external latent dynamics corrector; \textbf{(2) LVM Detection} introduces online visual deviation detection; \textbf{(3) Event-Triggered Truncation} explains how persistent deviations induce adaptive horizons; and \textbf{(4) OGG Correction} presents corrective replanning after truncation.
+
+\subsection{Training the External Latent Dynamics Corrector} VLA-Corrector is trained after a VLA policy has already been obtained. We first fine-tune the VLA backbone on the benchmark training set, then freeze the VLA and use its visual encoder $\mathcal{E}$ to extract visual latents from demonstration trajectories. Given a transition $(o_t,a_t,o_{t+k})$, we compute \begin{equation} Z_t^{\mathrm{real}}=\mathcal{E}(o_t), \qquad Z_{t+k}^{\mathrm{real}}=\mathcal{E}(o_{t+k}), \qquad \Delta Z_{t+k}^{*}=Z_{t+k}^{\mathrm{real}}-Z_t^{\mathrm{real}}, \label{eq:corrector_target} \end{equation} where $\Delta Z_{t+k}^{*}$ is the target short-horizon visual latent evolution induced by the executed action. We then train a lightweight external dynamics corrector $M_\phi$ to predict this residual evolution from the current latent state and action: \begin{equation} \Delta \hat{Z}_{t+k}=M_\phi(Z_t^{\mathrm{real}},a_t). \label{eq:corrector_prediction} \end{equation} Rather than predicting the absolute future latent state, $M_{\phi}$ instead predicts a residual visual latent evolution, which actively suppresses static scene content and encourages the model to focus on task-relevant dynamics. The training objective combines magnitude matching and directional consistency: \begin{equation} \mathcal{L}_{\mathrm{corr}} = \left\| \Delta \hat{Z}_{t+k}-\Delta Z_{t+k}^{*} \right\|_2^2 + \beta \left[ 1- \mathrm{CosSim} \left( \Delta \hat{Z}_{t+k}, \Delta Z_{t+k}^{*} \right) \right], \label{eq:corrector_loss} \end{equation} where $\beta$ balances residual accuracy and directional alignment. The trainable component is therefore not the VLA policy itself, but a lightweight latent dynamics module trained separately on top of frozen VLA features. This modular design allows the corrector to be retrained or replaced for each benchmark without re-optimizing the expensive VLA backbone. The corrector is trained on benchmark demonstration trajectories because they are easy to obtain and broadly reflect successful task progress. Its goal is not to model all possible futures as a full world model would do, but to learn whether local latent dynamics remain consistent with on-track execution. Demonstrations are suitable for this purpose: although they may contain small teleoperation jitter or local imperfections, they still capture behavior that keeps the task progressing correctly. Since this is a local and low-dimensional prediction task, a lightweight MLP is sufficient in practice; in our experiments, a 40M corrector already provides an effective monitoring and corrective signal, which can be trained at a very low cost.
+
+\subsection{Latent Visual Dynamics for Online Anomaly Detection}
+
+After training $M_\phi$, we use it online to monitor whether the current action chunk remains reliable. During execution, \textbf{Latent-space Vision Monitor} (LVM) compares the \emph{expected} latent visual evolution predicted by $M_\phi$ with the \emph{actual} evolution observed from fresh camera input, detecting deviations before they accumulate into failure.
+
+\textbf{Expected residual dynamics.}
+At control step $t$, LVM uses the executed action $a_t$ and current latent state $Z_t^{\mathrm{real}}$ to predict the expected short-horizon latent residual, $\Delta Z_{t+k}^{\mathrm{exp}}=M_\phi(Z_t^{\mathrm{real}},a_t)$, where $k$ is the prediction interval.
+
+\textbf{Online inconsistency score.}
+During rollout, the latest observation remains available even though the policy is not re-queried. We encode the future observation and compute the actual residual $\Delta Z_{t+k}^{\mathrm{real}}=Z_{t+k}^{\mathrm{real}}-Z_t^{\mathrm{real}}$. LVM then measures the mismatch between expected and actual latent evolution:
+\begin{equation}
+E_t = 1 - \mathrm{CosSim}\!\left(\Delta Z_{t+k}^{\mathrm{exp}}, \Delta Z_{t+k}^{\mathrm{real}}\right),
+\qquad
+\mathrm{CosSim}(\mathbf{u},\mathbf{v}) =
+\mathbf{u}^{\top}\mathbf{v}/(\|\mathbf{u}\|\,\|\mathbf{v}\|).
+\label{eq:inconsistency_score}
+\end{equation}
+A larger $E_t$ indicates stronger visual dynamics mismatch, providing a continuous signal for later event-triggered truncation.
+
+\subsection{Event-Triggered Truncation under Robust Online Monitoring}
+
+Given the continuous inconsistency score $E_t$, we need to decide when a deviation is persistent enough to justify intervention. Directly thresholding $E_t$ can be unstable, since transient visual outliers may cause false triggers. We therefore use a robust event-triggered rule based on dynamic thresholds and persistence checking. Specifically, we maintain a sliding window of recent scores, $\mathbf{E}_W=\{E_{t-w+1},\dots,E_t\}$, and compute its median $M_e$ and median absolute deviation,
+\begin{equation}
+\mathrm{MAD}=\mathrm{median}\!\left(|E_i-M_e|\right), \qquad E_i\in\mathbf{E}_W .
+\label{eq:mad_main}
+\end{equation}
+We then define two adaptive thresholds,
+\begin{equation}
+T_{\mathrm{on}} = M_e+\lambda_{\mathrm{on}}\mathrm{MAD}, 
+\qquad
+T_{\mathrm{off}} = M_e+\lambda_{\mathrm{off}}\mathrm{MAD},
+\qquad
+\lambda_{\mathrm{on}}>\lambda_{\mathrm{off}},
+\label{eq:dual_threshold_main}
+\end{equation}
+where $T_{\mathrm{on}}$ confirms persistent deviation and $T_{\mathrm{off}}$ provides hysteresis for recovery. An interrupt event is triggered only when $E_t>T_{\mathrm{on}}$ holds for $p$ consecutive steps; isolated spikes are ignored.
+
+Once an interrupt is triggered, VLA-Corrector discards the remaining actions in the current queue and queries the policy again under corrective mode. If the controller has executed $h$ actions from the original queue, the realized horizon becomes $H_{\mathrm{adaptive}}=h<H$. Thus, the fixed action horizon is shortened only when sustained visual drift indicates that the current chunk has become stale. The full thresholding state machine is provided in Appendix~\ref{app:event_trigger_details}.
+
+\subsection{Online Gradient Guidance for Corrective Inference}
+
+Truncation stops stale actions, but recovery still depends on the next replan. After an interrupt event, VLA-Corrector applies \textbf{Online Gradient Guidance} (OGG)~\cite{park2025acg} only to the single policy call immediately following the interrupt event, guiding this recovery replan toward a corrective latent direction.
+
+\textbf{Predicted action effect.}
+At denoising step $\tau$ of flow matching, let $A^\tau$ be the noisy action chunk. The VLA predicts a velocity field $v_\tau=\pi_\theta(A^\tau,Z_t^{\mathrm{real}},\tau)$, from which we estimate the clean chunk $\hat{A}_0=A^\tau-\tau v_\tau$ and take its first action $\hat{a}_t=\hat{A}_0[0]$. The corrector then predicts the latent effect of this candidate action:
+\begin{equation}
+\Delta\hat{Z}_{\mathrm{act}}=M_\phi(Z_t^{\mathrm{real}},\hat{a}_t).
+\label{eq:ogg_predicted_effect}
+\end{equation}
+
+\textbf{Corrective target.}
+Let $t-k$ be the last stable step before an interrupt event. We define the expected residual $\Delta Z_{\mathrm{exp}} = \Delta Z_t^{\mathrm{exp}} = M_\phi(Z_{t-k}^{\mathrm{real}}, a_{t-k})$, which is predicted by $M_\phi$ from step $t-k$. The accumulated deviation is $\Delta Z_{\mathrm{dev}} = \Delta Z_t^{*} = Z_t^{\mathrm{real}} - Z_{t-k}^{\mathrm{real}}$. The corrective latent direction is
+\begin{equation}
+\Delta Z_{\mathrm{corr}}=\Delta Z_{\mathrm{exp}}-\Delta Z_{\mathrm{dev}}.
+\label{eq:corrective_direction_compact}
+\end{equation}
+This direction preserves the intended local dynamics while compensating for the drift accumulated during open-loop execution.
+
+\textbf{Guided velocity update.}
+OGG aligns the predicted action effect with $\Delta Z_{\mathrm{corr}}$ through
+\begin{equation}
+\mathcal{L}_{\mathrm{OGG}}=1-\mathrm{CosSim}(\Delta\hat{Z}_{\mathrm{act}},\Delta Z_{\mathrm{corr}}),
+\label{eq:ogg_loss_compact}
+\end{equation}
+and injects the resulting gradient into the flow-matching velocity:
+\begin{equation}
+v_\tau^{\mathrm{guide}}=v_\tau-\eta\nabla_{v_\tau}\mathcal{L}_{\mathrm{OGG}},
+\qquad
+A^{\tau-\Delta\tau}=A^\tau-\Delta\tau v_\tau^{\mathrm{guide}} .
+\label{eq:ogg_guidance_compact}
+\end{equation}
+Here, $\eta$ controls the guidance strength. Since OGG modifies the velocity field rather than directly perturbing action coordinates, it remains compatible with the original flow-matching process and yields smoother corrective replanning.
+
+% ---------------- MetaWorld table ----------------
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{5.5pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Cross-architecture generalization on MetaWorld.}
+  Success rate (\%, $\uparrow$) across difficulty splits. Green arrows show absolute improvements over the corresponding baseline.}
+  \label{tab:metaworld_generalization}
+  \begin{tabular}{llccccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Backbone} & \textbf{Method} & \textbf{Easy}$\uparrow$ & \textbf{Medium}$\uparrow$ & \textbf{Hard}$\uparrow$ & \textbf{Very Hard}$\uparrow$ & \textbf{Avg.}$\uparrow$ \\
+    \midrule
+
+    \multirow{2}{*}{$\pi_{0.5}$}
+    & Baseline & 70.5 & 45.0 & 38.3 & 41.0 & 48.70 \\
+    & \cellcolor{oursbg}\textbf{+ VLA-Corrector}
+      & \cellcolor{oursbg}\textbf{83.2} \gain{12.7}
+      & \cellcolor{oursbg}\textbf{61.7} \gain{16.7}
+      & \cellcolor{oursbg}\textbf{47.5} \gain{9.2}
+      & \cellcolor{oursbg}\textbf{65.0} \gain{24.0}
+      & \cellcolor{oursbg}\textbf{64.35} \gain{15.65} \\
+    \midrule
+
+    \multirow{2}{*}{SmolVLA}
+    & Baseline & 81.3 & 53.6 & 51.7 & 61.0 & 61.90 \\
+    & \cellcolor{oursbg}\textbf{+ VLA-Corrector}
+      & \cellcolor{oursbg}\textbf{83.4} \gain{2.1}
+      & \cellcolor{oursbg}\textbf{56.0} \gain{2.4}
+      & \cellcolor{oursbg}\textbf{64.2} \gain{12.5}
+      & \cellcolor{oursbg}\textbf{63.0} \gain{2.0}
+      & \cellcolor{oursbg}\textbf{66.65} \gain{4.75} \\
+    \midrule
+
+    \multirow{2}{*}{X-VLA}
+    & Baseline & 72.5 & 46.4 & 48.3 & 55.0 & 55.55 \\
+    & \cellcolor{oursbg}\textbf{+ VLA-Corrector}
+      & \cellcolor{oursbg}\textbf{74.4} \gain{1.9}
+      & \cellcolor{oursbg}\textbf{50.0} \gain{3.6}
+      & \cellcolor{oursbg}\textbf{50.0} \gain{1.7}
+      & \cellcolor{oursbg}\textbf{64.0} \gain{9.0}
+      & \cellcolor{oursbg}\textbf{59.60} \gain{4.05} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+% ---------------- LIBERO table ----------------
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Sample efficiency on LIBERO.}
+  Success rate (\%, $\uparrow$). Green arrows compare VLA-Corrector against the few-shot fine-tuned baseline.}
+  \label{tab:libero_efficiency}
+  \begin{tabular}{lccccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Model} & \textbf{Object}$\uparrow$ & \textbf{Spatial}$\uparrow$ & \textbf{Goal}$\uparrow$ & \textbf{Long}$\uparrow$ & \textbf{Avg.}$\uparrow$ \\
+    \midrule
+    $\pi_{0.5}$ (Full Fine-tuned) & 99.4 & 98.2 & 97.8 & 92.4 & 96.95 \\
+    \midrule
+    $\pi_{0.5}$ (Few-shot Fine-tuned) & 97.8 & 95.4 & 96.2 & 86.6 & 94.00 \\
+    \rowcolor{oursbg}
+    $\pi_{0.5}$ (Few-shot) \textbf{+ VLA-Corrector}
+      & \textbf{99.8} \gain{2.0}
+      & \textbf{100.0} \gain{4.6}
+      & \textbf{98.0} \gain{1.8}
+      & \textbf{93.4} \gain{6.8}
+      & \textbf{97.80} \gain{3.80} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\section{Experiments}
+We evaluate VLA-Corrector on MetaWorld~\cite{yu2020meta}, LIBERO~\cite{liu2023libero}, and a real AgileX PiPER robot, using $\pi_{0.5}$~\cite{intelligence2025pi_} as the main backbone and SmolVLA~\cite{shukor2025smolvla}/X-VLA~\cite{zheng2025x} for cross-architecture evaluation. The experiments cover four aspects: \textbf{(1) Performance and policy-call efficiency}, evaluating success rate and success-per-call across benchmarks and horizons; \textbf{(2) Mechanism analysis}, examining LVM detection, truncation timing, and OGG recovery; \textbf{(3) Real-world transfer}, testing the method on physical robot manipulation; and \textbf{(4) Ablations}, analyzing component necessity and sensitivity. Detailed protocols, metrics, and compute resources are provided in Appendix~\ref{app:benchmark_protocol}.
+
+\subsection{Main Results}
+
+
+
+\textbf{Cross-Architecture Evaluation on MetaWorld.}
+VLA-Corrector consistently improves all three VLA backbones on MetaWorld, with larger gains on harder tasks. As shown in Table~\ref{tab:metaworld_generalization}, the average success rate improves by 15.65 points for $\pi_{0.5}$, 4.75 points for SmolVLA, and 4.05 points for X-VLA. The strongest gain appears on the Very Hard split of $\pi_{0.5}$, increasing success from 41.0\% to 65.0\%.
+
+\textbf{Sample Efficiency on LIBERO.}
+We further evaluate whether VLA-Corrector can compensate for limited task-specific data.
+Table~\ref{tab:libero_efficiency} compares a fully fine-tuned $\pi_{0.5}$ model with a few-shot fine-tuned counterpart on LIBERO.
+Starting from the publicly released LeRobot~\cite{cadene2026lerobot} few-shot checkpoint 
+\texttt{pi05\_libero\_base}, VLA-Corrector improves the average success rate from 94.00\% to 97.80\%, even surpassing the fully fine-tuned baseline (96.95\%).
+
+These results suggest that few-shot fine-tuning can already learn much of the normal task trajectories, but may lack coverage of drifted states and their recovery behaviors.
+Instead of improving recovery by exposing the backbone to more rare failure cases during training, VLA-Corrector makes recovery easier at inference time by interrupting error accumulation early and guiding corrective replanning, thereby alleviating the dependence on additional post-training data for robust recovery.
+
+\begin{figure*}[t]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[height=0.16\textheight,keepaspectratio]{plots/Pi05_Comparison_Pareto-2.pdf}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[height=0.16\textheight,keepaspectratio]{plots/Pi05_Efficiency_Gain-2.pdf}
+    \end{subfigure}
+    \caption{
+    \textbf{Performance--efficiency analysis on $\pi_{0.5}$.}
+    \textbf{Left}: performance--efficiency trade-off across action horizons.
+    \textbf{Right}: success-per-call efficiency.
+    VLA-Corrector improves success rate across action horizons and yields consistent efficiency gains.
+    }
+    \label{fig:pi05_efficiency}
+\end{figure*}
+
+\textbf{Data efficiency of corrector training.}
+We further examine how much demonstration data is needed to train the external corrector.
+Since VLA-Corrector only learns local latent-dynamics consistency rather than a full policy or high-capacity world model, it should not require exhaustive task coverage.
+We therefore first hold out 20\% of the original MetaWorld demonstration set for validation, then subsample the remaining training split with ratios $r \in {0.2,0.4,0.6,0.8,1.0}$ and evaluate the resulting correctors under the same $\pi_{0.5}$ backbone.
+Here, $r=1.0$ denotes using the full training split after validation hold-out, rather than using all original demonstrations for training.
+
+
+\begin{table*}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Data efficiency of corrector training on MetaWorld.}
+  Success rate (\%, $\uparrow$). We compare the open-loop baseline at horizon 50 with VLA-Corrector trained using different fractions of demonstration trajectories. Green/red arrows indicate absolute change in average success over the baseline.}
+  \label{tab:data_efficiency_main}
+  \begin{tabular}{lccccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Method / Ratio} 
+    & \textbf{Easy}$\uparrow$ 
+    & \textbf{Medium}$\uparrow$ 
+    & \textbf{Hard}$\uparrow$ 
+    & \textbf{Very Hard}$\uparrow$ 
+    & \textbf{Avg.}$\uparrow$ \\
+    \midrule
+    Baseline 
+      & 70.54 
+      & 45.00 
+      & 38.33 
+      & 41.00 
+      & 48.72 \\
+    \midrule
+    VLA-Corrector ($r=0.2$) 
+      & 71.07 
+      & 49.55 
+      & 36.67 
+      & 36.00 
+      & 48.32 \rdown{0.40} \\
+    VLA-Corrector ($r=0.4$) 
+      & 70.36 
+      & 45.91 
+      & 38.33 
+      & 42.00 
+      & 49.15 \gup{0.43} \\
+    VLA-Corrector ($r=0.6$) 
+      & 70.89 
+      & 52.73 
+      & 39.17 
+      & \textbf{46.00} 
+      & 52.20 \gup{3.48} \\
+    VLA-Corrector ($r=0.8$) 
+      & 71.07 
+      & 53.64 
+      & 38.33 
+      & \textbf{46.00} 
+      & 52.26 \gup{3.54} \\
+    \rowcolor{oursbg}
+    \textbf{VLA-Corrector ($r=1.0$)}
+      & \textbf{73.21}
+      & \textbf{55.91}
+      & \textbf{44.17}
+      & 44.00
+      & \textbf{54.32} \gain{5.60} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+Table~\ref{tab:data_efficiency_main} shows that the corrector benefits from more demonstrations but exhibits diminishing returns. Performance already exceeds the baseline with a moderate amount of data and saturates around $r=0.6$--$0.8$. This suggests that our lightweight latent-dynamics corrector only needs to capture a local on-track consistency signal, rather than a complete dynamics model, which makes it relatively data-efficient to train.
+
+\textbf{Performance--Efficiency Trade-off.}
+VLA-Corrector improves success-per-call efficiency across action horizons rather than simply querying the policy more often. As shown in Figure~\ref{fig:pi05_efficiency}, the largest success-per-call gains reach 29.9\% for $\pi_{0.5}$, 45.3\% for SmolVLA, and 39.1\% for X-VLA. For example, on SmolVLA with horizon 10, success improves from 61.90\% to 73.00\% while policy calls decrease from 19.27 to 15.64. This suggests that VLA-Corrector makes each policy query more useful by interrupting stale chunks and guiding recovery.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt} 
+\renewcommand{\arraystretch}{1.15}
+\begin{threeparttable}
+\caption{\textbf{Full performance--efficiency trade-off across VLA backbones and action horizons.}
+Success rate, average policy calls per episode, and relative success-per-call efficiency gains are reported.
+VLA-Corrector consistently improves task success while maintaining or reducing policy calls in most settings.}
+\label{tab:comprehensive_efficiency}
+\begin{tabular}{l c cc cc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Horizon}} & \multicolumn{2}{c}{\textbf{Baseline}} & \multicolumn{2}{c}{\textbf{Ours (LVM+OGG)}} & \multicolumn{3}{c}{\textbf{Improvements}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-9}
+& & \textbf{Succ} (\%)$\uparrow$ & \textbf{Calls} $\downarrow$ & \textbf{Succ} (\%)$\uparrow$ & \textbf{Calls} $\downarrow$ & \textbf{$\Delta$Succ} (\%)$\uparrow$ & \textbf{$\Delta$Calls} $\downarrow$ & \textbf{Eff. Gain} (\%)$\uparrow$ \\
+\midrule
+\multirow{5}{*}{\textbf{$\pi_{0.5}$}}
+& 10 & 64.50 & 20.41 & \cellcolor{softgreen}\textbf{72.40} & \cellcolor{softgreen}\textbf{17.64} & \gup{7.90} & \gdown{2.77} & \cellcolor{softblue}\textbf{+29.9\%} \\
+& 20 & 61.40 & 10.77 & \cellcolor{softgreen}\textbf{69.10} & \cellcolor{softgreen}\textbf{9.95}  & \gup{7.70} & \gdown{0.82} & \cellcolor{softblue}\textbf{+21.8\%} \\
+& 30 & 56.10 & 7.97  & \cellcolor{softgreen}\textbf{63.50} & \cellcolor{softgreen}\textbf{7.92}  & \gup{7.40} & \gdown{0.05} & \cellcolor{softblue}\textbf{+13.9\%} \\
+& 40 & 54.45 & 5.96  & \cellcolor{softgreen}\textbf{60.80} & \cellcolor{softgreen}6.04 & \gup{6.35} & \rup{0.08} & \cellcolor{softblue}\textbf{+10.2\%} \\
+& 50 & 48.72 & 5.15  & \cellcolor{softgreen}\textbf{58.70} & \cellcolor{softgreen}\textbf{4.98} & \gup{9.98} & \gdown{0.17} & \cellcolor{softblue}\textbf{+24.6\%} \\
+\midrule
+\multirow{5}{*}{\textbf{SmolVLA}}
+& 10 & 61.90 & 19.27 & \cellcolor{softgreen}\textbf{73.00} & \cellcolor{softgreen}\textbf{15.64} & \gup{11.10} & \gdown{3.63} & \cellcolor{softblue}\textbf{+45.3\%} \\
+& 20 & 58.90 & 11.32 & \cellcolor{softgreen}\textbf{68.90} & \cellcolor{softgreen}\textbf{9.50}  & \gup{10.00} & \gdown{1.82} & \cellcolor{softblue}\textbf{+39.4\%} \\
+& 30 & 58.10 & 7.90  & \cellcolor{softgreen}\textbf{65.20} & \cellcolor{softgreen}\textbf{7.60}  & \gup{7.10} & \gdown{0.30} & \cellcolor{softblue}\textbf{+16.6\%} \\
+& 40 & 56.80 & 5.64  & \cellcolor{softgreen}\textbf{67.20} & \cellcolor{softgreen}\textbf{5.13}  & \gup{10.40} & \gdown{0.51} & \cellcolor{softblue}\textbf{+30.0\%} \\
+& 50 & 54.20 & 4.86  & \cellcolor{softgreen}\textbf{62.90} & \cellcolor{softgreen}\textbf{4.68}  & \gup{8.70} & \gdown{0.18} & \cellcolor{softblue}\textbf{+20.6\%} \\
+\midrule
+\multirow{5}{*}{\textbf{X-VLA}}
+& 4  & 68.50 & 46.58 & \cellcolor{softgreen}\textbf{72.00} & \cellcolor{softgreen}\textbf{35.20} & \gup{3.50} & \gdown{11.38} & \cellcolor{softblue}\textbf{+39.1\%} \\
+& 8  & 67.80 & 23.18 & \cellcolor{softgreen}\textbf{72.10} & \cellcolor{softgreen}\textbf{19.48} & \gup{4.30} & \gdown{3.70} & \cellcolor{softblue}\textbf{+26.5\%} \\
+& 16 & 55.50 & 13.71 & \cellcolor{softgreen}\textbf{60.90} & \cellcolor{softgreen}13.92 & \gup{5.40} & \rup{0.21} & \cellcolor{softblue}\textbf{+8.1\%} \\
+& 24 & 52.90 & 10.13 & \cellcolor{softgreen}\textbf{59.20} & \cellcolor{softgreen}\textbf{9.92} & \gup{6.30} & \gdown{0.21} & \cellcolor{softblue}\textbf{+14.3\%} \\
+& 32 & 44.00 & 8.61  & \cellcolor{softgreen}\textbf{54.40} & \cellcolor{softgreen}\textbf{8.34} & \gup{10.40} & \gdown{0.27} & \cellcolor{softblue}\textbf{+27.6\%} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item \textbf{$\Delta$Succ}: absolute success-rate improvement. 
+\textbf{$\Delta$Calls}: absolute change in policy calls per episode. 
+\textbf{Eff. Gain}: relative improvement in success-per-call over the baseline.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}
+
+The full horizon sweep shows that VLA-Corrector does not obtain higher success by simply increasing the number of policy queries. Across $\pi_{0.5}$, SmolVLA, and X-VLA, it consistently improves success-per-call efficiency, with especially strong gains at long horizons where stale actions have more time to accumulate errors. This supports the central adaptive-horizon hypothesis: long chunks remain useful during stable execution, but they should be interrupted once the latent visual dynamics indicate drift.
+
+\subsection{Mechanism Analysis}
+In this section, we will analyze the mechanisms behind VLA-Corrector from three perspectives: 
+\textbf{1) LVM detection}, whether LVM provides a useful and well-timed drift signal; and 
+\textbf{2) OGG correction}, whether OGG improves recovery after an interrupt event;
+\textbf{3) controlled recovery}, whether the full framework improves recovery in a controlled failure case. 
+
+% ---------------- LVM analysis: Et density + meltdown frequency ----------------
+\begin{figure*}[htbp]
+    \centering
+    \setlength{\abovecaptionskip}{2pt}
+
+    \begin{subfigure}[t]{0.66\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/Et_combined.pdf}
+        \label{fig:et_density}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/Failure_Analysis_Meltdown_Counts.pdf}
+        \label{fig:detection_analysis}
+    \end{subfigure}
+
+    \caption{
+    \textbf{LVM detection analysis.}
+    \textbf{Left}: distribution of the inconsistency score $E_t$, where successful episodes concentrate at low values and failed episodes show a heavier high-score tail.
+    \textbf{Right}: interrupt frequency, where failed episodes trigger more interrupt events than successful ones.
+    }
+    \label{fig:lvm_detection_analysis}
+\end{figure*}
+
+\textbf{LVM Detection.}
+LVM provides an informative drift signal. As shown in Figure~\ref{fig:lvm_detection_analysis}, successful episodes concentrate at low $E_t$, while failed episodes show a heavier high-score tail and trigger more interrupt events. This indicates that $E_t$ captures failure-prone visual dynamics mismatch.
+
+% ---------------- LVM analysis: truncation timing ----------------
+\begin{figure*}[hbtp]
+    \centering
+
+    \begin{minipage}[t]{0.66\textwidth}
+        \vspace{0pt}
+        \centering
+        \includegraphics[width=\linewidth]{plots/critical_noncritical_2x3_nas10_v4.pdf}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.28\textwidth}
+        \vspace{0pt}
+        \centering
+        \small
+        \renewcommand{\arraystretch}{1.25}
+        \setlength{\tabcolsep}{8pt}
+
+        \fboxsep=6pt
+        \colorbox{white}{
+        \begin{minipage}{0.95\linewidth}
+            \centering
+            {\bfseries Truncation Distribution}\\[-0.1em]
+            {\bfseries by Task Phase}
+
+            \vspace{0pt}
+
+            \begin{tabular}{lc}
+                \toprule
+                \rowcolor{groupbg}
+                \textbf{Phase} & \textbf{Rate} \\
+                \midrule
+                \rowcolor{softgreen}
+                Critical & \textbf{83.7\%} \\
+                Non-critical & 16.3\% \\
+                \bottomrule
+            \end{tabular}
+
+            \vspace{0pt}
+
+            \begin{tabular}{p{0.88\linewidth}}
+                \rowcolor{softgreen}
+                \centering
+                \textbf{5.1$\times$ more truncations occur in critical phases than in non-critical phases.}
+            \end{tabular}
+        \end{minipage}
+        }
+    \end{minipage}
+
+    \caption{
+    \textbf{Task-phase analysis of LVM-triggered truncation.}
+    We manually divide MetaWorld trajectories into \emph{critical} and \emph{non-critical} phases.
+    \textbf{Left}: representative trajectories show that truncation is triggered much more frequently during critical phases.
+    \textbf{Right}: 83.7\% of truncations occur in critical phases, while only 16.3\% occur in non-critical phases.
+    }
+    \label{fig:lvm_phase_analysis}
+\end{figure*}
+
+LVM also intervenes at meaningful moments. We manually divide MetaWorld trajectories into \emph{critical} phases, such as precise grasping and alignment, and \emph{non-critical} phases, such as tolerant transport after a stable grasp. 
+Figure~\ref{fig:lvm_phase_analysis} shows that 83.7\% of truncations occur in critical phases. This result verifies the core adaptive-horizon intuition of VLA-Corrector: it does not simply shorten the horizon everywhere, but instead preserves long-horizon efficiency in tolerant phases and restores short-horizon precision when the task enters error-sensitive phases.
+
+\textbf{OGG Correction.}
+We isolate OGG by comparing standard re-inference and OGG-guided re-inference 
+\begin{wrapfigure}{r}{0.48\columnwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=0.46\columnwidth]{plots/recovery_rate_v2.pdf}
+    \caption{\textbf{Post-interrupt recovery.} OGG-guided inference consistently outperforms standard inference.}
+    \label{fig:recovery_rate}
+    \vspace{0pt}
+\end{wrapfigure}
+after the same interrupt-triggered truncation. Recovery is counted when $E_t<T_{\mathrm{off}}$ within the next 10 steps. As shown in Fig.~\ref{fig:recovery_rate}, OGG improves recovery across all difficulty levels, with an average gain of 0.23. This indicates that, after truncation stops stale actions, OGG-guided re-inference further improves the quality of the recovery replan compared to standard re-inference.
+
+
+% ---------------- OGG analysis: recovery rate ----------------
+
+
+\textbf{Controlled Recovery Case.}
+Figure~\ref{fig:qualitative_recovery} shows a representative LIBERO episode where both methods start from the same initial state and encounter the same grasping error when approaching the cup handle. 
+In the top row, the baseline rollout is only monitored by LVM for error alignment without truncating the remaining actions; after the deviation is detected, it continues executing the original action chunk, leading to an unstable grasp, cup drop, and task failure. 
+In the bottom row, VLA-Corrector detects the same deviation but actively truncates the stale actions and triggers corrective replanning, allowing the robot to recover a stable grasp and place the cup at the target location.
+This controlled comparison highlights the overall effectiveness of VLA-Corrector under the same initial condition and the same detected execution error.
+
+% ---------------- Qualitative recovery ----------------
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\columnwidth]{plots/qualitative_recovery_v2.pdf}
+    \caption{
+    \textbf{Controlled recovery case.}
+    Given the same initial state and detected grasping error, the monitored baseline continues the original chunk and fails (\textbf{top}), while VLA-Corrector truncates stale actions, replans with OGG, and completes the task (\textbf{bottom}).
+    }
+    \label{fig:qualitative_recovery}
+\end{figure}
+
+\subsection{Real-World Evaluation}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.99\textwidth]{plots/task_blue_bowl.pdf}
+    \caption{
+    \textbf{Real-world disturbance recovery demo.}
+    A human shifts the blue bowl during execution, requiring the robot to recover from an outdated action chunk.
+    }
+    \label{fig:real_world_demo_blue_bowl}
+\end{figure*}
+
+\textbf{Setup.}
+We evaluate VLA-Corrector on an AgileX PiPER 6-DoF arm using $\pi_{0.5}$ as the backbone. The benchmark includes three task groups, each with three tasks and 20 trials: \textbf{1) Pick-and-place} tests standard manipulation, \textbf{2) Alignment} tests precision-sensitive placement or insertion, and \textbf{3) Disturbance recovery} tests recovery when objects or targets are manually shifted during execution. Figure~\ref{fig:real_world_demo_blue_bowl} shows a representative disturbance recovery demo, where the target bowl is shifted during execution. Full task definitions, protocols, failure analysis, and additional demos are provided in Appendix~\ref{app:real_world_details}.
+
+\begin{table}[hbtp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{4.2pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Real-world evaluation on AgileX PiPER.}
+  Success rate (\%, $\uparrow$) over three task groups. Each group contains three tasks with 20 trials per task. 
+  We report 95\% binomial confidence intervals.}
+  \label{tab:real_world_results}
+  \begin{tabular}{lcccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Method} 
+    & \textbf{Pick-place}$\uparrow$
+    & \textbf{Alignment}$\uparrow$
+    & \textbf{Disturbance}$\uparrow$
+    & \textbf{Avg.}$\uparrow$ \\
+    \midrule
+    $\pi_{0.5}$ Baseline 
+    & 70.0 $\pm$ 11.6
+    & 56.7 $\pm$ 12.5
+    & 40.0 $\pm$ 12.4
+    & 55.6 $\pm$ 7.3 \\
+    \rowcolor{softgreen}
+    \textbf{+ VLA-Corrector} 
+    & \textbf{78.3 $\pm$ 10.4} \gup{8.3}
+    & \textbf{73.3 $\pm$ 11.2} \gup{16.6}
+    & \textbf{68.3 $\pm$ 11.8} \gup{28.3}
+    & \textbf{73.3 $\pm$ 6.5} \gup{17.7} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\textbf{Results.}
+Table~\ref{tab:real_world_results} shows that VLA-Corrector improves all three task groups, increasing average success from 55.6\% to 73.3\%. The gain is modest on pick-and-place (+8.3), larger on alignment (+16.6), and largest on disturbance recovery (+28.3). This trend matches the intended role of VLA-Corrector: it preserves standard execution performance, improves precision-sensitive manipulation, and is most beneficial when online disturbances make the remaining action chunk outdated.
+
+\subsection{Ablation Studies}
+% ---------------- Component ablation ----------------
+\begin{table*}[htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Component ablation on MetaWorld.}
+  Success rate (\%, $\uparrow$). Green arrows indicate average improvement over the baseline.}
+  \label{tab:ablation_components}
+  \begin{tabular}{lccccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Variant} & \textbf{Easy}$\uparrow$ & \textbf{Medium}$\uparrow$ & \textbf{Hard}$\uparrow$ & \textbf{Very Hard}$\uparrow$ & \textbf{Avg.}$\uparrow$ \\
+    \midrule
+    Baseline (Open-loop) & 70.5 & 45.0 & 38.3 & 41.0 & 48.70 \\
+    \rowcolor{softblue}
+    + Truncation Only & 81.8 & 53.6 & \textbf{50.0} & 56.0 & 60.35 \gup{11.65} \\
+    \rowcolor{softgreen}
+    \textbf{+ Truncation + OGG} & \textbf{83.2} & \textbf{61.7} & 47.5 & \textbf{65.0} & \textbf{64.35} \gup{15.65} \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+We ablate VLA-Corrector on $\pi_{0.5}$ in MetaWorld, focusing on \textbf{(1) components}: necessity of truncation and OGG; \textbf{(2) detector design}: decoupling monitoring from backbone fine-tuning; and \textbf{(3) sensitivity}, with detailed results in Appendix~\ref{app:ablation_sensitivity}.
+
+\textbf{Component effects.}
+Table~\ref{tab:ablation_components} shows that truncation alone raises average success from 48.70\% to 60.35\%, confirming the importance of stopping stale actions. Adding OGG further improves the average to 64.35\%, showing that post-truncation recovery also benefits from guided re-inference.
+
+\textbf{Decoupled vs. coupled detection.}
+We next evaluate whether the drift detector should be decoupled from the VLA backbone.
+For the coupled variant, we fine-tune $\pi_{0.5}$ with an additional auxiliary head that predicts the same short-horizon latent residual as LVM. The head uses the final-layer hidden state of the last token together with the executed action. Both variants use OGG after detected interruptions; only the detector design differs.
+
+\begin{table}[t]
+  \centering
+  \small
+  \setlength{\tabcolsep}{5.5pt}
+  \renewcommand{\arraystretch}{1.12}
+  \caption{\textbf{Coupled vs. decoupled detection on MetaWorld.}
+  Success rate (\%, $\uparrow$). Both variants use OGG; only the detector design differs.}
+  \label{tab:detection_architecture_main}
+  \begin{tabular}{lccccc}
+    \toprule
+    \rowcolor{headerbg}
+    \textbf{Detector} 
+    & \textbf{Easy} 
+    & \textbf{Medium} 
+    & \textbf{Hard} 
+    & \textbf{Very Hard} 
+    & \textbf{Avg.} \\
+    \midrule
+    Internal Head + OGG 
+      & 65.2 & 46.0 & 36.5 & 50.5 & 49.55 \\
+    \rowcolor{oursbg}
+    \textbf{Decoupled LVM + OGG}
+      & \textbf{83.2} \gain{18.0}
+      & \textbf{61.7} \gain{15.7}
+      & \textbf{47.5} \gain{11.0}
+      & \textbf{65.0} \gain{14.5}
+      & \textbf{64.35} \gain{14.80} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:detection_architecture_main} shows that the decoupled LVM achieves a higher average success rate than the coupled internal detector under the same OGG setting, improving from 49.55\% to 64.35\%. A possible reason is that the internal auxiliary objective updates backbone representations that are also used for VLM-to-action planning, which may negatively affect the original action-generation behavior. In contrast, the external LVM learns the monitoring signal on frozen VLA features, avoiding direct modification of the policy representation.
+
+We further analyze the sensitivity of VLA-Corrector to OGG guidance strength and LVM capacity. The results show that moderate guidance strength and a 40M LVM are sufficient: overly strong guidance can degrade harder tasks, while increasing the monitor size beyond 40M brings little additional gain. Detailed information is provided in Appendix~\ref{app:additional_experiments}.
+
+\section{Conclusion}
+
+This paper studies the open-loop blind spot in action-chunked VLA policies, where fixed horizons improve policy-call efficiency but allow stale actions to accumulate errors. VLA-Corrector addresses this issue with a lightweight detect-and-correct layer that monitors latent visual dynamics, truncates stale actions when drift persists, and guides the next inference toward recovery. Our results show that small inference-time modules can provide targeted robustness gains without retraining the VLA backbone. Rather than replacing action chunking, VLA-Corrector makes it adaptive: long-horizon execution is preserved when reliable, while corrective replanning is invoked when the current chunk should no longer be trusted.
+
+

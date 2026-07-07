@@ -1,0 +1,117 @@
+\documentclass[]{fairmeta}
+% Option "twocolumn" is available in fairmeta, but this package follows the
+% single-column GFT template layout.
+
+\usepackage[utf8]{inputenc}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{adjustbox}
+\usepackage{multirow}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{comment}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{colortbl}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{overpic}
+\usepackage{threeparttable}
+\usepackage{float}
+\usepackage{xspace}
+\usepackage{listings}
+
+\preto\section{\FloatBarrier}
+
+% Table colors inherited from the VLA-Corrector draft.
+\definecolor{headerbg}{RGB}{240,244,248}
+\definecolor{groupbg}{RGB}{240,244,248}
+\definecolor{oursbg}{RGB}{234,247,236}
+\definecolor{softgreen}{RGB}{234,247,236}
+\definecolor{bestbg}{RGB}{235,243,252}
+\definecolor{softblue}{RGB}{235,243,252}
+\definecolor{lossbg}{RGB}{252,235,235}
+\definecolor{softred}{RGB}{252,235,235}
+\definecolor{goodgreen}{RGB}{34,139,34}
+\definecolor{badred}{RGB}{192,57,43}
+\definecolor{softgray}{RGB}{100,100,100}
+
+% Arrow macros used in the result tables.
+\newcommand{\gup}[1]{\textcolor{goodgreen}{$\uparrow\,#1$}}
+\newcommand{\gdown}[1]{\textcolor{goodgreen}{$\downarrow\,#1$}}
+\newcommand{\rup}[1]{\textcolor{badred}{$\uparrow\,#1$}}
+\newcommand{\rdown}[1]{\textcolor{badred}{$\downarrow\,#1$}}
+\newcommand{\neutral}[1]{\textcolor{softgray}{#1}}
+\newcommand{\gain}[1]{\gup{#1}}
+\newcommand{\drop}[1]{\rdown{#1}}
+\newcommand{\callgain}[1]{\gdown{#1}}
+\newcommand{\callloss}[1]{\rup{#1}}
+
+% Keep the answered NeurIPS checklist in the source tree compilable if included.
+\newcommand{\answerYes}[1][]{\textcolor{blue}{[Yes]#1}}
+\newcommand{\answerNo}[1][]{\textcolor{orange}{[No]#1}}
+\newcommand{\answerNA}[1][]{\textcolor{gray}{[N/A]#1}}
+\newcommand{\answerTODO}[1][]{\textcolor{red}{\bf [TODO]}}
+\newcommand{\justificationTODO}[1][]{\textcolor{red}{\bf [TODO]}}
+
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{5}
+\setcounter{totalnumber}{10}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\setlength{\abovecaptionskip}{1pt}
+
+\renewcommand{\paragraph}[1]{\vspace{1.25mm}\noindent\textbf{#1}}
+
+\setlabdisplayname{OmniAI Group of ZJU ACES Lab}
+\setuniversityname{Zhejiang University}
+
+\title{VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon}
+
+\author[1]{Yi Pan}
+\author[1]{Miao Pan}
+\author[1]{Qi Lu}
+\author[1]{Jiaming Huang}
+\author[1]{Man Zhang}
+\author[2]{Siteng Huang}      % 阿里巴巴达摩院
+\author[2]{Xin Li}            % 阿里巴巴达摩院
+\author[1]{Jie Zhang}
+\author[1]{Yongliang Shen}
+\author[1]{Xuhong Zhang}
+\author[1]{Wenqi Zhang}
+
+\affiliation[1]{Zhejiang University}
+\affiliation[2]{Alibaba DAMO Academy}
+\correspondence{Wenqi Zhang}
+\metadata[Email]{Yi Pan \email{panyi0304@gmail.com}; Wenqi Zhang \email{zhangwenqi@zju.edu.cn}}
+
+\input{sec/0_abstract}
+
+\date{June 2026}
+
+\begin{document}
+\thispagestyle{firstheader}
+\maketitle
+\pagestyle{empty}
+
+\input{sec/vla_main}
+
+\bibliographystyle{assets/acl_natbib}
+\bibliography{paper}
+
+\clearpage
+\beginappendix
+\input{sec/vla_appendix}
+
+\end{document}

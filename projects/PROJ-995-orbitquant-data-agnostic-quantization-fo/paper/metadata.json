@@ -1,0 +1,52 @@
+{
+  "arxiv_id": "2607.02461",
+  "arxiv_url": "https://arxiv.org/abs/2607.02461",
+  "title": "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers",
+  "authors": [
+    "Donghyun Lee",
+    "Jitesh Chavan",
+    "Duy Nguyen",
+    "Sam Huang",
+    "Liming Jiang",
+    "Priyadarshini Panda",
+    "Timo Mertens",
+    "Saurabh Shukla"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Diffusion transformers (DiTs) achieve state-of-the-art image and video generation, but their multi-step sampling and growing parameter count make inference expensive. Post-training quantization (PTQ) is the natural remedy, yet DiT activations shift across timesteps, prompts, and guidance branches, forcing prior methods to re-fit calibration data for every new checkpoint or modality. We present OrbitQuant, a data-agnostic weight-activation quantizer that bypasses range estimation by quantizing in a normalized, rotated basis. In this basis, a randomized permuted block-Hadamard (RPBH) rotation concentrates each coordinate around one fixed, known marginal regardless of the input, so a single Lloyd-Max codebook serves all timesteps, prompts, and layers of a given input dimension. We extend the same quantizer to weight rows offline, absorbing the rotation into the weights so that it cancels inside each linear layer and only a forward rotation on the activations remains at runtime. The same recipe transfers from image to video with no per-modality tuning. Across FLUX.1, Z-Image-Turbo, Wan 2.1, and CogVideoX, it sets the state of the art for PTQ at several low-bit settings. It also pushes PTQ of image diffusion transformers to W2A4 with usable generation quality.",
+  "submitted_via": "llmXive dashboard, GitHub issue #521",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/cvpr-org/author-kit"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "cvpr.sty",
+    "figures",
+    "figures/Cantina-Wordmark-Teal.png",
+    "figures/Cantina-Logo-Teal.png",
+    "figures/orbit.pdf",
+    "figures/adaln_ablation.pdf",
+    "figures/efficiency.pdf",
+    "figures/comparison.pdf",
+    "figures/figure1.pdf",
+    "figures/overall.pdf",
+    "figures/rpbh_beta.pdf",
+    "ieeenat_fullname.bst",
+    "main.bib",
+    "main.tex",
+    "preamble.tex",
+    "sec",
+    "sec/3_results.tex",
+    "sec/X_suppl.tex",
+    "sec/0_abstract.tex",
+    "sec/4_analysis.tex",
+    "sec/2_method.tex",
+    "sec/1_intro.tex"
+  ]
+}

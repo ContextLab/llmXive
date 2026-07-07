@@ -1,0 +1,127 @@
+\section{Ablations}
+\label{sec:ablation}
+
+
+
+% \subsection{Comparison between Rotation Matrix}
+% \label{sec:ablation:rotation}
+% The forward identity of Section~\ref{sec:method:act} holds for any orthogonal rotation, but codebook compatibility requires the rotated marginal to match $f_d$. We compare four rotations inside an otherwise identical OrbitQuant pipeline on FLUX.1-schnell. Table~\ref{tab:rotation} reports GenEval Overall at three bit-widths and the per-image activation rotation latency.
+% Haar and SRHT match within noise across all three bit-widths, so SRHT reproduces the ideal marginal with no low-bit loss. The rotations separate only at W2A4. There SRHT is the highest, ahead of the full Hadamard, the rotation used by rotation-based quantization~\cite{ashkboos2024quarot, tseng2024quip}. The leading permutation drives this, spreading clustered outliers across blocks so the rotated marginal stays close to $f_d$, which a fixed codebook can quantize at low bit-width.
+% On efficiency, the structured rotations run more than an order of magnitude faster than the dense Haar, with SRHT at 0.317\,s against 5.84\,s, an $18\times$ speedup on a single H100. Restoring the permutation costs only 0.037\,s over Block-RHT. SRHT is no slower than the full Hadamard and, unlike it, is constructible on any DiT dimension.
+
+% \begin{table}[t]
+% \centering
+% \caption{Rotation-class ablation on FLUX.1-schnell. GenEval Overall at three bit-widths and the per-image activation rotation latency at $1024^2$ on a single H100.}
+% \label{tab:rotation}
+% \resizebox{0.85\columnwidth}{!}{%
+% \begin{tabular}{lcccc}
+% \toprule
+% Rotation & W4A4 & W3A3 & W2A4 & Latency(s) \\
+% \midrule
+% Haar  & 0.681 & 0.664 & 0.592 & 5.84 \\
+% full-Hadamard  & 0.691 & 0.651 & 0.602 & 0.346 \\
+% Block-RHT    & 0.688 & 0.659 & 0.579  & 0.280 \\
+% \rowcolor{gray!15}
+% \textbf{SRHT (ours)}                & \textbf{0.687} & \textbf{0.655} & \textbf{0.619}  & \textbf{0.317} \\
+% \bottomrule
+% \end{tabular}}
+% \end{table}
+
+\begin{table}[t]
+\centering
+% \vspace{-2mm}
+\caption{Rotation-class ablation on FLUX.1-schnell. GenEval Overall (mean over three seeds) at three bit-widths, and the per-image activation-rotation latency at $1024^2$ on an H100 (rotation cost only, summed over all quantized layers and denoising steps).}
+\label{tab:rotation}
+\resizebox{0.85\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+Rotation & W4A4 & W3A3 & W2A4 & Latency(s) \\
+\midrule
+Haar  & \textbf{0.696} & 0.669 & 0.591 & 11.65 \\
+Full RHT  & 0.691 & 0.672 & 0.587 & 0.452 \\
+Block-RHT    & 0.678 & 0.642 & 0.558 & 0.381 \\
+\rowcolor{gray!15}
+\textbf{RPBH (ours)}                & 0.690 & \textbf{0.674} & \textbf{0.595}  & \textbf{0.451} \\
+\bottomrule
+\end{tabular}}
+\vspace{-2mm}
+\end{table}
+
+
+\subsection{Comparison between Rotation Matrix}
+\label{sec:ablation:rotation}
+The forward identity of Section~\ref{sec:method:act} holds for any orthogonal rotation, but codebook compatibility requires the rotated marginal to match $f_d$. We compare four rotations inside an otherwise identical OrbitQuant pipeline on FLUX.1-schnell. Table~\ref{tab:rotation} reports GenEval Overall at three bit-widths and the per-image activation rotation latency on an H100.
+At W4A4 the four rotations are within noise. They separate at lower bit-widths, where RPBH is the strongest at W3A3 and W2A4, ahead of the dense Haar, the permutation-free Block-Randomized Hadamard Transform (Block-RHT), and the Full RHT of the kind used by rotation-based LLM quantizers~\cite{ashkboos2024quarot, tseng2024quip}. The random permutation drives the gap over Block-RHT, which is RPBH without the permutation. It spreads clustered outliers across blocks so the rotated marginal stays close to $f_d$, which a fixed codebook can quantize at low bit-width. The structured rotations admit a fast Hadamard transform kernel that the dense Haar cannot use, running an order of magnitude faster ($26\times$). Among them RPBH adds 0.070\,s over Block-RHT and is no slower than the Full RHT, while remaining constructible on every dimension in our study, including $d{=}1920$ of CogVideoX-2B where no fast size-$d$ Hadamard kernel exists.
+
+% \subsection{Comparison between Rotation Matrix}
+% \label{sec:ablation:rotation}
+% The forward identity of Section~\ref{sec:method:act} holds for any orthogonal rotation, but codebook compatibility requires the rotated marginal to match $f_d$. We compare four rotations inside an otherwise identical OrbitQuant pipeline on FLUX.1-schnell. Table~\ref{tab:rotation} reports GenEval Overall at three bit-widths and the per-image activation rotation latency.
+% At W4A4 and W3A3 the four rotations are within noise. They separate only at W2A4, where SRHT is the strongest, ahead of the dense Haar, the permutation-free Block-RHT, and the full Hadamard used by rotation-based quantization~\cite{ashkboos2024quarot, tseng2024quip}. The leading permutation drives the gap over Block-RHT, spreading clustered outliers across blocks so the rotated marginal stays close to $f_d$, which a fixed codebook can quantize at W2.
+% On efficiency, the structured rotations run more than an order of magnitude faster than the dense Haar, with SRHT at 0.317\,s against 5.84\,s, an $18\times$ speedup on a H100. Restoring the permutation costs only 0.037\,s over Block-RHT. SRHT is not slower than the full Hadamard and, unlike it, is constructible on any DiT dimension.
+
+
+
+% \begin{table}[t]
+% \centering
+% \caption{Rotation-class ablation on FLUX.1-schnell. GenEval Overall at four bit-widths and the per-image activation rotation latency at $1024^2$ on a single H100.}
+% \label{tab:rotation}
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{lccccc}
+% \toprule
+% Rotation & W4A4 & W3A3 & W2A4 & W2A3 & Latency(s) \\
+% \midrule
+% Haar  & 0.682 & 0.655 & 0.612 & 0.586 & 9.73 \\
+% full-Hadamard  & 0.691 & 0.651 & 0.602 & 0.580 & 4.08 \\
+% Block-RHT    & 0.688 & 0.659 & 0.579 & 0.541 & 4.24 \\
+% \rowcolor{gray!15}
+% SRHT (ours)                & 0.687 & 0.655 & 0.619 & 0.582 & 4.45 \\
+% \bottomrule
+% \end{tabular}}
+% \end{table}
+
+
+
+% \subsection{\red{Shared codebook}}
+% \label{sec:ablation:codebook}
+% Section~\ref{sec:prelim:turboquant} introduces the single Lloyd--Max codebook that OrbitQuant builds offline from the Beta marginal $f_d$ and reuses across all denoising steps, prompts, and layers. Here we further analyze this choice by asking what a per-input codebook, refit on collected activations with calibration data, would recover over the shared one.
+
+% Table~\ref{tab:codebook} reports GenEval Overall on FLUX.1-schnell for the shared codebook and for codebooks refit per layer. The refit codebook matches the shared one within noise at higher bit-widths and gains only at the lowest bits, where the few quantization levels become sensitive to the small deviation of the SRHT marginal from the ideal $f_d$. The shared codebook thus recovers almost all of the achievable accuracy with no calibration pass, which is what lets it transfer unchanged across steps, prompts, layers, and the image-to-video shift of Section~\ref{sec:exp:video}.
+
+% \begin{table}[t]
+% \centering
+% \caption{Codebook ablation on FLUX.1-schnell, GenEval Overall. The shared analytic codebook (default) is built once from the Beta marginal $f_d$ and reused everywhere. The refit variants re-estimate the codebook from collected activations and require calibration data. The FP16 reference is 0.664. The default is shaded.}
+% \label{tab:codebook}
+% \resizebox{\columnwidth}{!}{%
+% \begin{tabular}{lcccc}
+% \toprule
+% Codebook & W4A4 & W3A3 & W2A4 & W2A3 \\
+% \midrule
+% \rowcolor{gray!15}
+% Shared analytic $f_d$ (default)  & 0.687 & 0.655 & 0.619 & 0.582 \\
+% Per-timestep refit (calibrated)  & \texttt{?} & \texttt{?} & \texttt{?} & \texttt{?} \\
+% Per-layer refit (calibrated)     & \texttt{?} & \texttt{?} & \texttt{?} & \texttt{?} \\
+% \bottomrule
+% \end{tabular}}
+% \end{table}
+
+% \vspace{-1mm}
+\subsection{AdaLN bit-width}
+\label{sec:ablation:adaln}
+OrbitQuant fixes AdaLN modulation projections at INT4 weight RTN regardless of the main bit-width, since their timestep-dependent scale-and-shift cannot be folded into neighboring weights. To isolate this choice, we hold the main model at W4A4 and vary only the AdaLN weight bit, keeping AdaLN activations in BF16. Figure~\ref{fig:adaln} reports GenEval Overall on three models.
+Quantizing the AdaLN weights to INT4 nearly matches the BF16 result on all three models, and lowering them further degrades Overall in a model-dependent way. At W3 all three models hold, but at W2 FLUX.1-dev and -schnell collapse, while Z-Image-Turbo stays robust. A low-bit AdaLN weight corrupts the modulation that every downstream layer reads. We still quantize these projections to INT4 rather than keep them in BF16, since they are $27\%$ of the weights and leaving them in BF16 would drop the FLUX model compression from $4\times$ to $2.21\times$ (Figure~\ref{fig:adaln}, right). Pushing them to W2 saves further memory while triggering this collapse on the FLUX models, so OrbitQuant keeps AdaLN at INT4.
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/adaln_ablation.pdf}
+\vspace{-3mm}
+\caption{AdaLN bit-width ablation with the main model fixed at W4A4 and AdaLN activations in BF16. The left panel reports GenEval Overall as the AdaLN modulation weight bit drops. The right panel reports model compression on the FLUX architecture with the AdaLN weights in BF16 ($2.21\times$) and in INT4 ($4\times$).}
+\label{fig:adaln}
+\vspace{-2mm}
+\end{figure}
+
+
+% \vspace{-2mm}
+\section{Conclusion}
+% \vspace{-1mm}
+We present OrbitQuant, a calibration-free weight-activation quantizer for diffusion transformers that replaces per-timestep range calibration with a single distributional codebook applied in a shared, rotated, normalized basis. The rotation is absorbed into the weights offline and cancels inside each linear layer, leaving only a forward RPBH rotation on the activations at runtime. Its random permutation is what keeps the rotated marginal well-behaved at low bit-width. Across FLUX.1, Z-Image-Turbo, Wan~2.1, and CogVideoX, the same recipe transfers from image to video with no per-modality tuning, sets the state of the art for PTQ on GenEval and VBench at low-bit settings, and supports usable 2-bit weights where prior PTQ methods collapse.

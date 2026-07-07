@@ -1,0 +1,140 @@
+% CVPR 2026 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+% \usepackage{cvpr}              % To produce the CAMERA-READY version
+% \usepackage[review]{cvpr}      % To produce the REVIEW version
+\usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage{nicematrix}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{arydshln} 
+\usepackage{makecell}
+\usepackage{dblfloatfix}
+\usepackage{subcaption}
+\usepackage{cuted}
+\usepackage{caption}
+\usepackage[normalem]{ulem}
+\definecolor{link}{RGB}{214,51,132}
+% \usepackage{mathaccent}
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]
+{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{*****} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2026}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+% \title{OrbitQuant: Data-Agnostic Quantization for Image and \\ Video Diffusion Transformer}
+
+\title{%
+\vspace{-15pt}
+  % --- top banner ---
+  \makebox[\linewidth][l]{%
+    \raisebox{-0.5\height}{\includegraphics[height=1.2em]{figures/Cantina-Logo-Teal.png}}%
+    \hspace{-0.35em}%
+    \raisebox{-0.5\height}{\includegraphics[height=1.5em]{figures/Cantina-Wordmark-Teal.png}}%
+  }%
+  \par\vspace{-6pt}%
+  \noindent{\color{black!40}\rule{\linewidth}{0.8pt}}%
+  \par\vspace{2pt}%
+  % --- actual title ---
+  \raisebox{-0.28\height}{\includegraphics[height=1.7em]{figures/orbit.pdf}}\,OrbitQuant: Data-Agnostic Quantization for Image and \\ Video Diffusion Transformers\vspace{-10pt}}
+
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{Donghyun Lee$^{1,2,\dagger}$\thanks{Work done during an internship at Cantina Labs.} , Jitesh Chavan$^1$, Duy Nguyen$^{1,3}$, Sam Huang$^1$, Liming Jiang$^1$, \\ Priyadarshini Panda$^2$, Timo Mertens$^1$, Saurabh Shukla$^{1,\dagger}$\\[3pt]
+$^1$Cantina Labs, $^2$University of Southern California, $^3$University of Illinois Urbana-Champaign
+\\[2pt]{\footnotesize $^{\dagger}$Correspondence to: saurabh@cantina.ai, donghyun.lee.1@usc.edu}
+\\[2pt]{\normalsize Project Page: {\tt \href{https://saurabhcantina.github.io/orbitquant/}{\textcolor{link}{https://saurabhcantina.github.io/orbitquant/}}}}}
+% \author{First Author\\
+% Institution1\\
+% Institution1 address\\
+% {\tt\small firstauthor@i1.org}
+% For a paper whose authors are all at the same institution,
+% omit the following lines up until the closing ``}''.
+% Additional authors and addresses can be added with ``\and'',
+% just like the second author.
+% To save space, use either the email address or home page, not both
+% \and
+% Second Author\\
+% Institution2\\
+% First line of institution2 address\\
+% {\tt\small secondauthor@i2.org}
+% }
+
+% Pull the title block up to recover vertical space (keeps paper within page limit)
+\makeatletter
+\patchcmd{\@maketitle}{\vskip .375in}{\vskip .12in}{}{}
+\makeatother
+
+
+\begin{document}
+\maketitle
+
+
+\begin{strip}
+\centering
+\vspace{-20mm}
+\includegraphics[width=\linewidth]{figures/figure1.pdf}
+\vspace{-8mm}
+% \captionof{figure}{OrbitQuant preserves generation quality under aggressive low-bit quantization where calibration-based baselines collapse. (a) FLUX.1-dev at W3A4, W3A3, W2A4 against QuaRot and ViDiT-Q. (b) Wan~14B video against ViDiT-Q.}
+\captionof{figure}{Qualitative comparison of OrbitQuant against QuaRot~\cite{ashkboos2024quarot} and ViDiT-Q~\cite{zhao2024vidit} under low-bit quantization, with the BF16 full-precision output. (a) Image generation on FLUX.1-dev at W3A4, W3A3, and W2A4. (b) Video generation on Wan 14B at W4A4.}
+\vspace{-3mm}
+\label{fig:teaser}
+\end{strip}
+
+% \begin{strip}
+% \centering
+% \captionsetup{type=figure}
+% \setcounter{figure}{0}
+% \subcaptionbox{Image generation on FLUX.1-dev.\label{fig:teaser-image}}{%
+%   \includegraphics[width=0.49\textwidth]{figures/figure1_a.pdf}}%
+% \hfill
+% \subcaptionbox{Video generation on Wan~14B.\label{fig:teaser-video}}{%
+%   \includegraphics[width=0.49\textwidth]{figures/figure1_b.pdf}}
+% \captionof{figure}{OrbitQuant preserves generation quality under aggressive low-bit quantization where calibration-based baselines collapse. (a) FLUX.1-dev at W4A4, W3A4, W2A4 against QuaRot and ViDiT-Q. (b) Wan~14B video against ViDiT-Q.}
+% \label{fig:teaser}
+% \end{strip}
+
+\input{sec/0_abstract}    
+\input{sec/1_intro}
+\input{sec/2_method}
+\input{sec/3_results}
+\input{sec/4_analysis}
+
+\clearpage
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% Integrated arXiv version: supplementary material follows the references.
+% For conference submission, comment the next line and submit supplement.tex separately.
+\input{sec/X_suppl}
+
+\end{document}
