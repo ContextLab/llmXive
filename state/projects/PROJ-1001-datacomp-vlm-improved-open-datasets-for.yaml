@@ -1,6 +1,6 @@
 artifact_hashes: {}
 assigned_agent: null
-created_at: '2026-07-07T09:11:01.160951Z'
+created_at: '2026-07-07T09:22:36.233149Z'
 current_stage: paper_ingested
 failed_stage: null
 field: computer science
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'DataComp-VLM: Improved Open Datasets for Vision-Language Models'
-updated_at: '2026-07-07T09:11:02.210950Z'
+updated_at: '2026-07-07T09:22:38.933576Z'

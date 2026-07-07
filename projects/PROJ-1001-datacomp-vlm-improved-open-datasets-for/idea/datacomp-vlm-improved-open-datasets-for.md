@@ -1,7 +1,7 @@
 ---
 field: computer science
 submitter: github-actions[bot]
-github_issue: https://github.com/ContextLab/llmXive/issues/536
+github_issue: https://github.com/ContextLab/llmXive/issues/539
 paper_authors:
   - Matteo Farina
   - Vishaal Udandarao
@@ -50,4 +50,4 @@ Paper authors (from arXiv): Matteo Farina, Vishaal Udandarao, Thao Nguyen, Selim
 
 Submitted by: github-actions[bot]
 
-(Intake from human-submission issue #536.)
+(Intake from human-submission issue #539.)
