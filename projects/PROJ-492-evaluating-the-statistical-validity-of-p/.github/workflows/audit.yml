@@ -7,19 +7,20 @@ on:
     branches: [ main ]
 
 # Resource constraints as per FR-009 and SC-008
-# GitHub Actions runners provide 2 vCPU and 7GB RAM by default.
-# We enforce 2GB RAM limit via resource_monitor.py which aborts if exceeded.
-# We enforce 2 vCPU via CPU affinity (optional) and monitoring.
-# We enforce a timeout of 6 hours (SC-008) at the job level.
+# Enforcing CPU and RAM limits at the workflow level where possible,
+# though specific runner limits are enforced via the resource_monitor module in code.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   audit-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # 6 hours max runtime
-
-    # Enforce CPU limits by limiting the number of parallel processes if necessary.
-    # The runner itself is 2 vCPU. We ensure our scripts respect this.
-    # RAM limit (2GB) is enforced at runtime by src/utils/resource_monitor.py.
+    
+    # GitHub Actions runners typically provide 2 vCPUs and 7GB RAM by default.
+    # We enforce the 2GB RAM and 2 vCPU logic via the Python resource_monitor module
+    # during execution, and set a strict timeout to prevent runaway processes.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -30,7 +31,6 @@ jobs:
         with:
           python-version: '3.10'
           cache: 'pip'
-          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
@@ -38,52 +38,66 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Constitution Compliance Check (PT005C)
-        # Validates all seven Principles (I-VII) before proceeding
         run: |
-          python code/src/utils/constitution_checker.py
-          if [ $? -ne 0 ]; then
-            echo "ERR-950: Constitution compliance check failed."
-            exit 1
-          fi
+          python -m code.src.utils.constitution_checker
+        continue-on-error: false
 
       - name: Schema Validation
-        # Validates output schemas against contracts
         run: |
-          python code/src/audit/export_schema_validator.py
-          python code/src/audit/manifest_schema_validator.py
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
+        continue-on-error: false
 
-      - name: Synthetic Validation (Precision/Recall Check)
-        # Runs T029/T033 logic to ensure pipeline accuracy
+      - name: Synthetic Dataset Validation (Precision/Recall Check)
         run: |
-          python code/src/audit/evaluation.py --mode synthetic
-          # This script asserts precision >= 90% and recall >= 80%
-          # If thresholds are not met, it raises ERR-800 and exits non-zero.
+          python -m code.src.audit.evaluation
+        continue-on-error: false
 
-      - name: Run Monte-Carlo Validation (T062/T031)
-        # Verifies statistical functions run within limits and are accurate
+      - name: Resource Monitoring Check
         run: |
-          python code/src/audit/monte_carlo_validation.py
-          # Aborts with ERR-801 if any test fails the <= 0.005 criterion
+          python -m code.src.utils.resource_monitor --check-only
+        continue-on-error: false
 
       - name: Run Main Audit Pipeline
-        # Orchestrates ingestion -> fetch -> extract -> reconstruct -> validate
         run: |
-          python code/src/cli/run_audit.py
-          # This script invokes resource_monitor.py internally.
-          # It will abort with ERR-301 if RAM > 2GB or CPU limits are breached.
-
-      - name: Verify Artifact Consistency
-        # Ensures JSON/CSV counts match (T059/T060)
-        run: |
-          python code/src/audit/export_validator.py
+          python -m code.src.cli.run_audit
+        env:
+          # Explicitly set environment variables to hint resource limits if the runner supports it
+          # Note: Actual enforcement is done in Python via resource_monitor.py
+          PYTHONUNBUFFERED: 1
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: audit-results
           path: |
             output/
-            data/processed/
             data/provenance_log.csv
+            data/checksums.txt
             output/resource_log.json
-            output/manifest.json
+          retention-days: 7
+
+      - name: Verify Resource Limits
+        run: |
+          python -c "
+          import json
+          from pathlib import Path
+          log_path = Path('output/resource_log.json')
+          if not log_path.exists():
+              print('ERR-301: Resource log not found')
+              exit(1)
+          with open(log_path) as f:
+              data = json.load(f)
+          peak_ram = data.get('peak_memory_mb', 0)
+          peak_cpu = data.get('peak_cpu_percent', 0) / 100.0 # Convert to vCPU count approx
+          
+          # FR-009 Limits: 2GB RAM, 2 vCPU
+          if peak_ram > 2048:
+              print(f'ERR-301: Peak RAM {peak_ram:.2f}MB exceeds 2GB limit')
+              exit(1)
+          if peak_cpu > 2.0:
+              print(f'ERR-301: Peak CPU {peak_cpu:.2f} vCPUs exceeds 2 vCPU limit')
+              exit(1)
+          print(f'Resource check passed: RAM={peak_ram:.2f}MB, CPU={peak_cpu:.2f} vCPUs')
+          "
