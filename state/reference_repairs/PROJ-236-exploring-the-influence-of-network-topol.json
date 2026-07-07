@@ -10,5 +10,17 @@
         "intent": "materials science HuggingFace: Dataset Collection of DFT calculated properties and structures. Fit : Contains coordinates. Verify specific alloy types match research needs."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-07T23:25:49.376763+00:00",
+    "project": "PROJ-236-exploring-the-influence-of-network-topol",
+    "repairs": [
+      {
+        "dead_url": "https://archive.ics.uci.edu/dataset/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv",
+        "intent": "archive.ics.uci.edu UCI Network Topology Synthetic datasets for benchmarking topological metrics. Used unit testing metric extraction algorithms."
+      }
+    ]
   }
 ]
