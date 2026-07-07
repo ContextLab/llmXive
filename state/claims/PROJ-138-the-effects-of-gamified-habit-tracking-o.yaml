@@ -16,25 +16,6 @@
   updated_at: '2026-07-04T04:37:54Z'
 - artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
   attempts: 1
-  canonical: synthetic dataset with 30 non-gamified and 70 gamified users
-  claim_id: c_a1783163
-  context: T013a [P] [US1] ... ensuring at least 30 users are gamified_status=False
-    (non-gamified) and 70 are True (gamified).
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_with_30_non-gamified_and_70_gamified_users
-  kind: magnitude
-  raw_text: ensuring at least 30 users are gamified_status=False (non-gamified) and
-    70 are True (gamified).
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T04:38:43Z'
-- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
-  attempts: 1
   canonical: halt data ingestion if valid records below 100 or non-gamified group
     below 30
   claim_id: c_616ae53d
@@ -121,3 +102,156 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T04:39:17Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: generate dataset with 100 users
+  claim_id: c_22e96381
+  context: 'T013a [P] [US1] Implement code/data/synthetic_generator.py: Generate a
+    dataset with N=100 users.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a dataset with N=100 users.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:13:41Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 2
+  canonical: synthetic dataset with 30 non-gamified and 70 gamified users
+  claim_id: c_a1783163
+  context: T013a [P] [US1] ... ensuring at least 30 users are gamified_status=False
+    (non-gamified) and 70 are True (gamified).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_with_30_non-gamified_and_70_gamified_users
+  kind: magnitude
+  raw_text: ensuring at least 30 users are gamified_status=False (non-gamified) and
+    70 are True (gamified).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:14:05Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt if valid records less than 100 or non-gamified group less than 30
+  claim_id: c_a12d6614
+  context: T013b [US1] ... If total valid records < 100 or non-gamified group < 30,
+    log Data Insufficiency or Group Imbalance and halt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_valid_records_less_than_100_or_non-gamified_group_le
+  kind: magnitude
+  raw_text: If total valid records < 100 or non-gamified group < 30, log Data Insufficiency
+    or Group Imbalance and halt
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:14:37Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: halt survival analysis if dropout events less than 10 per group
+  claim_id: c_85008d0c
+  context: T024 [US2] ... If events < 10 per group, generate a descriptive statistics
+    report and halt survival analysis (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_survival_analysis_if_dropout_events_less_than_10_per_gr
+  kind: magnitude
+  raw_text: If events < 10 per group, generate a descriptive statistics report and
+    halt survival analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:15:28Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/tasks.md
+  attempts: 1
+  canonical: reduce bootstrap runtime on CPU-only CI to less than 30 minutes
+  claim_id: c_e6c3ab90
+  context: T036 [P] Optimize code/analysis/robustness.py by implementing multiprocessing
+    for a sufficient number of bootstrap iterations to reduce runtime on CPU-only
+    CI to < 30 minutes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_bootstrap_runtime_on_CPU-only_CI_to_less_than_30_minu
+  kind: magnitude
+  raw_text: optimize code/analysis/robustness.py by implementing multiprocessing for
+    a sufficient number of bootstrap iterations to reduce runtime on CPU-only CI to
+    < 30 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:16:15Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/quickstart.md
+  attempts: 1
+  canonical: synthetic dataset contains 100 users with 70 gamified and 30 non-gamified
+  claim_id: c_18209dd4
+  context: 'Execute the synthetic data generator: python code/data/synthetic_generator.py.
+    This produces `data/raw/synthetic_data.csv` with 100 users (70 gamified, 30 non-gamified),
+    including personality scores and adherence logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This produces `data/raw/synthetic_data.csv` with 100 users (70 gamified,
+    30 non-gamified), including personality scores and adherence logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:21:07Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/quickstart.md
+  attempts: 1
+  canonical: pipeline halts if non-gamified group has fewer than 30 users
+  claim_id: c_33af73c3
+  context: 'Data Insufficiency: If the non-gamified group has fewer than 30 users,
+    the pipeline will halt. This is enforced to ensure statistical power.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_non-gamified_group_has_fewer_than_30_users
+  kind: magnitude
+  raw_text: If the non-gamified group has fewer than 30 users, the pipeline will halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:21:48Z'
+- artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/quickstart.md
+  attempts: 1
+  canonical: check for collinearity where VIF is greater than 5
+  claim_id: c_1b4f2672
+  context: If mixed-effects models fail to converge, check for collinearity (VIF >
+    5) or insufficient events in survival analysis.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: check for collinearity (VIF > 5) or insufficient events in survival analysis.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T13:21:54Z'

@@ -43,10 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project root directories: `code/`, `data/`, `tests/`, `contracts/`
-- [ ] T001b Create data subdirectories: `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pydriller, radon, sonar-scanner, tqdm, requests)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 [P] Create project root directories: `code/`, `data/`, `tests/`, `contracts/` and subdirectories `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`
 
 ---
 
@@ -56,11 +53,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create schema definitions in `contracts/` (`dataset.schema.yaml`, `output.schema.yaml`, `tool_validation_log.schema.yaml`)
-- [ ] T005 Implement `config.py` with parameter defaults (LOC thresholds, repo limits, tool versions)
-- [ ] T006 Implement `utils.py` for logging, checksum utilities, and random seed pinning
-- [ ] T007 Create `data/` directory structure (`raw/`, `processed/`, `results/`, `logs/`)
-- [ ] T008 Implement `main.py` orchestrator with error handling and timeout logic
+- [ ] T002 [P] Create schema definitions in `contracts/` (`dataset.schema.yaml`, `output.schema.yaml`, `tool_validation_log.schema.yaml`)
+- [ ] T003 [P] Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pydriller, radon, semgrep, tqdm, requests)
+- [ ] T004 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T005 [P] Implement `config.py` with parameter defaults (LOC thresholds: 5, 10, 20; repo limits, tool versions)
+- [ ] T006 [P] Implement `utils.py` for logging, checksum utilities, and random seed pinning
+- [ ] T007 [P] Implement `main.py` orchestrator with error handling and timeout logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,29 +66,26 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Automatically select repositories, clone them, extract git history and static analysis metrics, and produce a unified CSV with density metrics.
+**Goal**: Automatically select repositories, clone them, extract git history and static analysis metrics, and produce a unified CSV with **raw** metrics (total_lines_changed, debt_score) and `avg_loc` as a covariate.
 
-**Independent Test**: Run the pipeline on 3 fixed public repos; verify `data/processed/unified_metrics.csv` contains non-null rows for `churn_density`, `debt_density`, `debt_score`, and `avg_loc` for every file, and that `tool_validation_log.csv` records star counts and validation status.
+**Independent Test**: Run the pipeline on 3 fixed public repos; verify `data/processed/unified_metrics.csv` contains non-null rows for `total_lines_changed`, `debt_score`, `avg_loc`, and `contributor_count` for every file, and that `tool_validation_log.csv` records star counts and validation status.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for `unified_metrics.csv` schema in `tests/contract/test_dataset_schema.py`
-- [ ] T010 [P] [US1] Integration test for repo cloning and filtering in `tests/integration/test_data_extraction.py`
+- [ ] T008 [P] [US1] Contract test for `unified_metrics.csv` schema in `tests/contract/test_dataset_schema.py`
+- [ ] T009 [P] [US1] Integration test for repo cloning and filtering in `tests/integration/test_data_extraction.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language
-- [ ] T012 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file commit counts & lines changed (last 2 years) using `pydriller`
-- [ ] T013 [P] [US1] Implement `static_analysis.py`: Run `radon` (v2.4.0) on Python files to calculate CC and MI
-- [ ] T014 [P] [US1] Implement `static_analysis.py`: Run `sonar-scanner` CLI (v10.4 LTS) with 'SonarQube Community Rules' profile on Java, JS, TS, Go, Rust files to capture Code Smells and Cyclomatic Complexity; calculate `debt_score` = Sum(Code Smells + CC)
-- [ ] T015 [US1] Implement `preprocessing.py`: Filter non-source-code files and exclude files with `avg_loc` < 10 (parameterized default)
-- [ ] T015b [US1] Implement `preprocessing.py`: Re-run filtering logic for sensitivity thresholds (5, 10, 20, 30) to prepare datasets for FR-008 analysis
-- [ ] T016 [US1] Implement `preprocessing.py`: Calculate `churn_density` (total_lines_changed / avg_loc), `debt_density` (debt_score / avg_loc), `avg_loc`, and `contributor_count`; generate `data/processed/unified_metrics.csv`
-- [ ] T017 [US1] Implement `preprocessing.py`: Generate `data/raw/repos_metadata.csv`
-- [ ] T018a [US1] Implement `utils.py`: Record tool versions and GitHub star counts in `data/logs/tool_validation_log.csv` (Depends on T011-T014 completion)
-- [ ] T018b [US1] Implement `utils.py`: Verify tool validation per SC-005: check if tool matches 'Kitchenham et al. 2009' or 'Meneely et al. 2009' OR has >5,000 GitHub stars; log validation status
+- [ ] T010 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language
+- [ ] T011 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file commit counts & lines changed (last 2 years) using `pydriller`
+- [ ] T012 [P] [US1] Implement `data_extraction.py`: Generate `data/raw/repos_metadata.csv`
+- [ ] T013a [P] [US1] Implement `utils.py`: Validate tool availability (Radon, Semgrep) and log star counts/citation presence in `data/logs/tool_validation_log.csv` (Depends on T005)
+- [ ] T013b [P] [US1] Implement `utils.py`: Verify tool validation per SC-005: check if tool matches 'Kitchenham et al. 2009'/'Meneely et al. 2009' (presence check only per Plan limitation) OR has >5,000 GitHub stars; log validation status
+- [ ] T014 [P] [US1] Implement `static_analysis.py`: Run `radon` (v.0) on Python files to calculate CC and MI; Run `semgrep` (latest stable version) on Java, JS, TS, Go, Rust files to capture Code Smells and CC. Calculate `debt_score` = Sum(Code Smells + CC). **Note**: Semgrep is used as a Plan-approved override for CPU feasibility; Spec FR-002/SC-005 conflict requires future kickback.
+- [ ] T015 [US1] Implement `preprocessing.py`: Filter non-source-code files and exclude files with `avg_loc` < 10. Generate parameterized datasets for sensitivity analysis with thresholds **5, 10, 20** (Plan Phase 4b). Output `data/processed/unified_metrics.csv` containing **raw** metrics: `total_lines_changed`, `debt_score`, `avg_loc`, `contributor_count`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,23 +93,23 @@
 
 ## Phase 4: User Story 2 - Statistical Correlation Analysis (Priority: P2)
 
-**Goal**: Calculate correlation between churn density and debt density, controlling for confounders, and perform sensitivity analysis.
+**Goal**: Calculate correlation between **raw** churn and **raw** debt, controlling for `avg_loc` and other confounders, and perform sensitivity analysis.
 
 **Independent Test**: Feed the pipeline a synthetic CSV with known correlation; verify output reports `r` within ±0.05 and `p < 0.05`, and that VIF warnings trigger Ridge regression if collinearity is high.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for `correlation_results.csv` schema in `tests/contract/test_output_schema.py`
-- [ ] T020 [P] [US2] Integration test for mixed-effects model execution in `tests/integration/test_analysis.py`
+- [ ] T016 [P] [US2] Contract test for `correlation_results.csv` schema in `tests/contract/test_output_schema.py`
+- [ ] T017 [P] [US2] Integration test for mixed-effects model execution in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `analysis.py`: Load `unified_metrics.csv` (Depends on T016); perform VIF check on covariates (`project_age`, `language`, `contributor_count`); apply Ridge regression if VIF > 5
-- [ ] T022 [US2] Implement `analysis.py`: Fit mixed-effects model: `debt_density ~ churn_density + avg_loc + covariates + (1|repo_id)`
-- [ ] T023 [US2] Implement `analysis.py`: Calculate Pearson and Spearman correlation coefficients on `churn_density` vs `debt_density`, controlling for `avg_loc`
-- [ ] T024 [US2] Implement `analysis.py`: Perform Bonferroni correction on p-values across repositories (FR-006)
-- [ ] T025 [US2] Implement `analysis.py`: Run sensitivity analysis (Phase 4b) re-running the model with `avg_loc` thresholds of 5, 10, 20, and 30 using datasets from T015b
-- [ ] T026 [US2] Implement `analysis.py`: Generate `data/results/correlation_results.csv` and `data/results/sensitivity_analysis.csv`
+- [ ] T018 [US2] Implement `analysis.py`: Load `unified_metrics.csv` (Depends on T015); perform VIF check on covariates (`project_age`, `language`, `contributor_count`); apply Ridge regression if VIF > 5
+- [ ] T019 [US2] Implement `analysis.py`: Fit mixed-effects model: `debt_score ~ total_lines_changed + avg_loc + covariates + (1|repo_id)`
+- [ ] T020 [US2] Implement `analysis.py`: Calculate Pearson and Spearman correlation coefficients on **raw** `total_lines_changed` vs `debt_score`, controlling for `avg_loc` as a covariate
+- [ ] T021 [US2] Implement `analysis.py`: Perform **Meta-analysis of Fisher-transformed r** coefficients across repositories to control family-wise error rate (Plan Phase 4 override of Bonferroni)
+- [ ] T022 [US2] Implement `analysis.py`: Run sensitivity analysis re-running the model with `avg_loc` thresholds of **5, 10, 20** using datasets from T015
+- [ ] T023 [US2] Implement `analysis.py`: Generate `data/results/correlation_results.csv`, `data/results/sensitivity_analysis.csv`, and `data/results/meta_analysis_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,17 +123,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for `summary_report.txt` content in `tests/contract/test_report_schema.py`
-- [ ] T028 [P] [US3] Integration test for plot generation in `tests/integration/test_visualization.py`
+- [ ] T024 [P] [US3] Contract test for `summary_report.txt` content in `tests/contract/test_report_schema.py`
+- [ ] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_visualization.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `visualization.py`: Generate scatter plots (X: churn_density, Y: debt_density) with regression lines per repository
-- [ ] T030 [US3] Implement `visualization.py`: Annotate plots with correlation coefficient (`r`) and p-value; save to `data/results/plots/`
-- [ ] T031 [US3] Implement `reporting.py`: Generate `summary_report.txt` listing per-repo and aggregate results, flagging `|r| ≥ 0.3` as 'moderate' for density metrics
-- [ ] T032 [US3] Implement `reporting.py`: Include Bonferroni-corrected meta-analysis outcome and sensitivity analysis table in the report
-- [ ] T033a [US3] Implement `main.py`: Measure and log total pipeline execution time against 6-hour limit (SC-003)
-- [ ] T033 [US3] Implement `main.py`: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7)
+- [ ] T026 [P] [US3] Implement `visualization.py`: Generate scatter plots (X: `total_lines_changed`, Y: `debt_score`) with regression lines per repository
+- [ ] T027 [US3] Implement `visualization.py`: Annotate plots with correlation coefficient (`r`) and p-value; save to `data/results/plots/`
+- [ ] T028 [US3] Implement `reporting.py`: Generate `summary_report.txt` listing per-repo and aggregate results, flagging `|r| ≥ 0.3` as 'moderate' for raw metrics
+- [ ] T029 [US3] Implement `reporting.py`: Include Meta-analysis outcome and sensitivity analysis table in the report
+- [ ] T030 [US3] Implement `main.py`: Measure and log total pipeline execution time against a predefined duration threshold. (SC-003)
+- [ ] T031 [US3] Implement `main.py`: Finalize pipeline by computing checksums and updating `state/projects/...yaml` (Phase 7)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,12 +143,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034a [P] Update `quickstart.md` with installation and execution instructions
-- [ ] T034b [P] Update `research.md` with methodology details and validation study citations
-- [ ] T035 Code cleanup and refactoring of `preprocessing.py` and `analysis.py`
-- [ ] T036 Performance optimization: Ensure parallelism is limited to 2 concurrent repo processes
-- [ ] T037 [P] Additional unit tests in `tests/unit/` for metric calculation logic
-- [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T032a [P] Update `quickstart.md` with installation and execution instructions
+- [ ] T032b [P] Update `research.md` with methodology details and validation study citations
+- [ ] T033 Code cleanup and refactoring of `preprocessing.py` and `analysis.py`
+- [ ] T034 Performance optimization: Ensure parallelism is limited to a constrained number of concurrent repo processes.
+- [ ] T035 [P] Additional unit tests in `tests/unit/` for metric calculation logic
+- [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -178,8 +173,9 @@
 
 - Tests (if included) MUST be written and FAIL before implementation
 - Models/Config before services
-- Data Extraction (T011-T012) before Static Analysis (T013-T014)
-- Static Analysis before Preprocessing (T015-T017)
+- Data Extraction (T010-T011) before Tool Validation (T013a/b)
+- Tool Validation before Static Analysis (T014)
+- Static Analysis before Preprocessing (T015)
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -189,7 +185,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members (e.g., T011-T018 vs T021-T026)
+- Different user stories can be worked on in parallel by different team members (e.g., T010-T015 vs T018-T023)
 
 ---
 
@@ -197,9 +193,9 @@
 
 ```bash
 # Launch all data extraction tasks for User Story 1 together:
-Task: "Query GitHub API and clone repos" (T011)
-Task: "Run Radon on Python files" (T013)
-Task: "Run SonarQube on other languages" (T014)
+Task: "Query GitHub API and clone repos" (T010)
+Task: "Run Radon on Python files" (T014 - after T013a/b)
+Task: "Run Semgrep on other languages" (T014 - after T013a/b)
 ```
 
 ---
@@ -244,4 +240,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: The tasks now explicitly calculate density metrics (churn_density, debt_density) as required by FR-001, FR-002, and FR-003, and use Bonferroni correction as per FR-006.
+- **Critical**: The tasks now explicitly calculate **raw metrics** (`total_lines_changed`, `debt_score`) as mandated by the Plan's Methodological Correction to avoid spurious correlation, with `avg_loc` as a covariate.
+- **Correction**: Replaced SonarQube (infeasible on CI) with Semgrep (v1.30.0) for multi-language static analysis to ensure CPU-only feasibility. Note: This requires a Spec update (kickback) to formally reconcile with FR-002/SC-005.
+- **Correction**: Replaced Bonferroni correction with Meta-analysis of Fisher-transformed r coefficients as per Plan Phase 4.
+- **Correction**: Sensitivity analysis thresholds strictly limited to 5, 10, 20 as per Plan Phase 4b.

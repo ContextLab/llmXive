@@ -1,3 +1,6 @@
+"""
+Tests for robustness validation module.
+"""
 import os
 import sys
 import tempfile
@@ -5,82 +8,64 @@ import shutil
 import pytest
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
-
-from code.utils.config import set_random_seed
 from code.analysis.robustness import bootstrap_effect_size
 
-# Mock data generator for testing purposes
-def generate_test_bootstrap_data(n_users=100, n_weeks=10, seed=42):
+def generate_test_bootstrap_data():
     """
-    Generates a synthetic dataset mimicking the structure expected by robustness analysis.
-    This is used strictly for testing the variance calculation logic, not for final research results.
+    Generate a small synthetic dataset for testing bootstrapping.
+    This is used ONLY for unit testing the statistical logic,
+    not for the final research data.
     """
-    set_random_seed(seed)
+    np.random.seed(42)
+    n_users = 50
+    n_weeks = 10
+    
     data = []
-    for user_id in range(1, n_users + 1):
-        gamified = np.random.choice([0, 1])
-        conscientiousness = np.random.normal(5.0, 1.5)
-        # Simulate adherence over weeks
+    for user_id in range(n_users):
+        # Random gamification status
+        gam_status = np.random.choice([True, False])
+        # Random conscientiousness
+        consc = np.random.normal(50, 10)
+        
         for week in range(1, n_weeks + 1):
-            # Base probability influenced by gamification and conscientiousness
-            prob = 0.5 + (0.1 * gamified) + (0.05 * conscientiousness) - (0.02 * week)
-            prob = np.clip(prob, 0.1, 0.9)
-            adherence = 1 if np.random.random() < prob else 0
+            # Generate adherence based on status and week
+            base_prob = 0.6 if gam_status else 0.4
+            adherence = np.random.binomial(1, base_prob)
+            
             data.append({
-                'User_ID': user_id,
-                'Gamified': gamified,
-                'Conscientiousness': conscientiousness,
-                'Week': week,
-                'Adherence': adherence
+                "user_id": f"user_{user_id}",
+                "gamification_status": gam_status,
+                "conscientiousness_score": consc,
+                "week_number": week,
+                "weekly_adherence_flag": adherence
             })
+    
     return pd.DataFrame(data)
 
 def test_bootstrap_variance():
     """
-    Contract test: Asserts the bootstrapping procedure generates samples and reports
-    a coefficient variance (regardless of value).
-    
-    This test verifies:
-    1. The bootstrap function executes without error on a valid dataset.
-    2. The output contains a 'coefficient_variance' key.
-    3. The variance is a numeric value (float).
-    4. The process generates the expected number of samples (internally).
+    Test that bootstrapping generates samples and reports a coefficient variance.
+    Verifies FR-004 and SC-004.
     """
-    # Prepare temporary directory for any potential output files if the function writes them
-    # though bootstrap_effect_size is expected to return results in memory for this test.
-    temp_dir = tempfile.mkdtemp()
-    try:
-        # Generate test data
-        df = generate_test_bootstrap_data(n_users=50, n_weeks=8, seed=123)
-        
-        # Run the bootstrap effect size calculation
-        # We mock the data loading if the function expects a file path, 
-        # but based on the API surface, we pass the dataframe or handle internal loading.
-        # Assuming the function signature allows passing data or we use the generated data.
-        # The function signature in modeling.py suggests it might take a path or dataframe.
-        # We will pass the dataframe directly if the function supports it, or save it to a temp file.
-        
-        # Save to temp CSV to ensure compatibility with file-based loaders if necessary
-        test_csv_path = os.path.join(temp_dir, "test_data.csv")
-        df.to_csv(test_csv_path, index=False)
-        
-        # Execute the function
-        # Note: The implementation of bootstrap_effect_size in robustness.py is expected to 
-        # perform the resampling and return the variance.
-        result = bootstrap_effect_size(test_csv_path, n_iterations=100, random_state=42)
-        
-        # Assertions
-        assert result is not None, "Bootstrap function should return a result dictionary."
-        assert 'coefficient_variance' in result, "Result must contain 'coefficient_variance'."
-        assert isinstance(result['coefficient_variance'], (int, float)), "Variance must be numeric."
-        assert result['coefficient_variance'] >= 0, "Variance cannot be negative."
-        
-        # Optional: Check if other expected keys exist (based on typical robustness output)
-        # The task specifically asks to assert it reports a coefficient variance.
-        # We verify that the variance is not NaN and is a real number.
-        assert not np.isnan(result['coefficient_variance']), "Variance cannot be NaN."
-        
-    finally:
-        # Cleanup
-        shutil.rmtree(temp_dir, ignore_errors=True)
+    df = generate_test_bootstrap_data()
+    
+    # Run with a small number of iterations for speed in testing
+    results = bootstrap_effect_size(df, n_iterations=10)
+    
+    # Assertions
+    assert isinstance(results, dict)
+    assert "variance" in results
+    assert "ci_lower" in results
+    assert "ci_upper" in results
+    assert "n_valid" in results
+    
+    # Variance should be a non-negative float
+    assert isinstance(results["variance"], float)
+    assert results["variance"] >= 0
+    
+    # CI bounds should be numbers
+    assert isinstance(results["ci_lower"], float)
+    assert isinstance(results["ci_upper"], float)
+    
+    # Should have at least some valid iterations
+    assert results["n_valid"] > 0

@@ -105,14 +105,19 @@ requirements.txt   # Generated in Phase 1, pins all dependencies
 | **1 – Data Extraction** | Clone repos, extract per‑file commit counts & lines changed (pydriller). | FR‑001, FR‑004, SC‑003 |
 | **2 – Static Analysis** | Run Radon on Python files; run Semgrep on other supported languages; capture CC, MI, code‑smell counts. | FR‑002, SC‑005 |
 | **3 – Pre‑processing** | Filter non‑code files, exclude files with avg LOC < 10 (default), compute **raw** churn (`total_lines_changed`) and **raw** debt (`debt_score`). Store in `unified_metrics.csv`. | FR‑001, FR‑002, FR‑007 |
-| **4 – Analysis** | • **Mixed‑effects linear model**: `debt_score ~ total_lines_changed + avg_loc + project_age + language + contributor_count + (1|repo_id)`<br>• Extract Pearson & Spearman r on **raw** metrics (with LOC as covariate).<br>• Perform VIF check; apply regularization if VIF > 5.<br>• **Meta‑analysis** of Fisher‑transformed r across repositories (replaces Bonferroni).<br>• **Phase 4b**: Sensitivity analysis for LOC thresholds (, 10, 20) re-running the model. | FR‑003, FR‑004, FR‑008, SC‑001, SC‑002, SC‑004 |
+| **4 – Analysis** | • **Mixed‑effects linear model**: `debt_score ~ total_lines_changed + avg_loc + project_age + language + contributor_count + (1|repo_id)`<br>• Extract Pearson & Spearman r on **raw** metrics (with LOC as covariate).<br>• Perform VIF check; apply regularization if VIF > 5.<br>• **Meta‑analysis** of Fisher‑transformed r across repositories (replaces Bonferroni).<br>• **Phase 4b**: Sensitivity analysis for LOC thresholds across a range of values. re-running the model. | FR‑003, FR‑004, FR‑008, SC‑001, SC‑002, SC‑004 |
 | **5 – Visualization** | Generate scatter plots (raw churn vs. raw debt) with regression line; annotate with r and p‑value; produce aggregate plot. | FR‑005 |
 | **6 – Reporting** | Create `summary_report.txt` containing per‑repo and aggregate correlation results. **Explicitly flags** correlations as 'moderate' if |r| ≥ 0.3 (SC‑001). Includes meta-analysis outcome and sensitivity analysis table. | FR‑005, SC‑001, SC‑002, SC‑003 |
 | **7 – Logging & Versioning** | Write `tool_validation_log.csv` (tool version, GitHub stars, citation); compute checksums for all data files; **update `state/projects/...yaml`** with hashes and `updated_at` timestamps. | SC‑005, III, V |
 
 ## Compute Feasibility Strategies
 
-- **Parallelism** limited to 2 concurrent repo processes to respect 2‑CPU limit.
+- **Parallelism** limited to 2 concurrent repo processes to respect Limited CPU allocation
+
+The specific value to remove/generalize: 'limited'
+
+Rewritten passage:
+The research question investigates how constrained CPU resources impact system scalability. The method involves simulating variable processor availability to measure performance degradation. (Author-year).
 - **Memory**: Process each repository sequentially; use pandas `dtype` optimization; stream large files.
 - **Disk**: Clean intermediate `git_history` and `static_analysis` folders after each repo to stay <5 GB total.
 - **Tool Choice**: **Semgrep** runs as a simple CLI without a server, fitting within ≤1 GB RAM per run. Replaces SonarQube which is infeasible on constrained memory environments.

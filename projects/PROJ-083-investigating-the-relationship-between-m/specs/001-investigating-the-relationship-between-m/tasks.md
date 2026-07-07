@@ -58,7 +58,7 @@
 
 - [ ] T009 [P] [US1] Contract test for EAS pattern matching in `tests/unit/test_ingestion.py`
 - [ ] T010 [P] [US1] Integration test for full ingestion pipeline on small subset in `tests/integration/test_ingestion_pipeline.py`
-  - **Execution Note**: This test MUST run after T011-T015 are complete to verify the implementation.
+ - **Execution Note**: This test MUST run after T011-T015 are complete to verify the implementation.
 
 ### Implementation for User Story 1
 
@@ -66,7 +66,7 @@
 - [ ] T012 [US1] Implement SMILES parser with error handling for malformed data in `code/ingestion.py` (FR-006)
 - [ ] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
 - [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < 100 (FR-001)
-  - **Gate Logic**: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST exit with code 1 and prevent Phase 5 execution.
+ - **Gate Logic**: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST exit with code 1 and prevent Phase 5 execution.
 - [ ] T015 [US1] Write filtered dataset to `data/processed/eas_reactions.csv` with checksum generation
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
@@ -78,13 +78,13 @@
 
 **Goal**: Compute Wiener, Balaban, and Zagreb indices for reactant molecules and verify symmetry invariance.
 
-**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45); verify values within ±0.1 tolerance.
+**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45); verify values within ±0.1 tolerance. [UNRESOLVED-CLAIM: c_87f4555b — status=not_enough_info]
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
 - [ ] T017 [P] [US2] Unit test for Balaban and Zagreb index calculations in `tests/unit/test_descriptors.py`
-- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner in `tests/perf/test_descriptor_perf.py`
+- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner [UNRESOLVED-CLAIM: c_4d9e6929 — status=not_enough_info] in `tests/perf/test_descriptor_perf.py`
 - [ ] T019 [P] [US2] Unit test for graph automorphism detection in `tests/unit/test_symmetry.py`
 
 ### Implementation for User Story 2 & Symmetry (FR-002, FR-008)
@@ -94,18 +94,18 @@
 - [ ] T022 [US2] Implement Zagreb index calculator in `code/descriptors.py` (FR-002)
 - [ ] T023 [US2] Implement logic to flag "invalid topology" for disconnected graphs and exclude from analysis (FR-002)
 - [ ] T024 [US2] Implement **Preliminary** graph automorphism detection using `rdkit` or `networkx` to verify molecule canonicalization in `code/utils/symmetry.py` (FR-008)
-  - **Note**: This is a preliminary check; formal group definition is in Phase 7.
+ - **Note**: This is a preliminary check; formal group definition is in Phase 7.
 - [ ] T025 [US2] Add explicit **Preliminary** invariance check: Calculate indices for a molecule and its canonicalized form; assert equality in `code/utils/symmetry.py` (FR-008)
 - [ ] T026 [US2] Implement **Preliminary** sensitivity analysis: Rotate/permute molecular graph representation and verify index stability in `code/utils/symmetry.py` (FR-008)
 - [ ] T027 [US2] Write descriptor table to `data/processed/descriptors.csv` with checksums
 
 ### Tests for Symmetry Invariance (Moved to Phase 4 for TDD)
 - [ ] T044 [P] [US2] Unit test `test_wiener_invariance_permutation` in `tests/unit/test_index_stability.py`
-  - **Logic**: Verify Wiener index remains constant under graph permutation.
+ - **Logic**: Verify Wiener index remains constant under graph permutation.
 - [ ] T045 [P] [US2] Unit test `test_balaban_invariance_permutation` in `tests/unit/test_index_stability.py`
-  - **Logic**: Verify Balaban index remains constant under graph permutation.
+ - **Logic**: Verify Balaban index remains constant under graph permutation.
 - [ ] T046 [P] [US2] Unit test `test_zagreb_invariance_permutation` in `tests/unit/test_index_stability.py`
-  - **Logic**: Verify Zagreb index remains constant under graph permutation.
+ - **Logic**: Verify Zagreb index remains constant under graph permutation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, and preliminary symmetry invariance is verified.
 
@@ -123,26 +123,26 @@
 - [ ] T029 [P] [US3] Contract test for Random Forest regression in `tests/unit/test_modeling.py`
 - [ ] T030 [P] [US3] Contract test for Binary Classification fallback in `tests/integration/test_modeling_fallback.py`
 - [ ] T031 [P] [US3] Synthetic test with deterministic symmetry-based target generation in `tests/unit/test_modeling_synthetic.py`
-  - **Logic**: Generate target via deterministic symmetry class logic (not Poisson).
+ - **Logic**: Generate target via deterministic symmetry class logic (not Poisson).
 
 ### Implementation for User Story 3
 
 - [ ] T032 [US3] Implement **selectivity target** extraction (Regioisomer Diversity Count from reactant symmetry) in `code/modeling.py` (FR-003)
-  - **Algorithm**: Calculate graph automorphism orbits on reactant aromatic ring to determine non-equivalent sites.
-  - **Logic**: Target is **always** derived from reactant symmetry. No "default to 0" fallback.
-  - **Depends on**: T015 (Filtered Dataset)
+ - **Algorithm**: Calculate graph automorphism orbits on reactant aromatic ring to determine non-equivalent sites.
+ - **Logic**: Target is **always** derived from reactant symmetry. No "default to 0" fallback.
+ - **Depends on**: T015 (Filtered Dataset)
 - [ ] T033 [US3] Implement **Ordinal Logistic Regression** model in `code/modeling.py` (Plan Requirement)
 - [ ] T034 [US3] Implement **Random Forest** regression model using `sklearn.ensemble.RandomForestRegressor` with deterministic target handling in `code/modeling.py` (FR-004)
 - [ ] T035 [US3] Implement 5-fold CV logic with automatic switch to LOO if N < 20 in `code/modeling.py` (FR-005)
 - [ ] T036 [US3] Implement VIF calculation for collinearity diagnostics and sequential analysis logic if VIF > 5 in `code/modeling.py`
 - [ ] T037 [US3] Implement degenerate target detection (variance=0) and switch to **Binary Classification** (threshold > 1) in `code/modeling.py` (FR-007)
-  - **Note**: Zero-Inflated Poisson is explicitly excluded per Plan.
+ - **Note**: Zero-Inflated Poisson is explicitly excluded per Plan.
 - [ ] T038 [US3] Implement Bonferroni-corrected significance testing (p < 0.0167) and report generation in `code/modeling.py`
 - [ ] T039 [US3] Evaluate R² against SC-002 threshold (R² > 0.05). If MDE is unachievable, report descriptive statistics AND log explicit "Project Failed" state and halt in `data/models/results.json` (SC-002)
-  - **Gate Logic**: If SC-002 is not met, the pipeline MUST exit with code 1.
+ - **Gate Logic**: If SC-002 is not met, the pipeline MUST exit with code 1.
 - [ ] T040 [US3] Implement "Symmetry Check" step before model training (FR-008)
-  - **Logic**: If `SymmetryValidator` (from Phase 7) fails for >1% of the dataset, halt with "Data Integrity: Symmetry Violation" error.
-  - **Dependency**: Must run after Phase 7 (T044) is complete.
+ - **Logic**: If `SymmetryValidator` (from Phase 7) fails for >1% of the dataset, halt with "Data Integrity: Symmetry Violation" error.
+ - **Dependency**: Must run after Phase 7 (T044) is complete.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -166,18 +166,18 @@
 ### Implementation for Symmetry Group Definition
 
 - [ ] T043 [P] Define the mathematical symmetry group $G$ for Electrophilic Aromatic Substitution in `docs/reports/symmetry_group_definition.md`.
-  - **Scope**: Must explicitly identify the group of graph automorphisms that preserve the aromatic ring structure and the electrophilic attack site.
-  - **Constraint**: Must distinguish between global graph automorphisms and local site permutations.
+ - **Scope**: Must explicitly identify the group of graph automorphisms that preserve the aromatic ring structure and the electrophilic attack site.
+ - **Constraint**: Must distinguish between global graph automorphisms and local site permutations.
 - [ ] T044 [US2] Implement a `SymmetryValidator` class in `code/utils/symmetry.py` that takes a `ReactionRecord` and a `SymmetryGroup` definition.
-  - **Function**: Apply all permutations in $G$ to the reactant graph and re-calculate Wiener, Balaban, and Zagreb indices.
-  - **Assertion**: Assert that `index(original) == index(permutated)` for all $g \in G$.
-  - **Refactor**: Extend preliminary checks from Phase 4 (T024-T026).
+ - **Function**: Apply all permutations in $G$ to the reactant graph and re-calculate Wiener, Balaban, and Zagreb indices.
+ - **Assertion**: Assert that `index(original) == index(permutated)` for all $g \in G$.
+ - **Refactor**: Extend preliminary checks from Phase 4 (T024-T026).
 - [ ] T045 [US2] Generate a "Coordinate Independence" report in `docs/reports/coordinate_independence_report.md`.
-  - **Content**: For a random sample of molecules, demonstrate that indices are invariant under the defined group $G$.
-  - **Failure Condition**: If any index varies, the task fails and logs the specific transformation causing the variance.
+ - **Content**: For a random sample of molecules, demonstrate that indices are invariant under the defined group $G$.
+ - **Failure Condition**: If any index varies, the task fails and logs the specific transformation causing the variance.
 - [ ] T046 [US2] Refactor `code/descriptors.py` to cache index calculations based on the canonical graph representation (orbit representatives) to ensure efficiency during validation.
 - [ ] T047 [US3] Update `code/modeling.py` to include the "Symmetry Check" step (T040) before model training.
-  - **Logic**: If `SymmetryValidator` fails for >1% of the dataset, the pipeline must halt with a "Data Integrity: Symmetry Violation" error, preventing the training of models on non-invariant features.
+ - **Logic**: If `SymmetryValidator` fails for >1% of the dataset, the pipeline must halt with a "Data Integrity: Symmetry Violation" error, preventing the training of models on non-invariant features.
 
 **Checkpoint**: The project now explicitly defines the symmetry group and proves that the chosen topological indices are invariants under the relevant physical transformations, satisfying the requirement for a coordinate-independent predictor.
 **Critical Dependency Note**: Phase 5 (Modeling) depends on the completion of Phase 7 (T044) for the Symmetry Check.
@@ -204,11 +204,11 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Research Revision (Phase 6)**: Depends on Phase 4 (US2 Descriptors + Symmetry) and Phase 5 (US3 Modeling)
 - **Symmetry Validation (Phase 7)**: Depends on Phase 4 (US2 Descriptors) and Phase 1 (Setup)
-  - **Critical**: Phase 7 (T044) must complete before Phase 5 (T040) can fully execute the Symmetry Check.
+ - **Critical**: Phase 7 (T044) must complete before Phase 5 (T040) can fully execute the Symmetry Check.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -216,8 +216,8 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 (data) and US2 (descriptors + symmetry)
-  - **Critical**: Phase 5 requires Phase 3 completion AND N_EAS >= 100 (enforced by T014).
-  - **Critical**: Phase 5 requires Phase 7 completion (Symmetry Check).
+ - **Critical**: Phase 5 requires Phase 3 completion AND N_EAS >= 100 (enforced by T014).
+ - **Critical**: Phase 5 requires Phase 7 completion (Symmetry Check).
 - **Research Revision (P2)**: Depends on US2 completion to verify invariance
 - **Symmetry Validation (P2)**: Depends on US2 (T020-T022) to have working descriptor calculators
 
@@ -278,10 +278,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2 (Descriptors + Symmetry)
-   - Developer C: User Story 3 (Modeling)
-   - Developer D: Phase 7 (Symmetry Group Definition & Validation)
+ - Developer A: User Story 1
+ - Developer B: User Story 2 (Descriptors + Symmetry)
+ - Developer C: User Story 3 (Modeling)
+ - Developer D: Phase 7 (Symmetry Group Definition & Validation)
 3. Stories complete and integrate independently
 
 ---

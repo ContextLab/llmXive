@@ -1,0 +1,7 @@
+rdkit
+pandas
+scikit-learn
+statsmodels
+pyyaml
+ruff
+black

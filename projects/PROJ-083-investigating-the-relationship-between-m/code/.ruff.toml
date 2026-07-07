@@ -1,0 +1,30 @@
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files that should not be linted (e.g., generated files).
+exclude = ["data/*", "docs/*"]
+
+# Same as `--line-length` in the CLI.
+line-length = 100
+
+# Allow unused variables when they start with an underscore.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Use double quotes for strings.
+quote-style = "double"
+
+# Indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Use Unix newlines (LF).
+line-ending = "lf"

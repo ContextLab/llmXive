@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: Create the following directories at repository root: `code/data`, `code/analysis`, `code/reports`, `code/utils`, `code/tests`, `data/raw`, `data/processed`, `data/consent`. **Verification**: Assert all directories exist and create `.gitkeep` files in each to ensure they are tracked by git.
+- [X] T001 Create project structure: Create the following directories at repository root: `code/data`, `code/analysis`, `code/reports`, `code/utils`, `code/tests`, `data/raw`, `data/processed`, `data/consent`. **Verification**: Assert all directories exist and create `.gitkeep` files in each to ensure they are tracked by git.
 
 ---
 
@@ -55,16 +55,16 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T002 [P] Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, lifelines, seaborn, matplotlib, pyyaml, pingouin, scipy)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-- [ ] T004 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/consent/`, `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`
+- [X] T002 [P] Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, lifelines, seaborn, matplotlib, pyyaml, pingouin, scipy)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T004 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/consent/`, `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`
 - [X] T005 [P] Implement `code/utils/config.py` for random seed pinning and environment configuration
 - [X] T006 [P] Setup `code/utils/logging.py` for structured logging of pipeline stages
 - [ ] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
 - [X] T008 [P] Implement `code/utils/versioning.py` to calculate SHA-256 hashes of artifacts and update `state.yaml` (Constitution Principle V)
-- [~] T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, etc.) for validation
+- [ ] T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, etc.) for validation
 - [~] T012a [P] [US1] Implement `check_consent()` function in `code/data/validation.py`: Verify `data/consent/` exists. **Logic**: If real data is present, halt if missing (FR-010). If synthetic data is used, **generate a synthetic consent artifact** (e.g., `data/consent/synthetic_consent_record.json`) explicitly stating the data is synthetic and approved for research, then proceed. This ensures the gate is never bypassed silently. (FR-010, Constitution Principle VI)
-- [~] T013a [P] [US1] Implement `code/data/synthetic_generator.py`: Generate a dataset with N=100 users. [UNRESOLVED-CLAIM: c_bec6d9ca — status=not_enough_info] **Mechanism**: Simulate a 'self-report' survey response for each user to determine `gamified_status` (True if they reported using gamified apps, False otherwise), ensuring at least 30 users are `gamified_status=False` (non-gamified) and 70 are `True` (gamified). Include `conscientiousness_score` and `need_for_achievement` (simulated with known correlation). Pin random seed to a fixed value. **Output**: Write to `data/raw/synthetic_data.csv` in CSV format. (FR-008, FR-011) <!-- FAILED: unspecified -->
+- [~] T013a [P] [US1] Implement `code/data/synthetic_generator.py`: Generate a dataset with N=100 users. **Mechanism**: Simulate a 'self-report' survey response for each user to determine `gamified_status` (True if they reported using gamified apps, False otherwise), ensuring at least 30 users are `gamified_status=False` (non-gamified) and 70 are `True` (gamified). Include `conscientiousness_score` and `need_for_achievement` (simulated with known correlation). Pin random seed to a fixed value. **Output**: Write to `data/raw/synthetic_data.csv` in CSV format. (FR-008, FR-011) <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -102,7 +102,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set. [UNRESOLVED-CLAIM: c_f96e8686 — status=not_enough_info]
+- [~] T018 [P] [US2] Contract test: Add function `test_model_convergence()` in `code/tests/test_modeling.py` that asserts the mixed-effects model converges and recovers known coefficients within 0.01 variance on a synthetic test set.
 - [~] T019 [P] [US2] Integration test: Add function `test_survival_event_count()` in `code/tests/test_survival.py` that asserts the survival analysis halts and outputs descriptive stats if dropout events < 10 per group.
 
 ### Implementation for User Story 2
@@ -132,11 +132,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate 95% CI for gamification effect size. **Output**: Report the coefficient variance across samples and the 95% CI. **Note**: Do not fail if variance > 0.01; report the value as part of the exploratory findings (FR-004, SC-004).
-- [ ] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds and **calculate/report the stability of the effect size (coefficient variance)** across thresholds (FR-005, SC-005).
-- [ ] T030 [US3] Implement `code/reports/generate_report.py`: Generate HTML/PDF report containing usage trajectory plots, Kaplan-Meier survival curves, and sensitivity analysis tables. **Inject a header disclaimer programmatically**: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
-- [ ] T032 [US3] Generate final report artifact `data/reports/final_analysis.html` by executing `code/reports/generate_report.py`. **Verification**: Assert file exists and contains required sections.
-- [ ] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
+- [~] T029 [P] [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate 95% CI for gamification effect size. **Output**: Report the coefficient variance across samples and the 95% CI. **Note**: Do not fail if variance > 0.01; report the value as part of the exploratory findings (FR-004, SC-004).
+- [~] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds and **calculate/report the stability of the effect size (coefficient variance)** across thresholds (FR-005, SC-005).
+- [~] T030 [US3] Implement `code/reports/generate_report.py`: Generate HTML/PDF report containing usage trajectory plots, Kaplan-Meier survival curves, and sensitivity analysis tables. **Inject a header disclaimer programmatically**: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
+- [~] T032 [US3] Generate final report artifact `data/reports/final_analysis.html` by executing `code/reports/generate_report.py`. **Verification**: Assert file exists and contains required sections.
+- [~] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,7 +146,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates: Update `README.md` with project overview and `quickstart.md` with execution instructions. **Specifics**: Ensure `quickstart.md` includes steps for synthetic data generation and consent verification.
+- [~] T034 [P] Documentation updates: Update `README.md` with project overview and `quickstart.md` with execution instructions. **Specifics**: Ensure `quickstart.md` includes steps for synthetic data generation and consent verification.
 - [ ] T035 [P] Refactor `code/analysis/robustness.py` to use **chunked processing or generator-based iteration** to ensure peak memory usage remains within acceptable limits during bootstrapping, verified by a **memory profiling test**.
 - [ ] T036 [P] Optimize `code/analysis/robustness.py` by implementing **multiprocessing** for a sufficient number of bootstrap iterations to reduce runtime on CPU-only CI to < 30 minutes.
 - [ ] T037 [P] Additional unit tests for edge cases: Implement `code/tests/test_edge_cases.py` with functions `test_vif_high_collinearity` (verifies VIF > 5 handling) and `test_low_event_count` (verifies survival halt logic).

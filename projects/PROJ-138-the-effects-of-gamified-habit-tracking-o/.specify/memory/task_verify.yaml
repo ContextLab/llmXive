@@ -1,19 +1,9 @@
-? 'T001 Create project structure: Create the following directories at repository root:
-  `code/data`, `code/analysis`, `code/reports`, `code/utils`, `code/tests`, `data/raw`,
-  `data/processed`, `data/consent`. **Verification**: Assert all directories exist
-  and create `.gitkeep` files in each to ensure they are tracked by git.'
-: 2
-? T002 [P] Initialize Python 3.11 project with requirements.txt dependencies (pandas,
-  numpy, scikit-learn, statsmodels, lifelines, seaborn, matplotlib, pyyaml, pingouin,
-  scipy)
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools: 2
-? 'T004 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/consent/`,
-  `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`'
-: 2
 ? 'T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in
   `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool),
   `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number`
   (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**:
   Assert `import code.data.models` succeeds and class attributes match spec.'
+: 2
+? T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID,
+  Gamified, Adherence, etc.) for validation
 : 1

@@ -60,7 +60,7 @@ def bootstrap_effect_size(df: pd.DataFrame, n_iterations: int = 100) -> dict:
                     coefficients.append(result.params["gamification_numeric"])
                 else:
                     coefficients.append(np.nan)
-                    
+                        
         except Exception as e:
             # Skip failed iterations
             coefficients.append(np.nan)

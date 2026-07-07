@@ -1,0 +1,52 @@
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: 'Wiener index values: benzene 27, toluene 33, nitrobenzene 45'
+  claim_id: c_87f4555b
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45);\
+    \ verify values within \xB10.1 tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:10:48Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Model recovers known distribution patterns on synthetic dataset
+  claim_id: c_eec2f92a
+  context: 'Independent Test: Run on synthetic dataset with deterministic symmetry-based
+    target; verify model recovers known distribution patterns.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_recovers_known_distribution_patterns_on_synthetic_data
+  kind: entity_fact
+  raw_text: Verify model recovers known distribution patterns.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:11:14Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Full descriptor dataset calculation time under 15 minutes on 2-core runner
+  claim_id: c_4d9e6929
+  context: '- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation
+    < 15 mins on 2-core runner in tests/perf/test_descriptor_perf.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance test ensuring full dataset calculation < 15 mins on 2-core
+    runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T13:11:14Z'

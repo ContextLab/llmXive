@@ -46,16 +46,8 @@ class WeeklyAggregation:
     Attributes:
         user_id: ID of the user.
         week_number: Sequential week number (1-based).
-        start_date: Start date of the week.
-        end_date: End date of the week.
-        total_events: Total number of events in the week.
-        adherence_count: Number of adherence events.
-        weekly_adherence_flag: Binary flag (1 if majority adherence, else 0).
+        adherence_flag: Binary flag (1 if majority adherence, else 0).
     """
     user_id: str
     week_number: int
-    start_date: datetime
-    end_date: datetime
-    total_events: int
-    adherence_count: int
-    weekly_adherence_flag: int
+    adherence_flag: int
