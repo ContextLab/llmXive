@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PolymerRecord"
+description: "Schema for polymer degradation records ingested from NIST/WebBooks-1. Records with missing environmental data or pathway labels are excluded."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier (hash of SMILES + conditions)"
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string of polymer"
+    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}()<>|~]+$"
+  temp:
+    type: "number"
+    description: "Temperature in degrees Celsius"
+  pH:
+    type: "number"
+    description: "pH value (0-14)"
+  uv:
+    type: "number"
+    description: "UV exposure in W/m²"
+  pathway:
+    type: "string"
+    description: "Degradation pathway label"
+    enum:
+      - "hydrolysis"
+      - "oxidation"
+      - "photolysis"
+      - "other"
+  flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Flags for missing data, invalid SMILES, manual review"
+required:
+  - "id"
+  - "smiles"
+  - "temp"
+  - "pH"
+  - "uv"
+  - "pathway"
+additionalProperties: false
