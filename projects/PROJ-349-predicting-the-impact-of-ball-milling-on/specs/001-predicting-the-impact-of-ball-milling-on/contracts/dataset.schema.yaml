@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ball Milling Experiment Dataset"
+type: object
+required:
+  - experiment_id
+  - milling_speed_rpm
+  - milling_time_hours
+  - ball_to_powder_ratio
+  - material_type
+  - youngs_modulus_gpa
+  - density_gcm3
+  - process_duration_hours
+  - d10_um
+  - d50_um
+  - d90_um
+  - source_name
+  - source_id
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the experiment (e.g., concatenation of source and record ID)."
+  milling_speed_rpm:
+    type: number
+    description: "Milling speed in revolutions per minute."
+  milling_time_hours:
+    type: number
+    description: "Milling duration in hours."
+  ball_to_powder_ratio:
+    type: number
+    description: "Mass ratio of milling balls to powder."
+  material_type:
+    type: string
+    description: "Categorical material identifier (e.g., alloy name)."
+  youngs_modulus_gpa:
+    type: number
+    description: "Pre‑milling Young's modulus in GPa."
+  density_gcm3:
+    type: number
+    description: "Pre‑milling density in g/cm³."
+  process_duration_hours:
+    type: number
+    description: "Total process duration proxy feature (hours)."
+  d10_um:
+    type: number
+    description: "Particle size at 10th percentile (µm)."
+  d50_um:
+    type: number
+    description: "Particle size at 50th percentile (µm)."
+  d90_um:
+    type: number
+    description: "Particle size at 90th percentile (µm)."
+  source_name:
+    type: string
+    description: "Name of the source repository (Materials Project, NIST, arXiv)."
+  source_id:
+    type: string
+    description: "Identifier within the source (e.g., Materials Project ID, DOI, arXiv ID)."
+additionalProperties: false
