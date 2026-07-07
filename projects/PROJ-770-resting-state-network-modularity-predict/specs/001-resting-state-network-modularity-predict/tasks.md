@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `nilearn`, `scikit-learn`, `python-louvain`, `statsmodels`, `nibabel`)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,8 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers
-- [ ] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
+- [X] T004 [P] Implement `code/utils.py` with global random seed setting (numpy, random, python) and memory profiling helpers <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [X] T005 [P] Create `code/config.py` to manage paths (`data/raw`, `data/processed`, `data/results`) and hyperparameters (thresholds, sensitivity analysis increments)
 - [ ] T006 [P] Implement `code/download_data.py` with full HCP S3/HuggingFace verification logic: fetch metadata, verify NIfTI existence for a random subset of subjects, and HALT execution if data is unavailable (Phase 0 critical path)
 - [ ] T007 Setup `tests/test_utils.py` to verify seed reproducibility and memory constraints
 - [ ] T008 Setup CI workflow (`.github/workflows/research.yml`) targeting CPU-only runner with 7GB RAM limit
@@ -155,8 +158,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -222,9 +225,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,24 @@
+# Ruff configuration for PROJ-770
+# Enforces strict linting rules for research code quality and consistency
+
+line-length = 88
+target-version = "py311"
+
+[lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "BLE", "A", "C4", "DTZ", "T10", "ISC", "ICN", "PIE", "Q", "RSE", "RET", "SIM", "TID", "ARG", "PTH", "ERA", "PD", "PL"]
+ignore = [
+  "ANN101", # Missing type annotation for `self` in method
+  "ANN102", # Missing type annotation for `cls` in classmethod
+  "S101",   # Allow use of `assert` in test files (handled by pytest)
+  "E501",   # Line length handled by formatter (black)
+  "W191",   # Indentation contains tabs (handled by formatter)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["ANN", "S"]
+"code/download_data.py" = ["S310"] # Allow URL open for data fetching
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
