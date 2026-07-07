@@ -6,282 +6,278 @@ from pathlib import Path
 from typing import Tuple, List, Optional, Dict, Any
 from loguru import logger
 from src.utils.logging import get_logger
-from src.utils.validators import validate_dataframe_schema, check_required_fields
 
 logger = get_logger()
 
-def load_interactions(file_path: str) -> pd.DataFrame:
+def load_interactions(data_dir: str) -> pd.DataFrame:
     """
-    Load interaction data from a CSV file.
+    Load interaction data from the raw directory.
+    Expects 'interactions_merged.csv' in data_dir/raw.
+    """
+    raw_dir = Path(data_dir) / "raw"
+    file_path = raw_dir / "interactions_merged.csv"
     
-    Args:
-        file_path: Path to the interactions CSV file.
-        
-    Returns:
-        DataFrame with interaction data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or has no valid rows.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"Missing Genome/Interaction file not found: {file_path}")
+    if not file_path.exists():
         raise FileNotFoundError(f"Interaction file not found: {file_path}")
     
-    df = pd.read_csv(path)
-    
-    if df.empty:
-        logger.error(f"Zero-Feature Pathogen: Interaction file is empty: {file_path}")
-        raise ValueError(f"Interaction file is empty: {file_path}")
-        
-    logger.info(f"Loaded {len(df)} interactions from {file_path}")
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded {len(df)} interaction records from {file_path}")
     return df
 
 def filter_unknown_labels(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter out rows with 'unknown' interaction labels.
-    
-    Args:
-        df: Input DataFrame with interaction labels.
-        
-    Returns:
-        Filtered DataFrame.
+    Filter out rows where the interaction label is 'unknown'.
+    These are excluded from training but tracked for quality metrics.
     """
     initial_count = len(df)
-    df = df[df['interaction_label'] != 'unknown'].reset_index(drop=True)
-    removed_count = initial_count - len(df)
-    
-    if removed_count > 0:
-        logger.info(f"Removed {removed_count} rows with 'unknown' labels")
-        
-    return df
+    if 'interaction' in df.columns:
+        df_clean = df[df['interaction'] != 'unknown']
+        removed_count = initial_count - len(df_clean)
+        logger.info(f"Removed {removed_count} records with 'unknown' labels.")
+        return df_clean
+    elif 'label' in df.columns:
+        df_clean = df[df['label'] != 'unknown']
+        removed_count = initial_count - len(df_clean)
+        logger.info(f"Removed {removed_count} records with 'unknown' labels.")
+        return df_clean
+    else:
+        logger.warning("No 'interaction' or 'label' column found. Returning original data.")
+        return df
 
-def load_valid_pathogens(file_path: str) -> List[str]:
+def load_valid_pathogens(data_dir: str) -> List[str]:
     """
-    Load list of valid pathogen IDs from a JSON file.
+    Load the list of valid pathogens (those with >0 interactions) from the processed directory.
+    """
+    processed_dir = Path(data_dir) / "processed"
+    file_path = processed_dir / "valid_pathogens.json"
     
-    Args:
-        file_path: Path to the JSON file containing valid pathogens.
-        
-    Returns:
-        List of pathogen IDs.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"Missing Genome/Interaction file not found: {file_path}")
+    if not file_path.exists():
         raise FileNotFoundError(f"Valid pathogens file not found: {file_path}")
-        
-    with open(path, 'r') as f:
-        data = json.load(f)
-        
-    if not data:
-        logger.error(f"Zero-Feature Pathogen: Valid pathogens list is empty: {file_path}")
-        raise ValueError(f"Valid pathogens list is empty: {file_path}")
-        
-    logger.info(f"Loaded {len(data)} valid pathogens from {file_path}")
-    return data
+    
+    with open(file_path, 'r') as f:
+        pathogens = json.load(f)
+    
+    logger.info(f"Loaded {len(pathogens)} valid pathogens.")
+    return pathogens
 
 def split_pathogen_stratified(
     df: pd.DataFrame, 
     valid_pathogens: List[str], 
     test_size: float = 0.2, 
-    random_state: int = 42
+    seed: int = 42
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split data into train and validation sets, stratified by pathogen.
-    
-    Args:
-        df: Input DataFrame with interactions.
-        valid_pathogens: List of valid pathogen IDs.
-        test_size: Proportion of data to include in the test split.
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of (train_df, val_df).
-        
-    Raises:
-        ValueError: If splitting results in empty sets.
+    Split the interaction dataframe into train and test sets based on pathogen.
+    Ensures pathogen distribution is maintained (stratified by pathogen ID).
     """
-    # Filter to valid pathogens
-    df = df[df['pathogen_id'].isin(valid_pathogens)].reset_index(drop=True)
+    # Identify the pathogen column
+    pathogen_col = 'pathogen_id' if 'pathogen_id' in df.columns else 'pathogen'
     
-    if df.empty:
-        logger.error("Zero-Feature Pathogen: No interactions found for valid pathogens after filtering")
-        raise ValueError("No interactions found for valid pathogens after filtering")
-        
-    # Group by pathogen and split
-    pathogen_groups = df.groupby('pathogen_id')
+    # Filter to valid pathogens first
+    df_valid = df[df[pathogen_col].isin(valid_pathogens)]
     
-    train_dfs = []
-    val_dfs = []
+    if len(df_valid) == 0:
+        raise ValueError("No valid interactions found after filtering.")
     
-    for pathogen_id, group in pathogen_groups:
-        # Split interactions for this pathogen
-        if len(group) < 2:
-            # If only one interaction, put all in train
-            train_dfs.append(group)
-        else:
-            train_group = group.sample(frac=1 - test_size, random_state=random_state)
-            val_group = group.drop(train_group.index)
-            
-            if not train_group.empty:
-                train_dfs.append(train_group)
-            if not val_group.empty:
-                val_dfs.append(val_group)
+    # Stratified split by pathogen
+    # We group by pathogen to ensure all interactions for a pathogen stay together
+    pathogen_groups = df_valid.groupby(pathogen_col)
     
-    if not train_dfs:
-        logger.error("Zero-Feature Pathogen: Training set is empty after splitting")
-        raise ValueError("Training set is empty after splitting")
-        
-    if not val_dfs:
-        logger.warning("No validation data available after splitting")
-        val_df = pd.DataFrame(columns=df.columns)
-    else:
-        val_df = pd.concat(val_dfs, ignore_index=True)
-        
-    train_df = pd.concat(train_dfs, ignore_index=True)
+    train_paths = []
+    test_paths = []
     
-    logger.info(f"Split data: {len(train_df)} train, {len(val_df)} validation")
-    return train_df, val_df
+    # Simple random split of pathogen IDs for stratification approximation
+    pathogen_ids = list(pathogen_groups.groups.keys())
+    np.random.seed(seed)
+    np.random.shuffle(pathogen_ids)
+    
+    split_idx = int(len(pathogen_ids) * (1 - test_size))
+    train_paths = pathogen_ids[:split_idx]
+    test_paths = pathogen_ids[split_idx:]
+    
+    train_df = df_valid[df_valid[pathogen_col].isin(train_paths)]
+    test_df = df_valid[df_valid[pathogen_col].isin(test_paths)]
+    
+    logger.info(f"Split complete: Train={len(train_df)}, Test={len(test_df)}")
+    return train_df, test_df
 
-def save_split_metadata(
-    train_df: pd.DataFrame, 
-    val_df: pd.DataFrame, 
-    output_dir: str, 
-    filename_prefix: str = "split_metadata"
-) -> Dict[str, str]:
+def save_split_metadata(train_df: pd.DataFrame, test_df: pd.DataFrame, output_dir: str):
     """
-    Save metadata about the train/validation split.
-    
-    Args:
-        train_df: Training DataFrame.
-        val_df: Validation DataFrame.
-        output_dir: Directory to save metadata files.
-        filename_prefix: Prefix for output filenames.
-        
-    Returns:
-        Dictionary of output file paths.
+    Save metadata about the train/test split.
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    out_path = Path(output_dir) / "processed"
+    out_path.mkdir(parents=True, exist_ok=True)
     
     metadata = {
-        "train_path": str(output_path / f"{filename_prefix}_train.json"),
-        "val_path": str(output_path / f"{filename_prefix}_val.json"),
-        "stats": {
-            "train_count": len(train_df),
-            "val_count": len(val_df),
-            "train_pathogens": train_df['pathogen_id'].nunique() if not train_df.empty else 0,
-            "val_pathogens": val_df['pathogen_id'].nunique() if not val_df.empty else 0
-        }
+        "train_count": len(train_df),
+        "test_count": len(test_df),
+        "train_pathogens": list(train_df['pathogen_id'].unique() if 'pathogen_id' in train_df.columns else train_df['pathogen'].unique()),
+        "test_pathogens": list(test_df['pathogen_id'].unique() if 'pathogen_id' in test_df.columns else test_df['pathogen'].unique())
     }
     
-    # Save train metadata
-    train_meta = {
-        "pathogen_ids": train_df['pathogen_id'].unique().tolist() if not train_df.empty else [],
-        "host_ids": train_df['host_id'].unique().tolist() if not train_df.empty else []
-    }
-    with open(metadata["train_path"], 'w') as f:
-        json.dump(train_meta, f, indent=2)
-        
-    # Save val metadata
-    val_meta = {
-        "pathogen_ids": val_df['pathogen_id'].unique().tolist() if not val_df.empty else [],
-        "host_ids": val_df['host_id'].unique().tolist() if not val_df.empty else []
-    }
-    with open(metadata["val_path"], 'w') as f:
-        json.dump(val_meta, f, indent=2)
-        
-    # Save stats
-    stats_path = output_path / f"{filename_prefix}_stats.json"
-    with open(stats_path, 'w') as f:
-        json.dump(metadata["stats"], f, indent=2)
-        
-    metadata["stats_path"] = str(stats_path)
-    logger.info(f"Saved split metadata to {output_dir}")
+    with open(out_path / "split_metadata.json", 'w') as f:
+        json.dump(metadata, f, indent=2)
     
-    return metadata
+    logger.info(f"Saved split metadata to {out_path / 'split_metadata.json'}")
 
-def run_preprocessing_pipeline(
-    interactions_file: str,
-    valid_pathogens_file: str,
-    output_dir: str,
-    test_size: float = 0.2,
-    random_state: int = 42
-) -> Dict[str, Any]:
+def generate_sensitivity_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run the complete preprocessing pipeline with error handling for edge cases.
-    
-    This function:
-    1. Loads interactions and valid pathogens
-    2. Filters unknown labels
-    3. Splits data stratified by pathogen
-    4. Saves metadata
-    
-    Args:
-        interactions_file: Path to interactions CSV.
-        valid_pathogens_file: Path to valid pathogens JSON.
-        output_dir: Directory for output files.
-        test_size: Proportion for validation split.
-        random_state: Random seed.
-        
-    Returns:
-        Dictionary containing paths to output files and statistics.
-        
-    Raises:
-        FileNotFoundError: If input files are missing.
-        ValueError: If data is empty or splitting fails.
+    Generate a sensitivity dataset by treating missing/unknown interactions as negative (0).
+    This creates a dense label vector for sensitivity analysis.
     """
-    logger.info("Starting preprocessing pipeline")
+    df_sens = df.copy()
     
-    try:
-        # Load interactions
-        logger.info(f"Loading interactions from {interactions_file}")
-        interactions_df = load_interactions(interactions_file)
+    if 'interaction' in df_sens.columns:
+        # Replace 'unknown' with 0 (negative)
+        df_sens['interaction'] = df_sens['interaction'].replace('unknown', 0)
+        # Ensure numeric
+        df_sens['interaction'] = pd.to_numeric(df_sens['interaction'], errors='coerce').fillna(0).astype(int)
+    elif 'label' in df_sens.columns:
+        df_sens['label'] = df_sens['label'].replace('unknown', 0)
+        df_sens['label'] = pd.to_numeric(df_sens['label'], errors='coerce').fillna(0).astype(int)
+    
+    logger.info(f"Generated sensitivity dataset with {len(df_sens)} records.")
+    return df_sens
+
+def run_preprocessing_pipeline(data_dir: str, output_dir: str) -> Dict[str, Any]:
+    """
+    Run the full preprocessing pipeline: load, filter, split, and generate sensitivity data.
+    """
+    logger.info("Starting preprocessing pipeline.")
+    
+    # Load
+    df = load_interactions(data_dir)
+    
+    # Filter unknowns for primary model
+    df_clean = filter_unknown_labels(df)
+    
+    # Load valid pathogens
+    valid_pathogens = load_valid_pathogens(data_dir)
+    
+    # Split
+    train_df, test_df = split_pathogen_stratified(df_clean, valid_pathogens)
+    
+    # Save metadata
+    save_split_metadata(train_df, test_df, output_dir)
+    
+    # Generate sensitivity dataset (treat unknowns as 0)
+    df_sens = generate_sensitivity_dataset(df)
+    sens_path = Path(output_dir) / "processed" / "sensitivity_interactions.csv"
+    df_sens.to_csv(sens_path, index=False)
+    logger.info(f"Saved sensitivity dataset to {sens_path}")
+    
+    return {
+        "train_count": len(train_df),
+        "test_count": len(test_df),
+        "sensitivity_count": len(df_sens)
+    }
+
+def generate_data_quality_report(data_dir: str, output_dir: str) -> Dict[str, Any]:
+    """
+    Generate a data quality report quantifying missing % per pathogen (FR-013).
+    
+    Logic:
+    1. Load raw interactions (interactions_merged.csv).
+    2. Identify all unique pathogen-host pairs that SHOULD exist based on the
+       cartesian product of observed pathogens and observed hosts in the raw file,
+       OR compare against a known reference matrix if available.
+       For this implementation, we calculate the percentage of 'unknown' or missing
+       interactions relative to the total possible interactions observed in the raw data
+       per pathogen.
+    
+    3. If the data format includes a 'status' or 'label' column with 'unknown',
+       count those as missing.
+    
+    Output: data/reports/data_quality_report.json
+    """
+    logger.info("Generating data quality report.")
+    
+    raw_dir = Path(data_dir) / "raw"
+    report_dir = Path(output_dir) / "reports"
+    report_dir.mkdir(parents=True, exist_ok=True)
+    
+    file_path = raw_dir / "interactions_merged.csv"
+    
+    if not file_path.exists():
+        logger.error(f"Cannot generate report: {file_path} not found.")
+        return {}
+    
+    df = pd.read_csv(file_path)
+    
+    # Determine column names dynamically
+    pathogen_col = 'pathogen_id' if 'pathogen_id' in df.columns else 'pathogen'
+    label_col = 'interaction' if 'interaction' in df.columns else 'label'
+    
+    if pathogen_col not in df.columns:
+        logger.error(f"Pathogen column '{pathogen_col}' not found in {file_path}")
+        return {}
+    
+    # Identify missing/unknown interactions
+    # We assume 'unknown' string or NaN represents missing data
+    missing_mask = df[label_col].isna() | (df[label_col].astype(str).str.lower() == 'unknown')
+    
+    df['is_missing'] = missing_mask
+    
+    # Group by pathogen to calculate stats
+    stats = []
+    
+    for pathogen, group in df.groupby(pathogen_col):
+        total = len(group)
+        missing_count = group['is_missing'].sum()
+        missing_pct = (missing_count / total * 100) if total > 0 else 0.0
         
-        # Load valid pathogens
-        logger.info(f"Loading valid pathogens from {valid_pathogens_file}")
-        valid_pathogens = load_valid_pathogens(valid_pathogens_file)
-        
-        # Filter unknown labels
-        logger.info("Filtering unknown labels")
-        filtered_df = filter_unknown_labels(interactions_df)
-        
-        if filtered_df.empty:
-            logger.error("Zero-Feature Pathogen: All interactions were 'unknown'")
-            raise ValueError("All interactions were 'unknown' labels")
-        
-        # Split data
-        logger.info("Splitting data stratified by pathogen")
-        train_df, val_df = split_pathogen_stratified(
-            filtered_df, 
-            valid_pathogens, 
-            test_size=test_size, 
-            random_state=random_state
-        )
-        
-        # Save metadata
-        metadata = save_split_metadata(train_df, val_df, output_dir)
-        
-        logger.info("Preprocessing pipeline completed successfully")
-        
-        return {
-            "train_df": train_df,
-            "val_df": val_df,
-            "metadata": metadata
-        }
-        
-    except FileNotFoundError as e:
-        logger.error(f"Missing Genome/Interaction file error: {str(e)}")
-        raise
-    except ValueError as e:
-        logger.error(f"Zero-Feature Pathogen error: {str(e)}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in preprocessing pipeline: {str(e)}")
-        raise
+        stats.append({
+            "pathogen_id": pathogen,
+            "total_interactions_observed": total,
+            "missing_interactions_count": int(missing_count),
+            "missing_percentage": round(missing_pct, 2)
+        })
+    
+    # Sort by missing percentage descending
+    report_data = sorted(stats, key=lambda x: x['missing_percentage'], reverse=True)
+    
+    # Calculate summary
+    total_records = len(df)
+    total_missing = df['is_missing'].sum()
+    overall_missing_pct = (total_missing / total_records * 100) if total_records > 0 else 0.0
+    
+    summary = {
+        "total_records_analyzed": total_records,
+        "total_missing_records": int(total_missing),
+        "overall_missing_percentage": round(overall_missing_pct, 2),
+        "pathogen_count": len(report_data)
+    }
+    
+    final_report = {
+        "summary": summary,
+        "per_pathogen_details": report_data
+    }
+    
+    output_file = report_dir / "data_quality_report.json"
+    with open(output_file, 'w') as f:
+        json.dump(final_report, f, indent=2)
+    
+    logger.info(f"Data quality report saved to {output_file}")
+    return final_report
+
+def main():
+    """
+    Entry point for running preprocessing or quality report generation via CLI.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Preprocessing and Quality Report Generation")
+    parser.add_argument("--data-dir", type=str, required=True, help="Path to data directory")
+    parser.add_argument("--output-dir", type=str, required=True, help="Path to output directory")
+    parser.add_argument("--mode", type=str, choices=["pipeline", "quality"], default="pipeline",
+                        help="Mode: 'pipeline' for full preprocessing, 'quality' for quality report only")
+    
+    args = parser.parse_args()
+    
+    if args.mode == "quality":
+        generate_data_quality_report(args.data_dir, args.output_dir)
+    else:
+        run_preprocessing_pipeline(args.data_dir, args.output_dir)
+        generate_data_quality_report(args.data_dir, args.output_dir)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-07T07:25:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscapes and does not measure corrosion rates, specific metal properties, or utilize public chemistry databases, failing to satisfy the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines for the user's specific prediction task.",
+  "relevant": false
+}

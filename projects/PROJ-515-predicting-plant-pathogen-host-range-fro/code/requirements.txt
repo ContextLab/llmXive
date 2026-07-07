@@ -1,15 +1,10 @@
-# Core Data & ML
 scikit-learn>=1.3.0
 pandas>=2.0.0
 numpy>=1.24.0
 shap>=0.44.0
 biopython>=1.81
-
-# Utilities & IO
 requests>=2.31.0
 loguru>=0.7.0
 pyyaml>=6.0.1
-
-# Testing
 pytest>=7.4.0
-pytest-cov>=4.1.0
+pytest-cov

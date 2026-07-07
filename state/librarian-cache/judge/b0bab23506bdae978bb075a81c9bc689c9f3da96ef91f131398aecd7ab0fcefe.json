@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-07T07:25:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "rationale": "The paper focuses on general validation standards for machine learning in biology, which is an off-domain application (biology vs. materials science/chemistry) and does not measure corrosion rates, specific metal properties, or utilize public chemistry databases. It fails to satisfy any inclusion criteria (a-f) as it addresses a methodological framework for a different scientific field rather than the specific mechanism, variables, or empirical population of the user's question.",
+  "relevant": false
+}

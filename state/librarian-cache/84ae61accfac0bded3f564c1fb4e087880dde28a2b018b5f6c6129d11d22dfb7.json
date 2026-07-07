@@ -1,0 +1,494 @@
+{
+  "fetched_at": "2026-07-07T07:25:59Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases",
+      "target_n": 5
+    },
+    "duration_seconds": 43.9,
+    "ended_at": "2026-07-07T07:25:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning models for corrosion rate prediction"
+        ],
+        [
+          2,
+          "data-driven corrosion kinetics modeling"
+        ],
+        [
+          3,
+          "artificial intelligence in corrosion science"
+        ],
+        [
+          4,
+          "predictive modeling of metal degradation"
+        ],
+        [
+          5,
+          "corrosion rate estimation using public datasets"
+        ],
+        [
+          6,
+          "supervised learning for electrochemical corrosion"
+        ],
+        [
+          7,
+          "machine learning approaches to atmospheric corrosion"
+        ],
+        [
+          8,
+          "data mining corrosion databases for rate prediction"
+        ],
+        [
+          9,
+          "computational corrosion prediction algorithms"
+        ],
+        [
+          10,
+          "corrosion behavior prediction using neural networks"
+        ],
+        [
+          11,
+          "regression models for metal corrosion rates"
+        ],
+        [
+          12,
+          "corrosion data analysis and machine learning"
+        ],
+        [
+          13,
+          "ML-based prediction of uniform corrosion rates"
+        ],
+        [
+          14,
+          "digital twins for corrosion rate forecasting"
+        ],
+        [
+          15,
+          "corrosion kinetics prediction via deep learning"
+        ],
+        [
+          16,
+          "statistical and machine learning methods in corrosion"
+        ],
+        [
+          17,
+          "open access corrosion data and predictive analytics"
+        ],
+        [
+          18,
+          "corrosion rate forecasting for structural metals"
+        ],
+        [
+          19,
+          "electrochemical data mining for corrosion modeling"
+        ],
+        [
+          20,
+          "hybrid physics-informed machine learning for corrosion"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry": 0,
+        "machine learning models for corrosion rate prediction": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "corrosion prediction data contamination memorization",
+      "NACE corrosion database ML models",
+      "electrochemical impedance spectroscopy machine learning",
+      "corrosion rate regression accuracy benchmark",
+      "degradation kinetics mechanism learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2006.16189"
+      ]
+    },
+    "per_query_hit_count": {
+      "NACE corrosion database ML models": 2,
+      "Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry": 3,
+      "corrosion prediction data contamination memorization": 3,
+      "corrosion rate regression accuracy benchmark": 0,
+      "degradation kinetics mechanism learning": 3,
+      "electrochemical impedance spectroscopy machine learning": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of \"official statistics\" (e.g., government census or economic data), which is an entirely different domain from the user's question regarding \"corrosion rates of common metals\" in chemistry. It fails to address the specific mechanism, variables, or empirical population required, falling under the rejection rule for being \"off-domain entirely.\"",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on machine learning learning curves and decision-making frameworks, lacking any connection to the specific domain of corrosion science, metal chemistry, or the use of public chemistry databases. It fails to measure the relevant biological/physical mechanism, variables, or empirical population required by the user's question, and does not provide a foundational method specific to corrosion prediction.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper focuses on general validation standards for machine learning in biology, which is an off-domain application (biology vs. materials science/chemistry) and does not measure corrosion rates, specific metal properties, or utilize public chemistry databases. It fails to satisfy any inclusion criteria (a-f) as it addresses a methodological framework for a different scientific field rather than the specific mechanism, variables, or empirical population of the user's question.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscapes and does not measure corrosion rates, specific metal properties, or utilize public chemistry databases, failing to satisfy the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines for the user's specific prediction task.",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        },
+        {
+          "primary_pointer": "1905.04749",
+          "rationale": "The paper focuses on fake news detection in social media, which is an entirely different domain (natural language processing and social science) from the user's question about predicting metal corrosion rates in chemistry. This falls under the rejection rule for \"Off-domain entirely\" as there is no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "A Benchmark Study of Machine Learning Models for Online Fake News Detection"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T07:25:15Z",
+    "term_input": {
+      "normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+      "raw": "Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Databases chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Gas turbine superalloys experience hot corrosion, driven by factors including corrosive deposit flux, temperature, gas composition, and component material. The full mechanism still needs clarification and research often focuses on laboratory work. As such, there is interest in causal discovery to confirm the significance of factors and identify potential missing causal relationships or co-dependencies between these factors. The causal discovery algorithm Fast Causal Inference (FCI) has been trialled on a small set of laboratory data, with the outputs evaluated for their significance to corrosion propagation, and compared to existing mechanistic understanding. FCI identified the salt deposition flux as the most influential corrosion variable for this limited dataset. However, HCl was the second most influential for pitting regions, compared to temperature for more uniformly corroding regions. Thus FCI generated causal links aligned with literature from a randomised corrosion dataset, while also identifying the presence of two different degradation modes in operation.",
+          "claimed_authors": [
+            "A. Varghese",
+            "M. Arana-Catania",
+            "S. Mori",
+            "A. Encinas-Oropesa",
+            "J. Sumner"
+          ],
+          "claimed_title": "Causal Discovery to Understand Hot Corrosion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07804"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Causal Discovery to Understand Hot Corrosion')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Magnesium and its alloys are ideal for biodegradable implants due to their biocompatibility and their low-stress shielding. However, they can corrode too rapidly in the biological environment. The objective of this research was to develop heat treatments to slow the corrosion of high purified magnesium and AZ31 alloy in simulated body fluid at 37°C. Heat treatments were performed at different temperatures and times. Hydrogen evolution, weight loss, PDP, and EIS methods were used to measure the corrosion rates. Results show that heat treating can increase the corrosion resistance of HP-Mg by 2x and AZ31 by 10x.",
+          "claimed_authors": [
+            "Sohrab Khalifeh",
+            "T. David Burleigh"
+          ],
+          "claimed_title": "Influence of Heat Treatment on the Corrosion Behavior of Purified Magnesium and AZ31 Alloy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.08663"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Influence of Heat Treatment on the Corrosion Behavior of Purified Magnesium and AZ31 Alloy')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Magnesium and its alloys are ideal candidates for biodegradable implants. However, they can dissolve too rapidly in the human body for most applications. In this research, high purified magnesium (HP-Mg) was coated with stearic acid in order to slow the corrosion rate of magnesium in simulated body fluid at 37°C. HP-Mg was anodized to form an oxide/hydroxide layer, then it was immersed in a stearic acid solution. Electrochemical impedance spectroscopy and potentiodynamic polarization were used to estimate the corrosion rate of HP-Mg specimens. The results confirm that the hydrophobic coating can temporarily decrease the corrosion rate of HP-Mg by 1000x.",
+          "claimed_authors": [
+            "Sohrab Khalifeh",
+            "T. David Burleigh"
+          ],
+          "claimed_title": "Super-Hydrophobic Stearic Acid Layer Formed on Anodized High Purified Magnesium for Improving Corrosion Resistance of Biodegradable Implants",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.09508"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Super-Hydrophobic Stearic Acid Layer Formed on Anodized High Purified Magnesium for Improving Corrosion Resistance of Biodegradable Implants')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The models used to describe the kinetics of ruminal degradation are usually nonlinear models where the dependent variable is the proportion of degraded food. The method of least squares is the standard approach used to estimate the unknown parameters but this method can lead to unacceptable predictions. To solve this issue, a beta nonlinear model and the Bayesian perspective is proposed in this article. The application of standard methodologies to obtain prior distributions, such as the Jeffreys prior or the reference priors, involves serious difficulties here because this model is a nonlinear non-normal regression model, and the constrained parameters appear in the log-likelihood function through the Gamma function. This paper proposes an objective method to obtain the prior distribution, which can be applied to other models with similar complexity, can be easily implemented in OpenBUGS, and solves the problem of unacceptable predictions. The model is generalized to a larger class of models. The methodology was applied to real data with three models that were compared using the Deviance Information Criterion and the root mean square prediction error. A simulation study was performed to evaluate the coverage of the credible intervals.",
+          "claimed_authors": [
+            "Diego Salmerón"
+          ],
+          "claimed_title": "Bayesian beta nonlinear models with constrained parameters to describe ruminal degradation kinetics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.04461"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Bayesian beta nonlinear models with constrained parameters to describe ruminal degradation kinetics')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contrastive learning operates on a simple yet effective principle: Embeddings of positive pairs are pulled together, while those of negative pairs are pushed apart. In this paper, we propose a unified framework for understanding contrastive learning through the lens of cosine similarity, and present two key theoretical insights derived from this framework. First, in full-batch settings, we show that perfect alignment of positive pairs is unattainable when negative-pair similarities fall below a threshold, and this misalignment can be mitigated by incorporating within-view negative pairs into the objective. Second, in mini-batch settings, smaller batch sizes induce stronger separation among negative pairs in the embedding space, i.e., higher variance in their similarities, which in turn degrades the quality of learned representations compared to full-batch settings. To address this, we propose an auxiliary loss that reduces the variance of negative-pair similarities in mini-batch settings. Empirical results show that incorporating the proposed loss improves performance in small-batch settings.",
+          "claimed_authors": [
+            "Chungpa Lee",
+            "Sehee Lim",
+            "Kibok Lee",
+            "Jy-yong Sohn"
+          ],
+          "claimed_title": "On the Similarities of Embeddings in Contrastive Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09781"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='On the Similarities of Embeddings in Contrastive Learning')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+          "claimed_authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "claimed_title": "Active learning for data streams: a survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.08893"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Corrosion Rates of Common Metals Using Machine Learning on Public Dat', candidate_title='Active learning for data streams: a survey')",
+        "failed_at": "2026-07-07T07:25:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:25:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:25:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": 0.1858,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:25:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian P Niroomand",
+            "David J Wales"
+          ],
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.02381",
+        "summary": "The ability to explain decisions made by machine learning models remains one of the most significant hurdles towards widespread adoption of AI in highly sensitive areas such as medicine, cybersecurity or autonomous driving. Great interest exists in understanding which features of the input data prompt model decision making. In this contribution, we propose a novel approach to identify relevant features of the input data, inspired by methods from the energy landscapes field, developed in the physical sciences. By identifying conserved weights within groups of minima of the loss landscapes, we can identify the drivers of model decision making. Analogues to this idea exist in the molecular sciences, where coordinate invariants or order parameters are employed to identify critical features of a molecule. However, no such approach exists for machine learning loss landscapes. We will demonstrate the applicability of energy landscape methods to machine learning models and give examples, both synthetic and from the real world, for how these methods can help to make models more interpretable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.02381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:25:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Junaed Younus Khan",
+            "Md. Tawkat Islam Khondaker",
+            "Sadia Afroz",
+            "Gias Uddin",
+            "Anindya Iqbal"
+          ],
+          "title": "A Benchmark Study of Machine Learning Models for Online Fake News Detection",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.04749",
+        "summary": "The proliferation of fake news and its propagation on social media has become a major concern due to its ability to create devastating impacts. Different machine learning approaches have been suggested to detect fake news. However, most of those focused on a specific type of news (such as political) which leads us to the question of dataset-bias of the models used. In this research, we conducted a benchmark study to assess the performance of different applicable machine learning approaches on three different datasets where we accumulated the largest and most diversified one. We explored a number of advanced pre-trained language models for fake news detection along with the traditional and deep learning ones and compared their performances from different aspects for the first time to the best of our knowledge. We find that BERT and similar pre-trained models perform the best for fake news detection, especially with very small dataset. Hence, these models are significantly better option for languages with limited electronic contents, i.e., training data. We also carried out several analysis based on the models' performance, article's topic, article's length, and discussed different lessons learned from them. We believe that this benchmark study will help the research community to explore further and news sites/blogs to select the most appropriate fake news detection method.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.04749",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:25:48Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting corrosion rates of common metals using machine learning on public databases chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

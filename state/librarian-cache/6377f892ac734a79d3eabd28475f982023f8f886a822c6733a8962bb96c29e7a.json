@@ -1,0 +1,706 @@
+{
+  "fetched_at": "2026-07-07T07:24:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.259,
+    "ended_at": "2026-07-07T07:24:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "PhysBrain architecture neural network"
+        ],
+        [
+          2,
+          "Physiological modeling with large language models"
+        ],
+        [
+          3,
+          "Brain-computer interface deep learning systems"
+        ],
+        [
+          4,
+          "Neuro-symbolic AI for brain simulation"
+        ],
+        [
+          5,
+          "Biologically plausible neural network training"
+        ],
+        [
+          6,
+          "LLM integration with physiological data"
+        ],
+        [
+          7,
+          "Cognitive architecture for embodied AI"
+        ],
+        [
+          8,
+          "Neural simulation technical report"
+        ],
+        [
+          9,
+          "Hybrid AI systems for neuroscience"
+        ],
+        [
+          10,
+          "Large language models for medical imaging"
+        ],
+        [
+          11,
+          "Computational neuroscience deep learning frameworks"
+        ],
+        [
+          12,
+          "AI-driven brain signal processing"
+        ],
+        [
+          13,
+          "Multimodal LLMs for biological systems"
+        ],
+        [
+          14,
+          "Embodied cognition in artificial intelligence"
+        ],
+        [
+          15,
+          "Neural network interpretability in brain models"
+        ],
+        [
+          16,
+          "Generative models for physiological time series"
+        ],
+        [
+          17,
+          "Brain-inspired artificial intelligence algorithms"
+        ],
+        [
+          18,
+          "LLM fine-tuning for biomedical applications"
+        ],
+        [
+          19,
+          "Neuro-morphic computing with language models"
+        ],
+        [
+          20,
+          "AI safety in physiological monitoring systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "PhysBrain architecture neural network": 5,
+        "llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "PhysBrain neuromorphic hardware LLM inference",
+      "energy efficiency large language model accelerator",
+      "analog computing LLM deployment latency",
+      "inference cost reduction memory bandwidth bound",
+      "training data contamination benchmark leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1511.05497"
+      ]
+    },
+    "per_query_hit_count": {
+      "PhysBrain neuromorphic hardware LLM inference": 3,
+      "analog computing LLM deployment latency": 3,
+      "energy efficiency large language model accelerator": 3,
+      "inference cost reduction memory bandwidth bound": 3,
+      "llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science": 3,
+      "training data contamination benchmark leakage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1609.04846",
+          "rationale": "The paper discusses \"Random Neural Networks\" (RNNs) in the context of queuing theory and classical supervised learning, which is a distinct construct from the user's query regarding \"PhysBrain 1.0\" (a specific LLM-based brain simulation framework) and \"llmXive\" (likely a specific LLM extension or benchmark). The paper does not measure the same biological pathway, LLM mechanism, or empirical population, nor does it serve as a foundational reference for the specific \"PhysBrain\" or \"llmXive\" domain",
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning"
+        },
+        {
+          "primary_pointer": "2009.00804",
+          "rationale": "The paper focuses on the system and architectural implications of Graph Neural Networks (GNNs) for hardware and inference optimization, which is a distinct construct from the user's question regarding \"llmXive\" and the \"PhysBrain 1.0 Technical Report\" (likely related to physics-informed neural networks or specific LLM architectures). There is no overlap in the specific mechanism, domain, or variables being studied, and the paper does not address the foundational methodology or empirical populati",
+          "title": "Architectural Implications of Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2005.05859",
+          "rationale": "The paper focuses on Neural Architecture Search (NAS) and transfer learning for image classification, which is a distinct subfield from the user's query regarding \"PhysBrain\" (a specific technical report on physics-informed or brain-inspired LLMs) and LLM extensions. While both fall under the broad umbrella of computer science and neural networks, the paper does not measure the same mechanism, address the same empirical population, or provide a foundational method for the specific \"PhysBrain\" or",
+          "title": "Neural Architecture Transfer"
+        },
+        {
+          "primary_pointer": "1511.05497",
+          "rationale": "The paper focuses on neural architecture search and parameter reduction via a specific differentiable method (tri-state ReLU), which does not address the user's specific question regarding the \"PhysBrain 1.0\" technical report or the \"llmXive\" follow-up context. It fails to meet any inclusion criteria (a-f) as it does not measure the same mechanism, share the specific domain variables, or serve as a foundational reference for the specific \"PhysBrain\" or \"llmXive\" research lineage mentioned.",
+          "title": "Learning Neural Network Architectures using Backpropagation"
+        },
+        {
+          "primary_pointer": "2502.01654",
+          "rationale": "The paper focuses on air pollution prediction using LSTM and transfer learning in a specific environmental domain, which is entirely off-domain from the user's question regarding \"PhysBrain 1.0\" (a computer science/LLM technical report). It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T07:24:01Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"physbrain 1.0 technical report\" computer science",
+      "raw": "llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents the self-organized neuromorphic architecture named SOMA. The objective is to study neural-based self-organization in computing systems and to prove the feasibility of a self-organizing hardware structure. Considering that these properties emerge from large scale and fully connected neural maps, we will focus on the definition of a self-organizing hardware architecture based on digital spiking neurons that offer hardware efficiency. From a biological point of view, this corresponds to a combination of the so-called synaptic and structural plasticities. We intend to define computational models able to simultaneously self-organize at both computation and communication levels, and we want these models to be hardware-compliant, fault tolerant and scalable by means of a neuro-cellular structure.",
+          "claimed_authors": [
+            "Lyes Khacef",
+            "Bernard Girau",
+            "Nicolas Rougier",
+            "Andres Upegui",
+            "Benoit Miramond"
+          ],
+          "claimed_title": "Neuromorphic hardware as a self-organizing computing system",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12640"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Neuromorphic hardware as a self-organizing computing system')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bio-inspired neuromorphic cameras sense illumination changes on a per-pixel basis and generate spatiotemporal streaming events within microseconds in response, offering visual information with high temporal resolution over a high dynamic range. Such devices often serve in surveillance systems due to their applicability and robustness in environments with high dynamics and harsh lighting, where they can still supply clearer recordings than traditional imaging. In other words, when it comes to privacy-relevant cases, neuromorphic cameras also expose more sensitive data and pose serious security threats. Therefore, asynchronous event streams necessitate careful encryption before transmission and usage. This work discusses several potential attack scenarios and approaches event encryption from the perspective of neuromorphic noise removal, in which we inversely introduce well-crafted noise into raw events until they are obfuscated. Our evaluations show that the encrypted events can effectively protect information from attacks of low-level visual reconstruction and high-level neuromorphic reasoning, and thus feature dependable privacy-preserving competence. The proposed solution gives impetus to the security of event data and paves the way to a highly encrypted technique for privacy-protective neuromorphic imaging.",
+          "claimed_authors": [
+            "Pei Zhang",
+            "Shuo Zhu",
+            "Edmund Y. Lam"
+          ],
+          "claimed_title": "Event Encryption: Rethinking Privacy Exposure for Neuromorphic Imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.03369"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Event Encryption: Rethinking Privacy Exposure for Neuromorphic Imaging')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spiking Neural Networks (SNNs) promise orders-of-magnitude lower power consumption and low-latency inference on neuromorphic hardware for a wide range of robotic tasks. In this work, we present an energy-efficient implementation of a reinforcement learning (RL) algorithm using quantized SNNs to solve two classical control tasks. The network is trained using the Q-learning algorithm, then fine-tuned and quantized to low-bit (8-bit) precision for embedded deployment on the SpiNNaker2 neuromorphic chip. To evaluate the comparative advantage of SpiNNaker2 over conventional computing platforms, we analyze inference latency, dynamic power consumption, and energy cost per inference for our SNN models, comparing performance against a GTX 1650 GPU baseline. Our results demonstrate SpiNNaker2's strong potential for scalable, low-energy neuromorphic computing, achieving up to 32x reduction in energy consumption. Inference latency remains on par with GPU-based execution, with improvements observed in certain task settings, reinforcing SpiNNaker2's viability for real-time neuromorphic control and making the neuromorphic approach a compelling direction for efficient deep Q-learning.",
+          "claimed_authors": [
+            "Sirine Arfa",
+            "Bernhard Vogginger",
+            "Christian Mayr"
+          ],
+          "claimed_title": "Hardware-Aware Fine-Tuning of Spiking Q-Networks on the SpiNNaker2 Neuromorphic Platform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.23562"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Hardware-Aware Fine-Tuning of Spiking Q-Networks on the SpiNNaker2 Neuromorphic Platform')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern particle physics relies on high energy particle accelerators to provide collisions of various types of elementary particles in order to deduce fundamental laws of physics or properties of individual particles. The only way to generate particle collisions at extremely high energies is to collide particles of counter-rotating beams...called \"particle-colliders\". This write-up gives a short briefing on the physics motivation of various particle colliders ($e^+e^-$ colliders, $pp$ colliders, ...), a summary of the historical evolution and a mathematical treatment to describe collider performance.",
+          "claimed_authors": [
+            "Hermann Schmickler"
+          ],
+          "claimed_title": "Colliders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.01638"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Colliders')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this manuscript, we provide a summary of accelerator design and the key challenges of the CEPC accelerator, both of which are laid out in detail in the Conceptual Design Report (CDR) released in November 2018. We also outline future directions and challenges. In the Addendum, we briefly describe the planning and the international organization of the CEPC. The next step for the CEPC team is to perform detailed technical design studies. Effective international collaboration would be crucial at this stage. This submission for consideration by the ESPP is part of our dedicated effort in seeking international collaboration and support.",
+          "claimed_authors": [
+            " The CEPC Accelerator Study Group"
+          ],
+          "claimed_title": "The CEPC input for the European Strategy for Particle Physics - Accelerator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1901.03169"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='The CEPC input for the European Strategy for Particle Physics - Accelerator')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Of the tens of thousands of particle accelerators in operation worldwide, the vast majority are not used for particle physics, but instead for applications. Some applications such as radiotherapy for cancer treatment are well-known, while others are more surprising: food irradiation using electron beams, or the hardening of road tarmac. The uses of particle beams are constantly growing in number including in medicine, industry, security, environment, and cultural heritage preservation. This lecture aims to give a broad sweep of the many uses of particle accelerators, covering technologies ranging in size from a few centimetres for industrial electron linacs through to large synchrotron light sources of hundreds of metres circumference operating as national and international facilities. We finish by discussing some of the challenges facing accelerators used in wider society.",
+          "claimed_authors": [
+            "Suzie Sheehy"
+          ],
+          "claimed_title": "Applications of Particle Accelerators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.10216"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Applications of Particle Accelerators')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, academics and the corporate sector have paid attention to serverless computing, which enables dynamic scalability and an economic model. In serverless computing, users only pay for the time they actually use resources, enabling zero scaling to optimise cost and resource utilisation. However, this approach also introduces the serverless cold start problem. Researchers have developed various solutions to address the cold start problem, yet it remains an unresolved research area. In this article, we propose a systematic literature review on clod start latency in serverless computing. Furthermore, we create a detailed taxonomy of approaches to cold start latency, which we use to investigate existing techniques for reducing the cold start time and frequency. We have classified the current studies on cold start latency into several categories such as caching and application-level optimisation-based solutions, as well as Artificial Intelligence (AI)/Machine Learning (ML)-based solutions. Moreover, we have analyzed the impact of cold start latency on quality of service, explored current cold start latency mitigation methods, datasets, and implementation platforms, and classified them into categories based on their common characteristics and features. Finally, we outline the open challenges and highlight the possible future directions.",
+          "claimed_authors": [
+            "Muhammed Golec",
+            "Guneet Kaur Walia",
+            "Mohit Kumar",
+            "Felix Cuadrado",
+            "Sukhpal Singh Gill",
+            "Steve Uhlig"
+          ],
+          "claimed_title": "Cold Start Latency in Serverless Computing: A Systematic Review, Taxonomy, and Future Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.08437"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Cold Start Latency in Serverless Computing: A Systematic Review, Taxonomy, and Future Directions')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum simulation and computing traditionally has been based on two main paradigms, namely, digital and analog. In the digital paradigm, usually single and two-qubit gates (where qubit is an acronym for quantum bit) are employed as building blocks for scalable, universal quantum computing, although errors add up fast and error correction will be ultimately needed for scaling up. In the analog paradigm, large analog blocks are normally employed for a unitary dynamics that carries out the computation, enabling quantum operations on many qubits with reduced errors, but with the drawback of a limited choice of evolutions and lack of universality. In the past decade, a new paradigm has emerged, showing interesting possibilities for quantum simulation and computing in the near and mid term. This is the paradigm of digital-analog quantum technologies, which proposes to combine the best of both paradigms: large analog blocks, provided by native interactions of the employed quantum platform, enabling scalability, combined with digital gates, allowing for more versatility and, ultimately, universality. In this Perspective, I give an overview of the evolution of the field along the past decade, and an outlook for its future possibilities.",
+          "claimed_authors": [
+            "Lucas Lamata"
+          ],
+          "claimed_title": "Digital-Analog Quantum Simulation and Computing: A Perspective on Past and Future Developments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.04438"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Digital-Analog Quantum Simulation and Computing: A Perspective on Past and Future Developments')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A columnar scan that decompresses, filters, and aggregates should be limited only by memory bandwidth (the roofline floor T >= BytesRead/beta), yet real kernels are often compute-bound and leave bandwidth idle. We give a predictive answer to when a scan is bandwidth-bound. Across encodings, predicate selectivities, and two very different machines, a decoder's value throughput T_dec (values decoded per second) is essentially independent of bit-width b: it is set by the decode layout/strategy, not by how many bits each value occupies. Hence the achieved bandwidth fraction obeys a one-parameter law, f = min(1, T_dec * b / (8*beta)), with the compute-to-bandwidth ridge at b* = 8*beta/T_dec. Fitting one T_dec per strategy reproduces measured bandwidth fractions with median error 0.027 on x86/AVX2 and 0.003 on a held-out Apple M4/NEON machine, and the ridge b* shifts correctly with each machine's bandwidth. Inserting FastLanes' reported decode throughput into the law reproduces its \"decode is free at three bits\" headline as the large-T_dec limit, unifying our portable decoder and hand-tuned state of the art in one curve. We add two crossovers, validated on both machines: branch-free predicate evaluation beats branchy in a mid-selectivity band (the sigma(1-sigma) misprediction parabola), and zone-map skipping is clustering-gated rather than selectivity-gated. We release the micro-benchmark, the correctness oracle, and a one-command reproduction. This is a baseline and a model, not a faster kernel: our portable C decoders reach ~2 values/cycle, far below hand-tuned SOTA, and the law holds precisely because it is parameterized by the measured T_dec.",
+          "claimed_authors": [
+            "Madhulatha Mandarapu",
+            "Sandeep Kunkunuru"
+          ],
+          "claimed_title": "When Is a Columnar Scan Bandwidth-Bound? A Decode-Throughput Law and Its Cross-Hardware Validation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.22423"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='When Is a Columnar Scan Bandwidth-Bound? A Decode-Throughput Law and Its Cross-Hardware Validation')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Virtual Private Network (VPN) provides private network connections over a publicly accessible shared network. The effective allocation of bandwidth for VPNs assumes significance in the present scenario due to varied traffic. Each VPN endpoint specifies bounds on the total amount of traffic that it is likely to send or receive at any time. The network provider tailors the VPN so that there is sufficient bandwidth for any traffic matrix that is consistent with these bounds. The approach incorporates the use of Ad-hoc On demand Distance Vector (AODV) protocol, with a view to accomplish an enhancement in the performance of the mobile networks. The NS2 based simulation results are evaluated in terms of its metrics for different bandwidth allocations, besides analyzing its performance in the event of exigencies such as link failures. The results highlight the suitability of the proposed strategy in the context of real time applications.",
+          "claimed_authors": [
+            "Mahalakshmi Chidambara Natarajan",
+            "Ramaswamy Muthiah",
+            "Alamelu Nachiappan"
+          ],
+          "claimed_title": "Performance Investigation of Virtual Private Networks with Different Bandwidth Allocations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1152"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Performance Investigation of Virtual Private Networks with Different Bandwidth Allocations')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a framework that amortizes the cost of inference-time reasoning by converting transient critiques into retrievable guidelines, through a file-based memory system and agent-controlled tool calls. We evaluate this method on the Rubric Feedback Bench, a novel dataset for rubric-based learning. Experiments demonstrate that our augmented LLMs rapidly match the performance of test-time refinement pipelines while drastically reducing inference cost.",
+          "claimed_authors": [
+            "Víctor Gallego"
+          ],
+          "claimed_title": "Distilling Feedback into Memory-as-a-Tool",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.05960"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Distilling Feedback into Memory-as-a-Tool')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysBrain 1.0 Technical Report\" computer science', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-07T07:24:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1609.04846",
+        "summary": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1609.04846",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:24:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "title": "Architectural Implications of Graph Neural Networks",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2009.00804",
+        "summary": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2009.00804",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:24:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhichao Lu",
+            "Gautam Sreekumar",
+            "Erik Goodman",
+            "Wolfgang Banzhaf",
+            "Kalyanmoy Deb",
+            "Vishnu Naresh Boddeti"
+          ],
+          "title": "Neural Architecture Transfer",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.05859",
+        "summary": "Neural architecture search (NAS) has emerged as a promising avenue for automatically designing task-specific neural networks. Existing NAS approaches require one complete search for each deployment specification of hardware or objective. This is a computationally impractical endeavor given the potentially large number of application scenarios. In this paper, we propose Neural Architecture Transfer (NAT) to overcome this limitation. NAT is designed to efficiently generate task-specific custom models that are competitive under multiple conflicting objectives. To realize this goal we learn task-specific supernets from which specialized subnets can be sampled without any additional training. The key to our approach is an integrated online transfer learning and many-objective evolutionary search procedure. A pre-trained supernet is iteratively adapted while simultaneously searching for task-specific subnets. We demonstrate the efficacy of NAT on 11 benchmark image classification tasks ranging from large-scale multi-class to small-scale fine-grained datasets. In all cases, including ImageNet, NATNets improve upon the state-of-the-art under mobile settings ($\\leq$ 600M Multiply-Adds). Surprisingly, small-scale fine-grained datasets benefit the most from NAT. At the same time, the architecture search and transfer is orders of magnitude more efficient than existing NAS methods. Overall, the experimental evaluation indicates that, across diverse image classification tasks and computational objectives, NAT is an appreciably more effective alternative to conventional transfer learning of fine-tuning weights of an existing network architecture learned on standard datasets. Code is available at https://github.com/human-analysis/neural-architecture-transfer",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.05859",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:24:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Suraj Srinivas",
+            "R. Venkatesh Babu"
+          ],
+          "title": "Learning Neural Network Architectures using Backpropagation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1511.05497",
+        "summary": "Deep neural networks with millions of parameters are at the heart of many state of the art machine learning models today. However, recent works have shown that models with much smaller number of parameters can also perform just as well. In this work, we introduce the problem of architecture-learning, i.e; learning the architecture of a neural network along with weights. We introduce a new trainable parameter called tri-state ReLU, which helps in eliminating unnecessary neurons. We also propose a smooth regularizer which encourages the total number of neurons after elimination to be small. The resulting objective is differentiable and simple to optimize. We experimentally validate our method on both small and large networks, and show that it can learn models with a considerably small number of parameters without affecting prediction accuracy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1511.05497",
+          "http_status": 200,
+          "pdf_sample_score": 0.2276,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:24:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.01654",
+        "summary": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.01654",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T07:24:40Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"physbrain 1.0 technical report\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

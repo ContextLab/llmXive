@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1609.04846",
+  "judged_at": "2026-07-07T07:24:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"physbrain 1.0 technical report\" computer science",
+  "rationale": "The paper discusses \"Random Neural Networks\" (RNNs) in the context of queuing theory and classical supervised learning, which is a distinct construct from the user's query regarding \"PhysBrain 1.0\" (a specific LLM-based brain simulation framework) and \"llmXive\" (likely a specific LLM extension or benchmark). The paper does not measure the same biological pathway, LLM mechanism, or empirical population, nor does it serve as a foundational reference for the specific \"PhysBrain\" or \"llmXive\" domain",
+  "relevant": false
+}

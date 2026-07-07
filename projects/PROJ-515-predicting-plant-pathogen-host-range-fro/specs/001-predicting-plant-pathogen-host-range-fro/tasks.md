@@ -60,7 +60,7 @@
 - [X] T005 [P] Implement logging infrastructure in `src/utils/logging.py` (FR-010, SC-005) ensuring `pipeline.log` is initialized with timestamps and propagates to subprocesses
 - [X] T007 [P] Create contract schemas in `contracts/` directory: `dataset.schema.yaml`, `genomic_features.schema.yaml`, `interaction.schema.yaml`, `model_output.schema.yaml`.
  - **Note**: Do not create `data_quality.schema.yaml` or `sensitivity_analysis.schema.yaml` as they are not defined in the plan.
-- [~] T008 Implement base validation utilities in `src/utils/validators.py` to enforce contract schemas (Depends on T007)
+- [ ] T008 Implement base validation utilities in `src/utils/validators.py` to enforce contract schemas (Depends on T007)
 - [ ] T009A [P] Implement `src/data/download.py` to fetch pathogen genomes from NCBI GenBank (FR-001) and interaction tables from PHI-base/Interactome3D (FR-002). **Deliverable**: `data/raw/genomes.fasta` and `data/raw/interactions_merged.csv`
 - [ ] T010A [P] Implement data merging and deduplication logic in `src/data/preprocess.py` (FR-013) handling 'unknown' labels
 - [ ] T010B [P] Implement logic to treat missing interaction records as 'unknown' (exclude from training) and generate `data/reports/data_quality_report.json` (FR-013)
@@ -91,10 +91,10 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement data splitting in `src/data/preprocess.py` to create **pathogen-stratified** Train/Val sets.
+- [ ] T013 [US1] Implement data splitting in `src/data/preprocess.py` to create **pathogen-stratified** Train/Val sets.
  - **CRITICAL ORDERING**: This split MUST occur **BEFORE** any feature selection (VIF) or model training steps.
  - Reserve a **10-pathogen hold-out set** for independent validation (FR-012, SC-001).
-- [~] T014 [US1] Implement L1-regularized (L penalty) Logistic Regression **Training Function** in `src/models/train.py` (FR-004).
+- [ ] T014 [US1] Implement L1-regularized (L penalty) Logistic Regression **Training Function** in `src/models/train.py` (FR-004).
  - **Input**: Feature matrix and labels for a single training fold.
  - **Logic**:
  1. Perform **Nested VIF Analysis** strictly on the *input training fold*:
@@ -102,7 +102,7 @@
  - While any feature has VIF ≥ 5: remove feature with highest VIF (tie-break: lower variance).
  2. Fit `LogisticRegression(penalty='l1', solver='liblinear')` on the reduced feature set.
  - **Output**: Trained model object AND save the reduced feature set to `data/processed/vif_filtered_features_fold_{fold}.csv` **immediately after each fold iteration** to ensure traceability.
-- [~] T019 [US1] Implement **Nested Cross-Validation Orchestration Loop** in `src/models/evaluate.py` (FR-006).
+- [ ] T019 [US1] Implement **Nested Cross-Validation Orchestration Loop** in `src/models/evaluate.py` (FR-006).
  - **Logic**:
  - Iterate through outer CV folds.
  - For each outer fold, split into inner train/val.
@@ -110,9 +110,9 @@
  - Evaluate on inner val.
  - Aggregate metrics.
  - **Dependency**: Depends on T014 logic being finalized.
-- [~] T020 [US1] Implement permutation testing within the nested CV loop in `src/models/evaluate.py` (FR-006).
+- [ ] T020 [US1] Implement permutation testing within the nested CV loop in `src/models/evaluate.py` (FR-006).
  - **Logic**: Shuffle labels within the inner training folds only, re-run T014, and compare AUPRC distribution.
-- [~] T015 [US1] Implement k-fold cross-validation evaluation in `src/models/evaluate.py` reporting AUPRC, precision, and calibrated probabilities (FR-005, SC-001)
+- [ ] T015 [US1] Implement k-fold cross-validation evaluation in `src/models/evaluate.py` reporting AUPRC, precision, and calibrated probabilities (FR-005, SC-001)
 - [~] T016 [US1] Implement SHAP value generation in `src/models/interpret.py` and save `data/reports/feature_importance.csv` (FR-007)
 - [~] T017 [US1] Create `run_pipeline.sh` CLI entry point in `src/cli/`. **Args**: `--data-dir` (path to data directory), `--mode` (primary|sensitivity), `--seed` (integer for reproducibility). **Outputs**: `model.pkl`, `feature_importance.csv`, `significant_features.tsv`, `prediction.csv`, `pipeline.log`. **Logic**: Orchestrates download, feature extraction (inline), preprocessing, training, evaluation, and reporting based on the selected mode.
 - [~] T018 [US1] Add error handling for "Missing Genome" and "Zero-Feature Pathogen" edge cases in `src/data/preprocess.py`
@@ -166,16 +166,16 @@
 
 **Goal**: Address FR-016 (Sensitivity to missing data) and generate final reports.
 
-- [ ] T030 [P] Implement "Sensitivity Dataset" generation in `src/data/preprocess.py`.
+- [~] T030 [P] Implement "Sensitivity Dataset" generation in `src/data/preprocess.py`.
  - **Logic**: Treat missing interaction records as negative (0) to create a dense label vector.
  - **Output**: `data/processed/sensitivity_interactions.csv`.
-- [ ] T031 [P] Train a secondary "Sensitivity Model" using the dataset from T030 in `src/models/train.py` (reusing T014 logic).
+- [~] T031 [P] Train a secondary "Sensitivity Model" using the dataset from T030 in `src/models/train.py` (reusing T014 logic). <!-- ATOMIZE: requested -->
  - **Output**: `data/models/sensitivity_model.pkl`.
-- [ ] T032 [P] Compare metrics in `src/models/evaluate.py`.
+- [~] T032 [P] Compare metrics in `src/models/evaluate.py`.
  - **Logic**: Calculate AUPRC for the Sensitivity Model and compare against the Primary Model AUPRC.
  - **Output**: `data/reports/sensitivity_analysis.json` containing `primary_auprc`, `sensitivity_auprc`, `delta`, `flag`, and `methodology`. (FR-016)
-- [ ] T033 [P] Generate `data/reports/data_quality_report.json` quantifying missing % per pathogen (FR-013)
-- [ ] T035 [P] Finalize `pipeline.log` ensuring INFO entries exist for all major steps (SC-005)
+- [~] T033 [P] Generate `data/reports/data_quality_report.json` quantifying missing % per pathogen (FR-013)
+- [~] T035 [P] Finalize `pipeline.log` ensuring INFO entries exist for all major steps (SC-005)
 
 ---
 

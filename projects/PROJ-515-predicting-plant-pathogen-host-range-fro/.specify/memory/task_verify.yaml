@@ -1,0 +1,10 @@
+T008 Implement base validation utilities in `src/utils/validators.py` to enforce contract schemas (Depends on T007): 1
+T013 [US1] Implement data splitting in `src/data/preprocess.py` to create **pathogen-stratified** Train/Val sets.: 1
+? T014 [US1] Implement L1-regularized (L penalty) Logistic Regression **Training Function**
+  in `src/models/train.py` (FR-004).
+: 1
+? T015 [US1] Implement k-fold cross-validation evaluation in `src/models/evaluate.py`
+  reporting AUPRC, precision, and calibrated probabilities (FR-005, SC-001)
+: 1
+T019 [US1] Implement **Nested Cross-Validation Orchestration Loop** in `src/models/evaluate.py` (FR-006).: 1
+T020 [US1] Implement permutation testing within the nested CV loop in `src/models/evaluate.py` (FR-006).: 1
