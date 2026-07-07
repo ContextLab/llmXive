@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Country-Year Panel Dataset"
+description: "Schema for the merged, cleaned, and processed country-year panel data."
+type: object
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        iso_code:
+          type: string
+          pattern: "^[A-Z]{3}$"
+          description: "ISO 3166-1 alpha-3 country code."
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2020
+          description: "Calendar year of the observation."
+        land_use_change_rate:
+          type: number
+          description: "Annual percentage change in land cover."
+        regime_type:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: "Binary regime type: 1=CBNRM, 0=State-led."
+        gdp_per_capita:
+          type: number
+          description: "GDP per capita in USD."
+        population_density:
+          type: number
+          description: "Population density (persons per sq km)."
+        income_group:
+          type: string
+          enum:
+            - "Low"
+            - "Lower Middle"
+            - "Upper Middle"
+          description: "World Bank income classification."
+        included:
+          type: boolean
+          description: "Flag indicating if the record was included in the final analysis."
+      required:
+        - iso_code
+        - year
+        - land_use_change_rate
+        - regime_type
+        - gdp_per_capita
+        - population_density
+        - income_group
+        - included
+  metadata:
+    type: object
+    properties:
+      source_fao:
+        type: string
+        description: "Source URL for FAO FRA data."
+      source_wb:
+        type: string
+        description: "Source URL for World Bank data."
+      processed_date:
+        type: string
+        format: date-time
+        description: "Timestamp of data processing."
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw data files."
+      coverage_rate:
+        type: number
+        description: "Proportion of successfully merged records against total available (SC-001)."
+    required:
+      - source_fao
+      - source_wb
+      - processed_date
+      - checksum
+      - coverage_rate
+required:
+  - data
+  - metadata

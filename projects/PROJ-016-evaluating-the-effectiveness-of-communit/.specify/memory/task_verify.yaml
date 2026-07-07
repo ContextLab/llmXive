@@ -1,0 +1,14 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis
+  code/tests data/raw data/processed docs/output`'
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+T004 Setup data directories (`data/raw/`, `data/processed/`) and output directories (`docs/output/`): 2
+? 'T005 [P] Implement logging infrastructure: Create `code/__init__.py` with `dictConfig`
+  setup for JSON format, level INFO, output to console and `logs/run.log`'
+: 2
+T007 Setup unit test framework (pytest) with `code/tests/__init__.py` and `conftest.py`: 1
+? "T008 [P] [US1] Verify and Fetch Total Records: Query FAO and World Bank APIs to\
+  \ determine the **total available records** (denominator) for years 2000\u20132020\
+  \ for low/middle-income countries. Save the count to `data/processed/total_records_count.json`.\
+  \ This establishes the baseline for SC-001."
+: 1

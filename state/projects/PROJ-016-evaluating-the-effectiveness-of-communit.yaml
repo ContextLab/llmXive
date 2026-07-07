@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: environmental science
 human_escalation_reason: null
 id: PROJ-016-evaluating-the-effectiveness-of-communit
-last_run_id: acabf8fd-70af-4d1f-9f8b-42c4572136de
+last_run_id: 1eb2415c-ffe2-4e59-b4e6-f8b583f6cf39
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit
 title: Evaluating the Effectiveness of Community-Based Natural Resource Management
   in Developing Countries
-updated_at: '2026-07-03T00:57:06.733434Z'
+updated_at: '2026-07-07T07:08:30.172345Z'

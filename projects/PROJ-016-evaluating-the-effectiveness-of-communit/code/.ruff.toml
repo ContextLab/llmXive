@@ -1,0 +1,22 @@
+[lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "C",  # flake8-comprehensions
+  "B",  # flake8-bugbear
+]
+ignore = [
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+  "data/",
+  "docs/",
+  "__pycache__",
+  ".venv",
+]
+
+[lint.per-file-ignores]
+"code/tests/*" = ["S101"] # Allow assert in tests

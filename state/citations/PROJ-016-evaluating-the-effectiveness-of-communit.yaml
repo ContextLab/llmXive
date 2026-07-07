@@ -1,1 +1,45 @@
-[]
+- artifact_hash: 647357da139478d684274ca92c7e40e149957925ff5bcf4836f4ec5aa30a3231
+  artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home | Global Forest Resources Assessments |  Food and Agriculture
+    Organization of the United Nations
+  kind: url
+  value: https://www.fao.org/forest-resources-assessment/en/`
+  verification_status: verified
+  verified_against_url: https://www.fao.org/forest-resources-assessment/en/
+  verified_at: '2026-07-07T06:45:12.409033Z'
+- artifact_hash: 647357da139478d684274ca92c7e40e149957925ff5bcf4836f4ec5aa30a3231
+  artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GDP per capita (current US$) | Data
+  kind: url
+  value: https://data.worldbank.org/indicator/NY.GDP.PCAP.CD`
+  verification_status: verified
+  verified_against_url: https://data.worldbank.org/indicator/NY.GDP.PCAP.CD
+  verified_at: '2026-07-07T06:45:12.409033Z'
+- artifact_hash: 647357da139478d684274ca92c7e40e149957925ff5bcf4836f4ec5aa30a3231
+  artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: SP.POP.DENS
+  kind: url
+  value: https://data.worldbank.org/indicator/SP.POP.DENS`
+  verification_status: verified
+  verified_against_url: https://data.worldbank.org/indicator/SP.POP.DENS
+  verified_at: '2026-07-07T06:45:12.409033Z'
+- artifact_hash: 647357da139478d684274ca92c7e40e149957925ff5bcf4836f4ec5aa30a3231
+  artifact_path: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Forests and Landscapes | World Bank Group
+  kind: url
+  value: https://www.worldbank.org/en/topic/forests`
+  verification_status: verified
+  verified_against_url: https://www.worldbank.org/ext/en/topic/environment/forests-and-landscapes
+  verified_at: '2026-07-07T06:45:12.409033Z'
