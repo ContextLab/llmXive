@@ -1,0 +1,30 @@
+T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `results/`): 2
+? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+  (nibabel, numpy, pandas, networkx, scikit-learn, scipy, matplotlib, seaborn, bids-validator,
+  requests, fsl-afni-wrappers)
+: 2
+T004 Create `src/config.py` to define paths, thresholds (FD > 0.5mm), and dataset IDs (ds001770, ds003820): 2
+? "T005 [P] Implement `src/utils/atlas.py` to download and cache Schaefer/AAL atlas\
+  \ (-400 ROIs) from GitHub [UNRESOLVED-CLAIM: c_dea14405 \u2014 status=not_enough_info]\
+  \ with version pinning"
+: 1
+? T005 [P] Implement `src/utils/atlas.py` to download and cache Schaefer/AAL atlas
+  (-400 ROIs) from GitHub with version pinning
+: 1
+? "T006 [P] Implement `src/data/quality_check.py` to compute Framewise Displacement\
+  \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes [UNRESOLVED-CLAIM:\
+  \ c_c4f13dab \u2014 status=not_enough_info], **log the exclusion count**, and **halt\
+  \ with an error if the remaining sample size drops below n \u2265 20 [UNRESOLVED-CLAIM:\
+  \ c_f258d8f2 \u2014 status=not_enough_info] **. This task produces an **exclusion\
+  \ manifest** that is a blocking dependency for T011/T012."
+: 1
+? "T006 [P] Implement `src/data/quality_check.py` to compute Framewise Displacement\
+  \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, **log\
+  \ the exclusion count**, and **halt with an error if the remaining sample size drops\
+  \ below n \u2265 20 **. This task produces an **exclusion manifest** that is a blocking\
+  \ dependency for T011/T012."
+: 1
+? T007 [P] Create `main.py` orchestration script with checkpointing logic that saves
+  state at each subject completion and supports resumption from last completed stage
+  on timeout/disk overflow
+: 1

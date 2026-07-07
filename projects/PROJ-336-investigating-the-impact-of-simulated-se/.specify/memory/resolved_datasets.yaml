@@ -1,4 +1,4 @@
-resolved_at: '2026-07-05T16:31:21.717674+00:00'
+resolved_at: '2026-07-07T00:26:58.012870+00:00'
 datasets:
 - intent: BOLD
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Federal_Medical_Centre_FMC_Umuahia_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903084
+  - url: https://figshare.com/articles/preprint/Torsion_Supply_and_Demand_A_No-Go_Theorem_for_Torus_Ancestors_of_Kerr_Sen_and_the_Graded_Repair_of_Hidden_Symmetry/32916482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Amachara_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903081
+  - url: https://figshare.com/articles/dataset/Self-Discovering_Security_Oracles_Meta-Learning_Vulnerability_Detection_Strategies_through_Adversarial_Self-Play/30505922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Throughput_comparison_between_AKS_and_Functions/32903075
+  - url: https://figshare.com/articles/dataset/Data_for_Late_Cenozoic_Monsoon-Driven_Denudation_Acceleration_and_Topographic_Decay_in_Tectonically_Stable_South_China_/32916503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spatio-Temporal_Sensitivity_of_Healthcare_Accessibility/31505704
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Perspectives_of_autistic_students_on_school_leadership_practices_supporting_their_well_being_in_mainstream_schools/32916515
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Maurid_College_of_Nursing_Science_Nsit_Ibom_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903078
+  - url: https://figshare.swinburne.edu.au/articles/educational_resource/Grounded_Allegories_Healing_Replenishing_Reconnecting_Exhibition_Catalogue_/32907482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -69,7 +69,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/28835
+  - url: https://zenodo.org/records/7095520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7105076
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,27 +85,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7095520
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206925
+  - url: https://yareta.unige.ch/archives/99f1e89e-dade-411d-a067-fce80f43ffbe
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206925
+  - url: https://yareta.unige.ch/archives/6d94a006-57e6-4612-8832-fbd22c0c1e47
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/3t6kx/
+  - url: https://zenodo.org/records/21225596
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/ugkzf/
+  - url: https://zenodo.org/records/21225596
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/6asz2/
+  - url: https://zenodo.org/records/21223975
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -131,23 +131,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Abia_State_University_Teaching_Hospital_ABSUTH_Aba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903087
+  - url: https://figshare.com/articles/preprint/Torsion_Supply_and_Demand_A_No-Go_Theorem_for_Torus_Ancestors_of_Kerr_Sen_and_the_Graded_Repair_of_Hidden_Symmetry/32916482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Federal_Medical_Centre_FMC_Umuahia_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903084
+  - url: https://figshare.com/articles/dataset/Self-Discovering_Security_Oracles_Meta-Learning_Vulnerability_Detection_Strategies_through_Adversarial_Self-Play/30505922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Amachara_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903081
+  - url: https://figshare.com/articles/dataset/Data_for_Late_Cenozoic_Monsoon-Driven_Denudation_Acceleration_and_Topographic_Decay_in_Tectonically_Stable_South_China_/32916503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Throughput_comparison_between_AKS_and_Functions/32903075
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Perspectives_of_autistic_students_on_school_leadership_practices_supporting_their_well_being_in_mainstream_schools/32916515
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spatio-Temporal_Sensitivity_of_Healthcare_Accessibility/31505704
+  - url: https://figshare.swinburne.edu.au/articles/educational_resource/Grounded_Allegories_Healing_Replenishing_Reconnecting_Exhibition_Catalogue_/32907482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -167,27 +167,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032699
+  - url: https://zenodo.org/records/17185931
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/gz2rw/
+  - url: https://openneuro.org/datasets/ds007122/versions/1.1.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008099/versions/1.0.0
+  - url: https://openneuro.org/datasets/ds007892/versions/1.1.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007892/versions/1.0.2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007058/versions/1.1.1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://osf.io/hd6zk/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/epwnh/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21161101
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,23 +236,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Abia_State_University_Teaching_Hospital_ABSUTH_Aba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903087
+  - url: https://figshare.com/articles/preprint/Torsion_Supply_and_Demand_A_No-Go_Theorem_for_Torus_Ancestors_of_Kerr_Sen_and_the_Graded_Repair_of_Hidden_Symmetry/32916482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Federal_Medical_Centre_FMC_Umuahia_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903084
+  - url: https://figshare.com/articles/dataset/Self-Discovering_Security_Oracles_Meta-Learning_Vulnerability_Detection_Strategies_through_Adversarial_Self-Play/30505922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Amachara_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903081
+  - url: https://figshare.com/articles/dataset/Data_for_Late_Cenozoic_Monsoon-Driven_Denudation_Acceleration_and_Topographic_Decay_in_Tectonically_Stable_South_China_/32916503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Throughput_comparison_between_AKS_and_Functions/32903075
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Perspectives_of_autistic_students_on_school_leadership_practices_supporting_their_well_being_in_mainstream_schools/32916515
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spatio-Temporal_Sensitivity_of_Healthcare_Accessibility/31505704
+  - url: https://figshare.swinburne.edu.au/articles/educational_resource/Grounded_Allegories_Healing_Replenishing_Reconnecting_Exhibition_Catalogue_/32907482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -276,23 +276,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/je6cg/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/gfprk/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/6bpca/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://osf.io/k6mpj/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgm
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://osf.io/bng9v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000039242
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://osf.io/um3ht/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -341,23 +341,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Abia_State_University_Teaching_Hospital_ABSUTH_Aba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903087
+  - url: https://figshare.com/articles/preprint/Torsion_Supply_and_Demand_A_No-Go_Theorem_for_Torus_Ancestors_of_Kerr_Sen_and_the_Graded_Repair_of_Hidden_Symmetry/32916482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Federal_Medical_Centre_FMC_Umuahia_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903084
+  - url: https://figshare.com/articles/dataset/Self-Discovering_Security_Oracles_Meta-Learning_Vulnerability_Detection_Strategies_through_Adversarial_Self-Play/30505922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Amachara_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903081
+  - url: https://figshare.com/articles/dataset/Data_for_Late_Cenozoic_Monsoon-Driven_Denudation_Acceleration_and_Topographic_Decay_in_Tectonically_Stable_South_China_/32916503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Throughput_comparison_between_AKS_and_Functions/32903075
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Perspectives_of_autistic_students_on_school_leadership_practices_supporting_their_well_being_in_mainstream_schools/32916515
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spatio-Temporal_Sensitivity_of_Healthcare_Accessibility/31505704
+  - url: https://figshare.swinburne.edu.au/articles/educational_resource/Grounded_Allegories_Healing_Replenishing_Reconnecting_Exhibition_Catalogue_/32907482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -373,12 +373,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3732250
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18404923
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3757225
-    source: zenodo
+  - url: https://zenodo.org/records/21225820
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21225820
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21205357
@@ -390,14 +398,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21186458
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21186458
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.scidb.cn/detail?dataSetId=a223b1635c1c4a94b1aefba54e5484a8
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -430,7 +430,7 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67ca635c95ab5ce95a788cbf/ccc9ff762f30eeb71633f3b8fc631cf63167e5798de4b1ff81d1146e36b24fd3?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bidding_qa_dataset-v2.json%3B+filename%3D%22bidding_qa_dataset-v2.json%22%3B&Expires=1783272658&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdjYTYzNWM5NWFiNWNlOTVhNzg4Y2JmL2NjYzlmZjc2MmYzMGVlYjcxNjMzZjNiOGZjNjMxY2Y2MzE2N2U1Nzk4ZGU0YjFmZjgxZDExNDZlMzZiMjRmZDNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdiaWRkaW5nX3FhX2RhdGFzZXQtdjIuanNvbiUzQitmaWxlbmFtZSUzRCUyMmJpZGRpbmdfcWFfZGF0YXNldC12Mi5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMyNzI2NTh9fX1dfQ__&Signature=MEYCIQD4C4qIq7LnD48hZJ1rjKL7bshMUhOC~RIJVJN5IsDrngIhANJsHUk16v9AxTf2ndtbDkbSiifYRY9-WpdiIvpKcOvg&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67ca635c95ab5ce95a788cbf/ccc9ff762f30eeb71633f3b8fc631cf63167e5798de4b1ff81d1146e36b24fd3?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bidding_qa_dataset-v2.json%3B+filename%3D%22bidding_qa_dataset-v2.json%22%3B&Expires=1783387582&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdjYTYzNWM5NWFiNWNlOTVhNzg4Y2JmL2NjYzlmZjc2MmYzMGVlYjcxNjMzZjNiOGZjNjMxY2Y2MzE2N2U1Nzk4ZGU0YjFmZjgxZDExNDZlMzZiMjRmZDNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdiaWRkaW5nX3FhX2RhdGFzZXQtdjIuanNvbiUzQitmaWxlbmFtZSUzRCUyMmJpZGRpbmdfcWFfZGF0YXNldC12Mi5qc29uJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzODc1ODJ9fX1dfQ__&Signature=MEUCIAW7e1UBQsAvs5~6BhCfPFn9llgCO2b~KFA1KZLRs3viAiEA9cO-SfjCinVxwZSDQPGeL5D9jK1vQr75u4Cm5BlvwJU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,27 +446,35 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Abia_State_University_Teaching_Hospital_ABSUTH_Aba_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903087
+  - url: https://figshare.com/articles/preprint/Torsion_Supply_and_Demand_A_No-Go_Theorem_for_Torus_Ancestors_of_Kerr_Sen_and_the_Graded_Repair_of_Hidden_Symmetry/32916482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Federal_Medical_Centre_FMC_Umuahia_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903084
+  - url: https://figshare.com/articles/dataset/Self-Discovering_Security_Oracles_Meta-Learning_Vulnerability_Detection_Strategies_through_Adversarial_Self-Play/30505922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Amachara_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903081
+  - url: https://figshare.com/articles/dataset/Data_for_Late_Cenozoic_Monsoon-Driven_Denudation_Acceleration_and_Topographic_Decay_in_Tectonically_Stable_South_China_/32916503
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Throughput_comparison_between_AKS_and_Functions/32903075
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Perspectives_of_autistic_students_on_school_leadership_practices_supporting_their_well_being_in_mainstream_schools/32916515
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spatio-Temporal_Sensitivity_of_Healthcare_Accessibility/31505704
+  - url: https://figshare.swinburne.edu.au/articles/educational_resource/Grounded_Allegories_Healing_Replenishing_Reconnecting_Exhibition_Catalogue_/32907482
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3941041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3383063
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21208377
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -478,31 +486,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3383063
-    source: zenodo
+  - url: https://zenodo.org/records/19033105
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20059108
-    source: zenodo
+  - url: https://zenodo.org/records/19033105
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/tvb9p/
+  - url: https://zenodo.org/records/21224835
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224835
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://iris.unimore.it/handle/11380/1197420
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/on007216
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/f6tdk/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/on008099
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

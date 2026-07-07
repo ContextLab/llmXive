@@ -1,0 +1,407 @@
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Schaefer/AAL atlas has 400 ROIs
+  claim_id: c_61b74add
+  context: T005 [P] Implement src/utils/atlas.py to download and cache Schaefer/AAL
+    atlas (-400 ROIs) from GitHub with version pinning
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download and cache Schaefer/AAL atlas (-400 ROIs) from GitHub
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:54:18Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Subjects with more than 10% high-motion volumes are excluded
+  claim_id: c_55f00dfd
+  context: "T006 [P] Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_more_than_10%25_high-motion_volumes_are_excluded
+  kind: magnitude
+  raw_text: exclude subjects with >10% high-motion volumes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:55:09Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if sample size drops below 20
+  claim_id: c_a7582003
+  context: "T006 [P] Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "halt with an error if the remaining sample size drops below n \u2265\
+    \ 20"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:55:09Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses at least 1000 iterations
+  claim_id: c_5f09347e
+  context: "T027 [US3] Implement src/analysis/stats.py to run permutation testing\
+    \ (\u22651,000 iterations, sign-flip strategy) for empirical p-values"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "run permutation testing (\u22651,000 iterations, sign-flip strategy)\
+    \ for empirical p-values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:55:44Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Sample size is 20
+  claim_id: c_45d77fb5
+  context: "T035 [P] Generate results/power_analysis.md documenting sample size (n\u2265\
+    20) and power limitations per SC-004"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "documenting sample size (n\u226520) and power limitations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:55:44Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: RAM usage must be less than 7GB
+  claim_id: c_4726d09b
+  context: T036 [P] Code cleanup and refactoring for memory efficiency (ensure <7GB
+    RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:56:32Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Runtime limit is 6 hours
+  claim_id: c_22779cb0
+  context: 'T037 [P] Performance optimization: parallelize subject processing where
+    possible (within 6h limit)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 6h limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:57:13Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: exclude subjects with more than 10% high-motion volumes
+  claim_id: c_c4f13dab
+  context: "Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_more_than_10%25_high-motion_volumes
+  kind: magnitude
+  raw_text: exclude subjects with >10% high-motion volumes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T00:59:18Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: halt if remaining sample size is less than 20
+  claim_id: c_f258d8f2
+  context: "Implement src/data/quality_check.py to compute Framewise Displacement\
+    \ (FD) from JSON sidecars, exclude subjects with >10% high-motion volumes, log\
+    \ the exclusion count, and halt with an error if the remaining sample size drops\
+    \ below n \u2265 20."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_remaining_sample_size_is_less_than_20
+  kind: magnitude
+  raw_text: "halt with an error if the remaining sample size drops below n \u2265\
+    \ 20"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:00:22Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: download and cache Schaefer or AAL atlas with 400 ROIs from GitHub
+  claim_id: c_dea14405
+  context: Implement src/utils/atlas.py to download and cache Schaefer/AAL atlas (-400
+    ROIs) from GitHub with version pinning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download and cache Schaefer/AAL atlas (-400 ROIs) from GitHub
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:00:22Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: run permutation testing with at least 1000 iterations using sign-flip
+    strategy
+  claim_id: c_e6e96359
+  context: "Implement src/analysis/stats.py to run permutation testing (\u22651,000\
+    \ iterations, sign-flip strategy) for empirical p-values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_permutation_testing_with_at_least_1000_iterations_using
+  kind: magnitude
+  raw_text: "run permutation testing (\u22651,000 iterations, sign-flip strategy)\
+    \ for empirical p-values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:00:26Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: ensure memory usage is less than 7 GB
+  claim_id: c_cf75a70b
+  context: Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:00:30Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: complete subject processing within 6 hours
+  claim_id: c_f22192f1
+  context: 'Performance optimization: parallelize subject processing where possible
+    (within 6h limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'performance optimization: parallelize subject processing where possible
+    (within 6h limit)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:01:36Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: datasets ds001770 and ds003820 from OpenNeuro
+  claim_id: c_9bf274c2
+  context: Create src/config.py to define paths, thresholds (FD > 0.5mm), and dataset
+    IDs (ds001770, ds003820)
+  evidence:
+    entailment_evidence: Datasets ds001770 and ds003820 from OpenNeuro
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Datasets_ds001770_and_ds003820_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The project targets datasets ds001770 and ds003820 from OpenNeuro.
+  resolved_value: datasets ds001770 and ds003820 from OpenNeuro
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T01:04:49Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Schaefer/AAL atlas contains approximately 400 ROIs
+  claim_id: c_3a95b5cb
+  context: Implement src/utils/atlas.py to download and cache Schaefer/AAL atlas (-400
+    ROIs) from GitHub with version pinning
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer/AAL atlas contains approximately 400 ROIs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:05:59Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: subjects with >10% high-motion volumes excluded
+  claim_id: c_1cdba36f
+  context: Compute Framewise Displacement (FD) from JSON sidecars, exclude subjects
+    with >10% high-motion volumes
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/subjects_with_%3E10%25_high-motion_volumes_excluded
+  kind: magnitude
+  raw_text: Subjects with more than 10% high-motion volumes are excluded from the
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:06:46Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: minimum remaining sample size of 20 subjects
+  claim_id: c_ca438c93
+  context: "halt with an error if the remaining sample size drops below n \u2265 20"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum remaining sample size of 20 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:07:22Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: preprocessing pipeline uses version-locked FSL or AFNI pipelines
+  claim_id: c_a22b9b2e
+  context: using version-locked FSL or AFNI pipelines only (no nilearn fallback) to
+    ensure Neuroimaging Preprocessing Integrity
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_pipeline_uses_version-locked_FSL_or_AFNI_pipel
+  kind: entity_fact
+  raw_text: The preprocessing pipeline uses version-locked FSL or AFNI pipelines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:08:00Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: network metrics calculated using Louvain algorithm
+  claim_id: c_0a2b5313
+  context: Implement src/analysis/metrics.py to calculate modularity using Louvain
+    algorithm (networkx/brain connectivity toolbox CPU version)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Network_metrics_calculated_using_Louvain_algorithm
+  kind: entity_fact
+  raw_text: Network metrics are calculated using the Louvain algorithm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:09:15Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: permutation testing runs for at least 1000 iterations
+  claim_id: c_8b24b77f
+  context: "Implement src/analysis/stats.py to run permutation testing (\u22651,000\
+    \ iterations, sign-flip strategy) for empirical p-values"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_runs_for_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Permutation testing runs for at least 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:10:09Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: analysis must complete within 6-hour runtime limit
+  claim_id: c_a0b3e55b
+  context: 'Performance optimization: parallelize subject processing where possible
+    (within 6h limit)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis must complete within a 6-hour runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:10:42Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: analysis constrained to less than 7GB RAM usage
+  claim_id: c_d9397987
+  context: Code cleanup and refactoring for memory efficiency (ensure <7GB RAM usage)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_constrained_to_less_than_7GB_RAM_usage
+  kind: magnitude
+  raw_text: The analysis is constrained to less than 7GB of RAM usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:11:46Z'
+- artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/tasks.md
+  attempts: 1
+  canonical: Schaefer/AAL atlas contains approximately 400 regions of interest
+  claim_id: c_3303e04d
+  context: T005 [P] Implement src/utils/atlas.py to download and cache Schaefer/AAL
+    atlas (-400 ROIs) from GitHub with version pinning
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement src/utils/atlas.py to download and cache Schaefer/AAL atlas
+    (-400 ROIs) from GitHub with version pinning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T01:13:52Z'

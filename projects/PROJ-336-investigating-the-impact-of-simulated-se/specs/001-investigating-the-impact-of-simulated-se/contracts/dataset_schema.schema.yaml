@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the preprocessed fMRI dataset and derived metrics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., 'sub-001')."
+  condition:
+    type: "string"
+    enum:
+      - "pre"
+      - "post"
+    description: "Sensory deprivation condition (pre or post)."
+  motion_fd_mean:
+    type: "number"
+    description: "Mean Framewise Displacement (calculated from residual motion parameters)."
+  motion_fd_max:
+    type: "number"
+    description: "Maximum Framewise Displacement (calculated from residual motion parameters)."
+  excluded:
+    type: "boolean"
+    description: "True if subject exceeds motion threshold."
+  pre_bold_path:
+    type: "string"
+    description: "Path to pre-deprivation BOLD time series file."
+  post_bold_path:
+    type: "string"
+    description: "Path to post-deprivation BOLD time series file."
+  connectivity_matrix_path:
+    type: "string"
+    description: "Path to the connectivity matrix file (if computed)."
+  modularity:
+    type: "number"
+    description: "Modularity value (Louvain algorithm)."
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency value."
+  node_strength_mean:
+    type: "number"
+    description: "Mean node strength across all ROIs."
+  node_strength_std:
+    type: "number"
+    description: "Standard deviation of node strength."
+required:
+  - "subject_id"
+  - "condition"
+  - "motion_fd_mean"
+  - "excluded"
+additionalProperties: false

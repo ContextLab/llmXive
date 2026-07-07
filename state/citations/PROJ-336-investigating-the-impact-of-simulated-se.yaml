@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 09abd5319d26648f9ee6fe5c24881699dca573cd87141964a52832999d2f9883
+  artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org
+  verification_status: verified
+  verified_against_url: https://openneuro.org
+  verified_at: '2026-07-07T00:35:24.256671Z'
+- artifact_hash: 30694eac429c5acdf9f21fbd3fd05b919853bbd8eb0be9d66b83a48d63261e9a
+  artifact_path: projects/PROJ-336-investigating-the-impact-of-simulated-se/specs/001-investigating-the-impact-of-simulated-se/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-07T00:36:02.957238Z'
