@@ -1,0 +1,767 @@
+{
+  "fetched_at": "2026-07-07T21:51:15Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula\"",
+      "target_n": 5
+    },
+    "duration_seconds": 68.425,
+    "ended_at": "2026-07-07T21:51:15Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "physics-informed world models for robotics"
+        ],
+        [
+          2,
+          "physics-constrained reinforcement learning for manipulation"
+        ],
+        [
+          3,
+          "differentiable physics simulators for robotic control"
+        ],
+        [
+          4,
+          "neural world models with physical priors"
+        ],
+        [
+          5,
+          "physics-guided generative models for robotics"
+        ],
+        [
+          6,
+          "hybrid neural-physics simulators for robot manipulation"
+        ],
+        [
+          7,
+          "model-based reinforcement learning with physical constraints"
+        ],
+        [
+          8,
+          "physics-aware imitation learning for robotic tasks"
+        ],
+        [
+          9,
+          "sim-to-real transfer using physics-enforced simulators"
+        ],
+        [
+          10,
+          "energy-conserving neural network architectures for robotics"
+        ],
+        [
+          11,
+          "physics-informed neural networks for robotic dynamics"
+        ],
+        [
+          12,
+          "learned dynamics models with physical consistency"
+        ],
+        [
+          13,
+          "physics-based reward shaping in robotic reinforcement learning"
+        ],
+        [
+          14,
+          "augmented reality simulators with physics enforcement for robots"
+        ],
+        [
+          15,
+          "causal world models for robotic manipulation"
+        ],
+        [
+          16,
+          "physics-regularized deep learning for robotic control"
+        ],
+        [
+          17,
+          "differentiable rendering and physics for robot simulation"
+        ],
+        [
+          18,
+          "physics-integrated transformer models for robotic planning"
+        ],
+        [
+          19,
+          "constrained optimization in neural world models for robotics"
+        ],
+        [
+          20,
+          "robust robotic manipulation via physics-augmented simulation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula\" computer science": 0,
+        "physics-constrained reinforcement learning for manipulation": 5,
+        "physics-informed world models for robotics": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "physics-informed neural networks world models",
+      "soft robotic manipulation contact dynamics simulation",
+      "differentiable physics engine model-based reinforcement learning",
+      "sim-to-real transfer robotic control policy learning",
+      "physical constraints embedding generative world modeling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.20503"
+      ]
+    },
+    "per_query_hit_count": {
+      "differentiable physics engine model-based reinforcement learning": 3,
+      "llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula\" computer science": 3,
+      "physical constraints embedding generative world modeling": 3,
+      "physics-informed neural networks world models": 3,
+      "sim-to-real transfer robotic control policy learning": 3,
+      "soft robotic manipulation contact dynamics simulation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "1904.09266",
+          "rationale": "The paper focuses on cryptographic security and data verification (Merkle trees) in robotic swarms, which is a distinct construct from the user's question about physics-based world simulators for robotic manipulation. While both involve robotics, the mechanisms, variables, and research goals are entirely different, failing to meet any inclusion criteria (a-f) and falling under the \"Distinct construct\" rejection rule.",
+          "title": "Secure and secret cooperation in robotic swarms"
+        },
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The candidate paper focuses on general exploration mechanisms in Reinforcement Learning (specifically using ensemble errors for value bonuses) and does not address the user's specific question regarding \"Physics Reinforced World Simulator\" or physics-based simulation for robotic manipulation. While both fall under the broad umbrella of RL, the paper lacks the specific domain (robotics/physics simulation) and the specific mechanism (physics reinforcement) required to be considered a canonical pri",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models, which is a distinct methodological domain from the user's query about \"Physics Reinforced World Simulators\" for robotic manipulation. While both involve reinforcement learning, the candidate paper does not address the specific mechanism of physics-based simulation, world modeling, or the \"PhysisForcing\" framework, failing to meet the criteria for same-mechanism evidence, shared variables, o",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1807.05037",
+          "rationale": "The paper focuses on hierarchical inverse reinforcement learning for human planning in abstract games, which does not address the user's specific question regarding physics-based world simulators for robotic manipulation. While both fall under the broad umbrella of robotics and AI, the paper lacks the specific mechanism (physics reinforcement), domain (robotic manipulation), or empirical population required by the inclusion criteria (a-f).",
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1809.09501",
+          "rationale": "The paper focuses on accelerating convergence in reinforcement learning algorithms via Anderson acceleration, which is a distinct methodological construct from the user's query about \"Physics Reinforced World Simulators\" for robotic manipulation. While both fall under the broad umbrella of robotics and RL, the paper does not measure the same physical observables, causal mechanisms, or empirical populations (e.g., physics-based simulation fidelity) required by criteria (a), (b), or (e), nor does ",
+          "title": "Anderson Acceleration for Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2301.08028",
+          "rationale": "The paper is a general tutorial on meta-reinforcement learning and does not address the specific mechanism of \"physics-reinforced world simulation\" or the \"PhysisForcing\" framework mentioned in the user's question. While both fall under the broad domain of robotics and RL, the candidate paper lacks the specific focus on physics-based simulation constraints or the particular algorithmic approach required to satisfy the inclusion criteria for a literature review on this specific follow-up topic.",
+          "title": "A Tutorial on Meta-Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T21:50:06Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"physisforcing: physics reinforced world simulator for robotic manipula\" computer science",
+      "raw": "llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This survey presents the most relevant neural network models of autism spectrum disorder and schizophrenia, from the first connectionist models to recent deep network architectures. We analyzed and compared the most representative symptoms with its neural model counterpart, detailing the alteration introduced in the network that generates each of the symptoms, and identifying their strengths and weaknesses. We additionally cross-compared Bayesian and free-energy approaches, as they are widely applied to modeling psychiatric disorders and share basic mechanisms with neural networks. Models of schizophrenia mainly focused on hallucinations and delusional thoughts using neural dysconnections or inhibitory imbalance as the predominating alteration. Models of autism rather focused on perceptual difficulties, mainly excessive attention to environment details, implemented as excessive inhibitory connections or increased sensory precision. We found an excessive tight view of the psychopathologies around one specific and simplified effect, usually constrained to the technical idiosyncrasy of the used network architecture. Recent theories and evidence on sensorimotor integration and body perception combined with modern neural network architectures could offer a broader and novel spectrum to approach these psychopathologies. This review emphasizes the power of artificial neural networks for modeling some symptoms of neurological disorders but also calls for further developing these techniques in the field of computational psychiatry.",
+          "claimed_authors": [
+            "Pablo Lanillos",
+            "Daniel Oliva",
+            "Anja Philippsen",
+            "Yuichi Yamashita",
+            "Yukie Nagai",
+            "Gordon Cheng"
+          ],
+          "claimed_title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.10015"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics-Informed Neural Networks (PINNs) have emerged recently as a promising application of deep neural networks to the numerical solution of nonlinear partial differential equations (PDEs). However, it has been recognized that adaptive procedures are needed to force the neural network to fit accurately the stubborn spots in the solution of \"stiff\" PDEs. In this paper, we propose a fundamentally new way to train PINNs adaptively, where the adaptation weights are fully trainable and applied to each training point individually, so the neural network learns autonomously which regions of the solution are difficult and is forced to focus on them. The self-adaptation weights specify a soft multiplicative soft attention mask, which is reminiscent of similar mechanisms used in computer vision. The basic idea behind these SA-PINNs is to make the weights increase as the corresponding losses increase, which is accomplished by training the network to simultaneously minimize the losses and maximize the weights. In addition, we show how to build a continuous map of self-adaptive weights using Gaussian Process regression, which allows the use of stochastic gradient descent in problems where conventional gradient descent is not enough to produce accurate solutions. Finally, we derive the Neural Tangent Kernel matrix for SA-PINNs and use it to obtain a heuristic understanding of the effect of the self-adaptive weights on the dynamics of training in the limiting case of infinitely-wide PINNs, which suggests that SA-PINNs work by producing a smooth equalization of the eigenvalues of the NTK matrix corresponding to the different loss terms. In numerical experiments with several linear and nonlinear benchmark problems, the SA-PINN outperformed other state-of-the-art PINN algorithm in L2 error, while using a smaller number of training epochs.",
+          "claimed_authors": [
+            "Levi McClenny",
+            "Ulisses Braga-Neto"
+          ],
+          "claimed_title": "Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.04544"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Self-Adaptive Physics-Informed Neural Networks using a Soft Attention Mechanism')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Grasping is fundamental to robotic manipulation, and recent advances in large-scale grasping datasets have provided essential training data and evaluation benchmarks, accelerating the development of learning-based methods for robust object grasping. However, most existing datasets exclude deformable bodies due to the lack of scalable, robust simulation pipelines, limiting the development of generalizable models for compliant grippers and soft manipulands. To address these challenges, we present GRIP, a General Robotic Incremental Potential contact simulation dataset for universal grasping. GRIP leverages an optimized Incremental Potential Contact (IPC)-based simulator for multi-environment data generation, achieving up to 48x speedup while ensuring efficient, intersection- and inversion-free simulations for compliant grippers and deformable objects. Our fully automated pipeline generates and evaluates diverse grasp interactions across 1,200 objects and 100,000 grasp poses, incorporating both soft and rigid grippers. The GRIP dataset enables applications such as neural grasp generation and stress field prediction.",
+          "claimed_authors": [
+            "Siyu Ma",
+            "Wenxin Du",
+            "Chang Yu",
+            "Ying Jiang",
+            "Zeshun Zong",
+            "Tianyi Xie",
+            "Yunuo Chen",
+            "Yin Yang",
+            "Xuchen Han",
+            "Chenfanfu Jiang"
+          ],
+          "claimed_title": "GRIP: A General Robotic Incremental Potential Contact Simulation Dataset for Unified Deformable-Rigid Coupled Grasping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.05020"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='GRIP: A General Robotic Incremental Potential Contact Simulation Dataset for Unified Deformable-Rigid Coupled Grasping')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a benchmark to facilitate simulated manipulation; an attempt to overcome the obstacles of physical benchmarks through the distribution of a real world, ground truth dataset. Users are given various simulated manipulation tasks with assigned protocols having the objective of replicating the real world results of a recorded dataset. The benchmark comprises of a range of metrics used to characterise the successes of submitted environments whilst providing insight into their deficiencies. We apply our benchmark to two simulation environments, PyBullet and V-Rep, and publish the results. All materials required to benchmark an environment, including protocols and the dataset, can be found at the benchmarks' website https://research.csiro.au/robotics/manipulation-benchmark/.",
+          "claimed_authors": [
+            "Jack Collins",
+            "Jessie McVicar",
+            "David Wedlock",
+            "Ross Brown",
+            "David Howard",
+            "Jürgen Leitner"
+          ],
+          "claimed_title": "Benchmarking Simulated Robotic Manipulation through a Real World Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.01557"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Benchmarking Simulated Robotic Manipulation through a Real World Dataset')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Soft robots offer an alternative approach to manipulate inside the constrained space while maintaining the safe interaction with the external environment. Due to its adaptable compliance characteristic, external contact force can easily deform the robot shapes and lead to undesired robot kinematic and dynamic properties. Accurate contact detection and contact position estimation are of critical importance for soft robot modeling, control, trajectory planning, and eventually affect the success of task completion. In this paper, we focus on the study of 1-DoF soft pneumatic bellow bending actuator, which is one of the fundamental components to construct complex, multi-DoF soft robots. This 1-DoF soft robot is modeled through the integral representation of the spacial curve. The direct and instantaneous kinematics are calculated explicitly through a modal method. The fixed centrode deviation (FCD) method is used to to detect the external contact and estimate contact location. Simulation results indicate that the contact location can be accurately estimated by solving a nonlinear least square optimization problem.",
+          "claimed_authors": [
+            "Yue Chen",
+            "Long Wang",
+            "Kevin Galloway",
+            "Isuru Godage",
+            "Nabil Simaan",
+            "Eric Barth"
+          ],
+          "claimed_title": "Modal-based Kinematics and Contact Detection of Soft Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.11654"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Modal-based Kinematics and Contact Detection of Soft Robots')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a lifelong learning architecture, the Neural Computer Agent (NCA), where a Reinforcement Learning agent is paired with a predictive model of the environment learned by a Differentiable Neural Computer (DNC). The agent and DNC model are trained in conjunction iteratively. The agent improves its policy in simulations generated by the DNC model and rolls out the policy to the live environment, collecting experiences in new portions or tasks of the environment for further learning. Experiments in two synthetic environments show that DNC models can continually learn from pixels alone to simulate new tasks as they are encountered by the agent, while the agents can be successfully trained to solve the tasks using Proximal Policy Optimization entirely in simulations.",
+          "claimed_authors": [
+            "Adeel Mufti",
+            "Svetlin Penkov",
+            "Subramanian Ramamoorthy"
+          ],
+          "claimed_title": "Iterative Model-Based Reinforcement Learning Using Simulations in the Differentiable Neural Computer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.07248"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Iterative Model-Based Reinforcement Learning Using Simulations in the Differentiable Neural Computer')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning in multi-agent systems is highly challenging due to several factors including the non-stationarity introduced by agents' interactions and the combinatorial nature of their state and action spaces. In particular, we consider the Mean-Field Control (MFC) problem which assumes an asymptotically infinite population of identical agents that aim to collaboratively maximize the collective reward. In many cases, solutions of an MFC problem are good approximations for large systems, hence, efficient learning for MFC is valuable for the analogous discrete agent setting with many agents. Specifically, we focus on the case of unknown system dynamics where the goal is to simultaneously optimize for the rewards and learn from experience. We propose an efficient model-based reinforcement learning algorithm, $M^3-UCRL$, that runs in episodes, balances between exploration and exploitation during policy learning, and provably solves this problem. Our main theoretical contributions are the first general regret bounds for model-based reinforcement learning for MFC, obtained via a novel mean-field type analysis. To learn the system's dynamics, $M^3-UCRL$ can be instantiated with various statistical models, e.g., neural networks or Gaussian Processes. Moreover, we provide a practical parametrization of the core optimization problem that facilitates gradient-based optimization techniques when combined with differentiable dynamics approximation methods such as neural networks.",
+          "claimed_authors": [
+            "Barna Pásztor",
+            "Ilija Bogunovic",
+            "Andreas Krause"
+          ],
+          "claimed_title": "Efficient Model-Based Multi-Agent Mean-Field Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.04050"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Efficient Model-Based Multi-Agent Mean-Field Reinforcement Learning')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current vision-based robotics simulation benchmarks have significantly advanced robotic manipulation research. However, robotics is fundamentally a real-world problem, and evaluation for real-world applications has lagged behind in evaluating generalist policies. In this paper, we discuss challenges and desiderata in designing benchmarks for generalist robotic manipulation policies for the goal of sim-to-real policy transfer. We propose 1) utilizing high visual-fidelity simulation for improved sim-to-real transfer, 2) evaluating policies by systematically increasing task complexity and scenario perturbation to assess robustness, and 3) quantifying performance alignment between real-world performance and its simulation counterparts.",
+          "claimed_authors": [
+            "Xuning Yang",
+            "Clemens Eppner",
+            "Jonathan Tremblay",
+            "Dieter Fox",
+            "Stan Birchfield",
+            "Fabio Ramos"
+          ],
+          "claimed_title": "Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.11117"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation Learning uses the demonstrations of an expert to uncover the optimal policy and it is suitable for real-world robotics tasks as well. In this case, however, the training of the agent is carried out in a simulation environment due to safety, economic and time constraints. Later, the agent is applied in the real-life domain using sim-to-real methods. In this paper, we apply Imitation Learning methods that solve a robotics task in a simulated environment and use transfer learning to apply these solutions in the real-world environment. Our task is set in the Duckietown environment, where the robotic agent has to follow the right lane based on the input images of a single forward-facing camera. We present three Imitation Learning and two sim-to-real methods capable of achieving this task. A detailed comparison is provided on these techniques to highlight their advantages and disadvantages.",
+          "claimed_authors": [
+            "Zoltán Lőrincz",
+            "Márton Szemenyei",
+            "Róbert Moni"
+          ],
+          "claimed_title": "Imitation Learning for Generalizable Self-driving Policy with Sim-to-real Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.10797"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Imitation Learning for Generalizable Self-driving Policy with Sim-to-real Transfer')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06465"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Planning with partial observation is a central challenge in embodied AI. A majority of prior works have tackled this challenge by developing agents that physically explore their environment to update their beliefs about the world state. In contrast, humans can $\\textit{imagine}$ unseen parts of the world through a mental exploration and $\\textit{revise}$ their beliefs with imagined observations. Such updated beliefs can allow them to make more informed decisions, without necessitating the physical exploration of the world at all times. To achieve this human-like ability, we introduce the $\\textit{Generative World Explorer (Genex)}$, an egocentric world exploration framework that allows an agent to mentally explore a large-scale 3D world (e.g., urban scenes) and acquire imagined observations to update its belief. This updated belief will then help the agent to make a more informed decision at the current step. To train $\\textit{Genex}$, we create a synthetic urban scene dataset, Genex-DB. Our experimental results demonstrate that (1) $\\textit{Genex}$ can generate high-quality and consistent observations during long-horizon exploration of a large virtual physical world and (2) the beliefs updated with the generated observations can inform an existing decision-making model (e.g., an LLM agent) to make better plans.",
+          "claimed_authors": [
+            "Taiming Lu",
+            "Tianmin Shu",
+            "Alan Yuille",
+            "Daniel Khashabi",
+            "Jieneng Chen"
+          ],
+          "claimed_title": "Generative World Explorer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.11844"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Generative World Explorer')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks (DNNs) have demonstrated high vulnerability to adversarial examples, raising broad security concerns about their applications. Besides the attacks in the digital world, the practical implications of adversarial examples in the physical world present significant challenges and safety concerns. However, current research on physical adversarial examples (PAEs) lacks a comprehensive understanding of their unique characteristics, leading to limited significance and understanding. In this paper, we address this gap by thoroughly examining the characteristics of PAEs within a practical workflow encompassing training, manufacturing, and re-sampling processes. By analyzing the links between physical adversarial attacks, we identify manufacturing and re-sampling as the primary sources of distinct attributes and particularities in PAEs. Leveraging this knowledge, we develop a comprehensive analysis and classification framework for PAEs based on their specific characteristics, covering over 100 studies on physical-world adversarial examples. Furthermore, we investigate defense strategies against PAEs and identify open challenges and opportunities for future research. We aim to provide a fresh, thorough, and systematic understanding of PAEs, thereby promoting the development of robust adversarial learning and its application in open-world scenarios to provide the community with a continuously updated list of physical world adversarial sample resources, including papers, code, \\etc, within the proposed framework",
+          "claimed_authors": [
+            "Jiakai Wang",
+            "Xianglong Liu",
+            "Jin Hu",
+            "Donghua Wang",
+            "Siyang Wu",
+            "Tingsong Jiang",
+            "Yuanfang Guo",
+            "Aishan Liu",
+            "Jiantao Zhou"
+          ],
+          "claimed_title": "Adversarial Examples in the Physical World: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01473"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Adversarial Examples in the Physical World: A Survey')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present DeepEarth, a self-supervised multi-modal world model with Earth4D, a novel planetary-scale 4D space-time positional encoder. Earth4D extends 3D multi-resolution hash encoding to include time, efficiently scaling across the planet over centuries with sub-meter, sub-second precision. Multi-modal encoders (e.g. vision-language models) are fused with Earth4D embeddings and trained via masked reconstruction. We demonstrate Earth4D's expressive power by achieving state-of-the-art performance on an ecological forecasting benchmark. Earth4D with learnable hash probing surpasses a multi-modal foundation model pre-trained on substantially more data. Access open source code and download models at: https://github.com/legel/deepearth",
+          "claimed_authors": [
+            "Lance Legel",
+            "Qin Huang",
+            "Brandon Voelker",
+            "Daniel Neamati",
+            "Patrick Alan Johnson",
+            "Favyen Bastani",
+            "Jeff Rose",
+            "James Ryan Hennessy",
+            "Robert Guralnick",
+            "Douglas Soltis",
+            "Pamela Soltis",
+            "Shaowen Wang"
+          ],
+          "claimed_title": "Self-Supervised Multi-Modal World Model with 4D Space-Time Embedding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.07039"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"PhysisForcing: Physics Reinforced World Simulator ', candidate_title='Self-Supervised Multi-Modal World Model with 4D Space-Time Embedding')",
+        "failed_at": "2026-07-07T21:50:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Gemini Robotics Team",
+            "Krzysztof Choromanski",
+            "Coline Devin",
+            "Yilun Du",
+            "Debidatta Dwibedi",
+            "Ruiqi Gao",
+            "Abhishek Jindal",
+            "Thomas Kipf",
+            "Sean Kirmani",
+            "Isabel Leal",
+            "Fangchen Liu",
+            "Anirudha Majumdar",
+            "Andrew Marmon",
+            "Carolina Parada",
+            "Yulia Rubanova",
+            "Dhruv Shah",
+            "Vikas Sindhwani",
+            "Jie Tan",
+            "Fei Xia",
+            "Ted Xiao",
+            "Sherry Yang",
+            "Wenhao Yu",
+            "Allan Zhou"
+          ],
+          "title": "Evaluating Gemini Robotics Policies in a Veo World Simulator",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.10675",
+        "summary": "Generative world models hold significant potential for simulating interactions with visuomotor policies in varied environments. Frontier video models can enable generation of realistic observations and environment interactions in a scalable and general manner. However, the use of video models in robotics has been limited primarily to in-distribution evaluations, i.e., scenarios that are similar to ones used to train the policy or fine-tune the base video model. In this report, we demonstrate that video models can be used for the entire spectrum of policy evaluation use cases in robotics: from assessing nominal performance to out-of-distribution (OOD) generalization, and probing physical and semantic safety. We introduce a generative evaluation system built upon a frontier video foundation model (Veo). The system is optimized to support robot action conditioning and multi-view consistency, while integrating generative image-editing and multi-view completion to synthesize realistic variations of real-world scenes along multiple axes of generalization. We demonstrate that the system preserves the base capabilities of the video model to enable accurate simulation of scenes that have been edited to include novel interaction objects, novel visual backgrounds, and novel distractor objects. This fidelity enables accurately predicting the relative performance of different policies in both nominal and OOD conditions, determining the relative impact of different axes of generalization on policy performance, and performing red teaming of policies to expose behaviors that violate physical or semantic safety constraints. We validate these capabilities through 1600+ real-world evaluations of eight Gemini Robotics policy checkpoints and five tasks for a bimanual manipulator.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.10675",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T21:50:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthew Lisondra",
+            "Beno Benhabib",
+            "Goldie Nejat"
+          ],
+          "title": "Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.20503",
+        "summary": "Rapid advancements in foundation models, including Large Language Models, Vision-Language Models, Multimodal Large Language Models, and Vision-Language-Action Models, have opened new avenues for embodied AI in mobile service robotics. By combining foundation models with the principles of embodied AI, where intelligent systems perceive, reason, and act through physical interaction, mobile service robots can achieve more flexible understanding, adaptive behavior, and robust task execution in dynamic real-world environments. Despite this progress, embodied AI for mobile service robots continues to face fundamental challenges related to the translation of natural language instructions into executable robot actions, multimodal perception in human-centered environments, uncertainty estimation for safe decision-making, and computational constraints for real-time onboard deployment. In this paper, we present the first systematic review focused specifically on the integration of foundation models in mobile service robotics. We analyze how recent advances in foundation models address these core challenges through language-conditioned control, multimodal sensor fusion, uncertainty-aware reasoning, and efficient model scaling. We further examine real-world applications in domestic assistance, healthcare, and service automation, highlighting how foundation models enable context-aware, socially responsive, and generalizable robot behaviors. Beyond technical considerations, we discuss ethical, societal, and human-interaction implications associated with deploying foundation model-enabled service robots in human environments. Finally, we outline future research directions emphasizing reliability and lifelong adaptation, privacy-aware and resource-constrained deployment, and governance and human-in-the-loop frameworks required for safe, scalable, and trustworthy mobile service robotics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.20503",
+          "http_status": 200,
+          "pdf_sample_score": 0.2914,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T21:50:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Gemini Robotics Team",
+            "Saminda Abeyruwan",
+            "Joshua Ainslie",
+            "Jean-Baptiste Alayrac",
+            "Montserrat Gonzalez Arenas",
+            "Travis Armstrong",
+            "Ashwin Balakrishna",
+            "Robert Baruch",
+            "Maria Bauza",
+            "Michiel Blokzijl",
+            "Steven Bohez",
+            "Konstantinos Bousmalis",
+            "Anthony Brohan",
+            "Thomas Buschmann",
+            "Arunkumar Byravan",
+            "Serkan Cabi",
+            "Ken Caluwaerts",
+            "Federico Casarini",
+            "Oscar Chang",
+            "Jose Enrique Chen",
+            "Xi Chen",
+            "Hao-Tien Lewis Chiang",
+            "Krzysztof Choromanski",
+            "David D'Ambrosio",
+            "Sudeep Dasari",
+            "Todor Davchev",
+            "Coline Devin",
+            "Norman Di Palo",
+            "Tianli Ding",
+            "Adil Dostmohamed",
+            "Danny Driess",
+            "Yilun Du",
+            "Debidatta Dwibedi",
+            "Michael Elabd",
+            "Claudio Fantacci",
+            "Cody Fong",
+            "Erik Frey",
+            "Chuyuan Fu",
+            "Marissa Giustina",
+            "Keerthana Gopalakrishnan",
+            "Laura Graesser",
+            "Leonard Hasenclever",
+            "Nicolas Heess",
+            "Brandon Hernaez",
+            "Alexander Herzog",
+            "R. Alex Hofer",
+            "Jan Humplik",
+            "Atil Iscen",
+            "Mithun George Jacob",
+            "Deepali Jain",
+            "Ryan Julian",
+            "Dmitry Kalashnikov",
+            "M. Emre Karagozler",
+            "Stefani Karp",
+            "Chase Kew",
+            "Jerad Kirkland",
+            "Sean Kirmani",
+            "Yuheng Kuang",
+            "Thomas Lampe",
+            "Antoine Laurens",
+            "Isabel Leal",
+            "Alex X. Lee",
+            "Tsang-Wei Edward Lee",
+            "Jacky Liang",
+            "Yixin Lin",
+            "Sharath Maddineni",
+            "Anirudha Majumdar",
+            "Assaf Hurwitz Michaely",
+            "Robert Moreno",
+            "Michael Neunert",
+            "Francesco Nori",
+            "Carolina Parada",
+            "Emilio Parisotto",
+            "Peter Pastor",
+            "Acorn Pooley",
+            "Kanishka Rao",
+            "Krista Reymann",
+            "Dorsa Sadigh",
+            "Stefano Saliceti",
+            "Pannag Sanketi",
+            "Pierre Sermanet",
+            "Dhruv Shah",
+            "Mohit Sharma",
+            "Kathryn Shea",
+            "Charles Shu",
+            "Vikas Sindhwani",
+            "Sumeet Singh",
+            "Radu Soricut",
+            "Jost Tobias Springenberg",
+            "Rachel Sterneck",
+            "Razvan Surdulescu",
+            "Jie Tan",
+            "Jonathan Tompson",
+            "Vincent Vanhoucke",
+            "Jake Varley",
+            "Grace Vesom",
+            "Giulia Vezzani",
+            "Oriol Vinyals",
+            "Ayzaan Wahid",
+            "Stefan Welker",
+            "Paul Wohlhart",
+            "Fei Xia",
+            "Ted Xiao",
+            "Annie Xie",
+            "Jinyu Xie",
+            "Peng Xu",
+            "Sichun Xu",
+            "Ying Xu",
+            "Zhuo Xu",
+            "Yuxiang Yang",
+            "Rui Yao",
+            "Sergey Yaroshenko",
+            "Wenhao Yu",
+            "Wentao Yuan",
+            "Jingwei Zhang",
+            "Tingnan Zhang",
+            "Allan Zhou",
+            "Yuxiang Zhou"
+          ],
+          "title": "Gemini Robotics: Bringing AI into the Physical World",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.20020",
+        "summary": "Recent advancements in large multimodal models have led to the emergence of remarkable generalist capabilities in digital domains, yet their translation to physical agents such as robots remains a significant challenge. This report introduces a new family of AI models purposefully designed for robotics and built upon the foundation of Gemini 2.0. We present Gemini Robotics, an advanced Vision-Language-Action (VLA) generalist model capable of directly controlling robots. Gemini Robotics executes smooth and reactive movements to tackle a wide range of complex manipulation tasks while also being robust to variations in object types and positions, handling unseen environments as well as following diverse, open vocabulary instructions. We show that with additional fine-tuning, Gemini Robotics can be specialized to new capabilities including solving long-horizon, highly dexterous tasks, learning new short-horizon tasks from as few as 100 demonstrations and adapting to completely novel robot embodiments. This is made possible because Gemini Robotics builds on top of the Gemini Robotics-ER model, the second model we introduce in this work. Gemini Robotics-ER (Embodied Reasoning) extends Gemini's multimodal reasoning capabilities into the physical world, with enhanced spatial and temporal understanding. This enables capabilities relevant to robotics including object detection, pointing, trajectory and grasp prediction, as well as multi-view correspondence and 3D bounding box predictions. We show how this novel combination can support a variety of robotics applications. We also discuss and address important safety considerations related to this new class of robotics foundation models. The Gemini Robotics family marks a substantial step towards developing general-purpose robots that realizes AI's potential in the physical world.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.20020",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T21:50:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"physisforcing: physics reinforced world simulator for robotic manipula\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

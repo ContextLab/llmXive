@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.09266",
+  "judged_at": "2026-07-07T21:50:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"physisforcing: physics reinforced world simulator for robotic manipula\" computer science",
+  "rationale": "The paper focuses on cryptographic security and data verification (Merkle trees) in robotic swarms, which is a distinct construct from the user's question about physics-based world simulators for robotic manipulation. While both involve robotics, the mechanisms, variables, and research goals are entirely different, failing to meet any inclusion criteria (a-f) and falling under the \"Distinct construct\" rejection rule.",
+  "relevant": false
+}

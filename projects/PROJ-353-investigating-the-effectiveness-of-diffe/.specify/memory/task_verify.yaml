@@ -1,5 +1,13 @@
-T001 Create project structure per implementation plan (`code/`, `tests/`, `data/` directories): 1
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/` directories): 2
 ? T002 Initialize Python 3.10 project with `requirements.txt` (pinned `networkx`,
   `torch`, `scikit-learn`, `statsmodels`, `lifelines`, `numpy`, `pandas`)
+: 2
+T003 [P] Configure linting (flake8/black) and formatting tools: 2
+? 'T011 [P] **Update Spec FR-001 & US-1**: Modify `spec.md` FR-001 and US-1 Acceptance
+  Scenario 1. **Action**: Replace all instances of "50" with "110" (10 per $\beta$
+  level) in the text.'
 : 1
-T003 [P] Configure linting (flake8/black) and formatting tools: 1
+? "T012 [P] **Update Spec FR-005 & US-2**: Modify `spec.md` FR-005 and US-2 Acceptance\
+  \ Scenario 1. **Action**: Replace all instances of `\u2265 [deferred]` with `\u2265\
+  \ 0.90` in the text."
+: 1

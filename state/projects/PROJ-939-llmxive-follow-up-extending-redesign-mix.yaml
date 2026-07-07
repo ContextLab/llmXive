@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T10:02:24.553386Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-939-llmxive-follow-up-extending-redesign-mix
-last_run_id: c2d93e06-a918-4d1a-bbf4-0eab545303f0
+last_run_id: 115e8556-0c2f-46a0-a2a5-d1e35f41ab87
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Redesign Mixture-of-Experts Routers with Manifold
   Power Iteration"'
-updated_at: '2026-07-05T10:36:52.751544Z'
+updated_at: '2026-07-07T21:54:02.154682Z'

@@ -74,13 +74,13 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T007 [P] [US1] Unit test for bandpass filter attenuation in `tests/unit/test_preprocess.py`.
-- [~] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.
+- [ ] T008 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_download.py`.
 
 ### Implementation for User Story 1
 
-- [~] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` listing available variables and N count.
-- [~] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
-- [~] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons.
+- [ ] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` listing available variables and N count.
+- [ ] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
+- [ ] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,8 +94,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
-- [~] T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.
+- [ ] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
+- [ ] T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.
 
 ### Implementation for User Story 2
 
@@ -138,8 +138,8 @@
 - [X] T025 [P] Performance profiling of `code/preprocess.py` and `code/features.py` to identify memory bottlenecks.
 - [X] T026 [P] Implement streaming data loading in `code/preprocess.py` to ensure peak memory usage < 6GB (targeting DC-001).
 - [X] T027 [P] Additional unit tests for edge cases (missing data, artifact rejection, analysis mode failures) in `tests/unit/`.
-- [ ] T028 [P] Security hardening for data handling (PII scan implementation).
-- [ ] T029 [P] Run `quickstart.md` validation to ensure pipeline executes on CPU-only CI.
+- [~] T028 [P] Security hardening for data handling (PII scan implementation).
+- [~] T029 [P] Run `quickstart.md` validation to ensure pipeline executes on CPU-only CI.
 
 ---
 

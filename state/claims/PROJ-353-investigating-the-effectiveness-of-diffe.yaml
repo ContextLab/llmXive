@@ -457,25 +457,6 @@
   updated_at: '2026-07-04T14:55:50Z'
 - artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
   attempts: 1
-  canonical: Apply Bonferroni correction to interaction p-values
-  claim_id: c_1e52bc83
-  context: T037 [US3] Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
-    correction to interaction p-values (FR-008 updated).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_interaction_p-values
-  kind: entity_fact
-  raw_text: Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
-    correction to interaction p-values.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T14:56:12Z'
-- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
-  attempts: 1
   canonical: Power analysis justifies sample size N=110
   claim_id: c_83d759f1
   context: 'T016: Implement code/power_analysis.py to run a formal power analysis
@@ -544,3 +525,438 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T14:57:20Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Power analysis detects moderate interaction effect f^2=0.15 with power
+    0.80 requiring sample size N=110
+  claim_id: c_d05e3ee7
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - 2.1: Power Analysis &
+    Spec Alignment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/power_analysis.py to run a formal power analysis for detecting
+    a moderate interaction effect (f^2=0.15) with power >= 0.80. Output data/power_analysis_output.json
+    containing the justified sample size (expected N=110).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:39:18Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction identified by Wikidata Q87892954
+  claim_id: c_82b22f04
+  context: 'Phase 5: User Story 3 - Statistical Interaction Analysis and Reporting
+    - Implementation for User Story 3'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_identified_by_Wikidata_Q87892954
+  kind: entity_fact
+  raw_text: Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:39:44Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 110 graphs with 10 per beta level from 0.0 to 1.0
+  claim_id: c_0398e05c
+  context: 'Phase 3: User Story 1 - Synthetic Graph Generation and Topology Annotation
+    - Implementation for User Story 1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 110 graphs (N=100, 10 per beta level 0.0-1.0 step 0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:40:17Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 110 graphs and 220 training runs must complete in under 6 hours
+  claim_id: c_240c4f09
+  context: Notes - Constraints section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=110 graphs, 220 training runs total, must complete in < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:40:36Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Power analysis justifies sample size N=110
+  claim_id: c_7bdce465
+  context: 'T016 [P] Power Analysis: Implement code/power_analysis.py to run a formal
+    power analysis for detecting a moderate interaction effect (f^2=0.15) with power
+    >= 0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output data/power_analysis_output.json containing the justified sample
+    size (expected N=110).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:41:57Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 110 graphs with 10 per beta level
+  claim_id: c_ca66933e
+  context: T019 [US1] Implement code/data_generation.py to generate 110 graphs...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 110 graphs (N=100, 10 per beta level 0.0-1.0 step 0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:41:57Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Total of 220 training runs
+  claim_id: c_537a6653
+  context: 'Constraint: N=110 graphs, 220 training runs total, must complete in <
+    6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total runs proportional to the graph and loss configuration... 220 training
+    runs total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:42:18Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 2
+  canonical: Apply Bonferroni correction to interaction p-values
+  claim_id: c_1e52bc83
+  context: T037 [US3] Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values (FR-008 updated).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_interaction_p-values
+  kind: entity_fact
+  raw_text: Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:42:43Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Power analysis justifies sample size N=110
+  claim_id: c_6b1b39bb
+  context: 'T016 [P] Power Analysis: Implement code/power_analysis.py to run a formal
+    power analysis for detecting a moderate interaction effect ($f^2=0.15$) with power
+    $\ge 0.80$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output data/power_analysis_output.json containing the justified sample
+    size (expected N=110).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:43:27Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Power analysis detects moderate interaction effect f-squared 0.15 with
+    power 0.80
+  claim_id: c_719f4c9f
+  context: 'T016 [P] Power Analysis: Implement code/power_analysis.py to run a formal
+    power analysis for detecting a moderate interaction effect ($f^2=0.15$) with power
+    $\ge 0.80$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/power_analysis.py to run a formal power analysis for detecting
+    a moderate interaction effect ($f^2=0.15$) with power $\ge 0.80$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:44:17Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction identified by Wikidata Q87892954
+  claim_id: c_a3f43365
+  context: T037 [US3] Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values (FR-008 updated).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_identified_by_Wikidata_Q87892954
+  kind: entity_fact
+  raw_text: Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:44:18Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 110 graphs with 10 per beta level
+  claim_id: c_ea564eb3
+  context: T019 [US1] Implement code/data_generation.py to generate 110 graphs (N=100,
+    10 per $\beta$ level 0.0-1.0 step 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 110 graphs (N=100, 10 per $\beta$ level 0.0-1.0 step 0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:44:19Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Training runs on CPU only
+  claim_id: c_c4b1b9e2
+  context: 'Constraint: All training must run on CPU only (no CUDA, no bitsandbytes).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_runs_on_CPU_only
+  kind: entity_fact
+  raw_text: All training must run on CPU only (no CUDA, no bitsandbytes)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:44:38Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 220 training runs on 110 graphs must complete in 6 hours
+  claim_id: c_928c2135
+  context: 'Constraint: N=110 graphs, 220 training runs total, must complete in <
+    6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=110 graphs, 220 training runs total, must complete in < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:44:38Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Convergence threshold fixed at 0.90
+  claim_id: c_52e23309
+  context: 'Constraint: Convergence threshold is fixed at 0.90.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convergence threshold is fixed at 0.90
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:45:00Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: power analysis justifies sample size of 110
+  claim_id: c_f7fc0bbe
+  context: 'T016 [P] Power Analysis: Implement code/power_analysis.py to run a formal
+    power analysis for detecting a moderate interaction effect (f^2=0.15) with power
+    >= 0.80. Output data/power_analysis_output.json containing the justified sample
+    size (expected N=110).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis output contains the justified sample size (expected N=110).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:46:49Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: power analysis targets f^2=0.15 effect with power 0.80
+  claim_id: c_f2f88886
+  context: 'T016 [P] Power Analysis: Implement code/power_analysis.py to run a formal
+    power analysis for detecting a moderate interaction effect (f^2=0.15) with power
+    >= 0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis targets a moderate interaction effect of f^2=0.15 with
+    power >= 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:47:06Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 110 graphs generated with 10 per beta level
+  claim_id: c_f36ef84c
+  context: T019 [US1] Implement code/data_generation.py to generate 110 graphs (N=100,
+    10 per beta level 0.0-1.0 step 0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset will contain 110 graphs with 10 per beta level from 0.0 to
+    1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:47:24Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 220 total training runs for 110 graphs and 2 losses
+  claim_id: c_6a274a51
+  context: 'Constraint: N=110 graphs, 220 training runs total, must complete in <
+    6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training runs will total 220 runs for 110 graphs and 2 loss types.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:47:45Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: InfoNCE uses temperature 0.5
+  claim_id: c_7065f751
+  context: T009 [P] Implement code/losses.py with Cross-Entropy and InfoNCE (temperature
+    tau=0.5, fixed negatives) implementations.
+  evidence:
+    asserted: '0.5'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: The InfoNCE loss implementation uses a fixed temperature of tau=0.5.
+  resolved_value: '6.3'
+  resolver: approximate
+  source_hash: 09d022249b27015a076a6ac4261ccde563e87f1ef2fd08781e482a2548eb0614
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T21:47:46Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: convergence threshold is 0.90 accuracy
+  claim_id: c_50b0dc24
+  context: 'T028 [US2] Implement convergence logic: record step count when accuracy
+    meets the CONVERGENCE_THRESHOLD = 0.90 (using the constant defined in T004)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Convergence_threshold_is_0.90_accuracy
+  kind: entity_fact
+  raw_text: Convergence is defined as reaching an accuracy of 0.90.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:48:14Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: early stopping patience is 10 epochs
+  claim_id: c_ad2c1c7e
+  context: 'T042 [P] Implement Early Stopping: Implement early stopping logic in code/train.py
+    with patience=10 epochs on loss plateau...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early stopping logic uses a patience of 10 epochs on loss plateau.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:48:59Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: memory usage limit is 7GB
+  claim_id: c_f8efa006
+  context: T043 [P] Profile memory usage of code/train.py to ensure < 7GB limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_is_7GB
+  kind: entity_fact
+  raw_text: The pipeline memory usage must be profiled to ensure it is under 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:49:17Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit is 21600 seconds
+  claim_id: c_3de4c9a1
+  context: 'T044 [P] Runtime Validation: Run the full pipeline on the CI runner and
+    assert total duration < 21600s (6 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline runtime on the CI runner must be under 21600 seconds
+    (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:49:35Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to p-values
+  claim_id: c_f5f8addb
+  context: T037 [US3] Apply Bonferroni (Wikidata Q87892954, https://www.wikidata.org/wiki/Q87892954)
+    correction to interaction p-values (FR-008 updated).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied to interaction p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T21:49:56Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.10675",
+  "judged_at": "2026-07-07T21:50:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"physisforcing: physics reinforced world simulator for robotic manipula\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (using a generative video world simulator for robotic manipulation policy evaluation) and operates on the same domain (robotics, specifically bimanual manipulation) as the user's question regarding \"PhysisForcing.\" Although the specific simulator name differs (Veo vs. PhysisForcing), the paper provides the canonical empirical evidence for the mechanism of physics-reinforced world simulation in robotics, whi",
+  "relevant": true
+}

@@ -5,27 +5,77 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-## Summary of the prior work
-PhysisForcing introduces a dual-level training framework for video generation models that enforces physical consistency in robotic manipulation by aligning both pixel-level trajectories and semantic-level inter-region relations. By applying these physics-informed supervision signals, the method significantly reduces physically implausible artifacts like discontinuous motion and inconsistent object interactions, thereby improving performance on embodied video benchmarks and downstream robot policy success rates.
+**Field**: computer science
 
-## Proposed extension
-Can we achieve comparable improvements in physical consistency for robotic manipulation videos by replacing the computationally expensive joint optimization of pixel and semantic losses with a lightweight, CPU-tractable "physics-consistency filter" applied post-generation to synthetic datasets? This question matters because it tests whether the core benefit of PhysisForcing stems from the model learning new physics priors during training or simply from the exclusion of physically invalid samples, potentially democratizing high-quality world model data creation for researchers without access to massive GPU clusters.
+## Research question
+
+Does applying a lightweight, post-generation physics-consistency filter to synthetic robotic manipulation videos yield physical consistency in downstream policy learning comparable to that achieved by training-time physics-informed joint optimization?
+
+## Motivation
+
+Current physics-reinforced world simulators like PhysisForcing require computationally expensive joint optimization of pixel and semantic losses during training, limiting accessibility for researchers without large GPU clusters. If the primary benefit of such methods stems from the exclusion of physically invalid samples rather than the learning of complex priors during training, then a CPU-tractable post-generation filtering approach could democratize high-quality data creation for embodied AI while maintaining performance.
+
+## Related work
+
+- [Evaluating Gemini Robotics Policies in a Veo World Simulator (2025)](https://arxiv.org/abs/2512.10675) — Demonstrates the potential of generative world models to simulate interactions for visuomotor policies, establishing the context for evaluating synthetic video quality in robotics.
+- [Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review (2025)](https://arxiv.org/abs/2505.20503) — Reviews the integration of foundation models in robotics, highlighting the current reliance on computationally intensive methods and the need for scalable alternatives.
+- [Gemini Robotics: Bringing AI into the Physical World (2025)](https://arxiv.org/abs/2503.20020) — Discusses the gap between generalist digital model capabilities and their translation to physical agents, underscoring the importance of physically consistent simulation data.
+
+## Expected results
+
+We expect that training a small-scale diffusion model on a filtered dataset will achieve physical consistency scores within 10-15% of the PhysisForcing baseline on R-Bench and PAI-Bench. This would confirm that sample curation via CPU-based simulation is a viable, low-cost alternative to complex training-time loss engineering, with a null result suggesting that the physics priors learned during joint optimization are indispensable.
 
 ## Methodology sketch
-We will generate a baseline set of 1,000 robotic manipulation videos using the open-source Wan2.1 model without PhysisForcing, then apply a CPU-based physics filter that uses a frozen, lightweight 2D physics engine (e.g., PyBullet in headless mode) to score each video on trajectory continuity and contact conservation, discarding the bottom 40% of physically inconsistent samples. We will then train a small-scale diffusion model (e.g., a distilled 50M parameter variant) on this filtered dataset and evaluate it against the original PhysisForcing model and the unfiltered baseline on the R-Bench and PAI-Bench metrics. We expect the filtered dataset to yield a model with physical consistency scores within 10-15% of the PhysisForcing baseline, demonstrating that sample curation via CPU-based simulation is a viable, low-cost alternative to complex training-time loss engineering.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Download the open-source Wan2.1 model and generate a baseline dataset of 1,000 robotic manipulation videos using standard prompts without physics constraints.
+- Implement a CPU-based physics filter using PyBullet in headless mode to score each video on trajectory continuity and contact conservation metrics.
+- Discard the bottom 40% of videos with the lowest physics consistency scores to create a curated dataset.
+- Train a distilled 50M parameter diffusion model on the filtered dataset using standard training procedures.
+- Evaluate the trained model against the original PhysisForcing model and the unfiltered baseline on R-Bench and PAI-Bench metrics.
+- Perform statistical significance testing (e.g., paired t-tests) on the evaluation metrics to determine if the performance difference between the filtered and PhysisForcing models is negligible.
 
-- **PhysisForcing: Physics Reinforced World Simulator for Robotic Manipulation** — Peiwen Zhang, Yufan Deng, Shangkun Sun, Juncheng Ma, Duomin Wang, Jonas Du, Zilin Pan, Ye Huang, Hao Liang, Songyan Huang, Ruihua Zhang, Enze Xie, Ming-Yu Liu, Daquan Zhou. https://arxiv.org/abs/2606.28128.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_28128,
-  title = {PhysisForcing: Physics Reinforced World Simulator for Robotic Manipulation},
-  author = {Peiwen Zhang and Yufan Deng and Shangkun Sun and Juncheng Ma and Duomin Wang and Jonas Du and Zilin Pan and Ye Huang and Hao Liang and Songyan Huang and Ruihua Zhang and Enze Xie and Ming-Yu Liu and Daquan Zhou},
-  year = {2026},
-  eprint = {2606.28128},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.28128},
-  url = {https://arxiv.org/abs/2606.28128}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula".
+- Closest match: None (this is the primary brainstormed idea being fleshed out).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-07T21:51:15Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula" computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula" computer science | 0 |
+| 1 | physics-informed world models for robotics | 4 |
+| 2 | physics-constrained reinforcement learning for manipulation | 5 |
+| 3 | differentiable physics simulators for robotic control | 0 |
+| 4 | neural world models with physical priors | 0 |
+| 5 | physics-guided generative models for robotics | 0 |
+| 6 | hybrid neural-physics simulators for robot manipulation | 0 |
+| 7 | model-based reinforcement learning with physical constraints | 0 |
+| 8 | physics-aware imitation learning for robotic tasks | 0 |
+| 9 | sim-to-real transfer using physics-enforced simulators | 0 |
+| 10 | energy-conserving neural network architectures for robotics | 0 |
+| 11 | physics-informed neural networks for robotic dynamics | 0 |
+| 12 | learned dynamics models with physical consistency | 0 |
+| 13 | physics-based reward shaping in robotic reinforcement learning | 0 |
+| 14 | augmented reality simulators with physics enforcement for robots | 0 |
+| 15 | causal world models for robotic manipulation | 0 |
+| 16 | physics-regularized deep learning for robotic control | 0 |
+| 17 | differentiable rendering and physics for robot simulation | 0 |
+| 18 | physics-integrated transformer models for robotic planning | 0 |
+| 19 | constrained optimization in neural world models for robotics | 0 |
+| 20 | robust robotic manipulation via physics-augmented simulation | 0 |
+
+### Verified citations
+
+1. **Evaluating Gemini Robotics Policies in a Veo World Simulator** (2025).  Gemini Robotics Team, Krzysztof Choromanski, Coline Devin, Yilun Du, Debidatta Dwibedi, et al.. arXiv. [2512.10675](https://arxiv.org/abs/2512.10675). PDF-sampled: No.
+2. **Embodied AI with Foundation Models for Mobile Service Robots: A Systematic Review** (2025). Matthew Lisondra, Beno Benhabib, Goldie Nejat. arXiv. [2505.20503](https://arxiv.org/abs/2505.20503). PDF-sampled: No.
+3. **Gemini Robotics: Bringing AI into the Physical World** (2025).  Gemini Robotics Team, Saminda Abeyruwan, Joshua Ainslie, Jean-Baptiste Alayrac, Montserrat Gonzalez Arenas, et al.. arXiv. [2503.20020](https://arxiv.org/abs/2503.20020). PDF-sampled: No.
