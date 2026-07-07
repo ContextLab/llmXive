@@ -1,0 +1,377 @@
+resolved_at: '2026-07-07T12:48:06.667470+00:00'
+datasets:
+- intent: GTEx
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 22551
+      parsed: true
+  - url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-OpenQA/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 28288
+      parsed: true
+  - url: https://huggingface.co/datasets/MagicSign/TrASPr_GTEx_data/resolve/main/GTEx_raw_data/dev.tsv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-Description/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-OpenQA/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/MagicSign/TrASPr_GTEx_data/resolve/main/GTEx_raw_data/dev.tsv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CNX-PathLLM/GTEx-WSI-CloseQA-Balanced/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ai-department-lpnu/gtex-single-cell-rnaseq/resolve/main/data/train-00000-of-00060.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/Back-up_material_for_the_CFD_parschool_2024/26317435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Integrative_bulk_transcriptomic_analysis_and_experiment_validation_reveals_the_landscape_of_13_RNA_modifications-associated_biomarkers_in_allergic_rhinitis_b_/32648325
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Risk_factors_and_intervention_strategies_for_lower_extremity_deep_vein_thrombosis_after_intravenous_thrombolysis_for_acute_ischemic_stroke_docx/32923286
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7828660
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3926871
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17539340
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3924788
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7822717
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21238203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21235220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/LSP1_is_a_prognostic_biomarker_associated_with_apoptosis_in_acute_myeloid_leukemia/30844083/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HDL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/davide221/hdl-raw-35k/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AWfaw/ai-hdlcoder-dataset/resolve/main/ai-hdlcoder-dataset_part000000000000.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AWfaw/ai-hdlcoder-dataset-clean/resolve/main/file-000000000001.json.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AWfaw/ai-hdlcoder-dataset/resolve/main/ai-hdlcoder-dataset_part000000000000.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/AWfaw/ai-hdlcoder-dataset-clean/resolve/main/file-000000000001.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/AWfaw/ai-hdlcoder-pretokenized-dataset-train/resolve/main/data/train-00000-of-00003-95ebe164a0f68aa7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davide221/hdl-raw-35k/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Allignemet_of_species_of_Gymnopus_/32923301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Back-up_material_for_the_CFD_parschool_2024/26317435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Integrative_bulk_transcriptomic_analysis_and_experiment_validation_reveals_the_landscape_of_13_RNA_modifications-associated_biomarkers_in_allergic_rhinitis_b_/32648325
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6897977
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1202058
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4450056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://faseb.onlinelibrary.wiley.com/doi/10.1096/fj.08-127928
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/1438312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wzmpy/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ngurb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/tpzj5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.34740/kaggle/dsv/14463119
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21221102
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ATP-III
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Minimal_dataset_for_safety_analysis_of_entrectinib_in_NSCLC_using_FAERS_and_JADER/32923298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Allignemet_of_species_of_Gymnopus_/32923301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Back-up_material_for_the_CFD_parschool_2024/26317435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8280919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7893319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11654955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13685070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8306640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21204959
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21202648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21167718
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TCGA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 57242
+      parsed: true
+  - url: https://huggingface.co/datasets/dakomura/tcga-ut/resolve/main/train_val_test_split.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 130591
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ratschlab/TCGA_virtual_spatial_transcriptomics_atlas/resolve/main/data/TCGA_ACC/FF/TCGA-OR-A5J1-01A-01-TS1.CFE08710-54B8-45B0-86AE-500D6E36D8A5.h5ad.gz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/dakomura/tcga-ut/resolve/main/train_val_test_split.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/TCGapi/tcg-price-history/resolve/main/data/sample.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/journal_contribution/_b_Herbivores_and_pathogens_can_modulate_plant_population_responses_to_future_climate_conditions_b_/32922755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Minimal_dataset_for_safety_analysis_of_entrectinib_in_NSCLC_using_FAERS_and_JADER/32923298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Allignemet_of_species_of_Gymnopus_/32923301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Back-up_material_for_the_CFD_parschool_2024/26317435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_CircHomer1_may_contribute_to_postoperative_cognitive_impairment_by_modulating_Homer1b_mGluR5-associated_signaling_in_the_vCA1_region_of_aged_mice_docx/32923313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0299685
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.h8m74
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20719257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5x69p8d4r
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4015959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/tnj78/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/LSP1_is_a_prognostic_biomarker_associated_with_apoptosis_in_acute_myeloid_leukemia/30844083/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/LSP1_is_a_prognostic_biomarker_associated_with_apoptosis_in_acute_myeloid_leukemia/30844083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18204025
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18204025
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

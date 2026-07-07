@@ -1,0 +1,11 @@
+- artifact_hash: 0e0a56c09d731870308b2f87b1cbbfbb7eac76e0e1dfbbfad217e3005cd3d00a
+  artifact_path: projects/PROJ-110-investigating-the-correlation-between-ci/specs/001-investigating-the-correlation-between-ci/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: PRAD.csv
+  kind: url
+  value: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/d7ac47565ae58abb8aa57550d70da3127967defa/dataset%2FPRAD%2FPRAD.csv?%2Fdatasets%2FCodatta%2FRefined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset%2Fresolve%2Fmain%2Fdataset%2FPRAD%2FPRAD.csv=&etag=%221035cd5101a63f53d0d22459cd07007a07fcf652%22
+  verified_at: '2026-07-07T13:16:53.475338Z'

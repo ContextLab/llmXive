@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GTEx Phenotype and Expression Data Schema"
+description: "Schema for the cleaned GTEx dataset used in the MetS analysis."
+type: object
+properties:
+  samples:
+    type: array
+    description: "List of donor samples with clinical and expression data."
+    items:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          description: "Unique GTEx sample identifier."
+        donor_id:
+          type: string
+          description: "Unique donor identifier."
+        age:
+          type: integer
+          description: "Age of donor."
+        sex:
+          type: string
+          enum:
+            - "M"
+            - "F"
+          description: "Sex of donor."
+        tissue:
+          type: string
+          description: "Tissue source."
+        bmi:
+          type: number
+          description: "Body Mass Index."
+        glucose:
+          type: number
+          description: "Fasting glucose (mg/dL)."
+        systolic_bp:
+          type: number
+          description: "Systolic blood pressure (mmHg)."
+        diastolic_bp:
+          type: number
+          description: "Diastolic blood pressure (mmHg)."
+        triglycerides:
+          type: number
+          description: "Triglycerides (mg/dL)."
+        hdl:
+          type: number
+          description: "HDL cholesterol (mg/dL)."
+        metabolic_status:
+          type: string
+          enum:
+            - "MetS"
+            - "Control"
+          description: "Classification based on ATP-III criteria."
+        criteria_count:
+          type: integer
+          description: "Number of ATP-III criteria met (0-5)."
+        log_tpm_genes:
+          type: object
+          description: "Map of gene symbol to log-transformed TPM value."
+          additionalProperties:
+            type: number
+      required:
+        - sample_id
+        - donor_id
+        - age
+        - sex
+        - tissue
+        - bmi
+        - glucose
+        - systolic_bp
+        - diastolic_bp
+        - triglycerides
+        - hdl
+        - metabolic_status
+        - criteria_count
+        - log_tpm_genes
+required:
+  - samples
