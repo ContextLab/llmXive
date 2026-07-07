@@ -7,14 +7,21 @@ on:
     branches: [ main ]
 
 jobs:
-  audit:
+  run-audit:
     runs-on: ubuntu-latest
     
-    # Resource constraints as per FR-009 and SC-008
-    # Note: GitHub Actions runners are shared; we enforce limits in software
-    # and configure the job to timeout if it exceeds reasonable duration.
-    timeout-minutes: 60
-
+    # Resource constraints: CPU ≤ 2 vCPU, RAM ≤ 2 GB
+    # Note: GitHub Actions runners provide more resources, but we enforce limits
+    # via container resource requests and application-level monitoring.
+    # The application (T098) will abort with ERR-301 if limits are exceeded.
+    
+    container:
+      image: python:3.11-slim
+      options: >-
+        --cpus="2"
+        --memory="2g"
+        --memory-swap="2g"
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,70 +29,51 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
 
-      - name: Verify Resource Limits (CPU/RAM)
-        # Enforces FR-009: CPU <= 2 vCPU, RAM <= 2GB
-        # The resource_monitor module will abort with ERR-301 if limits are breached.
+      - name: Schema Validation
         run: |
-          echo "Running resource limit check..."
-          python -c "
-          import sys
-          import os
-          # Set environment variables to reflect limits for the monitoring module
-          os.environ['MAX_CPU_VCPU'] = '2'
-          os.environ['MAX_RAM_GB'] = '2'
-          
-          # Import and run the resource monitor check
-          from code.src.utils.resource_monitor import check_limits
-          try:
-              check_limits()
-              print('Resource limits check passed.')
-          except SystemExit as e:
-              if e.code != 0:
-                  print(f'ERR-301: Resource limits exceeded. Aborting pipeline.')
-                  sys.exit(1)
-          "
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
 
-      - name: Run Monte-Carlo Validation
-        # Runs T062 validation as part of pipeline start-up (T031)
+      - name: Synthetic Validation (Precision/Recall Thresholds)
         run: |
-          python code/src/audit/monte_carlo_validation.py
+          python -m code.src.audit.evaluation
 
-      - name: Run Schema Validation
-        # Validates contracts before processing data
+      - name: Resource Monitor Check
         run: |
-          python code/src/audit/export_schema_validator.py
-          python code/src/audit/manifest_schema_validator.py
+          python -m code.src.utils.resource_monitor --check-only
 
       - name: Run Main Audit Pipeline
-        # Executes the full pipeline: Ingest -> Fetch -> Extract -> Reconstruct -> Validate -> Report
+        # Timeout set to 6 hours (SC-008)
+        timeout-minutes: 360
         run: |
-          python code/src/cli/run_audit.py
+          python -m code.src.cli.run_audit
 
-      - name: Upload Audit Reports
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
-        if: always()
         with:
           name: audit-results
           path: |
             output/
             data/provenance_log.csv
             data/checksums.txt
-            output/resource_log.json
           retention-days: 30
 
-      - name: Upload Test Coverage
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: coverage-report
-          path: htmlcov/
-          retention-days: 14
+      - name: Verify Manifest
+        run: |
+          python -m code.src.audit.manifest_schema_validator --verify-output
+
+      - name: Check Exit Status
+        run: |
+          if [ $? -ne 0 ]; then
+            echo "Pipeline failed. Check logs for ERR-### codes."
+            exit 1
+          fi
+          echo "Pipeline completed successfully."

@@ -124,6 +124,11 @@
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
 : 1
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_b939f6cb \u2014\
+  \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
+  \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_e82d00a8 \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
@@ -133,6 +138,10 @@
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
+  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 2
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
@@ -227,24 +236,11 @@
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-  \ summaries. (binary AND continuous outcomes) **and verify both outcome types are\
-  \ present** (constraint\u2011preservation\u20112958f04c) (verify files are created\
-  \ and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
-: 2
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_2012f401 \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
 : 1
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-  \ summaries. [UNRESOLVED-CLAIM: c_3c47fb2d \u2014 status=not_enough_info] (binary\
-  \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
-  preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
-  000 records). **DEPENDS ON:** T006\u2011T012."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 outputs `data/synthetic/synthetic_validation.csv` + `data/synthetic/synthetic_ground_truth.json`\
   \ with at least 10\u202F000 simulated summaries [UNRESOLVED-CLAIM: c_15e13729 \u2014\
@@ -292,6 +288,11 @@
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
+  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
+  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
+  \ T025]."
+: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
@@ -338,6 +339,12 @@
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_71a8564c \u2014 status=not_enough_info]\
+  \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
+  \ T026]."
+: 1
+? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
+  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
+  \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_f117f4c2 \u2014 status=not_enough_info]\
   \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
   \ T026]."
 : 1
