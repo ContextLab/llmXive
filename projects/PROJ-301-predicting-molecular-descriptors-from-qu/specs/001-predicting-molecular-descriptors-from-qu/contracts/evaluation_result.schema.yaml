@@ -1,0 +1,108 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result Schema"
+description: "Schema for the comparative analysis results between 2D and 3D models."
+type: "object"
+properties:
+  descriptor:
+    type: "string"
+    enum:
+      - "mu"
+      - "homo"
+      - "lumo"
+    description: "The molecular descriptor being evaluated."
+  model_2d:
+    type: "object"
+    description: "Performance metrics for the 2D model."
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+      std_mae:
+        type: "number"
+        description: "Standard deviation of MAE across CV folds."
+    required:
+      - mae
+      - rmse
+      - std_mae
+  model_3d:
+    type: "object"
+    description: "Performance metrics for the 3D model."
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+      std_mae:
+        type: "number"
+        description: "Standard deviation of MAE across CV folds."
+    required:
+      - mae
+      - rmse
+      - std_mae
+  comparative:
+    type: "object"
+    description: "Comparative metrics."
+    properties:
+      relative_error_increase:
+        type: "number"
+        description: "Relative increase in error for 2D vs 3D (MAE_2D - MAE_3D) / MAE_3D."
+      p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test (primary) or paired t-test (secondary)."
+      is_significant:
+        type: "boolean"
+        description: "True if p_value < 0.05 (after correction) AND relative_error_increase >= 0.05 (MESI)."
+    required:
+      - relative_error_increase
+      - p_value
+      - is_significant
+  cv_stability:
+    type: "number"
+    description: "Standard deviation of MAE divided by mean MAE (SC-005)."
+  cv_stability_pass:
+    type: "boolean"
+    description: "True if cv_stability <= 0.05."
+  stratification:
+    type: "object"
+    description: "Stratified failure mapping results."
+    properties:
+      by_atom_count:
+        type: "object"
+        properties:
+          bins:
+            type: "array"
+            items:
+              type: "integer"
+          rei:
+            type: "array"
+            items:
+              type: "number"
+      by_polarity:
+        type: "object"
+        properties:
+          bins:
+            type: "array"
+            items:
+              type: "number"
+          rei:
+            type: "array"
+            items:
+              type: "number"
+  mean_predictor_error:
+    type: "number"
+    description: "Theoretical lower bound (Mean Predictor Error)."
+required:
+  - descriptor
+  - model_2d
+  - model_3d
+  - comparative
+  - cv_stability
+  - cv_stability_pass
+  - stratification
+  - mean_predictor_error
+additionalProperties: false

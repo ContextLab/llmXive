@@ -1,0 +1,546 @@
+resolved_at: '2026-07-07T16:53:15.677424+00:00'
+datasets:
+- intent: 10.7910/DVN/28075
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/178643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2646476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4377471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6926898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4589151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/28075
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: QM9
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19525
+      parsed: true
+  - url: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14255
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hadoan/enthalpy-QM9-1k/resolve/main/data/train-00000-of-00001-ffd5f7908688c934.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Hassanharb/gaps-qm9-1k/resolve/main/data/train-00000-of-00001-3e8a1863fa44a20f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/n0w0f/qm9-csv/resolve/main/qm9_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-qm9-file-translation/resolve/main/data.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16847162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10926772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8274793
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11583221
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20634091
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.15220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21146361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21146361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21120378
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21120378
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DVN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Dvn30/dvn_stanford_cars/resolve/main/train_dataset_cleaned.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Dvn30/dvn_stanford_cars/resolve/main/train_dataset_cleaned.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3781193
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11120455
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2646476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6926898
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4589151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/BFCWDK
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectrum_Outage_Reports_Dataset/32840483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectrum_Outage_Reports_Dataset/32840483/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20013329
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20013329
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15478832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000801155
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://usiena-air.unisi.it//handle/11365/1127348
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/215538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/215539
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HOMO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/matchbench/semi-homo/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 71391
+      parsed: true
+  - url: https://huggingface.co/datasets/liyuesen/eccDNA_Atlas_Homo_sapiens/resolve/main/data/train-00000-of-00001-70724cacceb4983e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/proteinea/remote_homology/resolve/main/test_family_holdout.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/proteinea/remote_homology/resolve/main/test_family_holdout.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/matchbench/semi-homo/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/Matilde/Homo_ita/1280870a0d229b53f2f61456f675b8d5edf36199/Data_13%2Fhomograph_test.json?%2Fdatasets%2FMatilde%2FHomo_ita%2Fresolve%2Fmain%2FData_13%2Fhomograph_test.json=&etag=%22b623e79b75670a9f3320b4e5626c41adc70c1b1f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/liyuesen/eccDNA_Atlas_Homo_sapiens/resolve/main/data/train-00000-of-00001-70724cacceb4983e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lhy/homoglyph_pretrain/resolve/main/data/train-00000-of-00002-57685c05b8a933a7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/mind/article-lookup/doi/10.1093/mind/XXI.81.62
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/10849085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10839174
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20558464
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18423267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.20347/wias.preprint.3012
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: TooManyRedirects: Exceeded 30 redirects.'
+  - url: https://osf.io/w394t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/tk9dc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1235337
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.iuav.it/handle/11578/286424
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LUMO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Lumos/yahoo_hga/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Lumos/imdb_test/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2418
+      parsed: true
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_onetime/resolve/main/lumos_complex_qa_ground_onetime.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Lumos/yahoo_hga/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Lumos/imdb_test/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/Lumos23/alpaca_farm/7f6dcae7d2e46539e5086dae4451ca4b74d84099/alpaca_farm_evaluation.json?%2Fdatasets%2FLumos23%2Falpaca_farm%2Fresolve%2Fmain%2Falpaca_farm_evaluation.json=&etag=%22fb445eb05cc81dcbbbcd5f00855540b9c2a6ae5e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_onetime/resolve/main/lumos_complex_qa_ground_onetime.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ai2lumos/lumos_complex_qa_ground_iterative/resolve/main/lumos_complex_qa_ground_iterative.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://rochester.figshare.com/articles/conference_contribution/Linear_spectrotemporal_tuning_accounts_for_much_of_phonetic_feature_encoding_in_the_human_auditory_cortex/32900540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/118949/element/2/15/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rn867
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7858696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2755711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18784402
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.20347/wias.preprint.3012
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: TooManyRedirects: Exceeded 30 redirects.'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Photoresponsive_fluoro-substituted_azo-ester_liquid_crystals_with_2_6-dimethyl_lateral_groups_mesomorphic_and_DFT_studies/32920529
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Photoresponsive_fluoro-substituted_azo-ester_liquid_crystals_with_2_6-dimethyl_lateral_groups_mesomorphic_and_DFT_studies/32920529/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/76da347d-f5df-4eb2-a11f-b137d0f94a9d
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ualberta.scholaris.ca/handle/123456789/106068
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

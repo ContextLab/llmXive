@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T08:56:11.013496Z'
-current_stage: flesh_out_complete
+current_stage: clarified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-301-predicting-molecular-descriptors-from-qu
-last_run_id: fa05d3fb-67f0-4c70-ae08-d74c3f8f804d
+last_run_id: 10ddd84c-1a59-42af-a071-086ab776ceee
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu
 title: Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine
   Learning
-updated_at: '2026-06-25T21:34:19.742680Z'
+updated_at: '2026-07-07T17:44:58.680085Z'

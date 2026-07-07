@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Data Contract"
+description: "Schema for validated molecule records used in the QM9 analysis pipeline."
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique identifier for the molecule (e.g., canonical SMILES or hash)."
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string representing the 2D structure."
+  coordinates:
+    type: "object"
+    description: "3D atomic coordinates in Angstroms."
+    properties:
+      x:
+        type: "array"
+        items:
+          type: "number"
+        description: "X-coordinates for each atom."
+      y:
+        type: "array"
+        items:
+          type: "number"
+        description: "Y-coordinates for each atom."
+      z:
+        type: "array"
+        items:
+          type: "number"
+        description: "Z-coordinates for each atom."
+    required:
+      - x
+      - y
+      - z
+  dft_properties:
+    type: "object"
+    description: "Density Functional Theory calculated properties."
+    properties:
+      mu:
+        type: "number"
+        description: "Dipole moment in Debye."
+      homo:
+        type: "number"
+        description: "Highest Occupied Molecular Orbital energy in eV."
+      lumo:
+        type: "number"
+        description: "Lowest Unoccupied Molecular Orbital energy in eV."
+    required:
+      - mu
+      - homo
+      - lumo
+  n_atoms:
+    type: "integer"
+    description: "Number of atoms in the molecule."
+required:
+  - mol_id
+  - smiles
+  - coordinates
+  - dft_properties
+  - n_atoms
+additionalProperties: false
