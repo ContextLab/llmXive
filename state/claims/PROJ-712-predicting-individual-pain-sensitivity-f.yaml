@@ -1,0 +1,478 @@
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2305.12345
+  claim_id: c_6051a826
+  context: 'The method involves: Designing a deterministic aggregation pipeline with
+    configurable dimensionality constraints. References: Smith et al. (2023), arXiv:2305.12345.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'References: Smith et al. (2023), arXiv:2305.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:31:14Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003392
+  claim_id: c_be8bedef
+  context: 'Goal: Ingest OpenNeuro ds003392, preprocess EEG (re-reference, filter,
+    ICA), and extract microstate features per participant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003392
+  kind: entity_fact
+  raw_text: Implement `code/preprocessing.py` function to fetch OpenNeuro dataset
+    **ds003392**
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:31:35Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003392 via mne.datasets
+  claim_id: c_47b48532
+  context: Implement `code/preprocessing.py` function to fetch OpenNeuro dataset **ds003392**
+    (using `mne.datasets` or direct URL) and save to `data/raw/`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003392_via_mne.datasets
+  kind: entity_fact
+  raw_text: Implement `code/preprocessing.py` function to fetch OpenNeuro dataset
+    **ds003392** (using `mne.datasets` or direct URL)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:31:37Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: feature matrix has exactly 30 columns
+  claim_id: c_2ce39a6c
+  context: 'Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv`
+    with EXACTLY 30 columns. Add explicit assertion: `assert len(df.columns) == 30`
+    before saving to prevent silent data corruption.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(df.columns) == 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:32:00Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: output dataframe has exactly 30 columns
+  claim_id: c_1ec2cacc
+  context: Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py`
+    that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum()
+    == 0` after running the pipeline on 5 dummy participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(output_df.columns) == 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:32:00Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: output dataframe has zero NaN values
+  claim_id: c_a44e72cd
+  context: Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py`
+    that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum()
+    == 0` after running the pipeline on 5 dummy participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output_df.isna().sum().sum() == 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:32:09Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: pipeline tested on 5 dummy participants
+  claim_id: c_b6a941a6
+  context: Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py`
+    that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum()
+    == 0` after running the pipeline on 5 dummy participants.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run the pipeline on 5 dummy participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:32:34Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses at least 200 iterations
+  claim_id: c_02c65dbe
+  context: "Implement bootstrap resampling (\u2265200 iterations) to calculate a confidence\
+    \ interval for Pearson r"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_200_iterations
+  kind: magnitude
+  raw_text: "bootstrap resampling (\u2265200 iterations)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:33:05Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: predictors with Variance Inflation Factor greater than 10 flagged
+  claim_id: c_2decf651
+  context: Implement VIF calculation in `code/diagnostics.py` using `statsmodels`;
+    flag predictors with VIF > 10 but do NOT exclude them or re-run the model
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag predictors with VIF > 10
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T08:33:19Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: median-split sensitivity analysis sweeps threshold by plus or minus 0.05
+    degrees Celsius and 0.1 degrees Celsius
+  claim_id: c_1fe6ad0a
+  context: "Implement median-split sensitivity analysis in `code/diagnostics.py`:\
+    \ sweep threshold by \xB10.05\xB0C and \xB10.1\xB0C."
+  evidence:
+    asserted: '0.05'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "sweep threshold by \xB10.05\xB0C and \xB10.1\xB0C"
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T08:33:20Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: diagnostics execution time less than 6 hours
+  claim_id: c_87341795
+  context: Update `code/main.py` to orchestrate diagnostics, record all artifact hashes,
+    and verify total execution time < 6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Diagnostics_execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: verify total execution time < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:33:44Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: feature matrix file has exactly 30 columns
+  claim_id: c_7762ed45
+  context: 'Final validation: Ensure `data/processed/feature_matrix.csv` has exactly
+    30 columns, no NaNs, and `artifacts/` contains all required reports.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:34:20Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: participants excluded if less than 4 minutes valid data remains
+  claim_id: c_6f7d3278
+  context: 'Implement participant exclusion logic in `code/preprocessing.py`: exclude
+    if < 4 minutes valid data remains, log warning'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_less_than_4_minutes_valid_data_rema
+  kind: magnitude
+  raw_text: exclude if < 4 minutes valid data remains
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:34:50Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2305.12345 aggregation pipeline
+  claim_id: c_e84afa19
+  context: 'Ensure final aggregation logic guarantees a fixed, manageable number of
+    features. The research question remains: How can we optimize feature aggregation
+    for robust model performance? The method involves...'
+  evidence:
+    asserted: '2023.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'The method involves: Designing a deterministic aggregation pipeline with
+    configurable dimensionality constraints. References: Smith et al. (2023), arXiv:2305.12345.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T08:35:09Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Elastic Net model uses alpha of 0.5 with nested 5-fold cross-validation
+  claim_id: c_f59f34fc
+  context: 'Phase 4: User Story 2 - Predictive Model Training and Validation. Implementation
+    for User Story 2 - T021.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/modeling.py` function for Elastic Net (\u03B1=0.5) with\
+    \ nested 5-fold cross-validation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:36:56Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses at least 200 iterations for Pearson r confidence
+    interval
+  claim_id: c_949f08e6
+  context: 'Phase 4: User Story 2 - Predictive Model Training and Validation. Implementation
+    for User Story 2 - T023.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_200_iterations_for_Pearso
+  kind: magnitude
+  raw_text: "Implement bootstrap resampling (\u2265200 iterations) to calculate a\
+    \ confidence interval for Pearson r"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:38:17Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Permutation importance scores calculated for 30 features
+  claim_id: c_544d5af7
+  context: 'Phase 5: User Story 3 - Statistical Rigor and Sensitivity Analysis. Implementation
+    for User Story 3 - T029.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/diagnostics.py` function to calculate permutation importance
+    scores for all 30 features
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:38:38Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: VIF diagnostics flags predictors with values greater than 33
+  claim_id: c_37ce0a3c
+  context: 'Phase 5: User Story 3 - Statistical Rigor and Sensitivity Analysis. Goal
+    description.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: VIF diagnostics flags for predictors > 33
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T08:38:45Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Feature matrix aggregated into CSV with exactly 30 columns
+  claim_id: c_623eefdf
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline. Implementation
+    for User Story 1 - T017.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/preprocessing.py` step to aggregate features into `data/processed/feature_matrix.csv`
+    with EXACTLY 30 columns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:39:05Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: EEG preprocessing includes band-pass filter with low-frequency cutoff
+  claim_id: c_c5a74ea1
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T013.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "'Optimal' preprocessing differs for ERPs and decoding Previous studies\
+        \ using multiverse-like preprocessing have mainly focused on 'optimal' preprocessing\
+        \ with respect to ERP characteristics such as amplitude. Since one cannot\
+        \ directly distinguish between neural signal and artifacts covarying with\
+        \ the experimental condition, focusing on maximizing amplitude (or similar)\
+        \ has similar limitations as focusing on decoding performance (accuracy or\
+        \ T-sum) alone. Results from multiverse studies need to be enriched with considerations\
+        \ about the origin of the signal, the side effects of individual processing\
+        \ steps in general, and domain knowledge about the processes under investigation.\
+        \ However, multiverse analyses on single outcome metrics are a helpful step\
+        \ towards a better understanding of the impact of preprocessing and, among\
+        \ other possibilities, facilitate the comparison of different study results.\
+        \ The following is a comparison of how different the effects of preprocessing\
+        \ can be on ERP-related measures versus decoding performance. For example,\
+        \ a study by Delorme38 compared preprocessing pipelines and their influence\
+        \ on the number of significant channels between two conditions in three paradigms\
+        \ (Go/No-go task, face perception task, & active auditory oddball task with\
+        \ button press). Their optimal pipeline was dependent on the software used\
+        \ for preprocessing but mainly comprised a HPF and bad channel interpolation.\
+        \ Other steps either reduced or increased the number of significant channels\
+        \ or did not show any effect. While their study tested a wider range of artifact\
+        \ correction techniques, the different directions of effects on the number\
+        \ of significant channels in the analyzed experiments make comparison more\
+        \ challenging. In our experiments artifact correction rather decreased the\
+        \ decoding performance. Both studies however align on the use of HPFs, as\
+        \ in all datasets, higher HPFs increased the number of significant channels\
+        \ or decoding performance. . A study by Clayson et al.13 employed a multiverse\
+        \ to compare the influence of preprocessing on ERP amplitude for two components,\
+        \ ERN and error-related positivity (Pe), using the Eriksen flanker task39.\
+        \ For ERN, their optimal processing consisted of a 15 Hz LPF and ocular artifact\
+        \ correction with ICA. For Pe, however, their optimal processing in terms\
+        \ of ERP amplitude included a 30 Hz LPF, a 0.1 Hz HPF, and regression-based\
+        \ ocular artifact correction. Our time window for decoding in the ERN experiment\
+        \ spanned the time windows of both components. We however defined a stimulus-locked\
+        \ rather than a response-locked baseline window40. In our search space, the\
+        \ optimal LPF cutoff was at 6 Hz for time-resolved decoding. In contrast,\
+        \ for the neural network-based framework, all higher LPF cutoffs (\u2265 20\
+        \ Hz) were equally suitable for decoding. We found the optimal HPF cutoff\
+        \ to be around 0.5 Hz in both of our decoding frameworks, while Clayson et\
+        \ al. did not test beyond 0.1 Hz. Ocular artifact correction played a minor\
+        \ role in decoding, but avoiding this step still resulted in higher decoding\
+        \ performance in our data. While they found a mastoid reference to be beneficial\
+        \ for ERN amplitude compared to an average reference, we did not find a significant\
+        \ improvement (Table S3). However, we found that the Cz reference increased\
+        \ decoding performance (Figure 5, Table S3). Because Cz is close to FCz, which\
+        \ itself shows high ERN amplitude (Fig. 2, Table 1),13,18, subtracting Cz\
+        \ from the remaining electrodes likely injects this signal into the other\
+        \ channels, again limiting potential downstream interpretability of the model\
+        \ weights. \u0160o\u0161ki\u0107 et al.12 analyzed the influence of preprocessing\
+        \ on the effect magnitude in an N400 experiment. The largest effect was obtained\
+        \ with a HPF between 0.01 Hz and 0.1 Hz"
+      source_id: '2410.14453'
+      url: https://arxiv.org/abs/2410.14453
+      value: '0.1'
+    filled: true
+  kind: entity_fact
+  raw_text: 'Implement EEG preprocessing: band-pass filter (low-frequency cutoff)'
+  resolved_value: '0.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-07T08:39:33Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Participant exclusion threshold is less than 4 minutes of valid data
+  claim_id: c_4327110d
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T014.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_threshold_is_less_than_4_minutes_of_va
+  kind: magnitude
+  raw_text: Exclude participants if < 4 minutes valid data remains
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:40:01Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds003392 is the source data
+  claim_id: c_e9e70ff7
+  context: 'Phase 3: User Story 1 - Implementation for User Story 1 - T012.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds003392_is_the_source_data
+  kind: entity_fact
+  raw_text: Fetch OpenNeuro dataset ds003392
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:40:18Z'
+- artifact_path: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f/tasks.md
+  attempts: 1
+  canonical: Project initialized using Python version 3.11
+  claim_id: c_d59ac8aa
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-07T08:40:43Z'

@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MicrostateFeatureSchema"
+description: "Schema for the extracted microstate features per participant."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+    minLength: 1
+  feature_name:
+    type: "string"
+    description: "Name of the microstate feature."
+    enum:
+      - "MS_A_Duration"
+      - "MS_B_Duration"
+      - "MS_C_Duration"
+      - "MS_D_Duration"
+      - "MS_A_Occurrence"
+      - "MS_B_Occurrence"
+      - "MS_C_Occurrence"
+      - "MS_D_Occurrence"
+      - "MS_A_B_A"
+      - "MS_A_B_C"
+      - "MS_A_B_D"
+      - "MS_A_C_A"
+      - "MS_A_C_B"
+      - "MS_A_C_D"
+      - "MS_A_D_A"
+      - "MS_A_D_B"
+      - "MS_A_D_C"
+      - "MS_B_A_B"
+      - "MS_B_A_C"
+      - "MS_B_A_D"
+      - "MS_B_C_A"
+      - "MS_B_C_B"
+      - "MS_B_C_D"
+      - "MS_B_D_A"
+      - "MS_B_D_B"
+      - "MS_B_D_C"
+      - "MS_C_A_C"
+      - "MS_C_B_C"
+      - "MS_C_D_C"
+      - "Spectral_Delta_Power"
+      - "Spectral_Theta_Power"
+      - "Spectral_Alpha_Power"
+      - "Spectral_Beta_Power"
+      - "Spectral_LowGamma_Power"
+      - "Spectral_HighGamma_Power"
+  value:
+    type: "number"
+    description: "Value of the feature."
+    minimum: -1000000
+    maximum: 1000000
+  standard_error:
+    type: "number"
+    description: "Standard error of the estimate."
+    minimum: 0
+required:
+  - participant_id
+  - feature_name
+  - value
+additionalProperties: false

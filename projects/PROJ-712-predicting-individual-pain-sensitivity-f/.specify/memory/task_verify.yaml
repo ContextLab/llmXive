@@ -1,0 +1,9 @@
+T001a [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/` and `data/processed/`: 1
+T001b [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/` and `state/`: 1
+T001c [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/` and `tests/`: 1
+? "T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_d59ac8aa \u2014 status=not_enough_info]\
+  \ with `requirements.txt` (pinning `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`,\
+  \ `statsmodels`, `joblib`, `pyyaml`)"
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`: 1
+T004 Implement `code/utils.py` with seed pinning, logging setup, and `record_artifact_hash()` for Constitution Principle V: 1
