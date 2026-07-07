@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.08748",
+  "judged_at": "2026-07-07T10:18:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational methodology and canonical reference for the \"evolutionary search\" mechanism central to the user's question, providing the necessary background on Evolutionary Machine Learning (EML) and Evolutionary Dynamic Optimization (EDO) that any literature review on \"Self-Improving Language Models with Bidirectional Evolutionary Search\" would require. Although it does not specifically address the \"linguistics\" or \"llmXive\" aspect, it establishes t",
+  "relevant": true
+}

@@ -1,33 +1,26 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Subject Metrics Schema
-description: >-
-  Schema for subject-level dynamic connectivity metrics derived from
-  resting-state fMRI analysis (Schaefer-100 atlas).
-  Contains flexibility and stability metrics for DMN, Salience, and Hippocampal-Memory networks.
+description: |
+  Schema for subject-level dynamic connectivity metrics extracted from fMRI data.
+  Includes flexibility and stability metrics for DMN, Salience, and Hippocampal-Memory networks.
 type: object
 required:
   - subject_id
   - dream_recall_frequency
-  - metrics
+  - networks
 properties:
   subject_id:
     type: string
     description: Unique identifier for the subject (e.g., sub-001)
-    pattern: "^sub-\\d+$"
   dream_recall_frequency:
     type: number
-    description: Self-reported dream recall frequency (scale 0-7 or continuous)
-    minimum: 0
-  fd_mean:
+    description: Self-reported dream recall frequency (scale 0-7 or similar)
+  fd_mm:
     type: number
-    description: Mean Framewise Displacement for the subject
-    minimum: 0
-  fd_excluded:
-    type: boolean
-    description: True if subject was excluded due to high motion (FD > 0.5)
-  metrics:
+    description: Mean Framewise Displacement in mm
+  networks:
     type: object
-    description: Network-specific dynamic metrics
+    description: Metrics for each network of interest
     required:
       - DMN
       - Salience
@@ -41,10 +34,10 @@ properties:
         properties:
           flexibility:
             type: number
-            description: State transitions per unit time for DMN
+            description: State transitions per unit time
           stability:
             type: number
-            description: Mean Dwell Time for DMN
+            description: Mean Dwell Time (MDT) in windows
       Salience:
         type: object
         required:
@@ -53,10 +46,10 @@ properties:
         properties:
           flexibility:
             type: number
-            description: State transitions per unit time for Salience network
+            description: State transitions per unit time
           stability:
             type: number
-            description: Mean Dwell Time for Salience network
+            description: Mean Dwell Time (MDT) in windows
       Hippocampal-Memory:
         type: object
         required:
@@ -65,15 +58,24 @@ properties:
         properties:
           flexibility:
             type: number
-            description: State transitions per unit time for Hippocampal-Memory network
+            description: State transitions per unit time
           stability:
             type: number
-            description: Mean Dwell Time for Hippocampal-Memory network
-  processing_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when metrics were calculated
-  atlas_version:
-    type: string
-    description: Version of the atlas used (e.g., "Schaefer100")
+            description: Mean Dwell Time (MDT) in windows
+  metadata:
+    type: object
+    description: Processing metadata
+    properties:
+      atlas:
+        type: string
+        description: Atlas used (e.g., Schaefer100)
+      window_size:
+        type: integer
+        description: Sliding window size in timepoints
+      step_size:
+        type: integer
+        description: Step size between windows
+      clustering_method:
+        type: string
+        description: Clustering algorithm used (e.g., Louvain)
 additionalProperties: false

@@ -1,157 +1,103 @@
 ---
 action_items:
-- id: fac021935461
+- id: 4578c241c2cf
   severity: writing
-  text: 'Figure 2: The caption contains multiple instances of missing text where the
-    model name ''DCVLM-Baseline'' should appear (e.g., ''-Baseline outperforms...'',
-    ''trained on -Baseline'', ''beats an 8B model trained on FineVision... a 4 compute
-    reduction''). The text ''DCVLM-'' is missing before ''Baseline'' and the word
-    ''four'' is missing before ''compute reduction''.'
-- id: 2d72f6417846
+  text: 'Figure 2: The legend uses ''IC'' and ''IT'' (e.g., ''10% IC, 70% IT''), but
+    the caption defines the mixtures using ''c'' and ''i'' (e.g., ''10c-70i''). This
+    inconsistency between the visual legend and the text description is confusing.'
+- id: b31f5b51e649
   severity: writing
-  text: 'Figure 2: The caption cites specific dataset references (deshmukh2025nvidia,
-    an2025llava, wiedm...)'
-- id: 0444fea2d3d7
-  severity: writing
-  text: 'Figure 2: The caption cites specific dataset references (deshmukh2025nvidia,
-    an2025llava, wiedmann2025finevision) that are not defined or explained in the
-    caption itself, making it unclear which lines in the chart correspond to which
-    dataset.'
-- id: a2f7554f075c
+  text: 'Figure 2: The y-axis label ''Micro Avg (%)'' is ambiguous; it is unclear
+    if the values (e.g., 41, 42) represent raw percentages (41%) or a scaled score
+    (e.g., 41.0 out of 100).'
+- id: 4826bf2487a2
   severity: science
-  text: 'Figure 2: The x-axis label ''Params, Tokens'' is ambiguous; it is unclear
-    if the values represent parameter count, token count, or a combination, and the
-    specific mapping of each point (e.g., ''1B, 6.25B'') to these metrics is not explicitly
-    defined in the axis or caption.'
-- id: e0e889384f68
+  text: 'Figure 3: The caption claims the optimal configuration at medium scale is
+    ''70%IT (+2.0% over baseline)'', but the chart shows the baseline (dotted line)
+    at ~54.3% and the best point at 56.3%, which is a +2.0% absolute difference, not
+    a relative one. However, the text says ''+2.0% over baseline'' which is ambiguous
+    (could mean percentage points or relative percent). Given the context of micro
+    avg %, it likely means percentage points, but the phrasing is slightly imprecise.
+    More critically, the capti'
+- id: 2c43681bd511
   severity: writing
-  text: 'Figure 3: The legend in the 4B Model panel uses ''IC'' and ''IT'' abbreviations
-    (e.g., ''10% IC, 70% IT''), but the caption defines the mixtures using ''c'' and
-    ''i'' (e.g., ''10c-70i''). The legend should be updated to match the caption''s
-    terminology for consistency.'
-- id: e351eb0e6964
+  text: 'Figure 3: The y-axis label ''Micro Avg (%)'' is present, but the tick labels
+    on the left plot start at 41.0 and go to 43.5, while the right plot starts at
+    54.25 and goes to 56.25. This makes direct visual comparison between scales difficult.
+    Consider using a shared y-axis scale or adding a note explaining the different
+    baselines.'
+- id: 784d7fb7285b
   severity: writing
-  text: 'Figure 3: The legend in the 4B Model panel is not visible in the other two
-    panels (1B and 2B), forcing the reader to look at the far right panel to identify
-    the lines in the left panels. A legend should be present in each subplot or the
-    layout should be adjusted.'
-- id: 5ce4f51aedb8
+  text: "Figure 4: The title text 'Only 3 of 39 filters show any gain \u2014 all <\
+    \ 1% and wash out at larger scale' contradicts the caption's claim that gains\
+    \ are '>= +0.5%'; the title's '< 1%' is ambiguous and potentially misleading regarding\
+    \ the magnitude of the positive results."
+- id: 86f48d650a86
+  severity: writing
+  text: 'Figure 4: The title text ''Small scale (1B model, 6.25B tokens)'' is redundant
+    with the caption and makes the header cluttered; this information is better placed
+    in the caption or a subtitle.'
+- id: d5af6d59a5a7
+  severity: writing
+  text: 'Figure 7: The caption contains a typo ''flattening ($T 2$)'' which is missing
+    the inequality symbol (likely $T \ge 2$ or $T > 1$) and does not match the x-axis
+    label ''2.0 (sqrt)''.'
+- id: ce5ba2be91c7
   severity: science
-  text: 'Figure 4: The caption claims the orange ring highlights the best configuration
-    at each scale, but the left plot''s ring highlights 15% IT (43.7%) while the data
-    shows 40% IT (43.4%) is lower; however, the ring is at 15% IT which is indeed
-    the highest point shown. Wait, looking closer at the left plot, the point at 15%
-    IT is ~43.7%, and the point at 40% IT is ~43.4%. The ring is correctly placed
-    on the highest point. However, the caption states ''At small scale, the 65%IC
-    baseline is competitive''. '
-- id: a2bc380d3de1
-  severity: writing
-  text: "Figure 4: The x-axis label 'Instruction-Tuning %' is clear, but the caption\
-    \ refers to 'IC% <-> IT%', implying a trade-off. The axis only shows IT%, which\
-    \ is fine, but the caption's mention of '65%IC baseline' requires the reader to\
-    \ infer that 65% IC = 35% IT. This is not explicitly stated in the figure or caption,\
-    \ though it is a reasonable assumption. However, the caption says '9-point sweep',\
-    \ and counting the points on the x-axis: 15, 20, 25, 30, 35, 40, 50, 60, 70 \u2014\
-    \ that is 9 points. So that i"
-- id: 3ff905684950
+  text: 'Figure 7: The orange line labeled ''T=1 baseline'' extends from T=1.0 to
+    approximately T=2.5 without data points, implying a trend that is not supported
+    by the discrete sampling shown for the red line.'
+- id: 2cef3f5e1b7d
   severity: science
-  text: 'Figure 4: The caption states ''+2.0% over baseline'' for the medium scale
-    optimal (70% IT), but visually comparing the 70% IT point (56.3%) to the 35% IT
-    point (baseline, ~54.8%) yields a difference of approximately 1.5%, not 2.0%.
-    This numerical discrepancy between the caption and the plotted data undermines
-    the claim.'
-- id: f13c0eaef9c3
+  text: 'Figure 8: The caption claims a +13.2% gain in ''General'' and +18.1% in ''Vision'',
+    but the chart shows +13.2% (68.4 vs 55.2) and +18.1% (57.2 vs 39.1) respectively.
+    However, the caption states ''outperforms on 5 of 6 categories'', but the chart
+    shows ''Ours'' trailing in ''Knowledge'' (67.6 vs 68.0) and ''OCR'' (54.1 vs 58.9).
+    This is only 4 out of 6 categories where ''Ours'' outperforms, contradicting the
+    caption''s claim of 5.'
+- id: dcb0caaa3c54
   severity: writing
-  text: 'Figure 5: The caption states ''Only 3 of 39 configurations show gains,''
-    but the chart displays four bars with positive values (Mixtral >0.9, Nemotron
-    >0.9, Nemotron >0.9, Core-benchmaxxed), creating a contradiction between the text
-    and the visual data.'
-- id: f19f9a660e20
+  text: 'Figure 8: The title mentions ''+5.8% Micro Avg improvement'', which matches
+    the chart (58.9 vs 53.1), but the caption does not mention this specific value,
+    creating a disconnect between the visual title and the textual description.'
+- id: 373d6e1580a9
   severity: writing
-  text: 'Figure 5: The caption claims gains are ''all from text quality classifiers
-    applied exclusively to the text-only data pool,'' but the chart shows ''Mixtral
-    >0.9 (text only)'' and ''Nemotron >0.9 (text only)'' as blue bars (Text-only modality),
-    while ''Core-benchmaxxed (text only)'' is also blue; however, the caption''s phrasing
-    implies a specific subset that might be confusingly mapped to the ''Text-only
-    (T)'' legend entry which includes other negative bars.'
-- id: 37110e25dce6
+  text: 'Figure 9: The caption states ''The largest drops are on ScienceQA (-10.7%),
+    nq (-7.6%), and ChartQA (-5.9%)'', but the chart shows ''ChartQA_TEST'' at -5.9%
+    and ''nq'' at -7.6%, while ''ScienceQA_VAL'' is -10.7%. The caption omits the
+    ''_VAL'' and ''_TEST'' suffixes present in the chart labels, creating a minor
+    inconsistency in dataset naming.'
+- id: 4978a91e26cc
+  severity: writing
+  text: 'Figure 9: The caption text ''...categories where appeared strongest'' contains
+    a missing subject (likely ''DataComp-VLM'' or ''the model''), making the sentence
+    grammatically incomplete.'
+- id: 8dd8121e71f0
+  severity: writing
+  text: 'Figure 10: The caption ends with ''closing roughly half the remaining gap
+    with decontaminated .'' which is grammatically incomplete and missing the noun
+    (likely ''FineVision'') that the bar labels imply.'
+- id: 3cd91accf4ed
   severity: science
-  text: 'Figure 5: The y-axis labels are extremely dense and overlapping (e.g., ''Length
-    text only (rm short <0.1)''), making specific filter configurations difficult
-    to read and distinguish without zooming.'
-- id: 059c0339c188
+  text: 'Figure 10: The title claims ''Upsampling OCR to 25% yields +3.1% gain'',
+    but the visual comparison between the ''Ours (standard)'' bar (45.8) and the ''+
+    OCR Upsampled 25%'' bar (48.9) shows a difference of 3.1, which is correct, yet
+    the caption text ''closing roughly half the remaining gap'' is vague without explicitly
+    stating the gap size to the FineVision baseline in the text.'
+- id: 2c9abe3be8da
   severity: writing
-  text: 'Figure 7: The x-axis labels (e.g., ''65c no-filter'', ''65c + Mixtral'')
-    are not defined in the caption or figure; the meaning of ''65c'', ''40c'', and
-    ''+ Mixtral'' is unclear without external context.'
-- id: f9a9ede6b433
+  text: "Figure 11: The rightmost bar chart lacks a y-axis label; the axis shows values\
+    \ (0.90\u20131.15) but does not explicitly state the unit or metric (e.g., 'Runtime\
+    \ multiplier' or 'Relative runtime'), relying solely on the caption for context."
+- id: cb3b9db3db8c
+  severity: writing
+  text: 'Figure 12: The x-axis label contains a typo (''orignal'' instead of ''original'').'
+- id: 3014e716fe89
   severity: science
-  text: 'Figure 7: The green delta values (+2.2, +1.1, etc.) indicate the improvement
-    of Sample-Level over Shard-Level, but the y-axis shows absolute ''Micro Avg (%)''
-    values. The caption claims a ''+1--2%'' improvement, yet the first bar shows a
-    +2.2% gain, which slightly exceeds the stated range.'
-- id: 71945fe38f75
-  severity: writing
-  text: 'Figure 8: The x-axis label ''Temperature (T)'' is ambiguous because the tick
-    labels (0.5, 0.8, 1.0, 2.0, 4.0) do not explicitly state the unit or scale (e.g.,
-    ''x10^3'' or ''seconds''), and the caption does not define the temperature scale.'
-- id: 92a42e6ecb48
-  severity: writing
-  text: 'Figure 8: The orange line segment labeled ''T=1 baseline'' extends beyond
-    the data point at T=1.0 without a clear endpoint or legend entry explaining its
-    purpose, which may confuse readers about whether it represents a trend or a reference
-    line.'
-- id: b18a16ebb138
-  severity: science
-  text: 'Figure 9: The title claims a ''+5.8% Micro Avg improvement'', but the chart
-    shows ''Ours'' (58.9) is only +5.8 points higher than ''FineVision'' (53.1). If
-    these are percentages, the relative improvement is ~10.9%, not 5.8%. If 5.8 is
-    the absolute point difference, labeling it as a ''%'' improvement in the title
-    is misleading.'
-- id: 90c37eeca8b1
-  severity: writing
-  text: 'Figure 9: The title contains raw LaTeX formatting artifacts (''4B x 100B''
-    rendered as ''4B x 100B'' with potential encoding issues or just poor typography)
-    and the caption text ''outperforms on 5 of 6 categories'' is missing the subject
-    name (likely ''DCVLM'' or ''Ours'') due to a copy-paste error in the manuscript.'
-- id: fadd67896726
-  severity: science
-  text: 'Figure 9: The caption claims a +13.2% gain in ''General'' and +18.1% in ''Vision'',
-    but the chart shows absolute point gains of 13.2 (68.4-55.2) and 18.1 (57.2-39.1).
-    Describing absolute percentage point differences as ''% improvement'' is ambiguous
-    and often mathematically incorrect (e.g., 13.2 points on a 55.2 base is a 24%
-    relative increase).'
-- id: e864548195b0
-  severity: writing
-  text: 'Figure 10: The caption states ''The largest drops are on ScienceQA (-10.7%),
-    nq (-7.6%), and ChartQA (-5.9%)'', but the chart shows ''nq'' at -7.6% and ''ChartQA_TEST''
-    at -5.9%, while ''AI2D_TEST_NO_MASK'' is at -3.9%. The caption omits ''AI2D_TEST_NO_MASK''
-    which is visually distinct, and the text ''appeared strongest'' is grammatically
-    incomplete (missing subject, likely ''DataComp-VLM'').'
-- id: af2cbbd15768
-  severity: writing
-  text: 'Figure 10: The caption text ''categories where appeared strongest'' is missing
-    the subject (e.g., ''where DataComp-VLM appeared strongest''), making the sentence
-    grammatically incomplete and confusing.'
-- id: 4497a56818fd
-  severity: writing
-  text: 'Figure 11: The caption contains a sentence fragment at the end (''closing
-    roughly half the remaining gap with decontaminated .'') where the model name (likely
-    ''Baseline'') is missing.'
-- id: d91e018cfad4
-  severity: science
-  text: 'Figure 11: The title claims a ''+3.1% gain'' from upsampling, but the visual
-    difference between the ''Ours (standard)'' bar (45.8) and the ''+ OCR Upsampled
-    25%'' bar (48.9) is 3.1 points; however, the caption implies this closes the gap
-    with ''decontaminated'' (51.7), yet the gap between 48.9 and 51.7 is 2.8, which
-    is not ''roughly half'' of the total gap (51.7 - 45.8 = 5.9). The math in the
-    caption is slightly confusing or imprecise relative to the bars shown.'
-- id: bd0bd6dd9ba2
-  severity: writing
-  text: 'Figure 12: The rightmost bar is labeled ''3 filters (80%)'', but the caption
-    states ''Scaling to 3 filters at 80% rejection each''. The x-axis label is ambiguous
-    and could be misinterpreted as a single filter with 80% rejection; it should explicitly
-    state ''3 filters (80% each)'' to match the caption.'
+  text: 'Figure 12: The title claims ''no significant gain,'' but the ''MTL'' category
+    shows a +1.2% gain for synthetic spatial captions, which appears to contradict
+    the title''s absolute claim without a statistical significance indicator (e.g.,
+    error bars) to justify the dismissal.'
 artifact_hash: d4a22931e6b886440cd41104bb215d7473154b2e0677ff1cb31fe0010e81d224
 artifact_path: projects/PROJ-1001-datacomp-vlm-improved-open-datasets-for/paper/metadata.json
 backend: dartmouth
@@ -159,7 +105,7 @@ feedback: Vision review of 12 figure(s) via qwen.qwen3.5-122b.
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-07T10:31:19.604890Z'
+reviewed_at: '2026-07-07T10:43:38.922584Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_figure_critic
 score: 0.0
@@ -168,48 +114,48 @@ verdict: major_revision_science
 
 ### Figure 1
 
-Figure 1 is a clear and well-structured flowchart that effectively visualizes the data collection pipeline described in its caption. All steps, data types, and final corpus pools are legible, and the logical flow from sourcing to the final compute-scale pools is easy to follow.
+Figure 1 is a clear and well-structured flowchart that effectively visualizes the data collection pipeline described in its caption. All steps, data types, and final corpus sizes are legible and logically connected.
 
 ### Figure 2
 
-The figure is visually clear and effectively communicates the dataset composition and performance gains. However, the caption contains significant text errors (missing model name 'DCVLM' and the word 'four') and fails to explicitly map the cited dataset references to the specific lines in the chart, reducing its standalone clarity.
+The figure effectively visualizes the scaling trends described in the caption, but the legend abbreviations ('IC', 'IT') contradict the caption's notation ('c', 'i'), and the y-axis unit label is slightly ambiguous.
 
 ### Figure 3
 
-The figure effectively visualizes the scaling grid and supports the caption's claims about mixture performance. However, the legend is only present in the rightmost panel, and the abbreviations used in the legend ('IC', 'IT') do not match the notation in the caption ('c', 'i').
+Figure 3 effectively displays the line search results with clear annotations for best points, but the caption's claim of 'competitive' baseline at small scale lacks quantitative support, and the differing y-axis scales between subplots hinder direct comparison.
 
 ### Figure 4
 
-The figure is well-structured with clear axes and legends, but the caption contains a numerical inaccuracy: it claims a +2.0% gain over the baseline for the medium scale optimal configuration, whereas the plotted data shows a gain of approximately 1.5%.
+The figure effectively visualizes the filter ablation results with clear color coding and value labels. However, the title text contains a minor contradiction regarding the magnitude of gains ('< 1%' vs '>= +0.5%') and includes redundant information that clutters the header.
 
 ### Figure 5
 
-The figure effectively visualizes the ablation study with clear color coding, but the caption contains a factual error regarding the count of positive-gain configurations (stating 3 when 4 are shown) and the y-axis labels are overly dense, reducing readability.
+Figure 5 is clear and effectively supports its caption. The bar chart clearly displays the 'No Filter' vs. 'NVIDIA Mixtral Text-Only' comparison across four mixture/model configurations, with explicit numerical labels and delta annotations ($\Delta$) that match the caption's claims.
 
 ### Figure 6
 
-Figure 6 is a clear and well-constructed bar chart that effectively supports its caption's claim. The axes, units, legend, and specific data values (including delta annotations) are all present, legible, and correctly labeled.
+The figure clearly compares sample-level versus shard-level sampling across four configurations on validation and core sets. The legend, axis labels, and units are present and legible, and the green annotations accurately reflect the performance gains described in the caption.
 
 ### Figure 7
 
-The figure clearly visualizes the performance difference between sampling strategies with helpful delta annotations, but the x-axis configuration labels are undefined and the specific gain values slightly exceed the range described in the caption.
+The figure effectively visualizes the performance drop at extreme temperatures, but the caption contains a typo regarding the flattening condition, and the orange baseline line implies a continuous trend without data points.
 
 ### Figure 8
 
-The figure effectively communicates that T=1 is near-optimal, but the x-axis lacks explicit units for temperature, and the orange baseline line is visually ambiguous without further explanation in the caption or legend.
+The figure clearly displays the comparison data with appropriate labels and values, but the caption's claim that the method outperforms in 5 of 6 categories is factually incorrect based on the visual data, which shows it trailing in two categories (Knowledge and OCR).
 
 ### Figure 9
 
-The figure effectively displays the performance comparison, but the title and caption contain significant mathematical ambiguities regarding 'improvement' (absolute points vs. relative percent) and missing subject names. Additionally, the title includes raw LaTeX artifacts.
+The figure is a clear and well-organized bar chart that effectively visualizes per-dataset score changes. The caption accurately describes the data trends and the average drop line, though it contains a minor grammatical omission and slightly simplifies the dataset names compared to the axis labels.
 
 ### Figure 10
 
-The figure is a clear bar chart showing per-dataset score changes, but the caption contains a grammatical error ('where appeared strongest') and slightly misaligns with the specific dataset names shown (e.g., 'ChartQA_TEST' vs 'ChartQA').
+The bar chart effectively visualizes the performance gains from upsampling OCR data, but the figure caption contains a grammatical error where the sentence trails off after 'decontaminated', failing to name the baseline model.
 
 ### Figure 11
 
-The bar chart clearly displays the performance gains from upsampling OCR data, but the caption contains a missing model name at the end and the textual claim about 'closing half the gap' is mathematically ambiguous compared to the bar values.
+The figure effectively demonstrates the negligible overhead of online filtering as claimed in the caption, but the rightmost bar chart is missing a y-axis label to explicitly define the plotted metric.
 
 ### Figure 12
 
-Figure 12 effectively demonstrates that online filtering adds negligible overhead, with clear axes and data points. However, the x-axis label for the 3-filter configuration is slightly ambiguous compared to the precise wording in the caption.
+The figure is visually clear and the legend is well-defined, but the x-axis label contains a typo ('orignal'). Additionally, the title's claim of 'no significant gain' is visually contradicted by the +1.2% data point in the MTL category, which lacks error bars to statistically justify the dismissal.

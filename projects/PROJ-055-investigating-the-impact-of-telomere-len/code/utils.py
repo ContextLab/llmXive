@@ -1,5 +1,6 @@
 """
-Utility functions for checksum generation and state management.
+Utility functions for file validation and state management.
+Provides SHA256 checksum generation and state file updates.
 """
 import hashlib
 import json
@@ -8,62 +9,101 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import yaml
 
-def generate_checksum(file_path: str | Path) -> str:
+
+def generate_checksum(file_path: str) -> str:
     """
-    Generate SHA256 checksum for a file.
-    
+    Calculate the SHA256 checksum of a file.
+
     Args:
-        file_path: Path to the file.
-        
+        file_path: Path to the file to checksum.
+
     Returns:
-        Hex digest string of the SHA256 hash.
+        Hexadecimal string of the SHA256 hash.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    path = Path(file_path)
 
-def update_state_file(hash_map: Dict[str, str]) -> None:
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Error reading file {file_path}: {e}")
+
+
+def validate_file_exists(file_path: str) -> bool:
     """
-    Update the project state YAML file with new artifact hashes.
-    
+    Check if a file exists at the given path.
+
     Args:
-        hash_map: Dictionary mapping filenames to their SHA256 hashes.
+        file_path: Path to the file.
+
+    Returns:
+        True if the file exists, False otherwise.
     """
-    state_path = Path("state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml")
-    
+    return Path(file_path).exists()
+
+
+def update_state_file(hash_map: Dict[str, str], state_path: Optional[str] = None) -> None:
+    """
+    Update the project state file with a map of artifact paths to their checksums.
+
+    This function loads the existing state file (if it exists), updates the
+    'artifact_hashes' section with the provided hash_map, and writes the
+    updated state back to disk.
+
+    Args:
+        hash_map: A dictionary mapping relative artifact paths to their SHA256 checksums.
+        state_path: Optional path to the state file. Defaults to
+                    'state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml'.
+
+    Raises:
+        FileNotFoundError: If the state file does not exist and needs to be created
+                           but the parent directory does not exist.
+        yaml.YAMLError: If the state file contains invalid YAML.
+        json.JSONDecodeError: If the state file contains invalid JSON (fallback).
+    """
+    if state_path is None:
+        state_path = "state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml"
+
+    state_file = Path(state_path)
+    state_dir = state_file.parent
+
     # Ensure directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing state or create new
-    if state_path.exists():
-        with open(state_path, 'r') as f:
-            try:
-                state_data = yaml.safe_load(f) or {}
-            except yaml.YAMLError:
-                state_data = {}
-    else:
-        state_data = {
-            "artifact_hashes": {},
-            "last_updated": None
-        }
-    
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
-    
+    if not state_dir.exists():
+        state_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load existing state or initialize new
+    current_state = {"artifact_hashes": {}, "last_updated": None}
+
+    if state_file.exists():
+        try:
+            with open(state_file, "r", encoding="utf-8") as f:
+                content = yaml.safe_load(f)
+                if content and isinstance(content, dict):
+                    current_state = content
+                    # Ensure artifact_hashes exists
+                    if "artifact_hashes" not in current_state:
+                        current_state["artifact_hashes"] = {}
+        except yaml.YAMLError:
+            # Fallback if YAML is corrupted, start fresh
+            pass
+
     # Update hashes
-    for filename, hash_val in hash_map.items():
-        state_data["artifact_hashes"][filename] = hash_val
-    
+    current_state["artifact_hashes"].update(hash_map)
+
     # Update timestamp
     import datetime
-    state_data["last_updated"] = datetime.datetime.now().isoformat()
-    
-    # Write back
-    with open(state_path, 'w') as f:
-        yaml.safe_dump(state_data, f, default_flow_style=False)
+    current_state["last_updated"] = datetime.datetime.now().isoformat()
 
-def validate_file_exists(file_path: str | Path) -> bool:
-    """Check if a file exists."""
-    return Path(file_path).exists()
+    # Write back
+    with open(state_file, "w", encoding="utf-8") as f:
+        yaml.dump(current_state, f, default_flow_style=False, sort_keys=False)

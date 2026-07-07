@@ -1,14 +1,14 @@
 ---
 action_items:
-- id: 380ed4d12133
+- id: a50f002f5227
   severity: writing
-  text: The paper presents a compelling benchmark and a strong central finding regarding
-    data mixing, but the evidentiary design for the headline quantitative claims requires
-    strengthening to rule out noise and confounds. First, the primary claim of a +5.4pp
-    improvement over FineVision (Abstract, Table 1) rests on single-point estimates
-    without any measure of variance. In large-scale VLM training, performance can
-    fluctuate significantly across random seeds (often >1-2pp). Without reporting
-    results acros
+  text: The paper presents a rigorous investigation into VLM data curation, particularly
+    regarding decontamination and mixing strategies. However, the evidentiary strength
+    of the central claims regarding data mixing and filtering is weakened by a lack
+    of variance reporting and potential confounds in experimental design. First, the
+    headline findings on data mixing (Section 4.2, Figure 3) and learning rate selection
+    (Appendix, Table 1) are presented as single-run results. The reported improvements,
+    such a
 artifact_hash: d4a22931e6b886440cd41104bb215d7473154b2e0677ff1cb31fe0010e81d224
 artifact_path: projects/PROJ-1001-datacomp-vlm-improved-open-datasets-for/paper/metadata.json
 backend: dartmouth
@@ -16,19 +16,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-07T10:29:31.264798Z'
+reviewed_at: '2026-07-07T10:41:45.910923Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper presents a compelling benchmark and a strong central finding regarding data mixing, but the evidentiary design for the headline quantitative claims requires strengthening to rule out noise and confounds.
+The paper presents a rigorous investigation into VLM data curation, particularly regarding decontamination and mixing strategies. However, the evidentiary strength of the central claims regarding data mixing and filtering is weakened by a lack of variance reporting and potential confounds in experimental design.
 
-First, the primary claim of a +5.4pp improvement over FineVision (Abstract, Table 1) rests on single-point estimates without any measure of variance. In large-scale VLM training, performance can fluctuate significantly across random seeds (often >1-2pp). Without reporting results across at least 3-5 seeds with standard deviations or confidence intervals, it is impossible to determine if this gap represents a robust effect of the proposed data mixture or simply a lucky initialization. The current presentation treats a single run as a generalizable fact, which is insufficient for a benchmark paper.
+First, the headline findings on data mixing (Section 4.2, Figure 3) and learning rate selection (Appendix, Table 1) are presented as single-run results. The reported improvements, such as the shift from "worst" to "best" performance for the Instruction-heavy mix at larger scales, are often in the range of 0.5% to 2.0%. In deep learning training, such margins are frequently indistinguishable from the variance introduced by random weight initialization or data shuffling. Without reporting results across multiple seeds (e.g., mean ± standard deviation), the reader cannot determine if these "scale-aware" effects are robust phenomena or lucky seeds. This is critical for a paper claiming to establish generalizable data mixing laws.
 
-Second, the conclusion that "filtering rarely helps" (Section 4.2) is potentially confounded by the experimental design. The filtering experiments remove data, thereby changing the total token count and the specific distribution of remaining samples compared to the "No Filter" baseline. A performance drop (or lack of gain) could be due to the reduction in data volume or the specific removal of certain samples, rather than the act of filtering itself. To isolate the mechanism, the authors should include a control experiment where the unfiltered pool is subsampled to match the exact token count and distribution of the filtered pool, ensuring the comparison is strictly about the *quality* of the selected data, not the quantity.
+Second, the data mixing experiments (Section 4.2) suffer from a potential confound regarding compute allocation. When the authors shift from a "Caption-heavy" to an "Instruction-heavy" mixture, they change the proportion of data types. However, the total number of tokens processed per epoch or the total training budget per data type is not explicitly controlled to be identical across the mixture variants in a way that isolates the *ratio* effect from the *exposure* effect. If the "Instruction-heavy" model simply sees more instruction tokens (even if the total token budget is fixed, the *density* changes), the gain might be due to increased exposure to that specific data type rather than the optimal *mixing ratio* itself. A control run that matches the exact token count of the baseline for the non-instruction data types (via repetition or subsampling) is needed to isolate the mixing ratio as the causal factor.
 
-Finally, the attribution of gains to "instruction-heavy mixtures" (Section 5) is complicated by potential compute mismatches. If the baseline models (e.g., FineVision) were trained on different token budgets or with different scaling laws than the DCVLM models, the observed improvement could be driven by the increased scale of the DCVLM training rather than the mixture strategy. The paper needs to explicitly demonstrate that the gains hold when comparing mixtures at identical compute budgets (token counts) to rule out scale as the primary driver.
+Finally, the claim that "filtering rarely helps" (Section 4.1) compares results across different evaluation suites: the small-scale experiments use the 13-task Validation suite, while the medium-scale experiments use the 33-task Core suite. This inconsistency introduces a confound where the observed "diminishing returns" of filtering could be an artifact of the different benchmark distributions (e.g., the Validation suite might be more sensitive to noise reduction than the Core suite) rather than a true scaling law. To robustly support the claim that filtering effects vanish at scale, the authors must report filtering results on a consistent, fixed evaluation suite across all model scales.
 
-Addressing these design gaps—specifically by adding seed variance, a compute-matched subsampling control, and explicit token-budget ablations—would solidify the causal claims regarding data mixing and filtering.
+Addressing these design gaps—specifically by adding seed variance, controlling for token exposure in mixing experiments, and standardizing the evaluation suite—would significantly strengthen the causal claims regarding data curation strategies.

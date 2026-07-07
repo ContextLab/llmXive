@@ -7,15 +7,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-07T10:27:58.798210Z'
+reviewed_at: '2026-07-07T10:39:02.644658Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.5
 verdict: accept
 ---
 
-The paper's argument structure is logically sound and internally consistent. The central thesis—that data mixing strategies (specifically instruction-heavy mixtures) are more impactful than quality filtering at scale—is supported by a coherent chain of evidence. The experimental design (scaling grids, ablation studies, and control experiments) directly addresses the premises required to draw the stated conclusions.
+The paper's argument structure is logically sound and internally consistent. The central thesis—that data mixing strategies are scale-dependent and that quality filtering yields diminishing returns at scale—is supported by a coherent chain of reasoning: the authors establish a baseline, introduce controlled variables (mixtures, filters), and demonstrate that outcomes reverse or stabilize depending on model scale and token budget.
 
-Specifically, the transition from the observation that filtering yields negligible gains (Section 4) to the conclusion that mixing is the primary lever for improvement (Abstract, Section 5) is valid because the authors explicitly control for compute and token budgets, isolating the variable of data composition. The control experiments in Section 6 (SFT transfer and backbone robustness) successfully close potential logical gaps regarding the generality of the findings, ensuring the conclusion isn't an artifact of a specific training stage or model initialization.
+Specifically, the transition from the "Filtering rarely helps" section to the "Data Mixing" section is well-motivated. The authors correctly identify that the lack of filtering gains (Section 4) suggests the underlying mixture distribution is the primary driver of performance, leading logically to the mixing experiments in Section 5. The conclusion that "Data mixing cannot be scale agnostic" follows directly from the empirical observation in Figure 4 (and Table 2 in the appendix) where the "Instruction-heavy" mix performs worst at small scales but best at large scales. This is a valid inductive inference from the presented data.
 
-Definitions of the evaluation suites (Extended, Core, Validation) are consistent throughout the text and tables. The decontamination protocol (Section 3) is rigorously defined and applied consistently to both image and text modalities, with the chosen thresholds (0.75 for SSCD, 0.55 for MinHash) justified by the provided analysis of false positives/negatives, preventing any logical leap regarding data contamination. There are no contradictions between the abstract's claims and the body's results, nor are there any instances where a conclusion requires an unstated assumption to hold. The numerical claims in the tables align with the textual descriptions of the results.
+The decontamination protocol (Appendix) is defined with precise thresholds (SSCD $\geq 0.75$, MinHash $\geq 0.55$) and the rationale for these choices (balancing precision/recall on non-natural images) is consistent with the reported removal rates. There are no contradictions between the stated methodology and the reported results (e.g., the removal rates in Figure 5 match the textual description).
+
+Definitions of data types (image-caption, instruction-tuning, etc.) remain stable throughout the text and tables. The distinction between "Core," "Extended," and "Validation" suites is clearly defined and applied consistently in the results tables. No non-sequiturs or circular arguments were detected. The argument holds together as a valid proof of the paper's claims given the stated premises.

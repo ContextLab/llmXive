@@ -1,20 +1,114 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
+$schema: http://json-schema.org/draft-07/schema#
+title: PGLS Model Output Schema
+description: >
+  Schema for the output of the Phylogenetic Generalized Least Squares (PGLS) modeling
+  and sensitivity analysis tasks (US2).
+definitions:
+  model_metrics:
+    type: object
+    required:
+      - coefficient
+      - standard_error
+      - p_value
+      - lambda
+      - aic
+    properties:
+      coefficient:
+        type: number
+        description: Fixed effect coefficient for the predictor
+      standard_error:
+        type: number
+        description: Standard error of the coefficient
+      p_value:
+        type: number
+        description: P-value for the coefficient test
+        minimum: 0
+        maximum: 1
+      lambda:
+        type: number
+        description: Pagel's lambda phylogenetic signal estimate
+        minimum: 0
+        maximum: 1
+      aic:
+        type: number
+        description: Akaike Information Criterion
+      n_species:
+        type: integer
+        description: Number of species used in the model
+        minimum: 1
+      degrees_of_freedom:
+        type: integer
+        description: Degrees of freedom of the model
+        minimum: 1
+      convergence_status:
+        type: string
+        description: Status of model convergence
+        enum:
+          - converged
+          - warning
+          - failed
 type: object
-properties:
-  coefficient:
-    type: number
-  se:
-    type: number
-  p_value:
-    type: number
-  lambda:
-    type: number
-  method:
-    type: string
 required:
-  - coefficient
-  - se
-  - p_value
-  - lambda
-  - method
+  - model_type
+  - formula
+  - base_model_results
+properties:
+  model_type:
+    type: string
+    description: Type of model fitted (e.g., PGLS, Moderator)
+    enum:
+      - PGLS
+      - Moderator
+      - Sensitivity
+  formula:
+    type: string
+    description: R formula string used for the model
+  base_model_results:
+    $ref: '#/definitions/model_metrics'
+  interaction_results:
+    $ref: '#/definitions/model_metrics'
+    description: Results for interaction term in moderator model (optional)
+    optional: true
+  sensitivity_analysis:
+    type: array
+    description: List of sensitivity analysis results (LOOCV/Jackknife)
+    items:
+      type: object
+      required:
+        - species_id
+        - coefficient
+        - se
+        - p_value
+        - method_justification
+      properties:
+        species_id:
+          type: string
+          description: Species removed in this iteration
+        coefficient:
+          type: number
+        se:
+          type: number
+        p_value:
+          type: number
+        method_justification:
+          type: string
+          description: Reason for choosing LOOCV or jackknife
+    optional: true
+  low_power_flag:
+    type: boolean
+    description: True if species count < 15 and modeling was skipped
+    optional: true
+  low_power_message:
+    type: string
+    description: Message explaining low power status
+    optional: true
+  phylogenetic_tree_path:
+    type: string
+    description: Path to the Newick tree file used
+    optional: true
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of model execution
+    optional: true
+additionalProperties: false

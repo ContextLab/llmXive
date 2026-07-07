@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.00750",
+  "judged_at": "2026-07-07T10:18:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+  "rationale": "This paper addresses the core mechanism of \"LLM self-improvement\" and the specific phenomenon of performance plateaus and distributional bias (tail narrowing) that the user's referenced work (\"Self-Improving Language Models with Bidirectional Evolutionary Search\") investigates, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable (self-improvement efficacy) in the same domain. Although the user's query includes \"linguistics,\" the paper's focus on the f",
+  "relevant": true
+}

@@ -1,7 +1,40 @@
-# Ignore all data files except this gitignore
-*
-!.gitignore
+# Ignore large data files
+*.nii
+*.nii.gz
+*.img
+*.hdr
+*.bval
+*.bvec
 
-# Explicitly allow directories to be tracked (empty directories won't be committed without files)
-# The actual data files will be ignored by the wildcard above.
-# This file ensures the directory structure exists in git.
+# Ignore processed data
+processed/*
+!processed/.gitkeep
+
+# Ignore raw data
+raw/*
+!raw/.gitkeep
+
+# Ignore metrics
+metrics/*
+!metrics/.gitkeep
+
+# Ignore atlas files
+atlas/*
+!atlas/.gitkeep
+
+# Ignore temporary files
+*.tmp
+*.temp
+*.cache
+
+# Ignore large binary files
+*.mat
+*.h5
+*.hdf5
+
+# Ignore OpenNeuro downloads
+ds000228/
+
+# Ignore generated datasets
+*.parquet
+*.feather

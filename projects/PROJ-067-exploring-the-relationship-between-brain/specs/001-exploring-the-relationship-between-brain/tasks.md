@@ -58,9 +58,9 @@
 - [X] T005b [P] **Formal Requirement Change Record (RCR)**: Create `docs/requirement_change_record_Schaefer100.md` as a formal artifact to update the requirement traceability for FR-004. This document MUST explicitly state that FR-004's mandate for "Schaefer-400" is formally amended to "Schaefer-100" due to statistical validity constraints (rank-deficiency), and link to the Plan's deviation note. This resolves the traceability gap between the Spec and the implemented artifact. This task MUST complete before T025.
 - [X] T006 [P] **Config Initialization**: Initialize `code/utils/config.py` with default values for seeds, paths, and constants (window_size=30, step_size=10, atlas='Schaefer100', deviation_flag=True), explicitly initializing the flag referenced in T005.
 - [X] T007 [P] Implement `code/utils/memory_monitor.py` to track RSS via `/proc/self/status` and raise exceptions if >7GB
-- [ ] T008 [P] Create `contracts/` directory with `subject_metrics.schema.yaml` and `results_schema.yaml`
-- [ ] T009 [P] Initialize `data/` directory structure (`raw/`, `processed/`, `metrics/`, `atlas/`) and `.gitignore` for large files
-- [ ] T010 [P] Initialize `results/` directory structure (`plots/`) and `tests/` directory structure (`contract/`, `unit/`)
+- [X] T008 [P] Create `contracts/` directory with `subject_metrics.schema.yaml` and `results_schema.yaml`
+- [X] T009 [P] Initialize `data/` directory structure (`raw/`, `processed/`, `metrics/`, `atlas/`) and `.gitignore` for large files
+- [X] T010 [P] Initialize `results/` directory structure (`plots/`) and `tests/` directory structure (`contract/`, `unit/`)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -157,9 +157,9 @@
 - [~] T045 [P] Update `code/main.py` to orchestrate the full pipeline (Download → Preprocess → Metrics → Stats) **with built-in wall-clock timing instrumentation for each phase** (SC-005).
 - [~] T049 [P] **Runtime Verification**: Implement a check in `main.py` that **raises a RuntimeError if total runtime > 4 hours** and logs results to `results/runtime_log.json`, asserting total <= 4 hours (SC-005, T045).
 - [~] T050 [P] **CI Pipeline Enforcement**: Update `.github/workflows/ci.yml` (or equivalent CI config) to treat the `RuntimeError` raised by T049 as a **build failure**. This ensures the 4-hour target is enforced by the build system, not just logged.
-- [ ] T046 [P] Run `pytest` on all contract and unit tests to ensure full pipeline validity.
-- [ ] T047 [P] Validate `results/stats.json` against `contracts/results_schema.yaml`.
-- [ ] T048 [P] Update `README.md` or `quickstart.md` with execution instructions for the 4-hour CI limit.
+- [~] T046 [P] Run `pytest` on all contract and unit tests to ensure full pipeline validity.
+- [~] T047 [P] Validate `results/stats.json` against `contracts/results_schema.yaml`.
+- [~] T048 [P] Update `README.md` or `quickstart.md` with execution instructions for the 4-hour CI limit.
 
 ---
 

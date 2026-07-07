@@ -11,15 +11,16 @@
   "Packages": {
     "rotl": {
       "Package": "rotl",
-      "Version": "3.0.14",
+      "Version": "3.0.6",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
         "curl",
-        "xml2",
-        "jsonlite"
+        "jsonlite",
+        "utils",
+        "xml2"
       ],
-      "Hash": "a1b2c3d4e5f6"
+      "Hash": "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
     },
     "lme4": {
       "Package": "lme4",
@@ -29,19 +30,33 @@
       "Requirements": [
         "Matrix",
         "Rcpp",
-        "RcppEigen"
+        "RcppEigen",
+        "graphics",
+        "grid",
+        "lattice",
+        "methods",
+        "minqa",
+        "nlme",
+        "nloptr",
+        "parallel",
+        "splines",
+        "stats",
+        "utils"
       ],
-      "Hash": "b2c3d4e5f6a7"
+      "Hash": "b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7"
     },
     "phylolm": {
       "Package": "phylolm",
-      "Version": "2.6.2",
+      "Version": "2.6.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "ape"
+        "ape",
+        "graphics",
+        "methods",
+        "stats"
       ],
-      "Hash": "c3d4e5f6a7b8"
+      "Hash": "c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8"
     },
     "ape": {
       "Package": "ape",
@@ -49,11 +64,17 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
+        "R",
+        "graphics",
+        "grid",
+        "lattice",
+        "methods",
         "nlme",
         "parallel",
-        "stats4"
+        "stats",
+        "utils"
       ],
-      "Hash": "d4e5f6a7b8c9"
+      "Hash": "d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9"
     },
     "caper": {
       "Package": "caper",
@@ -62,21 +83,193 @@
       "Repository": "CRAN",
       "Requirements": [
         "ape",
-        "lme4",
-        "nlme"
+        "dplyr",
+        "graphics",
+        "lattice",
+        "methods",
+        "nlme",
+        "stats",
+        "utils"
       ],
-      "Hash": "e5f6a7b8c9d0"
+      "Hash": "e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
     },
     "anage": {
       "Package": "anage",
-      "Version": "0.1.0",
+      "Version": "1.0.0",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
-        "httr",
-        "jsonlite"
+        "curl",
+        "jsonlite",
+        "tidyverse"
       ],
-      "Hash": "f6a7b8c9d0e1"
+      "Hash": "f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1"
+    },
+    "Matrix": {
+      "Package": "Matrix",
+      "Version": "1.6-1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "grid",
+        "lattice",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2"
+    },
+    "Rcpp": {
+      "Package": "Rcpp",
+      "Version": "1.0.11",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods"
+      ],
+      "Hash": "h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3"
+    },
+    "RcppEigen": {
+      "Package": "RcppEigen",
+      "Version": "0.3.3.9.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "Matrix",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4"
+    },
+    "minqa": {
+      "Package": "minqa",
+      "Version": "1.2.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Rcpp"
+      ],
+      "Hash": "j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5"
+    },
+    "nlme": {
+      "Package": "nlme",
+      "Version": "3.1-163",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "lattice",
+        "stats",
+        "utils"
+      ],
+      "Hash": "k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6"
+    },
+    "nloptr": {
+      "Package": "nloptr",
+      "Version": "2.0.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "testthat"
+      ],
+      "Hash": "l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7"
+    },
+    "curl": {
+      "Package": "curl",
+      "Version": "5.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8"
+    },
+    "jsonlite": {
+      "Package": "jsonlite",
+      "Version": "1.8.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "methods"
+      ],
+      "Hash": "n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9"
+    },
+    "xml2": {
+      "Package": "xml2",
+      "Version": "1.3.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods"
+      ],
+      "Hash": "o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0"
+    },
+    "dplyr": {
+      "Package": "dplyr",
+      "Version": "1.1.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "generics",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "methods",
+        "pillar",
+        "rlang",
+        "tibble",
+        "tidyselect",
+        "vctrs",
+        "utils"
+      ],
+      "Hash": "p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1"
+    },
+    "tidyverse": {
+      "Package": "tidyverse",
+      "Version": "2.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "broom",
+        "cli",
+        "conflicted",
+        "dbplyr",
+        "dplyr",
+        "ggplot2",
+        "googledrive",
+        "googlesheets4",
+        "haven",
+        "hms",
+        "httr",
+        "jsonlite",
+        "lubridate",
+        "magrittr",
+        "modelr",
+        "pillar",
+        "purrr",
+        "ragg",
+        "readr",
+        "readxl",
+        "reprex",
+        "rlang",
+        "rstudioapi",
+        "rvest",
+        "stringr",
+        "tibble",
+        "tidyr",
+        "xml2"
+      ],
+      "Hash": "q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2"
     }
   }
 }

@@ -25,7 +25,7 @@ except ImportError:
     # Fallback for direct execution outside package context if necessary
     # In CI, this should resolve correctly
     import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
     from utils.config import get_config_summary
 
 

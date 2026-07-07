@@ -7,17 +7,23 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-07T10:29:13.130793Z'
+reviewed_at: '2026-07-07T10:41:25.194613Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_safety_ethics
 score: 0.5
 verdict: accept
 ---
 
-This paper presents a dataset curation and benchmarking study (DataComp-VLM) focused on improving Vision-Language Models through data mixing strategies. The work aggregates 160 existing public datasets (e.g., from Hugging Face, academic repositories) and performs extensive decontamination and evaluation.
+The paper presents a large-scale dataset curation and training study for Vision-Language Models (VLMs). From a safety and ethics perspective, the work is low-risk and well-documented.
 
-From a safety and ethics perspective, the paper is low-risk. The primary data sources are publicly available, and the authors explicitly address data provenance and licensing in the appendices (e.g., Section e003), noting specific licenses (CC-BY, Apache-2.0, etc.) and potential restrictions for certain datasets (e.g., LLaVA-Med, MultiUI). The paper does not involve collecting new human-subject data, nor does it release any Personally Identifiable Information (PII); the decontamination process described (Section e001) is designed to remove overlaps with evaluation sets, further reducing privacy risks.
+The authors explicitly address the primary ethical concern for data-centric ML papers: **data provenance and licensing**. Section `appsub:licensing` and the extensive license table (spanning `e003`) meticulously list the source, license type (e.g., CC-BY, Apache-2.0, MIT, or "Unknown" where applicable), and access links for all 160 datasets in the pool. This transparency allows downstream users to verify compliance with their own usage constraints.
 
-The methodology does not introduce dual-use capabilities that lower the barrier to harm (e.g., automated vulnerability discovery or persuasive disinformation generation). The "safety" benchmarks mentioned are used for evaluation, not for generating harmful content. The paper appropriately excludes grounding benchmarks (RefCOCO) due to contamination risks, demonstrating a rigorous approach to validity rather than a safety failure.
+Furthermore, the paper demonstrates rigorous **decontamination practices** (Section `app:decontamination`) to prevent train-test leakage, which is a standard integrity requirement rather than a safety risk, but the detailed methodology (SSCD for images, MinHash for text) shows a commitment to scientific rigor. The exclusion of grounding benchmarks (RefCOCO variants) due to contamination risks further underscores this careful approach.
 
-No specific, foreseeable, non-trivial risks of harm were identified that are unaddressed in the text. The standard disclosures regarding data licensing and the use of public datasets appear sufficient for this type of research.
+There are no indications of:
+- **Human-subjects data** requiring IRB approval (the data consists of public web crawls, synthetic data, and standard academic benchmarks).
+- **PII exposure** (the paper does not release raw scraped content with personal identifiers; it aggregates and filters).
+- **Dual-use capabilities** that lower the barrier to specific harms (the work improves general VLM performance, a standard capability in the field, without introducing novel offensive or deceptive mechanisms).
+- **Undisclosed conflicts of interest** (the authors are from a mix of academic and industry labs, but the work is presented as open research with open data/code links).
+
+The paper adheres to the norms of the field regarding dataset construction and does not present foreseeable, non-trivial risks that are unaddressed. No action items are required.

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T10:33:22.645619Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-525-predicting-the-yield-strength-of-bcc-all
-last_run_id: 16e17749-b356-4bdc-a816-d0f83ef3f3a5
+last_run_id: f3a5cd72-131f-472b-894b-9aa02536b351
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all
 title: Predicting the Yield Strength of BCC Alloys Using Machine Learning and Public
   Data
-updated_at: '2026-06-28T14:39:12.282162Z'
+updated_at: '2026-07-07T11:00:35.385951Z'

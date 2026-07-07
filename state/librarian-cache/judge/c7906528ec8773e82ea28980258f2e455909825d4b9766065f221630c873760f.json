@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1303.3469",
+  "judged_at": "2026-07-07T10:18:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+  "rationale": "The paper focuses on general continuous global optimization using hybrid evolutionary algorithms and sequential quadratic programming, which is an off-domain application of evolutionary computation compared to the user's specific question about \"Self-Improving Language Models\" and \"Bidirectional Evolutionary Search\" in a linguistics context. It does not measure the same biological/algorithmic mechanism (LLM self-improvement), study the same empirical population (language models), or provide a fo",
+  "relevant": false
+}

@@ -1,0 +1,38 @@
+# Pre-commit hooks for PROJ-055
+# Install with: pre-commit install
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        files: \.py$
+  
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.10
+  
+  - repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.3.2
+    hooks:
+      - id: style-files
+        name: Style R files with styler
+        args: [--style_pkg=lintr, --style_fun=lintr::lintr_style]
+        files: \.R$
+      - id: lintr
+        name: Lint R files
+        args: [--style=lintr::lintr_style]
+        files: \.R$
+      - id: descs
+        name: Check DESCRIPTION files
+        files: DESCRIPTION
+      - id: no-browser-statement
+        name: Check for browser() calls
+        files: \.R$
+      - id: no-debug-statement
+        name: Check for debug() calls
+        files: \.R$

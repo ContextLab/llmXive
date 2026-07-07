@@ -1,8 +1,19 @@
-[lint]
-select = ["E", "F", "W", "I"]
-ignore = []
+# Ruff configuration for Python linting
+line-length = 88
+target-version = "py39"
 
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["code"]

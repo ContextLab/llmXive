@@ -1,28 +1,20 @@
 ---
 action_items:
-- id: 6636442a366a
+- id: b4aceb17370c
   severity: writing
-  text: "Section 4.2 and Table 1 report single-point accuracy scores (e.g., 63.6%)\
-    \ for the proposed method and baselines without any measure of uncertainty (SD,\
-    \ SE, or CI). While the text mentions removing POPE due to '16% seed variance,'\
-    \ it fails to report the variance for the main results. Report mean \xB1 SD over\
-    \ at least 3 seeds for all key comparisons to distinguish signal from noise."
-- id: 0fa0a4d2529a
+  text: "Sections 4.2 and 5 report benchmark scores as single point estimates without\
+    \ uncertainty (SD/SE/CI). Report mean \xB1 SD over \u22653 seeds for main results,\
+    \ or explicitly state results are from a single run to avoid implying false precision."
+- id: a73420732591
   severity: writing
-  text: Section 4.1 (Learning Rate Sweep) and Table 2 present results for 5 LR values
-    across 3 model scales. The optimal LR is selected based on the highest mean score
-    without any statistical test (e.g., ANOVA or post-hoc t-tests) to confirm the
-    difference is significant. Given the small number of runs implied, the 'optimal'
-    choice may be noise. Report the standard deviation across seeds for each LR or
-    apply a correction for multiple comparisons if claiming one LR is definitively
-    better.
-- id: 4d3022992b61
+  text: "Section 3.2 reports Pearson r=0.99 and Spearman \u03C1=0.99 for N=27 without\
+    \ confidence intervals or p-values. Add 95% CIs for these correlation coefficients\
+    \ to support the statistical significance of the claim."
+- id: bd4067cdf437
   severity: writing
-  text: Section 5.1 claims 'near-perfect fidelity' (Pearson r=0.99) between pretraining
-    and post-SFT performance based on 27 checkpoints. While the correlation is high,
-    the paper does not report the confidence interval for the correlation coefficient
-    or the p-value. With N=27, a correlation of 0.99 is significant, but the precision
-    of this estimate should be quantified to support the 'near-perfect' claim.
+  text: Sections 3.1 and 4.1 report specific decimal improvements (e.g., +0.6pp) without
+    reported variance. Without SD across seeds, these decimal claims are unsupported.
+    Round differences to integers or report variance to justify the precision.
 artifact_hash: d4a22931e6b886440cd41104bb215d7473154b2e0677ff1cb31fe0010e81d224
 artifact_path: projects/PROJ-1001-datacomp-vlm-improved-open-datasets-for/paper/metadata.json
 backend: dartmouth
@@ -30,19 +22,19 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-07T10:29:50.871912Z'
+reviewed_at: '2026-07-07T10:42:21.158372Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_statistical_analysis
 score: 0.0
 verdict: minor_revision
 ---
 
-The statistical reporting in this paper is generally consistent with current ML conventions regarding the presentation of scaling laws and benchmark results, but it lacks necessary uncertainty quantification for its primary quantitative claims.
+The statistical treatment in this paper generally aligns with ML field norms regarding the omission of formal hypothesis tests for benchmark comparisons. However, there is a consistent lack of uncertainty reporting for primary quantitative claims, which undermines the reliability of the reported improvements.
 
-The most significant omission is the absence of variance reporting for the main results. In Section 4.2 and Table 1, the authors report specific accuracy percentages (e.g., "63.6% accuracy") for the DCVLM-Baseline and comparisons against FineVision. These are presented as single point estimates. While the text acknowledges that POPE was removed from the suite due to high seed variance ("16% seed variance"), it does not provide the standard deviation, standard error, or confidence intervals for the remaining 33 tasks or the aggregate scores. In deep learning experiments, especially with large models and limited compute budgets, run-to-run variance can be substantial. Reporting a single number without a spread (e.g., mean ± SD over 3-5 seeds) makes it impossible for the reader to assess whether the reported +5.4pp improvement over FineVision is a robust effect or potentially within the noise of the training process. The authors should aggregate results from multiple seeds (if available) or explicitly state the number of seeds used and report the variance.
+In **Sections 4.2 and 5**, benchmark scores (e.g., 68.4, 73.0) are presented as single point estimates. The manuscript does not specify the number of training seeds or provide standard deviations (SD), standard errors (SE), or confidence intervals (CI). In deep learning, performance varies across random seeds. Reporting a single number creates a false sense of precision. A reported gain of 0.6 percentage points is statistically indistinguishable from noise if the standard deviation across seeds is >0.5. The authors should report mean ± SD over at least 3 seeds for all main results or explicitly state that numbers come from a single run.
 
-Additionally, the selection of the optimal learning rate in Section 4.1 (Table 2) is based on identifying the maximum mean score across 5 values. No statistical test is performed to determine if the differences between the top-performing LR and the others are statistically significant. Given the small sample size (likely 1-3 runs per cell), the "optimal" LR might be a result of random fluctuation. While this is a common practice in the field, the paper would be more rigorous if it reported the standard deviation for each LR setting or acknowledged the lack of statistical significance testing for the hyperparameter sweep.
+In **Section 3.2**, the authors report a Pearson correlation of $r=0.99$ and Spearman $\rho=0.99$ based on 27 data points. While the correlation is strong, the statistical significance (p-value) and 95% confidence interval are missing. With $N=27$, omitting the confidence interval leaves the inferential claim incomplete.
 
-Finally, the claim of "near-perfect fidelity" (r=0.99) in the control experiments (Section 5.1) is supported by a high correlation coefficient, but the paper does not report the confidence interval for this correlation or the p-value. While r=0.99 with N=27 is clearly significant, providing the 95% CI would strengthen the claim of "near-perfect" by quantifying the precision of the estimate.
+Finally, in **Sections 3.1 and 4.1**, specific point-difference improvements (e.g., "+1.1pp") are reported to one decimal place. Without accompanying variance metrics, these specific decimal claims are not statistically justified. If variance is not reported, the precision of the reported differences should be reduced (e.g., to integers) to avoid false precision.
 
-These are primarily reporting issues (writing severity) rather than fundamental flaws in the experimental design or analysis logic, as the field often accepts mean-over-seeds without formal hypothesis tests. However, the complete absence of any uncertainty metric for the headline results is a gap that should be filled to ensure the numbers mean what the paper claims they mean.
+These are reporting gaps rather than fundamental errors in test selection, but they prevent the numbers from meaningfully supporting the paper's claims of robust improvements.

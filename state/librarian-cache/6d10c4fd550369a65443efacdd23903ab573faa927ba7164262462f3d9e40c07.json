@@ -1,0 +1,561 @@
+{
+  "fetched_at": "2026-07-07T10:18:41Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\"",
+      "target_n": 5
+    },
+    "duration_seconds": 50.707,
+    "ended_at": "2026-07-07T10:18:41Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "bidirectional evolutionary search for language model optimization"
+        ],
+        [
+          2,
+          "self-improving language models via evolutionary algorithms"
+        ],
+        [
+          3,
+          "evolutionary search strategies in large language model fine-tuning"
+        ],
+        [
+          4,
+          "bidirectional optimization of LLM generative capabilities"
+        ],
+        [
+          5,
+          "genetic algorithms for self-refining language models"
+        ],
+        [
+          6,
+          "iterative self-improvement in neural language models"
+        ],
+        [
+          7,
+          "evolutionary computation applied to LLM parameter evolution"
+        ],
+        [
+          8,
+          "bidirectional mutation and selection in language model training"
+        ],
+        [
+          9,
+          "autonomous language model improvement through evolutionary search"
+        ],
+        [
+          10,
+          "co-evolutionary approaches to language model self-enhancement"
+        ],
+        [
+          11,
+          "evolutionary search for enhancing LLM linguistic performance"
+        ],
+        [
+          12,
+          "self-optimization mechanisms in bidirectional language models"
+        ],
+        [
+          13,
+          "evolutionary fine-tuning of large language models"
+        ],
+        [
+          14,
+          "bidirectional search for LLM capability expansion"
+        ],
+        [
+          15,
+          "evolutionary strategies for automated LLM improvement"
+        ],
+        [
+          16,
+          "recursive self-improvement in language model architectures"
+        ],
+        [
+          17,
+          "evolutionary optimization of language model linguistic features"
+        ],
+        [
+          18,
+          "bidirectional evolution of generative language model policies"
+        ],
+        [
+          19,
+          "self-evolving language models using bidirectional search"
+        ],
+        [
+          20,
+          "evolutionary search for linguistic generalization in LLMs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "bidirectional evolutionary search for language model optimization": 3,
+        "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "bidirectional evolutionary search language model optimization",
+      "iterative self-improvement LLM linguistic competence",
+      "evolutionary algorithm neural language generation fitness",
+      "syntactic semantic evaluation evolutionary language models",
+      "genetic programming language model adaptation dynamics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2411.00750"
+      ]
+    },
+    "per_query_hit_count": {
+      "bidirectional evolutionary search language model optimization": 3,
+      "evolutionary algorithm neural language generation fitness": 2,
+      "genetic programming language model adaptation dynamics": 3,
+      "iterative self-improvement LLM linguistic competence": 3,
+      "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\" linguistics": 3,
+      "syntactic semantic evaluation evolutionary language models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2606.14257",
+          "rationale": "The paper focuses on Linguistics Olympiad problems as a corpus for human linguistic research and as benchmarks for evaluating LLMs, but it does not address the specific mechanism of \"bidirectional evolutionary search\" or the \"self-improving\" training methodology central to the user's question. While it mentions LLMs, it falls under the \"distinct construct\" rejection rule because it studies the *application* of LLMs to puzzles rather than the *algorithmic evolution* of the models themselves.",
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?"
+        },
+        {
+          "primary_pointer": "1303.3469",
+          "rationale": "The paper focuses on general continuous global optimization using hybrid evolutionary algorithms and sequential quadratic programming, which is an off-domain application of evolutionary computation compared to the user's specific question about \"Self-Improving Language Models\" and \"Bidirectional Evolutionary Search\" in a linguistics context. It does not measure the same biological/algorithmic mechanism (LLM self-improvement), study the same empirical population (language models), or provide a fo",
+          "title": "Hybrid Evolutionary Computation for Continuous Optimization"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-07T10:17:50Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+      "raw": "llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional Evolutionary Search\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-07T10:18:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-07T10:18:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evolutionary Computation (EC) has emerged as a powerful field of Artificial Intelligence, inspired by nature's mechanisms of gradual development. However, EC approaches often face challenges such as stagnation, diversity loss, computational complexity, population initialization, and premature convergence. To overcome these limitations, researchers have integrated learning algorithms with evolutionary techniques. This integration harnesses the valuable data generated by EC algorithms during iterative searches, providing insights into the search space and population dynamics. Similarly, the relationship between evolutionary algorithms and Machine Learning (ML) is reciprocal, as EC methods offer exceptional opportunities for optimizing complex ML tasks characterized by noisy, inaccurate, and dynamic objective functions. These hybrid techniques, known as Evolutionary Machine Learning (EML), have been applied at various stages of the ML process. EC techniques play a vital role in tasks such as data balancing, feature selection, and model training optimization. Moreover, ML tasks often require dynamic optimization, for which Evolutionary Dynamic Optimization (EDO) is valuable. This paper presents the first comprehensive exploration of reciprocal integration between EDO and ML. The study aims to stimulate interest in the evolutionary learning community and inspire innovative contributions in this domain.",
+          "claimed_authors": [
+            "Abdennour Boulesnane"
+          ],
+          "claimed_title": "Evolutionary Dynamic Optimization and Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.08748"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Evolutionary Dynamic Optimization and Machine Learning')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exposing an Evolutionary Algorithm that is used to evolve robot controllers to variable conditions is necessary to obtain solutions which are robust and can cross the reality gap. However, we do not yet have methods for analyzing and understanding the impact of the varying morphological conditions which impact the evolutionary process, and therefore for choosing suitable variation ranges. By morphological conditions, we refer to the starting state of the robot, and to variations in its sensor readings during operation due to noise. In this article, we introduce a method that permits us to measure the impact of these morphological variations and we analyze the relation between the amplitude of variations, the modality with which they are introduced, and the performance and robustness of evolving agents. Our results demonstrate that (i) the evolutionary algorithm can tolerate morphological variations which have a very high impact, (ii) variations affecting the actions of the agent are tolerated much better than variations affecting the initial state of the agent or of the environment, and (iii) improving the accuracy of the fitness measure through multiple evaluations is not always useful. Moreover, our results show that morphological variations permit generating solutions which perform better both in varying and non-varying conditions.",
+          "claimed_authors": [
+            "Jonata Tyska Carvalho",
+            "Stefano Nolfi"
+          ],
+          "claimed_title": "The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.02809"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='The Role of Morphological Variation in Evolutionary Robotics: Maximizing Performance and Robustness')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the $\\underline{Ko}rean \\underline{G}rammar \\underline{E}valuation Bench\\underline{M}ark (KoGEM)$, designed to assess the linguistic competence of LLMs and humans in Korean. KoGEM consists of 1.5k multiple-choice QA pairs covering five main categories and 16 subcategories. The zero-shot evaluation of 27 LLMs of various sizes and types reveals that while LLMs perform remarkably well on straightforward tasks requiring primarily definitional knowledge, they struggle with tasks that demand the integration of real-world experiential knowledge, such as phonological rules and pronunciation. Furthermore, our in-depth analysis suggests that incorporating such experiential knowledge could enhance the linguistic competence of LLMs. With KoGEM, we not only highlight the limitations of current LLMs in linguistic competence but also uncover hidden facets of LLMs in linguistic competence, paving the way for enhancing comprehensive language understanding. Our code and dataset are available at: https://github.com/SungHo3268/KoGEM.",
+          "claimed_authors": [
+            "SungHo Kim",
+            "Nayeon Kim",
+            "Taehee Jeon",
+            "SangKeun Lee"
+          ],
+          "claimed_title": "Polishing Every Facet of the GEM: Testing Linguistic Competence of LLMs and Humans in Korean",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01237"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Polishing Every Facet of the GEM: Testing Linguistic Competence of LLMs and Humans in Korean')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in deep neural language models combined with the capacity of large scale datasets have accelerated the development of natural language generation systems that produce fluent and coherent texts (to various degrees of success) in a multitude of tasks and application contexts. However, controlling the output of these models for desired user and task needs is still an open challenge. This is crucial not only to customizing the content and style of the generated language, but also to their safe and reliable deployment in the real world. We present an extensive survey on the emerging topic of constrained neural language generation in which we formally define and categorize the problems of natural language generation by distinguishing between conditions and constraints (the latter being testable conditions on the output text instead of the input), present constrained text generation tasks, and review existing methods and evaluation metrics for constrained text generation. Our aim is to highlight recent progress and trends in this emerging field, informing on the most promising directions and limitations towards advancing the state-of-the-art of constrained neural language generation research.",
+          "claimed_authors": [
+            "Cristina Garbacea",
+            "Qiaozhu Mei"
+          ],
+          "claimed_title": "Why is constrained neural language generation particularly challenging?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.05395"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Why is constrained neural language generation particularly challenging?')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Management and mission planning over a swarm of unmanned aerial vehicle (UAV) remains to date as a challenging research trend in what regards to this particular type of aircrafts. These vehicles are controlled by a number of ground control station (GCS), from which they are commanded to cooperatively perform different tasks in specific geographic areas of interest. Mathematically the problem of coordinating and assigning tasks to a swarm of UAV can be modeled as a constraint satisfaction problem, whose complexity and multiple conflicting criteria has hitherto motivated the adoption of multi-objective solvers such as multi-objective evolutionary algorithm (MOEA). The encoding approach consists of different alleles representing the decision variables, whereas the fitness function checks that all constraints are fulfilled, minimizing the optimization criteria of the problem. In problems of high complexity involving several tasks, UAV and GCS, where the space of search is huge compared to the space of valid solutions, the convergence rate of the algorithm increases significantly. To overcome this issue, this work proposes a weighted random generator for the creation and mutation of new individuals. The main objective of this work is to reduce the convergence rate of the MOEA solver for multi-UAV mission planning using weighted random strategies that focus the search on potentially better regions of the solution space. Extensive experimental results over a diverse range of scenarios evince the benefits of the proposed approach, which notably improves this convergence rate with respect to a naïve MOEA approach.",
+          "claimed_authors": [
+            "Cristian Ramirez-Atencia",
+            "Javier Del Ser",
+            "David Camacho"
+          ],
+          "claimed_title": "Weighted strategies to guide a multi-objective evolutionary algorithm for multi-UAV mission planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.18749"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Weighted strategies to guide a multi-objective evolutionary algorithm for multi-UAV mission planning')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an analysis of the performance of machine learning classifiers on discriminating between similar languages and language varieties. We carried out a number of experiments using the results of the two editions of the Discriminating between Similar Languages (DSL) shared task. We investigate the progress made between the two tasks, estimate an upper bound on possible performance using ensemble and oracle combination, and provide learning curves to help us understand which languages are more challenging. A number of difficult sentences are identified and investigated further with human annotation.",
+          "claimed_authors": [
+            "Cyril Goutte",
+            "Serge Léger",
+            "Shervin Malmasi",
+            "Marcos Zampieri"
+          ],
+          "claimed_title": "Discriminating Similar Languages: Evaluations and Explorations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00031"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Discriminating Similar Languages: Evaluations and Explorations')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper evaluates the performance of transformer-based language models on split-ergative case alignment in Georgian, a particularly rare system for assigning grammatical cases to mark argument roles. We focus on subject and object marking determined through various permutations of nominative, ergative, and dative noun forms. A treebank-based approach for the generation of minimal pairs using the Grew query language is implemented. We create a dataset of 370 syntactic tests made up of seven tasks containing 50-70 samples each, where three noun forms are tested in any given sample. Five encoder- and two decoder-only models are evaluated with word- and/or sentence-level accuracy metrics. Regardless of the specific syntactic makeup, models performed worst in assigning the ergative case correctly and strongest in assigning the nominative case correctly. Performance correlated with the overall frequency distribution of the three forms (NOM > DAT > ERG). Though data scarcity is a known issue for low-resource languages, we show that the highly specific role of the ergative along with a lack of available training data likely contributes to poor performance on this case. The dataset is made publicly available and the methodology provides an interesting avenue for future syntactic evaluations of languages where benchmarks are limited.",
+          "claimed_authors": [
+            "Daniel Gallagher",
+            "Gerhard Heyer"
+          ],
+          "claimed_title": "Targeted Syntactic Evaluation of Language Models on Georgian Case Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.10661"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Targeted Syntactic Evaluation of Language Models on Georgian Case Alignment')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, much work has concerned itself with the enigma of what exactly pretrained language models~(PLMs) learn about different aspects of language, and how they learn it. One stream of this type of research investigates the knowledge that PLMs have about semantic relations. However, many aspects of semantic relations were left unexplored. Generally, only one relation has been considered, namely hypernymy. Furthermore, previous work did not measure humans' performance on the same task as that performed by the PLMs. This means that at this point in time, there is only an incomplete view of the extent of these models' semantic relation knowledge. To address this gap, we introduce a comprehensive evaluation framework covering five relations beyond hypernymy, namely hyponymy, holonymy, meronymy, antonymy, and synonymy. We use five metrics (two newly introduced here) for recently untreated aspects of semantic relation knowledge, namely soundness, completeness, symmetry, prototypicality, and distinguishability. Using these, we can fairly compare humans and models on the same task. Our extensive experiments involve six PLMs, four masked and two causal language models. The results reveal a significant knowledge gap between humans and models for all semantic relations. In general, causal language models, despite their wide use, do not always perform significantly better than masked language models. Antonymy is the outlier relation where all models perform reasonably well. The evaluation materials can be found at https://github.com/hancules/ProbeResponses.",
+          "claimed_authors": [
+            "Zhihan Cao",
+            "Hiroaki Yamada",
+            "Simone Teufel",
+            "Takenobu Tokunaga"
+          ],
+          "claimed_title": "A Comprehensive Evaluation of Semantic Relation Knowledge of Pretrained Language Models and Humans",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.01131"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='A Comprehensive Evaluation of Semantic Relation Knowledge of Pretrained Language Models and Humans')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years the field of genetic programming has made significant advances towards automatic programming. Research and development of contemporary program synthesis methods, such as PushGP and Grammar Guided Genetic Programming, can produce programs that solve problems typically assigned in introductory academic settings. These problems focus on a narrow, predetermined set of simple data structures, basic control flow patterns, and primitive, non-overlapping data types (without, for example, inheritance or composite types). Few, if any, genetic programming methods for program synthesis have convincingly demonstrated the capability of synthesizing programs that use arbitrary data types, data structures, and specifications that are drawn from existing codebases. In this paper, we introduce Code Building Genetic Programming (CBGP) as a framework within which this can be done, by leveraging programming language features such as reflection and first-class specifications. CBGP produces a computational graph that can be executed or translated into source code of a host language. To demonstrate the novel capabilities of CBGP, we present results on new benchmarks that use non-primitive, polymorphic data types as well as some standard program synthesis benchmarks.",
+          "claimed_authors": [
+            "Edward Pantridge",
+            "Lee Spector"
+          ],
+          "claimed_title": "Code Building Genetic Programming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.03649"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Code Building Genetic Programming')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cartesian Genetic Programming has traditionally been using mutation as its main and often sole genetic operator to drive evolutionary search. Despite advancements in recent years, recombinationbased approaches have long been avoided, due to apparent lack of performance gains. This study examines two recently suggested recombination-based operators, subgraph crossover and discrete phenotypic recombination on SRBench, a benchmarking platform for symbolic regression. Using the implementations provided in the TinyverseGP framework, we perform hyperparameter optimisation of the respective representations with these two operators. Our work demonstrates that hyperparameter optimisation can lead to improvements in performance for recombination-based Cartesian Genetic Programming.",
+          "claimed_authors": [
+            "Duy Long Tran",
+            "Anja Jankovic",
+            "Marie Anastacio",
+            "Holger Hoos",
+            "Roman Kalkreuth"
+          ],
+          "claimed_title": "Improving Evaluation of Recombination-based Cartesian Genetic Programming",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.28353"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='Improving Evaluation of Recombination-based Cartesian Genetic Programming')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In programmers point of view, Datatypes in programming language level have a simple description but inside hardware, huge machine codes are responsible to describe type features. Datatype architecture design is a novel approach to match programming features along with hardware design. In this paper a novel Data type-Based Code Reducer (TYPELINE) architecture is proposed and implemented according to significant data types (SDT) of programming languages. TYPELINE uses TEUs for processing various SDT operations. This architecture design leads to reducing the number of machine codes, and increases execution speed, and also improves some parallelism level. This is because this architecture supports some operation for the execution of Abstract Data Types in parallel. Also it ensures to maintain data type features and entire application level specifications using the proposed type conversion unit. This framework includes compiler level identifying execution modes and memory management unit for decreasing object read/write in heap memory by ISA support. This energy-efficient architecture is completely compatible with object oriented programming languages and in combination mode it can process complex C++ data structures with respect to parallel TYPELINE architecture support.",
+          "claimed_authors": [
+            "Mehran Alidoost Nia",
+            "Reza Ebrahimi Atani"
+          ],
+          "claimed_title": "A novel datatype architecture support for programming languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.0087"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Self-Improving Language Models with Bidirectional ', candidate_title='A novel datatype architecture support for programming languages')",
+        "failed_at": "2026-07-07T10:18:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingyu Wu",
+            "Sheng-hao Wu",
+            "Jibin Wu",
+            "Liang Feng",
+            "Kay Chen Tan"
+          ],
+          "title": "Evolutionary Computation in the Era of Large Language Model: Survey and Roadmap",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.10034",
+        "summary": "Large language models (LLMs) have not only revolutionized natural language processing but also extended their prowess to various domains, marking a significant stride towards artificial general intelligence. The interplay between LLMs and evolutionary algorithms (EAs), despite differing in objectives and methodologies, share a common pursuit of applicability in complex problems. Meanwhile, EA can provide an optimization framework for LLM's further enhancement under black-box settings, empowering LLM with flexible global search capacities. On the other hand, the abundant domain knowledge inherent in LLMs could enable EA to conduct more intelligent searches. Furthermore, the text processing and generative capabilities of LLMs would aid in deploying EAs across a wide range of tasks. Based on these complementary advantages, this paper provides a thorough review and a forward-looking roadmap, categorizing the reciprocal inspiration into two main avenues: LLM-enhanced EA and EA-enhanced LLM. Some integrated synergy methods are further introduced to exemplify the complementarity between LLMs and EAs in diverse scenarios, including code generation, software engineering, neural architecture search, and various generation tasks. As the first comprehensive review focused on the EA research in the era of LLMs, this paper provides a foundational stepping stone for understanding the collaborative potential of LLMs and EAs. The identified challenges and future directions offer guidance for researchers and practitioners to unlock the full potential of this innovative collaboration in propelling advancements in optimization and artificial intelligence. We have created a GitHub repository to index the relevant papers: https://github.com/wuxingyu-ai/LLM4EC.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.10034",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T10:18:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiwen Ding",
+            "Zhiheng Xi",
+            "Wei He",
+            "Zhuoyuan Li",
+            "Yitao Zhai",
+            "Xiaowei Shi",
+            "Xunliang Cai",
+            "Tao Gui",
+            "Qi Zhang",
+            "Xuanjing Huang"
+          ],
+          "title": "Mitigating Tail Narrowing in LLM Self-Improvement via Socratic-Guided Sampling",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.00750",
+        "summary": "Self-improvement methods enable large language models (LLMs) to generate solutions themselves and iteratively train on filtered, high-quality rationales. This process proves effective and reduces the reliance on human supervision in LLMs' reasoning, but the performance soon plateaus. We delve into the process and find that models tend to over-sample on easy queries and under-sample on queries they have yet to master. As iterations proceed, this imbalance in sampling is exacerbated, leading to a long-tail distribution where solutions to difficult queries almost diminish. This phenomenon limits the performance gain of self-improving models. A straightforward solution is brute-force sampling to balance the distribution, which significantly raises computational costs. In this paper, we introduce Guided Self-Improvement (GSI), a strategy aimed at improving the efficiency of sampling challenging heavy-tailed data. It leverages Socratic-style guidance signals to help LLM reasoning with complex queries, reducing the exploration effort and minimizing computational overhead. Experiments on four models across diverse mathematical tasks show that GSI strikes a balance between performance and efficiency, while also being effective on held-out tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.00750",
+          "http_status": 200,
+          "pdf_sample_score": 0.2627,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T10:18:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdennour Boulesnane"
+          ],
+          "title": "Evolutionary Dynamic Optimization and Machine Learning",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.08748",
+        "summary": "Evolutionary Computation (EC) has emerged as a powerful field of Artificial Intelligence, inspired by nature's mechanisms of gradual development. However, EC approaches often face challenges such as stagnation, diversity loss, computational complexity, population initialization, and premature convergence. To overcome these limitations, researchers have integrated learning algorithms with evolutionary techniques. This integration harnesses the valuable data generated by EC algorithms during iterative searches, providing insights into the search space and population dynamics. Similarly, the relationship between evolutionary algorithms and Machine Learning (ML) is reciprocal, as EC methods offer exceptional opportunities for optimizing complex ML tasks characterized by noisy, inaccurate, and dynamic objective functions. These hybrid techniques, known as Evolutionary Machine Learning (EML), have been applied at various stages of the ML process. EC techniques play a vital role in tasks such as data balancing, feature selection, and model training optimization. Moreover, ML tasks often require dynamic optimization, for which Evolutionary Dynamic Optimization (EDO) is valuable. This paper presents the first comprehensive exploration of reciprocal integration between EDO and ML. The study aims to stimulate interest in the evolutionary learning community and inspire innovative contributions in this domain.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.08748",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-07T10:18:29Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

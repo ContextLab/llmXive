@@ -1,20 +1,66 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema"
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Telomere-Lifespan Dataset Schema
+description: >
+  Schema for the analysis-ready dataset produced by the data integration pipeline (US1).
+  Contains standardized telomere lengths (kb), lifespan data, and ecological covariates.
 type: object
-properties:
-  species:
-    type: string
-  telomere_length_kb:
-    type: number
-  lifespan:
-    type: number
-  migration_status:
-    type: string
-  body_mass_g:
-    type: number
 required:
   - species
   - telomere_length_kb
   - lifespan
   - migration_status
   - body_mass_g
+properties:
+  species:
+    type: string
+    description: Scientific name of the species (binomial nomenclature)
+    minLength: 1
+  telomere_length_kb:
+    type: number
+    description: Telomere length in kilobases (kb)
+    minimum: 0
+    exclusiveMinimum: false
+  lifespan:
+    type: number
+    description: Maximum lifespan in years
+    minimum: 0
+    exclusiveMinimum: false
+  migration_status:
+    type: string
+    description: Migration status of the species
+    enum:
+      - Migratory
+      - Resident
+      - Partially Migratory
+      - Unknown
+  body_mass_g:
+    type: number
+    description: Body mass in grams
+    minimum: 0
+    exclusiveMinimum: false
+  source_dataset_id:
+    type: string
+    description: Identifier of the source dataset (e.g., Dryad ID)
+    optional: true
+  measurement_method:
+    type: string
+    description: Method used to measure telomeres (e.g., qPCR, TRF)
+    optional: true
+  sample_size:
+    type: integer
+    description: Number of individuals in the measurement
+    minimum: 1
+    optional: true
+  wild_caught:
+    type: boolean
+    description: Whether the individuals were wild-caught
+    optional: true
+  life_stage:
+    type: string
+    description: Life stage at measurement
+    enum:
+      - Early-life
+      - Adult
+      - Unknown
+    optional: true
+additionalProperties: false

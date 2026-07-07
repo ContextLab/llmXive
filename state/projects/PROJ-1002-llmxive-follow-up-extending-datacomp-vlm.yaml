@@ -1,6 +1,6 @@
 artifact_hashes: {}
 assigned_agent: null
-created_at: '2026-07-07T10:31:54.533376Z'
+created_at: '2026-07-07T10:43:48.205530Z'
 current_stage: brainstormed
 failed_stage: null
 field: computer science
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "DataComp-VLM: Improved Open Datasets for Vision-Language
   Models"'
-updated_at: '2026-07-07T10:31:54.533376Z'
+updated_at: '2026-07-07T10:43:48.205530Z'

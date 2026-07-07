@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.14257",
+  "judged_at": "2026-07-07T10:18:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"self-improving language models with bidirectional evolutionary search\" linguistics",
+  "rationale": "The paper focuses on Linguistics Olympiad problems as a corpus for human linguistic research and as benchmarks for evaluating LLMs, but it does not address the specific mechanism of \"bidirectional evolutionary search\" or the \"self-improving\" training methodology central to the user's question. While it mentions LLMs, it falls under the \"distinct construct\" rejection rule because it studies the *application* of LLMs to puzzles rather than the *algorithmic evolution* of the models themselves.",
+  "relevant": false
+}
