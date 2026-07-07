@@ -1,0 +1,51 @@
+{
+  "arxiv_id": "2606.29526",
+  "arxiv_url": "https://arxiv.org/abs/2606.29526",
+  "title": "The Mirage of Optimizing Training Policies: Monotonic Inference Policies as the Real Objective for LLM Reinforcement Learning",
+  "authors": [
+    "Jing Liang",
+    "Hongyao Tang",
+    "Yi Ma",
+    "Yancheng He",
+    "Weixun Wang",
+    "Xiaoyang Li",
+    "Ju Huang",
+    "Wenbo Su",
+    "Jinyi Liu",
+    "Yan Zheng",
+    "Jianye Hao",
+    "Bo Zheng"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Reinforcement learning (RL) has gained growing attention in large language model (LLM) post-training, yet RL training remains fragile and can suffer from instability or collapse. One vital cause is training-inference mismatch: LLM adopts separate inference and training engines for generation efficiency and training precision, which in practice exhibits inconsistent probabilities for the same trajectories on training and inference sides, even with synchronized model parameters. This naturally induces a special type of off-policyness ever existing and poisoning the training. Prior works have made various efforts in addressing the off-policyness to stabilize the training policies under the mismatch. In this paper, we point out the objective misalignment neglected by existing works that an effective update to the policy in the training engine not necessarily ensures the improvement of the inference policy, i.e., the one used in deployment. To this end, we propose a new policy optimization objective for LLM RL, named Monotonic Inference Policy Improvement (MIPI). Following this principle, we introduce Monotonic Inference Policy Update (MIPU), a two-step LLM RL framework that constructs sampler-referenced candidate updates and selectively accepts synchronized candidates using an inference-side gap proxy. Experiments conducted on two model scales under high mismatch show that MIPU improves average reasoning performance and training stability.",
+  "submitted_via": "llmXive dashboard, GitHub issue #519",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "arxiv.bst",
+    "arxiv.sty",
+    "fig",
+    "fig/ablation_four_panel.pdf",
+    "fig/github-logo.pdf",
+    "fig/main_0615v1.pdf",
+    "fig/random.png",
+    "fig/score_curve.pdf",
+    "fig/step1_is_three_panel_compact.pdf",
+    "fig/term1_stacked.pdf",
+    "fig/th_metrics_curves.pdf",
+    "main.tex",
+    "ref.bib",
+    "tex",
+    "tex/exp.tex",
+    "tex/intro.tex",
+    "tex/method.tex",
+    "tex/pre.tex",
+    "tex/related_works.tex"
+  ]
+}

@@ -1,0 +1,458 @@
+\documentclass{article}
+
+
+\usepackage[preprint]{arxiv}
+
+\usepackage{bbm}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+\def\subsubsectionautorefname{Section}
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{subcaption}
+\usepackage{booktabs}
+
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage[table]{xcolor}
+\usepackage{wrapfig}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}} 
+\usepackage{graphicx}  
+\usepackage{multirow}  
+\usepackage{booktabs}  
+\usepackage{array}     
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath, amssymb}
+\usepackage{natbib}
+\algrenewcommand\alglinenumber[1]{\normalsize #1:}
+\definecolor{Cornsilk}{rgb}{1.0, 0.97, 0.86}
+\definecolor{lightorange}{rgb}{0.996, 0.855, 0.643}
+\definecolor{lightgray}{rgb}{1.0, 0.827, 0.278}
+\usepackage[most]{tcolorbox}
+\definecolor{membg}{HTML}{ea6b3c}
+\definecolor{memblue2}{HTML}{fcf5ea}
+\renewenvironment{abstract}{%
+  \begin{tcolorbox}[
+    enhanced,
+    colback=memblue2,
+    colframe=membg,
+    boxrule=0.5pt,
+    arc=2.5mm,
+    left=8mm, right=8mm, top=6mm, bottom=6mm,
+    before skip=0pt,
+  ]
+  \begin{center}
+    {\bfseries\color{membg} Abstract}
+  \end{center}
+  \vspace{3mm}
+}{%
+  \end{tcolorbox}
+}
+\newcommand{\thy}[1]{\textcolor{blue}{[thy: #1]}}
+
+\newcommand{\lj}[1]{\textcolor{green}{[lj: #1]}}
+
+\hypersetup{colorlinks,linkcolor={blue},citecolor={magenta},urlcolor={blue}}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{fig/github-logo.pdf}}}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+\title{The Mirage of Optimizing Training Policies: Monotonic Inference Policies as the Real Objective for LLM Reinforcement Learning}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\newcommand{\authorshift}{-0.35cm}
+
+\author{
+\makebox[\textwidth][c]{\hspace*{\authorshift}%
+Jing Liang$^{1,2}$\footnotemark[1] \quad
+Hongyao Tang$^{1}$\footnotemark[1] \quad
+Yi Ma$^{1}$\footnotemark[1] \quad
+Yancheng He$^{2}$\footnotemark[2]\quad
+Weixun Wang$^{2}$\footnotemark[2] \quad
+\textbf{Xiaoyang Li}$^{2}$%
+}\\
+\makebox[\textwidth][c]{\hspace*{\authorshift}%
+\textbf{Ju Huang}$^{2}$ \quad
+\textbf{Wenbo Su}$^{2}$ \quad
+\textbf{Jinyi Liu}$^{1}$ \quad
+\textbf{Yan Zheng}$^{1}$\footnotemark[2] \quad
+\textbf{Jianye Hao}$^{1}$\footnotemark[2] \quad
+\textbf{Bo Zheng}$^{2}$%
+}\\
+\makebox[\textwidth][c]{\hspace*{\authorshift}%
+$^{1}$Tianjin University \quad
+$^{2}$Alibaba%
+}
+}
+
+
+
+\begin{document}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\setcounter{footnote}{0}
+
+\maketitle
+
+\footnotetext[1]{Equal contribution}
+\footnotetext[2]{Corresponding authors}
+
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+
+
+
+\begin{abstract}
+Reinforcement learning (RL) has gained growing attention in large language model (LLM) post-training, yet RL training remains fragile and can suffer from instability or collapse. 
+One vital cause is \textit{training-inference mismatch}: 
+LLM adopts separate inference and training engines for generation efficiency and training precision, which in practice exhibits inconsistent probabilities for the same trajectories on training and inference sides, even with synchronized model parameters.
+This naturally induces a special type of off-policyness ever existing and poisoning the training.
+Prior works have made various efforts in addressing the off-policyness to stabilize the training policies under the mismatch.
+In this paper, we point out the \textit{objective misalignment} neglected by existing works that an effective update to the policy in the training engine not necessarily ensures the improvement of the inference policy, i.e., the one used in deployment.
+To this end, we propose a new policy optimization objective for LLM RL, named \textbf{Monotonic Inference Policy Improvement (MIPI)}. 
+Following this principle, we introduce \textbf{Monotonic Inference Policy Update (MIPU)}, a two-step LLM RL framework that constructs sampler-referenced candidate updates and selectively accepts synchronized candidates using an inference-side gap proxy.
+Experiments conducted on two model scales under high mismatch show that \textbf{MIPU} improves average reasoning performance and training stability.
+
+\vspace{0.2cm}
+
+\github{} \textbf{Project Page}: \href{https://anitaleungxx.github.io/MIPU/}{https://anitaleungxx.github.io/MIPU}
+\end{abstract}
+
+\input{tex/intro}
+
+\input{tex/pre}
+
+
+\input{tex/related_works}
+
+\input{tex/method}
+
+\input{tex/exp}
+
+\section{Conclusion}
+\label{sec:conclusion}
+We revisit training-inference mismatch in LLM reinforcement learning from an objective-level perspective. 
+Rather than treating mismatch only as a system discrepancy to be reduced, we show that it changes the object of policy improvement: standard RL updates optimize the training policy, while deployment depends on the inference policy. 
+Based on this view, we formulate Monotonic Inference Policy Improvement (\textbf{MIPI}) and propose Monotonic Inference Policy Update (\textbf{MIPU}), which realizes \textbf{MIPI} through sampler-referenced candidate construction and inference-gap-aware candidate acceptance. 
+Experiments under FP8-quantized rollout show that \textbf{MIPU} improves average reasoning performance and training stability, and further analysis confirms the rationality of Step~2.
+These results suggest that training-inference mismatch should not be treated only as a low-level system discrepancy, but also as a change in the objective of policy improvement.
+
+
+\paragraph{Limitations.}
+Due to significant computational constraints, our experiments are currently limited to moderate-scale models. 
+Future work should examine whether the same mismatch patterns also appear in larger models and more diverse RL training systems.
+In addition, Step~2 should be viewed as a flexible design space rather than a fixed implementation. 
+Our validation-based post-update gap proxy provides one effective instantiation for evaluating synchronized candidates from the deployment side. 
+Future work may further improve this component with more efficient estimators, stronger acceptance criteria, or optimization schemes that directly leverage the post-update inference gap.
+
+\bibliography{ref}
+\bibliographystyle{arxiv}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\appendix
+
+\section{Implement Details}
+\label{app:details}
+
+\subsection{Hyperparmeters}
+\label{app:hyperparams}
+The major hyperparameter choices are shown in~\autoref{tab:hypers}.
+
+\begin{table}[h]
+\caption{\textbf{Hyperparameter setups.}}
+\vspace{0.25cm}
+\centering
+\begin{tabular}{l|l}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+\multicolumn{2}{l}{\textit{Decoding Configuration}} \\
+\midrule
+training temperature & 1.0\\
+evaluation temperature & 0.7\\
+top-p & 1.0\\
+top-k & -1\\
+response\_length & 8192 \\
+prompt\_length & 512 \\
+\midrule
+\multicolumn{2}{l}{\textit{Training Configuration}} \\
+\midrule
+learning\_rate & 1e-6 \\
+num\_return\_sequences\_in\_group & 8\\
+train\_batch\_size & 64 \\
+dual\_clip\_loss & true \\
+kl\_loss\_coef & 0.001 \\
+gradient\_accumulation\_steps & 32 \\
+\midrule
+\multicolumn{2}{l}{\textit{Infrastructure Configuration}} \\
+\midrule
+GPUs & H100 * 8\\
+RL framwork & ROLL~\citep{roll} \\
+Training engine & Megatron \\
+Inference engine & vLLM \\
+\bottomrule
+\end{tabular}
+\label{tab:hypers}
+
+\end{table}
+
+\subsection{Implementation Details}
+\label{app:implementation-details}
+\paragraph{Baseline.}
+We use vanilla GRPO with the same rollout, reward, and optimization settings as other methods. 
+In implementation, we additionally use the dual-clipped policy loss. 
+For a token-level ratio $r_{i,t}(\theta)=\pi_\theta(y_{i,t}\mid x,y_{i,<t})/\pi_k(y_{i,t}\mid x,y_{i,<t})$ and group-relative advantage $\hat{A}_i$, the standard clipped objective is
+$\ell^{\mathrm{clip}}_{i,t}=\min\!\left(r_{i,t}(\theta)\hat{A}_i,\operatorname{clip}(r_{i,t}(\theta),1-\epsilon,1+\epsilon)\hat{A}_i\right)$.
+The dual-clipped objective is then
+\[
+\ell^{\mathrm{dc}}_{i,t}
+=
+\begin{cases}
+\ell^{\mathrm{clip}}_{i,t}, & \hat{A}_i \ge 0,\\
+\max\!\left(\ell^{\mathrm{clip}}_{i,t}, (1+2\epsilon)\hat{A}_i\right), & \hat{A}_i < 0,
+\end{cases}
+\]
+where we set $\epsilon=0.2$. 
+The baseline maximizes the average dual-clipped GRPO objective over sampled responses.
+
+\paragraph{Ours.}
+For Step~1, we instantiate the sampler-referenced update with token-level truncated importance weights. 
+Specifically, for each generated token, we compute the training-to-inference mismatch weight $w^k_{i,t}$ and set $w_{\max}=2$. 
+The weight is applied after the dual-clipped GRPO objective is computed, yielding the Step~1 token-level objective
+\[
+\mathcal{J}_{\mathrm{S1}}
+=
+\mathbb{E}
+\left[
+\frac{1}{G}
+\sum_{i=1}^{G}
+\frac{1}{T_i}
+\sum_{t=1}^{T_i}
+\bar{w}^k_{i,t}\,
+\ell^{\mathrm{dc}}_{i,t}
+\right].
+\]
+Vanilla-IS follows the same implementation except that it uses the untruncated weight $w^k_{i,t}$ instead of the truncted $\bar{w}^k_{i,t}$.
+
+For Step~2, after the candidate training policy $\pi_{k+1}$ is synchronized to the inference engine as $\mu_{k+1}$, we estimate the post-update inference gap proxy $\widehat{T}_{\mathrm{post}}$ on a validation batch. 
+The candidate is accepted if $\widehat{T}_{\mathrm{post}}\ge -c_t$, where $c_t\ge 0$ is a dynamic acceptance tolerance parameter. 
+Motivated by the observation in~\autoref{fig:term1-mismatch} that $\widehat{T}_{\mathrm{post}}$ is initially low and then gradually increases under FP8 rollout, we use a larger tolerance in the early stage to avoid over-rejecting useful candidates. 
+The threshold is linearly annealed during the first $100$ steps:
+\[
+c_t
+=
+c_{\mathrm{start}}
++
+\frac{\min(t,100)}{100}
+\left(
+c_{\mathrm{end}}-c_{\mathrm{start}}
+\right).
+\]
+For Qwen3-1.7B, we set $c_{\mathrm{start}}=4\times 10^{-3}$ and $c_{\mathrm{end}}=1\times 10^{-3}$.
+For Qwen3-4B, we set $c_{\mathrm{start}}=1\times 10^{-3}$ and $c_{\mathrm{end}}=0$.
+After the first $100$ steps, the tolerance is fixed at $\tau_{\mathrm{end}}$.
+We further analyze the effect of different tolerance choices in~\autoref{app:tolerance}.
+
+\paragraph{MIS.}
+We implement MIS as a token-level mismatch-filtering baseline. 
+For each token, we compute the same training-to-inference ratio $w^k_{i,t}$. 
+Tokens whose mismatch weight exceeds the upper bound are masked out:
+\[
+m^k_{i,t}
+=
+\mathbbm{1}
+\left[
+w^k_{i,t}\le \bar{w}
+\right],
+\qquad
+\bar{w}=2.
+\]
+The MIS objective applies this mask to the dual-clipped GRPO objective:
+\[
+\mathcal{J}_{\mathrm{MIS}}
+=
+\mathbb{E}
+\left[
+\frac{1}{G}
+\sum_{i=1}^{G}
+\frac{1}{T_i}
+\sum_{t=1}^{T_i}
+m^k_{i,t}\,
+\ell^{\mathrm{dc}}_{i,t}
+\right].
+\]
+
+\paragraph{LR-decay.}
+We implement LR-decay following the original decay rule. 
+Let $\eta_t$ denote the learning rate at training step $t$. 
+At every decay interval $T_{\mathrm{decay}}$, the learning rate is halved until it reaches a lower bound $\eta_\infty$:
+\[
+\eta_t
+=
+\begin{cases}
+\max\!\left(\eta_{t-1}/2,\eta_\infty\right),
+& t \equiv 0 \pmod{T_{\mathrm{decay}}},\\
+\eta_{t-1},
+& \text{otherwise}.
+\end{cases}
+\]
+The model parameters are then updated using $\eta_t$. 
+Following the authors' guidance, we set $T_{\mathrm{decay}}=249$ for Qwen3-1.7B and $T_{\mathrm{decay}}=234$ for Qwen3-4B under FP8 rollout.
+
+
+\section{Analysis of Step 1: Sampler-Referenced Update}
+\label{app:step1-analysis}
+
+\begin{figure}[tbhp]
+    \centering
+    \includegraphics[width=\linewidth]{fig/step1_is_three_panel_compact.pdf}
+    \caption{\textbf{Step~1 implementation analysis under the Qwen3-4B FP8-quantized rollout.} Comparison of PPO-IS, Vanilla-IS, and TIS in terms of performance, gradient norm, inference-training K3-KL, and clip ratio.}
+    \label{fig:step1}
+\end{figure}
+
+Step~1 implements the sampler-referenced update derived in~\autoref{eq:ratio_factorization}. 
+For readability, we omit token or trajectory arguments in this section, and all ratios are evaluated on sampled rollouts. 
+A direct implementation is PPO-IS, which clips the total trainer-to-sampler ratio:
+\[
+\textbf{PPO-IS:}
+\qquad
+\omega_{\mathrm{PPO\text{-}IS}}
+=
+\operatorname{clip}\!\left(
+\frac{\textcolor{blue}{\pi_{\theta}}}{\textcolor{red}{\mu_k}},
+1-\epsilon,
+1+\epsilon
+\right).
+\]
+Although this ratio directly references the sampler, it mixes the pre-update mismatch between $\textcolor{blue}{\pi_k}$ and $\textcolor{red}{\mu_k}$ with the current update from $\textcolor{blue}{\pi_k}$ to $\textcolor{blue}{\pi_{\theta}}$. 
+As a result, the ratio can already deviate substantially from $1$ even before the current update is applied. 
+This makes the PPO clipping overly active and therefore less informative, because the trust-region constraint is no longer centered on the current training-side update itself. 
+This phenomenon is also consistent with the analysis in \citet{mismatch1}. 
+Empirically,~\autoref{fig:step1}(b) shows that PPO-IS has a much larger clipped ratio than the other variants, and~\autoref{fig:step1}(a) shows that, although it reduces the measured inference-training KL, it fails to produce a sustained upward learning trajectory.
+
+We therefore use the factorization
+\[
+\frac{\textcolor{blue}{\pi_{\theta}}}{\textcolor{red}{\mu_k}}
+=
+\underbrace{
+\frac{\textcolor{blue}{\pi_k}}{\textcolor{red}{\mu_k}}
+}_{\text{pre-update mismatch correction}}
+\cdot
+\underbrace{
+\frac{\textcolor{blue}{\pi_{\theta}}}{\textcolor{blue}{\pi_k}}
+}_{\text{current update ratio}},
+\]
+which separates the pre-update mismatch correction from the current training-side update. 
+This leads to two decomposed variants:
+\begin{gather*}
+\textbf{Vanilla-IS:}
+\qquad
+\omega_{\mathrm{Vanilla\text{-}IS}}
+=
+\frac{\textcolor{blue}{\pi_k}}{\textcolor{red}{\mu_k}}
+\cdot
+\operatorname{clip}\!\left(
+\frac{\textcolor{blue}{\pi_{\theta}}}{\textcolor{blue}{\pi_k}},
+1-\epsilon,
+1+\epsilon
+\right),
+\\[0.6em]
+\textbf{TIS:}
+\qquad
+\omega_{\mathrm{TIS}}
+=
+\min\!\left(
+\frac{\textcolor{blue}{\pi_k}}{\textcolor{red}{\mu_k}},
+C
+\right)
+\cdot
+\operatorname{clip}\!\left(
+\frac{\textcolor{blue}{\pi_{\theta}}}{\textcolor{blue}{\pi_k}},
+1-\epsilon,
+1+\epsilon
+\right).
+\end{gather*}
+
+Vanilla-IS keeps the trust-region constraint on the current update ratio $\textcolor{blue}{\pi_{\theta}}/\textcolor{blue}{\pi_k}$, which is more suitable than directly clipping $\textcolor{blue}{\pi_{\theta}}/\textcolor{red}{\mu_k}$. 
+However, its mismatch-correction weight $\textcolor{blue}{\pi_k}/\textcolor{red}{\mu_k}$ is unbounded. 
+When a rollout token is sampled with low probability under $\textcolor{red}{\mu_k}$, this weight can become large and significantly amplify gradient variance, as also discussed in \citet{mismatch1}. 
+This explains why Vanilla-IS recovers a clearer upward learning trend than PPO-IS, but still exhibits larger gradient-norm spikes in~\autoref{fig:step1}(a).
+
+TIS further truncates the mismatch-correction weight while preserving the decomposed form. 
+As shown in~\autoref{fig:step1}, this yields the best stability-performance trade-off among the Step~1 variants: compared with PPO-IS, it avoids overly aggressive clipping, and compared with Vanilla-IS, it controls variance amplification from large mismatch weights. 
+We therefore use TIS to construct the Step~1 candidate update in the full method.
+
+
+
+In summary, directly clipping $\textcolor{blue}{\pi_{\theta}}/\textcolor{red}{\mu_k}$ makes the trust-region constraint depend on the pre-existing mismatch, which can render the update overly conservative. 
+The decomposed form separates mismatch correction from the current update, and the truncated version used by TIS further controls variance, making it the most effective Step~1 implementation in our setting.
+
+\section{Analysis of the Tolerance Paremeter $c$}
+
+\label{app:tolerance}
+
+
+We further study how the acceptance tolerance affects Step~2. 
+In the main method, the synchronized candidate is accepted if 
+$\widehat{T}_{\mathrm{post}}\ge -c$, where $c\ge 0$ is a tolerance parameter. 
+For sensitivity analysis, we keep the same boundary form $\widehat{T}_{\mathrm{post}}\ge -c$ and also test $c<0$, which corresponds to a stricter-than-zero acceptance rule rather than a tolerance. 
+Thus, $c>0$ allows mild negative proxy values, $c=0$ gives strict non-regression under the proxy, and $c<0$ requires a positive margin.
+
+\begin{figure}[tbhp]
+    \centering
+    \includegraphics[width=\linewidth]{fig/th_metrics_curves.pdf}
+    \caption{\textbf{Sensitivity to the acceptance tolerance $c$ under the Qwen3-4B FP8-quantized rollout} in terms of inference-training K3-KL, training score, and $\widehat{T}_{\mathrm{post}}$.}
+    \label{fig:tolerance}
+\end{figure}
+
+\autoref{fig:tolerance} shows that stricter acceptance is not always beneficial. 
+When the acceptance rule is too strict, Step~2 rejects many early candidates. 
+This is especially harmful because $\widehat{T}_{\mathrm{post}}$ is initially low under FP8-quantized rollout and gradually increases during training, as observed in~\autoref{fig:step2-analysis}(a). 
+As a result, overly strict acceptance slows down learning and leads to a lower performance plateau. 
+In particular, the stricter setting enters persistent rollback after around $280$ steps, suggesting that conservative rejection alone cannot provide sufficient policy improvement.
+
+These results show that rollback rate itself is not the objective. 
+Although rejecting more updates may appear safer, excessive rollback can prevent the inference policy from moving to a better region. 
+The dynamic tolerance used in \textbf{MIPU} provides a calibrated acceptance rule: it starts with a larger tolerance to allow useful early candidates, and gradually tightens the criterion as the post-update gap becomes more stable. 
+This balances early learning efficiency with later-stage protection against mismatch-driven unreliable updates.
+
+
+
+\section{Licenses}
+\label{app:licenses}
+
+The licenses of used assets in this paper are listed as follows:
+\begin{itemize}
+    \item MATH500: MIT License
+    \item AIME24: Apache-2.0 License
+    \item AMC23: No License
+    \item Minerva Math: No License
+    \item OlympiadBench: Apache-2.0 License
+    \item DAPO-Math-17k: Apache-2.0 License
+    \item DeepMath-103k: MIT License
+    \item Qwen3 Models: Apache-2.0 License
+    \item ROLL: Apache-2.0 License
+    \item vLLM: Apache-2.0 License
+    \item Megatron: Apache-2.0 License
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+

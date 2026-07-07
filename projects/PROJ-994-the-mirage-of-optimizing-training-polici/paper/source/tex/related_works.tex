@@ -1,0 +1,23 @@
+\section{Related Works}
+\label{sec:related_works}
+
+\paragraph{Reinforcement learning for LLM post-training}
+RL has become a prominent paradigm for LLM post-training, especially for improving reasoning, coding, and long-horizon tasking capabilities.
+A major recent direction is reinforcement learning with verifiable rewards (RLVR), where outcome rewards can be obtained from automatically checkable signals such as mathematical answers, code execution, or task success.
+Representative works include GRPO~\citep{Shao24GRPO}, DAPO~\citep{Yu2025DAPO}, and GSPO~\citep{gspo}, which develop scalable RL recipes for mathematical and reasoning tasks.
+In parallel, recent studies have also explored off-policy or data-reuse variants of reinforced fine-tuning~\citep{remix,zhan2026exgrpo}, highlighting the importance of correcting distributional mismatch during LLM RL.
+More recently, RL has also been adopted in agentic model training, where models learn from environment feedback in tool-use, coding, and multi-turn interaction settings.
+Examples include GLM-4.5~\citep{glm}, Kimi K2.5~\citep{kimiteam2026kimik25visualagentic}, and ROME~\citep{ROME}.
+Together, these works show the broad potential of RL for improving LLM capabilities, while also highlighting the fragility of RL training under long-horizon rollouts, complex optimization dynamics, and system-level implementation details.
+
+\vspace{-0.2cm}
+\paragraph{Training-inference mismatch in LLM RL}
+Recent work has identified training-inference mismatch as an important source of instability in modern LLM RL systems.
+A common line of algorithmic approaches incorporates sampler-side information into the training update.
+For example, TIS~\citep{mismatch1} uses the training-to-sampler probability ratio as a clipped correction weight, while MIS~\citep{mismatch2} filters tokens or sequences with extreme mismatch signals.
+Learning rate decay~\citep{lrdecay} provides another optimization-side remedy by reducing the update magnitude when mismatch-related instability emerges.
+In parallel, infrastructure-level approaches study how system design choices affect training-inference mismatch. 
+For example, \citet{fp16} show that numerical precision can be a direct source of mismatch and propose using FP16 rollout to reduce the discrepancy between training and inference engines. 
+\citet{li2026qurl} further investigate low-precision RL systems and analyze how quantized rollout affects reasoning-oriented RL training. 
+These works reduce mismatch from the system side, while sampler-aware methods such as TIS and MIS correct or filter the training update from the algorithm side. 
+Our work is complementary: instead of only reducing mismatch, we study its objective-level consequence and ask whether a synchronized update should be accepted as the next inference policy.

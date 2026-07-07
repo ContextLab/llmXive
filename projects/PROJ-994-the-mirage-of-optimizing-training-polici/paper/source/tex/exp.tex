@@ -1,0 +1,204 @@
+
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate \textbf{MIPU} under FP8-quantized rollout, where quantized inference amplifies training-inference mismatch.
+Our experiments are organized around three research questions:
+
+\begin{itemize}
+    \item \textbf{RQ1:} Does \textbf{MIPU} improve performance and training stability under high training-inference mismatch? 
+    (\autoref{subsec:main-res})
+    \item \textbf{RQ2:} Do Step~1 and Step~2 play complementary roles in \textbf{MIPU}? 
+    (\autoref{subsec:ablation})
+    \item \textbf{RQ3:} Is Step~2 effective because of its inference-gap signal, or simply because it rejects more updates? 
+    (\autoref{subsec:step2})
+\end{itemize}
+
+\subsection{Experiments Setup}
+
+\paragraph{Training.}
+We train Qwen3-1.7B and Qwen3-4B under the \emph{FP8-quantized rollout}, where rollout generation uses FP8-quantized inference and therefore induces a high training-inference mismatch.
+All analyses beyond the main results are conducted on Qwen3-4B.
+The detailed hyperparameter choices are provided in~\autoref{app:hyperparams}.
+For training data, we use 
+DAPO-Math-17~\citep{Yu2025DAPO} and 
+DeepMath-103K~\citep{deepmath} as our training corpora.
+Qwen3-1.7B is trained on \texttt{5759} examples filtered from DAPO, while Qwen3-4B is trained on \texttt{1491} examples filtered from DeepMath.
+The filtering retains problems that the base model can solve with non-trivial but non-saturated success rates, ensuring that the training set provides meaningful reward variation for RL.
+
+\paragraph{Evaluation.}
+We evaluate all methods on five mathematical reasoning benchmarks: MATH-500~\citep{hendrycksmath2021}, AIME24~\citep{AIME24}, AMC23~\citep{AMC23}, Minerva~\citep{minerva}, and OlympiadBench~\citep{olympiadbench}.
+We report pass@1 accuracy for all benchmarks.
+For the small benchmarks AIME24 and AMC23, we use avg@16 to reduce evaluation variance and improve evaluation reliability.
+All reported scores are computed using the same evaluation protocol across methods. 
+For diagnostics, we report the inference-training K3-KL (denoted as \textit{Mismatch-K3} in the following figures), computed on rollout tokens sampled from $\mu$. 
+Specifically, with $d_t=\log \textcolor{blue}{\pi}(y_t\mid s_t)-\log \textcolor{red}{\mu}(y_t\mid s_t)$, we average $\exp(d_t)-d_t-1$, which estimates $D_{\mathrm{KL}}(\textcolor{red}{\mu}\|\textcolor{blue}{\pi})$.
+
+\paragraph{Baselines.}
+Our work focuses on stabilizing the RL objective under training-inference mismatch, which is orthogonal to system-level infrastructure optimization.
+We therefore do not compare with infrastructure methods.
+For the main comparison, we compare against the standard GRPO baseline and two optimization-side stabilization baselines, MIS and LR-decay.
+Since \textbf{MIPU} instantiates Step~1 with a TIS-style correction, we analyze TIS separately as the Step~1-only variant in Sec.~\ref{subsec:ablation}.
+The implementation details are in~\autoref{app:details}.
+
+\subsection{Main Results}
+\label{subsec:main-res}
+
+
+
+
+
+\begin{table}[tbhp]
+\centering
+\caption{\textbf{Pass@1 accuracy (\%)  under FP8-quantized rollout across five mathematical benchmarks.}
+\textbf{Bolded} values denote the highest scores in each dataset (i.e., column).
+The \textit{\textbf{Stable}} column indicates whether the method avoids collapse or sharp degradation during continued training after reaching high performance.
+On both Qwen3-4B and Qwen3-1.7B, \textbf{MIPU} achieves better average scores than other methods, while exhibiting more stable training dynamics.}
+\vspace{0.2cm}
+\label{tab:results-fp8}
+\resizebox{\textwidth}{!}{ 
+\begin{tabular}{l l ccccc c | c}
+\toprule
+\textbf{Model} & \textbf{Method} & \textbf{MATH} & \textbf{AIME} & \textbf{Olympiad} & \textbf{Minerva} & \textbf{AMC23} & \textbf{Avg.} & \textbf{\textit{Stable}} \\
+\midrule
+\multirow{4}{*}{\textbf{Qwen3-4B}} 
+& Baseline  & 89.34 & 42.00 & 64.89 & 43.39 & 82.50 & 64.42 & \xmark \\
+& MIS       & 90.95 & 38.44 & 62.50 & 44.12 & 81.09 & 63.42 & \xmark \\
+& LR-decay  & 90.34 & \textbf{44.00} & 67.26 & 43.75 & 82.97 & 65.66 & \xmark \\
+& \cellcolor{orange!20}Ours & \cellcolor{orange!20}\textbf{91.15} & \cellcolor{orange!20}43.56 & \cellcolor{orange!20}\textbf{67.86} & \cellcolor{orange!20}\textbf{45.96} & \cellcolor{orange!20}\textbf{85.00} & \cellcolor{orange!20}\textbf{66.71} & \cellcolor{orange!20}\checkmark \\
+\midrule
+\multirow{4}{*}{\textbf{Qwen3-1.7B}} 
+& Baseline  & 83.10 & \textbf{25.33} & 56.55 & 31.68 & 57.66 & 50.86 & \xmark \\
+& MIS       & 81.29 & 24.67 & 58.33 & \textbf{34.19} & 60.16 & 51.73 & \xmark \\
+& LR-decay  & 82.09 & 26.00 & 58.93 & 28.68 & \textbf{65.47} & 52.23 & \xmark \\
+& \cellcolor{orange!20}Ours & \cellcolor{orange!20}\textbf{86.52} & \cellcolor{orange!20}24.67 & \cellcolor{orange!20}\textbf{59.52} & \cellcolor{orange!20}33.82 & \cellcolor{orange!20}65.31 & \cellcolor{orange!20}\textbf{53.97} & \cellcolor{orange!20}\checkmark \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{wrapfigure}{r}{0.5\linewidth}
+    \vspace{-0.6cm}
+    \centering
+    \includegraphics[width=\linewidth]{fig/score_curve.pdf}
+    \caption{\textbf{Performance of different methods under FP8-quantized rollout. }Compared methods show unstable training dynamics and may suffer from sharp performance drops, while MIPU maintains a stable score trajectory.}
+    \vspace{-0.4cm}
+    \label{fig:main}
+\end{wrapfigure}
+
+\autoref{tab:results-fp8} reports the main results under FP8-quantized rollout, the high-mismatch setting where quantized inference amplifies the gap between the training policy $\pi$ and the inference policy $\mu$.
+On both model scales, \textbf{MIPU} achieves the best average performance, reaching \textbf{$66.71\%$} on Qwen3-4B and \textbf{$53.97\%$} on Qwen3-1.7B.
+For Qwen3-4B, the gains are most visible on AMC23 ($85.00\%$) and Minerva ($45.96\%$); for Qwen3-1.7B, the gains are most visible on MATH-500 ($86.52\%$) and OlympiadBench ($59.52\%$).
+Beyond peak accuracy, the Stable column in~\autoref{tab:results-fp8} shows that \textbf{MIPU} remains stable until the end of training, while several baselines suffer from collapse or sharp degradation.
+
+It is worth noting that some baselines can achieve competitive intermediate performance, but their gains are not sustained under continued training.
+This distinction is important in high-mismatch RL, where a transient peak may be followed by rapid degradation once mismatch-driven errors accumulate.
+Therefore,~\autoref{fig:main} further visualizes the training dynamics under the Qwen3-4B FP8-quantized rollout.
+Baseline, MIS, and LR-decay can reach reasonable intermediate performance but later degrade during continued training.
+In contrast, \textbf{MIPU} maintains a stable trajectory after reaching high performance.
+Together, the table and training curve show that \textbf{MIPU} improves both peak performance and long-horizon training stability in the high-mismatch FP8-quantized rollout.
+
+
+\subsection{Ablation Studies}
+\label{subsec:ablation}
+
+We ablate \textbf{MIPU} under the representative Qwen3-4B FP8-quantized rollout. We compare the baseline GRPO update, Step~1 only, Step~2 only, and the full Step~1+Step~2 framework. This ablation is designed to disentangle two complementary roles: Step~1 constructs sampler-referenced candidate updates, while Step~2 decides whether the synchronized inference policy should accept the candidate according to $\widehat{T}_{\mathrm{post}}$.
+
+\begin{table}[tbhp]
+\centering
+\caption{\textbf{Ablation study under FP8-quantized rollout of Qwen3-4B.} 
+We report pass@1 accuracy (\%) on each benchmark.
+The full method achieves the best overall performance by combining sampler-referenced candidate construction (Step~1) with inference-gap-aware candidate acceptance (Step~2), showing that the two components are complementary.
+\textbf{Bolded} values denote the highest scores in each dataset (i.e., column).}
+\vspace{0.2cm}
+\label{tab:ablation}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Method} & \textbf{MATH 500} & \textbf{AIME 24} & \textbf{Olympiad} & \textbf{Minerva} & \textbf{AMC23} & \textbf{Avg.} \\
+\midrule
+Baseline        & 89.34 & 42.00 & 64.89 & 43.39 & 82.50 & 64.42 \\
++ Step 1    & 90.34 & 41.11 & \textbf{68.45} & 44.85 & 82.03 & 65.36 \\
++ Step 2    & 90.34 & 40.44 & 64.88 & 43.38 & 75.00 & 62.81 \\
+\rowcolor{orange!20}Ours & \textbf{91.15} & \textbf{43.56} & 67.86 & \textbf{45.96} & \textbf{85.00} & \textbf{66.71} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\autoref{tab:ablation} and~\autoref{fig:ablation} show that Step~1 and Step~2 address different failure modes.
+The baseline update is centered at the training policy $\pi_k$ even though rollouts are sampled from $\mu_k$, which makes the synchronized inference policy vulnerable to FP8-induced mismatch and can eventually lead to collapse.
+Step~2 alone can prevent collapse by rejecting candidates with large negative $\widehat{T}_{\mathrm{post}}$, but it cannot improve the quality of the underlying baseline update.
+Thus, when the baseline rarely proposes useful candidates, Step~2 mostly keeps the previous inference policy rather than creating further improvement.
+Its acceptance rule improves safety, but it cannot compensate for poor candidate quality when the proposal update itself remains biased by the training-inference mismatch.
+
+Step~1 improves learning by constructing sampler-referenced candidate updates before synchronization.
+However, Step~1 alone accepts every synchronized candidate as the next inference policy, so mismatch fluctuations can still accumulate.
+The full method combines the two roles: Step~1 produces better candidate updates, and Step~2 filters candidates whose post-update inference gap suggests that the gain may not be realized by $\mu_{k+1}$.
+
+\begin{figure}[tbhp]
+    \centering
+    \includegraphics[width=\linewidth]{fig/ablation_four_panel.pdf}
+    \caption{\textbf{Training curves for ablation studies under FP8-quantized rollout.}
+We show the training score, the inference-training K3-KL, $\widehat{T}_{\mathrm{post}}$ (i.e., inference gap) and the rollback rate computed over a 100-step moving window.
+Step~1 improves the candidate update direction, while Step~2 introduces inference-gap-aware acceptance to filter unreliable synchronized candidates.
+The full method obtains stronger performance with a more controlled inference-policy trajectory.
+}
+\label{fig:ablation}
+\end{figure}
+
+In summary, Step~1 and Step~2 address different bottlenecks: Step~1 improves the candidate update direction, while Step~2 controls whether the synchronized candidate should be accepted as the next inference policy. Strong performance requires corrected updates from Step~1 together with inference-gap-aware acceptance from Step~2.
+This division of roles explains why the full method improves both the final score and the stability of the training trajectory, rather than merely shifting the best checkpoint along an unstable run.
+
+
+\subsection{Analysis of Step 2: Inference-Gap-Aware Acceptance}
+\label{subsec:step2}
+
+\begin{figure}[tbhp]
+    \centering
+    \begin{subfigure}[t]{0.6\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/term1_stacked.pdf}
+        \caption{Inference-training K3-KL and inference gap.}
+        \label{fig:term1-mismatch}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.32\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{fig/random.png}
+        \caption{Step~2 vs. random rollback.}
+        \label{fig:random-rollback}
+    \end{subfigure}
+    \caption{
+    \textbf{(a) Inference-training K3-KL and $\widehat{T}_{\mathrm{post}}$ (i.e., inference gap) under FP8-quantized rollout.} 
+    Qwen3-1.7B exhibits larger mismatch and a more volatile $\widehat{T}_{\mathrm{post}}$ than Qwen3-4B.
+    \textbf{(b) Comparison between inference-gap-aware Step~2 acceptance and a random rollback control.}
+    Random rollback rejects more updates, applying fewer effective policy changes, but still collapses.
+    }
+    \label{fig:step2-analysis}
+\end{figure}
+
+
+\paragraph{Post-update gap as an inference-side signal.}
+We first inspect whether the post-update gap proxy $\widehat{T}_{\mathrm{post}}$ carries a meaningful mismatch signal.
+As shown in~\autoref{fig:term1-mismatch}, under FP8-quantized rollout, the smaller Qwen3-1.7B model exhibits a larger training-inference mismatch than Qwen3-4B.
+Consistently, its $\widehat{T}_{\mathrm{post}}$ has a larger magnitude and oscillates more strongly, indicating a more volatile inference-side gap under quantized rollout.
+Moreover, both models show a training-dependent pattern: the mismatch increases during training, and $\widehat{T}_{\mathrm{post}}$ also shifts from initially low values toward higher values.
+These observations suggest the use of Step~2 in high-mismatch settings, where $\widehat{T}_{\mathrm{post}}$ carries a structured inference-side signal rather than behaving as uninformative boundary-level noise.
+This also motivates using \(\widehat{T}_{\mathrm{post}}\)\ as an acceptance signal: it reflects whether the synchronized inference policy remains consistent with the candidate update in a mismatch-relevant direction, rather than merely measuring the magnitude of the mismatch.
+
+
+
+
+\paragraph{Signal-conditioned rollback.}
+We next test whether the benefit of Step~2 can be explained merely by reducing the number of accepted updates.
+We compare it with a random rollback control that rejects candidate updates without using $\widehat{T}_{\mathrm{post}}$.
+Since the Step~2-only run, without Step~1 correction, has an overall rollback rate of around $70\%$ within the first $500$ steps, we set the random rollback probability to $70\%$.
+In the comparison window shown in~\autoref{fig:random-rollback}, random rollback is even more conservative than Step~2, rejecting $67.0\%$ of candidate updates compared with $53.5\%$ for Step~2.
+
+Despite rejecting more updates, random rollback still collapses after reaching a transient peak, whereas Step~2 maintains a stable score trajectory.
+This shows that Step~2 is not a generic update-sparsification mechanism.
+Its stability comes from conditioning the acceptance decision on the post-update gap proxy $\widehat{T}_{\mathrm{post}}$, which helps filter unreliable synchronized candidates rather than randomly reducing the number of accepted updates.
+Random rollback is more conservative in terms of accepted-update count, but it cannot distinguish harmful synchronized candidates from benign ones.
+By contrast, Step~2 uses $\widehat{T}_{\mathrm{post}}$ to identify candidates whose training-side gains are unlikely to be realized by the inference policy. 
+Overly conservative rejection may preserve a stale inference policy, whereas inference-gap-aware acceptance allows useful candidates to pass while filtering candidates with mismatch-relevant risk.
+
+We further analyze the sensitivity of the acceptance tolerance in~\autoref{app:tolerance}, showing that Step~2 requires calibrated acceptance rather than simply stricter rejection.

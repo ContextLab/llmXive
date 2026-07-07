@@ -1,0 +1,314 @@
+
+\section{The New Objective: \\
+~~~~~~Monotonic Policy Improvement on the Inference Side}
+\label{sec:methodology}
+
+
+
+As introduced in~\autoref{sec:preliminaries}, training-inference mismatch separates the training policy $\textcolor{blue}{\pi}$ from the inference policy $\textcolor{red}{\mu}$. 
+As illustrated in~\autoref{fig:method}, a training-side improvement can still lead to a harmful inference policy after synchronization.
+Thus, when $\textcolor{blue}{\pi}\neq\textcolor{red}{\mu}$, improving the training policy does not necessarily imply improving the inference policy:
+\begin{equation}
+    J(\textcolor{blue}{\pi_{k+1}}) - J(\textcolor{blue}{\pi_k}) \geq 0
+    \;\nRightarrow\;
+    J(\textcolor{red}{\mu_{k+1}}) - J(\textcolor{red}{\mu_k}) \geq 0.
+    \label{eq:mismatch_implication}
+\end{equation}
+
+We now instantiate this mismatch in the GRPO objective. 
+In GRPO training, the training-side improvement is implemented by the clipped surrogate
+\begin{equation}
+\begin{aligned}
+    \mathcal{J}_{\mathrm{GRPO}}(\theta)
+    =
+    \mathbb{E}_{x\sim\mathcal{D},\, \{y_i\}_{i=1}^{G} \sim \textcolor{red}{\mu_k}(\cdot\mid x)}
+    \left[
+        \frac{1}{G}
+        \sum_{i=1}^{G}
+        \min
+        \left(
+            r_i(\theta)\hat{A}^{\textcolor{red}{\mu_k}}_i,
+            \operatorname{clip}
+            \left(
+                r_i(\theta),
+                1-\epsilon,
+                1+\epsilon
+            \right)
+            \hat{A}^{\textcolor{red}{\mu_k}}_i
+        \right)
+    \right],
+    \label{eq:grpo_objective}
+\end{aligned}
+\end{equation}
+where $r_i(\theta)=\frac{\textcolor{blue}{\pi_\theta}(y_i\mid x)}{\textcolor{blue}{\pi_k}(y_i\mid x)}$ is the training-side probability ratio, and optimizing~\autoref{eq:grpo_objective} yields the next training policy $\textcolor{blue}{\pi_{k+1}}:=\textcolor{blue}{\pi_{\theta^\star}}$. 
+The superscript in $\hat{A}^{\textcolor{red}{\mu_k}}_i$ emphasizes that the GRPO advantage is not an explicit estimate of the old training-policy advantage $A^{\textcolor{blue}{\pi_k}}$. 
+Instead, it is computed from the response group sampled by the inference policy $\textcolor{red}{\mu_k}$: GRPO normalizes the reward of $y_i$ using the mean and standard deviation of rewards within $\{y_j\}_{j=1}^G\sim\textcolor{red}{\mu_k}(\cdot\mid x)$.
+
+Therefore, beyond the policy-reference mismatch discussed above, GRPO introduces an additional mismatch-induced bias through its advantage estimation.  
+Unlike the standard policy surrogate in~\autoref{eq:ratio_surrogate}, whose weighting term is the old-policy advantage $A^{\textcolor{blue}{\pi_k}}$, GRPO weights the update by the group-relative statistic $\hat{A}^{\textcolor{red}{\mu_k}}_i$ induced by inference rollouts. 
+When $\textcolor{red}{\mu_k}\neq\textcolor{blue}{\pi_k}$, this statistic is no longer aligned with the advantage of the old training policy. 
+Thus, under training-inference mismatch, the standard GRPO update is affected by both a ratio-level mismatch and an advantage-level bias.
+
+More importantly, these mismatches reveal a deeper objective-level misalignment.
+The standard GRPO surrogate optimizes a training-policy update, but the resulting synchronized inference policy is the one ultimately used for deployment.
+Under training-inference mismatch, the training-policy transition
+$\textcolor{blue}{\pi_k}\rightarrow\textcolor{blue}{\pi_{k+1}}$
+may differ from the inference-policy transition
+$\textcolor{red}{\mu_k}\rightarrow\textcolor{red}{\mu_{k+1}}$.
+This motivates us to move beyond correcting individual terms in the training objective and instead ask \textit{what policy improvement should mean when these two transitions differ}.
+
+
+\subsection{MIPI: Monotonic Inference Policy Improvement}
+\label{sec:mipi_objective}
+
+To address this problem, we propose \textbf{Monotonic Inference Policy Improvement (MIPI)}, 
+a policy improvement principle for LLM RL under training-inference mismatch.MIPI aims to align the update with the inference-policy transition rather than only with the training-side surrogate.
+Formally, MIPI takes the inference-policy improvement
+$J(\textcolor{red}{\mu_{k+1}})-J(\textcolor{red}{\mu_k})$
+as the target quantity.
+
+
+To make this principle explicit, we decompose the inference-policy improvement as follows:
+\begin{equation}
+\begin{aligned}
+    J(\textcolor{red}{\mu_{k+1}}) - J(\textcolor{red}{\mu_k})
+    =
+    \underbrace{
+        J(\textcolor{red}{\mu_{k+1}}) - J(\textcolor{blue}{\pi_{k+1}})
+    }_{\text{\textcircled{1} post-update inference gap}}
+    +
+    \underbrace{
+        J(\textcolor{blue}{\pi_{k+1}}) - J(\textcolor{blue}{\pi_k})
+    }_{\text{\textcircled{2} training-side update}}
+    +
+    \underbrace{
+        J(\textcolor{blue}{\pi_k}) - J(\textcolor{red}{\mu_k})
+    }_{\text{\textcircled{3} pre-update inference gap}} .
+\end{aligned}
+\label{eq:deployed_improvement_decomposition}
+\end{equation}
+
+
+
+This decomposition provides the formal basis of \textbf{MIPI}.
+It separates the inference-policy improvement into a candidate construction part and a post-synchronization verification part.
+Accordingly, as illustrated in \autoref{fig:method}, \textbf{MIPU} realizes \textbf{MIPI} through the following two steps:
+
+% \vspace{0.1cm}
+\begin{tcolorbox}[
+colback=Cornsilk,
+colframe=lightgray,
+title=\textbf{MIPU: Two-Step Realization of MIPI}
+]
+\textbf{Step~1: Sampler-referenced policy update.}
+\vspace{0.1cm}
+
+    $\triangleright$ The last two terms in~\autoref{eq:deployed_improvement_decomposition} combine into
+    $J(\textcolor{blue}{\pi_{k+1}})-J(\textcolor{red}{\mu_k})$.
+    We approximate this quantity with a sampler-referenced surrogate to construct a candidate training policy relative to the rollout policy.
+
+\vspace{0.2cm}
+\textbf{Step~2: Inference-gap-aware update acceptance.}
+\vspace{0.1cm}
+
+    $\triangleright$ The first term
+    $J(\textcolor{red}{\mu_{k+1}})-J(\textcolor{blue}{\pi_{k+1}})$
+    measures the post-update gap between the candidate training policy and its synchronized inference realization.
+    We use this gap as an acceptance signal to decide whether the synchronized candidate should be accepted as the next inference policy. The rejected candidates are rolled back to the previous checkpoint.
+\end{tcolorbox}
+
+
+\subsection{Step 1: Sampler-Referenced Policy Update}
+\label{sec:step1_sampler_referenced_update}
+
+
+Step 1 targets Terms \textcircled{2}+\textcircled{3} in~\autoref{eq:deployed_improvement_decomposition}, which telescope to $J(\textcolor{blue}{\pi_{k+1}})-J(\textcolor{red}{\mu_k})$.
+Equivalently, this grouped target can be written as 
+$\Delta(\textcolor{blue}{\pi_{k+1}},\textcolor{red}{\mu_k})$.
+Following~\autoref{eq:ratio_surrogate}, viewing this target relative to the sampler \(\textcolor{red}{\mu_k}\) leads to the sampler-referenced weighting term \((\textcolor{blue}{\pi_\theta}/\textcolor{red}{\mu_k})A^{\textcolor{red}{\mu_k}}\). As discussed after~\autoref{eq:grpo_objective}, GRPO uses the rollout-induced group-relative statistic \(\hat{A}^{\textcolor{red}{\mu_k}}_i\), so this formulation keeps both the probability ratio and the advantage statistic aligned with the sampler.
+
+By contrast, the standard GRPO surrogate in~\autoref{eq:grpo_objective} clips the training-side ratio 
+$\textcolor{blue}{\pi_\theta}/\textcolor{blue}{\pi_k}$, 
+although the samples are generated by the inference policy $\textcolor{red}{\mu_k}$. 
+
+Thus, the proximal constraint is centered at the old training policy $\textcolor{blue}{\pi_k}$ rather than at the sampler $\textcolor{red}{\mu_k}$. 
+Following the terminology of~\citet{mismatch1}, we refer to this direct sampler-referenced variant as PPO-IS, instead clips the full trainer-to-sampler ratio 
+$\rho_i(\theta)=\textcolor{blue}{\pi_\theta}(y_i\mid x)/\textcolor{red}{\mu_k}(y_i\mid x)$. 
+However, this full ratio conflates two different effects: the pre-update training-inference mismatch and the current training update:
+\begin{equation}
+    \rho_i(\theta)
+    =
+    \underbrace{
+        \frac{
+            \textcolor{blue}{\pi_k}(y_i\mid x)
+        }{
+            \textcolor{red}{\mu_k}(y_i\mid x)
+        }
+    }_{w_i^k:\ \text{pre-update mismatch}}
+    \cdot
+    \underbrace{
+        \frac{
+            \textcolor{blue}{\pi_\theta}(y_i\mid x)
+        }{
+            \textcolor{blue}{\pi_k}(y_i\mid x)
+        }
+    }_{r_i(\theta):\ \text{current update}} .
+    \label{eq:ratio_factorization}
+\end{equation}
+When $w_i^k$ is already outside the clipping range, PPO-IS can over-constrain the update even when the current update ratio $r_i(\theta)$ remains close to one. 
+
+This factorization suggests separating the pre-update mismatch correction from the clipping of the current update. Following the same terminology, Vanilla-IS follows this idea by using the full correction weight $w_i^k$ while clipping only $r_i(\theta)$, but the unbounded correction can introduce large variance. We therefore adopt the truncated variant TIS, which replaces $w_i^k$ with $\bar{w}*i^k=\min(w_i^k,w*{\max})$ and still applies PPO clipping only to $r_i(\theta)$. Detailed comparisons among PPO-IS, Vanilla-IS, and TIS are provided in~\autoref{app:step1-analysis}.
+
+Accordingly, Step~1 keeps a truncated sampler-referenced correction $\bar{w}_i^k$ while applying PPO-style clipping only to the current-update ratio $r_i(\theta)$. 
+The Step-1 surrogate is
+\begin{equation}
+\begin{aligned}
+    \mathcal{J}_{\mathrm{S1}}(\theta)
+    =
+    \mathbb{E}_{x\sim\mathcal{D},\, \{y_i\}_{i=1}^{G}\sim \textcolor{red}{\mu_k}(\cdot\mid x)}
+    \left[
+        \frac{1}{G}
+        \sum_{i=1}^{G}
+        \bar{w}_i^k
+        \min
+        \left(
+            r_i(\theta)\hat{A}^{\textcolor{red}{\mu_k}}_i,
+            \operatorname{clip}
+            \left(
+                r_i(\theta),
+                1-\epsilon,
+                1+\epsilon
+            \right)
+            \hat{A}^{\textcolor{red}{\mu_k}}_i
+        \right)
+    \right].
+\end{aligned}
+\label{eq:step1_surrogate}
+\end{equation}
+
+
+The truncated weight $\bar{w}_i^k$ retains the sampler-referenced correction while preventing large pre-update discrepancies between $\textcolor{blue}{\pi_k}$ and $\textcolor{red}{\mu_k}$ from dominating the gradient. 
+The proximal constraint is still applied only to $r_i(\theta)$, the part of the ratio corresponding to the current training-side update 
+$\textcolor{blue}{\pi_k}\rightarrow\textcolor{blue}{\pi_\theta}$. 
+Optimizing~\autoref{eq:step1_surrogate} yields a candidate training policy 
+$\textcolor{blue}{\pi_{k+1}}:=\textcolor{blue}{\pi_{\theta^\star}}$.
+
+Step 1 provides a sampler-referenced proposal for the combined term 
+$J(\textcolor{blue}{\pi_{k+1}})-J(\textcolor{red}{\mu_k})$ 
+in~\autoref{eq:deployed_improvement_decomposition}. 
+It does not, however, determine whether the synchronized inference policy 
+$\textcolor{red}{\mu_{k+1}}$ 
+realizes the gain proposed by the trainer. 
+This post-update consistency is checked in Step 2.
+
+\subsection{Step 2: Inference-Gap-Aware Update Acceptance}
+\label{sec:step2_inference_gap_acceptance}
+
+After Step 1, the candidate training policy 
+$\textcolor{blue}{\pi_{k+1}}$ 
+is synchronized to the inference engine, producing 
+$\textcolor{red}{\mu_{k+1}}$. 
+The remaining term in~\autoref{eq:deployed_improvement_decomposition} is the post-update inference gap $T_{\mathrm{post}} = J(\textcolor{red}{\mu_{k+1}}) - J(\textcolor{blue}{\pi_{k+1}})$.
+
+A negative value of $T_{\mathrm{post}}$ means that the inference policy underperforms its training-side counterpart after synchronization. 
+In our proxy, this corresponds to an unfavorable mismatch pattern: the inference policy assigns insufficient probability to positive-advantage responses or excessive probability to negative-advantage responses relative to the training policy. 
+Such updates are therefore unreliable, even if they appear beneficial on the training side.
+
+By the performance difference identity, the direct form of the post-update gap 
+$T_{\mathrm{post}}=\Delta(\textcolor{red}{\mu_{k+1}},\textcolor{blue}{\pi_{k+1}})$ 
+requires the advantage under the candidate training policy $\textcolor{blue}{\pi_{k+1}}$, which is not directly available in GRPO-style training. 
+We therefore use the reverse identity, which anchors the advantage term at \(\textcolor{red}{\mu_{k+1}}\)\ and makes it compatible with validation rollouts from the synchronized inference policy.
+This yields a validation-based proxy with an importance correction from \(\textcolor{red}{\mu_{k+1}}\) to \(\textcolor{blue}{\pi_{k+1}}\):
+\begin{equation}
+\begin{aligned}
+    T_{\mathrm{post}}
+    &=
+    -
+    \Delta(\textcolor{blue}{\pi_{k+1}}, \textcolor{red}{\mu_{k+1}})
+    =
+    -
+    \mathbb{E}_{s,a\sim d^{\textcolor{blue}{\pi_{k+1}}}}
+    \left[
+        A^{\textcolor{red}{\mu_{k+1}}}(s,a)
+    \right] \\
+    &\leadsto
+    \widehat{T}_{\mathrm{post}}
+    =
+    -
+    \mathbb{E}_{x\sim\mathcal{D}_{\mathrm{val}},\,y_i\sim\textcolor{red}{\mu_{k+1}}}
+    \left[
+        \rho_i
+        \hat{A}^{\textcolor{red}{\mu_{k+1}}}_i
+    \right].
+\end{aligned}
+\label{eq:post_gap_proxy}
+\end{equation}
+Here, $\hat{A}^{\textcolor{red}{\mu_{k+1}}}_i$ is the group-relative advantage computed from validation responses sampled by $\textcolor{red}{\mu_{k+1}}$. 
+The symbol $\leadsto$ emphasizes that $\widehat{T}_{\mathrm{post}}$ is a stable proxy motivated by the reverse identity, rather than an exact estimator of $T_{\mathrm{post}}$. 
+Since the reverse form takes expectation under $\textcolor{blue}{\pi_{k+1}}$ while validation responses are sampled from $\textcolor{red}{\mu_{k+1}}$, we introduce an importance weight. 
+For each completion $y_i$, we use the length-normalized sequence ratio
+\begin{equation}
+    \rho_i
+    =
+    \exp
+    \left(
+        \frac{1}{T_i}
+        \sum_{t=1}^{T_i}
+        \log
+        \frac{
+            \textcolor{blue}{\pi_{k+1}}(y_{i,t}\mid x,y_{i,<t})
+        }{
+            \textcolor{red}{\mu_{k+1}}(y_{i,t}\mid x,y_{i,<t})
+        }
+    \right).
+    \label{eq:geometric_sequence_ratio}
+\end{equation}
+This length-normalized ratio serves as a more stabilized importance weight for approximating the reverse-form expectation, avoiding the high variance of full sequence-level importance sampling ratio.
+
+The proxy in~\autoref{eq:post_gap_proxy} serves as a risk signal. 
+Since \(\widehat T_{\mathrm{post}}=-\mathbb{E}_{\textcolor{red}{\mu_{k+1}}}[\rho_i\hat{A}^{\textcolor{red}{\mu_{k+1}}}_i]\), a more negative value indicates that \(\rho_i\) is positively associated with the validation advantage statistic. 
+In other words, compared with the synchronized inference policy, the candidate training policy assigns relatively higher probability to positive-advantage responses or lower probability to negative-advantage responses.
+This suggests that the training-side proposal may not be realized by the inference engine.
+It does not prove that the inference policy is worse than the previous one, but marks the update as unreliable under training-inference mismatch.
+
+Therefore, we use the post-update gap proxy as an acceptance test: $\widehat{T}_{\mathrm{post}} \geq -c$,
+where $c\geq 0$ is a tolerance parameter for noise in the proxy. 
+This rule tolerates mild negative proxy values but rejects candidates with a clear negative post-update gap signal. 
+If passing the test, we accept the candidate and set 
+$\textcolor{blue}{\pi_k}\leftarrow\textcolor{blue}{\pi_{k+1}}$ and 
+$\textcolor{red}{\mu_k}\leftarrow\textcolor{red}{\mu_{k+1}}$. 
+Otherwise, we reject the candidate and roll back both the trainer state and the inference engine to the previous checkpoint. The implementation details are provided in~\autoref{app:implementation-details}.
+
+Overall, Step~1 turns the trainer update into a sampler-referenced candidate, and Step~2 filters candidates with a large post-update inference gap.
+Algorithm~\autoref{alg:monotonic_inference_update} summarizes the full \textbf{MIPU} procedure, including checkpointing, synchronization, validation, and rollback.
+This mechanism does not provide a formal monotonic-improvement guarantee, but it reduces the risk of accumulating updates whose gains are not realized by the inference policy.
+
+
+
+\renewcommand{\algorithmiccomment}[1]{$\triangleright$ #1}
+
+\begin{algorithm}[t]
+\caption{Monotonic Inference Policy Update}
+\label{alg:monotonic_inference_update}
+\begin{algorithmic}[1]
+\State \textbf{[Input]:} Base model $\pi_{\mathrm{base}}$, group size $G$, clipping range $\epsilon$, tolerance $c$
+
+\State \textbf{[Init]:} Set trainer policy $\textcolor{blue}{\pi_{\theta_0}}=\pi_{\mathrm{base}}$, optimizer state $\Omega_0$, and inference policy $\textcolor{red}{\mu_0}=\mathrm{Sync}(\textcolor{blue}{\pi_{\theta_0}})$
+\For{$k=0,1,2,\ldots$}
+    \State Save checkpoint $(\theta_k,\Omega_k,\textcolor{red}{\mu_k})$
+    \Statex \hspace{0.5cm} \textcolor{orange}{\Comment{Step 1: sampler-referenced proposal}}
+    \State Collect a training batch $\mathcal{B}\sim\mathcal{D}$ and collects $G$ samples per prompt from $\textcolor{red}{\mu_k}$
+    \State Compute rewards, group-relative advantages $\hat{A}^{\textcolor{red}{\mu_k}}$, and mismatch weights $w^k=\textcolor{blue}{\pi_k}/\textcolor{red}{\mu_k}$ on the training rollouts
+    \State Update trainer parameters and optimizer state by maximizing the Step-1 surrogate in~\autoref{eq:step1_surrogate}
+    \State Set $\textcolor{blue}{\pi_{k+1}}\leftarrow\textcolor{blue}{\pi_{\theta^\star}}$ and $\textcolor{red}{\mu_{k+1}}\leftarrow\mathrm{Sync}(\textcolor{blue}{\pi_{k+1}})$
+    
+    \Statex  \hspace{0.5cm} \textcolor{orange}{\Comment{Step 2: monotonic inference acceptance}}
+    \State Sample a validation batch $\mathcal{B}_{\mathrm{val}}\sim\mathcal{D}_{\mathrm{val}}$ and roll out $G$ responses per prompt from $\textcolor{red}{\mu_{k+1}}$
+\State Compute rewards, advantages $\hat{A}^{\textcolor{red}{\mu_{k+1}}}$, and ratios $\rho_i$ on the validation rollouts
+    \State Estimate the post-update inference gap $\widehat{T}_\mathrm{post}$
+    \If{$\widehat{T}_\mathrm{post} < -c$}
+        \State Reject the update: restore $\theta_{k+1}\leftarrow\theta_k$, $\Omega_{k+1}\leftarrow\Omega_k$, and $\textcolor{red}{\mu_{k+1}}\leftarrow\textcolor{red}{\mu_k}$
+    \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
