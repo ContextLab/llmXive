@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T01:01:11.404829Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-468-quantifying-the-impact-of-network-struct
-last_run_id: 81cdbb5a-6e45-4571-83a1-bd98ffb74c34
+last_run_id: 9e8715b7-1f49-40b5-a7dc-0c3c3578619f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-468-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct
 title: Quantifying the Impact of Network Structure on Energy Dissipation in Driven
   Granular Materials
-updated_at: '2026-06-27T18:34:35.638275Z'
+updated_at: '2026-07-07T00:21:56.231290Z'
