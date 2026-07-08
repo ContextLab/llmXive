@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Time Series with Anomalies"
+description: "Schema for the windowed time series data with injected anomalies and ground truth labels."
+type: "object"
+properties:
+  window_id:
+    type: "string"
+    description: "Unique identifier for the time series window."
+  time_idx:
+    type: "integer"
+    description: "Index within the window (0 to N-1)."
+  value:
+    type: "number"
+    description: "Normalized value (Z-scored using clean segment parameters)."
+  is_anomaly:
+    type: "boolean"
+    description: "Ground truth label: true if the point is part of an injected anomaly."
+  anomaly_type:
+    type: "string"
+    enum:
+      - "mean_shift"
+      - "variance_spike"
+      - "gradual_drift"
+      - "normal"
+    description: "Type of anomaly injected, or 'normal' if no anomaly."
+  shift_magnitude:
+    type: "number"
+    description: "Magnitude of the injected shift (e.g., 2.5 for 2.5 sigma). 0.0 if normal."
+  is_training_segment:
+    type: "boolean"
+    description: "True if this point belongs to the 'clean' segment used for model training."
+required:
+  - window_id
+  - time_idx
+  - value
+  - is_anomaly
+  - anomaly_type
+  - shift_magnitude
+  - is_training_segment
+additionalProperties: false

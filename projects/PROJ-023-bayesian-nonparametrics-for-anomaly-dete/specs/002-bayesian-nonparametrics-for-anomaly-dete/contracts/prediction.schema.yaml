@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anomaly Model Predictions"
+description: "Schema for the output of Bayesian GP and Baseline models containing anomaly scores."
+type: "object"
+properties:
+  window_id:
+    type: "string"
+    description: "Matches the window_id in the processed dataset."
+  time_idx:
+    type: "integer"
+    description: "Index within the window."
+  score:
+    type: "number"
+    description: "Anomaly score. For Bayesian GP, this is the posterior probability. For VAE, reconstruction error."
+  model_name:
+    type: "string"
+    enum:
+      - "bayesian_gp"
+      - "shewhart"
+      - "cusum"
+      - "vae"
+    description: "Name of the model that generated the score."
+  threshold_applied:
+    type: "number"
+    description: "The fixed threshold used for binary classification."
+required:
+  - window_id
+  - time_idx
+  - score
+  - model_name
+  - threshold_applied
+additionalProperties: false

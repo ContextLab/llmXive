@@ -1,0 +1,35 @@
+# Python 3.11 dependencies for Bayesian Nonparametrics Anomaly Detection
+# CPU-only execution enforced
+
+# Bayesian Inference
+pymc>=5.0.0,<6.0.0
+numpyro>=1.3.0,<1.4.0
+
+# Data Manipulation & Analysis
+scikit-learn>=1.3.0,<1.4.0
+pandas>=2.0.0,<2.1.0
+scipy>=1.11.0,<1.12.0
+
+# Visualization
+matplotlib>=3.7.0,<3.8.0
+seaborn>=0.12.0,<0.13.0
+
+# Configuration & Utilities
+pyyaml>=6.0.0,<6.1.0
+
+# Statistical Significance
+bootstrapped>=0.3.0,<0.4.0
+
+# Additional dependencies required for pipeline stability (pinned for reproducibility)
+# These are often transitive but pinned here to ensure exact versions per spec
+arviz>=0.15.0,<0.16.0
+cloudpickle>=2.2.0,<3.0.0
+etuples>=0.3.0,<0.4.0
+logical-unification>=0.4.0,<0.5.0
+miniKanren>=1.0.0,<2.0.0
+multipledispatch>=0.6.0,<0.7.0
+numpy>=1.24.0,<1.27.0
+filelock>=3.12.0,<4.0.0
+jax>=0.4.0,<0.5.0
+jaxlib>=0.4.0,<0.5.0
+typing-extensions>=4.5.0,<5.0.0

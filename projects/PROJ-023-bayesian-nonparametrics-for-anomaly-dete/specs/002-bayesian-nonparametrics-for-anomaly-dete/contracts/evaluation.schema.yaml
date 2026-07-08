@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics"
+description: "Schema for the aggregated evaluation metrics comparing model performance."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model."
+  window_id:
+    type: "string"
+    description: "Window identifier."
+  precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision score."
+  recall:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recall score."
+  f1_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "F1-score."
+  auc_roc:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Area Under ROC Curve."
+  threshold:
+    type: "number"
+    description: "Decision threshold used for binary classification (fixed strategy)."
+required:
+  - model_name
+  - window_id
+  - precision
+  - recall
+  - f1_score
+  - auc_roc
+  - threshold
+additionalProperties: false

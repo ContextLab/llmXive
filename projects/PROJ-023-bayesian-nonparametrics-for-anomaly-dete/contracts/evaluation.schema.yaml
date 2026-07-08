@@ -1,0 +1,141 @@
+# Evaluation Schema for Bayesian Nonparametrics Anomaly Detection
+# Defines the structure for evaluation metrics, statistical tests, and results.
+
+version: "1.0.0"
+description: "Schema for evaluation results and statistical significance outputs."
+
+datasets:
+  evaluation_metrics:
+    file_pattern: "data/results/evaluation.json"
+    description: "Aggregated metrics (F1, AUC, Bootstrap CI) per method and dataset."
+    schema:
+      type: "object"
+      required:
+        - "method_name"
+        - "dataset_id"
+        - "metrics"
+        - "statistics"
+      properties:
+        method_name:
+          type: "string"
+          description: "Name of the method (e.g., 'Bayesian_GP', 'Shewhart')."
+        dataset_id:
+          type: "string"
+          description: "Source dataset identifier."
+        metrics:
+          type: "object"
+          required:
+            - "precision"
+            - "recall"
+            - "f1_score"
+            - "auc_roc"
+            - "brier_score"
+          properties:
+            precision:
+              type: "number"
+              minimum: 0.0
+              maximum: 1.0
+            recall:
+              type: "number"
+              minimum: 0.0
+              maximum: 1.0
+            f1_score:
+              type: "number"
+              minimum: 0.0
+              maximum: 1.0
+            auc_roc:
+              type: "number"
+              minimum: 0.0
+              maximum: 1.0
+            brier_score:
+              type: "number"
+              minimum: 0.0
+              maximum: 1.0
+        statistics:
+          type: "object"
+          required:
+            - "bootstrap_ci"
+            - "statistical_test"
+          properties:
+            bootstrap_ci:
+              type: "object"
+              required:
+                - "f1_lower"
+                - "f1_upper"
+                - "confidence_level"
+              properties:
+                f1_lower:
+                  type: "number"
+                f1_upper:
+                  type: "number"
+                confidence_level:
+                  type: "number"
+                  default: 0.95
+            statistical_test:
+              type: "object"
+              required:
+                - "test_name"
+                - "p_value"
+                - "adjusted_p_value"
+                - "significant"
+              properties:
+                test_name:
+                  type: "string"
+                  description: "Name of the test (e.g., 'Wilcoxon', 'Paired_T_Test')."
+                p_value:
+                  type: "number"
+                  minimum: 0.0
+                  maximum: 1.0
+                adjusted_p_value:
+                  type: "number"
+                  minimum: 0.0
+                  maximum: 1.0
+                  description: "P-value after Bonferroni or BH correction."
+                significant:
+                  type: "boolean"
+                  description: "True if adjusted p-value < alpha."
+                alpha:
+                  type: "number"
+                  default: 0.05
+
+  sensitivity_analysis:
+    file_pattern: "data/results/sensitivity_analysis.json"
+    description: "Results from threshold sensitivity sweeps."
+    schema:
+      type: "object"
+      required:
+        - "method_name"
+        - "thresholds"
+      properties:
+        method_name:
+          type: "string"
+        thresholds:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "threshold_value"
+              - "precision"
+              - "recall"
+              - "f1_score"
+              - "false_positive_rate"
+              - "false_negative_rate"
+            properties:
+              threshold_value:
+                type: "number"
+              precision:
+                type: "number"
+              recall:
+                type: "number"
+              f1_score:
+                type: "number"
+              false_positive_rate:
+                type: "number"
+              false_negative_rate:
+                type: "number"
+
+constraints:
+  max_iterations_bootstrap: 1000
+  min_samples_bootstrap: 30
+  alpha_significance: 0.05
+  correction_method: "bonferroni"

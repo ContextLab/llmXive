@@ -1,0 +1,97 @@
+# Dataset Schema for Bayesian Nonparametrics Anomaly Detection
+# Defines the structure, types, units, and constraints for all time series data files.
+# Used for validation in code/lib/data_loader.py and code/lib/anomaly_injector.py.
+
+version: "1.0.0"
+description: "Schema for raw, processed, and injected time series datasets."
+
+datasets:
+  raw_series:
+    file_pattern: "data/raw/*.csv"
+    description: "Original time series data fetched from UCR/UCI archives."
+    columns:
+      - name: "timestamp"
+        type: "integer"
+        description: "Unix timestamp or sequence index."
+        constraints:
+          - "non_negative"
+          - "unique"
+      - name: "value"
+        type: "float"
+        description: "Observed time series value."
+        constraints:
+          - "finite"
+          - "not_nan"
+        units: "sensor_units" # Generic unit, specific units defined per dataset in PROVENANCE.md
+      - name: "dataset_id"
+        type: "string"
+        description: "Identifier of the source dataset (e.g., 'ECG5000')."
+        constraints:
+          - "not_empty"
+
+  processed_series:
+    file_pattern: "data/processed/series_with_anomalies.csv"
+    description: "Time series after normalization and anomaly injection."
+    columns:
+      - name: "timestamp"
+        type: "integer"
+        description: "Sequence index."
+        constraints:
+          - "non_negative"
+          - "monotonic_increasing"
+      - name: "value"
+        type: "float"
+        description: "Normalized or raw value with injected anomalies."
+        constraints:
+          - "finite"
+          - "not_nan"
+      - name: "is_anomaly"
+        type: "boolean"
+        description: "Ground truth flag: True if this point is an injected anomaly."
+        constraints:
+          - "binary"
+      - name: "anomaly_type"
+        type: "string"
+        description: "Type of anomaly if present, else 'normal'."
+        allowed_values:
+          - "normal"
+          - "mean_shift"
+          - "variance_spike"
+          - "gradual_drift"
+          - "regime_shift"
+        constraints:
+          - "not_empty"
+
+  ground_truth:
+    file_pattern: "data/processed/ground_truth.csv"
+    description: "Separate file containing only anomaly intervals and types for evaluation."
+    columns:
+      - name: "start_index"
+        type: "integer"
+        description: "Start index of the anomaly interval."
+        constraints:
+          - "non_negative"
+      - name: "end_index"
+        type: "integer"
+        description: "End index of the anomaly interval (inclusive)."
+        constraints:
+          - "greater_than_or_equal_to_start"
+      - name: "anomaly_type"
+        type: "string"
+        description: "Type of anomaly injected."
+        allowed_values:
+          - "mean_shift"
+          - "variance_spike"
+          - "gradual_drift"
+          - "regime_shift"
+      - name: "magnitude"
+        type: "float"
+        description: "Magnitude of the shift (e.g., sigma multiplier)."
+        constraints:
+          - "positive"
+
+validation_rules:
+  missing_values_policy: "interpolation_or_drop"
+  outlier_threshold: "3.0_std_dev"
+  max_sequence_length: 100000 # Hard limit for memory safety (SC-003)
+  min_sequence_length: 50

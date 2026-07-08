@@ -1,0 +1,60 @@
+# Prediction Schema for Bayesian Nonparametrics Anomaly Detection
+# Defines the output format for all anomaly detection scripts.
+
+version: "1.0.0"
+description: "Schema for prediction outputs (scores and binary flags)."
+
+datasets:
+  bayesian_predictions:
+    file_pattern: "data/results/bayesian_predictions.csv"
+    description: "Anomaly scores and flags from the Bayesian GP model."
+    columns:
+      - name: "timestamp"
+        type: "integer"
+        description: "Sequence index."
+      - name: "value"
+        type: "float"
+        description: "Observed value at this timestamp."
+      - name: "anomaly_score"
+        type: "float"
+        description: "Continuous anomaly score (e.g., posterior probability or reconstruction error)."
+        constraints:
+          - "finite"
+          - "not_nan"
+      - name: "predicted_anomaly"
+        type: "boolean"
+        description: "Binary flag based on fixed thresholding strategy."
+      - name: "uncertainty"
+        type: "float"
+        description: "Uncertainty measure (e.g., variance of posterior)."
+        constraints:
+          - "non_negative"
+
+  baseline_predictions:
+    file_pattern: "data/results/*_predictions.csv"
+    description: "Generic schema for baseline methods (Shewhart, CUSUM, VAE)."
+    columns:
+      - name: "timestamp"
+        type: "integer"
+      - name: "value"
+        type: "float"
+      - name: "anomaly_score"
+        type: "float"
+        description: "Method-specific score (e.g., deviation from mean, reconstruction error)."
+      - name: "predicted_anomaly"
+        type: "boolean"
+      - name: "method_specific_metric"
+        type: "float"
+        description: "Optional metric specific to the baseline (e.g., CUSUM statistic)."
+
+serialization_format:
+  file_type: "csv"
+  delimiter: ","
+  header: true
+  encoding: "utf-8"
+  float_format: "%.6f"
+
+constraints:
+  row_count_match: "Must match input time series length exactly."
+  index_continuity: "Timestamps must be contiguous integers starting from 0 or 1."
+  score_range: "Scores should be normalized where applicable (e.g., [0, 1] for probabilities)."

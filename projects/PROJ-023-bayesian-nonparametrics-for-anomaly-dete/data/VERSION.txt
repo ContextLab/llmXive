@@ -1,0 +1,14 @@
+1.0.0
+Created: 2026-04-29
+Description: Initial version of the Bayesian Nonparametrics Anomaly Detection pipeline.
+Status: Active Development
+Pipeline Components:
+  - Data Loader: code/lib/data_loader.py (T004)
+  - Anomaly Injector: code/lib/anomaly_injector.py (T006)
+  - Metrics Engine: code/lib/metrics.py (T007)
+  - Utilities: code/lib/utils.py (T008)
+Dependencies:
+  - Python: 3.11+
+  - Core Libraries: pymc, numpyro, scikit-learn, pandas, scipy, matplotlib, seaborn
+Checksums:
+  - See data/PROVENANCE.md for dataset SHA-256 hashes.

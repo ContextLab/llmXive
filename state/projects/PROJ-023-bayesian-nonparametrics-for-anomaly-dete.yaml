@@ -1,13 +1,13 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T17:53:16.603320Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: Manually rolled back from forged POSTED state. Substantive
   scientific gaps flagged by LLM specialists need real revision, not shortcuts.
 id: PROJ-023-bayesian-nonparametrics-for-anomaly-dete
-last_run_id: a56f202a-5f79-45f8-9842-97e1d0925bd1
+last_run_id: 754c9b3d-c8d0-4600-b806-c836230e196a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/specs/002-bayesian-nonparametrics-for-anomaly-dete
 title: Bayesian Nonparametrics for Anomaly Detection in Time Series
-updated_at: '2026-06-29T00:47:49.915483Z'
+updated_at: '2026-07-08T13:34:39.278774Z'

@@ -1,0 +1,25 @@
+# Anomaly Injection Configuration
+# This file defines parameters for synthetic anomaly injection
+# per FR-009 requirements and task T006 specifications.
+
+# Anomaly type: mean_shift, variance_spike, gradual_drift
+anomaly_type: mean_shift
+
+# Duration constraints (number of time points)
+min_duration: 5
+max_duration: 15
+
+# Parameters for mean_shift anomaly (FR-009: 2.5 standard deviations)
+shift_magnitude: 2.5
+
+# Parameters for variance_spike anomaly (FR-009: 3x baseline variance)
+variance_multiplier: 3.0
+
+# Parameters for gradual_drift anomaly
+drift_magnitude: 2.0
+
+# Buffer from edges to prevent look-ahead bias
+buffer_from_edges: 10
+
+# Random seed for reproducibility (set to null for random)
+seed: 42
