@@ -1,0 +1,8 @@
+type: object
+properties:
+  test_type: {type: string}
+  u_statistic: {type: number}
+  p_value: {type: number}
+  effect_size: {type: number}
+  sample_sizes: {type: object}
+required: [test_type, u_statistic, p_value]

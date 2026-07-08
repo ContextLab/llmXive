@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RepoMetadata Schema"
+description: "Schema for validated repository metadata"
+type: "object"
+properties:
+  repo_name:
+    type: "string"
+    description: "Repository name"
+  language:
+    type: "string"
+    enum:
+      - "Python"
+      - "JavaScript"
+    description: "Primary language of the repository"
+  star_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of stars"
+  contributor_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of contributors"
+  pr_count:
+    type: "integer"
+    minimum: 0
+    description: "Total PRs fetched"
+  ai_pr_count:
+    type: "integer"
+    minimum: 0
+    description: "AI-labeled PRs"
+  non_ai_pr_count:
+    type: "integer"
+    minimum: 0
+    description: "Non-AI-labeled PRs"
+required:
+  - repo_name
+  - language
+  - star_count
+  - contributor_count
+  - pr_count
+  - ai_pr_count
+  - non_ai_pr_count
+additionalProperties: false

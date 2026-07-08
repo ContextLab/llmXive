@@ -1,0 +1,8 @@
+requests
+pandas
+scipy
+matplotlib
+pyyaml
+tqdm
+statsmodels
+pytest

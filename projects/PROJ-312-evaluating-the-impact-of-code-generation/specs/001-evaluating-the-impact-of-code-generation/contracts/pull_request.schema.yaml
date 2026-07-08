@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PullRequest Schema"
+description: "Schema for validated pull request data after preprocessing (includes covariates)"
+type: "object"
+properties:
+  pr_id:
+    type: "integer"
+    description: "Unique PR ID from GitHub API"
+  repo_name:
+    type: "string"
+    description: "Repository name (e.g., owner/repo)"
+    pattern: "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "PR creation timestamp (ISO 8601)"
+  merged_at:
+    type: ["string", "null"]
+    format: "date-time"
+    description: "PR merge timestamp (ISO 8601) or null if excluded"
+  labels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of PR labels (lowercase, trimmed)"
+  commit_messages:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of commit messages for the PR"
+  is_ai_labeled:
+    type: "boolean"
+    description: "True if classified as AI-assisted, False otherwise"
+  turnaround_hours:
+    type: "number"
+    minimum: 0
+    description: "Turnaround time in calendar hours (merged_at - created_at)"
+  pr_size:
+    type: "integer"
+    minimum: 0
+    description: "Total additions + deletions (covariate)"
+  author_activity:
+    type: "integer"
+    minimum: 0
+    description: "Total PRs by author in last 6 months (covariate)"
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion (e.g., missing merged_at, <50 PRs in repo)"
+required:
+  - pr_id
+  - repo_name
+  - created_at
+  - merged_at
+  - labels
+  - commit_messages
+  - is_ai_labeled
+  - turnaround_hours
+  - pr_size
+  - author_activity
+additionalProperties: false

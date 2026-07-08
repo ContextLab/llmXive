@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult Schema"
+description: "Schema for validated statistical analysis results (includes stratification flag)"
+type: "object"
+properties:
+  group:
+    type: "string"
+    enum:
+      - "AI"
+      - "Non-AI"
+    description: "Group identifier (AI or Non-AI)"
+  n_total:
+    type: "integer"
+    minimum: 0
+    description: "Total PRs before any filtering"
+  n_clean:
+    type: "integer"
+    minimum: 0
+    description: "PRs used in analysis (full dataset for MWU)"
+  mean:
+    type: "number"
+    description: "Mean turnaround time"
+  median:
+    type: "number"
+    description: "Median turnaround time"
+  std:
+    type: "number"
+    description: "Standard deviation"
+  q1:
+    type: "number"
+    description: "First quartile"
+  q3:
+    type: "number"
+    description: "Third quartile"
+  iqr:
+    type: "number"
+    description: "Interquartile range (Q3 - Q1)"
+  u_statistic:
+    type: ["number", "null"]
+    description: "Mann-Whitney U statistic (null if not computed)"
+  p_value:
+    type: ["number", "null"]
+    description: "P-value from Mann-Whitney U test (null if not computed)"
+  effect_size_r:
+    type: ["number", "null"]
+    description: "Effect size (r) (null if not computed)"
+  stratified:
+    type: "boolean"
+    description: "True if stratified test was used, False if univariate"
+required:
+  - group
+  - n_total
+  - n_clean
+  - mean
+  - median
+  - std
+  - q1
+  - q3
+  - iqr
+  - stratified
+additionalProperties: false

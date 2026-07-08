@@ -1,0 +1,12 @@
+? 'T001a [P] Create directory structure: `projects/PROJ-312-evaluating-the-impact-of-code-generation/`,
+  `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`'
+: 1
+'T001b [P] Create initial files: `README.md`, `code/__init__.py`': 1
+? 'T002 [P] Initialize Python 3.11 project: Create file `projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt`
+  containing pinned versions (requests, pandas, scipy, matplotlib, pyyaml, tqdm, statsmodels),
+  then run `pip install -r projects/PROJ-312-evaluating-the-impact-of-code-generation/requirements.txt`'
+: 1
+? 'T003 [P] Configure linting and formatting: Create file `projects/PROJ-312-evaluating-the-impact-of-code-generation/pyproject.toml`
+  containing:'
+: 1
+'T004 [P] Create local schema definitions in `contracts/` with exact content:': 1

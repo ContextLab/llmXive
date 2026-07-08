@@ -1,0 +1,10 @@
+type: object
+properties:
+  pr_id: {type: string}
+  repo_name: {type: string}
+  created_at: {type: string}
+  merged_at: {type: string}
+  labels: {type: array}
+  commit_messages: {type: array}
+  turnaround_hours: {type: number}
+required: [pr_id, repo_name, turnaround_hours]

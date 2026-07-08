@@ -1,0 +1,6 @@
+[tool.ruff]
+max-line-length = 88
+select = ["E", "F", "W"]
+
+[tool.black]
+line-length = 88

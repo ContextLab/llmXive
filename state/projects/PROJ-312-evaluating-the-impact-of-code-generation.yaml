@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T12:38:35.977611Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-312-evaluating-the-impact-of-code-generation
-last_run_id: c6301fc5-33e1-4932-b0f7-1a7b2bd83caf
+last_run_id: 59074ad3-d569-47f2-90ef-e6cd3708ebd5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Review Turnaround Time
-updated_at: '2026-06-29T00:57:46.385091Z'
+updated_at: '2026-07-08T18:17:28.337485Z'

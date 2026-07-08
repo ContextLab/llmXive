@@ -1,0 +1,101 @@
+resolved_at: '2026-07-08T17:41:51.064364+00:00'
+datasets:
+- intent: AI-labeled
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/NovaSky-AI/labeled_numina_difficulty_162K/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NovaSky-AI/labeled_numina_difficulty_859K/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ivrit-ai/audio-labeled/resolve/main/data/test-00000-of-00004-dfc1bc76219acdcd.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/api/resolve-cache/datasets/NovaSky-AI/labeled_numina_difficulty/44c3aff58bfded5f5cfacf358f600534b7faa9dc/labeled_amc_aime_0_-1.json?%2Fdatasets%2FNovaSky-AI%2Flabeled_numina_difficulty%2Fresolve%2Fmain%2Flabeled_amc_aime_0_-1.json=&etag=%22321883fe58edaf3c1e1cb3c978b98382bbdfc919%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/NovaSky-AI/labeled_numina_difficulty_162K/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NovaSky-AI/labeled_numina_difficulty_859K/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/lemon42-ai/Code_Vulnerability_Labeled_Dataset/8722fa368bd969b66715f2477dfe98af0418a34e/code_vul_dataset.csv?%2Fdatasets%2Flemon42-ai%2FCode_Vulnerability_Labeled_Dataset%2Fresolve%2Fmain%2Fcode_vul_dataset.csv=&etag=%224318b9296e09c2092d1ed9642efe73080813d5a5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Resources_and_activities_to_support_staff_in_providing_nutritional_care_and_support_for_ALHIV_on_ART_follow-up_n_44_p_/32941391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_a_Nutritional_assessment_practices_reported_by_clinic_healthcare_workers_for_attendees_at_the_ART_clinics_of_selected_hospitals_in_two_regions_of_Ethiopia_2024_b_Nutritional_counselling_and_education_practices_reported_by_clinic_healthca/32941388
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Significant_parameters_for_single_cell_analysis_using_CellTraxx_p_/32941383
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Anthropometric_measurements_associated_with_thinness_among_ALHIV_on_ART_follow-up_p_/32941385
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Order_of_addition_for_collagen_gel_mixture_p_/32941380
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6320156
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18991761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7505822
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19244808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.8220629
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://data.mendeley.com/datasets/9gffsw9mjy/2
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/9gffsw9mjy
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.5281/zenodo.21265790
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://osf.io/z79qh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bcjru/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
