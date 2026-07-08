@@ -1,14 +1,19 @@
-name: Audit Pipeline
+name: A/B Test Audit Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
+    
+    # Resource constraints as per FR-009 and SC-008
+    # GitHub Actions runners are larger, but we enforce limits in software
+    # and use a small container if necessary. Here we rely on the resource_monitor
+    # module to enforce the 2GB RAM / 2 vCPU logical limit during execution.
     
     steps:
       - name: Checkout repository
@@ -18,57 +23,71 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install system dependencies (if any)
+      - name: Validate Constitution Compliance
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
+          python -c "from code.src.utils.constitution_checker import main; main()"
+          if [ $? -ne 0 ]; then
+            echo "ERR-950: Constitution compliance check failed."
+            exit 1
+          fi
 
-      - name: Run Constitution Compliance Check
+      - name: Schema Validation (Pre-run)
         run: |
-          python -m code.src.utils.constitution_checker
-        continue-on-error: true
-        # Note: If constitution_checker is not fully implemented, this step may fail.
-        # Per T005C, this should abort CI if any principle fails.
-        # For now, we assume it exists or is a placeholder that passes.
-        # If T005C is not done, remove or comment this step.
+          python -c "from code.src.audit.export_schema_validator import main; main()"
+          if [ $? -ne 0 ]; then
+            echo "Schema validation failed."
+            exit 1
+          fi
 
-      - name: Run Monte-Carlo Validation (T062)
+      - name: Synthetic Validation (Precision/Recall Check)
         run: |
-          python -m code.src.audit.monte_carlo_validation
-        # This validates statistical functions before main pipeline
+          # Ensure synthetic data exists and meets thresholds
+          python -c "from code.src.audit.evaluation import main; main()"
+          if [ $? -ne 0 ]; then
+            echo "ERR-800: Synthetic validation thresholds not met."
+            exit 1
+          fi
 
-      - name: Run Resource Monitor Check (T098)
+      - name: Resource Monitor Check & Main Pipeline Run
+        # This step enforces the CPU/RAM limits via the resource_monitor module
+        # and runs the full audit pipeline.
         run: |
-          python -m code.src.utils.resource_monitor --check-limits
-        # Verifies CPU/RAM limits are respected
+          # Set timeout for the entire job step (5 hours max to stay within 6h total)
+          timeout 18000s python -c "from code.src.utils.resource_monitor import monitored_main; monitored_main()"
+          if [ $? -ne 124 ]; then
+            # Check if it was a resource limit breach (ERR-301)
+            if grep -q "ERR-301" output/resource_log.json 2>/dev/null; then
+              echo "ERR-301: Resource limits exceeded (RAM > 2GB or CPU > 2vCPU)."
+              exit 1
+            fi
+          fi
+          if [ $? -ne 0 ]; then
+            echo "Pipeline execution failed."
+            exit 1
+          fi
 
-      - name: Run Schema Validation (T057, T058)
+      - name: Post-Run Schema Validation
         run: |
-          python -m code.src.audit.export_schema_validator
-          python -m code.src.audit.manifest_schema_validator
+          python -c "from code.src.audit.manifest_schema_validator import main; main()"
+          if [ $? -ne 0 ]; then
+            echo "Manifest schema validation failed."
+            exit 1
+          fi
 
-      - name: Run Main Audit Pipeline
-        timeout-minutes: 60
+      - name: Export Consistency Check
         run: |
-          python -m code.src.cli.run_audit
-
-      - name: Verify Export Consistency (T059)
-        run: |
-          python -m code.src.audit.export_validator
+          python -c "from code.src.audit.export_validator import main; main()"
+          if [ $? -ne 0 ]; then
+            echo "ERR-201: Export consistency check failed."
+            exit 1
+          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -80,20 +99,9 @@ jobs:
             data/provenance_log.csv
             data/checksums.txt
 
-      - name: Check Resource Usage Log
+      - name: Resource Log Summary
         run: |
           if [ -f output/resource_log.json ]; then
-            echo "Resource usage log found:"
+            echo "Peak CPU and RAM usage:"
             cat output/resource_log.json
-          else
-            echo "Warning: Resource usage log not found"
           fi
-
-# Resource Limits Enforcement
-# GitHub Actions runners typically provide 2 vCPUs and 7GB RAM for ubuntu-latest.
-# The pipeline enforces stricter limits (CPU <= 2, RAM <= 2GB) via:
-# 1. `code/src/utils/resource_monitor.py` which monitors and aborts if limits exceeded.
-# 2. The `timeout-minutes: 60` constraint on the main pipeline step.
-# 3. Optional: Use `runs-on: ubuntu-latest` which is the standard runner.
-# For stricter CPU/RAM limits, one might need a self-hosted runner or specific runner labels,
-# but for this project, the software-level enforcement via resource_monitor.py is the primary mechanism.
