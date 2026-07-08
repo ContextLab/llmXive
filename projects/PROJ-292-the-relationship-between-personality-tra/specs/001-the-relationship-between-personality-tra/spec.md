@@ -92,4 +92,4 @@ The system must generate publication-quality visualizations (heatmaps, regressio
 - The "receptivity" and "anxiety" metrics in the public datasets are measured using validated instruments compatible with standard parametric statistical tests.
 - The computational load of the regression and visualization steps fits within the available RAM and disk limits of the free-tier GitHub Actions runner.
 - The study design is observational; therefore, all findings will be framed as associational relationships, not causal effects, as no random assignment of personality traits is possible.
-- The threshold for statistical significance (alpha = 0.05) is the community standard for this field, and the sensitivity analysis will sweep {0.01, 0.05, 0.10} to test robustness.
+- The threshold for statistical significance (alpha = 0.05) is the community standard for this field, and the sensitivity analysis will sweep a range of small learning rate values to test robustness.

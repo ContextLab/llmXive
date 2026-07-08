@@ -1,6 +1,15 @@
-? T005 [P] Create data schema definition in `contracts/twin_prime_schema.schema.yaml`
-  defining `p`, `p_next`, `delta`, `normalized_gap`
-: 2
-? T006 [P] Implement `code/hash_artifacts.py` to compute SHA-256 hashes and update
-  project state YAML (Constitution Principle V)
-: 2
+? 'T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py`
+  (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula`
+  asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5.
+  **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4 ` to handle floating
+  point precision.'
+: 1
+? T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py`
+  (verify file creation and row count)
+: 1
+? "T012 [US1] [FR-001] [FR-002] [SC-001] Implement `code/generate_primes.py` using\
+  \ `primesieve` to find twin primes up to 1,000,000,000. **Verification**: Run `python\
+  \ code/generate_primes.py` and verify `data/raw/twin_primes.csv` exists with row\
+  \ count within \xB15% of the theoretical expectation calculated in T013b, and no\
+  \ NaN values in `normalized_gap`."
+: 1

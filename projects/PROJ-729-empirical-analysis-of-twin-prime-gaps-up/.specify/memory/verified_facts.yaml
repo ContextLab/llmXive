@@ -1,5 +1,5 @@
-'|against bia bootstrap compare correct distribution empirical expon normalization parametric self using':
-  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
-  source_id: pi
-  url: https://en.wikipedia.org/wiki/Pi
-  value: '3.141592653589793'
+'|between context distribution gap goldston heuristic ld pintz prime refined regarding small':
+  quote: arXiv:math/0506067v1 [math.NT] 3 Jun 2005
+  source_id: math/0506067
+  url: https://arxiv.org/abs/math/0506067
+  value: '0'

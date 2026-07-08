@@ -92,13 +92,14 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `code/data/download.py` to fetch high-SNR strain data (SNR ≥ 20) from GWOSC using `gwpy`. **Must fetch SNR from GWOSC catalog metadata** (FR-001). **Must include logic to detect missing data segments, extract their segment IDs, and log a warning containing the segment ID before proceeding** (US‑1 Scenario 3).
-- [ ] T020 [US1] Implement validation in `code/data/transform.py` to verify Nyquist limit compliance against the signal's dominant frequency content **before** any downsampling (Edge Case).
+- [ ] T020 [US1] Implement validation in `code/data/transform.py` to verify Nyquist limit compliance against the signal's dominant frequency content **before** any downsampling (Edge Case). **Depends on T013**.
 - [ ] T014 [US1] Implement `code/data/transform.py` to downsample to 4096 Hz, 2048 Hz, and 1024 Hz using `scipy.signal.decimate` with anti‑aliasing (FR-002). **Depends on T020**.
-- [ ] T015 [US1] Implement `code/data/transform.py` to quantize data to standard float representations. (FR-003)
+- [ ] T015 [US1] Implement `code/data/transform.py` to quantize data to **16-bit and 32-bit float representations** to simulate storage constraints (FR-003).
 - [ ] T016 [US1] Implement `code/inference/models.py` to configure `IMRPhenomPv2` waveform model (FR-004)
-- [ ] T017 [US1] Implement `code/inference/run_bilby.py` to execute parameter estimation using `bilby` with `dynesty` (nested sampling) and `IMRPhenomPv2`, running with a maximum of 5000 steps (hard limit) (FR-004). **Note**: This task implements `dynesty` nested sampling. **CRITICAL**: The `spec.md` 'Edge Cases' section incorrectly mandates Gelman-Rubin checks; this task MUST use `dlogz` (evidence tolerance) as per `plan.md` 'Unresolved Concerns' resolution. If `dlogz` > threshold after max steps, flag as "inconclusive".
-- [ ] T018 [US1] Implement convergence‑check wrapper around T017 in `code/inference/run_bilby.py` that **checks convergence via `dlogz` (evidence tolerance) threshold**; if `dlogz` exceeds threshold after max iterations, **flag the run as "inconclusive"** (FR-004, Edge Case, Plan Unresolved Concerns). **Note**: Explicitly overrides `spec.md` 'Edge Cases' Gelman-Rubin requirement which is inapplicable to `dynesty`.
-- [ ] T019 [US1] Add logic to `code/inference/run_bilby.py` to record the "inconclusive" status in the posterior file metadata and run log, ensuring FR-004 coverage for the `dynesty` approach (Edge Case). **Note**: This task handles status flagging, NOT event exclusion. The `spec.md` requirement to exclude events based on posterior width is **not implemented** per `plan.md` 'Unresolved Concerns' resolution; instead, the posterior width is recorded as a metric.
+- [ ] T017 [US1] Implement `code/inference/run_bilby.py` to execute parameter estimation using `bilby` with `dynesty` (nested sampling) and `IMRPhenomPv2`, running with a maximum of 5000 steps (hard limit) and a `dlogz` threshold of **0.1** (FR-004). **Spec Override Note**: The spec's FR-004 mandates 'Gelman-Rubin statistic < 1.01', which is inapplicable to `dynesty`. This task implements the scientifically correct `dlogz` convergence check as resolved in `plan.md` 'Unresolved Concerns'. If `dlogz` > 0.1 after max steps, flag as "inconclusive".
+- [ ] T018 [US1] Implement convergence‑check wrapper around T017 in `code/inference/run_bilby.py` that **checks convergence via `dlogz` (evidence tolerance) threshold**; if `dlogz` exceeds threshold after max iterations, **flag the run as "inconclusive"** (FR-004, Edge Case, Plan Unresolved Concerns). **Spec Override Note**: Explicitly overrides `spec.md` 'Edge Cases' Gelman-Rubin requirement which is inapplicable to `dynesty`.
+- [ ] T019 [US1] Add logic to `code/inference/run_bilby.py` to: (1) record the "inconclusive" status in the posterior file metadata and run log, and (2) **exclude events where the posterior width is > 50% of the prior width** (Edge Case, FR-004). **Note**: This task implements the mandatory spec exclusion rule. Excluded events must be logged with the reason and excluded from downstream bias calculations.
+- [ ] T019.1 [US1] Implement **Baseline Validation** in `code/inference/run_bilby.py` to ensure the baseline (4096 Hz) posterior is **not flagged 'inconclusive'** and has a valid posterior width < 50% prior width before being used as ground truth. **Depends on T019**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -117,9 +118,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023.1 [US2] Implement helper function in `code/analysis/metrics.py` to retrieve the **intrinsic statistical uncertainty baseline** (defined as the 90% CI width from the 4096 Hz baseline posterior) and cache it for downstream tasks.
-- [ ] T023 [US2] Implement `code/analysis/metrics.py` to: (1) retrieve the **intrinsic statistical uncertainty baseline** (defined as the 90% CI width from the 4096 Hz baseline posterior), and (2) calculate Hellinger distance between a downsampled posterior and this baseline/ground truth (FR‑005, SC‑001). **Depends on T023.1**. **Note**: Uses standard normality assumption (1σ * 1.645) as per spec.md Assumptions; no external citation required.
-- [ ] T024 [US2] Implement `code/analysis/metrics.py` to compute mass and spin bias as absolute difference from GWOSC catalog ground truth (FR‑006)
+- [ ] T023.1 [US2] Implement helper function in `code/analysis/metrics.py` to retrieve the **intrinsic statistical uncertainty baseline** (defined as the 90% CI width from the 4096 Hz baseline posterior) and cache it for downstream tasks. **Depends on T019.1 (Baseline Validation)**.
+- [ ] T023 [US2] Implement `code/analysis/metrics.py` to: (1) **Gate Check**: Verify the baseline posterior is not 'inconclusive' (from T019.1); if inconclusive, log error and skip. (2) Retrieve the **intrinsic statistical uncertainty baseline** (defined as the 90% CI width from the 4096 Hz baseline posterior), and (3) calculate Hellinger distance between a downsampled posterior and this baseline/ground truth (FR‑005, SC‑001). **Depends on T023.1**. **Note**: Uses standard normality assumption (1σ * 1.645) as per spec.md Assumptions; no external citation required.
+- [ ] T024 [US2] Implement `code/analysis/metrics.py` to compute mass and spin bias as the absolute difference from **known GWOSC catalog ground truth parameters** (FR‑006). **Primary Path**: This task implements the spec's FR-006 requirement explicitly. **Secondary Path**: For simulated injections, compare against injected truth (Plan methodology).
 - [ ] T025 [US2] Implement logic to scale catalog‑reported uncertainty to a 90% confidence interval using the **standard normality assumption** (1σ * 1.645) as per spec.md Assumptions (FR‑006). **Note**: No external citation (e.g., Hildebrandt et al.) used; relies on spec assumption.
 - [ ] T026 [US2] Add flagging mechanism for configurations where bias exceeds the catalog‑reported confidence interval threshold (FR‑006)
 - [ ] T027 [US2] Implement validation for injected data scenarios where bias should be effectively zero (< 1e‑6) (US‑2, Scenario 3)
@@ -141,7 +142,7 @@
 ### Implementation for User Story 3
 
 - [ ] T029 [US3] Implement `code/analysis/aggregate.py` to load results from multiple events and resolution configurations. **Must include all processed events (including inconclusive ones) in the denominator for the majority rule calculation** to satisfy FR‑007 (FR‑007).
-- [ ] T030 [US3] Implement logic to calculate **the standard deviation of the identified thresholds**, where an identified threshold is defined as *the specific sampling‑rate (Hz) at which the majority‑rule (bias > catalog 90 % CI for ≥ 50% of events) is first met*. **If no threshold is found for an event, treat the value as NaN/sentinel to ensure the standard deviation calculation is defined** (SC‑004). **Note**: Ensure minimum event count check is implemented to avoid meaningless statistics if only 1-2 events contribute.
+- [ ] T030 [US3] Implement logic to calculate **the standard deviation of the identified resolution thresholds across the POPULATION of events**. A threshold is identified per event as the lowest sampling rate where bias > catalog 90% CI. **If an event has no threshold, exclude it from the SD calculation (or treat as NaN with a minimum event count check)** (SC‑004). **Note**: Ensure minimum event count check is implemented to avoid meaningless statistics if only 1-2 events contribute.
 - [ ] T031 [US3] Implement "No threshold found" reporting logic if bias remains within limits down to a high audio frequency (US‑3, Scenario 2)
 - [ ] T032 [US3] Generate visualization of sampling rate vs. bias magnitude with catalog uncertainty threshold line (US‑3, Scenario 3)
 - [ ] T033 [US3] Output summary table identifying the lowest viable sampling rate where the majority rule is met (FR‑007)
@@ -156,6 +157,14 @@
 
 - [ ] T038 [P] Documentation updates in `docs/` including `quickstart.md` and `data-model.md`
 - [ ] T039 Code cleanup and refactoring to ensure strict typing and docstrings
-- [ ] T040 Performance optimization for MCMC runs to ensure completion within a predefined time-based confidence interval limit will be applied (SC‑003)
+- [ ] T040 [P] Performance optimization for MCMC runs to ensure completion within the **hard 6-hour runtime limit defined in SC-003** (SC‑003). **Note**: Removed vague 'time-based confidence interval' reference; now strictly targets the 6-hour CI limit.
 - [ ] T041 [P] Additional unit tests for edge cases (missing segments, convergence failures) in `tests/unit/`
 - [ ] T042 Run quickstart.md validation and ensure all artifacts are checksummed
+
+---
+
+## Phase O: Revision & Ontological Validation (Addressing Reviewer Concerns)
+
+**Status**: **DELETED**. The concepts of "Statistical Ghost Factor" and "Ontological Degradation" were identified as scope creep and unverified requirements (Plan: Unresolved panel concerns #2). These tasks (T043, T044, T045) have been removed to align with the spec and plan. No implementation of these metrics is required.
+
+**Checkpoint**: Reviewer concerns regarding ontological reality vs. statistical fit are addressed by the strict adherence to the spec's defined metrics (Hellinger distance, bias) and the removal of undefined concepts.

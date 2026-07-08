@@ -66,22 +66,25 @@
 
 **Prerequisites**: `data-model.md` must be finalized before writing contract tests.
 
-**Goal**: Attempt to download public datasets (IPIP-50 + AI feedback response) from OpenML; if the specific 'feedback' columns are missing (as expected), generate synthetic data with explicit 'Simulation-Based' flags, merge them, and validate sample size.
+**Goal**: Attempt to download public datasets (IPIP-50 + AI feedback response) from OpenML; if the specific 'feedback' columns are missing or download fails, fail gracefully with manual override instructions. Synthetic data generation is ONLY allowed if `FORCE_SYNTHETIC=1` is set.
 
-**Independent Test**: The pipeline runs end-to-end, attempting the download, detecting missing schema, generating synthetic data if needed, merging by ID, and outputting `data/processed/analysis_data.csv` with valid columns and N ≥ 50. The output metadata must explicitly flag if synthetic data was used.
+**Independent Test**: The pipeline runs end-to-end, attempting the download, detecting missing schema or failure, generating manual override instructions if real data is unavailable, and (optionally if `FORCE_SYNTHETIC`) generating synthetic data, merging by ID, and outputting `data/processed/analysis_data.csv` with valid columns and N ≥ 50. The output metadata must explicitly flag if synthetic data was used.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`
+- [ ] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that `data/processed/analysis_data.csv` contains exactly these columns: `participant_id`, `openness`, `conscientiousness`, `extraversion`, `agreeableness`, `neuroticism`, `receptivity_score`, `anxiety_level`, `behavioral_intention`, `source_type`. Assert that `source_type` is either 'real' or 'synthetic' and that no null values exist in these columns.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data_ingestion.py` to: (1) Fetch 'Big Five Personality Traits' from OpenML (real), (2) Attempt to fetch 'Human Feedback Response' data from OpenML; (3) If 'feedback' columns (receptivity, anxiety, intention) are missing, generate synthetic data with schema `participant_id`, `receptivity_score`, `anxiety_level`, `behavioral_intention`, and write to `data/raw/synthetic_responses.csv` with a metadata flag `source: synthetic`; (4) Write real personality data to `data/raw/iPIP50.csv`.
-- [ ] T012 [US1] Implement merge logic in `code/data_ingestion.py` to align `data/raw/iPIP50.csv` and `data/raw/synthetic_responses.csv` (or real feedback if found) by `participant_id`, handling missing values via mean imputation or excluding rows where missingness > 10%, outputting `data/processed/analysis_data.csv`.
-- [ ] T013 [US1] Implement validation logic in `code/data_ingestion.py` to explicitly validate `data/processed/analysis_data.csv`: check sample size N ≥ 50; if N < 50, exit with code 1 and write a detailed warning message including the count to `data/validation_log.txt`.
-- [ ] T014 [US1] Implement checksum generation for `data/raw/*.csv` and `data/processed/analysis_data.csv` using SHA-256, writing results to `data/checksums.json`.
+- [ ] T011 [US1] Implement `code/data_ingestion.py` to: (1) Fetch 'Big Five Personality Traits' from OpenML dataset ID 50 (or verified URL) using `fetch_with_retry`; (2) Save real personality data to `data/raw/iPIP50.csv` with checksum; (3) If fetch fails, log error and proceed to T013.
+- [ ] T012 [US1] Implement `code/data_ingestion.py` to: (1) Attempt to fetch 'Human Feedback Response' data from OpenML/HuggingFace (verified URL); (2) If fetch fails or columns (receptivity, anxiety, intention) are missing, log error and proceed to T013; (3) If successful, save to `data/raw/feedback_responses.csv`.
+- [ ] T013 [US1] Implement graceful failure logic in `code/data_ingestion.py`: If T011 or T012 fails, write `data/manual_override_instructions.txt` containing: "Real data fetch failed. Please manually download [URL] and place in `data/raw/`. Then run with `FORCE_SYNTHETIC=0`. If you wish to use synthetic data, set `FORCE_SYNTHETIC=1`." Exit with code 1.
+- [ ] T014 [US1] Implement merge logic in `code/data_ingestion.py` to align `data/raw/iPIP50.csv` and `data/raw/feedback_responses.csv` (or manual override file) by `participant_id`, handling missing values via mean imputation or excluding rows where missingness > 10%, outputting `data/processed/analysis_data.csv` with a `source_type` column ('real' or 'synthetic').
+- [ ] T015 [US1] Implement synthetic data generation in `code/data_ingestion.py` (ONLY if `FORCE_SYNTHETIC=1`): Generate synthetic personality traits (Mean=30, SD=8) and response metrics (receptivity, anxiety, intention) based on theoretical correlations. Write to `data/raw/synthetic_responses.csv` and merge with T014. Set `source_type` to 'synthetic'.
+- [ ] T016 [US1] Implement performance validation in `code/data_ingestion.py`: Run the full ingestion pipeline (T011-T014 or T015) and assert that it completes within 15 minutes. If it exceeds 15 minutes, exit with code 1 and log a warning.
+- [ ] T017 [US1] Implement validation logic in `code/data_ingestion.py` to explicitly validate `data/processed/analysis_data.csv`: check sample size N ≥ 50; if N < 50 and `source_type` is 'real', exit with code 1 and write a detailed warning message to `data/validation_log.txt`. If `source_type` is 'synthetic', log a warning but proceed.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,17 +98,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for statistical output schema in `tests/contract/test_stats_schema.py`
-- [ ] T017 [P] [US2] Unit test for Benjamini-Hochberg implementation in `tests/unit/test_bh_correction.py`
+- [ ] T018 [P] [US2] Contract test for statistical output schema in `tests/contract/test_stats_schema.py`: Assert that `results/stats/stats.json` contains keys `correlations`, `regression`, `bh_corrected`, `source_type`. Assert `correlations` is a list of objects with `trait`, `outcome`, `r`, `p_value`. Assert `regression` is a list of objects with `outcome`, `coefficients`, `r_squared`.
+- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg implementation in `tests/unit/test_bh_correction.py`: Test with input vector `[0.05, 0.01, 0.1, 0.02]`. Assert output is `[0.05, 0.02, 0.1, 0.02]` (or equivalent BH-adjusted values).
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Implement Pearson correlation computation for all traits vs multiple outcomes (multiple pairs) in `code/analysis.py`, outputting coefficients and p-values.
-- [ ] T019 [US2] Enumerate the full set of hypothesis tests across the traits and outcomes and write to `results/stats/test_set_definition.json` as a JSON list of pairs before correction.
-- [ ] T020 [US2] Implement Benjamini-Hochberg correction in `code/analysis.py` using the set defined in T019, outputting adjusted p-values.
-- [ ] T021 [US2] Implement calculation of Pearson correlation coefficient (r) effect sizes for all pairs of variables under investigation and write to `results/stats/correlation_effects.json`.
-- [ ] T022 [US2] Implement multiple linear regression with interaction terms for feedback type in `code/analysis.py`, calculating R² for all models.
-- [ ] T023 [US2] Write statistical results (correlations, regression coefficients, R², BH-corrected p-values) to `results/stats/stats.json` with full metadata including `source_type: synthetic` if applicable.
+- [ ] T020 [US2] Implement Pearson correlation computation for all traits vs multiple outcomes (multiple pairs) in `code/analysis.py`, outputting coefficients and p-values.
+- [ ] T021 [US2] Enumerate the full set of hypothesis tests across the traits and outcomes and write to `results/stats/test_set_definition.json` as a JSON list of pairs before correction.
+- [ ] T022 [US2] Implement Benjamini-Hochberg correction in `code/analysis.py` using the set defined in T021, outputting adjusted p-values.
+- [ ] T023 [US2] Implement calculation of Pearson correlation coefficient (r) effect sizes for all pairs of variables under investigation and write to `results/stats/correlation_effects.json`.
+- [ ] T024 [US2] Implement multiple linear regression with interaction terms for feedback type in `code/analysis.py`, calculating R² for all models. If `source_type` is 'synthetic', log a warning that interaction terms are theoretical and not empirical.
+- [ ] T025 [US2] Write statistical results (correlations, regression coefficients, R², BH-corrected p-values) to `results/stats/stats.json` with full metadata including `source_type: synthetic` if applicable.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,28 +122,28 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Contract test for report content in `tests/contract/test_report_schema.py`
+- [ ] T026 [P] [US3] Contract test for report content in `tests/contract/test_report_schema.py`: Assert that `results/report.md` contains headers `## Results`, `## Correlation Matrix`, `## Regression Analysis`, `## Sensitivity Analysis`. Assert that plots are saved in `results/plots/`.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement correlation heatmap generation with significance stars in `code/visualization.py` using `results/stats/stats.json`.
-- [ ] T026 [US3] Implement scatter plot with regression line for strongest predictor-outcome pair in `code/visualization.py`.
-- [ ] T027 [US3] Implement sensitivity analysis table for alpha across representative significance levels in `code/report.py`.
-- [ ] T028 [US3] Implement Markdown/PDF report generation including all plots and tables to `results/report.md` and `results/report.pdf`.
-- [ ] T029 [US3] Ensure all plots have clear axis labels, legends, and no GPU acceleration in `code/visualization.py`.
+- [ ] T027 [US3] Implement correlation heatmap generation with significance stars in `code/visualization.py` using `results/stats/stats.json`.
+- [ ] T028 [US3] Implement scatter plot with regression line for strongest predictor-outcome pair in `code/visualization.py`.
+- [ ] T029 [US3] Implement sensitivity analysis table for alpha across representative significance levels `[0.01, 0.05, 0.10]` in `code/report.py`, outputting a table showing significance status for primary findings at each alpha.
+- [ ] T030 [US3] Implement Markdown/PDF report generation including all plots and tables to `results/report.md` and `results/report.pdf`.
+- [ ] T031 [US3] Ensure all plots have clear axis labels, legends, and no GPU acceleration in `code/visualization.py`.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T031 [P] Run `quickstart.md` validation to ensure full pipeline execution
-- [ ] T032 [P] Update `research.md` to explicitly state the distinction between the static correlational study and the data source reality (synthetic vs real).
-- [ ] T039 [P] Implement Drift Analysis report generation in `code/report.py` to output a dedicated file `results/drift_analysis.md` containing a section header "## Drift Analysis" with stability metrics (specifically coefficient stability across bootstrap resamples), ensuring the output is verifiable at the specified path.
+- [ ] T032 [P] Documentation updates in `README.md` and `quickstart.md`: Add a "Limitations" section to `README.md` detailing the synthetic data fallback. Update `quickstart.md` with instructions for manual data override.
+- [ ] T033 [P] Run `quickstart.md` validation to ensure full pipeline execution: Assert that the pipeline completes with exit code 0, generates `data/processed/analysis_data.csv`, `results/stats/stats.json`, and `results/report.md` within 4 hours, and no warnings are logged regarding missing data (unless `FORCE_SYNTHETIC` is set).
+- [ ] T034 [P] Update `research.md` to explicitly state the distinction between the static correlational study and the data source reality (synthetic vs real).
+- [ ] T035 [P] Add a "Limitations" section to `results/report.md` explicitly acknowledging that the data may be synthetic and that findings are theoretical if `source_type` is 'synthetic'.
 
 ---
 
@@ -235,4 +238,5 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All data generation tasks MUST use real or explicitly labeled synthetic data; never fabricate results. The "Simulation-Based" label must be prominent in all reports derived from synthetic data.
 - **Scope Note**: This project is strictly a "Simulation-Based" study on synthetic data (fallback) to validate the pipeline. No empirical claims about human-AI interaction are made.
-- **Data Reality**: The pipeline attempts to fetch real OpenML data for personality traits. If the required 'feedback' columns are missing (as expected), it generates synthetic data and explicitly flags the result.
+- **Data Reality**: The pipeline attempts to fetch real OpenML data for personality traits and feedback responses. If the required data is missing or download fails, it writes manual override instructions and exits. Synthetic data generation is only allowed if `FORCE_SYNTHETIC=1` is set.
+- **Observational Constraint**: The study is strictly observational. No longitudinal simulations or feedback loop modeling is performed, as this would violate the spec's 'Assumptions' section.

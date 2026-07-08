@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/math/0506067
   verified_at: '2026-07-03T05:54:47.337308Z'
-- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
   artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://arxiv.org/abs/math/0506067
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/math/0506067
-  verified_at: '2026-07-03T06:28:11.546092Z'
-- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+  verified_at: '2026-07-08T18:53:01.025943Z'
+- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
   artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://en.wikipedia.org/wiki/Pi
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-03T06:28:11.546092Z'
-- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+  verified_at: '2026-07-08T18:53:01.025943Z'
+- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
   artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://oeis.org/A002386
   verification_status: pending
   verified_against_url: https://oeis.org/A002386
-  verified_at: '2026-07-03T06:28:11.546092Z'
+  verified_at: '2026-07-08T18:53:01.025943Z'

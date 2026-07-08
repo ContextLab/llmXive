@@ -19,7 +19,7 @@ This project implements a CPU-only **Theoretical Validation Study** to determine
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Full pipeline execution ≤ 4 hours; Data ingestion ≤ 15 minutes.  
 **Constraints**: CPU-only (no CUDA/GPU); RAM ≤ 7GB; Disk ≤ 14GB; No authentication required for datasets.  
-**Scale/Scope**: Single dataset analysis (N ≥ 50 required); predictors × 3 outcomes.
+**Scale/Scope**: Single dataset analysis (N ≥ 50 required); predictors × multiple outcomes.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

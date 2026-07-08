@@ -118,30 +118,6 @@
   source_type: external
   status: verified
   updated_at: '2026-07-03T05:54:25Z'
-- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  attempts: 1
-  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
-    primes
-  claim_id: c_095ed474
-  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
-    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
-    \ posits that prime gaps follow an exponential distribution. This heuristic was\
-    \ refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in the\
-    \ context of small gaps between primes, and is consistent with the Hardy-Littlewood\
-    \ k-tuple conjecture which provides the asymptotic density for twin primes.'"
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Hardy-Littlewood_k-tuple_conjecture_provides_asymptotic_dens
-  kind: entity_fact
-  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
-    for twin primes.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T05:54:47Z'
 - artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   attempts: 1
   canonical: normalized gap equals 1.8205 for twin primes 3 and 5
@@ -160,31 +136,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T05:56:23Z'
-- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  attempts: 1
-  canonical: "normalized gap metric derives from Cram\xE9r's probabilistic model positing\
-    \ exponential distribution of prime gaps"
-  claim_id: c_469ebd05
-  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
-    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
-    \ posits that prime gaps follow an exponential distribution. This heuristic was\
-    \ refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in the\
-    \ context of small gaps between primes, and is consistent with the Hardy-Littlewood\
-    \ k-tuple conjecture which provides the asymptotic density for twin primes.'"
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Normalized_gap_metric_derives_from_Cram%C3%A9r%27s_probabilistic_mo
-  kind: entity_fact
-  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
-    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
-    \ distribution."
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T05:56:24Z'
 - artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   attempts: 1
   canonical: Goldston Pintz and Yildirim refined prime gap heuristic in 2005
@@ -1972,28 +1923,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T06:27:53Z'
 - artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  attempts: 4
-  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
-    primes
-  claim_id: c_e03cdd7d
-  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131\
-    r\u0131m (2005) in the context of small gaps between primes, and is consistent\
-    \ with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density\
-    \ for twin primes."
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Hardy-Littlewood_k-tuple_conjecture_provides_asymptotic_dens
-  kind: entity_fact
-  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
-    for twin primes.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T06:27:55Z'
-- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   attempts: 1
   canonical: OEIS A002386 citation used
   claim_id: c_583b5e7e
@@ -2012,3 +1941,517 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T06:28:11Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 2
+  canonical: "normalized gap metric derives from Cram\xE9r's probabilistic model positing\
+    \ exponential distribution of prime gaps"
+  claim_id: c_469ebd05
+  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
+    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
+    \ posits that prime gaps follow an exponential distribution. This heuristic was\
+    \ refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in the\
+    \ context of small gaps between primes, and is consistent with the Hardy-Littlewood\
+    \ k-tuple conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalized_gap_metric_derives_from_Cram%C3%A9r%27s_probabilistic_mo
+  kind: entity_fact
+  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
+    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
+    \ distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:43:24Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: heuristic refined by Goldston Pintz and Yildirim in 2005 regarding small
+    gaps between primes
+  claim_id: c_6d15b916
+  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
+    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
+    \ posits that prime gaps follow an exponential distribution. This heuristic was\
+    \ refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in the\
+    \ context of small gaps between primes, and is consistent with the Hardy-Littlewood\
+    \ k-tuple conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "in\uFB01nitely many prime pairs that di\uFB00er by at most 16. The aim\
+        \ of this article is to explain"
+      source_id: math/0605696
+      url: https://arxiv.org/abs/math/0605696
+      value: '16'
+    filled: true
+  kind: numeric
+  raw_text: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes."
+  resolved_value: '16'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:44:49Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 2
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_095ed474
+  context: "Insert the following specific paragraph: 'The normalized gap metric \u0394\
+    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
+    \ posits that prime gaps follow an exponential distribution. This heuristic was\
+    \ refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in the\
+    \ context of small gaps between primes, and is consistent with the Hardy-Littlewood\
+    \ k-tuple conjecture which provides the asymptotic density for twin primes.'"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes.
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:45:15Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Cram\xE9r published work on prime gaps in the 1930s"
+  claim_id: c_34e68710
+  context: "Update code/report.py to include a dedicated 'Historical Context' section\
+    \ citing Cram\xE9r (1930s) and Goldston, Pintz, Y\u0131ld\u0131r\u0131m (n.d.)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r_published_work_on_prime_gaps_in_the_1930s
+  kind: entity_fact
+  raw_text: "Cram\xE9r published work on prime gaps in the 1930s."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:45:42Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: empirical normalized gaps compared against theoretical exponential distribution
+    with lambda 1
+  claim_id: c_90fb086d
+  context: "Goal: Perform Parametric Bootstrap KS tests and generate QQ-plots comparing\
+    \ empirical normalized gaps against the theoretical exponential distribution (\u03BB\
+    =1)."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project compares empirical normalized gaps against the theoretical
+    exponential distribution with lambda equal to 1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:45:42Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: OEIS A002386 cited as source for twin prime data
+  claim_id: c_6236275f
+  context: Implement code/verify_citations.py to validate {{claim:c_ddd2cee1}} and
+    {{claim:c_462d859b}} (OEIS A002386, https://oeis.org/A002386) citations against
+    primary sources.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OEIS_A002386_cited_as_source_for_twin_prime_data
+  kind: entity_fact
+  raw_text: OEIS A002386 is cited as a source for twin prime data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:46:08Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Goldston Pintz and Yildirim refined prime gap heuristic in 2005
+  claim_id: c_2899a79c
+  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes, and is consistent with the\
+    \ Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for\
+    \ twin primes."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "in\uFB01nitely many prime pairs that di\uFB00er by at most 16. The aim\
+        \ of this article is to explain"
+      source_id: math/0605696
+      url: https://arxiv.org/abs/math/0605696
+      value: '16'
+    filled: true
+  kind: numeric
+  raw_text: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes."
+  resolved_value: '16'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:46:55Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_67131f30
+  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes, and is consistent with the\
+    \ Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for\
+    \ twin primes."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes.
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:46:56Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: normalized gap equals 1.8205 for twin primes starting at p=3 and p_next=5
+  claim_id: c_b31fa37c
+  context: 'Unit test for gap calculation logic in tests/unit/test_gap_calc.py (verify
+    formula delta / log(p)). Specific Task: Add tests/unit/test_gap_calc.py::test_normalized_gap_formula
+    asserting delta / log(p) equals expected float 1.8205 for input p=3, p_next=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add tests/unit/test_gap_calc.py::test_normalized_gap_formula asserting
+    delta / log(p) equals expected float 1.8205 for input p=3, p_next=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:48:11Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Cram\xE9r's probabilistic model posits prime gaps follow an exponential\
+    \ distribution"
+  claim_id: c_155b0b59
+  context: "Insert the following specific paragraph: The normalized gap metric \u0394\
+    \u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes, which\
+    \ posits that prime gaps follow an exponential distribution."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r's_probabilistic_model_posits_prime_gaps_follow_an_exp
+  kind: entity_fact
+  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
+    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
+    \ distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:48:13Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "normalized gap metric derives from Cram\xE9r's probabilistic model positing\
+    \ exponential distribution of prime gaps"
+  claim_id: c_a17a086b
+  context: "Content: Insert the following specific paragraph: The normalized gap metric\
+    \ \u0394\u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model of primes,\
+    \ which posits that prime gaps follow an exponential distribution. This heuristic\
+    \ was refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131r\u0131m (2005) in\
+    \ the context of small gaps between primes, and is consistent with the Hardy-Littlewood\
+    \ k-tuple conjecture which provides the asymptotic density for twin primes."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalized_gap_metric_derives_from_Cram%C3%A9r%27s_probabilistic_mo
+  kind: entity_fact
+  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
+    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
+    \ distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:48:35Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 4
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_e03cdd7d
+  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131ld\u0131\
+    r\u0131m (2005) in the context of small gaps between primes, and is consistent\
+    \ with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density\
+    \ for twin primes."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes.
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:48:35Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Cram\xE9r proposed probabilistic model of primes in 1930s"
+  claim_id: c_d617e4b2
+  context: "Update code/report.py to include a dedicated Historical Context section\
+    \ citing Cram\xE9r (1930s) and Goldston, Pintz, Y\u0131ld\u0131r\u0131m (n.d.)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r_proposed_probabilistic_model_of_primes_in_1930s
+  kind: entity_fact
+  raw_text: "Cram\xE9r proposed his probabilistic model of primes in the 1930s."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:49:23Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Goldston Pintz and Yildirim refined prime gap heuristic in 2005
+  claim_id: c_60c7a962
+  context: Content paragraph for research.md and citation update in T035 regarding
+    historical framing.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: arXiv:math/0506067v1 [math.NT] 3 Jun 2005
+      source_id: math/0506067
+      url: https://arxiv.org/abs/math/0506067
+      value: '0'
+    filled: true
+  kind: numeric
+  raw_text: "The heuristic regarding prime gap distribution was refined by Goldston,\
+    \ Pintz, and Y\u0131ld\u0131r\u0131m in 2005 in the context of small gaps between\
+    \ primes"
+  resolved_value: '0'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:50:40Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 0
+  canonical: Hardy-Littlewood k-tuple conjecture provides asymptotic density for twin
+    primes
+  claim_id: c_7b1c0cde
+  context: Content paragraph for research.md linking the heuristic to the conjecture.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: = 1.320323632 . . ., called the twin prime constant (although
+      source_id: '1910.02636'
+      url: https://arxiv.org/abs/1910.02636
+      value: '1.320323632'
+    filled: true
+  kind: entity_fact
+  raw_text: The Hardy-Littlewood k-tuple conjecture provides the asymptotic density
+    for twin primes
+  resolved_value: '1.320323632'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:50:41Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: twin prime count within 5% of theoretical expectation up to 10^9
+  claim_id: c_7f729ac5
+  context: 'Independent Test for User Story 1: Verify file creation and row count
+    consistency with theoretical expectations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run code/generate_primes.py and verify data/raw/twin_primes.csv exists\
+    \ with row count within \xB15% of the theoretical expectation calculated in T013b"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:50:42Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: normalized gap for twin primes 3 and 5 is 1.8205
+  claim_id: c_7c717e7d
+  context: Unit test for gap calculation logic in tests/unit/test_gap_calc.py verifying
+    formula delta / log(p).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert delta / log(p) equals expected float 1.8205 for input p=3, p_next=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:51:13Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: Parametric Bootstrap KS test uses pi iterations
+  claim_id: c_848368c2
+  context: Implementation of Parametric Bootstrap KS test in code/analyze_gaps.py
+    to correct for self-normalization bias.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Use 3.141592653589793 iterations for Parametric Bootstrap Kolmogorov\u2013\
+    Smirnov test with seed=42"
+  resolved_value: '3.141592653589793'
+  resolver: approximate
+  source_hash: 2eb74d26244bd455b10ff647c0a68d9c4e7ce2613ec4539a7741272a916ba8e1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T18:51:14Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "normalized gap metric derives from Cram\xE9r's probabilistic model positing\
+    \ exponential distribution of prime gaps"
+  claim_id: c_5f29710d
+  context: Content paragraph for research.md regarding the lineage of the normalized
+    gap metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalized_gap_metric_derives_from_Cram%C3%A9r%27s_probabilistic_mo
+  kind: entity_fact
+  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
+    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
+    \ distribution"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:51:16Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: OEIS A002386 contains twin prime data
+  claim_id: c_df534fea
+  context: Task T031 to validate citations against primary sources including OEIS
+    A002386.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OEIS_A002386_contains_twin_prime_data
+  kind: entity_fact
+  raw_text: Cite OEIS A002386 for twin prime data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:51:41Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: normalized gap 1.8205 for twin primes starting at 3 and 5
+  claim_id: c_f9746a31
+  context: 'Unit test for gap calculation logic in tests/unit/test_gap_calc.py (verify
+    formula delta / log(p)). Specific Task: Add tests/unit/test_gap_calc.py::test_normalized_gap_formula
+    asserting delta / log(p) equals expected float 1.8205 for input p=3, p_next=5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add tests/unit/test_gap_calc.py::test_normalized_gap_formula asserting
+    delta / log(p) equals expected float 1.8205 for input p=3, p_next=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:52:33Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "normalized gap metric derives from Cram\xE9r probabilistic model positing\
+    \ exponential distribution of prime gaps"
+  claim_id: c_32ba7555
+  context: "Content: Insert the following specific paragraph: 'The normalized gap\
+    \ metric \u0394\u2099 / log p\u2099 derives from Cram\xE9r's probabilistic model\
+    \ of primes, which posits that prime gaps follow an exponential distribution.'"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalized_gap_metric_derives_from_Cram%C3%A9r_probabilistic_mode
+  kind: entity_fact
+  raw_text: "The normalized gap metric \u0394\u2099 / log p\u2099 derives from Cram\xE9\
+    r's probabilistic model of primes, which posits that prime gaps follow an exponential\
+    \ distribution."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:52:36Z'
+- artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  attempts: 1
+  canonical: "Goldston Pintz Yildirim 2005 refined Cram\xE9r heuristic for small gaps\
+    \ consistent with Hardy-Littlewood k-tuple conjecture"
+  claim_id: c_2529d64f
+  context: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes, and is consistent with the\
+    \ Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for\
+    \ twin primes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This heuristic was refined by Goldston, Pintz, and Y\u0131ld\u0131r\u0131\
+    m (2005) in the context of small gaps between primes, and is consistent with the\
+    \ Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for\
+    \ twin primes."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:53:00Z'

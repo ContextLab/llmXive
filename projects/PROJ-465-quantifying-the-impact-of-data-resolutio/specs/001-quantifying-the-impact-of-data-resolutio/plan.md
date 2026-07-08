@@ -98,7 +98,7 @@ The following concerns from the previous iteration have been resolved:
 
 - **T001**: Fetch high-SNR strain data (GW150914, etc.) via `gwpy`.
 - **T002**: Preprocess data (downsample, quantize). **Pre-check**: Verify signal amplitude > quantization noise for 16-bit.
-- **T003**: Run Baseline Inference (4096 Hz, 32-bit) with high convergence standard (`dlogz < 0.01` or [deferred] steps).
+- **T003**: Run Baseline Inference (High Sampling Rate, 32-bit) with high convergence standard (`dlogz < 0.01` or [deferred] steps).
 - **T004**: Run Downsampled Inference (2048/1024 Hz, 16/32-bit) with standard limit (5000 steps, `dlogz < 0.1`).
 - **T005**: Calculate Metrics. **Real Events**: Hellinger distance vs. Baseline. **Simulated**: Bias vs. Injected Truth.
 - **T006**: Aggregate Results. Implement "Consistency Check": If ≥ 50% of tested events show bias > CI, flag threshold.
