@@ -1,0 +1,262 @@
+resolved_at: '2026-07-08T06:24:22.628281+00:00'
+datasets:
+- intent: PII
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ai4privacy/pii-masking-300k/resolve/main/data/train/1english_openpii_30k.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ai4privacy/pii-masking-openpii-1.5m/resolve/main/data/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-PII/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ai4privacy/pii-masking-300k/resolve/main/data/train/1english_openpii_30k.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ai4privacy/pii-masking-openpii-1.5m/resolve/main/data/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nvidia/Nemotron-PII/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/redmadrobot-rnd/pii_benchmark/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/sasha/pii-oscar-sample/resolve/main/pii-oscar-sample-multiling.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/How_and_why_social_class_shapes_Australian_midlife_women_s_perceptions_of_breast_cancer_candidacy_alcohol-related_risk_and_risk_reduction/32934008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_framework_for_evaluating_policy_integration_under_the_Green_Deal_a_case_study_on_climate_change_and_air_pollution/32934094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8053039
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10022673
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7857847
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18862848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21096923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21096923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19637515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19622928
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19637515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UsageFrequency
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/How_and_why_social_class_shapes_Australian_midlife_women_s_perceptions_of_breast_cancer_candidacy_alcohol-related_risk_and_risk_reduction/32934008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_framework_for_evaluating_policy_integration_under_the_Green_Deal_a_case_study_on_climate_change_and_air_pollution/32934094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10554377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10493853
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10454208
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10454426
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10554377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SessionDuration
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/How_and_why_social_class_shapes_Australian_midlife_women_s_perceptions_of_breast_cancer_candidacy_alcohol-related_risk_and_risk_reduction/32934008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20397669
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.hqbzkh1vg
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SHA-256
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10280
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/PolloLOL/SHA-256-Proyect/ea3e28aa90a17aa505e01b25d38fb805e298431f/collisions.csv?%2Fdatasets%2FPolloLOL%2FSHA-256-Proyect%2Fresolve%2Fmain%2Fcollisions.csv=&etag=%22132eda3ab509aeb0ec46ba19933e01f792e7e5dd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/bshepp/round-reduced-sha256-learnability/resolve/main/bounded_null.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/How_and_why_social_class_shapes_Australian_midlife_women_s_perceptions_of_breast_cancer_candidacy_alcohol-related_risk_and_risk_reduction/32934008
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19426733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3590903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19552870
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19996327
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18333706
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254843
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254843
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254862
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254862
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253617
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

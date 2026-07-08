@@ -1,0 +1,2 @@
+# This directory stores raw, processed, and results data.
+# Do not commit large datasets; use .gitkeep to preserve directory structure.

@@ -1,0 +1,99 @@
+%YAML 1.2
+---
+description: |
+  Schema for the unified dataset resulting from the matching of the 
+  Reddit Loneliness Longitudinal Dataset and Pushshift AI interaction logs.
+  This schema defines the structure for the analysis-ready data used in 
+  mixed-effects modeling.
+
+type: object
+required:
+  - user_id
+  - loneliness_score
+  - usage_frequency
+  - session_duration
+  - attachment_anxiety_score
+  - attachment_avoidance_score
+  - age
+
+properties:
+  user_id:
+    description: |
+      Anonymized SHA-256 hash of the original username, used as the 
+      unique identifier for the user across both datasets.
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+  loneliness_score:
+    description: |
+      The Extended Loneliness Scale score for the user at a specific 
+      survey timestamp. Values typically range from 0 to 100 or are 
+      standardized.
+    type: number
+    minimum: 0
+    maximum: 100
+    example: 45.2
+
+  timestamp:
+    description: |
+      The ISO 8601 formatted timestamp of the survey completion or 
+      the aggregated activity window start time.
+    type: string
+    format: date-time
+    example: "2023-10-15T14:30:00Z"
+
+  usage_frequency:
+    description: |
+      The count of AI interaction events (posts/comments) within the 
+      defined analysis window (e.g., weekly or monthly frequency).
+    type: integer
+    minimum: 0
+    example: 12
+
+  session_duration:
+    description: |
+      The total duration of activity in the window, calculated as the 
+      time difference between the first and last activity. Capped at 
+      24 hours (86400 seconds) per data cleaning rules.
+    type: number
+    minimum: 0
+    example: 3600.5
+
+  attachment_anxiety_score:
+    description: |
+      A continuous proxy score for attachment anxiety derived from the 
+      ECAR Lexicon analysis of baseline posts. Normalized to a 0-1 scale.
+    type: number
+    minimum: 0
+    maximum: 1
+    example: 0.65
+
+  attachment_avoidance_score:
+    description: |
+      A continuous proxy score for attachment avoidance derived from the 
+      ECAR Lexicon analysis of baseline posts. Normalized to a 0-1 scale.
+    type: number
+    minimum: 0
+    maximum: 1
+    example: 0.32
+
+  age:
+    description: |
+      The age of the user reported in the loneliness survey. 
+      May be null if not reported.
+    type: integer
+    minimum: 18
+    maximum: 120
+    nullable: true
+    example: 28
+
+  missing_attachment_flag:
+    description: |
+      Boolean flag indicating if attachment scores could not be computed 
+      (e.g., no baseline posts found). Set to true if scores are 0.0 due 
+      to missing data.
+    type: boolean
+    example: false
+
+additionalProperties: false

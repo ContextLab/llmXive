@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Analysis‑Ready Dataset"
+description: "Schema for the CSV/Parquet file produced after data ingestion, matching, and feature engineering."
+type: object
+properties:
+  user_id:
+    type: string
+    description: "SHA‑256 hash of the Reddit username (hex string, 64 characters)."
+    pattern: "^[a-f0-9]{64}$"
+  week_start:
+    type: string
+    format: date
+    description: "ISO‑8601 date representing the start of the week (Monday)."
+  loneliness_score:
+    type: number
+    minimum: 0
+    maximum: 20
+    description: "UCLA Loneliness Scale score for the given week."
+  usage_frequency:
+    type: integer
+    minimum: 0
+    description: "Number of AI‑companion interactions during the week."
+  session_duration:
+    type: number
+    minimum: 0
+    description: "Total time span of activity blocks during the week (max timestamp - min timestamp), capped at 24 h."
+  attachment_anxiety_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized anxiety subscale (0 = no anxiety terms, 1 = max observed frequency) based on ECR-RS keywords."
+  attachment_avoidance_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Normalized avoidance subscale based on ECR-RS keywords."
+  missing_attachment_flag:
+    type: boolean
+    description: "True if no baseline posts were available to compute attachment scores."
+  age:
+    type: integer
+    minimum: 13
+    maximum: 120
+    description: "User's age at baseline; may be null if not reported."
+required:
+  - user_id
+  - week_start
+  - loneliness_score
+  - usage_frequency
+  - session_duration
+  - attachment_anxiety_score
+  - attachment_avoidance_score
+  - missing_attachment_flag
+additionalProperties: false

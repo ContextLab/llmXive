@@ -1,0 +1,13 @@
+? 'T001a [P] Create project root directory structure: `src/`, `tests/`, `data/`, `data/raw/`,
+  `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`'
+: 1
+? 'T001b [P] Create initialization files: `src/__init__.py`, `tests/__init__.py`,
+  `tests/conftest.py`, `data/.gitkeep`, `docs/.gitkeep`, `config/.gitkeep`'
+: 1
+? T004 Create `contracts/unified_dataset.schema.yaml` defining the schema for matched
+  user data (user_id, loneliness_score, usage_frequency, session_duration, attachment
+  scores, age)
+: 1
+T005 [P] Implement `src/utils/logging.py` for structured logging and progress tracking: 1
+T006 [P] Setup environment configuration management for API keys and data paths: 1
+T007 Create `src/utils/data_validation.py` for schema validation and checksum recording: 1
