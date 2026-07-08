@@ -1,9 +1,14 @@
 {
-  "total_records": 10000,
-  "binary_count": 5000,
-  "continuous_count": 5000,
-  "binary_ratio": 0.5,
-  "generation_seed": 42,
-  "generated_at": "2026-06-28T10:00:00.000000",
-  "file_path": "code/data/synthetic/synthetic_summaries.csv"
+  "generated_at": "2024-01-15T10:30:00.000000",
+  "total_count": 10000,
+  "seed": 42,
+  "outcome_types": {
+    "binary": 6000,
+    "continuous": 4000
+  },
+  "config": {
+    "binary_ratio": 0.6,
+    "min_sample_size": 50,
+    "max_sample_size": 10000
+  }
 }
