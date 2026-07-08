@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for the Random Forest cross-validation results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    const: "RandomForest"
+  cv_folds:
+    type: "integer"
+    const: 5
+  metrics:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - fold
+        - accuracy
+        - precision
+        - recall
+        - f1_score
+      properties:
+        fold:
+          type: "integer"
+          description: "Fold number (1-5)."
+        accuracy:
+          type: "number"
+          description: "Accuracy for this fold."
+        precision:
+          type: "number"
+          description: "Precision for this fold."
+        recall:
+          type: "number"
+          description: "Recall for this fold."
+        f1_score:
+          type: "number"
+          description: "F1-score for this fold."
+        feature_importance:
+          type: "object"
+          additionalProperties:
+            type: "number"
+          description: "Feature importance scores for this fold."
+      additionalProperties: false
+  baseline_comparison:
+    type: "object"
+    required:
+      - p_value
+      - is_significant
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value comparing model accuracy to permutation baseline (microbiome shuffle)."
+      is_significant:
+        type: "boolean"
+        description: "True if p_value < 0.05."
+    additionalProperties: false
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the threshold sweep analysis."
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of thresholds tested (e.g., 0.9, 1.0, 1.1)."
+      accuracies:
+        type: "array"
+        items:
+          type: "number"
+        description: "Corresponding accuracies."
+      baseline_p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "Corresponding baseline p-values (robustness check)."
+    additionalProperties: false
+required:
+  - model_type
+  - cv_folds
+  - metrics
+  - baseline_comparison
+additionalProperties: false

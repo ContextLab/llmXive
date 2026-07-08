@@ -1,0 +1,283 @@
+resolved_at: '2026-07-08T20:41:40.440457+00:00'
+datasets:
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/journal_contribution/Impact_of_parental_involvement_on_the_learning_effectiveness_of_secondary_school_students_in_Ado-Odo_Ota_Local_Government_Area_of_Ogun_State_Nigeria/32942435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Christopher_University_Mowe_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Power_Factor_Correction_and_Load_Analysis_Program_Example_Results_and_Calculation_Tables/32942372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Southwestern_University_Okota_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942462
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element_Solution_of_the_Fractional_Dual_Phase-Lag_Bioheat_Model_for_Predicting_Laser-Induced_Thermal_Damage_in_Retinal_Pigment_Epithelium_b_/32942294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803871
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21268380
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Srajanseth84/mydatasetlayoutlmv3/resolve/main/Training_layoutLMV3.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://researchdata.up.ac.za/articles/dataset/Co-creation_of_social_value_a_narrative_enquiry_into_relational_models_of_social_innovation/32935121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Aqueous_Dissolution_Characteristics_and_Off-Gas_of_U-10Mo_Scrap_Material_for_Uranium_Recovery/32942495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Impact_of_parental_involvement_on_the_learning_effectiveness_of_secondary_school_students_in_Ado-Odo_Ota_Local_Government_Area_of_Ogun_State_Nigeria/32942435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Christopher_University_Mowe_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942471
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://figshare.com/articles/dataset/Power_Factor_Correction_and_Load_Analysis_Program_Example_Results_and_Calculation_Tables/32942372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13890889
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17281851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3919017
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/De_novo_transcriptome_assembly_and_predicted_coding_sequences_of_i_Justicia_adhatoda_i_Vasaka_/32939264/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/De_novo_transcriptome_assembly_and_predicted_coding_sequences_of_i_Justicia_adhatoda_i_Vasaka_/32939264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CLR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ShuhongZheng/3D-CLR/resolve/main/all_concepts.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7960
+      parsed: true
+  - url: https://huggingface.co/datasets/arieg/bw_spec_cls_4_00_s_clr/resolve/main/data/test-00000-of-00001-1b9bed3c08175202.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonathan-roberts1/CLRS/resolve/main/data/train-00000-of-00006-a3cf75a5b24a6c1f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jonathan-roberts1/CLRS/resolve/main/data/train-00000-of-00006-a3cf75a5b24a6c1f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/SALSA-CLRS/SALSA-CLRS/resolve/main/bfs.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/ShuhongZheng/3D-CLR/resolve/main/all_concepts.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/arieg/bw_spec_cls_4_00_s_clr/resolve/main/data/test-00000-of-00001-1b9bed3c08175202.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/CLRT19/stronger-than-uthink/resolve/main/datasets/banking77.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://researchdata.up.ac.za/articles/dataset/Co-creation_of_social_value_a_narrative_enquiry_into_relational_models_of_social_innovation/32935121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Aqueous_Dissolution_Characteristics_and_Off-Gas_of_U-10Mo_Scrap_Material_for_Uranium_Recovery/32942495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Impact_of_parental_involvement_on_the_learning_effectiveness_of_secondary_school_students_in_Ado-Odo_Ota_Local_Government_Area_of_Ogun_State_Nigeria/32942435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Power_Factor_Correction_and_Load_Analysis_Program_Example_Results_and_Calculation_Tables/32942372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Boundary_Element_Solution_of_the_Fractional_Dual_Phase-Lag_Bioheat_Model_for_Predicting_Laser-Induced_Thermal_Damage_in_Retinal_Pigment_Epithelium_b_/32942294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://lib.jucs.org/article/28266/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4876304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://lib.jucs.org/article/28446/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7703093
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7703080
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Genetic_Basis_of_Wood_Property_Variation_in_b_b_i_Chamaecyparis_hodginsii_i_b_b_b_b_and_the_Identification_of_Candidate_Genes_b_/32098903/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Genetic_Basis_of_Wood_Property_Variation_in_b_b_i_Chamaecyparis_hodginsii_i_b_b_b_b_and_the_Identification_of_Candidate_Genes_b_/32098903
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Genetic_Basis_of_Wood_Property_Variation_in_b_b_i_Chamaecyparis_hodginsii_i_b_b_b_b_and_the_Identification_of_Candidate_Genes_b_/32098903/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Genetic_Basis_of_Wood_Property_Variation_in_b_b_i_Chamaecyparis_hodginsii_i_b_b_b_b_and_the_Identification_of_Candidate_Genes_b_/32098903/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251022
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

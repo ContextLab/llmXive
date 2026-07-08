@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MicrobiomeSerologyDataset"
+description: "Schema for the filtered and processed microbiome and serology dataset."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Source URL or accession ID of the dataset."
+      subjects_total:
+        type: "integer"
+        description: "Total number of subjects after filtering."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "Timestamp of data processing."
+  data:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - subject_id
+        - baseline_microbiome
+        - post_vaccination_titer
+      properties:
+        subject_id:
+          type: "string"
+          description: "Unique identifier for the subject."
+        baseline_microbiome:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            minimum: 0
+            description: "Relative abundance of each taxon."
+        post_vaccination_titer:
+          type: "number"
+          description: "Log-transformed antibody titer."
+        pre_vaccination_titer:
+          type: "number"
+          description: "Log-transformed pre-vaccination antibody titer (optional)."
+        shannon_diversity:
+          type: "number"
+          description: "Calculated Shannon diversity index."
+        responder_status:
+          type: "integer"
+          enum:
+            - 0
+            - 1
+          description: "Binary responder status (0=Low, 1=High)."
+        responder_mode:
+          type: "string"
+          enum:
+            - "Seroconversion"
+            - "Absolute"
+            - "Mixed"
+            - "Absolute_Fallback"
+          description: "Method used to determine responder status."
+      additionalProperties: false
+required:
+  - metadata
+  - data
+additionalProperties: false

@@ -1,0 +1,34 @@
+- artifact_hash: f2424fcfbdd319933dbcdeea5394243a0ef7d2b91cedfa893cd9f9595784159b
+  artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Staphylococcus aureus subsp. aureus strain DSM799 Genome sequencing
+    - SRA - NCBI
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/sra/?term=SRP053178`
+  verification_status: verified
+  verified_against_url: https://www.ncbi.nlm.nih.gov/sra/?term=SRP053178
+  verified_at: '2026-07-08T21:00:46.127975Z'
+- artifact_hash: f2424fcfbdd319933dbcdeea5394243a0ef7d2b91cedfa893cd9f9595784159b
+  artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: dummy_data.zip
+  kind: url
+  value: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6275496b8507f986f6480114/ce4ae5c22c401a4ebaf1e89e08db60871201e4313474a571639c8f4ff2171ee1?X-Xet-Cas-Uid=public&response-content-type=application%2Fzip&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dummy_data.zip%3B+filename%3D%22dummy_data.zip%22%3B&Expires=1783548047&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3NTQ5NmI4NTA3Zjk4NmY2NDgwMTE0L2NlNGFlNWMyMmM0MDFhNGViYWYxZTg5ZTA4ZGI2MDg3MTIwMWU0MzEzNDc0YTU3MTYzOWM4ZjRmZjIxNzFlZTFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2R1bW15X2RhdGEuemlwJTNCK2ZpbGVuYW1lJTNEJTIyZHVtbXlfZGF0YS56aXAlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU0ODA0N319fV19&Signature=MEUCIQDrYgODhWjSiA1LiXLYvAQCA5hES7koLUGGx1CptLuzcgIgGiIhf8Bx1Yf8I3cOFfvRCqgKZPT4udmtbdPvQA1uSLY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-08T21:00:46.127975Z'
+- artifact_hash: f2424fcfbdd319933dbcdeea5394243a0ef7d2b91cedfa893cd9f9595784159b
+  artifact_path: projects/PROJ-251-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41598-020-00000-0
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41598-020-00000-0
+  verified_at: '2026-07-08T21:00:46.127975Z'

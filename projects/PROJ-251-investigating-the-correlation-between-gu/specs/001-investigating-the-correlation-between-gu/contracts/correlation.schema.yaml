@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResults"
+description: "Schema for the output of the Spearman correlation analysis."
+type: "array"
+items:
+  type: "object"
+  required:
+    - taxon_id
+    - coefficient
+    - p_value_raw
+    - p_value_adj
+    - is_significant
+  properties:
+    taxon_id:
+      type: "string"
+      description: "Identifier of the taxon."
+    coefficient:
+      type: "number"
+      description: "Spearman correlation coefficient."
+    p_value_raw:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Raw p-value from the correlation test."
+    p_value_adj:
+      type: "number"
+      minimum: 0
+      maximum: 1
+      description: "Benjamini-Hochberg adjusted p-value."
+    is_significant:
+      type: "boolean"
+      description: "True if p_value_adj < 0.05."
+  additionalProperties: false
