@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-08T07:14:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the diffusion of carbon in bcc metals from compositional data materials science",
+  "rationale": "The paper focuses on the risks of changing data sources in machine learning for official statistics (social science/government data), which is an entirely different domain from the user's question about predicting carbon diffusion in BCC metals (materials science). It shares no measurable connection to the specific physical mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

@@ -1,0 +1,706 @@
+{
+  "fetched_at": "2026-07-08T07:14:23Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data",
+      "target_n": 5
+    },
+    "duration_seconds": 66.481,
+    "ended_at": "2026-07-08T07:14:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "carbon diffusion coefficients in body-centered cubic metals"
+        ],
+        [
+          2,
+          "machine learning prediction of interstitial diffusion in BCC alloys"
+        ],
+        [
+          3,
+          "compositional descriptors for solute diffusion in iron"
+        ],
+        [
+          4,
+          "atomic diffusion mechanisms of carbon in ferrite"
+        ],
+        [
+          5,
+          "data-driven modeling of carbon mobility in BCC crystal structures"
+        ],
+        [
+          6,
+          "first-principles calculation of carbon migration barriers in BCC metals"
+        ],
+        [
+          7,
+          "composition-property relationships for diffusion in body-centered cubic lattices"
+        ],
+        [
+          8,
+          "interstitial solute diffusion prediction using neural networks"
+        ],
+        [
+          9,
+          "carbon diffusion in alpha-iron and bcc transition metals"
+        ],
+        [
+          10,
+          "high-throughput screening of diffusion coefficients in BCC alloys"
+        ],
+        [
+          11,
+          "activation energy prediction for carbon diffusion in body-centered cubic phases"
+        ],
+        [
+          12,
+          "machine learning interatomic potentials for carbon diffusion in BCC metals"
+        ],
+        [
+          13,
+          "solute diffusion kinetics in body-centered cubic crystal systems"
+        ],
+        [
+          14,
+          "predictive models for carbon transport in ferritic steels"
+        ],
+        [
+          15,
+          "computational materials design of diffusion in BCC metals"
+        ],
+        [
+          16,
+          "correlation between alloy composition and carbon diffusivity in BCC structures"
+        ],
+        [
+          17,
+          "diffusion of interstitial atoms in body-centered cubic lattices"
+        ],
+        [
+          18,
+          "data-centric approaches to estimating diffusion in BCC metallic systems"
+        ],
+        [
+          19,
+          "carbon migration pathways in body-centered cubic metal matrices"
+        ],
+        [
+          20,
+          "diffusion coefficient estimation for carbon in BCC alloys using compositional features"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materials science": 0,
+        "carbon diffusion coefficients in body-centered cubic metals": 0,
+        "machine learning prediction of interstitial diffusion in BCC alloys": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "solute diffusion activation energy DFT",
+      "BCC iron tungsten niobium vacancy migration",
+      "diffusion coefficient machine learning interstitial solute",
+      "Arrhenius parameters diffusion barrier height prediction",
+      "CALPHAD diffusion mobility thermodynamic database"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2302.08893"
+      ]
+    },
+    "per_query_hit_count": {
+      "Arrhenius parameters diffusion barrier height prediction": 3,
+      "BCC iron tungsten niobium vacancy migration": 3,
+      "CALPHAD diffusion mobility thermodynamic database": 3,
+      "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materials science": 3,
+      "diffusion coefficient machine learning interstitial solute": 3,
+      "solute diffusion activation energy DFT": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in machine learning for official statistics (social science/government data), which is an entirely different domain from the user's question about predicting carbon diffusion in BCC metals (materials science). It shares no measurable connection to the specific physical mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper is rejected because it is off-domain entirely; it focuses on machine learning validation standards in biology, whereas the user's question concerns a specific materials science problem (carbon diffusion in BCC metals). It does not measure the relevant physical mechanism, variables, or empirical population required for the user's literature review.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a survey on machine learning methodology (learning curves for algorithm selection) and does not measure the diffusion of carbon, BCC metals, or any materials science properties, failing all inclusion criteria (a-f) while falling under the \"off-domain entirely\" rejection rule.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams in machine learning and does not address the specific materials science domain (carbon diffusion in BCC metals) or the specific mechanism of predicting diffusion from compositional data. It fails to meet any inclusion criteria (a-f) as it lacks the necessary domain connection, specific variables, or canonical methodology for this physical phenomenon, falling instead under the \"Off-domain entirely\" rejection rule.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2303.15563",
+          "rationale": "The paper is entirely off-domain, focusing on privacy-preserving machine learning in healthcare, whereas the user's question concerns predicting carbon diffusion in BCC metals within materials science. There is no measurable connection to the user's mechanism, domain, variables, or empirical setting, satisfying the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"machine learning\" or \"prediction\") without substantive overlap.",
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-08T07:13:16Z",
+    "term_input": {
+      "normalized": "predicting the diffusion of carbon in bcc metals from compositional data materials science",
+      "raw": "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Compositional data analysis is carried out either by neglecting the compositional constraint and applying standard multivariate data analysis, or by transforming the data using the logs of the ratios of the components. In this work we examine a more general transformation which includes both approaches as special cases. It is a power transformation and involves a single parameter, α. The transformation has two equivalent versions. The first is the stay-in-the-simplex version, which is the power transformation as defined by Aitchison in 1986. The second version, which is a linear transformation of the power transformation, is a Box-Cox type transformation. We discuss a parametric way of estimating the value of α, which is maximization of its profile likelihood (assuming multivariate normality of the transformed data) and the equivalence between the two versions is exhibited. Other ways include maximization of the correct classification probability in discriminant analysis and maximization of the pseudo R-squared (as defined by Aitchison in 1986) in linear regression. We examine the relationship between the α-transformation, the raw data approach and the isometric log-ratio transformation. Furthermore, we also define a suitable family of metrics corresponding to the family of α-transformation and consider the corresponding family of Frechet means.",
+          "claimed_authors": [
+            "Michail T. Tsagris",
+            "Simon Preston",
+            "Andrew T. A. Wood"
+          ],
+          "claimed_title": "A data-based power transformation for compositional data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.1451"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='A data-based power transformation for compositional data')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Jump frequencies of 111In/Cd tracer atoms were measured for a series of layered phases LanCoIn3n+2 using the technique of perturbed angular correlation of gamma rays (PAC). The frequencies were determined by analysis of nuclear quadrupole relaxation produced by fluctuating electric field gradients. Samples were synthesized having nominal values n= 1, 2, 3, 5 and \\infty, with n=\\infty corresponding to the L12 phase LaIn3. The phases form heuristically from LaIn3 by replacing every (n+1)th (100) mixed plane of La and In atoms with a plane of Co-atoms. For the n=1 phase, LaCoIn5, jump frequencies were too small to detect. Two signals were observed, one for indium atoms next to the Co-planes and the other for more distant indium atoms. No relaxation was observed for atoms next to the Co-planes, indicating that there is no diffusion across the Co-planes. With increasing n, jump rates for the other In-atoms increased toward values observed for LaIn3. Jump frequency activation enthalpies for n= 3 and 5 were observed to be the same as for n=\\infty, suggesting the same diffusion mechanism. However, the jump-frequency prefactors were found to be smaller for small n, which is attributed to reductions in the connectivity of the diffusion sublattice. We conclude that diffusion in the layered phases is remarkably similar to diffusion in LaIn3 once the reduced connectivity is taken into account.",
+          "claimed_authors": [
+            "Randal Newhouse",
+            "Gary S. Collins"
+          ],
+          "claimed_title": "Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1109.2262"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Diffusion in LanCoIn3n+2 phases studied by perturbed angular correlation')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have created an innovative natural thermostat algorithm to mimic the direct impact of temperature on interatomic distances in both a perfect crystal and a system containing a vacancy. Unlike previous research, our findings demonstrate that in a system with a defect, the radii of the initial ten coordination spheres increase almost linearly with temperature. However, the coefficients defining these dependencies, unlike those for interatomic distances farther from the vacancy, do not equal the linear thermal expansion coefficient of the perfect crystal. Knowing the atomic coordinates and their temperature evolution, we calculated the temperature dependence of the vacancy formation energy and the vacancy relaxation volume in bcc iron. The significance of these effects for the accurate calculation of atomic diffusion coefficients is analyzed and discussed.",
+          "claimed_authors": [
+            "M. Boboqambarova",
+            "A. V. Nazarov"
+          ],
+          "claimed_title": "Modeling changes in atomic structure around a vacancy with increasing temperature and calculation of temperature dependences of vacancy characteristics in bcc iron",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08877"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Modeling changes in atomic structure around a vacancy with increasing temperature and calculation of temperature dependences of vacancy characteristics in bcc iron')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Whether the higher occurrence of giant planets being hosted by metal-rich versus metal-poor stars results from formation or from \"pollution\" has been a question of intense debate. We present new patterns that emerge when planet/star systems are separated by stellar [Fe/H], and when systems with stellar companions are separated out. These differences can best be explained if the onset of high eccentricity planet migration is also a time when planet are sent into merge with the star. Planet migration into the star is likely a complementary explanation to the view that systems with higher initial iron abundance form more planets, and that more crowded planets are more likely to scatter into eccentric orbits. Planets of iron-rich single stars have eccentricity distributions that are higher than planets of iron-poor single stars (where \"rich\" and \"poor\" are stars whose [Fe/H] is above and below solar, respectively). Stars with planets that have a stellar companion comprise a third population of systems in which the stars are preferentially iron-rich. We describe new patterns that are best explained by eccentric planet migration being associated with other planets migrating into the star. Though medium planets are more numerous than giant planets at periods greater than three days, giant planets are more numerous than medium planets at the shortest periods. Since giant planets migrate into the star faster, we show this as evidence of giant planet migration. Planet migration into the star is certain to be an important part of planetary system evolution.",
+          "claimed_authors": [
+            "Stuart F. Taylor"
+          ],
+          "claimed_title": "Iron abundance correlations and an occurrence distribution discrepancy from ongoing planet migration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.5197"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Iron abundance correlations and an occurrence distribution discrepancy from ongoing planet migration')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An emerging area of research is the study of macroscale migration patterns as a network of nodes that represent places (e.g., countries, cities, and rural areas) and edges that encode migration ties that connect those places. In this chapter, we first review advances in the study of migration networks and recent work that has employed network analysis to examine such networks at different geographical scales. In our discussion, we focus in particular on global scale migration networks. We then propose ways to leverage network analysis in concert with digital technologies and online geolocated data to examine the structure and dynamics of migration networks. The implementation of such approaches for studying migration networks faces many challenges, including ethical ones, methodological ones, socio-technological ones (e.g., data availability and reuse), and research reproducibility. We detail these challenges, and we then consider possible ways of linking digital geolocated data to administrative and survey data as a way of harnessing new technologies to construct increasingly realistic migration networks (e.g., using multiplex networks). We also briefly discuss new methods (e.g., multilayer network analysis) in network analysis and adjacent fields (e.g., machine learning) that can help advance understanding of macroscale patterns of migration.",
+          "claimed_authors": [
+            "Valentin Danchev",
+            "Mason A. Porter"
+          ],
+          "claimed_title": "Migration Networks: Applications of Network Analysis to Macroscale Migration Patterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.10992"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Migration Networks: Applications of Network Analysis to Macroscale Migration Patterns')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extracting building heights from satellite images is an active research area used in many fields such as telecommunications, city planning, etc. Many studies utilize DSM (Digital Surface Models) generated with lidars or stereo images for this purpose. Predicting the height of the buildings using only RGB images is challenging due to the insufficient amount of data, low data quality, variations of building types, different angles of light and shadow, etc. In this study, we present an instance segmentation-based building height extraction method to predict building masks with their respective heights from a single RGB satellite image. We used satellite images with building height annotations of certain cities along with an open-source satellite dataset with the transfer learning approach. We reached, the bounding box mAP 59, the mask mAP 52.6, and the average accuracy value of 70% for buildings belonging to each height class in our test set.",
+          "claimed_authors": [
+            "Furkan Burak Bagci",
+            "Ahmet Alp Kindriroglu",
+            "Metehan Yalcin",
+            "Ufuk Uyan",
+            "Mahiye Uluyagmur Ozturk"
+          ],
+          "claimed_title": "Building Height Prediction with Instance Segmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.09277"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Building Height Prediction with Instance Segmentation')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present analytical results and kinetic Monte Carlo simulations for the mobility and microscopic structure of solid-on-solid (SOS) interfaces driven far from equilibrium by an external force, such as an applied field or (electro)chemical potential difference. The interfaces evolve under a specific stochastic dynamic with a local energy barrier (an Arrhenius dynamic), known as the transition dynamics approximation (TDA). We calculate the average height of steps on the interface, the average interface velocity, and the skewness of the interface as functions of the driving force and the height of the energy barrier. We find that the microscopic interface structure depends quite strongly on the barrier height. As the barrier becomes higher, the local interface width decreases and the skewness increases, suggesting increasing short-range correlations between the step heights.",
+          "claimed_authors": [
+            "G. M. Buendia",
+            "P. A. Rikvold",
+            "M. Kolesik"
+          ],
+          "claimed_title": "Field-driven solid-on-solid interfaces moving under a stochastic Arrhenius dynamic: effects of the barrier height",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0512003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Field-driven solid-on-solid interfaces moving under a stochastic Arrhenius dynamic: effects of the barrier height')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report results from the molecular dynamics simulations of a binary colloidal mixture subjected to an external potential barrier along one of the spatial directions at low volume fraction, φ = 0.2. The variations in the asymmetry of the external potential barrier do not change the dynamics of the smaller particles, showing Arrhenius diffusion. However, the dynamics of the larger particles shows a crossover from sub-Arrhenius to super-Arrhenius diffusion with the asymmetry in the external potential at the low temperatures and low volume fraction. Super-Arrhenius diffusion is generally observed in the high density systems where the transient cages are present due to dense packing, e.g., supercooled liquids, jammed systems, diffusion through porous membranes, dynamics within the cellular environment, etc. This model can be applied to study the molecular transport across cell membranes, nano-, and micro-channels which are characterized by spatially asymmetric potentials.",
+          "claimed_authors": [
+            "Jalim Singh",
+            "Mahammad Mustakim",
+            "A. V. Anil Kumar"
+          ],
+          "claimed_title": "Super-Arrhenius diffusion in a binary colloidal mixture at low volume fraction: an effect of depletion interaction due to an asymmetric barrier",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.07627"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Super-Arrhenius diffusion in a binary colloidal mixture at low volume fraction: an effect of depletion interaction due to an asymmetric barrier')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Disconnection of mobile clients from server, in an unclear time and for an unknown duration, due to mobility of mobile clients, is the most important challenges for concurrency control in mobile database with client-server model. Applying pessimistic common classic methods of concurrency control (like 2pl) in mobile database leads to long duration blocking and increasing waiting time of transactions. Because of high rate of aborting transactions, optimistic methods aren`t appropriate in mobile database. In this article, OPCOT concurrency control algorithm is introduced based on optimistic concurrency control method. Reducing communications between mobile client and server, decreasing blocking rate and deadlock of transactions, and increasing concurrency degree are the most important motivation of using optimistic method as the basis method of OPCOT algorithm. To reduce abortion rate of transactions, in execution time of transactions` operators a timestamp is assigned to them. In other to checking commitment ordering property of scheduler, the assigned timestamp is used in server on time of commitment. In this article, serializability of OPCOT algorithm scheduler has been proved by using serializability graph. Results of evaluating simulation show that OPCOT algorithm decreases abortion rate and waiting time of transactions in compare to 2pl and optimistic algorithms.",
+          "claimed_authors": [
+            "Ali Karami",
+            "Ahmad Baraani-Dastjerdi"
+          ],
+          "claimed_title": "A Concurrency Control Method Based on Commitment Ordering in Mobile Databases",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2155"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='A Concurrency Control Method Based on Commitment Ordering in Mobile Databases')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Thermodynamics is a science concerning the state of a system, whether it is stable, metastable, or unstable. The combined law of thermodynamics derived by Gibbs about 150 years ago laid the foundation of thermodynamics. In Gibbs combined law, the entropy production due to internal processes was not included, and the 2nd law was thus practically removed from the Gibbs combined law, so it is only applicable to systems under equilibrium. Gibbs further derived the classical statistical thermodynamics in terms of the probability of configurations in a system. With the quantum mechanics (QM) developed, the QM-based statistical thermodynamics was established and connected to classical statistical thermodynamics at the classical limit as shown by Landau. The development of density function theory (DFT) by Kohn and co-workers enabled the QM prediction of properties of the ground state of a system. On the other hand, the entropy production due to internal processes in non-equilibrium systems was studied separately by Onsager and Prigogine and co-workers. The digitization of thermodynamics was developed by Kaufman in the framework of the CALPHAD modeling of individual phases. Our recently termed zentropy theory integrates DFT and statistical mechanics through the replacement of the internal energy of each individual configuration by its DFT-predicted free energy. Furthermore, through the combined law of thermodynamics with the entropy production as a function of internal degrees of freedom, it is shown that the kinetic coefficient matrix of independent internal processes is diagonal with respect to the conjugate potentials in the combined law, and the cross phenomena represented by the phenomenological Onsager reciprocal relationships are due to the dependence of the conjugate potential of the molar quantity in a flux on nonconjugate potentials.",
+          "claimed_authors": [
+            "Zi-Kui Liu"
+          ],
+          "claimed_title": "Thermodynamics and its Prediction and CALPHAD Modeling: Review, State of the Art, and Perspectives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.02132"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='Thermodynamics and its Prediction and CALPHAD Modeling: Review, State of the Art, and Perspectives')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The phase-field method has been established as a de facto standard for simulating the microstructural evolution of materials. In quantitative modeling the assessment and compilation of thermodynamic/kinetic data is largely dominated by the CALPHAD approach, which has produced a large set of experimentally and computationally generated Gibbs free energy and atomic mobility data in a standardized format: the thermodynamic database (TDB) file format. Harnessing this data for the purpose of phase-field modeling is an ongoing effort encompassing a wide variety of approaches. In this paper, we aim to directly link CALPHAD data to the phase-field method, without intermediate fitting or interpolation steps. We introduce a model based on the Kim-Kim-Suzuki (KKS) approach. This model includes sublattice site fractions and can directly utilize data from TDB files. Using this approach, we demonstrate the model on the U-Zr and Mo-Ni-Re systems.",
+          "claimed_authors": [
+            "D. Schwen",
+            "C. Jiang",
+            "L. K. Aagesen"
+          ],
+          "claimed_title": "A Sublattice Phase-Field Model for Direct CALPHAD Database Coupling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.16603"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting the Diffusion of Carbon in BCC Metals from Compositional Data materia', candidate_title='A Sublattice Phase-Field Model for Direct CALPHAD Database Coupling')",
+        "failed_at": "2026-07-08T07:13:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:14:09Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:14:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:14:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": 0.3247,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:14:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alejandro Guerra-Manzanares",
+            "L. Julian Lechuga Lopez",
+            "Michail Maniatakos",
+            "Farah E. Shamout"
+          ],
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.15563",
+        "summary": "Machine Learning (ML) has recently shown tremendous success in modeling various healthcare prediction tasks, ranging from disease diagnosis and prognosis to patient treatment. Due to the sensitive nature of medical data, privacy must be considered along the entire ML pipeline, from model training to inference. In this paper, we conduct a review of recent literature concerning Privacy-Preserving Machine Learning (PPML) for healthcare. We primarily focus on privacy-preserving training and inference-as-a-service, and perform a comprehensive review of existing trends, identify challenges, and discuss opportunities for future research directions. The aim of this review is to guide the development of private and efficient ML models in healthcare, with the prospects of translating research efforts into real-world settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.15563",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:14:11Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the diffusion of carbon in bcc metals from compositional data materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

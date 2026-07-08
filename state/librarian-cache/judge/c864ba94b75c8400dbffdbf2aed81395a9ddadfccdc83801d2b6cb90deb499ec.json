@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.01644",
+  "judged_at": "2026-07-08T07:16:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"World Models\" and \"Agent\" components of the user's query, providing the necessary taxonomy and framework for extending language world models into spatial domains. Although it focuses on spatial/embodied agents rather than pure linguistics, it directly addresses the core mechanism (World Models for Agents) and offers the structural baseline required for a literature review on extending such models.",
+  "relevant": true
+}

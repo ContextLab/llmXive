@@ -1,113 +1,63 @@
-# Data Schema Contract for Perovskite Stability Prediction Pipeline
-# This file defines the expected structure, columns, and data types
-# for all CSV artifacts produced by the pipeline.
-#
-# Version: 1.0
-# Generated for: PROJ-186
+# Data Schema Definitions for Perovskite Stability Pipeline
+# This file defines the expected structure and types for all data artifacts.
 
-version: "1.0"
-description: "Schema for processed features and model input data"
+features:
+  description: "Processed features for machine learning (data/processed/features.csv)"
+  required_columns:
+    - material_id
+    - formula
+    - space_group
+    - tolerance_factor
+    - octahedral_factor
+    - ionic_radius_mismatch
+    - electronegativity_difference
+    - decomposition_energy
+  allowed_columns:
+    - material_id
+    - formula
+    - space_group
+    - tolerance_factor
+    - octahedral_factor
+    - ionic_radius_mismatch
+    - electronegativity_difference
+    - decomposition_energy
+    - is_stable
+  column_types:
+    material_id: string
+    formula: string
+    space_group: int
+    tolerance_factor: float
+    octahedral_factor: float
+    ionic_radius_mismatch: float
+    electronegativity_difference: float
+    decomposition_energy: float
+    is_stable: boolean
 
-schemas:
-  features_csv:
-    description: "Processed features dataset containing structural descriptors and target variable"
-    file_path: "data/processed/features.csv"
-    columns:
-      - name: "material_id"
-        type: "string"
-        description: "Unique identifier for the material (from Materials Project or OQMD)"
-        nullable: false
-        unique: true
-      - name: "formula"
-        type: "string"
-        description: "Chemical formula of the perovskite (e.g., 'ABX3')"
-        nullable: false
-      - name: "space_group"
-        type: "integer"
-        description: "Space group number (filtered for 221 or 148)"
-        nullable: false
-      - name: "tolerance_factor"
-        type: "float"
-        description: "Goldschmidt tolerance factor (t)"
-        nullable: false
-      - name: "octahedral_factor"
-        type: "float"
-        description: "Octahedral factor (mu)"
-        nullable: false
-      - name: "ionic_radius_mismatch"
-        type: "float"
-        description: "Calculated ionic radius mismatch between A and B sites"
-        nullable: false
-      - name: "electronegativity_diff"
-        type: "float"
-        description: "Electronegativity difference between constituent elements"
-        nullable: false
-      - name: "decomposition_energy"
-        type: "float"
-        description: "Target variable: decomposition energy in eV/atom"
-        nullable: false
-      - name: "source"
-        type: "string"
-        description: "Data source ('materials_project' or 'oqmd')"
-        nullable: false
-        allowed_values:
-          - "materials_project"
-          - "oqmd"
+raw_materials_project:
+  description: "Raw data downloaded from Materials Project API"
+  required_columns:
+    - material_id
+    - formula
+    - space_group
+    - structure
+    - decomposition_energy
 
-  hypothetical_library_csv:
-    description: "Combinatorial library of hypothetical perovskite candidates"
-    file_path: "data/processed/hypothetical_library.csv"
-    columns:
-      - name: "candidate_id"
-        type: "string"
-        description: "Unique identifier for the candidate"
-        nullable: false
-      - name: "formula"
-        type: "string"
-        description: "Chemical formula"
-        nullable: false
-      - name: "tolerance_factor"
-        type: "float"
-        description: "Calculated tolerance factor"
-        nullable: false
-      - name: "octahedral_factor"
-        type: "float"
-        description: "Calculated octahedral factor"
-        nullable: false
-      - name: "ionic_radius_mismatch"
-        type: "float"
-        description: "Ionic radius mismatch"
-        nullable: false
-      - name: "electronegativity_diff"
-        type: "float"
-        description: "Electronegativity difference"
-        nullable: false
-      - name: "is_feasible"
-        type: "boolean"
-        description: "Whether the candidate passes geometric feasibility (0.8 <= t <= 1.1)"
-        nullable: false
-      - name: "predicted_decomposition_energy"
-        type: "float"
-        description: "Model prediction for decomposition energy"
-        nullable: true
-      - name: "is_ood"
-        type: "boolean"
-        description: "Whether the candidate is out-of-distribution relative to training data"
-        nullable: false
+raw_oqmd:
+  description: "Raw data downloaded from OQMD"
+  required_columns:
+    - formula
+    - space_group
+    - decomposition_energy
 
-validation_rules:
-  - rule: "no_nulls_in_target"
-    target_columns:
-      - "decomposition_energy"
-    message: "Target column 'decomposition_energy' must not contain null values"
-  - rule: "tolerance_factor_range"
-    column: "tolerance_factor"
-    min: 0.5
-    max: 1.5
-    message: "Tolerance factor must be within physically meaningful range [0.5, 1.5]"
-  - rule: "space_group_filter"
-    column: "space_group"
-    allowed_values:
-      - 221
-      - 148
-    message: "Only cubic (221) and rhombohedral (148) space groups are permitted"
+model_metrics:
+  description: "Model performance metrics (results/metrics.json)"
+  required_keys:
+    - test_rmse
+    - cv_mean_rmse
+    - best_params
+    - dft_functional
+  key_types:
+    test_rmse: float
+    cv_mean_rmse: float
+    best_params: dict
+    dft_functional: string

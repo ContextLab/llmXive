@@ -1,0 +1,704 @@
+{
+  "fetched_at": "2026-07-08T07:16:53Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.69,
+    "ended_at": "2026-07-08T07:16:53Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "language world models for autonomous agents"
+        ],
+        [
+          2,
+          "Qwen-AgentWorld architecture and applications"
+        ],
+        [
+          3,
+          "large language models as world simulators"
+        ],
+        [
+          4,
+          "linguistic grounding in general agent systems"
+        ],
+        [
+          5,
+          "embodied language understanding with LLMs"
+        ],
+        [
+          6,
+          "multi-modal agent environments and language"
+        ],
+        [
+          7,
+          "language-based world modeling for AI agents"
+        ],
+        [
+          8,
+          "semantic representation in agent-world interactions"
+        ],
+        [
+          9,
+          "generative language models for agent planning"
+        ],
+        [
+          10,
+          "cognitive architectures for language-driven agents"
+        ],
+        [
+          11,
+          "Qwen model extensions for agent capabilities"
+        ],
+        [
+          12,
+          "linguistic priors in agent-environment coupling"
+        ],
+        [
+          13,
+          "simulation-based training for language agents"
+        ],
+        [
+          14,
+          "general purpose agents with natural language interfaces"
+        ],
+        [
+          15,
+          "world model construction via language generation"
+        ],
+        [
+          16,
+          "agent reasoning in simulated linguistic environments"
+        ],
+        [
+          17,
+          "transfer learning for agent-world language tasks"
+        ],
+        [
+          18,
+          "natural language processing for agent decision making"
+        ],
+        [
+          19,
+          "virtual environments for language model evaluation"
+        ],
+        [
+          20,
+          "agent-world alignment through linguistic constraints"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "language world models for autonomous agents": 5,
+        "llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General Agents\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "agent language model world simulation",
+      "Qwen-AgentWorld embodied cognitive architecture",
+      "neurosymbolic grounding language agent planning",
+      "agent interaction dynamics linguistic pragmatics",
+      "simulated environment language model emergent behavior"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.22904"
+      ]
+    },
+    "per_query_hit_count": {
+      "Qwen-AgentWorld embodied cognitive architecture": 3,
+      "agent interaction dynamics linguistic pragmatics": 3,
+      "agent language model world simulation": 3,
+      "llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General Agents\" linguistics": 3,
+      "neurosymbolic grounding language agent planning": 3,
+      "simulated environment language model emergent behavior": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-08T07:15:54Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+      "raw": "llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General Agents\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To interact effectively with humans in the real world, it is important for agents to understand language that describes the dynamics of the environment--that is, how the environment behaves--rather than just task instructions specifying \"what to do\". Understanding this dynamics-descriptive language is important for human-agent interaction and agent behavior. Recent work address this problem using a model-based approach: language is incorporated into a world model, which is then used to learn a behavior policy. However, these existing methods either do not demonstrate policy generalization to unseen games or rely on limiting assumptions. For instance, assuming that the latency induced by inference-time planning is tolerable for the target task or expert demonstrations are available. Expanding on this line of research, we focus on improving policy generalization from a language-conditioned world model while dropping these assumptions. We propose a model-based reinforcement learning approach, where a language-conditioned world model is trained through interaction with the environment, and a policy is learned from this model--without planning or expert demonstrations. Our method proposes Language-aware Encoder for Dreamer World Model (LED-WM) built on top of DreamerV3. LED-WM features an observation encoder that uses an attention mechanism to explicitly ground language descriptions to entities in the observation. We show that policies trained with LED-WM generalize more effectively to unseen games described by novel dynamics and language compared to other baselines in several settings in two environments: MESSENGER and MESSENGER-WM.To highlight how the policy can leverage the trained world model before real-world deployment, we demonstrate the policy can be improved through fine-tuning on synthetic test trajectories generated by the world model.",
+          "claimed_authors": [
+            "Anh Nguyen",
+            "Stefan Lee"
+          ],
+          "claimed_title": "Language-conditioned world model improves policy generalization by reading environmental descriptions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.22904"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Language-conditioned world model improves policy generalization by reading environmental descriptions')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11651"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neuroethology has been an active field of study for more than a century now. Out of some of the most interesting species that has been studied so far, weakly electric fish is a fascinating one. It performs communication, echo-location and inter-species detection efficiently with an interesting configuration of sensors, neu-rons and a simple brain. In this paper we propose a cognitive architecture inspired by the way these fishes handle and process information. We believe that it is eas-ier to understand and mimic the neural architectures of a simpler species than that of human. Hence, the proposed architecture is expected to both help research in cognitive robotics and also help understand more complicated brains like that of human beings.",
+          "claimed_authors": [
+            "Amit Kumar Mishra"
+          ],
+          "claimed_title": "WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.11401"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='WEBCA: Weakly-Electric-Fish Bioinspired Cognitive Architecture')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mougenot and Matheson (2024) make a compelling case for the development of a mechanistic cognitive neuroscience that is embodied. However, their analysis of extant work under this header plays down important distinctions between \"minimal\" and \"radical\" embodiment. The former remains firmly neurocentric and therefore has limited potential to move the needle in understanding the functional contributions of neural dynamics to cognition in the context of wider organism-environment dynamics.",
+          "claimed_authors": [
+            "Matthieu M. de Wit"
+          ],
+          "claimed_title": "Separating minimal from radical embodied cognitive neuroscience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01830"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Separating minimal from radical embodied cognitive neuroscience')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction granularity is an important yet poorly controlled variable in language-guided embodied AI. Existing benchmarks typically pair each task with a single static instruction, making it difficult to study how agent behavior changes when the same task is described at different levels of detail. We introduce Mini-BEHAVIOR-Gran, a new benchmark for controlled studies of instruction granularity that extends Mini-BEHAVIOR with multiple instruction variants per task, ranging from high-level goal descriptions to step-by-step guidance. Using this benchmark, we compare four candidate metrics for cross-task granularity quantification: token count, entity count, action-verb count, and planning-width, and find that width correlates most consistently with agent performance. Using width to organize training and evaluation further reveals a non-monotonic U-shaped relationship between instruction granularity and performance, with peaks at both fine and coarse extremes. Further analysis suggests that the coarse-granularity performance rebound is associated with shallow grounding, where agents learn vision-dominant policies.",
+          "claimed_authors": [
+            "Sukai Huang",
+            "Chenyuan Zhang",
+            "Fucai Ke",
+            "Zhixi Cai",
+            "Gholamreza Haffari",
+            "Lizhen Qu",
+            "Hamid Rezatofighi"
+          ],
+          "claimed_title": "Mini-BEHAVIOR-Gran: Revealing U-Shaped Effects of Instruction Granularity on Language-Guided Embodied Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17019"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Mini-BEHAVIOR-Gran: Revealing U-Shaped Effects of Instruction Granularity on Language-Guided Embodied Agents')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) often struggle to perform multi-target reasoning in long-context scenarios where relevant information is scattered across extensive documents. To address this challenge, we introduce NeuroSymbolic Augmented Reasoning (NSAR), which combines the benefits of neural and symbolic reasoning during inference. NSAR explicitly extracts symbolic facts from text and generates executable Python code to handle complex reasoning steps. Through extensive experiments across seven languages and diverse context lengths, we demonstrate that NSAR significantly outperforms both a vanilla RAG baseline and advanced prompting strategies in accurately identifying and synthesizing multiple pieces of information. Our results highlight the effectiveness of combining explicit symbolic operations with neural inference for robust, interpretable, and scalable reasoning in multilingual settings.",
+          "claimed_authors": [
+            "Sina Bagheri Nezhad",
+            "Ameeta Agrawal"
+          ],
+          "claimed_title": "Enhancing Large Language Models with Neurosymbolic Reasoning for Multilingual Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.02483"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Enhancing Large Language Models with Neurosymbolic Reasoning for Multilingual Tasks')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Symbolic task planning is a widely used approach to enforce robot autonomy due to its ease of understanding and deployment in robot architectures. However, techniques for symbolic task planning are difficult to scale in real-world, human-robot collaboration scenarios because of the poor performance in complex planning domains or when frequent re-planning is needed. We present a framework, Teriyaki, specifically aimed at bridging the gap between symbolic task planning and machine learning approaches. The rationale is training Large Language Models (LLMs), namely GPT-3, into a neurosymbolic task planner compatible with the Planning Domain Definition Language (PDDL), and then leveraging its generative capabilities to overcome a number of limitations inherent to symbolic task planners. Potential benefits include (i) a better scalability in so far as the planning domain complexity increases, since LLMs' response time linearly scales with the combined length of the input and the output, and (ii) the ability to synthesize a plan action-by-action instead of end-to-end, making each action available for execution as soon as it is generated instead of waiting for the whole plan to be available, which in turn enables concurrent planning and execution. Recently, significant efforts have been devoted by the research community to evaluate the cognitive capabilities of LLMs, with alternate successes. Instead, with Teriyaki we aim to provide an overall planning performance comparable to traditional planners in specific planning domains, while leveraging LLMs capabilities to build a look-ahead predictive planning model. Preliminary results in selected domains show that our method can: (i) solve 95.5% of problems in a test data set of 1,000 samples; (ii) produce plans up to 13.5% shorter than a traditional symbolic planner; (iii) reduce average overall waiting times for a plan availability by up to 61.4%",
+          "claimed_authors": [
+            "Alessio Capitanelli",
+            "Fulvio Mastrogiovanni"
+          ],
+          "claimed_title": "A Framework for Neurosymbolic Robot Action Planning using Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.00438"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='A Framework for Neurosymbolic Robot Action Planning using Large Language Models')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientific research and engineering practice often require the modeling and decomposition of nonlinear systems. The Dynamic Mode Decomposition (DMD) is a novel Koopman-based technique that effectively dissects high-dimensional nonlinear systems into periodically distinct constituents on reduced-order subspaces. As a novel mathematical hatchling, the DMD bears vast potentials yet an equal degree of unknown. This serial effort investigates the nuances of DMD sampling with an engineering-oriented emphasis. This Part I aimed at elucidating how sampling range and resolution affect the convergence of DMD modes. We employed the most classical nonlinear system in fluid mechanics as the test subject--the turbulent free-shear flow over a prism--for optimal pertinency. We numerically simulated the flow by the dynamic-stress Large-Eddies Simulation with Near-Wall Resolution. With the large-quantity, high-fidelity data, we parametrized and identified four global convergence states: Initialization, Transition, Stabilization, and Divergence with increasing sampling range. Results showed that the Stabilization is the optimal state for modal convergence, in which DMD output becomes independent of the sampling range. The Initialization state also yields sufficient accuracy for most system reconstruction tasks. Moreover, defying popular beliefs, over-sampling causes algorithmic instability: as the temporal dimension, n, approaches and transcends the spatial dimension, m (i.e., m < n), the output diverges and becomes meaningless. Additionally, the convergence of the sampling resolution depends on the mode-specific dynamics, such that the resolution of 15 frames per cycle for target activities is suggested for most engineering implementations. Finally, a bi-parametric study revealed that the convergence of the sampling range and resolution are mutually independent.",
+          "claimed_authors": [
+            "Cruz Y. Li",
+            "Zengshun Chen",
+            "Tim K. T. Tse",
+            "Asiri Umenga Weerasuriya",
+            "Xuelin Zhang",
+            "Yunfei Fu",
+            "Xisheng Lin"
+          ],
+          "claimed_title": "A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06573"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Eye-hand coordinated interaction is becoming a mainstream interaction modality in Virtual Reality (VR) user interfaces.Current paradigms for this multimodal interaction require users to learn predefined gestures and memorize multiple gesture-task associations, which can be summarized as an ``Operation-to-Intent\" paradigm. This paradigm increases users' learning costs and has low interaction error tolerance. In this paper, we propose SIAgent, a novel \"Intent-to-Operation\" framework allowing users to express interaction intents through natural eye-hand motions based on common sense and habits. Our system features two main components: (1) intent recognition that translates spatial interaction data into natural language and infers user intent, and (2) agent-based execution that generates an agent to execute corresponding tasks. This eliminates the need for gesture memorization and accommodates individual motion preferences with high error tolerance. We conduct two user studies across over 60 interaction tasks, comparing our method with two \"Operation-to-Intent\" techniques. Results show our method achieves higher intent recognition accuracy than gaze + pinch interaction (97.2% vs 93.1%) while reducing arm fatigue and improving usability, and user preference. Another study verifies the function of eye gaze and hand motion channels in intent recognition. Our work offers valuable insights into enhancing VR interaction intelligence through intent-driven design. Our source code and LLM prompts will be made available upon publication.",
+          "claimed_authors": [
+            "Zhimin Wang",
+            "Chenyu Gu",
+            "Feng Lu"
+          ],
+          "claimed_title": "SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.00522"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='SIAgent: Spatial Interaction Agent via LLM-powered Eye-Hand Motion Intent Understanding in VR')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emergent behavior arising in a joint human-robot system cannot be fully predicted based on an understanding of the individual agents. Typically, robot behavior is governed by algorithms that optimize a reward function that should quantitatively capture the joint system's goal. Although reward functions can be updated to better match human needs, this is no guarantee that no misalignment with the complex and variable human needs will occur. Algorithms may learn undesirable behavior when interacting with the human and the intrinsically unpredictable human-inhabited world, thereby producing further misalignment with human users or bystanders. As a result, humans might behave differently than anticipated, causing robots to learn differently and undesirable behavior to emerge. With this short paper, we state that to design for Human-Robot Interaction that mitigates such undesirable emergent behavior, we need to complement advancements in human-robot interaction algorithms with human factors knowledge and expertise. More specifically, we advocate a three-pronged approach that we illustrate using a particularly challenging example of safety-critical human-robot interaction: a driver interacting with a semi-automated vehicle. Undesirable emergent behavior should be mitigated by a combination of 1) including driver behavioral mechanisms in the vehicle's algorithms and reward functions, 2) model-based approaches that account for interaction-induced driver behavioral adaptations and 3) driver-centered interaction design that promotes driver engagement with the semi-automated vehicle, and the transparent communication of each agent's actions that allows mutual support and adaptation. We provide examples from recent empirical work in our group, in the hope this proves to be fruitful for discussing emergent human-robot interaction.",
+          "claimed_authors": [
+            "Timo Melman",
+            "Niek Beckers",
+            "David Abbink"
+          ],
+          "claimed_title": "Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16572"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='Mitigating undesirable emergent behavior arising between driver and semi-automated vehicle')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We explore how physical scale and population size shape the emergence of complex behaviors in open-ended ecological environments. In our setting, agents are unsupervised and have no explicit rewards or learning objectives but instead evolve over time according to reproduction, mutation, and selection. As they act, agents also shape their environment and the population around them in an ongoing dynamic ecology. Our goal is not to optimize a single high-performance policy, but instead to examine how behaviors emerge and evolve across large populations due to natural competition and environmental pressures. We use modern hardware along with a new multi-agent simulator to scale the environment and population to sizes much larger than previously attempted, reaching populations of over 60,000 agents, each with their own evolved neural network policy. We identify various emergent behaviors such as long-range resource extraction, vision-based foraging, and predation that arise under competitive and survival pressures. We examine how sensing modalities and environmental scale affect the emergence of these behaviors and find that some of them appear only in sufficiently large environments and populations, and that larger scales increase the stability and consistency of these emergent behaviors. While there is a rich history of research in evolutionary settings, our scaling results on modern hardware provide promising new directions to explore ecology as an instrument of machine learning in an era of increasingly abundant computational resources and efficient machine frameworks. Experimental code is available at https://github.com/jbejjani2022/ecological-emergent-behavior.",
+          "claimed_authors": [
+            "Joseph Bejjani",
+            "Chase Van Amburg",
+            "Chengrui Wang",
+            "Chloe Huangyuan Su",
+            "Sarah M. Pratt",
+            "Yasin Mazloumi",
+            "Naeem Khoshnevis",
+            "Sham M. Kakade",
+            "Kianté Brantley",
+            "Aaron Walsman"
+          ],
+          "claimed_title": "The Emergence of Complex Behavior in Large-Scale Ecological Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18221"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Qwen-AgentWorld: Language World Models for General', candidate_title='The Emergence of Complex Behavior in Large-Scale Ecological Environments')",
+        "failed_at": "2026-07-08T07:16:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuxin Zuo",
+            "Zikai Xiao",
+            "Li Sheng",
+            "Fei Huang",
+            "Jianhong Tu",
+            "Yuxuan Liu",
+            "Tianyi Tang",
+            "Xiaomeng Hu",
+            "Yang Su",
+            "Qingfeng Lan",
+            "Yantao Liu",
+            "Qin Zhu",
+            "Yinger Zhang",
+            "Bowen Yu",
+            "Haiquan Zhao",
+            "Haiyang Xu",
+            "Jianxin Yang",
+            "Jiayang Cheng",
+            "Junyang Wang",
+            "Lianghao Deng",
+            "Mingfeng Xue",
+            "Tianyi Bai",
+            "Yang Fan",
+            "Yubo Ma",
+            "Yucheng Li",
+            "Zeyu Cui",
+            "Zhihai Wang",
+            "Zhihui Xie",
+            "Zhuorui Ye",
+            "An Yang",
+            "Dayiheng Liu",
+            "Jingren Zhou",
+            "Ning Ding"
+          ],
+          "title": "Qwen-AgentWorld: Language World Models for General Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.24597",
+        "summary": "A world model predicts environment dynamics based on current observations and actions, serving as a core cognitive mechanism for reasoning and planning. In this work, we investigate how world modeling based on language models can further push the boundaries of general agents. (i) We first focus on building foundation models for agentic environment simulation. We introduce Qwen-AgentWorld-35B-A3B and Qwen-AgentWorld-397B-A17B, the first language world models capable of simulating agentic environments covering 7 domains via long chain-of-thought reasoning. Leveraging more than 10M environment interaction trajectories of 7 domains in real-world environments, we develop Qwen-AgentWorld through a three-stage training pipeline: CPT injects general-purpose world modeling capabilities from the state transition dynamics and augmented professional corpora, SFT activates next-state-prediction reasoning, and RL sharpens simulation fidelity through a tailored framework with hybrid rubric-and-rule rewards. To evaluate language world models, we present AgentWorldBench, a comprehensive benchmark constructed from real-world interactions of 5 frontier models on 9 established benchmarks. Empirical results demonstrate that Qwen-AgentWorld significantly outperforms existing frontier models. (ii) Beyond foundation models, we further investigate two complementary paradigms through which world modeling enhances general agents. First, as a decoupled environment simulator, Qwen-AgentWorld supports scalable and controllable simulation of thousands of real-world environments for agentic RL, yielding gains that surpass real-environment training alone. Second, as a unified agent foundation model, world-model training acts as a highly effective warm-up that improves downstream performance across 7 agentic benchmarks. Code: https://github.com/QwenLM/Qwen-AgentWorld",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.24597",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6364,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rishi Hazra",
+            "Sonu Dixit",
+            "Sayambhu Sen"
+          ],
+          "title": "Intrinsically Motivated Compositional Language Emergence",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.05011",
+        "summary": "Recently, there has been a great deal of research in emergent communication on artificial agents interacting in simulated environments. Recent studies have revealed that, in general, emergent languages do not follow the compositionality patterns of natural language. To deal with this, existing works have proposed a limited channel capacity as an important constraint for learning highly compositional languages. In this paper, we show that this is not a sufficient condition and propose an intrinsic reward framework for improving compositionality in emergent communication. We use a reinforcement learning setting with two agents -- a \\textit{task-aware} Speaker and a \\textit{state-aware} Listener that are required to communicate to perform a set of tasks. Through our experiments on three different referential game setups, including a novel environment gComm, we show intrinsic rewards improve compositionality scores by $\\approx \\mathbf{1.5-2}$ times that of existing frameworks that use limited channel capacity.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.05011",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anh Nguyen",
+            "Stefan Lee"
+          ],
+          "title": "Language-conditioned world model improves policy generalization by reading environmental descriptions",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.22904",
+        "summary": "To interact effectively with humans in the real world, it is important for agents to understand language that describes the dynamics of the environment--that is, how the environment behaves--rather than just task instructions specifying \"what to do\". Understanding this dynamics-descriptive language is important for human-agent interaction and agent behavior. Recent work address this problem using a model-based approach: language is incorporated into a world model, which is then used to learn a behavior policy. However, these existing methods either do not demonstrate policy generalization to unseen games or rely on limiting assumptions. For instance, assuming that the latency induced by inference-time planning is tolerable for the target task or expert demonstrations are available. Expanding on this line of research, we focus on improving policy generalization from a language-conditioned world model while dropping these assumptions. We propose a model-based reinforcement learning approach, where a language-conditioned world model is trained through interaction with the environment, and a policy is learned from this model--without planning or expert demonstrations. Our method proposes Language-aware Encoder for Dreamer World Model (LED-WM) built on top of DreamerV3. LED-WM features an observation encoder that uses an attention mechanism to explicitly ground language descriptions to entities in the observation. We show that policies trained with LED-WM generalize more effectively to unseen games described by novel dynamics and language compared to other baselines in several settings in two environments: MESSENGER and MESSENGER-WM.To highlight how the policy can leverage the trained world model before real-world deployment, we demonstrate the policy can be improved through fine-tuning on synthetic test trajectories generated by the world model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.22904",
+          "http_status": 200,
+          "pdf_sample_score": 0.3662,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wangchunshu Zhou",
+            "Yuchen Eleanor Jiang",
+            "Long Li",
+            "Jialong Wu",
+            "Tiannan Wang",
+            "Shi Qiu",
+            "Jintian Zhang",
+            "Jing Chen",
+            "Ruipu Wu",
+            "Shuai Wang",
+            "Shiding Zhu",
+            "Jiyu Chen",
+            "Wentao Zhang",
+            "Xiangru Tang",
+            "Ningyu Zhang",
+            "Huajun Chen",
+            "Peng Cui",
+            "Mrinmaya Sachan"
+          ],
+          "title": "Agents: An Open-source Framework for Autonomous Language Agents",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.07870",
+        "summary": "Recent advances on large language models (LLMs) enable researchers and developers to build autonomous language agents that can automatically solve various tasks and interact with environments, humans, and other agents using natural language interfaces. We consider language agents as a promising direction towards artificial general intelligence and release Agents, an open-source library with the goal of opening up these advances to a wider non-specialist audience. Agents is carefully engineered to support important features including planning, memory, tool usage, multi-agent communication, and fine-grained symbolic control. Agents is user-friendly as it enables non-specialists to build, customize, test, tune, and deploy state-of-the-art autonomous language agents without much coding. The library is also research-friendly as its modularized design makes it easily extensible for researchers. Agents is available at https://github.com/aiwaves-cn/agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.07870",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yixia Li",
+            "Hongru Wang",
+            "Peng Lai",
+            "Zhiwen Ruan",
+            "He Zhu",
+            "Youxin Zhu",
+            "Ganlong Zhao",
+            "Minda Hu",
+            "Yun Chen",
+            "Sibei Yang",
+            "Peng Li",
+            "Jeff Z. Pan",
+            "Jia Pan",
+            "Guanhua Chen",
+            "Yang Liu",
+            "Guanbin Li"
+          ],
+          "title": "Bridging the Agent-World Gap: Text World Models for LLM-based Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.09032",
+        "summary": "Large language model (LLM)-based agents are increasingly used in interactive textual environments, from web navigation and code editing to tool use and long-horizon dialogue. Yet many remain largely reactive, mapping observations to actions without an explicit model of how these environments are structured and evolve. This motivates text world models (TWMs): transition models over textual states that, given a state and a candidate action, predict the resulting webpage, terminal output, API response, or user reply, thereby supporting planning, efficient learning, and principled evaluation. We systematically review text world models for LLM-based agents, organized around a formal framework and the agent lifecycle: (1) Foundations, defining text world models and characterizing them by state representation and grounding domain; (2) Construction, taxonomizing LLM-as-WM and code-as-WM paradigms and reviewing methods for building them; (3) Application, examining how world models support agents at training time through experience synthesis and at inference time through planning, verification, and adaptation; and (4) Evaluation, covering both evaluation of the world model itself and its use as an evaluation environment for agents. We aim to consolidate this rapidly developing area, clarify its design space, and highlight open challenges for future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.09032",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gloria Felicia",
+            "Nolan Bryant",
+            "Handi Putra",
+            "Ayaan Gazali",
+            "Eliel Lobo",
+            "Esteban Rojas"
+          ],
+          "title": "From Perception to Action: Spatial AI Agents and World Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.01644",
+        "summary": "While large language models have become the prevailing approach for agentic reasoning and planning, their success in symbolic domains does not readily translate to the physical world. Spatial intelligence, the ability to perceive 3D structure, reason about object relationships, and act under physical constraints, is an orthogonal capability that proves important for embodied agents. Existing surveys address either agentic architectures or spatial domains in isolation. None provide a unified framework connecting these complementary capabilities. This paper bridges that gap. Through a thorough review of over 2,000 papers, citing 742 works from top-tier venues, we introduce a unified three-axis taxonomy connecting agentic capabilities with spatial tasks across scales. Crucially, we distinguish spatial grounding (metric understanding of geometry and physics) from symbolic grounding (associating images with text), arguing that perception alone does not confer agency. Our analysis reveals three key findings mapped to these axes: (1) hierarchical memory systems (Capability axis) are important for long-horizon spatial tasks. (2) GNN-LLM integration (Task axis) is a promising approach for structured spatial reasoning. (3) World models (Scale axis) are essential for safe deployment across micro-to-macro spatial scales. We conclude by identifying six grand challenges and outlining directions for future research, including the need for unified evaluation frameworks to standardize cross-domain assessment. This taxonomy provides a foundation for unifying fragmented research efforts and enabling the next generation of spatially-aware autonomous systems in robotics, autonomous vehicles, and geospatial intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.01644",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jing Yu Koh",
+            "Stephen McAleer",
+            "Daniel Fried",
+            "Ruslan Salakhutdinov"
+          ],
+          "title": "Tree Search for Language Model Agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.01476",
+        "summary": "Autonomous agents powered by language models (LMs) have demonstrated promise in their ability to perform decision-making tasks such as web automation. However, a key limitation remains: LMs, primarily optimized for natural language understanding and generation, struggle with multi-step reasoning, planning, and using environmental feedback when attempting to solve realistic computer tasks. Towards addressing this, we propose an inference-time search algorithm for LM agents to explicitly perform exploration and multi-step planning in interactive web environments. Our approach is a form of best-first tree search that operates within the actual environment space, and is complementary with most existing state-of-the-art agents. It is the first tree search algorithm for LM agents that shows effectiveness on realistic web tasks. On the challenging VisualWebArena benchmark, applying our search algorithm on top of a GPT-4o agent yields a 39.7% relative increase in success rate compared to the same baseline without search, setting a state-of-the-art success rate of 26.4%. On WebArena, search also yields a 28.0% relative improvement over a baseline agent, setting a competitive success rate of 19.2%. Our experiments highlight the effectiveness of search for web agents, and we demonstrate that performance scales with increased test-time compute. We conduct a thorough analysis of our results to highlight improvements from search, limitations, and promising directions for future work. Our code and models are publicly released at https://jykoh.com/search-agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.01476",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T07:16:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

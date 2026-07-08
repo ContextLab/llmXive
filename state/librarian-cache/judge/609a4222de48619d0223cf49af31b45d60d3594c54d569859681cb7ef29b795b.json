@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.15563",
+  "judged_at": "2026-07-08T07:14:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the diffusion of carbon in bcc metals from compositional data materials science",
+  "rationale": "The paper is entirely off-domain, focusing on privacy-preserving machine learning in healthcare, whereas the user's question concerns predicting carbon diffusion in BCC metals within materials science. There is no measurable connection to the user's mechanism, domain, variables, or empirical setting, satisfying the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"machine learning\" or \"prediction\") without substantive overlap.",
+  "relevant": false
+}

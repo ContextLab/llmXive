@@ -251,6 +251,10 @@
     "classified_at": "2026-06-26T00:21:07Z",
     "verdict": false
   },
+  "PROJ-278-predicting-the-diffusion-of-carbon-in-bc::1.6.0": {
+    "classified_at": "2026-07-08T07:13:56Z",
+    "verdict": false
+  },
   "PROJ-282-evaluating-the-effectiveness-of-llms-for::1.6.0": {
     "classified_at": "2026-06-19T18:39:16Z",
     "verdict": false
@@ -911,12 +915,20 @@
     "classified_at": "2026-07-03T21:36:10Z",
     "verdict": false
   },
+  "PROJ-894-llmxive-follow-up-extending-memory-is-re::1.6.0": {
+    "classified_at": "2026-07-08T07:15:19Z",
+    "verdict": false
+  },
   "PROJ-899-llmxive-follow-up-extending-evalverse-pi::1.6.0": {
     "classified_at": "2026-07-05T00:58:56Z",
     "verdict": false
   },
   "PROJ-901-llmxive-follow-up-extending-physbrain-1::1.6.0": {
     "classified_at": "2026-07-07T07:24:32Z",
+    "verdict": false
+  },
+  "PROJ-908-llmxive-follow-up-extending-qwen-agentwo::1.6.0": {
+    "classified_at": "2026-07-08T07:16:23Z",
     "verdict": false
   },
   "PROJ-909-llmxive-follow-up-extending-gamma-world::1.6.0": {

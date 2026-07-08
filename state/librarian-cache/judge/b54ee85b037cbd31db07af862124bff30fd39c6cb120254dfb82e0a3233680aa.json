@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.18805",
+  "judged_at": "2026-07-08T07:15:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memory is reconstructed, not retrieved: graph memory for llm agents\" computer science",
+  "rationale": "The paper focuses on evaluating LLM recommendation agents using behavior-grounded metrics for shopping tasks, which does not address the specific mechanism of \"graph memory\" or the \"reconstruction vs. retrieval\" hypothesis central to the user's question about LLM agent memory architectures. While both involve LLM agents, the candidate paper studies a different functional domain (recommendation utility) and lacks the specific memory mechanism or graph-based structural focus required by the user's",
+  "relevant": false
+}

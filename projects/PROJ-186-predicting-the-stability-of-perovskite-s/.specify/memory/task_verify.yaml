@@ -1,11 +1,11 @@
-T007 Create `data/` and `results/` directory structure with `.gitkeep`: 1
-T008 Configure logging infrastructure to `logs/pipeline.log` with exclusion reasons: 1
+T007 Create `data/` and `results/` directory structure with `.gitkeep`: 2
+T008 Configure logging infrastructure to `logs/pipeline.log` with exclusion reasons: 2
 ? T009 [P] [US1] Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_KCl3`
-: 1
-T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`: 1
-T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`: 1
+: 2
+T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`: 2
+T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`: 2
 ? T012 [US1] Implement `code/data/download.py` to fetch up to 10,000 entries from
   Materials Project API (using `utils/api_client.py`), validate the count, and raise
   a critical error if the initial MP fetch yields < 5,000 valid entries (merging the
   logic of T014.5 here).
-: 1
+: 2

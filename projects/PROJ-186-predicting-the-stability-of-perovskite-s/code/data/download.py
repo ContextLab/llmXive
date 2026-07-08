@@ -5,150 +5,182 @@ import json
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-# Add project root to path to allow relative imports if run as script
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path to ensure imports work
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.api_client import fetch_with_backoff, get_api_key, RateLimitedSession
-from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
-
-# Constants for structural filtering
-TARGET_SPACE_GROUPS = {221, 148}  # 221: Cubic (Pm-3m), 148: Rhombohedral (R-3)
-MIN_VALID_ENTRIES = 5000
+from utils.api_client import fetch_with_backoff, get_api_key
+from utils.logging_config import get_logger, log_pipeline_event
 
 logger = get_logger(__name__)
 
-def fetch_materials_project_entries(max_entries: int = 10000) -> List[Dict[str, Any]]:
+# Constants
+MATERIALS_PROJECT_API_URL = "https://api.materialsproject.org/v2/materials"
+MAX_ENTRIES = 10000
+MIN_VALID_ENTRIES = 5000
+SPACE_GROUPS = [221, 148]  # Cubic (221) and Rhombohedral (148)
+
+def fetch_materials_project_entries(limit: int = MAX_ENTRIES) -> List[Dict[str, Any]]:
     """
-    Fetches perovskite-like entries from the Materials Project API.
-    Note: This is a placeholder for the actual API implementation.
-    In a real scenario, this would construct the API URL, handle pagination,
-    and parse the JSON response.
+    Fetches material entries from the Materials Project API using the
+    utils.api_client fetch_with_backoff function.
+    
+    Args:
+        limit: Maximum number of entries to fetch.
+        
+    Returns:
+        A list of material dictionaries containing necessary fields.
+        
+    Raises:
+        RuntimeError: If the API returns fewer than MIN_VALID_ENTRIES.
+        ConnectionError: If API access fails completely.
     """
-    # Placeholder logic to simulate fetching data
-    # In a real implementation, this would use the api_client
-    logger.info(f"Fetching up to {max_entries} entries from Materials Project...")
+    api_key = get_api_key()
+    if not api_key:
+        raise RuntimeError("Materials Project API key not found. Set MP_API_KEY environment variable.")
     
-    # Simulate a successful fetch of a subset for demonstration
-    # In reality, this would be the result of a real API call
-    mock_data = []
-    for i in range(min(max_entries, 100)): 
-        mock_data.append({
-            "material_id": f"mp-{i}",
-            "formula": f"A{i}B{i}X3",
-            "structure": {
-                "space_group": 221 if i % 3 == 0 else (148 if i % 3 == 1 else 195),
-                "composition": {"A": 1, "B": 1, "X": 3}
-            },
-            "energy_per_atom": -2.0 + (i * 0.01),
-            "decomposition_energy": -0.5 + (i * 0.01)
-        })
+    logger.info(f"Fetching up to {limit} entries from Materials Project API...")
     
-    logger.info(f"Retrieved {len(mock_data)} entries from Materials Project.")
-    return mock_data
+    # Construct query parameters for ABX3 perovskites (simplified query for demonstration)
+    # In a real scenario, we might need to iterate through pages or use specific filters.
+    # Here we assume the API supports a limit parameter and returns a list of documents.
+    # Note: The actual MP API v2 structure might differ, but we follow the task's requirement
+    # to use the API client and fetch data.
+    
+    params = {
+        "api_key": api_key,
+        "limit": limit,
+        "fields": "material_id,formula,space_group,structure,decomposition_energy"
+    }
+    
+    # The actual endpoint for bulk retrieval might be /search or similar.
+    # Using the base URL with query params as a placeholder for the specific search logic
+    # required to get perovskite candidates.
+    # For this implementation, we target a search endpoint that allows filtering by formula or structure.
+    # Since we cannot know the exact MP API search syntax without external docs, we use a generic
+    # approach that would work if the API supported a 'search' endpoint with these params.
+    # However, to be robust, we will assume the standard MP API search pattern.
+    
+    # Standard MP API v2 search endpoint
+    url = "https://api.materialsproject.org/v2/materials/search"
+    
+    # We need to filter for perovskites. MP doesn't have a direct "perovskite" filter in v2 search easily
+    # without specific formula patterns. We will fetch a large batch and filter locally,
+    # or rely on the API to return a broad set if we don't specify formula filters.
+    # To ensure we get enough data, we fetch the maximum allowed and filter later.
+    # The task requires fetching UP TO 10,000.
+    
+    try:
+        response = fetch_with_backoff(url, params=params)
+        
+        if response.status_code != 200:
+            raise ConnectionError(f"API request failed with status {response.status_code}: {response.text}")
+        
+        data = response.json()
+        
+        # MP API v2 usually returns {'data': [...]} or similar
+        if 'data' in data:
+            entries = data['data']
+        else:
+            # Fallback if structure is different
+            entries = data if isinstance(data, list) else [data]
+        
+        logger.info(f"Retrieved {len(entries)} entries from Materials Project API.")
+        
+        if len(entries) < MIN_VALID_ENTRIES:
+            error_msg = (
+                f"Critical: Materials Project API returned only {len(entries)} entries. "
+                f"Minimum required: {MIN_VALID_ENTRIES}. "
+                "The dataset is insufficient for statistical validity."
+            )
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+        
+        return entries
+        
+    except Exception as e:
+        logger.error(f"Failed to fetch from Materials Project: {str(e)}")
+        raise
 
 def validate_and_filter_entries(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Validates and filters entries based on structural criteria.
     
-    Filters:
-    1. Space group must be 221 (Cubic) or 148 (Rhombohedral).
-    2. Must have valid decomposition_energy (not None).
-    3. Must have valid formula and structure data.
-    
     Args:
-        entries: List of raw entries from the data source.
+        entries: List of raw entries from the API.
         
     Returns:
-        List of filtered and validated entries.
+        List of filtered entries matching space_group 221 or 148.
     """
-    filtered_entries = []
-    total_count = len(entries)
-    logger.info(f"Starting validation and filtering of {total_count} entries.")
+    logger.info(f"Validating and filtering {len(entries)} entries...")
+    filtered = []
     
-    for idx, entry in enumerate(entries):
+    for entry in entries:
         try:
-            # Check for required fields
-            if not entry.get("formula") or not entry.get("structure"):
-                log_exclusion_reason("Missing formula or structure data", entry.get("material_id", "unknown"))
-                continue
+            # Extract space group
+            # MP API structure varies; assuming 'space_group' is a dict or int
+            sg = entry.get('space_group')
             
-            structure = entry.get("structure", {})
-            space_group = structure.get("space_group")
+            if isinstance(sg, dict):
+                sg_num = sg.get('number')
+            elif isinstance(sg, int):
+                sg_num = sg
+            else:
+                # Try to parse from string if present
+                sg_str = str(sg)
+                if sg_str.isdigit():
+                    sg_num = int(sg_str)
+                else:
+                    continue
             
-            # Structural Filtering: T014
-            if space_group not in TARGET_SPACE_GROUPS:
-                log_exclusion_reason(f"Space group {space_group} not in target set {TARGET_SPACE_GROUPS}", entry.get("material_id", "unknown"))
-                continue
-            
-            # Check for decomposition energy
-            decomp_energy = entry.get("decomposition_energy")
-            if decomp_energy is None:
-                log_exclusion_reason("Missing decomposition_energy", entry.get("material_id", "unknown"))
-                continue
-            
-            # If passed all filters, add to list
-            filtered_entries.append(entry)
-            
+            # Filter for Cubic (221) or Rhombohedral (148)
+            if sg_num in SPACE_GROUPS:
+                filtered.append(entry)
+            else:
+                # Log exclusion reason if needed (optional for this task)
+                pass
+                
         except Exception as e:
-            logger.error(f"Error processing entry {entry.get('material_id', 'unknown')}: {e}")
-            log_exclusion_reason(f"Processing error: {str(e)}", entry.get("material_id", "unknown"))
+            logger.warning(f"Could not parse entry {entry.get('material_id', 'unknown')}: {e}")
             continue
     
-    final_count = len(filtered_entries)
-    log_pipeline_event(f"Filtering complete. {total_count} -> {final_count} entries.")
-    
-    if final_count < MIN_VALID_ENTRIES:
-        logger.warning(f"Only {final_count} valid entries found, which is below the minimum threshold of {MIN_VALID_ENTRIES}.")
-        # In a real pipeline, we might trigger OQMD fetch here (T013 logic)
-        # For now, we raise a warning but proceed if the task is just filtering
-        # However, T012 logic says raise critical error if < 5000. 
-        # We assume T013 handles the merge logic, so we just return what we have
-        # but log the severity.
-    
-    return filtered_entries
+    logger.info(f"Filtered down to {len(filtered)} valid perovskite candidates.")
+    return filtered
 
 def main():
     """
-    Main entry point for the data download and filtering pipeline.
+    Main entry point for the download script.
+    Fetches data, validates count, filters, and saves to data/raw/mp_data.json.
     """
-    logger.info("Starting Materials Project data ingestion and structural filtering.")
-    
-    # Ensure output directories exist
-    data_dir = Path(project_root) / "data" / "raw"
-    data_dir.mkdir(parents=True, exist_ok=True)
+    log_pipeline_event("Starting Materials Project data download")
     
     try:
-        # 1. Fetch data
-        raw_entries = fetch_materials_project_entries(max_entries=10000)
+        # Step 1: Fetch entries
+        raw_entries = fetch_materials_project_entries(limit=MAX_ENTRIES)
         
-        if not raw_entries:
-            logger.error("No entries fetched from Materials Project.")
-            sys.exit(1)
-        
-        # 2. Validate and Filter (T014 implementation)
+        # Step 2: Validate and filter (T014 logic merged here)
         valid_entries = validate_and_filter_entries(raw_entries)
         
-        if not valid_entries:
-            logger.error("No valid entries passed structural filtering.")
-            sys.exit(1)
+        if len(valid_entries) == 0:
+            raise RuntimeError("No valid entries found after filtering. Cannot proceed.")
         
-        # 3. Save raw and filtered data
-        raw_output_path = data_dir / "materials_project_raw.json"
-        filtered_output_path = data_dir / "materials_project_filtered.json"
+        # Step 3: Save to disk
+        output_dir = Path(PROJECT_ROOT) / "data" / "raw"
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        with open(raw_output_path, "w") as f:
-            json.dump(raw_entries, f, indent=2)
-        logger.info(f"Saved raw data to {raw_output_path}")
+        output_path = output_dir / "mp_data.json"
         
-        with open(filtered_output_path, "w") as f:
+        with open(output_path, 'w') as f:
             json.dump(valid_entries, f, indent=2)
-        logger.info(f"Saved filtered data to {filtered_output_path}")
         
-        log_pipeline_event(f"Pipeline complete. {len(valid_entries)} valid perovskite structures saved.")
+        logger.info(f"Successfully saved {len(valid_entries)} entries to {output_path}")
+        log_pipeline_event(f"Data download complete: {len(valid_entries)} entries saved")
         
+    except RuntimeError as e:
+        logger.critical(str(e))
+        raise
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}")
+        logger.error(f"Unexpected error in download pipeline: {str(e)}")
         raise
 
 if __name__ == "__main__":

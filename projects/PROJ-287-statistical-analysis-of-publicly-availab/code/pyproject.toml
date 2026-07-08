@@ -1,20 +1,31 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-topic-drift"
+name = "statistical-analysis-of-topic-drift"
 version = "0.1.0"
 description = "Statistical Analysis of Topic Drift in Academic Abstracts"
 requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn",
+    "scipy",
+    "nltk",
+    "spacy",
+    "pandas",
+    "matplotlib",
+    "requests",
+    "pyyaml",
+]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -26,7 +37,42 @@ exclude = '''
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["code/src", "code/tests"]
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "build",
+    "dist",
+    "data",
+    "results",
+    "docs",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = false
+combine-as-imports = true

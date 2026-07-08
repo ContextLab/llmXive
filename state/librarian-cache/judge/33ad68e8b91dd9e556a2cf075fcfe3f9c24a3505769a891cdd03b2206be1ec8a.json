@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.07870",
+  "judged_at": "2026-07-08T07:16:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology and canonical reference for the \"language agents\" domain, providing the core framework (planning, memory, tool usage) that the user's question regarding \"Qwen-AgentWorld\" and general agents would necessarily cite to establish the state of the art. Additionally, it addresses the \"linguistics\" aspect of the user's query by explicitly focusing on natural language interfaces and multi-agent communication, which are central to the mecha",
+  "relevant": true
+}

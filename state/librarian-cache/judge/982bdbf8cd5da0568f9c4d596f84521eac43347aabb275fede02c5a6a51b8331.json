@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.22904",
+  "judged_at": "2026-07-08T07:16:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (language-conditioned world models for agent policy generalization) and domain (LLM-based agents interacting with environmental descriptions) as the user's question, even though it focuses on the specific \"LED-WM\" architecture rather than the \"Qwen-AgentWorld\" framework. It provides essential prior work on the specific sub-problem of using language to describe environmental dynamics for generalization, which is ",
+  "relevant": true
+}

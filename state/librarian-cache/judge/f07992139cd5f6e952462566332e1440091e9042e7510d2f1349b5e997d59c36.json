@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.18950",
+  "judged_at": "2026-07-08T07:15:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memory is reconstructed, not retrieved: graph memory for llm agents\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a canonical framework for \"Graph Memory\" (via hierarchical procedural memory structures) in LLM agents, directly addressing the mechanism of reconstructing memory rather than retrieving it, which is the core subject of the user's follow-up research.",
+  "relevant": true
+}

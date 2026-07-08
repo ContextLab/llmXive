@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.01476",
+  "judged_at": "2026-07-08T07:16:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of \"language world models for general agents\" by explicitly testing inference-time search algorithms for multi-step planning and environmental feedback in web agents, which is the fundamental operational domain of the user's referenced \"Qwen-AgentWorld\" work. Although it does not focus on \"linguistics\" as a primary variable, it provides the canonical empirical baseline for agent performance and reasoning capabilities",
+  "relevant": true
+}

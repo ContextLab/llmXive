@@ -1,23 +1,21 @@
+# Ruff configuration file
+# Extends pyproject.toml settings but can be used for specific overrides
+
 [lint]
+# Select specific rules
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "B", # flake8-bugbear
 ]
+
+# Ignore specific rules
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (black handles this)
 ]
 
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # assert statements in tests are fine
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = false

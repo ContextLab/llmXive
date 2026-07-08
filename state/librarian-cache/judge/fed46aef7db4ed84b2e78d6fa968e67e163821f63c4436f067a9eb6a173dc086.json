@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-08T07:14:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the diffusion of carbon in bcc metals from compositional data materials science",
+  "rationale": "The paper is rejected because it is off-domain entirely; it focuses on machine learning validation standards in biology, whereas the user's question concerns a specific materials science problem (carbon diffusion in BCC metals). It does not measure the relevant physical mechanism, variables, or empirical population required for the user's literature review.",
+  "relevant": false
+}

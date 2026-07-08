@@ -5,33 +5,79 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents"
 
-## Summary of the prior work
-The paper introduces MRAgent, a framework that replaces static retrieval with an "active reconstruction" mechanism using a Cue-Tag-Content graph to dynamically prune memory paths during LLM agent inference. By integrating reasoning directly into the memory access loop, the system avoids combinatorial explosion while significantly improving performance on long-horizon benchmarks like LoCoMo and LongMemEval. The core innovation lies in treating memory not as a fixed database to be queried, but as a reconstructible structure that evolves based on intermediate evidence.
+**Field**: Computer Science
 
-## Proposed extension
-**Research Question:** How does the "reconstruction cost" (measured in cognitive steps or graph traversal depth) of active memory access correlate with the stability of long-term reasoning in low-resource LLM agents, and can a "lazy reconstruction" heuristic reduce this overhead without degrading performance?
+## Research question
 
-This question matters because MRAgent's active reconstruction, while effective, may introduce significant latency or token overhead for agents operating under strict computational constraints (e.g., edge devices or CPU-only environments); determining if a simplified, "lazy" version of the graph traversal maintains efficacy would make the approach scalable for real-world, resource-constrained deployment.
+How does the computational cost of active memory reconstruction (measured in graph traversal depth) correlate with the stability of long-term reasoning in resource-constrained LLM agents, and can a "lazy reconstruction" heuristic reduce this overhead without degrading performance on multi-hop reasoning tasks?
+
+## Motivation
+
+The MRAgent framework demonstrates that active reconstruction outperforms static retrieval, but its dynamic graph traversal may impose prohibitive latency and token costs for agents operating on edge devices or CPU-only environments. Determining whether a simplified, "lazy" traversal strategy can maintain reasoning stability while significantly reducing computational load is critical for scaling graph-based memory architectures to real-world, low-resource deployments.
+
+## Related work
+
+- [Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents](https://arxiv.org/abs/2606.06036) — Establishes the baseline "active reconstruction" paradigm that this project aims to optimize by reducing traversal depth.
+- [Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering](https://arxiv.org/abs/2604.08224) — Provides the broader context for runtime reorganization and external memory systems, validating the shift from weight-based to structure-based adaptation.
+- [Learning Hierarchical Procedural Memory for LLM Agents through Bayesian Selection and Contrastive Refinement](https://arxiv.org/abs/2512.18950) — Offers a contrasting approach where adaptation occurs in an external memory structure while the model remains frozen, supporting the feasibility of decoupling reasoning from heavy model updates.
+
+## Expected results
+
+We expect to find a non-linear relationship where aggressive full-path reconstruction yields diminishing returns beyond a specific reasoning horizon, while a "lazy" heuristic preserves accuracy on tasks with clear intermediate cues. Success will be measured by achieving a 40-50% reduction in nodes visited and inference latency while maintaining accuracy within a 2% margin of the full active baseline on the LoCoMo benchmark.
 
 ## Methodology sketch
-**Data:** Utilize the LoCoMo benchmark subset containing multi-hop reasoning tasks with varying context lengths, paired with a synthetic dataset of "noisy" memory graphs where irrelevant edges are artificially inflated to test pruning robustness.
 
-**Procedure:** Implement a CPU-tractable simulation of the MRAgent graph traversal using a small, quantized language model (e.g., a 1B parameter model running in 4-bit precision) or a rule-based agent that mimics LLM token costs. Compare three conditions: (1) the original active reconstruction (full path exploration), (2) a "greedy" reconstruction that only explores the top-k highest-confidence edges, and (3) a "lazy" reconstruction that defers graph expansion until a specific evidence threshold is met. Measure success rates, average graph nodes visited per step, and total inference latency.
+- **Data Acquisition**: Download the LoCoMo benchmark subset (multi-hop reasoning tasks) and a synthetic noisy memory graph dataset from public repositories (e.g., HuggingFace or the paper's associated GitHub) to ensure reproducibility without new data collection.
+- **Environment Setup**: Configure a CPU-only Python environment with a quantized 1B-parameter LLM (e.g., via `llama.cpp` or `bitsandbytes` in 4-bit mode) to simulate the inference constraints of edge devices.
+- **Baseline Implementation**: Reproduce the MRAgent "active reconstruction" logic using a graph library (e.g., `networkx`) to generate a baseline for accuracy, nodes visited, and latency.
+- **Heuristic Development**: Implement two modified traversal strategies: (1) "Greedy" (top-k confidence edges only) and (2) "Lazy" (defer expansion until an evidence threshold is triggered).
+- **Simulation Execution**: Run all three conditions (Full, Greedy, Lazy) on the benchmark tasks, logging the number of graph nodes visited per reasoning step and the total inference time per task.
+- **Statistical Analysis**: Perform a paired t-test or Wilcoxon signed-rank test to compare the accuracy distributions of the heuristic methods against the baseline, and calculate the Pearson correlation between traversal depth and success rate.
+- **Robustness Check**: Evaluate performance on the synthetic noisy graph dataset to verify that the "lazy" heuristic does not over-prune critical paths when irrelevant edges are inflated.
 
-**Expected Result:** We hypothesize that the "lazy" reconstruction strategy will achieve comparable accuracy to the full active method on tasks with clear intermediate cues while reducing the average number of graph nodes visited by 40-50%, thereby proving that aggressive real-time reconstruction is not strictly necessary for all reasoning horizons.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents".
+- Closest match: None (This is the primary iteration of this specific follow-up idea).
+- Verdict: NOT a duplicate
 
-- **Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents** — Shuo Ji, Yibo Li, Bryan Hooi. https://arxiv.org/abs/2606.06036.
 
-```bibtex
-@article{orig_arxiv_2606_06036,
-  title = {Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents},
-  author = {Shuo Ji and Yibo Li and Bryan Hooi},
-  year = {2026},
-  eprint = {2606.06036},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.06036},
-  url = {https://arxiv.org/abs/2606.06036}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-08T07:15:39Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents" computer science | 0 |
+| 1 | Graph-based memory reconstruction for LLM agents | 5 |
+| 2 | Dynamic graph memory systems for language models | 0 |
+| 3 | Memory reconstruction versus retrieval in LLM agents | 0 |
+| 4 | Knowledge graph integration for LLM long-term memory | 0 |
+| 5 | Structural memory mechanisms for autonomous agents | 0 |
+| 6 | Graph neural networks for LLM context management | 0 |
+| 7 | Reconstructive memory architectures in generative AI | 0 |
+| 8 | Episodic memory modeling with graph structures for LLMs | 0 |
+| 9 | Non-retrieval based memory updates for language agents | 0 |
+| 10 | Semantic graph construction for agent state tracking | 0 |
+| 11 | Graph-structured prompt engineering for memory retention | 0 |
+| 12 | Incremental graph memory updates for LLM reasoning | 0 |
+| 13 | Relational memory networks for large language models | 0 |
+| 14 | Hybrid retrieval and reconstruction memory for agents | 0 |
+| 15 | Topological memory representations in AI agents | 0 |
+| 16 | Graph attention mechanisms for memory consolidation in LLMs | 0 |
+| 17 | Persistent graph memory for multi-turn agent interactions | 0 |
+| 18 | Contextual graph rewriting for LLM memory optimization | 0 |
+| 19 | Neuro-symbolic graph memory for language understanding | 0 |
+| 20 | Scalable graph memory frameworks for embodied AI agents | 0 |
+
+### Verified citations
+
+1. **Securing LLM-Agent Long-Term Memory Against Poisoning: Non-Malleable, Origin-Bound Authority with Machine-Checked Guarantees** (2026). Yedidel Louck. arXiv. [2606.24322](https://arxiv.org/abs/2606.24322). PDF-sampled: No.
+2. **Externalization in LLM Agents: A Unified Review of Memory, Skills, Protocols and Harness Engineering** (2026). Chenyu Zhou, Huacan Chai, Wenteng Chen, Zihan Guo, Rong Shan, et al.. arXiv. [2604.08224](https://arxiv.org/abs/2604.08224). PDF-sampled: Yes.
+3. **Memory is Reconstructed, Not Retrieved: Graph Memory for LLM Agents** (2026). Shuo Ji, Yibo Li, Bryan Hooi. arXiv. [2606.06036](https://arxiv.org/abs/2606.06036). PDF-sampled: No.
+4. **Learning Hierarchical Procedural Memory for LLM Agents through Bayesian Selection and Contrastive Refinement** (2025). Saman Forouzandeh, Wei Peng, Parham Moradi, Xinghuo Yu, Mahdi Jalili. arXiv. [2512.18950](https://arxiv.org/abs/2512.18950). PDF-sampled: No.

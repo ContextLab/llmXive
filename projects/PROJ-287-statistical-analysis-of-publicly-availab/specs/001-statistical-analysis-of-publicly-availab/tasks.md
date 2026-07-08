@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Create directories `src/`, `tests/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/stats/`, `docs/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, scipy, nltk, spacy, pandas, matplotlib, requests, pyyaml)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan: Create directories `src/`, `tests/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/stats/`, `docs/`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, scipy, nltk, spacy, pandas, matplotlib, requests, pyyaml)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `src/utils/logging.py` for standardized logging and error handling
-- [ ] T005 [P] Implement `src/utils/manifest.py` for reproducibility manifest generation (JSON)
-- [ ] T006 [P] Create `src/utils/config.py` to load environment variables and random seeds
+- [X] T004 [P] Implement `src/utils/logging.py` for standardized logging and error handling
+- [X] T005 [P] Implement `src/utils/manifest.py` for reproducibility manifest generation (JSON)
+- [X] T006 [P] Create `src/utils/config.py` to load environment variables and random seeds
 - [~] T007 [P] Setup `tests/unit/test_utils.py` for logging and manifest validation
 - [~] T008 [P] Create base data structures: `AbstractRecord`, `TopicVector`, `DivergenceMeasurement` in `src/models/entities.py` (Downstream tasks depend on these class definitions)
 
@@ -89,7 +89,7 @@
 - [~] T022 [P] [US2] Implement `src/models/lda/k_selector.py` to validate k=10 using elbow method/held-out likelihood; select optimal k if needed
 - [~] T023 [US2] Implement `src/models/lda/aligner.py` to align topic indices across windows via cosine similarity of topic-word distributions (**Depends on completion of T020 across all 5 windows**; resolves label switching critical for valid divergence)
 - [~] T024 [US2] Implement `src/models/metrics/proportions.py` to compute topic proportion vectors (sum=1.0, no NaN) for each window
-- [ ] T025 [US2] Save topic vectors to `results/stats/topic_vectors.json` and update manifest with `k_topics`, `coherence_threshold`
+- [~] T025 [US2] Save topic vectors to `results/stats/topic_vectors.json` and update manifest with `k_topics`, `coherence_threshold`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -103,16 +103,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for JS divergence calculation (base=2) in `tests/unit/test_metrics.py`
-- [ ] T027 [P] [US3] Unit test for MaxT correction logic in `tests/unit/test_stats.py`
+- [~] T026 [P] [US3] Unit test for JS divergence calculation (base=2) in `tests/unit/test_metrics.py`
+- [~] T027 [P] [US3] Unit test for MaxT correction logic in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
-- [ ] T029 [US3] Implement `src/models/metrics/permutation.py` to perform n=1000 permutations on a **stratified sample of min(2000, available) abstracts/window** with LDA refit (**Depends on raw processed data from T016, refit logic from T020, and alignment logic from T023**; generates null distribution via refit)
-- [ ] T030 [US3] Implement `src/models/metrics/ci.py` to compute bootstrapped 95% confidence intervals (width ≤0.2)
-- [ ] T031 [US3] Implement `src/models/metrics/correction.py` to apply **MaxT procedure for FWER control** across window pairs (per plan.md justification for dependent windows, overriding generic BH mention in spec)
-- [ ] T034 [US3] Implement sensitivity analysis in `src/models/metrics/sensitivity.py` sweeping coherence thresholds across a range of values and reporting inconsistency rates (**Depends on completion of T020 and T021**; must run before manifest finalization)
+- [~] T028 [P] [US3] Implement `src/models/metrics/divergence.py` using `scipy.spatial.distance.jensenshannon` (base=2)
+- [~] T029 [US3] Implement `src/models/metrics/permutation.py` to perform n=1000 permutations on a **stratified sample of min(2000, available) abstracts/window** with LDA refit (**Depends on raw processed data from T016, refit logic from T020, and alignment logic from T023**; generates null distribution via refit)
+- [~] T030 [US3] Implement `src/models/metrics/ci.py` to compute bootstrapped 95% confidence intervals (width ≤0.2)
+- [~] T031 [US3] Implement `src/models/metrics/correction.py` to apply **MaxT procedure for FWER control** across window pairs (per plan.md justification for dependent windows, overriding generic BH mention in spec)
+- [~] T034 [US3] Implement sensitivity analysis in `src/models/metrics/sensitivity.py` sweeping coherence thresholds across a range of values and reporting inconsistency rates (**Depends on completion of T020 and T021**; must run before manifest finalization)
 - [ ] T033 [US3] Implement `src/main.py` to orchestrate the full pipeline (Fetch → Preprocess → LDA → Align → Divergence → Test → Sensitivity → Viz)
 - [ ] T035 [US3] Finalize `results/manifest.json` with all required parameters (random seeds, k, iterations, checksums, etc.) including sensitivity results
 - [ ] T036 [US3] Save final statistics to `results/stats/divergence_results.json` and figures to `results/figures/`

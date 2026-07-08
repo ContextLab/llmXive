@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.05011",
+  "judged_at": "2026-07-08T07:16:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-agentworld: language world models for general agents\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (f) as it investigates the fundamental mechanism of \"compositionality\" in language emergence among artificial agents, which is a core linguistic property relevant to the user's query about extending language world models. Although it uses different terminology (\"emergent communication\" vs. \"linguistics\" in world models) and a specific RL setup, it provides canonical prior work on the linguistic structure of agent languages that a literature review on this to",
+  "relevant": true
+}
