@@ -316,5 +316,17 @@
         "intent": "web TREC Track 2009 2012 qrels for years General ir_datasets.load 'trec 2009' , etc."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-08T14:49:06.087363+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Raw Note: Original NIST URL was unreachable HTTP 404 . This dataset is NOT used directly. NO VERIFIED SOURCE Per"
+      }
+    ]
   }
 ]
