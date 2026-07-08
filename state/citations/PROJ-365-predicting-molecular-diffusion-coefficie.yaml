@@ -66,3 +66,25 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score
   verified_at: '2026-07-06T21:30:20.141377Z'
+- artifact_hash: 596755fd367da555da8ba2c49b818531b6be66340319e250511c5b9d2c0cb752
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/record/8224376/files/diffusion_dataset.csv?download=1
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/8224376/files/diffusion_dataset.csv
+  verified_at: '2026-07-08T01:01:43.474437Z'
+- artifact_hash: 1659cf49917fb9c7a02971db9f2c99bd1efba92d10f6f0797ddd502e460e6918
+  artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: hydrodynamic radius - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q3274587
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q3274587
+  verified_at: '2026-07-08T01:22:51.575016Z'

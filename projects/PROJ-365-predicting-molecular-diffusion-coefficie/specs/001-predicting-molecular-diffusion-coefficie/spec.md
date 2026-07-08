@@ -13,7 +13,7 @@ As a researcher, I want to ingest a curated dataset of experimental diffusion co
 
 **Why this priority**: This is the foundational step; without valid, featurized data, no model can be trained or evaluated. It directly addresses the "Data Acquisition" and "Featurization" phases of the methodology.
 
-**Independent Test**: Can be fully tested by running the ingestion script on a sample of 100 molecules and verifying that the output files contain valid graph structures (nodes/edges) and numerical solvent descriptors, with no missing values in critical fields.
+**Independent Test**: Can be fully tested by running the ingestion script on a representative sample of molecules and verifying that the output files contain valid graph structures (nodes/edges) and numerical solvent descriptors, with no missing values in critical fields.
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ As a researcher, I want to perform a sensitivity analysis on key hyperparameters
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained GNN model and a set of perturbed hyperparameters (e.g., message passing steps ∈ {1, 2, 3}), **When** the sensitivity analysis script runs, **Then** it re-evaluates the model (or trains small variants) and outputs a table showing the change in Pearson r and RMSE for each variation.
+1. **Given** the trained GNN model and a set of perturbed hyperparameters (e.g., message passing steps ∈ {the minimal step, 2, 3}), **When** the sensitivity analysis script runs, **Then** it re-evaluates the model (or trains small variants) and outputs a table showing the change in Pearson r and RMSE for each variation.
 2. **Given** a dataset with potential outliers, **When** the robustness check is executed, **Then** the system reports the correlation coefficient both with the full dataset and after removing the top [deferred] of residuals, confirming stability.
 3. **Given** the final results, **When** the report is generated, **Then** it explicitly states whether the observed correlation (r > 0.7) is stable across the tested hyperparameter range and the ablation study, or if the result is highly sensitive to specific configuration choices.
 
@@ -57,7 +57,7 @@ As a researcher, I want to perform a sensitivity analysis on key hyperparameters
 
 ### Edge Cases
 
-- What happens if the dataset contains molecules with extremely high molecular weights that exceed the memory capacity of the 7GB RAM runner? (System must sample or truncate the graph).
+- What happens if the dataset contains molecules with extremely high molecular weights that exceed the memory capacity of the runner? (System must sample or truncate the graph).
 - How does the system handle solvents with missing viscosity or dielectric constant data in the source CSV? (Must exclude and log with `[MISSING_DATA_EXCLUDED]`).
 - What if the Pearson correlation is negative or near zero? (The system must still report this as a valid "null result" rather than failing).
 - How does the system behave if the dataset size is too small (< 50 molecules) to support 5-fold cross-validation? (Must raise a specific error or switch to leave-one-out validation).

@@ -1,0 +1,181 @@
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: retrieve experimental diffusion data from NIST TRC
+  claim_id: c_5957b69d
+  context: T007 implements `code/ingestion/fetch_nist.py` to programmatically retrieve
+    experimental diffusion data from NIST TRC via `thermo`; on failure, invoke T007b.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieve_experimental_diffusion_data_from_NIST_TRC
+  kind: entity_fact
+  raw_text: Implement `code/ingestion/fetch_nist.py` to programmatically retrieve
+    experimental diffusion data from NIST TRC via `thermo`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:06:24Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: training completes within 30 minutes on CPU for up to 5000 molecules
+  claim_id: c_46b81041
+  context: "Independent Test: Execute training on \u2264 5 000 molecules; verify completion\
+    \ in \u2264 30 min on CPU; verify model artifacts saved; verify report contains\
+    \ RMSE, Pearson r for both GNN and baseline, and respects synthetic\u2011data\
+    \ policy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
+    \ 30 min on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:10:57Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: experimental diffusion data available from NIST TRC via thermo
+  claim_id: c_3a1046d7
+  context: Implement code/ingestion/fetch_nist.py to programmatically retrieve experimental
+    diffusion data from NIST TRC via thermo.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_data_available_from_NIST_TRC_via_ther
+  kind: entity_fact
+  raw_text: Experimental diffusion data are available from NIST TRC via the thermo
+    package.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:12:28Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: synthetic molecule-solvent pairs generated using Stokes-Einstein physics
+  claim_id: c_fdd8e842
+  context: "Implement code/ingestion/generate_synthetic.py to generate a synthetic\
+    \ dataset of molecule\u2011solvent pairs using Stokes\u2011Einstein physics or\
+    \ random structures strictly for pipeline validation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_molecule-solvent_pairs_generated_using_Stokes-Eins
+  kind: entity_fact
+  raw_text: "Synthetic molecule\u2011solvent pairs can be generated using Stokes\u2011\
+    Einstein physics."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:13:47Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: training on up to 5000 molecules completes within 30 minutes on CPU
+  claim_id: c_3500a41f
+  context: 'Phase 4 specifies an independent test: run the training pipeline on no
+    more than five thousand molecules and ensure it finishes in thirty minutes or
+    less when executed on a CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
+    \ 30 min on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:16:26Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: training on up to 5000 molecules completes within 30 minutes on CPU
+  claim_id: c_abd3ec79
+  context: "Phase 4: User Story 2 specifies an independent test to execute training\
+    \ on \u2264 5\u202F000 molecules and verify completion in \u2264 30\u202Fmin on\
+    \ CPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute training on \u2264 5 000 molecules; verify completion in \u2264\
+    \ 30 min on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:18:18Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: fetch_nist.py retrieves experimental diffusion data from NIST TRC via
+    thermo
+  claim_id: c_9ab884c2
+  context: T007 specifies implementing fetch_nist.py to retrieve experimental diffusion
+    data from NIST TRC using the thermo library.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_nist.py_retrieves_experimental_diffusion_data_from_NIS
+  kind: entity_fact
+  raw_text: Implement `code/ingestion/fetch_nist.py` to programmatically retrieve
+    experimental diffusion data from NIST TRC via `thermo`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T01:21:21Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: generate_synthetic.py creates synthetic molecule-solvent dataset using
+    Stokes-Einstein physics
+  claim_id: c_9204b0d1
+  context: "T007b describes generating a synthetic dataset of molecule\u2011solvent\
+    \ pairs using Stokes\u2011Einstein physics for pipeline validation."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2534: D = \frac{kT}{6 \pi \eta R }'
+      source_id: Q3274587
+      url: https://www.wikidata.org/wiki/Q3274587
+      value: D = \frac{kT}{6 \pi \eta R }
+    filled: true
+  kind: entity_fact
+  raw_text: "Implement `code/ingestion/generate_synthetic.py` to generate a synthetic\
+    \ dataset of molecule\u2011solvent pairs using Stokes\u2011Einstein physics"
+  resolved_value: D = \frac{kT}{6 \pi \eta R }
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T01:21:59Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: Wikidata entry Q3274587
+  claim_id: c_916bfffc
+  context: T007b [P] {{claim:c_9204b0d1}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587)
+    or random structures strictly for pipeline validation (Phase 0)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P2534: D = \frac{kT}{6 \pi \eta R }'
+      source_id: Q3274587
+      url: https://www.wikidata.org/wiki/Q3274587
+      value: D = \frac{kT}{6 \pi \eta R }
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_9204b0d1}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587)'
+  resolved_value: D = \frac{kT}{6 \pi \eta R }
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-08T01:22:31Z'

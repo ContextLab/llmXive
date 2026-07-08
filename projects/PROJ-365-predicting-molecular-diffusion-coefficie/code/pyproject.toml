@@ -1,0 +1,29 @@
+[project]
+name = "molecular-diffusion"
+version = "0.1.0"
+description = "Predicting Molecular Diffusion Coefficients in Liquids with Graph Neural Networks"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "rdkit==2023.09.5",
+    "torch==2.2.0",
+    "torch-geometric==2.5.3",
+    "scikit-learn==1.5.0",
+    "pandas==2.2.2",
+    "pyyaml==6.0.1",
+    "psutil==5.9.8",
+    "pytest==8.2.2",
+    "thermo==0.5.1",
+    "scipy>=1.11.0"
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88

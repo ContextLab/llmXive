@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-optimized pipeline to predict molecular diffusion coefficients in liquids using Graph Neural Networks (GNNs). The approach converts SMILES strings into graph representations (atoms/nodes, bonds/edges) and combines them with scalar solvent descriptors (viscosity, dielectric constant) to train a Message Passing Neural Network (MPNN). The implementation strictly adheres to CPU-only constraints (no CUDA/GPU), performs 5-fold cross-validation, compares performance against a linear regression baseline, and executes sensitivity analyses on hyperparameters and feature ablation.
+This project implements a CPU-optimized pipeline to predict molecular diffusion coefficients in liquids using Graph Neural Networks (GNNs). The approach converts SMILES strings into graph representations (atoms/nodes, bonds/edges) and combines them with scalar solvent descriptors (viscosity, dielectric constant) to train a Message Passing Neural Network (MPNN). The implementation strictly adheres to CPU-only constraints (no CUDA/GPU), performs cross-validation using multiple folds, compares performance against a linear regression baseline, and executes sensitivity analyses on hyperparameters and feature ablation.
 
 **CRITICAL DATA NOTE**: As of this writing, no verified dataset containing the specific combination of SMILES, Solvent Properties, and Experimental Diffusion Coefficients has been identified. **The project is currently paused for scientific claims.** The pipeline will be validated using synthetic data (generated via Stokes-Einstein physics or random structure) strictly for structural integrity and code execution. **No performance metrics (r, RMSE) will be reported from synthetic runs.** The project cannot reach `research_complete` without a verified real-world dataset.
 
@@ -15,7 +15,7 @@ This project implements a CPU-optimized pipeline to predict molecular diffusion 
 **Primary Dependencies**: `rdkit`, `torch` (CPU-only), `torch-geometric` (CPU-only), `scikit-learn`, `pandas`, `pyyaml`, `pytest`
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `artifacts`)
 **Testing**: `pytest` with contract validation against YAML schemas
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPUs, 7 GB RAM)
 **Project Type**: Computational Research / Data Science Pipeline
 **Performance Goals**: Complete training/evaluation on ≤5,000 samples (if real data exists) within 6 hours; memory usage < 7GB.
 **Constraints**: NO GPU/CUDA; NO dynamic molecular dynamics; NO imputation of missing data (exclusion only).
