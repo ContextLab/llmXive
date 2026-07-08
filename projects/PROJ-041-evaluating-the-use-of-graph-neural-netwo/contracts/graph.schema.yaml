@@ -1,0 +1,144 @@
+%YAML 1.2
+---
+title: Network Traffic Graph Schema
+description: >
+  Defines the structure of the directed communication graph constructed
+  from NetFlow data. Nodes represent IP addresses, edges represent
+  communication flows.
+version: "1.0"
+
+definitions:
+  NodeAttributes:
+    type: object
+    description: Attributes for a network node (IP address)
+    properties:
+      ip:
+        type: string
+        format: ipv4
+        description: IP address identifier
+      node_type:
+        type: string
+        enum: [internal, external]
+        description: Classification of the node based on IP range
+      total_bytes_in:
+        type: integer
+        minimum: 0
+        description: Total incoming bytes
+      total_bytes_out:
+        type: integer
+        minimum: 0
+        description: Total outgoing bytes
+      total_packets_in:
+        type: integer
+        minimum: 0
+        description: Total incoming packets
+      total_packets_out:
+        type: integer
+        minimum: 0
+        description: Total outgoing packets
+      is_anomaly:
+        type: boolean
+        description: Whether the node is associated with anomalous traffic
+      degree:
+        type: integer
+        minimum: 0
+        description: Degree of the node (for feature engineering)
+      centrality:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Normalized centrality score (e.g., PageRank, Betweenness)
+
+  EdgeAttributes:
+    type: object
+    description: Attributes for a communication edge (flow)
+    properties:
+      src_ip:
+        type: string
+        format: ipv4
+        description: Source IP
+      dst_ip:
+        type: string
+        format: ipv4
+        description: Destination IP
+      weight:
+        type: integer
+        minimum: 0
+        description: Number of packets in the flow (used as edge weight)
+      bytes:
+        type: integer
+        minimum: 0
+        description: Total bytes in the flow
+      duration:
+        type: number
+        minimum: 0
+        description: Total duration of flows between these nodes
+      is_anomaly:
+        type: boolean
+        description: Whether the edge represents anomalous communication
+      protocols:
+        type: array
+        items:
+          type: integer
+        description: List of protocols used on this edge
+
+  GraphMetadata:
+    type: object
+    description: Global graph properties
+    properties:
+      scenario:
+        type: string
+        description: Scenario identifier
+      lcc_size:
+        type: integer
+        minimum: 0
+        description: Size of the Largest Connected Component if subsampled
+      num_nodes:
+        type: integer
+        minimum: 0
+        description: Total number of nodes
+      num_edges:
+        type: integer
+        minimum: 0
+        description: Total number of edges
+      is_subsampled:
+        type: boolean
+        description: True if the graph is the LCC only
+      created_at:
+        type: string
+        format: date-time
+        description: Timestamp of graph creation
+
+properties:
+  metadata:
+    $ref: "#/definitions/GraphMetadata"
+  nodes:
+    type: array
+    items:
+      type: object
+      required: [id, attributes]
+      properties:
+        id:
+          type: string
+          description: Unique node identifier (IP string)
+        attributes:
+          $ref: "#/definitions/NodeAttributes"
+  edges:
+    type: array
+    items:
+      type: object
+      required: [source, target, attributes]
+      properties:
+        source:
+          type: string
+          description: Source node ID
+        target:
+          type: string
+          description: Target node ID
+        attributes:
+          $ref: "#/definitions/EdgeAttributes"
+
+required:
+  - metadata
+  - nodes
+  - edges

@@ -1,0 +1,84 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Graph Schema
+description: Schema for the constructed directed graph and its node/edge attributes.
+type: object
+properties:
+  graph_id:
+    type: string
+    description: "Unique identifier for the graph (e.g., scenario_id + hash)"
+  node_count:
+    type: integer
+    maximum: 5000
+    description: "Number of nodes (must be <= 5000 per subsampling rule)"
+  edge_count:
+    type: integer
+    minimum: 0
+    description: "Number of edges"
+  nodes:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: "Node ID (hashed IP)"
+        degree:
+          type: number
+          description: "Total degree"
+        in_degree:
+          type: integer
+          description: "In-degree count"
+        out_degree:
+          type: integer
+          description: "Out-degree count"
+        betweenness_centrality:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Normalized betweenness centrality"
+        clustering_coeff:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Local clustering coefficient"
+        is_anomaly:
+          type: boolean
+          description: "Whether this node is part of an anomalous flow (aggregated from flow labels)"
+      required:
+        - id
+        - degree
+        - in_degree
+        - out_degree
+        - is_anomaly
+  edges:
+    type: array
+    items:
+      type: object
+      properties:
+        source:
+          type: string
+          description: "Source node ID"
+        target:
+          type: string
+          description: "Target node ID"
+        weight:
+          type: integer
+          minimum: 1
+          description: "Packet count (edge weight)"
+        timestamp_start:
+          type: string
+          format: date-time
+        timestamp_end:
+          type: string
+          format: date-time
+      required:
+        - source
+        - target
+        - weight
+required:
+  - graph_id
+  - node_count
+  - edge_count
+  - nodes
+  - edges
+additionalProperties: false

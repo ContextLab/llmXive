@@ -1,0 +1,3 @@
+# This directory holds raw dataset files (e.g., CTU-13, NF-BoT-IoT).
+# Do not commit large binary files here.
+# Files are downloaded by code/data/ingest_netflow.py.

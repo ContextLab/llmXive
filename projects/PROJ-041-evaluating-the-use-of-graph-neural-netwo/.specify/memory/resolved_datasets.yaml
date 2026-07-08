@@ -1,0 +1,239 @@
+resolved_at: '2026-07-08T07:22:48.078174+00:00'
+datasets:
+- intent: NetFlow
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/keys-i/netFlow/resolve/main/NF-BoT-IoT-v3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/keys-i/netFlow/resolve/main/NF-BoT-IoT-v3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6906893
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6906911
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5849306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6243336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5849288
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848308
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848308
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19510939
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CTU-13
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3561654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7684550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7515406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5190597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14900157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848308
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20848308
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.23004
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.04952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20504862
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IPs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pcy12345BSU/5hr_data_Time_Attacks_avgAtcks_upd_tcp_imcp_Ips_Ports_sftwrDect_numBytes_lengthConnection/resolve/main/5Hr_kyotoData_in_1sec__Feb28_timestamp_atcks_avgAtacks_Protocols_IPs_Ports_Duration_SftwreDect_NumBytesData_.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/codys12/IPS0/resolve/main/processed_sequences.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/codys12/IPS0/resolve/main/processed_sequences.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/IPSAN/tatar_translation_dataset/resolve/main/HF_dataset_500k.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/pcy12345BSU/5hr_data_Time_Attacks_avgAtcks_upd_tcp_imcp_Ips_Ports_sftwrDect_numBytes_lengthConnection/resolve/main/5Hr_kyotoData_in_1sec__Feb28_timestamp_atcks_avgAtacks_Protocols_IPs_Ports_Duration_SftwreDect_NumBytesData_.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/Mohit-Rai-402/FYPDataset-IPSEC/7ba9b3dbf2a92e10b04c0d0aacd6ca6945544fd2/IPSEC(t5)_formated_completed.csv?%2Fdatasets%2FMohit-Rai-402%2FFYPDataset-IPSEC%2Fresolve%2Fmain%2FIPSEC%28t5%29_formated_completed.csv=&etag=%22d6ce5784be9d565bcb082ff9b0531eb54b6a45c1%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Mohit-Rai-402/FYPDataset-IPSEC-updated/6dc166c97f8a307e4eb80f67b5ff697f19769eb4/IPSEC(t5)_formated_completed.csv?%2Fdatasets%2FMohit-Rai-402%2FFYPDataset-IPSEC-updated%2Fresolve%2Fmain%2FIPSEC%28t5%29_formated_completed.csv=&etag=%2261d656c7c777116f54c4f23f361e245c87366b44%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1421966
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18256328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1421950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17787736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18256594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:875845649/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:773893644/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1885015496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1795469374
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1795469528
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

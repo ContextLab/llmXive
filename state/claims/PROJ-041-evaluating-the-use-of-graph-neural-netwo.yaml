@@ -1,0 +1,286 @@
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation Tests use 10000 permutations with alpha 0.05
+  claim_id: c_01bd8900
+  context: 'Implement Permutation Tests in `code/analysis/significance_tests.py`:
+    10,000 permutations, alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Tests use 10,000 permutations and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:49:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Default target AUC threshold is 0.75
+  claim_id: c_07cc6f6d
+  context: 'Define `Target AUC Threshold` in `code/config.yaml` (key: `target_auc`,
+    default: 0.75) per SC-005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default target AUC threshold is 0.75.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:49:52Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction ensures FDR less than 0.05
+  claim_id: c_c3de06c1
+  context: Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py`
+    (validates FDR < 0.05 threshold)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_ensures_FDR_less_than_0.05
+  kind: magnitude
+  raw_text: The Benjamini-Hochberg correction is applied to ensure FDR < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:50:17Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN model is CPU-only with max 30 epochs
+  claim_id: c_5dc44644
+  context: 'Implement 2-layer GCN in `code/models/gcn.py`: CPU-only, max 30 epochs,
+    early stopping (patience=5, delta=1e-4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GCN model is configured for CPU-only training with a maximum of 30
+    epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:50:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Node limit for graph construction is 5000
+  claim_id: c_1a225a28
+  context: "Goal: Ingest raw NetFlow records, construct directed communication graphs,\
+    \ and verify memory safety (<7GB) and node limits (\u22645,000)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The node limit for graph construction is 5,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:50:49Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Temporal split ratio is 0.8
+  claim_id: c_cd731162
+  context: T009 and T020 explicitly enforce the "Train on first [deferred] (config.temporal_split_ratio=0.8),
+    Test on remaining [deferred]" split to prevent leakage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The temporal split ratio is configured to 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:51:31Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: CTU dataset download and checksum validation
+  claim_id: c_1f80feba
+  context: 'T007a [P] Download CTU dataset from canonical URL: and validate checksum'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CTU_dataset_download_and_checksum_validation
+  kind: entity_fact
+  raw_text: Download CTU dataset from canonical URL and validate checksum
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:14Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: NF-BoT-IoT dataset download and checksum validation
+  claim_id: c_51fe7030
+  context: T007b [P] Download the NF-BoT-IoT dataset from its canonical URL () and
+    validate the checksum (Fallback).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NF-BoT-IoT_dataset_download_and_checksum_validation
+  kind: entity_fact
+  raw_text: Download the NF-BoT-IoT dataset from its canonical URL and validate the
+    checksum
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:21Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Subsampling retains Largest Connected Component if node count is below
+    5000
+  claim_id: c_cf689861
+  context: 'T008 Implement code/data/preprocess.py for strict subsampling: Rule: Extract
+    ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes, retain LCC as-is.
+    Do NOT pad.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampling_retains_Largest_Connected_Component_if_node_coun
+  kind: magnitude
+  raw_text: Extract ONLY the Largest Connected Component (LCC). If LCC < 5,000 nodes,
+    retain LCC as-is
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:27Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Peak memory usage under 7 GB
+  claim_id: c_2afb67cf
+  context: 'Independent Test: Run code/data/ingest_netflow.py and code/data/preprocess.py
+    on a single scenario; verify peak memory <7GB and graph object integrity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify peak memory <7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:27Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Node count less than or equal to 5000
+  claim_id: c_0c45ae99
+  context: "T011 [P] [US1] Write test skeleton for node count subsampling in tests/test_graph_construction.py\
+    \ (asserts nodes \u2264 5,000, LCC rule)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Node_count_less_than_or_equal_to_5000
+  kind: magnitude
+  raw_text: "Asserts nodes \u2264 5,000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN convergence within 30 epochs without CUDA errors
+  claim_id: c_b29456e7
+  context: "T018 [P] [US2] Write test skeleton for GCN convergence on CPU in tests/test_models.py\
+    \ (asserts no CUDA errors, converges \u226430 epochs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Asserts no CUDA errors, converges \u226430 epochs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:36Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Implementation of 2-layer Graph Convolutional Network
+  claim_id: c_4e5810f2
+  context: 'T021 [P] [US2] [Depends on T017] Implement 2-layer GCN in code/models/gcn.py:
+    CPU-only, max 30 epochs, early stopping (patience=5, delta=1e-4)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 2-layer GCN
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:41Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests with 10000 permutations and alpha 0.05
+  claim_id: c_18f51701
+  context: 'T030 [P] [US3] [Depends on T025] Implement Permutation Tests in code/analysis/significance_tests.py:
+    10,000 permutations, alpha=0.05. Compare GCN vs RF, GCN vs XGB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Permutation Tests: 10,000 permutations, alpha=0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction with False Discovery Rate below 0.05
+  claim_id: c_ec58c01c
+  context: T028 [P] [US3] Write test skeleton for Benjamini-Hochberg correction in
+    tests/test_significance_tests.py (validates FDR < 0.05 threshold)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Benjamini-Hochberg correction: FDR < 0.05 threshold'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: End-to-end graph construction runtime under 6 hours
+  claim_id: c_4f457474
+  context: T038b [P] Optimize graph construction loop in code/data/preprocess.py to
+    ensure end-to-end runtime < 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize graph construction loop to ensure end-to-end runtime < 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:46Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Default target AUC threshold set to 0.75
+  claim_id: c_b297cffe
+  context: 'T007d [P] Define Target AUC Threshold in code/config.yaml (key: target_auc,
+    default: 0.75) per SC-005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default target AUC threshold is 0.75
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T07:55:46Z'

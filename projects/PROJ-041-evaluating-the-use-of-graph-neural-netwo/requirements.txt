@@ -1,0 +1,29 @@
+# Core Data & Graph Libraries
+torch==2.3.0+cpu
+networkx==3.2.1
+pandas==2.2.1
+numpy==1.26.4
+
+# Machine Learning & Baselines
+scikit-learn==1.4.2
+xgboost==2.0.3
+
+# Visualization
+matplotlib==3.8.4
+seaborn==0.13.2
+
+# Interpretability (GNN)
+captum==0.7.0
+
+# Testing & Profiling
+pytest==8.1.1
+pytest-memory-profiler==0.6.0
+
+# Utilities
+requests==2.31.0
+pyyaml==6.0.1
+ruff==0.3.4
+black==24.3.0
+
+# Dependency constraints for CPU-only PyTorch
+--extra-index-url https://download.pytorch.org/whl/cpu

@@ -1,0 +1,104 @@
+%YAML 1.2
+---
+title: Network Traffic Dataset Schema
+description: >
+  Defines the structure of the raw and processed NetFlow datasets used for
+  Graph Neural Network anomaly detection. This schema aligns with the
+  CTU-13 and NF-BoT-IoT dataset formats.
+version: "1.0"
+
+definitions:
+  FlowRecord:
+    type: object
+    required:
+      - src_ip
+      - dst_ip
+      - src_port
+      - dst_port
+      - protocol
+      - start_time
+      - end_time
+      - duration
+      - bytes
+      - packets
+      - flags
+      - label
+    properties:
+      src_ip:
+        type: string
+        format: ipv4
+        description: Source IP address
+      dst_ip:
+        type: string
+        format: ipv4
+        description: Destination IP address
+      src_port:
+        type: integer
+        minimum: 0
+        maximum: 65535
+        description: Source port number
+      dst_port:
+        type: integer
+        minimum: 0
+        maximum: 65535
+        description: Destination port number
+      protocol:
+        type: integer
+        description: IP protocol number (e.g., 6 for TCP, 17 for UDP)
+      start_time:
+        type: string
+        format: date-time
+        description: Flow start timestamp (ISO 8601)
+      end_time:
+        type: string
+        format: date-time
+        description: Flow end timestamp (ISO 8601)
+      duration:
+        type: number
+        minimum: 0
+        description: Flow duration in seconds
+      bytes:
+        type: integer
+        minimum: 0
+        description: Total bytes transferred
+      packets:
+        type: integer
+        minimum: 0
+        description: Total packets transferred
+      flags:
+        type: string
+        description: TCP flags (e.g., 'S', 'F', 'R', 'A')
+      label:
+        type: integer
+        enum: [0, 1]
+        description: >
+          Anomaly label. 0 = Normal, 1 = Anomaly/Botnet.
+          Derived from dataset metadata or specific port/behavior rules.
+
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: Dataset source name (e.g., 'CTU-13', 'NF-BoT-IoT')
+      scenario:
+        type: string
+        description: Specific scenario identifier (e.g., 'scenario_1', 'botnet_1')
+      download_date:
+        type: string
+        format: date-time
+        description: Date the dataset was ingested
+      checksum:
+        type: string
+        description: SHA256 checksum of the raw file
+
+  flows:
+    type: array
+    items:
+      $ref: "#/definitions/FlowRecord"
+    description: List of individual NetFlow records
+
+required:
+  - metadata
+  - flows

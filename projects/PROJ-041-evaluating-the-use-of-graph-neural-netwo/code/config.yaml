@@ -1,0 +1,13 @@
+# Configuration for PROJ-041
+# Target AUC Threshold (SC-005)
+target_auc: 0.75
+
+# Temporal Split Ratio for T009
+# Train on majority (0.8), Test on minority (0.2)
+temporal_split_ratio: 0.8
+
+# Random Seed
+seed: 42
+
+# Memory Limit (MB)
+memory_limit_mb: 7000

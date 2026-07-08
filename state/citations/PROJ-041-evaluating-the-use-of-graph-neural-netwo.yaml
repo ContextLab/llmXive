@@ -1,0 +1,11 @@
+- artifact_hash: 3ca65b7830b70a7a13036dbddb974580678d8dd3470ab969d8c8d2529dd64917
+  artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: NF-BoT-IoT-v3.parquet
+  kind: url
+  value: https://huggingface.co/datasets/keys-i/netFlow/resolve/main/NF-BoT-IoT-v3.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69da00bac75a8c6ca43f83be/ab3d5478dbd560847d3c664c26e4856a93b6be49fbc1de2e2e357a11b0dcc4aa?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27NF-BoT-IoT-v3.parquet%3B+filename%3D%22NF-BoT-IoT-v3.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783499514&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjlkYTAwYmFjNzVhOGM2Y2E0M2Y4M2JlL2FiM2Q1NDc4ZGJkNTYwODQ3ZDNjNjY0YzI2ZTQ4NTZhOTNiNmJlNDlmYmMxZGUyZTJlMzU3YTExYjBkY2M0YWFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3TkYtQm9ULUlvVC12My5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyTkYtQm9ULUlvVC12My5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0OTk1MTR9fX1dfQ__&Signature=MEYCIQCkPojPKZwc%7E7QY-fzUkTyZiaz%7Ea%7EqhFPzKtin5N5uvywIhAIAh8UHixcoaexCKSaHH6ymzZ8BdxkQ%7E%7E59pWwrGitIv&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-08T07:31:54.585377Z'
