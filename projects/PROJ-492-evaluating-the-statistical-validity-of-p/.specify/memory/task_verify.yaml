@@ -212,13 +212,6 @@
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
 : 1
-? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
-  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
-  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
-  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
-  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
-  \ **DEPENDS ON:** T023."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
@@ -344,6 +337,11 @@
   \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
+: 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
+  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
+  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
+  \ T025]."
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
