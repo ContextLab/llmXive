@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-08T16:52:33.743649+00:00",
+    "project": "PROJ-753-testing-the-isotropy-of-cosmic-expansion",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/supernovae/pantheon_plus",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/Sneider-Exe/Material_Classification/resolve/main/data/train-00000-of-00001.parquet",
+        "intent": "supernovae pantheon plus Pantheon+ v1.0 datasets.load_dataset \"supernovae/pantheon_plus\" ra , dec z mu muerr SNeID Verified HuggingFace mirror of official release"
+      }
+    ]
+  }
+]

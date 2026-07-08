@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Schema"
+description: "Schema for a single iteration of the isotropic mock catalog simulation (streaming scalar output)."
+type: "object"
+properties:
+  run_id:
+    type: "integer"
+    description: "Simulation iteration number (0 to N-1)"
+    minimum: 0
+  dipole_amplitude:
+    type: "number"
+    description: "Dipole amplitude (A1) for this simulation in magnitudes"
+  quadrupole_amplitude:
+    type: "number"
+    description: "Quadrupole amplitude (A2) for this simulation in magnitudes"
+required:
+  - run_id
+  - dipole_amplitude
+  - quadrupole_amplitude
+additionalProperties: false
