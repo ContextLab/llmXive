@@ -4,28 +4,33 @@
 
 **Verdict**: concern
 
-The question asks about a scientifically interesting phenomenon (hierarchical error minimization and language ambiguity resolution), but it is framed primarily as a method comparison ("predictive coding architecture... compared to standard transformer baselines") rather than as a question about the underlying computational mechanism. The phenomenon of interest is how hierarchical prediction-error signaling contributes to robustness on ambiguous language, not whether one specific architecture outperforms another.
+The question correctly targets a theoretical mechanism (hierarchical error minimization vs. static attention) and a domain phenomenon (syntactic ambiguity resolution). However, it is heavily fixated on the specific implementation constraints ("isolated from general parameter scaling effects") and the comparative benchmark setup rather than the fundamental computational principle. While the core "why" is scientific, the framing risks becoming a "did our specific prototype beat the baseline?" engineering question if the isolation of variables proves difficult in practice.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (prediction-error signals from the predictive coding architecture) and the predicted variable (accuracy on garden-path and ambiguous sentences from external linguistic benchmarks) come from independent sources. The test data is not derived from the model's own representations, so there is no mechanical guarantee of relationship.
+The predictor is the model's internal error-minimization dynamics (derived from the predictive coding architecture), and the predicted variable is the correctness of syntactic disambiguation on external benchmark sentences (GLUE/Garden Path). These are independent: the model generates a prediction, which is then validated against ground-truth linguistic annotations, not a signal derived from the same internal computation.
 
 ### Triviality check
 
 **Verdict**: pass
 
-Either outcome would be informative: a positive result would validate neuroscience-inspired architectures for NLP and potentially reduce data requirements; a null result would suggest that static next-token prediction is sufficient for ambiguity resolution, constraining theories about predictive processing in language. Both would advance understanding of computational mechanisms for language understanding.
+A positive result (predictive coding outperforms static attention on ambiguity) would provide strong evidence for the computational necessity of hierarchical error signaling in language, supporting neuroscientific theories. A null result (no advantage after controlling for parameters) would be equally informative, suggesting that standard attention mechanisms already implicitly capture the necessary error-correction dynamics or that the benefit only emerges at scales beyond this project. Neither outcome is predetermined.
 
 ### Question-narrowing check
 
 **Verdict**: concern
 
-The question names a domain relationship (hierarchical error minimization → ambiguity robustness) but is constrained by specific implementation choices (predictive coding architecture, transformer baselines). The core scientific question should be about the mechanism's contribution to robustness, not about whether this particular implementation outperforms another particular implementation.
+The question asks "To what extent... provide a necessary computational advantage," which is a valid domain question, but the clause "can this advantage be isolated from general parameter scaling effects" shifts the focus toward a specific experimental control challenge rather than the phenomenon itself. The question is slightly narrowed by the requirement to prove isolation, which is a methodological hurdle, though the underlying inquiry remains about the nature of language processing.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
-The research question has scientific merit but needs reframing to focus on the underlying phenomenon rather than a specific architecture comparison. [REVISED] How do hierarchical prediction-error signals contribute to robustness on ambiguous language and garden-path sentence resolution compared to static representation approaches? [/REVISED] This reframing preserves the core scientific inquiry while removing the implementation-specific constraints that make the question read as a benchmark comparison rather than a mechanism investigation.
+The core question is scientifically sound but is currently framed in a way that conflates the phenomenon (ambiguity resolution) with the difficulty of the experimental design (controlling for scaling). To ensure the project remains focused on the *mechanism* rather than the *benchmark victory*, the question should be reframed to explicitly prioritize the comparison of processing dynamics over the strict isolation of scaling variables, which may be a secondary contribution.
+
+[REVISED]
+How do hierarchical error-minimization dynamics differ from static attention mechanisms in resolving syntactic ambiguity, and to what degree do these differences persist when controlling for model parameter count?
+[/REVISED]
+This reframing keeps the focus on the *difference in dynamics* (the phenomenon) while acknowledging the scaling control as a condition of the comparison rather than the primary question itself.

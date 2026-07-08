@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-584-predictive-coding-llms-implementing-hier
-last_run_id: 61d75511-a919-4973-b4a1-7ae0887e7923
+last_run_id: c10ce1f7-f211-4073-ac93-2e1412aec236
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Predictive Coding LLMs: Implementing Hierarchical Error Minimization'
-updated_at: '2026-06-28T18:33:13.661700Z'
+updated_at: '2026-07-08T23:43:19.855216Z'
