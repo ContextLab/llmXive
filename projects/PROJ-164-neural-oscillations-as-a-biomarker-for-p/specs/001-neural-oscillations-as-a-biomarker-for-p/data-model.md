@@ -1,54 +1,71 @@
 # Data Model: Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation
 
-## Entities
+## Overview
 
-### 1. EEG Epoch
-Represents a continuous window of EEG data.
-*   **subject_id**: Unique identifier for the participant.
-*   **condition**: Resting-state or Task.
-*   **channels**: List of channel names (e.g., C3, C4).
-*   **sampling_rate**: Float (Hz).
-*   **data**: 2D array (channels × timepoints).
-*   **metadata**: Dictionary containing filter settings, reference type, and bad channel flags.
+The data model captures every artifact produced by the pipeline, including the newly introduced pre‑registration, source‑identification, and representativeness artifacts, and the KS‑test result required for SC‑006.
 
-### 2. tDCS Response
-Represents the behavioral outcome for a subject.
-*   **subject_id**: Unique identifier (must match EEG).
-*   **pre_score**: Float (Baseline motor task score).
-*   **post_score**: Float (Post-tDCS motor task score).
-*   **response_pct**: Float (Percentage change: `(post - pre) / pre * 100`).
-*   **mode**: String (`"Primary"` or `"Fallback"`).
+## Entity Definitions
 
-### 3. Feature Vector
-Aggregated metrics for one subject.
-*   **subject_id**: Unique identifier.
-*   **power_features**: Dictionary mapping band (delta, theta, alpha, beta, gamma) to power values.
-*   **connectivity_features**: Dictionary mapping channel pairs to PLV/wPLI values.
-*   **mode**: String (`"Primary"` or `"Fallback"`).
+### 1. Pre‑Registration Manifest
+* `registration_id`: UUID.
+* `timestamp`: ISO‑8601 string.
+* `primary_outcome`: string (e.g., `"tDCS motor performance percentage change"`).
+* `hypothesis`: string.
+* `analysis_plan`: list of planned steps (as strings).
+* `registered_by`: string.
 
-### 4. Model Output
-Results of the regression analysis.
-*   **coefficients**: Dictionary mapping features to coefficients.
-*   **r_squared**: Float (Adjusted R²).
-*   **p_values**: Dictionary mapping features to uncorrected p-values.
-*   **fdr_p_values**: Dictionary mapping features to FDR-corrected p-values (Benjamini-Hochberg).
-*   **is_valid_inference**: Boolean (False if in Fallback Mode).
-*   **permutation_p_value**: Float (Significance of the model vs. null).
-*   **positive_control_r2**: Float (R² from the positive control step, if applicable).
-*   **stability_variance**: Float (Variance of binary significance outcome across sensitivity sweep).
-*   **power_analysis_flag**: String (`"Underpowered"`, `"Adequate"`, `"N/A"`).
+### 2. Verified Source Manifest
+* `source_type`: Enum `["EEG", "tDCS"]`.
+* `source_url`: string (verified URL).
+* `checksum`: string (SHA‑256).
+* `subject_count`: integer.
+* `verification_status`: Enum `["available", "unavailable"]`.
+* `notes`: optional string.
+
+### 3. Raw Dataset Manifest (unchanged)
+* `source_url`, `dataset_type`, `subject_count`, `checksum`, `ingestion_status` (as in `dataset.schema.yaml`).
+
+### 4. Representativeness Summary (New)
+* `demographics`: object (age_mean, age_sd, sex_ratio).
+* `protocol_heterogeneity`: string (e.g., "High", "Low").
+* `generalization_risk`: boolean.
+
+### 5. EEG Epoch
+* `subject_id`, `condition`, `channels`, `data` (2‑D array), `bad_channels`.
+
+### 6. Feature Vector
+* `subject_id`, `spectral_power` (delta‑gamma), `connectivity` (channel‑pair map), `tdcs_response`, `normality_flag`.
+
+### 7. KS‑Test Result (new, for SC‑006)
+* `statistic`: number.
+* `p_value`: number.
+* `interpretation`: string (e.g., `"null distribution uniform"`).
+
+### 8. Analysis Result
+* `mode`: Enum `["Primary", "Hypothesis_Unanswerable", "Underpowered", "Generalization_Unanswerable"]`.
+* `reason`: string explaining the mode.
+* `model_metrics`: object (may be `null` if not in Primary mode) – includes `adjusted_r2`, `permutation_p_value`, `fdr_corrected_p_values`, `ks_test_result`.
+* `power_analysis`: object with `min_n_required`, `actual_n`, `status`.
+* `sensitivity_table`: list of rows (`p_threshold`, `r_squared_threshold`, `significance`, `stability`).
+* `manifest`: object mapping output metrics to input hashes and code block IDs (for Principle IV).
 
 ## Data Flow
 
-1.  **Raw Data** (PhysioNet/OpenNeuro) → `data/raw/`
-2.  **Preprocessing** → `data/processed/epochs.fif` (MNE format)
-3.  **Feature Extraction** → `data/processed/features.parquet`
-4.  **Modeling** → `data/processed/model_results.json`
-5.  **Validation** → `data/reports/sensitivity_analysis.csv`
+1. **Pre‑registration** → `pre_registration.yaml`.
+2. **Systematic Search** → logs candidate accession numbers.
+3. **Source Identification** → `verified_eeg_source.json`, `verified_tdcs_source.json`.
+4. **Ingestion Gate** → `Raw Dataset Manifest`.
+5. **Representativeness Check** → `representativeness_summary.json`.
+6. **Power & Feasibility Checks** → `power_analysis.json`.
+7. **Preprocessing** → `EEG Epoch` files.
+8. **Feature Extraction** → `Feature Vector` records.
+9. **Modeling** (if Primary) → `model_metrics` (including KS test).
+10. **Generalization Check** → secondary `model_metrics` (or log "Generalization Unanswerable").
+11. **Manifest Generation** → `manifest.json` linking every output metric to its input hash and code block ID.
 
 ## Constraints
 
-*   **RAM Limit**: Feature matrices must be stored as `float32` to minimize memory footprint.
-*   **Data Integrity**: Raw data files must not be modified. All transformations create new files.
-*   **Mode Flag**: Every output artifact must explicitly state the mode (`Primary` or `Fallback`).
-*   **Feature Constraint**: Connectivity pairs limited to top 50 by variance to prevent p >> n.
+* No synthetic data generation.
+* All data must stem from a single verified source unless the Generalization Check explicitly attempts a secondary independent paired dataset.
+* Memory‑efficient chunking for large EEG files (≤7 GB RAM).
+* All artifacts are immutable after creation; any transformation writes a new file with a documented derivation.

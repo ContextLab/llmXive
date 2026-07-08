@@ -1,61 +1,91 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the final validation report including metrics, coefficients, and flags."
+title: "Analysis Result Schema"
+description: "Schema for the final analysis output of the pipeline."
 type: "object"
 properties:
-  run_id:
-    type: "string"
-    description: "UUID for the specific run."
   mode:
     type: "string"
     enum:
-      - "primary"
-      - "fallback"
-    description: "Processing mode."
-  adjusted_r2:
-    type: "number"
-    description: "Adjusted R-squared value from Ridge Regression."
-  permutation_p_value:
-    type: "number"
-    description: "P-value from 1,000 permutation tests."
-  coefficients:
+      - "Primary"
+      - "Hypothesis_Unanswerable"
+      - "Underpowered"
+      - "Generalization_Unanswerable"
+    description: "The execution mode of the pipeline."
+  reason:
+    type: "string"
+    description: "Explanation for the selected mode."
+  model_metrics:
+    type:
+      - "object"
+      - "null"
+    description: "Model performance metrics (R², adjusted R², p‑value, FDR‑corrected p‑values, KS test)."
+    properties:
+      r_squared:
+        type: "number"
+      adjusted_r_squared:
+        type: "number"
+      p_value:
+        type: "number"
+      fdr_p_values:
+        type: "array"
+        items:
+          type: "number"
+      ks_test_result:
+        type: "object"
+        description: "Kolmogorov‑Smirnov test result on permutation null distribution."
+        properties:
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - statistic
+          - p_value
+        additionalProperties: false
+    required:
+      - r_squared
+      - adjusted_r_squared
+      - p_value
+      - fdr_p_values
+      - ks_test_result
+    additionalProperties: false
+  power_analysis:
     type: "object"
-    additionalProperties:
-      type: "number"
-    description: "Map of feature names to regression weights."
-  fdr_corrected_p_values:
-    type: "object"
-    additionalProperties:
-      type: "number"
-    description: "Map of feature names to FDR-corrected p-values."
-  sensitivity_sweep:
+    properties:
+      min_n_required:
+        type: "integer"
+      actual_n:
+        type: "integer"
+      status:
+        type: "string"
+        enum:
+          - "Sufficient"
+          - "Underpowered"
+    required:
+      - min_n_required
+      - actual_n
+      - status
+  sensitivity_table:
     type: "array"
+    description: "Sensitivity analysis results across thresholds."
     items:
       type: "object"
       properties:
         p_threshold:
           type: "number"
-        r2_threshold:
+        r_squared_threshold:
           type: "number"
-        stability_metric:
-          type: "number"
-          description: "Variance of significance outcome at this threshold."
+        significance:
+          type: "boolean"
+        stability:
+          type: "string"
       required:
-        - "p_threshold"
-        - "r2_threshold"
-        - "stability_metric"
-  flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of flags (e.g., 'fallback_mode_active', 'primary_question_abandoned', 'underpowered')."
+        - p_threshold
+        - r_squared_threshold
+        - significance
+        - stability
 required:
-  - "run_id"
-  - "mode"
-  - "adjusted_r2"
-  - "permutation_p_value"
-  - "coefficients"
-  - "fdr_corrected_p_values"
-  - "sensitivity_sweep"
-  - "flags"
+  - mode
+  - reason
+  - power_analysis
 additionalProperties: false

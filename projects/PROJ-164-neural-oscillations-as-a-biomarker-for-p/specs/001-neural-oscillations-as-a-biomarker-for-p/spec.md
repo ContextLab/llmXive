@@ -9,77 +9,100 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The system must ingest raw EEG and tDCS performance data from public repositories. If paired data (EEG and tDCS outcomes for the same subjects) is found, it proceeds to **Primary Mode** (clean, epoch-aligned datasets for prediction). If paired data is missing, the system enters **Fallback Mode** to generate synthetic paired data for structural pipeline validation only.
+The system must ingest raw EEG and tDCS performance data from verified public repositories. The system MUST first verify the existence of a single-source dataset containing BOTH raw EEG time-series and paired tDCS outcome scores for the same subjects. If such a dataset exists, the system proceeds to **Primary Mode**. If no such single-source paired dataset exists in the public domain, the system MUST NOT attempt to pair data from separate repositories (e.g., PhysioNet EEG + OpenNeuro tDCS). Instead, it MUST switch to **Hypothesis Unanswerable Mode**, log the specific reason (lack of paired data), and terminate the statistical modeling pipeline without generating synthetic data for inference.
 
-**Why this priority**: Without clean, aligned data (or a validated synthetic equivalent), no statistical modeling is possible. This is the foundational step that enables all downstream analysis and ensures reproducibility.
+**Why this priority**: Without clean, aligned data from a single verified source, no statistical modeling is possible. Cross-dataset matching is scientifically invalid due to differing subject populations and protocols. This step ensures the project does not proceed with invalid data assumptions.
 
-**Independent Test**: Can be fully tested by running the preprocessing script on a subset of the PhysioNet EEG Motor Movement/Imagery Dataset and verifying the output file structure (e.g., `.fif` or `.csv` with expected columns: `subject_id`, `channel`, `time`, `voltage`, `condition`) matches the schema defined in Appendix A without crashing. If the dataset lacks pairing, the system must successfully generate synthetic data, log the mode switch, and explicitly flag that the primary research question (individual biomarker prediction) is abandoned in this run.
+**Independent Test**: Can be fully tested by running the ingestion script against the canonical PhysioNet EEG Motor Movement/Imagery Dataset (BIDS/EDF) and a verified tDCS source. If no single source contains both, the system MUST log "Hypothesis Unanswerable: No single-source paired dataset found" and exit with code 0 (success of validation) but no statistical output.
 
 **Acceptance Scenarios**:
 
-1. **Given** raw EEG data from PhysioNet and tDCS performance scores from OpenNeuro, **When** the preprocessing script runs and detects paired data (matching subject IDs), **Then** the output contains aligned epochs with bad channels marked and filtered (1–45 Hz) in **Primary Mode**.
-2. **Given** a dataset where EEG and tDCS outcomes are unpaired (e.g., OpenNeuro provides only tDCS scores, PhysioNet provides only EEG), **When** the preprocessing script runs, **Then** it logs a warning, switches to **Fallback Mode**, generates synthetic paired data based on literature-derived aggregate statistics (without individual variance), and proceeds with structural validation. The system MUST explicitly log that the primary research question is abandoned.
+1. **Given** a verified single-source dataset containing both raw EEG (BIDS/EDF) and paired tDCS motor scores, **When** the preprocessing script runs, **Then** it outputs aligned epochs with bad channels marked and filtered (1–45 Hz) in **Primary Mode**.
+2. **Given** only unpaired datasets (e.g., EEG from PhysioNet, tDCS from a separate study), **When** the ingestion script runs, **Then** it logs "Hypothesis Unanswerable", switches to **Hypothesis Unanswerable Mode**, and explicitly halts the statistical modeling pipeline. No synthetic data is generated for inference.
 3. **Given** a dataset with missing channel metadata, **When** the preprocessing script runs, **Then** it logs a warning and proceeds with common average referencing rather than failing.
 
 ---
 
 ### User Story 2 - Feature Extraction and Statistical Modeling (Priority: P2)
 
-The system must compute spectral power (delta, theta, alpha, beta, gamma) and connectivity metrics (PLV, wPLI) from the preprocessed EEG. It must fit a ridge regression model to predict tDCS response. In **Primary Mode**, this predicts individual response. In **Fallback Mode**, this validates pipeline execution integrity (code runs without error) using synthetic targets, NOT predictive capability.
+The system must compute spectral power (delta, theta, alpha, beta, gamma) and connectivity metrics (PLV, wPLI) from the preprocessed EEG. It must fit a ridge regression model to predict tDCS response. This step ONLY executes in **Primary Mode**. If the system is in **Hypothesis Unanswerable Mode**, this step is skipped entirely.
 
-**Why this priority**: This implements the core scientific hypothesis (EEG features → tDCS response) in Primary Mode. In Fallback Mode, it ensures the statistical engine is functioning correctly (execution integrity) before applying it to real data.
+**Why this priority**: This implements the core scientific hypothesis (EEG features → tDCS response) ONLY when valid paired data exists. Preventing execution in invalid modes ensures no spurious results are generated.
 
-**Independent Test**: Can be fully tested by executing the feature extraction and regression module on a small synthetic dataset (n=10) and verifying the model outputs coefficients, R², and p-values without requiring external network access. The test must confirm that in Fallback Mode, no statistical claims are made about the synthetic target and that the pipeline executes without error (validating execution integrity only).
+**Independent Test**: Can be fully tested by executing the feature extraction module on a small valid dataset (n=10) and verifying the model outputs coefficients, R², and p-values. If run in **Hypothesis Unanswerable Mode**, the test must confirm the module is skipped and no output is produced.
 
 **Acceptance Scenarios**:
 
-1. **Given** preprocessed EEG epochs, **When** the feature extraction module runs, **Then** it outputs a feature matrix with power density and PLV values for all subjects.
-2. **Given** the feature matrix and tDCS response labels, **When** the ridge regression model fits with 5-fold cross-validation and nested hyperparameter tuning, **Then** it returns adjusted R² and permutation test p-values. In Fallback Mode, the output must be flagged as 'Structural Validation Only' and the system must confirm that no predictive capability is claimed.
+1. **Given** preprocessed EEG epochs from a paired dataset, **When** the feature extraction module runs, **Then** it outputs a feature matrix with power density and PLV values for all subjects.
+2. **Given** the system is in **Hypothesis Unanswerable Mode**, **When** the modeling module runs, **Then** it is skipped, and a log entry confirms "Modeling Skipped: No valid paired data".
 
 ---
 
 ### User Story 3 - Validation, Sensitivity Analysis, and Reporting (Priority: P3)
 
-The system must validate the model using permutation testing (DOI:10.1234/example)., apply multiplicity correction for multiple EEG features, and perform sensitivity analysis on significance thresholds to ensure robustness. In **Fallback Mode**, these tests verify pipeline stability (execution metrics), not hypothesis validity.
+The system must validate the model using permutation testing, apply multiplicity correction for multiple EEG features (conditional on power analysis), and perform sensitivity analysis on significance thresholds to ensure robustness. This step ONLY executes in **Primary Mode**.
 
 **Why this priority**: This ensures the findings are methodologically sound (controlling for false positives) and defensible (testing stability of thresholds), which is required for publication and clinical translation.
 
-**Independent Test**: Can be fully tested by running the validation module and verifying the output report contains a sensitivity sweep table (e.g., R² at p < 0.01, 0.05, 0.1) and a corrected p-value for the primary hypothesis in Primary Mode. In Fallback Mode, the test must confirm that the output contains only pipeline execution metrics (runtime, memory) and explicitly excludes statistical inference metrics (p-values) for the abandoned hypothesis.
+**Independent Test**: Can be fully tested by running the validation module on a valid dataset and verifying the output report contains a sensitivity sweep table (e.g., R² at p < 0.01, 0.05, 0.1) and a corrected p-value.
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted regression model in Primary Mode, **When** the validation module runs, **Then** it produces a sensitivity analysis table sweeping p-value thresholds across conventional significance levels and variance explained thresholds (R²) {, 0.3, 0.4} and reports stability.
-2. **Given** the fitted regression model in Fallback Mode, **When** the validation module runs, **Then** it outputs pipeline execution metrics (runtime, memory usage) and explicitly suppresses any statistical inference metrics (p-values, R² significance) for the abandoned hypothesis.
-3. **Given** multiple feature tests, **When** the validation module runs, **Then** it applies False Discovery Rate (FDR) correction to the final model coefficients and reports the adjusted p-value.
+1. **Given** the fitted regression model in **Primary Mode**, **When** the validation module runs, **Then** it produces a sensitivity analysis table sweeping p-value thresholds across {0.01, 0.05, 0.1} and variance explained thresholds (R²) and reports stability.
+2. **Given** multiple feature tests, **When** the validation module runs, **Then** it applies False Discovery Rate (FDR) correction using the Benjamini-Hochberg procedure to the final model coefficients and reports the adjusted p-value, provided the power analysis (US-4) confirms sufficient sample size.
+
+---
+
+### User Story 4 - Power Analysis & Feasibility Gate (Priority: P1)
+
+The system MUST perform a prospective power analysis to determine the minimum sample size required to detect the expected effect size (Cohen's d = 0.5) with 80% power at α=0.05 BEFORE any data ingestion. If the available dataset size (N) is less than the calculated minimum, the system MUST flag the study as 'Underpowered' and skip statistical inference (FDR, p-values), reporting the 'Minimum N required' instead. This ensures the project does not proceed with an unanswerable hypothesis.
+
+**Why this priority**: This addresses the critical scientific gap where a study might run but yield a false negative due to insufficient data. It provides a rigorous 'Go/No-Go' gate before expensive statistical modeling.
+
+**Independent Test**: Can be fully tested by running the power analysis module with parameters (d=0.5, power=0.8, alpha=0.05) and verifying the output reports the calculated minimum N (e.g., N≈64). If the input dataset has N < 64, the system must report 'Underpowered'.
+
+**Acceptance Scenarios**:
+
+1. **Given** a dataset with N=100 subjects, **When** the power analysis runs, **Then** it reports 'Sufficient Power' and allows the statistical modeling pipeline to proceed.
+2. **Given** a dataset with N=20 subjects, **When** the power analysis runs, **Then** it reports 'Underpowered', calculates the minimum N required (e.g., 64), and flags all subsequent statistical results as 'Not Valid for Inference'.
 
 ---
 
 ### Edge Cases
 
-- **What happens when the OpenNeuro dataset lacks EEG recordings paired with tDCS outcomes for the same subjects?** The system MUST NOT halt. It MUST log a warning, switch to **Fallback Mode**, generate synthetic paired data for structural validation, and explicitly flag that the primary research question (individual biomarker prediction) is ABANDONED and no claims can be derived from this run.
-- **How does system handle memory overflow during permutation testing on 109 subjects?** The system MUST process in batches or downsample epochs to stay within memory limits (see NFR-001).
+- **What happens when no single-source paired dataset is found?** The system MUST NOT halt with an error. It MUST log "Hypothesis Unanswerable: No single-source paired dataset found in public repositories", switch to **Hypothesis Unanswerable Mode**, and terminate the pipeline. No synthetic data is generated for inference, and no claims about individual biomarkers are made.
+- **How does system handle memory overflow during permutation testing on a large cohort of subjects?** The system MUST process in batches or downsample epochs to stay within memory limits (see NFR-001).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST verify that the input datasets contain paired EEG recordings and tDCS outcome scores for the same subjects. If pairing is confirmed, the system MUST proceed in **Primary Mode**. If pairing is missing, the system MUST switch to **Fallback Mode** and generate synthetic paired data for structural validation only. In Fallback Mode, the system MUST explicitly state that the primary research question (predicting individual response) is ABANDONED (See US-1).
-- **FR-002**: In **Fallback Mode**, System MUST generate a synthetic tDCS response variable based on a configurable effect size parameter (defaulting to Cohen's d = 0.5, based on meta-analyses of tDCS motor learning) and randomized individual noise, ensuring the synthetic target is mathematically decoupled from the specific EEG features being tested to prevent circular validation. The system MUST explicitly flag all outputs from this mode as 'Structural Validation Only' and MUST NOT attempt to answer the primary research question regarding individual biomarkers, as the synthetic target lacks biological correlation (See US-1, US-2).
-- **FR-003**: System MUST band-pass filter EEG data between low-frequency and high-frequency cutoffs. and re-reference to common average before feature extraction (See US-1).
-- **FR-004**: System MUST compute spectral power density for delta, theta, alpha, beta, and gamma bands using Welch's method (See US-2).
-- **FR-005**: System MUST fit a multivariate linear regression with L regularization (ridge) using k-fold cross-validation and nested hyperparameter tuning (inner loop for alpha selection, outer loop for evaluation) to predict tDCS response percentage change. In **Fallback Mode**, this step is strictly for validating the regression pipeline and must not produce statistical inferences (See US-2).
-- **FR-006**: System MUST apply False Discovery Rate (FDR) correction to the p-values of the final multivariate model coefficients when testing multiple EEG features to control family-wise error (See US-3).
-- **FR-007**: System MUST perform sensitivity analysis sweeping the significance threshold (p) over a configurable set and the variance explained threshold (R²) over a configurable set. The system MUST define 'justified stability' as the primary finding (p < 0.05) holding across at least out of 3 tested thresholds, or report the specific threshold range where significance is lost (See US-3).
+- **FR-001**: System MUST verify that the input datasets contain paired EEG recordings and tDCS outcome scores for the same subjects within a SINGLE verified source. If pairing is confirmed, the system MUST proceed in **Primary Mode**. If no single-source paired dataset exists, the system MUST switch to **Hypothesis Unanswerable Mode** and terminate the statistical pipeline. The system MUST explicitly state that the primary research question (predicting individual response) is UNANSWERABLE with current public data (See US-1).
+- **FR-002**: System MUST band-pass filter EEG data between low-frequency and high-frequency cutoffs and re-reference to common average before feature extraction (See US-1).
+- **FR-003**: System MUST compute spectral power density for delta, theta, alpha, beta, and gamma bands using Welch's method (See US-2).
+- **FR-004**: System MUST fit a multivariate linear regression with L regularization (ridge) using k-fold cross-validation and nested hyperparameter tuning (inner loop for alpha selection, outer loop for evaluation) to predict tDCS response percentage change. This requirement is ONLY active in **Primary Mode** (See US-2).
+- **FR-005**: System MUST apply False Discovery Rate (FDR) correction to the p-values of the final multivariate model coefficients when testing multiple EEG features to control family-wise error, PROVIDED that the power analysis (FR-008) confirms sufficient sample size. If underpowered, FDR is skipped and the result is flagged (See US-3).
+- **FR-006**: System MUST perform sensitivity analysis sweeping the significance threshold (p) over the set {0.01, 0.05, 0.1} and the variance explained threshold (R²) over a configurable set. The system MUST define 'justified stability' as the primary finding (p < 0.05) holding across at least 2 out of 3 tested thresholds, or report the specific threshold range where significance is lost (See US-3).
+- **FR-007**: System MUST perform a power analysis to calculate the minimum sample size required to detect an effect size of Cohen's d = 0.5 with 80% power at α=0.05. The system MUST output this value and compare it against the actual N BEFORE data ingestion (See US-4).
+- **FR-008**: System MUST flag the study as 'Underpowered' and suppress statistical inference (p-values, FDR) if the actual N is less than the minimum required by FR-007 (See US-4).
+- **FR-009**: System MUST perform a normality check (Shapiro-Wilk) on the tDCS response metric. If the data is non-normal (p < 0.05), the system MUST apply a rank-based transformation or use a non-parametric test (Spearman) instead of Pearson/linear regression (See US-2).
+- **FR-010**: System MUST define the primary outcome and analysis plan as pre-registered before data processing begins, rather than relying on post-hoc sensitivity sweeps to justify stability (See US-3).
+- **FR-011**: System MUST perform a 'Data Alignment Check' to verify subject overlap between EEG and tDCS sources within a single study. If no overlap is found, the system MUST default to **Hypothesis Unanswerable Mode** and log the specific reason (See US-1).
+- **FR-012**: System MUST explicitly identify the canonical source for the tDCS motor performance data (e.g., specific OpenNeuro accession or meta-analysis) and verify it contains raw behavioral scores, not structural templates (See US-1).
+- **FR-013**: System MUST explicitly identify the canonical source for the raw EEG time-series data (e.g., PhysioNet BIDS/EDF) and verify it contains raw voltage data, not pre-processed features or CSV proxies (See US-1).
+- **FR-014**: System MUST implement the Benjamini-Hochberg procedure for FDR correction and output the corrected p-values in the final report (See US-3).
+- **FR-015**: System MUST NOT attempt to align subjects across different public repositories (e.g., PhysioNet and OpenNeuro) due to lack of shared IDs and differing protocols. If a single-source paired dataset is not found, the system MUST declare the hypothesis unanswerable (See US-1).
 
 ### Non-Functional Requirements
 
-- **NFR-001**: System MUST execute all computations on CPU-only infrastructure with a maximum runtime within a feasible operational window. and ≤7 GB RAM usage across all User Stories (See US-1, US-2, US-3).
+- **NFR-001**: System MUST execute all computations on CPU-only infrastructure with a maximum runtime of 6 hours and ≤7 GB RAM usage across all User Stories. If memory usage approaches 7 GB, the system MUST downsample epochs or process in batches (See US-1, US-2, US-3).
 
-### Key Entities *(include if feature involves data)*
+### Key Entities *(include if data)*
 
 - **EEG Epoch**: Represents a 2-second window of filtered EEG data with associated subject ID and condition (rest/task).
 - **tDCS Response**: Represents the percentage change in motor task score (pre vs. post) for a specific subject.
 - **Feature Vector**: Represents the aggregated spectral and connectivity metrics for one subject.
+- **Analysis Mode**: Represents the current state of the system: 'Primary Mode' (valid single-source paired data exists), 'Hypothesis Unanswerable Mode' (no valid paired data found, pipeline halted), or 'Underpowered' (insufficient N for statistical inference).
 
 ## Success Criteria *(mandatory)*
 
@@ -90,21 +113,19 @@ The system must validate the model using permutation testing (DOI:10.1234/exampl
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Data integrity is measured against the raw dataset checksums and subject count consistency (See US-1).
-- **SC-002**: In **Primary Mode**, model predictive performance is measured against the observed adjusted R² and permutation test p-value. Success is defined as achieving a p-value < 0.05 in the permutation test against a null model (See US-2).
-- **SC-002-FB**: In **Fallback Mode**, model performance is measured against the synthetic target. Success is defined as achieving an R² ≈ 0.0 (±0.05) to confirm the synthetic target is decoupled from EEG features (See US-2).
-- **SC-003**: Computational feasibility is measured against the -hour runtime limit and Standard GitHub Actions runners provide a constrained RAM limit.
-
-Research Question: How can memory-efficient algorithms be developed for large-scale graph processing?
-Method: Comparative analysis of algorithmic complexity and resource utilization across distributed and single-node implementations.
-References: Smith et al. (), DOI:10.1234/example (See NFR-001).
-- **SC-004**: Threshold stability is measured against the variance of the binary significance outcome (0 or 1) across the sensitivity sweep {0.01, 0.05, 0.1}. Success is defined as variance ≤ 0.05 or no change in significance status (See US-3).
+- **SC-002**: In **Primary Mode**, model predictive performance is measured against the observed adjusted R² and permutation test p-value. Success is defined as the *correct computation* of the p-value and the *uniformity* of the null distribution (See US-2).
+- **SC-003**: Computational feasibility is measured against the 6-hour runtime limit and ≤7 GB RAM usage (See NFR-001).
+- **SC-004**: Threshold stability is measured against the variance of the binary significance outcome (0 or 1) across the sensitivity sweep {0.01, 0.05, 0.1}. Success is defined as the *reporting* of the variance value and the presence of FDR-corrected p-values (See US-3).
+- **SC-005**: Power analysis feasibility is measured against the calculated minimum N. Success is defined as the system correctly reporting 'Underpowered' if N < required and 'Sufficient' otherwise (See US-4).
+- **SC-006**: Null distribution validity is measured against the Kolmogorov-Smirnov test for uniformity of the permutation test p-values under the null hypothesis (See US-2).
 
 ## Assumptions
 
-- The OpenNeuro dataset contains tDCS motor scores and the PhysioNet dataset contains EEG data, but explicit pairing of these two datasets for the same subjects is rare; if pairing is missing, the system defaults to Fallback Mode for structural validation only, acknowledging that individual prediction is impossible in this mode and the primary research question is abandoned.
-- The PhysioNet EEG Motor Movement/Imagery Dataset provides sufficient resting-state baseline data if OpenNeuro EEG is unavailable for baseline comparison.
+- The PhysioNet EEG Motor Movement/Imagery Dataset (Canonical Accession: eegmmidb, BIDS/EDF format) provides sufficient raw resting-state baseline data.
+- The tDCS motor performance data must be sourced from a verified single study (e.g., specific OpenNeuro accession) that contains both EEG and tDCS outcomes for the same subjects. If no such single-source dataset exists in the public domain, the primary research question is unanswerable with current data.
 - All required Python libraries (MNE, scikit-learn, numpy, pandas) are available in the GitHub Actions environment without requiring CUDA or GPU drivers.
-- The dataset size for the target cohort fits within the available RAM constraint after epoching and filtering.; if not, subsampling of epochs will be applied.
-- The tDCS response metric (percentage change) is normalized and does not require imputation for missing pre/post scores.
+- The dataset size for the target cohort fits within the available RAM constraint after epoching and filtering; if not, subsampling of epochs will be applied.
+- The tDCS response metric (percentage change) may require rank-based transformation if non-normal (see FR-009).
 - No external API calls are required during the analysis phase; all data is downloaded and processed locally within the runner.
-- Synthetic data generated in Fallback Mode uses randomized individual noise and a configurable effect size (default Cohen's d = 0.5) to ensure it does not validate the specific EEG-tDCS hypothesis.
+- The 'Primary Mode' is contingent on finding a single verified source containing both EEG and tDCS data for the same subjects.
+- All constitutional references in this document adhere to the project constitution's Roman Numeral structure (Principle I, II, etc.).

@@ -1,38 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Feature Vector Schema"
-type: "object"
+description: "Schema for the extracted EEG features per subject"
+type: object
 properties:
   subject_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the subject"
-  band:
-    type: "string"
-    enum:
-      - "delta"
-      - "theta"
-      - "alpha"
-      - "beta"
-      - "gamma"
-    description: "Frequency band"
-  metric_type:
-    type: "string"
-    enum:
-      - "power"
-      - "plv"
-      - "wpli"
-    description: "Type of metric extracted"
-  value:
-    type: "number"
-    description: "Aggregated metric value"
-  source_mode:
-    type: "string"
-    enum:
-      - "primary"
-      - "fallback"
-    description: "Whether data is from real or synthetic source"
+  spectral_power:
+    type: object
+    properties:
+      delta:
+        type: number
+        description: "Power in delta band"
+      theta:
+        type: number
+        description: "Power in theta band"
+      alpha:
+        type: number
+        description: "Power in alpha band"
+      beta:
+        type: number
+        description: "Power in beta band"
+      gamma:
+        type: number
+        description: "Power in gamma band"
+    required:
+      - delta
+      - theta
+      - alpha
+      - beta
+      - gamma
+  connectivity:
+    type: object
+    description: "Map of channel pairs to PLV/wPLI values"
+    additionalProperties:
+      type: number
+  tdcs_response:
+    type: number
+    description: "Percentage change in motor task score"
+  normality_flag:
+    type: boolean
+    description: "True if data is non-normal (Shapiro-Wilk p < 0.05)"
 required:
   - subject_id
-  - band
-  - metric_type
-  - value
-  - source_mode
+  - spectral_power
+  - connectivity
+  - tdcs_response
+  - normality_flag
+additionalProperties: false

@@ -1,50 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EEG Feature Dataset Schema"
-description: "Schema for the feature matrix used in Ridge Regression. Supports both Primary and Fallback modes."
-type: "object"
+title: "Dataset Manifest Schema"
+description: "Schema for the raw dataset manifest metadata"
+type: object
 properties:
-  subject_id:
-    type: "string"
-    description: "Unique identifier for the subject."
-  mode:
-    type: "string"
+  source_url:
+    type: string
+    description: "The verified URL of the dataset"
+  dataset_type:
+    type: string
     enum:
-      - "primary"
-      - "fallback"
-    description: "Processing mode. 'fallback' indicates synthetic target generation."
-  power_delta:
-    type: "number"
-    description: "Spectral power in the Delta band (1-4 Hz)."
-  power_theta:
-    type: "number"
-    description: "Spectral power in the Theta band (4-8 Hz)."
-  power_alpha:
-    type: "number"
-    description: "Spectral power in the Alpha band (8-13 Hz)."
-  power_beta:
-    type: "number"
-    description: "Spectral power in the Beta band (13-30 Hz)."
-  power_gamma:
-    type: "number"
-    description: "Spectral power in the Gamma band (30-45 Hz)."
-  plv_alpha:
-    type: "number"
-    description: "Phase Locking Value in the Alpha band."
-  wpli_beta:
-    type: "number"
-    description: "Weighted Phase Lag Index in the Beta band."
-  tDCS_response:
-    type: "number"
-    description: "Percentage change in motor task score. In Fallback mode, this is synthetic and decoupled from EEG features."
+      - "EEG"
+      - "tDCS"
+      - "Paired"
+      - "None"
+    description: "Type of data contained in the source"
+  subject_count:
+    type: integer
+    minimum: 0
+    description: "Number of unique subjects in the dataset"
+  checksum:
+    type: string
+    description: "SHA-256 hash of the raw file"
+  ingestion_status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+      - "unanswerable"
+    description: "Result of the ingestion process"
 required:
-  - "subject_id"
-  - "mode"
-  - "power_delta"
-  - "power_theta"
-  - "power_alpha"
-  - "power_beta"
-  - "power_gamma"
-  - "plv_alpha"
-  - "wpli_beta"
-  - "tDCS_response"
+  - source_url
+  - dataset_type
+  - subject_count
+  - checksum
+  - ingestion_status
 additionalProperties: false

@@ -1,30 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Output Schema"
 type: "object"
+description: "Schema for the output of the predictive modeling step."
 properties:
   model_type:
     type: "string"
     enum:
       - "ridge_regression"
-    description: "Type of model used"
+      - "rank_ridge_regression"
+    description: "Type of model used (standard ridge or rank‑ridge for non‑normal data)."
   cross_validation_folds:
     type: "integer"
-    description: "Number of CV folds"
+    description: "Number of CV folds used in the outer loop."
   adjusted_r2:
     type: "number"
-    description: "Adjusted R-squared value"
+    description: "Adjusted R‑squared value of the final model."
   permutation_p_value:
     type:
       - "number"
       - "null"
-    description: "P-value from permutation test. Null if mode == fallback."
+    description: "P‑value from permutation test; null if modeling was skipped."
   fdr_corrected_p_values:
     type:
       - "array"
       - "null"
     items:
       type: "number"
-    description: "FDR corrected p-values for each feature (only in Primary Mode). Null if mode == fallback."
+    description: "FDR‑corrected p‑values for each feature (only in Primary Mode). Null if modeling was skipped."
+  ks_test_result:
+    type:
+      - "object"
+      - "null"
+    description: "Result of the Kolmogorov‑Smirnov test on the permutation null distribution."
+    properties:
+      statistic:
+        type: "number"
+        description: "KS statistic."
+      p_value:
+        type: "number"
+        description: "KS test p‑value."
+    required:
+      - statistic
+      - p_value
+    additionalProperties: false
   sensitivity_analysis:
     type: "object"
     properties:
@@ -38,30 +56,35 @@ properties:
           type: "number"
       stability_variance:
         type: "number"
-    description: "Results of sensitivity analysis"
+    description: "Results of sensitivity analysis."
   mode_flag:
     type: "string"
     enum:
       - "primary"
       - "fallback"
-    description: "Mode in which the model was run"
+    description: "Execution mode for the modeling step."
   structural_validation_only:
     type: "boolean"
-    description: "True if in fallback mode, claims are invalid"
+    description: "True if the pipeline ran in a fallback mode where statistical inference is suppressed."
   power_analysis:
     type: "object"
     properties:
       min_detectable_r2:
         type: "number"
+        description: "Minimum R² detectable given the sample size (informational)."
       min_p_value:
         type: "number"
+        description: "Minimum p‑value achievable with the given power (informational)."
       status:
         type: "string"
         enum:
           - "Underpowered"
           - "Adequate"
           - "N/A"
-    description: "Power analysis results"
+        description: "Power analysis outcome."
+    required:
+      - status
+    additionalProperties: false
 required:
   - model_type
   - cross_validation_folds
@@ -70,3 +93,4 @@ required:
   - structural_validation_only
   - power_analysis
   - sensitivity_analysis
+additionalProperties: false
