@@ -1,0 +1,59 @@
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/code/data/results/methodology_rationale.md
+  attempts: 1
+  canonical: Code complexity metrics are highly skewed and non-normally distributed
+    in real-world repositories
+  claim_id: c_1fc52054
+  context: 'The Reality of the Data: Code complexity metrics (especially Cyclomatic
+    Complexity and Halstead Volume) are known to be highly skewed and non-normally
+    distributed in real-world software repositories (long-tail distributions).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_metrics_are_highly_skewed_and_non-normally_d
+  kind: entity_fact
+  raw_text: Code complexity metrics (especially Cyclomatic Complexity and Halstead
+    Volume) are known to be highly skewed and non-normally distributed in real-world
+    software repositories (long-tail distributions).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T22:56:14Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/code/data/results/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial correlation is mathematically equivalent to Pearson's
+    r for one continuous and one binary variable
+  claim_id: c_970f26ab
+  context: The Point-Biserial correlation coefficient (r_pb) is mathematically equivalent
+    to Pearson's r when one variable is continuous and the other is naturally binary.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-Biserial_correlation_is_mathematically_equivalent_to_P
+  kind: entity_fact
+  raw_text: The Point-Biserial correlation coefficient (r_pb) is mathematically equivalent
+    to Pearson's r when one variable is continuous and the other is naturally binary.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T22:57:16Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/code/data/results/methodology_rationale.md
+  attempts: 1
+  canonical: The study used 50 cross-validation folds for paired model score observations
+  claim_id: c_b1505358
+  context: 1. We have paired observations (Model A score vs. Model B score for each
+    of the 50 folds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We have paired observations (Model A score vs. Model B score for each
+    of the 50 folds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T22:57:32Z'

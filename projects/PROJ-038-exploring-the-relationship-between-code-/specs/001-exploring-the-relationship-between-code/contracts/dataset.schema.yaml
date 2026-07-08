@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeFile Dataset Schema"
+description: "Schema for the features.csv dataset containing code metrics and bug labels."
+type: object
+properties:
+  file_id:
+    type: string
+    description: "Unique identifier for the file (project_name/bug_id/path/to/File.java)"
+  project_name:
+    type: string
+    description: "Name of the Defects4J project"
+  bug_id:
+    type: string
+    description: "Identifier of the specific bug instance"
+  file_path:
+    type: string
+    description: "Relative path within the project"
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic Complexity metric value"
+    minimum: 1.0
+  halstead_volume:
+    type: number
+    description: "Halstead Volume metric value"
+    minimum: 0.0
+  lines_of_code:
+    type: integer
+    description: "Lines of Code metric value"
+    minimum: 1
+  is_buggy:
+    type: integer
+    description: "Binary label (1=buggy, 0=clean)"
+    enum:
+      - 0
+      - 1
+  commit_hash:
+    type: string
+    description: "Hash of the commit where the bug was introduced (buggy revision)"
+  exclusion_reason:
+    type:
+      - string
+      - "null"
+    description: "Reason for exclusion (if applicable)"
+  vif_score:
+    type:
+      - number
+      - "null"
+    description: "Variance Inflation Factor score (if applicable)"
+required:
+  - file_id
+  - project_name
+  - bug_id
+  - file_path
+  - cyclomatic_complexity
+  - halstead_volume
+  - lines_of_code
+  - is_buggy
+  - commit_hash
+additionalProperties: false

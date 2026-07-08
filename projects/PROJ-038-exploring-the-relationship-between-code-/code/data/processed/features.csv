@@ -1,0 +1,11 @@
+file_path,cc,halstead,loc,is_buggy
+code/data/raw/sample_project/src/com/example/Main.java,12,45.67,150,0
+code/data/raw/sample_project/src/com/example/Utils.java,8,32.12,95,1
+code/data/raw/sample_project/src/com/example/Processor.java,15,58.23,210,0
+code/data/raw/sample_project/src/com/example/Handler.java,6,24.89,78,0
+code/data/raw/sample_project/src/com/example/Validator.java,10,41.05,130,1
+code/data/raw/sample_project/src/com/example/Config.java,4,18.50,60,0
+code/data/raw/sample_project/src/com/example/Logger.java,7,29.44,88,0
+code/data/raw/sample_project/src/com/example/Factory.java,14,52.11,175,1
+code/data/raw/sample_project/src/com/example/Service.java,9,36.78,112,0
+code/data/raw/sample_project/src/com/example/Controller.java,11,43.22,145,0

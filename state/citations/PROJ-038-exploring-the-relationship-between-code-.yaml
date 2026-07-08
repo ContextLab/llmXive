@@ -1,0 +1,37 @@
+- artifact_hash: 89b9bf1d3c3198ca11d3072c3115613ae4b2c0270b87afbaef106ad9b88327dc
+  artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - rjust/defects4j: A Database of Real Faults and an Experimental\
+    \ Infrastructure to Enable Controlled Experiments in Software Engineering Research\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/rjust/defects4j`
+  verification_status: verified
+  verified_against_url: https://github.com/rjust/defects4j
+  verified_at: '2026-07-08T22:36:41.224312Z'
+- artifact_hash: 89b9bf1d3c3198ca11d3072c3115613ae4b2c0270b87afbaef106ad9b88327dc
+  artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/rjust/defects4j/blob/master/framework/projects/project-list.json`
+  verification_status: mismatch
+  verified_against_url: https://github.com/rjust/defects4j/blob/master/framework/projects/project-list.json
+  verified_at: '2026-07-08T22:36:41.224312Z'
+- artifact_hash: 7c9a96181a476fcf2799d12bcb14a3396c64843727f9dd5e5453cad0d86ee0b8
+  artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - rjust/defects4j: A Database of Real Faults and an Experimental\
+    \ Infrastructure to Enable Controlled Experiments in Software Engineering Research\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/rjust/defects4j`
+  verification_status: verified
+  verified_against_url: https://github.com/rjust/defects4j
+  verified_at: '2026-07-08T22:37:03.866410Z'

@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "code-complexity-bug-prediction"
+version = "0.1.0"
+description = "Research pipeline exploring the relationship between code complexity metrics and bug prediction accuracy."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas==2.1.0",
+    "scikit-learn==1.3.0",
+    "scipy==1.11.0",
+    "matplotlib==3.8.0",
+    "seaborn==0.13.0",
+    "tree-sitter==0.20.0",
+    "tree-sitter-java==0.20.0",
+    "pytest==7.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+]
+per-file-ignores = []
+max-complexity = 10
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[project.scripts]
+run-pipeline = "code.run_pipeline:main"
+ingest-data = "code.src.ingest:main"
+extract-metrics = "code.src.metrics:main"
+label-data = "code.src.labeling:main"
+run-analysis = "code.src.analysis:main"

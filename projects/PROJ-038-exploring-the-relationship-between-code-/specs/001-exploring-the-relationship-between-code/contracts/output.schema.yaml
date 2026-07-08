@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the model performance and statistical test results."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model (e.g., LogisticRegression, RandomForest)"
+  metric_set:
+    type: string
+    description: "Feature set used (Full or Single_Best)"
+  roc_auc_mean:
+    type: number
+    description: "Mean ROC-AUC across folds"
+    minimum: 0.0
+    maximum: 1.0
+  roc_auc_std:
+    type: number
+    description: "Standard deviation of ROC-AUC"
+    minimum: 0.0
+  f1_mean:
+    type: number
+    description: "Mean F1-score"
+    minimum: 0.0
+    maximum: 1.0
+  f1_std:
+    type: number
+    description: "Standard deviation of F1-score"
+    minimum: 0.0
+  p_value:
+    type: number
+    description: "P-value from the Paired Permutation Test"
+    minimum: 0.0
+    maximum: 1.0
+  feature_importance:
+    type: array
+    description: "Ranked list of feature importances"
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+        importance_score:
+          type: number
+          minimum: 0.0
+      required:
+        - metric_name
+        - importance_score
+required:
+  - model_type
+  - metric_set
+  - roc_auc_mean
+  - roc_auc_std
+  - f1_mean
+  - f1_std
+  - p_value
+  - feature_importance
+additionalProperties: false

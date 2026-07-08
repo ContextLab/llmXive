@@ -1,0 +1,10 @@
+? T000a [S] Generate `methodology_rationale.md` artifact to document the conflict
+  between Constitution Principle VI (Pearson/McNemar) and the Spec's required methods
+  (Point-Biserial/Spearman/Paired Permutation), providing the scientific justification
+  for the deviation as per the plan's 'Pending Amendment Request'. This task is a
+  prerequisite for all statistical tasks and must be completed before Phase 2.
+: 1
+? 'T001a [P] Create project directory structure: `code/`, `code/src/`, `code/tests/`,
+  `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-code-complexity-bug-prediction/`.'
+: 1
+'T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified -->': 1

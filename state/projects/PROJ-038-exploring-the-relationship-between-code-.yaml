@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T12:45:09.082916Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-038-exploring-the-relationship-between-code-
-last_run_id: a78ec64a-3d48-4047-999b-786f27e8fc96
+last_run_id: 32af8eb6-3306-454d-8b14-d58eab20c4ad
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code
 title: Exploring the Relationship Between Code Complexity Metrics and Bug Prediction
   Accuracy
-updated_at: '2026-06-29T01:10:39.305308Z'
+updated_at: '2026-07-08T23:06:59.003959Z'

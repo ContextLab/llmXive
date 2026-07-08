@@ -1,0 +1,276 @@
+resolved_at: '2026-07-08T22:22:36.508240+00:00'
+datasets:
+- intent: Defects4J
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j_prompt/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/defects4j_sketch_code/resolve/main/rambo_defects4j_sketch_fixed_re.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Characterization_of_oseltamivir-resistant_A_H5N1_clade_2_3_4_4b_genotype_D1_1_variants_identified_in_poultry_farms_of_British_Columbia_Canada/32942658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Beta-Trees_Multivariate_Histograms_With_Confidence_Statements/32942673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Compartmentalized_cytokine_networks_and_systemic_immune_remodelling_in_bovine_mammary_H5N1_infection_/32593183
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Contrastive_Learning_on_Multimodal_Analysis_of_Electronic_Health_Records/32942668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Safe_Always-Valid_Alpha-Investing_Rules_For_Doubly_Sequential_Online_Inference/32942667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15274979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2706506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17634840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14792450
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17250744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17250744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2507.01827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Locutusque/UltraTextbooks/resolve/main/data/train-00000-of-00023-ed119fecaaa10760.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Locutusque/UltraTextbooks/resolve/main/data/train-00000-of-00023-ed119fecaaa10760.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Locutusque/UltraTextbooks-2.0/resolve/main/data/train-00000-of-00013.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Locutusque/Mind-Corpus/ca0b28b21d2b8b698249799d02afeef26cbf8121/mindcorpus.json?%2Fdatasets%2FLocutusque%2FMind-Corpus%2Fresolve%2Fmain%2Fmindcorpus.json=&etag=%224c3962013bb8f7c1a2920e07f7421f803f7a6be5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Exploring_the_Photoisomerization_of_Benzoylated_Fluorene-based_Phosphaalkenes_and_Their_Gold_Complexes/32942675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Characterization_of_oseltamivir-resistant_A_H5N1_clade_2_3_4_4b_genotype_D1_1_variants_identified_in_poultry_farms_of_British_Columbia_Canada/32942658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Beta-Trees_Multivariate_Histograms_With_Confidence_Statements/32942673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Compartmentalized_cytokine_networks_and_systemic_immune_remodelling_in_bovine_mammary_H5N1_infection_/32593183
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Contrastive_Learning_on_Multimodal_Analysis_of_Electronic_Health_Records/32942668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5875084
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u9xc5/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20029524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19345923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20247041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/rdw77f292x/4
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/rdw77f292x
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://osf.io/nmyfq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21216644
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21216644
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROC-AUC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Exploring_the_Photoisomerization_of_Benzoylated_Fluorene-based_Phosphaalkenes_and_Their_Gold_Complexes/32942675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Characterization_of_oseltamivir-resistant_A_H5N1_clade_2_3_4_4b_genotype_D1_1_variants_identified_in_poultry_farms_of_British_Columbia_Canada/32942658
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Beta-Trees_Multivariate_Histograms_With_Confidence_Statements/32942673
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Compartmentalized_cytokine_networks_and_systemic_immune_remodelling_in_bovine_mammary_H5N1_infection_/32593183
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Contrastive_Learning_on_Multimodal_Analysis_of_Electronic_Health_Records/32942668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015386
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21015386
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267141
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
