@@ -1,0 +1,21 @@
+{
+    "name": "Ventral Striatum",
+    "description": "Bilateral Ventral Striatum ROI (Nucleus Accumbens + Ventral Caudate/Putamen)",
+    "coordinates_mni": [
+        {
+            "x": 10,
+            "y": 10,
+            "z": -5,
+            "hemisphere": "R"
+        },
+        {
+            "x": -10,
+            "y": 10,
+            "z": -5,
+            "hemisphere": "L"
+        }
+    ],
+    "radius_mm": 8,
+    "source": "Standard MNI definitions (e.g., Harward et al., 2019; Tziortzi et al., 2014)",
+    "type": "sphere"
+}

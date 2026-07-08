@@ -1,0 +1,47 @@
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+env/
+venv/
+ENV/
+.env
+
+# Raw data (large neuroimaging files)
+data/raw/*.nii*
+data/raw/*.gz
+data/raw/*.tar*
+data/raw/*.zip
+
+# Processed data (intermediate CSVs, large derived files)
+data/processed/*.csv
+data/processed/*.tsv
+data/processed/*.parquet
+data/processed/*.nii*
+data/processed/*.json
+
+# State and logs
+state/*.yaml
+state/*.yml
+data/processed/*.log
+data/processed/*.txt
+
+# IDE and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Jupyter notebooks (optional, usually tracked but can be ignored if desired)
+# *.ipynb_checkpoints/

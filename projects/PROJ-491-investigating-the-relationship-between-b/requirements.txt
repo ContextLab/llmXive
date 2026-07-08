@@ -1,0 +1,10 @@
+numpy
+pandas
+scikit-learn
+nibabel
+scipy
+matplotlib
+requests
+tqdm
+bids
+nilearn

@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Analysis Output Schema"
+description: "Schema for the final correlation results and report structure."
+type: "object"
+properties:
+  analysis_metadata:
+    type: "object"
+    properties:
+      window_sizes_tested:
+        type: "array"
+        items:
+          type: "integer"
+        description: "List of sliding window sizes (TRs) tested."
+      n_subjects_total:
+        type: "integer"
+        description: "Total number of subjects attempted."
+      n_subjects_valid:
+        type: "integer"
+        description: "Number of subjects included in final analysis."
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility."
+    required:
+      - window_sizes_tested
+      - n_subjects_total
+      - n_subjects_valid
+      - seed
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        window_size:
+          type: "integer"
+          description: "Sliding window size in TRs."
+        correlation_coefficient:
+          type: "number"
+          description: "Pearson correlation coefficient (r)."
+        p_value_permutation:
+          type: "number"
+          description: "Empirical p-value from permutation test."
+        n_permutations:
+          type: "integer"
+          description: "Number of permutations performed."
+      required:
+        - window_size
+        - correlation_coefficient
+        - p_value_permutation
+        - n_permutations
+  report_content:
+    type: "object"
+    properties:
+      contains_associational_phrase:
+        type: "boolean"
+        description: "True if report contains 'associational relationship'."
+      contains_causal_word:
+        type: "boolean"
+        description: "True if report contains 'causal' (must be false)."
+    required:
+      - contains_associational_phrase
+      - contains_causal_word
+required:
+  - analysis_metadata
+  - results
+  - report_content
+additionalProperties: false

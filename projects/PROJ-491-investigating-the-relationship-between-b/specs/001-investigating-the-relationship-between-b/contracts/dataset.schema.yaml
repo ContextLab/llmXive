@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HCP Dataset Metadata Schema"
+description: "Schema for validating the metadata and structure of the HCP dataset ingestion."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  session_id_rest:
+    type: "string"
+    description: "Session ID for the resting-state scan."
+  session_id_task:
+    type: "string"
+    description: "Session ID for the task-fMRI scan."
+  has_resting_data:
+    type: "boolean"
+    description: "Indicates if resting-state NIfTI is present."
+  has_task_data:
+    type: "boolean"
+    description: "Indicates if task-fMRI NIfTI is present."
+  file_paths:
+    type: "object"
+    properties:
+      resting_nifti:
+        type: "string"
+        description: "Path to the resting-state NIfTI file."
+      task_nifti:
+        type: "string"
+        description: "Path to the task-fMRI NIfTI file."
+required:
+  - subject_id
+  - session_id_rest
+  - session_id_task
+  - has_resting_data
+  - has_task_data
+  - file_paths
+additionalProperties: false
