@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reproducibility Report Schema"
+description: "Schema for the final reproducibility report containing pipeline metrics and checksums."
+type: object
+properties:
+  data_urls:
+    type: array
+    items:
+      type: string
+    description: "List of URLs used to fetch the dataset."
+  code_versions:
+    type: object
+    description: "Versions of key libraries used."
+    additionalProperties:
+      type: string
+  pipeline_metrics:
+    type: object
+    description: "Performance metrics of the pipeline execution."
+    properties:
+      wall_clock_time_seconds:
+        type: number
+        description: "Total execution time in seconds."
+      peak_ram_gb:
+        type: number
+        description: "Peak RAM usage in GB."
+      cpu_cores:
+        type: integer
+        description: "Number of CPU cores used."
+    required:
+      - wall_clock_time_seconds
+      - peak_ram_gb
+      - cpu_cores
+  artifact_hashes:
+    type: object
+    description: "Checksums of all generated artifacts."
+    additionalProperties:
+      type: string
+required:
+  - data_urls
+  - code_versions
+  - pipeline_metrics
+  - artifact_hashes
+additionalProperties: false

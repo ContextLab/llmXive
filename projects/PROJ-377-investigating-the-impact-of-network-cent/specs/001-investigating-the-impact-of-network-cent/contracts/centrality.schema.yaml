@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Centrality Metrics Schema"
+description: "Schema for calculated network centrality metrics per subject."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  degree_centrality:
+    type: array
+    items:
+      type: number
+    description: "Degree centrality for each of the ~90 brain regions."
+  betweenness_centrality:
+    type: array
+    items:
+      type: number
+    description: "Betweenness centrality for each of the ~90 brain regions."
+  eigenvector_centrality:
+    type: array
+    items:
+      type: number
+    description: "Eigenvector centrality for each of the ~90 brain regions."
+  global_centrality:
+    type: number
+    description: "Aggregated global centrality score (e.g., mean of top hubs)."
+  vif_degree:
+    type: number
+    description: "Variance Inflation Factor for degree centrality."
+  vif_betweenness:
+    type: number
+    description: "Variance Inflation Factor for betweenness centrality."
+  vif_eigenvector:
+    type: number
+    description: "Variance Inflation Factor for eigenvector centrality."
+required:
+  - subject_id
+  - degree_centrality
+  - betweenness_centrality
+  - eigenvector_centrality
+  - global_centrality
+additionalProperties: false

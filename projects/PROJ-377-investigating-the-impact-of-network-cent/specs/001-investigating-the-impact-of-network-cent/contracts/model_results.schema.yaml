@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the output of the regression and validation analysis."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model fitted (e.g., LinearRegression, GAM, PCA-Adjusted)."
+    enum:
+      - "LinearRegression"
+      - "GAM"
+      - "PCA-Adjusted"
+  coefficient_centrality:
+    type: number
+    description: "Regression coefficient for the global centrality predictor."
+  p_value_centrality:
+    type: number
+    description: "P-value for the centrality coefficient."
+  p_value_age:
+    type: number
+    description: "P-value for the age covariate."
+  p_value_sex:
+    type: number
+    description: "P-value for the sex covariate."
+  p_value_fd:
+    type: number
+    description: "P-value for the mean framewise displacement covariate."
+  r_squared:
+    type: number
+    description: "R-squared value of the model."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error of the model."
+  permutation_p_value:
+    type: number
+    description: "Empirical p-value from the Freedman-Lane permutation test."
+  cv_r_squared_mean:
+    type: number
+    description: "Mean R-squared from 5-fold cross-validation."
+  cv_r_squared_std:
+    type: number
+    description: "Standard deviation of R-squared from 5-fold cross-validation."
+  aic:
+    type:
+      - number
+      - "null"
+    description: "Akaike Information Criterion (if applicable)."
+  bic:
+    type:
+      - number
+      - "null"
+    description: "Bayesian Information Criterion (if applicable)."
+  vif_degree:
+    type:
+      - number
+      - "null"
+    description: "VIF for degree centrality (if calculated)."
+  vif_betweenness:
+    type:
+      - number
+      - "null"
+    description: "VIF for betweenness centrality (if calculated)."
+  vif_eigenvector:
+    type:
+      - number
+      - "null"
+    description: "VIF for eigenvector centrality (if calculated)."
+  pca_components_used:
+    type:
+      - number
+      - "null"
+    description: "Number of PCA components used if model_type is 'PCA-Adjusted'."
+required:
+  - model_type
+  - coefficient_centrality
+  - p_value_centrality
+  - r_squared
+  - rmse
+  - permutation_p_value
+  - cv_r_squared_mean
+  - cv_r_squared_std
+additionalProperties: false
