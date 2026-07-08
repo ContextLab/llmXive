@@ -1,187 +1,160 @@
 """
-Unit tests for synthetic dataset generator (Task T026).
-Verifies that the generator produces at least 10,000 records
-and includes both binary and continuous outcomes.
+Unit tests for synthetic dataset generator (T026).
+
+Verifies:
+- At least 10,000 records are generated
+- Both binary and continuous outcomes are present
+- Data structure matches expected schema
 """
 import csv
 import json
 import os
-import unittest
+import tempfile
 from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+import pytest
 
 from code.src.audit.synthetic import (
     generate_synthetic_dataset,
     verify_outcome_types,
-    generate_binary_outcome,
-    generate_continuous_outcome,
-    set_all_seeds
+    TOTAL_RECORDS,
+    SEED
 )
-from code.src.config import SEED
 
 
-class TestSyntheticDataset(unittest.TestCase):
+class TestSyntheticDatasetGeneration:
     """Tests for the synthetic dataset generator."""
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.test_dir = Path("data/synthetic")
-        self.test_dir.mkdir(parents=True, exist_ok=True)
-        set_all_seeds(SEED)
+    def test_minimum_record_count(self):
+        """Test that at least 10,000 records are generated."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            summaries, _ = generate_synthetic_dataset(
+                n_records=TOTAL_RECORDS,
+                output_dir=tmpdir,
+                seed=SEED
+            )
+            
+            assert len(summaries) >= 10000, f"Expected at least 10,000 records, got {len(summaries)}"
 
-    def test_generate_binary_outcome_structure(self):
-        """Test that binary outcome generation produces correct structure."""
-        result = generate_binary_outcome(
-            n_control=100,
-            n_treatment=100,
-            baseline_rate=0.2,
-            effect_size=0.1,
-            seed=42
-        )
+    def test_both_outcome_types_present(self):
+        """Test that both binary and continuous outcomes are present."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            summaries, _ = generate_synthetic_dataset(
+                n_records=TOTAL_RECORDS,
+                output_dir=tmpdir,
+                seed=SEED
+            )
+            
+            assert verify_outcome_types(summaries), "Verification failed: Not all outcome types present"
+            
+            outcome_types = set(s["outcome_type"] for s in summaries)
+            assert "binary" in outcome_types, "Binary outcomes missing"
+            assert "continuous" in outcome_types, "Continuous outcomes missing"
 
-        self.assertIn("n_control", result)
-        self.assertIn("n_treatment", result)
-        self.assertIn("x_control", result)
-        self.assertIn("x_treatment", result)
-        self.assertIn("baseline_rate", result)
-        self.assertIn("treatment_rate", result)
-        self.assertIn("p_value", result)
-        self.assertIn("effect_size", result)
-        self.assertIn("outcome_type", result)
-        self.assertEqual(result["outcome_type"], "binary")
-        self.assertIsInstance(result["p_value"], float)
-        self.assertGreaterEqual(result["p_value"], 0.0)
-        self.assertLessEqual(result["p_value"], 1.0)
+    def test_csv_file_created(self):
+        """Test that CSV file is created with correct content."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir)
+            summaries, _ = generate_synthetic_dataset(
+                n_records=100,  # Small sample for testing
+                output_dir=tmpdir,
+                seed=SEED
+            )
+            
+            csv_file = output_path / "synthetic_summaries.csv"
+            assert csv_file.exists(), "CSV file not created"
+            
+            with open(csv_file, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 100, f"Expected 100 rows, got {len(rows)}"
+            
+            # Check required columns
+            required_columns = [
+                "id", "domain", "year", "outcome_type", 
+                "n_control", "n_treatment", "reported_p_value", 
+                "reconstructed_p_value", "is_inconsistent"
+            ]
+            
+            for col in required_columns:
+                assert col in rows[0], f"Missing column: {col}"
 
-    def test_generate_continuous_outcome_structure(self):
-        """Test that continuous outcome generation produces correct structure."""
-        result = generate_continuous_outcome(
-            n_control=100,
-            n_treatment=100,
-            baseline_mean=50.0,
-            effect_size=5.0,
-            std_dev=10.0,
-            seed=42
-        )
+    def test_metadata_file_created(self):
+        """Test that metadata JSON file is created."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir)
+            summaries, metadata = generate_synthetic_dataset(
+                n_records=100,
+                output_dir=tmpdir,
+                seed=SEED
+            )
+            
+            metadata_file = output_path / "synthetic_metadata.json"
+            assert metadata_file.exists(), "Metadata file not created"
+            
+            with open(metadata_file, "r", encoding="utf-8") as f:
+                loaded_metadata = json.load(f)
+            
+            assert loaded_metadata["total_records"] == 100
+            assert "binary" in loaded_metadata["outcome_types"]
+            assert "continuous" in loaded_metadata["outcome_types"]
+            assert loaded_metadata["seed"] == SEED
 
-        self.assertIn("n_control", result)
-        self.assertIn("n_treatment", result)
-        self.assertIn("mean_control", result)
-        self.assertIn("mean_treatment", result)
-        self.assertIn("std_control", result)
-        self.assertIn("std_treatment", result)
-        self.assertIn("p_value", result)
-        self.assertIn("effect_size", result)
-        self.assertIn("outcome_type", result)
-        self.assertEqual(result["outcome_type"], "continuous")
-        self.assertIsInstance(result["p_value"], float)
-        self.assertGreaterEqual(result["p_value"], 0.0)
-        self.assertLessEqual(result["p_value"], 1.0)
+    def test_data_types_correct(self):
+        """Test that generated data has correct types."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            summaries, _ = generate_synthetic_dataset(
+                n_records=100,
+                output_dir=tmpdir,
+                seed=SEED
+            )
+            
+            for summary in summaries:
+                # Numeric fields
+                assert isinstance(summary["n_control"], int)
+                assert isinstance(summary["n_treatment"], int)
+                assert isinstance(summary["reported_p_value"], float)
+                assert isinstance(summary["reconstructed_p_value"], float)
+                assert isinstance(summary["year"], int)
+                
+                # String fields
+                assert isinstance(summary["id"], str)
+                assert isinstance(summary["domain"], str)
+                assert isinstance(summary["outcome_type"], str)
+                
+                # Boolean field
+                assert isinstance(summary["is_inconsistent"], bool)
+                
+                # Value constraints
+                assert summary["outcome_type"] in ["binary", "continuous"]
+                assert 0.0 <= summary["reported_p_value"] <= 1.0
+                assert 0.0 <= summary["reconstructed_p_value"] <= 1.0
+                assert summary["n_control"] >= 50
+                assert summary["n_treatment"] >= 50
 
-    def test_generate_synthetic_dataset_minimum_count(self):
-        """Test that the dataset generator produces at least 10,000 records."""
-        records = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            seed=SEED
-        )
-
-        self.assertGreaterEqual(len(records), 10000)
-
-    def test_generate_synthetic_dataset_both_outcome_types(self):
-        """Test that the dataset includes both binary and continuous outcomes."""
-        records = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            seed=SEED
-        )
-
-        binary_count = sum(1 for r in records if r["outcome_type"] == "binary")
-        continuous_count = sum(1 for r in records if r["outcome_type"] == "continuous")
-
-        self.assertGreater(binary_count, 0, "Dataset must contain binary outcomes")
-        self.assertGreater(continuous_count, 0, "Dataset must contain continuous outcomes")
-
-    def test_verify_outcome_types(self):
-        """Test the verification function."""
-        records = generate_synthetic_dataset(
-            total_records=10000,
-            binary_ratio=0.5,
-            seed=SEEND
-        )
-
-        verification = verify_outcome_types(records)
-
-        self.assertTrue(verification["meets_minimum"])
-        self.assertTrue(verification["has_both_types"])
-        self.assertGreaterEqual(verification["total_records"], 10000)
-        self.assertGreater(verification["binary_count"], 0)
-        self.assertGreater(verification["continuous_count"], 0)
-
-    def test_csv_output_contains_required_fields(self):
-        """Test that the generated CSV contains all required fields."""
-        records = generate_synthetic_dataset(
-            total_records=100,
-            binary_ratio=0.5,
-            seed=SEED
-        )
-
-        csv_path = self.test_dir / "test_summaries.csv"
-
-        # Write a small test file
-        fieldnames = [
-            "id", "outcome_type", "n_control", "n_treatment",
-            "baseline_rate", "treatment_rate", "mean_control", "mean_treatment",
-            "std_control", "std_treatment", "x_control", "x_treatment",
-            "p_value", "effect_size", "domain", "year"
-        ]
-
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
-            writer.writeheader()
-            writer.writerows(records)
-
-        # Read and verify
-        with open(csv_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-
-        self.assertEqual(len(rows), 100)
-
-        # Check a sample row for required fields
-        sample = rows[0]
-        self.assertIn("outcome_type", sample)
-        self.assertIn("n_control", sample)
-        self.assertIn("n_treatment", sample)
-        self.assertIn("p_value", sample)
-        self.assertIn("effect_size", sample)
-
-        # Cleanup
-        os.remove(csv_path)
-
-    def test_deterministic_generation(self):
-        """Test that generation is deterministic with the same seed."""
-        set_all_seeds(SEED)
-        records1 = generate_synthetic_dataset(
-            total_records=100,
-            binary_ratio=0.5,
-            seed=SEED
-        )
-
-        set_all_seeds(SEED)
-        records2 = generate_synthetic_dataset(
-            total_records=100,
-            binary_ratio=0.5,
-            seed=SEED
-        )
-
-        # Compare first few records
-        for i in range(10):
-            self.assertEqual(records1[i]["p_value"], records2[i]["p_value"])
-            self.assertEqual(records1[i]["outcome_type"], records2[i]["outcome_type"])
+    def test_deterministic_with_seed(self):
+        """Test that generation is deterministic with fixed seed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            summaries1, _ = generate_synthetic_dataset(
+                n_records=50,
+                output_dir=tmpdir,
+                seed=42
+            )
+            
+            summaries2, _ = generate_synthetic_dataset(
+                n_records=50,
+                output_dir=tmpdir,
+                seed=42
+            )
+            
+            # Compare first few records
+            for s1, s2 in zip(summaries1[:5], summaries2[:5]):
+                assert s1["id"] == s2["id"]
+                assert s1["outcome_type"] == s2["outcome_type"]
+                assert s1["reported_p_value"] == s2["reported_p_value"]
+                assert s1["is_inconsistent"] == s2["is_inconsistent"]
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__, "-v"])

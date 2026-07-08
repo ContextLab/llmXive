@@ -253,6 +253,12 @@
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries. (binary AND continuous outcomes) **and verify both outcome types are\
+  \ present** (constraint\u2011preservation\u20112958f04c) (verify files are created\
+  \ and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
+: 2
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_0f3274c0 \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\

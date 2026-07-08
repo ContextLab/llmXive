@@ -1,163 +1,164 @@
 """
 Unit tests for the synthetic dataset generator (T026).
-
-Verifies:
-- Generation of at least 10,000 records
-- Presence of both binary and continuous outcomes
-- Correct data structure and field types
+Verifies that the generator produces valid data with both outcome types.
 """
+
 import csv
 import json
+import os
 import tempfile
 from pathlib import Path
-import pytest
+from unittest import TestCase
 
 from code.src.audit.synthetic import (
-    set_all_seeds,
-    generate_sample_sizes,
-    generate_binary_outcome,
-    generate_continuous_outcome,
     generate_synthetic_dataset,
     verify_outcome_types,
-    write_metadata
+    set_all_seeds
 )
 from code.src.config import SEED
 
 
-class TestSyntheticGenerator:
-    """Tests for synthetic dataset generation functionality."""
+class TestSyntheticGenerator(TestCase):
+    """Tests for the synthetic dataset generation module."""
 
-    def test_set_all_seeds_deterministic(self):
-        """Test that setting seeds produces deterministic results."""
-        set_all_seeds(SEED)
-        val1 = generate_sample_sizes()
-        
-        set_all_seeds(SEED)
-        val2 = generate_sample_sizes()
-        
-        assert val1 == val2, "Seeds should produce deterministic output"
+    def setUp(self):
+        """Set up a temporary directory for test outputs."""
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.output_path = Path(self.temp_dir.name)
 
-    def test_generate_sample_sizes_range(self):
-        """Test that sample sizes are within expected range."""
-        for _ in range(10):
-            n_control, n_treatment = generate_sample_sizes()
-            assert 100 <= n_control <= 10000
-            assert 100 <= n_treatment <= 10000
+    def tearDown(self):
+        """Clean up temporary directory."""
+        self.temp_dir.cleanup()
 
-    def test_generate_binary_outcome_structure(self):
-        """Test binary outcome generation produces correct structure."""
-        record = generate_binary_outcome(1000, 1000)
+    def test_generates_minimum_records(self):
+        """Verify that at least 10,000 records are generated."""
+        summaries_file, metadata_file = generate_synthetic_dataset(
+            total_records=10000,
+            output_dir=str(self.output_path),
+            seed=SEED
+        )
+
+        # Count records in CSV
+        with open(summaries_file, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
         
-        required_fields = [
-            "n_control", "n_treatment", "successes_control", "successes_treatment",
-            "rate_control", "rate_treatment", "effect_size", "outcome_type", "test_type"
+        self.assertGreaterEqual(len(rows), 10000, 
+            "Generated dataset must contain at least 10,000 records")
+
+    def test_binary_outcomes_present(self):
+        """Verify that binary outcomes are present in the dataset."""
+        summaries_file, metadata_file = generate_synthetic_dataset(
+            total_records=10000,
+            output_dir=str(self.output_path),
+            seed=SEED
+        )
+
+        with open(metadata_file, "r") as f:
+            metadata = json.load(f)
+
+        self.assertGreater(metadata.get("binary_count", 0), 0,
+            "Dataset must contain binary outcomes")
+
+    def test_continuous_outcomes_present(self):
+        """Verify that continuous outcomes are present in the dataset."""
+        summaries_file, metadata_file = generate_synthetic_dataset(
+            total_records=10000,
+            output_dir=str(self.output_path),
+            seed=SEED
+        )
+
+        with open(metadata_file, "r") as f:
+            metadata = json.load(f)
+
+        self.assertGreater(metadata.get("continuous_count", 0), 0,
+            "Dataset must contain continuous outcomes")
+
+    def test_verify_outcome_types_function(self):
+        """Test the verify_outcome_types helper function."""
+        # Valid metadata
+        valid_meta = {
+            "binary_count": 5000,
+            "continuous_count": 5000,
+            "total_records": 10000
+        }
+        self.assertTrue(verify_outcome_types(valid_meta))
+
+        # Missing binary
+        invalid_binary = {
+            "binary_count": 0,
+            "continuous_count": 10000,
+            "total_records": 10000
+        }
+        self.assertFalse(verify_outcome_types(invalid_binary))
+
+        # Missing continuous
+        invalid_continuous = {
+            "binary_count": 10000,
+            "continuous_count": 0,
+            "total_records": 10000
+        }
+        self.assertFalse(verify_outcome_types(invalid_continuous))
+
+    def test_csv_structure(self):
+        """Verify that the generated CSV has the expected columns."""
+        summaries_file, _ = generate_synthetic_dataset(
+            total_records=100, # Small sample for speed
+            output_dir=str(self.output_path),
+            seed=SEED
+        )
+
+        expected_columns = [
+            "id", "domain", "year", "outcome_type", "n_control", "n_treatment",
+            "metric_name", "baseline_value", "treatment_value", "reported_p_value",
+            "effect_size", "successes_control", "successes_treatment",
+            "std_control", "std_treatment", "inconsistency_injected"
         ]
-        
-        for field in required_fields:
-            assert field in record, f"Missing field: {field}"
-        
-        assert record["outcome_type"] == "binary"
-        assert record["test_type"] == "two_proportion_z"
-        assert 0 <= record["successes_control"] <= record["n_control"]
-        assert 0 <= record["successes_treatment"] <= record["n_treatment"]
 
-    def test_generate_continuous_outcome_structure(self):
-        """Test continuous outcome generation produces correct structure."""
-        record = generate_continuous_outcome(1000, 1000)
-        
+        with open(summaries_file, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            self.assertEqual(set(reader.fieldnames), set(expected_columns),
+                f"CSV columns mismatch. Expected: {expected_columns}")
+
+    def test_reproducibility(self):
+        """Verify that the same seed produces the same output."""
+        summaries_file_1, metadata_file_1 = generate_synthetic_dataset(
+            total_records=100,
+            output_dir=str(self.output_path / "run1"),
+            seed=42
+        )
+
+        summaries_file_2, metadata_file_2 = generate_synthetic_dataset(
+            total_records=100,
+            output_dir=str(self.output_path / "run2"),
+            seed=42
+        )
+
+        # Compare file contents
+        with open(summaries_file_1, "r") as f1, open(summaries_file_2, "r") as f2:
+            self.assertEqual(f1.read(), f2.read(),
+                "Same seed should produce identical output")
+
+    def test_metadata_structure(self):
+        """Verify that the metadata JSON has required fields."""
+        _, metadata_file = generate_synthetic_dataset(
+            total_records=100,
+            output_dir=str(self.output_path),
+            seed=SEED
+        )
+
+        with open(metadata_file, "r") as f:
+            metadata = json.load(f)
+
         required_fields = [
-            "n_control", "n_treatment", "mean_control", "mean_treatment",
-            "std_control", "std_treatment", "effect_size", "outcome_type", "test_type"
+            "generated_at", "total_records", "binary_count", 
+            "continuous_count", "seed", "file_path"
         ]
-        
+
         for field in required_fields:
-            assert field in record, f"Missing field: {field}"
-        
-        assert record["outcome_type"] == "continuous"
-        assert record["test_type"] == "welch_t"
-        assert record["std_control"] > 0
-        assert record["std_treatment"] > 0
+            self.assertIn(field, metadata, f"Metadata missing required field: {field}")
 
-    def test_generate_synthetic_dataset_minimum_records(self):
-        """Test that dataset generation creates at least 10,000 records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = generate_synthetic_dataset(
-                n_records=10000,
-                output_dir=tmpdir,
-                filename="test.csv"
-            )
-            
-            with open(csv_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                record_count = sum(1 for _ in reader)
-            
-            assert record_count >= 10000, f"Expected at least 10000 records, got {record_count}"
-
-    def test_verify_outcome_types_both_present(self):
-        """Test verification confirms both outcome types are present."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = generate_synthetic_dataset(
-                n_records=10000,
-                binary_ratio=0.5,
-                output_dir=tmpdir,
-                filename="test.csv"
-            )
-            
-            is_valid, counts = verify_outcome_types(csv_path)
-            
-            assert is_valid, "Both outcome types should be present"
-            assert counts["binary"] >= 1000
-            assert counts["continuous"] >= 1000
-
-    def test_write_metadata_creates_file(self):
-        """Test that metadata file is created correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            metadata_path = write_metadata(output_dir=tmpdir)
-            
-            assert metadata_path.exists()
-            
-            with open(metadata_path, 'r', encoding='utf-8') as f:
-                metadata = json.load(f)
-            
-            assert "generated_at" in metadata
-            assert metadata["total_records"] == 10000
-            assert "binary" in metadata["outcome_types"]
-            assert "continuous" in metadata["outcome_types"]
-
-    def test_csv_field_consistency(self):
-        """Test that all records have consistent fields in CSV."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            csv_path = generate_synthetic_dataset(
-                n_records=100,
-                output_dir=tmpdir,
-                filename="test.csv"
-            )
-            
-            expected_fields = [
-                "id", "outcome_type", "test_type", "n_control", "n_treatment",
-                "rate_control", "rate_treatment", "successes_control", "successes_treatment",
-                "mean_control", "mean_treatment", "std_control", "std_treatment",
-                "effect_size", "domain", "generated_at"
-            ]
-            
-            with open(csv_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    for field in expected_fields:
-                        assert field in row, f"Missing field {field} in row"
-
-    def test_binary_outcome_rate_constraints(self):
-        """Test that binary outcome rates are valid probabilities."""
-        for _ in range(20):
-            record = generate_binary_outcome(1000, 1000)
-            assert 0.0 <= record["rate_control"] <= 1.0
-            assert 0.0 <= record["rate_treatment"] <= 1.0
-
-    def test_continuous_outcome_positive_values(self):
-        """Test that continuous outcome means and stds are positive."""
-        for _ in range(20):
-            record = generate_continuous_outcome(1000, 1000)
-            assert record["mean_control"] > 0
-            assert record["mean_treatment"] > 0
-            assert record["std_control"] > 0
-            assert record["std_treatment"] > 0
+        self.assertEqual(metadata["total_records"], 100)
+        self.assertEqual(metadata["seed"], SEED)
+        self.assertGreater(metadata["binary_count"], 0)
+        self.assertGreater(metadata["continuous_count"], 0)
