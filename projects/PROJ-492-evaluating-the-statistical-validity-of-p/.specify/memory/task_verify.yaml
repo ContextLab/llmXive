@@ -338,11 +338,6 @@
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
 : 1
-? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
-  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
-  \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
-  \ T025]."
-: 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
