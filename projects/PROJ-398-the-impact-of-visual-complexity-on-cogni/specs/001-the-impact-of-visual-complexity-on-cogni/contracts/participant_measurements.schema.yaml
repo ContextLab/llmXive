@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Participant Measurement Schema
+description: Schema for raw empirical participant responses from the pilot study.
+type: object
+properties:
+  session_id:
+    type: string
+    description: "Unique session identifier."
+  participant_id:
+    type: string
+    description: "Human participant ID."
+  stimulus_id:
+    type: string
+    description: "Foreign key to Stimulus Metadata."
+  task_difficulty:
+    type: number
+    description: "Self-reported task difficulty level (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  nasa_tlx_score:
+    type: number
+    description: "NASA-TLX cognitive load score."
+    minimum: 0.0
+    maximum: 100.0
+  reaction_time_ms:
+    type: integer
+    description: "Reaction time in milliseconds."
+    minimum: 1
+  accuracy_pct:
+    type: number
+    description: "Accuracy percentage."
+    minimum: 0.0
+    maximum: 100.0
+  attention_check:
+    type: boolean
+    description: "Whether the participant passed the attention check."
+  missing_flag:
+    type: boolean
+    description: "Flag indicating if data is missing and should be excluded."
+  is_baseline:
+    type: boolean
+    description: "Flag indicating if this is the baseline condition."
+required:
+  - session_id
+  - participant_id
+  - stimulus_id
+  - task_difficulty
+  - nasa_tlx_score
+  - reaction_time_ms
+  - accuracy_pct
+  - attention_check
+  - missing_flag
+  - is_baseline
+additionalProperties: false

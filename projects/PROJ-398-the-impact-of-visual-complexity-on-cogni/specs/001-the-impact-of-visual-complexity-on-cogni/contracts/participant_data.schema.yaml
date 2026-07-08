@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Participant Data Schema"
-description: "Schema for synthetic participant responses including NASA-TLX and reaction times."
+description: "Schema for participant responses including NASA-TLX and reaction times."
 type: "object"
 properties:
   participant_id:
@@ -10,12 +10,11 @@ properties:
     type: "string"
     description: "Reference to the BackgroundFrame used in this session."
   task_difficulty:
-    type: "string"
-    enum:
-      - "Low"
-      - "High"
-    description: "Simulated task difficulty level."
-  nasa_tlx:
+    type: "number"
+    description: "Self-reported task difficulty level (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  nasa_tlx_score:
     type: "number"
     description: "NASA-TLX global score (0-100)."
     minimum: 0
@@ -24,11 +23,11 @@ properties:
     type: "number"
     description: "Mean reaction time in milliseconds. Must be > 0."
     exclusiveMinimum: 0
-  accuracy:
+  accuracy_pct:
     type: "number"
-    description: "Accuracy percentage (0.0 - 1.0)."
+    description: "Accuracy percentage (0.0 - 100.0)."
     minimum: 0
-    maximum: 1
+    maximum: 100
   attention_check_passed:
     type: "boolean"
     description: "Whether the participant passed the attention check."
@@ -36,8 +35,8 @@ required:
   - participant_id
   - clip_id
   - task_difficulty
-  - nasa_tlx
+  - nasa_tlx_score
   - reaction_time_ms
-  - accuracy
+  - accuracy_pct
   - attention_check_passed
 additionalProperties: false

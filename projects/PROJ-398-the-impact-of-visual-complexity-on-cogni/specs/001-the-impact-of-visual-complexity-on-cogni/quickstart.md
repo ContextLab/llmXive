@@ -2,67 +2,78 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- A Linux environment (or WSL on Windows)
+*   Python 3.11+
+*   Git
+*   Access to a Linux environment (GitHub Actions runner or local Linux/WSL).
+*   **Pilot Study Access**: Ability to recruit participants or access a local dataset of human responses.
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-398-the-impact-of-visual-complexity-on-cogni
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-398-the-impact-of-visual-complexity-on-cogni
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins `ultralytics` and `opencv-python-headless` to ensure CPU-only operation.*
+
+## Data Setup
+
+1.  **Download Stimuli**:
+    Run the download script to fetch a representative set of background images (or use the provided sample set if available).
+    ```bash
+    python code/scripts/download_stimuli.py --output data/stimuli/
+    ```
+    *If no script is provided, place a representative set of `.jpg` files in `data/stimuli/`.*
+
+2.  **Verify Checksums**:
+    Ensure the `data/stimuli/` directory matches the expected checksums in `state/`.
+
+3.  **Collect Pilot Data**:
+    Run the pilot study interface or ingest the collected CSV data.
+    ```bash
+    python code/scripts/collect_pilot_data.py --output data/measurements/raw_responses.csv
+    ```
+    *Note: This step requires real human participants. For CI testing, a small mock dataset of real human responses (if available) or a placeholder CSV with the correct schema must be provided.*
 
 ## Running the Pipeline
 
-The pipeline consists of three sequential steps:
+Execute the full research pipeline:
 
-### Step 1: Extract Visual Complexity Metrics
-Process the background images to compute entropy, color variance, and object counts.
 ```bash
-python code/01_extract_metrics.py
+python code/main.py
 ```
-*Output*: `data/processed/metrics.json`
 
-### Step 2: Generate Synthetic Participant Data
-Simulate the study sessions with counterbalanced ordering.
-```bash
-python code/02_generate_synthetic_data.py
-```
-*Output*: `data/processed/sessions.csv`
-
-### Step 3: Statistical Analysis
-Run the LMM, VIF checks, and sensitivity analysis.
-```bash
-python code/03_analyze.py
-```
-*Output*: `data/processed/analysis_results.csv`, `data/processed/report.md`
+This command performs the following steps sequentially:
+1.  **Extract Metrics**: Computes entropy, variance, and object counts for all images in `data/stimuli/`.
+2.  **Ingest Pilot Data**: Loads real human response data from `data/measurements/raw_responses.csv`.
+3.  **Analyze**: Runs the Linear Mixed-Effects Model, applies multiple-comparison corrections, calculates FWER, and performs sensitivity analysis.
+4.  **Report**: Generates `results/analysis/model_summary.json` and plots.
 
 ## Verification
 
-To verify the pipeline works on a CPU-only environment:
-
-1. Ensure no GPU is detected:
-   ```bash
-   python -c "import torch; print(torch.cuda.is_available())"  # Should print False
-   ```
-2. Run the metric extraction on a small subset (e.g., 5 images) to check for memory errors.
-3. Check the output files for valid numerical values.
+1.  **Check Output Files**:
+    Ensure `data/derived/stimuli_metadata.csv` and `data/measurements/raw_responses.csv` exist.
+2.  **Validate Schemas**:
+    ```bash
+    pytest tests/contract/test_schemas.py
+    ```
+3.  **Review Results**:
+    Open `results/analysis/model_summary.json` to verify that p-values are adjusted, FWER is reported, and VIF scores are included.
 
 ## Troubleshooting
 
-- **Memory Error**: If YOLOv8n fails, ensure you are using the `ultralytics` CPU wheel and not a GPU-specific build. Reduce image resolution if necessary.
-- **Missing Dependencies**: Re-run `pip install -r code/requirements.txt` ensuring no version conflicts.
-- **VIF High**: If VIF > 5, the script will flag it. Review `data/processed/analysis_results.csv` for collinearity warnings.
+*   **OOM Error**: If the process runs out of memory, reduce the number of stimuli in `data/stimuli/` or lower the image resolution.
+*   **YOLOv8 CPU Slow**: Ensure `opencv-python-headless` is installed (not `opencv-python`) to avoid GUI dependencies that can slow down CPU inference.
+*   **Missing Dependencies**: If `statsmodels` fails to import, ensure `scipy` is installed.
+*   **No Pilot Data**: If `raw_responses.csv` is empty, the pipeline will fail. Ensure real data (or a valid placeholder for testing) is present.

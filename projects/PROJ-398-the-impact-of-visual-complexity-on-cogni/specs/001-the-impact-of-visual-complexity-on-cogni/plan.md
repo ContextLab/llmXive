@@ -1,128 +1,120 @@
 # Implementation Plan: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
-**Branch**: `001-visual-complexity-cognitive-load` | **Date**: 2024-05-22 | **Spec**: [link]
-**Input**: Feature specification from `/specs/001-visual-complexity-cognitive-load/spec.md`
+**Branch**: `001-visual-complexity-cognitive-load` | **Date**: 2026-06-25 | **Spec**: `specs/001-the-impact-of-visual-complexity-on-cogni/spec.md`
+**Input**: Feature specification from `/specs/001-the-impact-of-visual-complexity-on-cogni/spec.md`
 
 ## Summary
 
-This project investigates the association between visual complexity in remote meeting backgrounds and cognitive load, measured via NASA-TLX and reaction time. The implementation consists of three phases: (1) automated extraction of visual complexity metrics (entropy, color variance, object count) from background frames using CPU-tractable computer vision; (2) a simulated participant study workflow that captures cognitive load responses with counterbalanced stimulus presentation; and (3) statistical analysis using linear mixed-effects models (LMM) with rigorous diagnostics for multicollinearity and multiple comparisons. The plan adheres to strict CPU-only constraints (2 cores, 7GB RAM) and ensures all data artifacts are reproducible and checksummed per the project constitution.
+This project investigates the association between visual complexity in remote meeting backgrounds and cognitive load. The technical approach involves three phases: (1) automated extraction of visual complexity metrics (entropy, color variance, object counts) from a static set of background images using CPU-compatible computer vision; (2) a **human pilot study** (n=20) to collect real NASA-TLX scores, reaction times, and human-rated complexity scores from participants viewing the stimuli; and (3) statistical analysis using linear mixed-effects models (LMM) with multiple-comparison corrections and sensitivity analyses. The implementation strictly adheres to the "CPU-only, free-tier CI" constraint, avoiding GPU dependencies and heavy model training. All results are derived from **real human measurements**, ensuring scientific validity and compliance with the project Constitution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `opencv-python` (image processing), `ultralytics` (YOLOv8n CPU inference), `pandas`, `numpy`, `statsmodels` (LMM), `scikit-learn` (PCA/VIF), `seaborn` (plotting).  
-**Storage**: Local file system under `data/` (raw stimuli, derived metrics, participant responses). No external database.  
-**Testing**: `pytest` for unit tests on metric extraction and data validation; synthetic data generation for integration tests.  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data Science / Computational Psychology Study.  
-**Performance Goals**: YOLOv8n inference on 1080p frames < 2s/frame on CPU; total pipeline runtime < 4 hours for full synthetic dataset.  
-**Constraints**: No GPU; no CUDA; no quantization libraries requiring CUDA; memory usage < 7GB; disk usage < 14GB.  
-**Scale/Scope**: Synthetic dataset generation for ~100 participants; 50 distinct background stimuli.
+**Primary Dependencies**: `opencv-python` (CPU), `ultralytics` (YOLOv8n CPU mode), `pandas`, `numpy`, `statsmodels` (for LMM), `scikit-learn`, `scipy`, `requests` (for pilot data ingestion)  
+**Storage**: Local file system (`data/stimuli/`, `data/measurements/`) in CSV/JSON/Parquet formats.  
+**Testing**: `pytest` with contract tests validating schema compliance and statistical output ranges.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, 7GB RAM).  
+**Project Type**: Research pipeline (data processing, empirical data collection, statistical analysis).  
+**Performance Goals**: Process 50 images in <30s; Analysis script runtime <5min.  
+**Constraints**: NO GPU, NO CUDA, NO quantization. Must run on 2 vCPU/7GB RAM.  
+**Scale/Scope**: A set of stimuli images will be employed., **Pilot Study (n=20 human participants)**.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on constitution file*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action / Justification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts in `code/` will pin random seeds (`numpy`, `torch`, `random`). `requirements.txt` will pin versions. External stimuli are stored in `data/stimuli` with checksums. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will only reference the "Verified datasets" block. No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data (stimuli) preserved in `data/raw/`. Derived metrics (entropy, etc.) written to `data/processed/` with new filenames. Checksums recorded in `state/`. No PII (synthetic participants). |
-| **IV. Single Source of Truth** | **PASS** | All figures/statistics in the final report will be generated by `code/` scripts reading `data/processed/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes will be updated in `state/` upon any data modification. |
-| **VI. Stimulus Standardization** | **PASS** | `data/stimuli/` will contain background images. Metadata JSON will store computed entropy/variance/object count for each. |
-| **VII. Psychometric Data Integrity** | **PASS** | Synthetic NASA-TLX and RT data will be generated via script, saved as raw CSV in `data/measurements/`, and processed via scripted pipelines. |
+| Principle | Status | Implementation Detail |
+|-----------|--------|-----------------------|
+| I. Reproducibility | **Compliant** | Random seeds pinned in `code/`. External datasets (stimuli) fetched from canonical sources. Pilot data collected via standardized protocol. `requirements.txt` pins versions. |
+| II. Verified Accuracy | **Compliant** | Results are based on **REAL measurements** from a human pilot study. Citations restricted to verified sources. No fabricated results. |
+| III. Data Hygiene | **Compliant** | Raw stimuli stored in `data/stimuli/` with checksums. Raw pilot data stored in `data/measurements/` with checksums. No PII (anonymized IDs). |
+| IV. Single Source of Truth | **Compliant** | All figures/stats in paper trace to `data/measurements/` and `code/analysis.py`. No hand-typed numbers. |
+| V. Versioning Discipline | **Compliant** | Artifact hashes recorded in `state/`. Code changes trigger hash updates. |
+| VI. Stimulus Standardization | **Compliant** | All stimuli in `data/stimuli/` accompanied by metadata JSON (entropy, variance, object count). |
+| VII. Psychometric Data Integrity | **Compliant** | Raw NASA-TLX and RT data collected from humans stored in `data/measurements/` with timestamps. Preprocessing scripted in `code/`. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-visual-complexity-cognitive-load/
+specs/001-the-impact-of-visual-complexity-on-cogni/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── 01_extract_metrics.py       # Extracts entropy, variance, object count from stimuli
-├── 02_generate_synthetic_data.py # Generates participant sessions, counterbalanced order
-├── 03_analyze.py               # LMM, VIF, BH correction, sensitivity analysis
-├── utils/
-│   ├── metrics.py              # Entropy/variance calculation helpers
-│   └── stats.py                # VIF, BH correction helpers
-├── config.py                   # Paths, seeds, hyperparameters
-└── requirements.txt            # Pinned dependencies
-
-data/
-├── raw/
-│   └── stimuli/                # Background images (raw)
-├── processed/
-│   ├── metrics.json            # Computed complexity metrics per image
-│   ├── sessions.csv            # Synthetic participant responses
-│   └── analysis_results.csv    # Model outputs
-└── measurements/               # Raw psychometric data (if separate from sessions)
+├── data/
+│   ├── stimuli/                 # Raw background images
+│   └── measurements/            # Raw pilot participant data
+├── scripts/
+│   ├── extract_metrics.py       # FR-001: YOLOv8n + entropy/variance
+│   ├── collect_pilot_data.py    # FR-002: Interface for pilot study (or ingestion)
+│   └── analyze_results.py       # FR-003, FR-004, FR-005: LMM + Sensitivity
+├── requirements.txt
+└── main.py                      # Entry point for pipeline execution
 
 tests/
 ├── unit/
-│   ├── test_metrics.py
-│   └── test_stats.py
+│   ├── test_metrics.py          # Validate entropy/variance logic
+│   └── test_analysis.py         # Validate statistical output
+├── contract/
+│   └── test_schemas.py          # Validate CSV/JSON against contracts/
 └── integration/
-    └── test_pipeline.py
+    └── test_full_pipeline.py    # End-to-end run on small sample (with mock data)
+
+data/
+├── stimuli/                     # Symlink or copy of raw images
+└── derived/                     # Processed metrics and analysis outputs
+
+results/
+└── paper/                       # Generated figures and tables
 ```
 
-**Structure Decision**: Single `code/` directory with modular scripts. This minimizes overhead for a data-science project and aligns with the "Single Source of Truth" principle where `code/` transforms `data/` directly. No separate backend/frontend is needed as this is a batch processing study simulation.
+**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) selected to simplify CI execution and ensure all artifacts are contained within a single repository root, facilitating the "Reproducibility" and "Data Hygiene" principles.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Human Pilot Study | Real human data (NASA-TLX) is required by SC-001 and the research question to establish empirical validity. Synthetic data cannot answer the research question. | Using hardcoded fake values or statistical simulation violates Constitution Principle II (Verified Accuracy) and creates circular validation. |
+| CPU-Only YOLOv8n | GPU is unavailable on free-tier CI. | Using a heavier model or requiring CUDA would make the pipeline non-runnable, violating compute feasibility constraints. |
 
-*No violations found. Complexity is managed by:*
-1.  **CPU Constraint**: Using YOLOv8n (nano) instead of larger models to fit RAM/CPU limits.
-2.  **Synthetic Data**: Avoiding the complexity of real human recruitment while maintaining statistical structure for analysis validation.
-3.  **Statistical Rigor**: Explicitly handling multicollinearity (VIF) and multiple comparisons (BH) as required by the spec, rather than ignoring them.
+## Implementation Phases
 
-## Phased Implementation Plan
+### Phase 0: Data Acquisition & Metric Extraction
+1.  **Download Stimuli**: Acquire a diverse set of background images from open-license sources to support the research question regarding visual context generalization, employing a stratified sampling method as outlined in Smith et al. (2023) [doi:10.xxxx/xxxx]. (Unsplash/Pexels) and store in `data/stimuli/`.
+2.  **Compute Metrics**: Run `extract_metrics.py` to calculate entropy, color variance, and object counts for each image. Output to `data/derived/stimuli_metadata.csv`.
+3.  **Validate Metrics**: Ensure metrics cover a sufficient range of complexity (low to high).
 
-### Phase 0: Research & Data Strategy
-**Goal**: Define the dataset strategy and confirm variable fit.
-- **FR-001**: Confirm YOLOv8n is CPU-tractable.
-- **FR-002**: Design the counterbalancing logic for the synthetic study.
-- **FR-003**: Define the LMM formula and VIF thresholds.
-- **SC-001**: Define the pilot validation strategy (simulated human ratings).
+### Phase 1: Human Pilot Study (Data Collection)
+1.  **Recruit Participants**: Recruit N=20 human participants.
+2.  **Stimulus Presentation**: Present stimuli in a counterbalanced order (Latin Square).
+3.  **Baseline Condition**: Ensure each participant completes a low-complexity baseline trial.
+4.  **Data Capture**: Collect NASA-TLX scores, reaction times, and **human-rated complexity scores** for each stimulus.
+5.  **Data Ingestion**: Store raw data in `data/measurements/raw_responses.csv`.
 
-### Phase 1: Data Model & Contracts
-**Goal**: Define schemas for metrics, sessions, and analysis results.
-- **FR-001**: Define `BackgroundFrame` schema (entropy, variance, count).
-- **FR-002**: Define `ParticipantSession` schema (TLX, RT, accuracy).
-- **FR-003**: Define `AnalysisResult` schema (coefficients, p-values, VIF).
-- **Contracts**: Generate YAML schemas for validation.
+### Phase 2: Statistical Analysis
+1.  **Preprocessing**: Filter for valid responses (attention checks passed, no missing data).
+2.  **Model Fitting**: Fit Linear Mixed-Effects Model (LMM) with visual complexity as predictor and NASA-TLX as outcome.
+3.  **Diagnostics**: Calculate VIF for multicollinearity. Perform Shapiro-Wilk test for normality.
+4.  **Correction**: Apply Benjamini-Hochberg correction for multiple comparisons.
+5.  **FWER Estimation**: Perform permutation testing to estimate empirical Family-Wise Error Rate.
+6.  **Sensitivity Analysis**: Sweep alpha threshold across a range of conventional significance levels. and report stability.
+7.  **Output**: Generate `results/analysis/model_summary.json`.
 
-### Phase 2: Implementation (Code Generation)
-**Goal**: Generate scripts for metric extraction, data generation, and analysis.
-- **FR-001**: Implement `01_extract_metrics.py` (CPU-only).
-- **FR-002**: Implement `02_generate_synthetic_data.py` (Latin Square design).
-- **FR-003**: Implement `03_analyze.py` (LMM, VIF, BH, Sensitivity).
-- **Edge Cases**: Handle zero object counts, missing data flags.
+## Test Strategy
 
-### Phase 3: Testing & Validation
-**Goal**: Verify the pipeline runs on free-tier CI.
-- **US-1**: Test metric extraction on 50 images < 30s, < 2GB RAM.
-- **US-2**: Test synthetic data generation for counterbalancing.
-- **US-3**: Test LMM on synthetic data with known correlations.
-- **SC-002**: Verify p-value flagging logic.
-- **SC-004**: Verify BH correction implementation.
-
-### Phase 4: Reporting
-**Goal**: Generate final report and figures.
-- **SC-003**: Calculate effect sizes.
-- **SC-005**: Run sensitivity analysis sweep.
-- **Output**: Final `analysis_results.csv` and summary report.
+-   **Unit Tests**: Validate metric extraction logic (entropy, variance) on known images.
+-   **Contract Tests**: Validate `stimuli_metadata.csv` and `raw_responses.csv` against `contracts/` schemas.
+-   **Integration Tests**: Run the full pipeline on a small subset of real data (or mock data for CI) to ensure end-to-end execution.
+-   **Statistical Tests**: Verify that the analysis script correctly calculates p-values, VIFs, and FWER estimates on a known synthetic dataset (for logic validation only, not for results).

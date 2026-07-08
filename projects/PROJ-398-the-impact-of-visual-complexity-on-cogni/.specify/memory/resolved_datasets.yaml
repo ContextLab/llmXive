@@ -1,35 +1,27 @@
-resolved_at: '2026-07-06T00:40:48.738474+00:00'
+resolved_at: '2026-07-08T20:13:38.138652+00:00'
 datasets:
 - intent: CPU-compatible
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Biomarker-Guided_Adjuvant_Therapy_in_Stage_II_III_Colon_Cancer_A_Systematic_Review_of_Current_Evidence_and_Clinical_Implications/32904279
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_National_Open_University_of_Nigeria_NOUN_Jabi_Abuja_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942315
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/_Digging_Deep_Using_the_Task_Involvement_Load_Hypothesis_to_analyse_textbooks_for_vocabulary_learning_potential_/32904278
+  - url: https://figshare.com/articles/dataset/Money_Drift_Glossary_Inconvenience_Inflation_Extraction_Economy_and_the_Hidden_Costs_of_Modern_Capitalism/30384772
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Development_of_reading_skills_in_an_eap_programme_A_longitudinal_study/32904272
+  - url: https://figshare.com/articles/dataset/Scale_Graphs_I_Reproducibility_package_code_raw_numerical_tables_certificates_and_figures_v1_7_/32942288
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/Earth_s_evolutionary_history/32904230
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_Akoka_Yaba_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942312
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/From_Woe_to_Go_Using_Commercial_Textbooks_More_Effectively_for_Vocabulary_Acquisition_and_Retention_/32904248
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942306
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17854610
@@ -40,27 +32,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/12770771
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20172622
+  - url: https://zenodo.org/records/21267965
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20172622
+  - url: https://zenodo.org/records/21267965
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21049177
+  - url: https://zenodo.org/records/21263816
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21049177
+  - url: https://zenodo.org/records/21239100
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132722
+  - url: https://zenodo.org/records/21239100
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

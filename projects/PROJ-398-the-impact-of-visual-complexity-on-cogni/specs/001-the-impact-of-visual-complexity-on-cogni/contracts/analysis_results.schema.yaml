@@ -1,58 +1,75 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult"
-description: "Schema for statistical model output."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Schema for the output of the statistical analysis pipeline.
+type: object
 properties:
-  analysis_id:
-    type: "string"
-    description: "Unique identifier for the analysis run."
   model_formula:
-    type: "string"
-    description: "String representation of the LMM formula."
-  predictor:
-    type: "string"
-    description: "Name of the predictor variable."
-  estimate:
-    type: "number"
-    description: "Fixed effect coefficient."
-  std_err:
-    type: "number"
-    description: "Standard error."
-  t_value:
-    type: "number"
-    description: "T-statistic."
-  p_value:
-    type: "number"
-    description: "Raw p-value."
-  p_value_adj:
-    type: "number"
-    description: "Benjamini-Hochberg adjusted p-value."
-  ci_lower:
-    type: "number"
-    description: "95% CI lower bound."
-  ci_upper:
-    type: "number"
-    description: "95% CI upper bound."
-  vif:
-    type: "number"
-    description: "Variance Inflation Factor."
-  effect_size:
-    type: "number"
-    description: "Effect size (e.g., Cohen's d)."
-  significance_flag:
-    type: "boolean"
-    description: "True if p_value_adj < alpha."
+    type: string
+    description: "The LMM formula string used."
+  fixed_effects:
+    type: array
+    items:
+      type: object
+      properties:
+        term:
+          type: string
+        estimate:
+          type: number
+        std_err:
+          type: number
+        p_value:
+          type: number
+        adj_p_value:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+      required:
+        - term
+        - estimate
+        - p_value
+        - adj_p_value
+  random_effects:
+    type: array
+    items:
+      type: object
+      properties:
+        group:
+          type: string
+        variance:
+          type: number
+  vif_scores:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Variance Inflation Factors for predictors."
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        alpha:
+          type: number
+        significant_count:
+          type: integer
+      required:
+        - alpha
+        - significant_count
+  fwer_estimate:
+    type: number
+    description: "Estimated Family-Wise Error Rate from permutation test."
+  diagnostics:
+    type: object
+    properties:
+      shapiro_wilk_p:
+        type: number
+      residuals_normal:
+        type: boolean
 required:
-  - analysis_id
   - model_formula
-  - predictor
-  - estimate
-  - std_err
-  - t_value
-  - p_value
-  - p_value_adj
-  - ci_lower
-  - ci_upper
-  - vif
-  - effect_size
-  - significance_flag
+  - fixed_effects
+  - vif_scores
+  - sensitivity_analysis
+  - fwer_estimate
+additionalProperties: false

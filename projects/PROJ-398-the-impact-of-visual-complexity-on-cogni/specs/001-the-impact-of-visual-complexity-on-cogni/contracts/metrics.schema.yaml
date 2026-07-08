@@ -1,46 +1,42 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Visual Complexity Metrics Schema"
-description: "Schema for the processed visual complexity metrics extracted from background frames."
-type: "object"
-properties:
-  frame_id:
-    type: "string"
-    description: "Unique identifier for the frame (UUID)."
-  source_path:
-    type: "string"
-    description: "Relative path to the raw image file."
-  entropy:
-    type: "number"
-    description: "Shannon entropy of the grayscale image. Must be >= 0."
-    minimum: 0
-  color_variance:
-    type: "number"
-    description: "Variance of the HSV color channels."
-  edge_density:
-    type: "number"
-    description: "Ratio of edge pixels to total pixels (0.0 to 1.0)."
-    minimum: 0
-    maximum: 1
-  object_count:
-    type: "integer"
-    description: "Number of objects detected by YOLOv8n. Must be >= 0."
-    minimum: 0
-  metric_source:
-    type: "string"
-    description: "Source of the metric calculation."
-    enum:
-      - "YOLOv8n"
-      - "Edge-Based"
-  checksum:
-    type: "string"
-    description: "SHA-256 checksum of the raw image file."
-required:
-  - frame_id
-  - source_path
-  - entropy
-  - color_variance
-  - edge_density
-  - object_count
-  - metric_source
-  - checksum
-additionalProperties: false
+$schema: http://json-schema.org/draft-07/schema#
+title: Visual Complexity Metrics Schema
+description: Schema for the processed visual complexity metrics extracted from background frames. Stored as an array of objects (one per row in CSV).
+type: array
+items:
+  type: object
+  properties:
+    stimulus_id:
+      type: string
+      description: "Unique identifier for the stimulus (e.g., img_001)."
+    source_path:
+      type: string
+      description: "Relative path to the raw image file."
+    entropy:
+      type: number
+      description: "Shannon entropy of the grayscale image. Must be >= 0."
+      minimum: 0
+    color_variance:
+      type: number
+      description: "Variance of the HSV color channels."
+    object_count:
+      type: integer
+      description: "Number of objects detected by YOLOv8n. Must be >= 0."
+      minimum: 0
+    metric_source:
+      type: string
+      description: "Source of the metric calculation."
+      enum:
+        - "YOLOv8n"
+        - "Edge-Based"
+    checksum:
+      type: string
+      description: "SHA-256 checksum of the raw image file."
+  required:
+    - stimulus_id
+    - source_path
+    - entropy
+    - color_variance
+    - object_count
+    - metric_source
+    - checksum
+  additionalProperties: false

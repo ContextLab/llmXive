@@ -3,7 +3,7 @@ title: "BackgroundFrameMetrics"
 description: "Schema for computed visual complexity metrics per background frame."
 type: "object"
 properties:
-  frame_id:
+  stimulus_id:
     type: "string"
     description: "Unique identifier for the frame."
   file_path:
@@ -25,7 +25,7 @@ properties:
     type: "string"
     description: "SHA-256 hash of the raw file."
 required:
-  - frame_id
+  - stimulus_id
   - file_path
   - entropy
   - color_variance
