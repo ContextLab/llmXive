@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T23:25:42.774844Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-065-assessing-the-generalizability-of-statis
-last_run_id: eb00feb6-2f73-4e85-9156-fc51a80982ca
+last_run_id: 0cd4dbff-acfc-4941-9d40-6858131730b9
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-065-assessing-the-generalizability-of-statis/specs/001-assessing-the-generalizability-of-statis
 title: Assessing the Generalizability of Statistical Significance in Pre-Registered
   Studies
-updated_at: '2026-06-28T21:41:21.415433Z'
+updated_at: '2026-07-08T03:33:27.826127Z'

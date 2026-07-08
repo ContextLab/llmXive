@@ -1,0 +1,23 @@
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# OSF Interaction
+osf-api>=0.1.0
+requests>=2.31.0
+
+# Statistical Analysis & Bootstrap
+scipy>=1.11.0
+statsmodels>=0.14.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Meta-analysis
+metafor-py>=0.1.0
+
+# Utilities
+tqdm>=4.65.0
+pyyaml>=6.0.0
+checksumdir>=1.2.0

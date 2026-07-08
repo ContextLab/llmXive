@@ -1,0 +1,4 @@
+# This directory is managed by the project pipeline.
+# Do not commit large data files here directly.
+# Raw data is downloaded to data/raw/
+# Processed data is stored in data/processed/

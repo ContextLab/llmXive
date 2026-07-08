@@ -1,0 +1,99 @@
+resolved_at: '2026-07-08T02:53:28.997463+00:00'
+datasets:
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/_O7047903330_College_of_Petroleum_and_Energy_Studies_Jupeb_2026_2027Admission_Form_PORTAL_IS_OPEN_NOW_O7047903330_Admission_form/32930495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Illuminating_the_social_and_commercial_determinants_of_alcohol_consumption_with_Australian_women_in_midlife_An_exploration_ofthe_gendered_meanings_affective_experiences_and_targeted_marketing_which_form_part_of_the_social_context_of_drinkin/32918888
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Innovation_Practice_Adoption_of_Small_Mining_Businesses_in_Nigeria_An_Examination_of_Pathways_to_Sustainable_Business_Growth_/32918909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_O7047903330_Prime_University_Jupeb_2026_2027Admission_Form_PORTAL_IS_OPEN_NOW_O7047903330_Admission_form_Applications_are_now_ongoing_for_the_2026_2027_academic_session_O7047903330_Interested_candidates_07047903330_for_Post_UTME_Undergradu/32930492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Self-Management_and_Heart_Failure_-_Understanding_the_Gaps_and_Developing_Strategies_to_Improve_Health_Outcomes/32918954
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239806
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239703
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/v94hr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/t9sva/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/yjtak/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wazp8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9pzfc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,8 @@
+T001a Create `projects/PROJ-065-assessing-the-generalizability-of-statis/code/` directory: 1
+T001b Create `projects/PROJ-065-assessing-the-generalizability-of-statis/data/raw/` and `data/processed/` directories: 1
+? T001c Create `projects/PROJ-065-assessing-the-generalizability-of-statis/outputs/`
+  and `outputs/figures/`, `outputs/reports/` directories
+: 1
+T001d Create `projects/PROJ-065-assessing-the-generalizability-of-statis/tests/` directory: 1
+T001e Initialize `requirements.txt`, `README.md`, and `.gitkeep` files in respective directories: 1
+T009 [P] Setup `data/raw/`, `data/processed/`, and `outputs/` directory structure with checksumming logic: 1

@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Study Metrics Schema"
+description: "Schema for the aggregated study-level stability metrics output."
+type: object
+properties:
+  osf_id:
+    type: string
+    description: "Unique identifier for the OSF study."
+  discipline:
+    type: string
+    enum:
+      - psychology
+      - economics
+      - biology
+    description: "Academic discipline of the study."
+  original_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Original reported p-value."
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Original sample size (N)."
+  sampling_stability_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Percentage of baseline bootstrap iterations where p < 0.05."
+  specification_stability_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Percentage of alternative specification iterations where p < 0.05 (Model Specification Sensitivity)."
+  status:
+    type: string
+    enum:
+      - complete
+      - excluded_missing_data
+      - excluded_ambiguous_model
+      - excluded_zero_variance
+    description: "Processing status of the study."
+  threshold_sensitivity:
+    type: object
+    description: "Stability rates at different significance thresholds."
+    properties:
+      "0.01":
+        type: object
+        properties:
+          sampling:
+            type: number
+            minimum: 0
+            maximum: 1
+          specification:
+            type: number
+            minimum: 0
+            maximum: 1
+      "0.05":
+        type: object
+        properties:
+          sampling:
+            type: number
+            minimum: 0
+            maximum: 1
+          specification:
+            type: number
+            minimum: 0
+            maximum: 1
+      "0.10":
+        type: object
+        properties:
+          sampling:
+            type: number
+            minimum: 0
+            maximum: 1
+          specification:
+            type: number
+            minimum: 0
+            maximum: 1
+required:
+  - osf_id
+  - discipline
+  - original_p_value
+  - sample_size
+  - sampling_stability_rate
+  - specification_stability_rate
+  - status
+additionalProperties: false
