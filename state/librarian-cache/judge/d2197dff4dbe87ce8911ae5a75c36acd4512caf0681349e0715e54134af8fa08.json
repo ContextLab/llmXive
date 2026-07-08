@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.05991",
+  "judged_at": "2026-07-08T01:44:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+  "rationale": "The paper focuses on a multi-agent framework for automating e-commerce search relevance workflows (bad-case identification and resolution), which is an application domain distinct from the user's question about the specific mechanism of \"masking stale observations\" in search agents. While both involve \"search agents,\" the candidate paper does not measure the same biological, physical, or algorithmic mechanism regarding observation staleness, nor does it study the specific empirical population or",
+  "relevant": false
+}

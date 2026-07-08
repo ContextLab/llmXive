@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create root directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`
-- [ ] T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/`
-- [ ] T003 [P] Create results and code directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/figures/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/diagnostics/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/code/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/tests/`
-- [ ] T004 [P] Initialize Python 3.11 project with dependencies: `mne`, `pandas`, `numpy`, `scipy`, `statsmodels`, `pymer4`, `pingouin`, `matplotlib`, `seaborn`, `pyyaml`, `psutil`, `pytest`, `pygam`
-- [ ] T005 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 [P] Create root directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`
+- [ ] T002 [P] Create data directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/raw/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/data/processed/` <!-- ATOMIZE: requested -->
+- [X] T003 [P] Create results and code directories: `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/figures/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/diagnostics/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/code/`, `projects/PROJ-530-neural-correlates-of-error-monitoring-du/tests/`
+- [X] T004 [P] Initialize Python 3.11 project with dependencies: `mne`, `pandas`, `numpy`, `scipy`, `statsmodels`, `pymer4`, `pingouin`, `matplotlib`, `seaborn`, `pyyaml`, `psutil`, `pytest`, `pygam`
+- [X] T005 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -57,7 +57,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 [P] Create `code/__init__.py` and base configuration loader
+- [X] T006 [P] Create `code/__init__.py` and base configuration loader
 - [~] T007 [P] Implement random seed pinning utility in `code/utils.py` (global seed for numpy, python random, torch if used)
 - [~] T008 Create `state/projects/PROJ-530-neural-correlates-of-error-monitoring-du.yaml` for artifact tracking
 - [~] T009 Setup logging infrastructure to `data/preprocessing.yaml` and console
@@ -106,13 +106,13 @@
 
 - [~] T022 [US2] Implement `code/analysis.py` (FR-006): Create sensitivity sweep function iterating over thresholds across a range of values.
 - [~] T023 [US2] Implement `code/analysis.py` (FR-006): For each threshold, filter error events, refit the primary model, and record correlation coefficient and p-value.
-- [ ] T024 [US2] Implement `code/viz.py`: Generate sensitivity analysis summary table and plot (threshold vs. significance/correlation).
-- [ ] T025 [US2] Implement `code/analysis.py`: Write sensitivity results to `results/diagnostics/sensitivity_summary.csv` **unconditionally**. **CRITICAL**: Do NOT raise an error or halt the pipeline if the correlation is not significant across the majority of thresholds. The analysis must complete and output the data regardless of the statistical outcome to satisfy SC-002 measurement requirements.
+- [~] T024 [US2] Implement `code/viz.py`: Generate sensitivity analysis summary table and plot (threshold vs. significance/correlation).
+- [~] T025 [US2] Implement `code/analysis.py`: Write sensitivity results to `results/diagnostics/sensitivity_summary.csv` **unconditionally**. **CRITICAL**: Do NOT raise an error or halt the pipeline if the correlation is not significant across the majority of thresholds. The analysis must complete and output the data regardless of the statistical outcome to satisfy SC-002 measurement requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US2] Unit test `tests/test_analysis.py::test_threshold_filtering_logic`: Verify that filtering events with `threshold=10` correctly excludes events with `error_magnitude < 10`.
-- [ ] T027 [P] [US2] Integration test `tests/test_integration.py::test_sensitivity_sweep_output_format`: Run the sensitivity sweep on a subset and verify that `results/diagnostics/sensitivity_summary.csv` contains exactly 4 rows (one per threshold) with valid columns for `threshold`, `correlation`, and `p_value`.
+- [~] T026 [P] [US2] Unit test `tests/test_analysis.py::test_threshold_filtering_logic`: Verify that filtering events with `threshold=10` correctly excludes events with `error_magnitude < 10`.
+- [~] T027 [P] [US2] Integration test `tests/test_integration.py::test_sensitivity_sweep_output_format`: Run the sensitivity sweep on a subset and verify that `results/diagnostics/sensitivity_summary.csv` contains exactly 4 rows (one per threshold) with valid columns for `threshold`, `correlation`, and `p_value`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,7 +126,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/analysis.py` (FR-007): Calculate Variance Inflation Factors (VIF) for all behavioral predictors; flag if VIF ≥ 5.
+- [~] T028 [US3] Implement `code/analysis.py` (FR-007): Calculate Variance Inflation Factors (VIF) for all behavioral predictors; flag if VIF ≥ 5.
 - [ ] T029 [US3] Implement `code/analysis.py` (FR-008): Apply Bonferroni correction to p-values across tested electrodes (FCz, Cz, Fz).
 - [ ] T030 [US3] Implement `code/analysis.py`: Generate diagnostic report in `results/diagnostics/validation_report.md` including VIF values, corrected p-values, and the exact phrase "associational" in the Conclusion section.
 - [ ] T031 [US3] Implement `code/analysis.py`: Ensure the final report explicitly states the family-wise error rate control method used.

@@ -15,6 +15,7 @@ required columns are missing.
 
 import sys
 import os
+import argparse
 import pandas as pd
 from pathlib import Path
 from typing import List, Set, Dict, Optional
@@ -87,25 +88,22 @@ def validate_file_columns(file_path: Path) -> Dict[str, bool]:
         }
 
 def main():
-    # Default to data/raw_fmri if no argument provided, matching project structure
-    # The task description implies checking the dataset before ingestion,
-    # so we check the raw/processed directory where these files are expected.
-    data_root = Path("data/raw_fmri")
+    parser = argparse.ArgumentParser(
+        description="Validate motion parameters and FD estimates in dataset."
+    )
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/raw_fmri"),
+        help="Root directory of the dataset to validate (default: data/raw_fmri)"
+    )
+    
+    args = parser.parse_args()
+    data_root = args.data_root
     
     if not data_root.exists():
-        # Try to infer from environment or fail gracefully if it's the first run
-        # but the task implies the dataset structure should be available from T006/T007
-        print(f"Warning: Data root directory '{data_root}' does not exist yet.")
-        print("This validation script expects the dataset to be downloaded or mounted.")
-        # We do not exit 0 here if the directory is missing, as that indicates 
-        # a prerequisite failure (T011 download). However, if the task is to 
-        # "verify presence... before ingestion", and the data isn't there, 
-        # we should report that.
-        # Let's assume for this specific validation task, if the directory is empty,
-        # we might skip or error depending on strictness. 
-        # Given T007 validates ds availability, T038 validates CONTENT.
-        # If no files found, we cannot validate columns.
-        print("No motion parameter files found to validate.")
+        print(f"Error: Data root directory '{data_root}' does not exist.")
+        print("Ensure the dataset has been downloaded (T011) and directories initialized (T006).")
         sys.exit(1)
 
     motion_files = find_motion_files(data_root)

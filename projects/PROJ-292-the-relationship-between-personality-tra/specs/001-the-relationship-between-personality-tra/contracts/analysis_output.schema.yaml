@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-description: "Schema for the statistical analysis results (stats.json). Note: Data is synthetic for pipeline validation."
+description: "Schema for the statistical analysis results (stats.json). Note: Data is theoretical for pipeline validation."
 type: "object"
 required:
   - "metadata"
@@ -27,7 +27,7 @@ properties:
         description: "Method used for multiple comparison correction (e.g., 'benjamini-hochberg')"
       data_source_type:
         type: "string"
-        description: "Type of data used (e.g., 'synthetic', 'real', 'mixed')"
+        description: "Type of data used (e.g., 'theoretical', 'real', 'mixed')"
   correlations:
     type: "array"
     description: "List of correlation results for each trait-outcome pair"

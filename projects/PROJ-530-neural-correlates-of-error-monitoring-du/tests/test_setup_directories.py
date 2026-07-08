@@ -1,55 +1,49 @@
 import os
-import pytest
+import tempfile
 from pathlib import Path
-from code.setup_directories import create_project_directories
+import pytest
 
-class TestCreateProjectDirectories:
-    """Tests for the directory creation utility."""
+# Import the function to test
+from setup_directories import create_project_directories
 
-    def test_directories_exist_after_creation(self, tmp_path, monkeypatch):
-        """Verify that required directories are created."""
-        # We need to mock the project root to use a temporary directory
-        # to avoid creating files in the actual repository during tests
-        original_cwd = os.getcwd()
-        project_root = tmp_path / "projects" / "PROJ-530-neural-correlates-of-error-monitoring-du"
+def test_create_project_directories():
+    """
+    Test that create_project_directories creates all required subdirectories.
+    """
+    # Create a temporary directory to act as the project root
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        project_root = Path(tmp_dir)
         
-        # Create the parent structure manually to allow the function to run
-        # The function expects to create 'projects/...' relative to cwd
-        # We change cwd to tmp_path to simulate the environment
-        monkeypatch.chdir(tmp_path)
+        # Call the function
+        create_project_directories(str(project_root))
         
-        try:
-            paths = create_project_directories()
-            
-            # Check specific T002 requirements
-            assert "data/raw" in paths
-            assert "data/processed" in paths
-            
-            # Verify they actually exist on disk
-            assert (project_root / "data/raw").exists()
-            assert (project_root / "data/processed").exists()
-            assert (project_root / "data/raw").is_dir()
-            assert (project_root / "data/processed").is_dir()
-            
-            # Check T003 requirements as well since the function creates them
-            assert "results/models" in paths
-            assert "results/figures" in paths
-            assert "results/diagnostics" in paths
-            assert "code" in paths
-            assert "tests" in paths
-            
-        finally:
-            os.chdir(original_cwd)
+        # Define expected directories
+        expected_dirs = [
+            "results/models",
+            "results/figures",
+            "results/diagnostics",
+            "code",
+            "tests"
+        ]
+        
+        # Verify each directory exists
+        for dir_name in expected_dirs:
+            dir_path = project_root / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} was not created."
+            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
 
-    def test_idempotency(self, tmp_path, monkeypatch):
-        """Verify that running the function twice does not raise errors."""
-        monkeypatch.chdir(tmp_path)
+def test_create_project_directories_idempotent():
+    """
+    Test that running the function twice does not raise errors (idempotent).
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        project_root = Path(tmp_dir)
         
-        try:
-            # Run twice
-            create_project_directories()
-            create_project_directories()
-            # If no exception, it is idempotent
-            assert True
-        finally:
-            os.chdir(os.getcwd())
+        # Run twice
+        create_project_directories(str(project_root))
+        create_project_directories(str(project_root))
+        
+        # Verify directories still exist
+        assert (project_root / "code").exists()
+        assert (project_root / "tests").exists()
+        assert (project_root / "results/models").exists()

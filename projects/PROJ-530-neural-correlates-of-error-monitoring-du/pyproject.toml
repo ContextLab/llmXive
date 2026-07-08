@@ -1,3 +1,30 @@
+[project]
+name = "proj-530-neural-correlates"
+version = "0.1.0"
+description = "Neural correlates of error monitoring during simulated navigation"
+requires-python = ">=3.11"
+dependencies = [
+    "mne",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "pymer4",
+    "pingouin",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "psutil",
+    "pytest",
+    "pygam",
+    "flake8",
+    "black"
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.black]
 line-length = 88
 target-version = ['py311']

@@ -112,12 +112,12 @@
 ### Implementation for User Story 2
 
 - [~] T025 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting (FR-005)
-- [ ] T026 [US2] Implement grid search with 5-fold CV and ≤50 combinations limit in `code/models/train.py` (FR-006, Plan Constraints)
-- [ ] T027 [US2] Implement Corrected Resampled t-test (Nadeau & Bengio) as PRIMARY method for model comparison in `code/models/evaluate.py` (Spec FR-007). Implement Wilcoxon Signed-Rank Test as SECONDARY/FALLBACK method if fold dependency issues detected or N < 30 (Plan Complexity Tracking).
-- [ ] T028 [US2] Implement Bayes Factor calculation as a fallback for Wilcoxon in `code/models/evaluate.py` (Plan: Statistical Rigor)
-- [ ] T029 [US2] Generate `artifacts/model_report.json` containing keys: `metrics: {R2, MAE, RMSE}`, `hyperparameters: {...}`, `statistical_test: {method, p_value, confidence_interval}` (FR-007)
-- [ ] T030 [US2] Implement hybrid Leave-One-Family-Out (LOFO) for large families and GroupKFold for small families in `code/models/evaluate.py` (FR-008, Plan: Complexity Tracking)
-- [ ] T031 [US2] Add error handling for small alloy families (empty folds) during splitting
+- [~] T026 [US2] Implement grid search with 5-fold CV and ≤50 combinations limit in `code/models/train.py` (FR-006, Plan Constraints)
+- [~] T027 [US2] Implement Corrected Resampled t-test (Nadeau & Bengio) as PRIMARY method for model comparison in `code/models/evaluate.py` (Spec FR-007). Implement Wilcoxon Signed-Rank Test as SECONDARY/FALLBACK method if fold dependency issues detected or N < 30 (Plan Complexity Tracking).
+- [~] T028 [US2] Implement Bayes Factor calculation as a fallback for Wilcoxon in `code/models/evaluate.py` (Plan: Statistical Rigor)
+- [~] T029 [US2] Generate `artifacts/model_report.json` containing keys: `metrics: {R2, MAE, RMSE}`, `hyperparameters: {...}`, `statistical_test: {method, p_value, confidence_interval}` (FR-007)
+- [~] T030 [US2] Implement hybrid Leave-One-Family-Out (LOFO) for large families and GroupKFold for small families in `code/models/evaluate.py` (FR-008, Plan: Complexity Tracking)
+- [~] T031 [US2] Add error handling for small alloy families (empty folds) during splitting
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,8 +131,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for permutation importance calculation in `tests/unit/test_importance.py`
-- [ ] T033 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`
+- [~] T032 [P] [US3] Unit test for permutation importance calculation in `tests/unit/test_importance.py`
+- [~] T033 [P] [US3] Unit test for plot generation in `tests/unit/test_viz.py`
 
 ### Implementation for User Story 3
 

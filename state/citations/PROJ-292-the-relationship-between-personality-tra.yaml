@@ -1,44 +1,11 @@
-- artifact_hash: c581d2c076cb58e1301739d701c6ba4df8e1d4ab5342b5111323cbada0062777
+- artifact_hash: 3bc74e2c142e3ca64fd77bd5510a916d818b3b0c257d62accabe3dc03c754a78
   artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/research.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: IPIP Home
-  kind: url
-  value: https://ipip.ori.org/`
-  verification_status: verified
-  verified_against_url: https://ipip.ori.org/
-  verified_at: '2026-07-07T08:04:01.787682Z'
-- artifact_hash: c581d2c076cb58e1301739d701c6ba4df8e1d4ab5342b5111323cbada0062777
-  artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1783415042&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzQxNTA0Mn19fV19&Signature=MEUCIA0XQfFVjO3agOCee1fXQCS2jBO8BVo8d7exoq6cQcdBAiEAyQoTcjHHk8eSHhBiY%7EDBA6GFZwXT7Byswk4g-8EfL%7Ek_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T08:04:01.787682Z'
-- artifact_hash: c581d2c076cb58e1301739d701c6ba4df8e1d4ab5342b5111323cbada0062777
-  artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: train-00000-of-00001-235cb25abaa5f54c.parquet
-  kind: url
-  value: https://huggingface.co/datasets/rdiazconcha/generated-ai-sample/resolve/main/data/train-00000-of-00001-235cb25abaa5f54c.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65361f80fca2c10e4322cb0c/7a08d4e6734383c038160cefe2416c9d92871b5f4de405c24ce25ec678a197f3?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-235cb25abaa5f54c.parquet%3B+filename%3D%22train-00000-of-00001-235cb25abaa5f54c.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783415042&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUzNjFmODBmY2EyYzEwZTQzMjJjYjBjLzdhMDhkNGU2NzM0MzgzYzAzODE2MGNlZmUyNDE2YzlkOTI4NzFiNWY0ZGU0MDVjMjRjZTI1ZWM2NzhhMTk3ZjNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtMjM1Y2IyNWFiYWE1ZjU0Yy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtMjM1Y2IyNWFiYWE1ZjU0Yy5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MTUwNDJ9fX1dfQ__&Signature=MEQCIGQ-2naafK7G3ptVymLMAgvLJmObBU4UeN6Or%7Er1oGp9AiAA%7Ew3ZUhxlXDetdrJSe-dzHeakPg9O0%7EjsVjcbgXegrQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T08:04:01.787682Z'
-- artifact_hash: c581d2c076cb58e1301739d701c6ba4df8e1d4ab5342b5111323cbada0062777
-  artifact_path: projects/PROJ-292-the-relationship-between-personality-tra/specs/001-the-relationship-between-personality-tra/research.md
-  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00001-dc4d4705f1141a6f.parquet
   kind: url
   value: https://huggingface.co/datasets/ziq/ai-generated-text-classification/resolve/main/data/test-00000-of-00001-dc4d4705f1141a6f.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/656df05f1f8d9b618dfcbc3d/1b1132ac3c6bc2be0cddd70f81905f0014780775a37288aba67c0bd6da12f187?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-dc4d4705f1141a6f.parquet%3B+filename%3D%22test-00000-of-00001-dc4d4705f1141a6f.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783415043&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU2ZGYwNWYxZjhkOWI2MThkZmNiYzNkLzFiMTEzMmFjM2M2YmMyYmUwY2RkZDcwZjgxOTA1ZjAwMTQ3ODA3NzVhMzcyODhhYmE2N2MwYmQ2ZGExMmYxODdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1kYzRkNDcwNWYxMTQxYTZmLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWRjNGQ0NzA1ZjExNDFhNmYucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDE1MDQzfX19XX0_&Signature=MEUCIQDUD1qAWPhLT1mtQJz0ZZcObARAcOJZ7nEnzp9xmMID7QIgOxKvsAxrvGnam1Jg3nhOFJfYMeocrLRBz-g8nru3YSQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T08:04:01.787682Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/656df05f1f8d9b618dfcbc3d/1b1132ac3c6bc2be0cddd70f81905f0014780775a37288aba67c0bd6da12f187?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-dc4d4705f1141a6f.parquet%3B+filename%3D%22test-00000-of-00001-dc4d4705f1141a6f.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783476475&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU2ZGYwNWYxZjhkOWI2MThkZmNiYzNkLzFiMTEzMmFjM2M2YmMyYmUwY2RkZDcwZjgxOTA1ZjAwMTQ3ODA3NzVhMzcyODhhYmE2N2MwYmQ2ZGExMmYxODdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1kYzRkNDcwNWYxMTQxYTZmLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWRjNGQ0NzA1ZjExNDFhNmYucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDc2NDc1fX19XX0_&Signature=MEUCIB6WRaIc1PscZhmQtzHS61o6dX2lB19lzVgRGLBhrOJbAiEAm8X14KUcMicmrjLvakfi2chSHhCrhbveuw0DHuNS6Hc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-08T01:07:55.855793Z'

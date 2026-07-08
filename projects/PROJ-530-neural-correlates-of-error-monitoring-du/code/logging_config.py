@@ -1,6 +1,10 @@
 """
-Logging configuration and utility functions.
+Logging Configuration Module
+
+Provides centralized logging setup and utility functions for the
+research pipeline.
 """
+
 import logging
 import os
 import sys
@@ -8,93 +12,108 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global logger instance
+_logger = None
 
-_logger_instance = None
-
-def get_logger(name: str = "proj530") -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get or create a logger instance.
+    Get a logger instance with the project's configured format.
     
     Args:
-        name: Name of the logger.
-        
+        name: Logger name. If None, returns the root logger.
+                
     Returns:
         Configured logger instance.
     """
-    global _logger_instance
-    if _logger_instance is None:
-        _logger_instance = logging.getLogger(name)
-        if not _logger_instance.handlers:
-            _logger_instance.setLevel(logging.INFO)
-            
-            # Console handler
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT, DEFAULT_DATE_FORMAT))
-            _logger_instance.addHandler(console_handler)
-            
-    return logging.getLogger(name)
+    global _logger
+    
+    if _logger is None:
+        # Initialize with default settings if not already done
+        initialize_logging()
+    
+    if name is None:
+        return _logger
+    else:
+        return logging.getLogger(name)
 
-def initialize_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
+def initialize_logging(log_file: Optional[str] = None, level: int = logging.INFO, console: bool = True) -> None:
     """
-    Initialize logging to both console and optionally a file.
+    Initialize the logging system with file and console handlers.
     
     Args:
-        log_file: Path to log file. If None, only console logging is used.
+        log_file: Path to the log file. If None, defaults to 'data/preprocessing.log'.
         level: Logging level.
+        console: Whether to log to console.
     """
-    logger = get_logger()
-    logger.setLevel(level)
+    global _logger
     
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Remove existing file handlers to avoid duplicates
-        existing_file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
-        for h in existing_file_handlers:
-            logger.removeHandler(h)
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT, DEFAULT_DATE_FORMAT))
-        file_handler.setLevel(level)
-        logger.addHandler(file_handler)
+    # Create logger
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(level)
+    
+    # Clear existing handlers
+    _logger.handlers.clear()
+    
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # File handler
+    if log_file is None:
+        log_file = "data/preprocessing.log"
+    
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    file_handler.setLevel(level)
+    file_handler.setFormatter(formatter)
+    _logger.addHandler(file_handler)
+    
+    # Console handler
+    if console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
+        _logger.addHandler(console_handler)
 
-def log_step(step_name: str, logger: Optional[logging.Logger] = None) -> None:
+def log_step(step_name: str, message: str) -> None:
     """
-    Log the start of a processing step.
+    Log a pipeline step.
     
     Args:
         step_name: Name of the step.
-        logger: Logger instance. If None, uses default.
+        message: Description of what is happening.
     """
-    if logger is None:
-        logger = get_logger()
-    logger.info(f"Starting step: {step_name}")
+    logger = get_logger()
+    logger.info(f"[STEP: {step_name}] {message}")
 
-def log_preprocessing_parameter(param_name: str, param_value: str, logger: Optional[logging.Logger] = None) -> None:
+def log_preprocessing_parameter(param_name: str, param_value: Any, unit: Optional[str] = None) -> None:
     """
-    Log a preprocessing parameter setting.
+    Log a preprocessing parameter.
     
     Args:
         param_name: Name of the parameter.
         param_value: Value of the parameter.
-        logger: Logger instance.
+        unit: Optional unit of measurement.
     """
-    if logger is None:
-        logger = get_logger()
-    logger.info(f"Preprocessing parameter: {param_name} = {param_value}")
+    logger = get_logger()
+    value_str = f"{param_value} {unit}" if unit else str(param_value)
+    logger.info(f"[PARAM] {param_name} = {value_str}")
 
-def log_artifact(artifact_path: str, artifact_type: str = "file", logger: Optional[logging.Logger] = None) -> None:
+def log_artifact(artifact_type: str, artifact_path: str, description: Optional[str] = None) -> None:
     """
     Log the creation of an artifact.
     
     Args:
-        artifact_path: Path to the artifact.
-        artifact_type: Type of artifact (file, directory, etc.).
-        logger: Logger instance.
+        artifact_type: Type of artifact (e.g., 'epoch', 'model', 'figure').
+        artifact_path: Path to the artifact file.
+        description: Optional description.
     """
-    if logger is None:
-        logger = get_logger()
-    logger.info(f"Generated {artifact_type}: {artifact_path}")
+    logger = get_logger()
+    msg = f"[ARTIFACT] {artifact_type.upper()}: {artifact_path}"
+    if description:
+        msg += f" - {description}"
+    logger.info(msg)

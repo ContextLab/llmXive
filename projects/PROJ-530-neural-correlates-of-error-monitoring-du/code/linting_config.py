@@ -3,57 +3,115 @@ import subprocess
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-FLAKE8_CONFIG_FILE = PROJECT_ROOT / ".flake8"
-BLACK_CONFIG_FILE = PROJECT_ROOT / "pyproject.toml"
 
 def get_flake8_command():
-    """Returns the flake8 command with project-specific configuration."""
+    """
+    Constructs the command list for running flake8 with project-specific configuration.
+    Returns a list of strings suitable for subprocess.run().
+    """
     return [
         sys.executable, "-m", "flake8",
-        "--config", str(FLAKE8_CONFIG_FILE),
-        str(PROJECT_ROOT / "code"),
-        str(PROJECT_ROOT / "tests")
+        "--max-line-length=88",
+        "--extend-ignore=E203,W503",
+        "--exclude=.git,__pycache__,build,dist,venv,env,.venv",
+        "code/", "tests/"
     ]
+
 
 def get_black_command():
-    """Returns the black command with project-specific configuration."""
+    """
+    Constructs the command list for running Black with project-specific configuration.
+    Returns a list of strings suitable for subprocess.run().
+    """
     return [
         sys.executable, "-m", "black",
-        "--config", str(BLACK_CONFIG_FILE),
-        "--check",
-        str(PROJECT_ROOT / "code"),
-        str(PROJECT_ROOT / "tests")
+        "--line-length", "88",
+        "--exclude", r"/(\.git|__pycache__|build|dist|venv|env|\.venv)/",
+        "code/", "tests/"
     ]
 
+
 def run_linter():
-    """Runs flake8 and returns the exit code."""
+    """
+    Executes the flake8 linter on the project code.
+    Prints the output to stdout and returns the exit code.
+    """
     cmd = get_flake8_command()
-    print(f"Running linter: {' '.join(cmd)}")
-    result = subprocess.run(cmd, cwd=PROJECT_ROOT)
-    return result.returncode
+    try:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: flake8 not found. Please ensure it is installed.", file=sys.stderr)
+        return 1
+
 
 def run_formatter():
-    """Runs black (check mode) and returns the exit code."""
+    """
+    Executes the Black formatter on the project code.
+    Prints the output to stdout and returns the exit code.
+    """
     cmd = get_black_command()
-    print(f"Running formatter: {' '.join(cmd)}")
-    result = subprocess.run(cmd, cwd=PROJECT_ROOT)
-    return result.returncode
+    try:
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result.returncode
+    except FileNotFoundError:
+        print("Error: black not found. Please ensure it is installed.", file=sys.stderr)
+        return 1
+
 
 def create_config_files():
-    """Creates the .flake8 and pyproject.toml configuration files if they don't exist."""
-    flake8_content = """[flake8]
+    """
+    Creates configuration files for flake8 (.flake8) and Black (pyproject.toml section)
+    if they do not already exist in the project root.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Create .flake8
+    flake8_path = project_root / ".flake8"
+    if not flake8_path.exists():
+        content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    *.egg-info
+exclude = .git,__pycache__,build,dist,venv,env,.venv
 """
-    
-    black_content = """[tool.black]
+        with open(flake8_path, "w") as f:
+            f.write(content)
+        print(f"Created {flake8_path}")
+    else:
+        print(f"{flake8_path} already exists.")
+
+    # Create/Update pyproject.toml for Black
+    pyproject_path = project_root / "pyproject.toml"
+    black_section_exists = False
+    if pyproject_path.exists():
+        with open(pyproject_path, "r") as f:
+            content = f.read()
+            if "[tool.black]" in content:
+                black_section_exists = True
+
+    if not black_section_exists:
+        black_config = """
+[tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
@@ -71,26 +129,41 @@ exclude = '''
 )/
 '''
 """
-
-    if not FLAKE8_CONFIG_FILE.exists():
-        with open(FLAKE8_CONFIG_FILE, "w") as f:
-            f.write(flake8_content)
-        print(f"Created {FLAKE8_CONFIG_FILE}")
-    
-    # We need to check if pyproject.toml exists and append the tool.black section if not
-    # For simplicity in this task, we assume we are creating the section or the file if empty
-    # A robust implementation would parse existing toml, but for config setup:
-    if not BLACK_CONFIG_FILE.exists():
-        with open(BLACK_CONFIG_FILE, "w") as f:
-            f.write(black_content)
-        print(f"Created {BLACK_CONFIG_FILE}")
+        # Append to existing or create new
+        mode = "a" if pyproject_path.exists() else "w"
+        with open(pyproject_path, mode) as f:
+            if mode == "w" and pyproject_path.exists():
+                pass # Should not happen if logic is correct, but safe guard
+            f.write(black_config)
+        print(f"Added Black configuration to {pyproject_path}")
     else:
-        # Check if [tool.black] already exists
-        with open(BLACK_CONFIG_FILE, "r") as f:
-            content = f.read()
-        if "[tool.black]" not in content:
-            with open(BLACK_CONFIG_FILE, "a") as f:
-                f.write("\n" + black_content)
-            print(f"Appended [tool.black] to {BLACK_CONFIG_FILE}")
-        else:
-            print(f"{BLACK_CONFIG_FILE} already contains [tool.black]")
+        print(f"Black configuration already exists in {pyproject_path}.")
+
+
+def main():
+    """
+    Entry point for the linting configuration script.
+    Allows running linter, formatter, or creating config files via CLI.
+    Usage: python code/linting_config.py [lint|format|setup]
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python code/linting_config.py [lint|format|setup]")
+        sys.exit(1)
+
+    command = sys.argv[1].lower()
+
+    if command == "setup":
+        create_config_files()
+    elif command == "lint":
+        exit_code = run_linter()
+        sys.exit(exit_code)
+    elif command == "format":
+        exit_code = run_formatter()
+        sys.exit(exit_code)
+    else:
+        print(f"Unknown command: {command}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

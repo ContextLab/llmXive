@@ -47,7 +47,7 @@ The system must generate publication-quality visualizations (heatmaps, regressio
 
 1. **Given** the regression results are available, **When** the visualization module runs, **Then** it generates a correlation heatmap showing the relationship between traits and outcomes with significance stars.
 2. **Given** the regression results are available, **When** the visualization module runs, **Then** it generates a scatter plot with regression line for the strongest predictor-outcome pair (e.g., Openness vs. Receptivity).
-3. **Given** the sensitivity analysis parameters are defined, **When** the report generation runs, **Then** it includes a table showing the significance status (significant/not significant) at alpha values {0.01, 0.05, 0.10} for the primary findings.
+3. **Given** the sensitivity analysis parameters are defined, **When** the report generation runs, **Then** it includes a table showing the significance status (significant/not significant) at varying alpha levels for the primary findings.
 
 ### Edge Cases
 

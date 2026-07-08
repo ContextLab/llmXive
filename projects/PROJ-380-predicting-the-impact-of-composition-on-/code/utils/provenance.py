@@ -1,3 +1,9 @@
+"""
+Provenance tracking module for llmXive pipeline.
+
+Implements Constitution Principle V: All artifacts must be checksummed and
+recorded in a canonical state file to ensure reproducibility and auditability.
+"""
 import hashlib
 import os
 import yaml
@@ -5,150 +11,188 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-# Project root relative to this file
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project-specific constants
+PROJECT_ID = "PROJ-380-predicting-the-impact-of-composition-on-"
+STATE_DIR = Path("state") / "projects"
+STATE_FILENAME = f"{PROJECT_ID}.yaml"
 
-# State directory path (matches T006 specification)
-_STATE_DIR = _PROJECT_ROOT / "state" / "projects"
-
+# Ensure the state directory exists
 def ensure_state_directory() -> Path:
-    """Ensure the state directory exists."""
-    _STATE_DIR.mkdir(parents=True, exist_ok=True)
-    return _STATE_DIR
+    """Create the state directory if it doesn't exist."""
+    state_dir = STATE_DIR
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir
 
-def get_provenance_state_file(project_id: str = "PROJ-380-predicting-the-impact-of-composition-on-") -> Path:
-    """Return the path to the canonical state YAML file for the project."""
-    # Sanitize project_id to be filesystem safe (basic)
-    safe_id = "".join(c if c.isalnum() or c in "-_." else "_" for c in project_id)
-    return _STATE_DIR / f"{safe_id}.yaml"
+def get_provenance_state_file() -> Path:
+    """Return the path to the canonical provenance state file."""
+    ensure_state_directory()
+    return STATE_DIR / STATE_FILENAME
 
-def compute_file_checksum(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Compute the checksum of a file.
     
-    sha256_hash = hashlib.sha256()
+    Args:
+        file_path: Path to the file to checksum
+        algorithm: Hash algorithm to use (default: sha256)
+        
+    Returns:
+        Hexadecimal string of the checksum
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        ValueError: If the algorithm is not supported
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
+    hash_func = hashlib.new(algorithm)
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_func.update(chunk)
+            
+    return hash_func.hexdigest()
 
-def load_existing_state(state_file: Path) -> Dict[str, Any]:
-    """Load existing state file or return a fresh structure if it doesn't exist."""
-    if state_file.exists():
-        with open(state_file, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
-    return {
-        "project_id": state_file.stem,
-        "created_at": datetime.utcnow().isoformat(),
-        "artifacts": []
-    }
+def load_existing_state() -> Dict[str, Any]:
+    """
+    Load the existing provenance state from disk.
+    
+    Returns:
+        Dictionary containing the current state, or empty structure if file doesn't exist
+    """
+    state_file = get_provenance_state_file()
+    
+    if not state_file.exists():
+        return {
+            "project_id": PROJECT_ID,
+            "created_at": datetime.utcnow().isoformat(),
+            "artifacts": {}
+        }
+        
+    with open(state_file, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
-def save_state(state_file: Path, state: Dict[str, Any]) -> None:
-    """Save the state dictionary to the YAML file."""
+def save_state(state: Dict[str, Any]) -> None:
+    """
+    Save the provenance state to disk.
+    
+    Args:
+        state: The state dictionary to save
+    """
+    state_file = get_provenance_state_file()
     with open(state_file, "w", encoding="utf-8") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
 def record_artifact(
-    file_path: Path,
-    state_file: Optional[Path] = None,
+    artifact_path: Path,
+    artifact_type: str,
     description: Optional[str] = None,
-    tags: Optional[List[str]] = None
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Compute checksum for a file and record it in the project's state file.
-    This implements Constitution Principle V: deterministic reproducibility via checksums.
+    Record an artifact in the provenance state.
     
     Args:
-        file_path: Path to the artifact file.
-        state_file: Optional override for the state file path. Defaults to project default.
-        description: Optional human-readable description.
-        tags: Optional list of tags for categorization.
-    
+        artifact_path: Path to the artifact file
+        artifact_type: Type of artifact (e.g., 'data', 'model', 'script')
+        description: Optional description of the artifact
+        metadata: Optional additional metadata
+        
     Returns:
-        The record dictionary added to the state.
+        The artifact record that was added to the state
+        
+    Raises:
+        FileNotFoundError: If the artifact file doesn't exist
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot record artifact: file not found at {file_path}")
-    
-    if state_file is None:
-        # Default project state file
-        state_file = get_provenance_state_file()
-    
-    # Ensure directory exists
-    ensure_state_directory()
-    
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+        
     # Compute checksum
-    checksum = compute_file_checksum(file_path)
+    checksum = compute_file_checksum(artifact_path)
     
-    # Load existing state
-    state = load_existing_state(state_file)
-    
-    # Create record
-    record = {
-        "path": str(file_path.relative_to(_PROJECT_ROOT)),
+    # Get relative path from project root
+    try:
+        relative_path = artifact_path.relative_to(Path.cwd())
+    except ValueError:
+        relative_path = artifact_path
+        
+    # Create artifact record
+    artifact_record = {
+        "path": str(relative_path),
+        "type": artifact_type,
         "checksum": checksum,
+        "algorithm": "sha256",
         "recorded_at": datetime.utcnow().isoformat(),
+        "description": description or "",
+        "metadata": metadata or {}
     }
     
-    if description:
-        record["description"] = description
-    if tags:
-        record["tags"] = tags
+    # Load existing state
+    state = load_existing_state()
     
-    # Append to state
-    if "artifacts" not in state:
-        state["artifacts"] = []
-    state["artifacts"].append(record)
+    # Add to artifacts
+    state_key = str(relative_path)
+    state["artifacts"][state_key] = artifact_record
     
     # Save updated state
-    save_state(state_file, state)
+    save_state(state)
     
-    return record
+    return artifact_record
 
-def verify_artifact(file_path: Path, state_file: Optional[Path] = None) -> bool:
+def verify_artifact(artifact_path: Path) -> bool:
     """
-    Verify that a file's current checksum matches the last recorded checksum in the state.
+    Verify an artifact's checksum against the recorded state.
     
+    Args:
+        artifact_path: Path to the artifact to verify
+        
     Returns:
-        True if checksum matches, False if mismatch or record not found.
+        True if the artifact's checksum matches the recorded one, False otherwise
+        
+    Raises:
+        FileNotFoundError: If the artifact or state file doesn't exist
     """
-    if not file_path.exists():
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+        
+    # Load state
+    state = load_existing_state()
+    
+    # Get relative path
+    try:
+        relative_path = artifact_path.relative_to(Path.cwd())
+    except ValueError:
+        relative_path = artifact_path
+        
+    state_key = str(relative_path)
+    
+    if state_key not in state.get("artifacts", {}):
+        # Artifact not previously recorded
         return False
+        
+    # Get recorded checksum
+    recorded_checksum = state["artifacts"][state_key]["checksum"]
     
-    if state_file is None:
-        state_file = get_provenance_state_file()
+    # Compute current checksum
+    current_checksum = compute_file_checksum(artifact_path)
     
-    if not state_file.exists():
-        return False
-    
-    state = load_existing_state(state_file)
-    rel_path = str(file_path.relative_to(_PROJECT_ROOT))
-    
-    # Find record
-    record = None
-    for artifact in state.get("artifacts", []):
-        if artifact.get("path") == rel_path:
-            record = artifact
-            break
-    
-    if not record:
-        return False
-    
-    expected_checksum = record.get("checksum")
-    if not expected_checksum:
-        return False
-    
-    actual_checksum = compute_file_checksum(file_path)
-    return actual_checksum == expected_checksum
+    return recorded_checksum == current_checksum
 
-def list_artifacts(state_file: Optional[Path] = None) -> List[Dict[str, Any]]:
-    """Return a list of all recorded artifacts from the state file."""
-    if state_file is None:
-        state_file = get_provenance_state_file()
+def list_artifacts(artifact_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    List all recorded artifacts, optionally filtered by type.
     
-    if not state_file.exists():
-        return []
+    Args:
+        artifact_type: Optional filter for artifact type
+        
+    Returns:
+        List of artifact records
+    """
+    state = load_existing_state()
+    artifacts = list(state.get("artifacts", {}).values())
     
-    state = load_existing_state(state_file)
-    return state.get("artifacts", [])
+    if artifact_type:
+        artifacts = [a for a in artifacts if a.get("type") == artifact_type]
+        
+    return artifacts

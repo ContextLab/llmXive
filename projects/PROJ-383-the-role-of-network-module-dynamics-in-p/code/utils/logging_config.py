@@ -1,15 +1,3 @@
-"""
-Logging configuration and helper utilities for the llmXive research pipeline.
-
-This module provides:
-- `setup_logging()`: Configures the root logger with console and file handlers,
-  including a custom formatter for exclusion events.
-- `log_subject_exclusion()`: Records why a subject was excluded (missing data,
-  motion threshold, etc.) to both console and a dedicated exclusion log file.
-- `log_memory_usage()`: Records memory usage events (peak RSS, limit checks)
-  to both console and a dedicated memory log file.
-"""
-
 import logging
 import sys
 import json
@@ -17,178 +5,221 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-# Import config for seed pinning if needed elsewhere, though not strictly for logging
-from utils.config import set_all_seeds
+LOG_DIR = Path("data/logs")
+LOG_FILE_NAME = "pipeline_events.log"
+EXCLUSION_LOG_FILE_NAME = "exclusions.jsonl"
+MEMORY_LOG_FILE_NAME = "memory_events.jsonl"
 
-
-# Define log file paths relative to project root (assumed to be run from project root)
-# We use a fixed relative path to ensure logs land in the data/results directory
-LOG_DIR = Path("data/results/logs")
-EXCLUSION_LOG_FILE = LOG_DIR / "exclusions.log"
-MEMORY_LOG_FILE = LOG_DIR / "memory_usage.log"
-GENERAL_LOG_FILE = LOG_DIR / "pipeline.log"
-
+_logger: Optional[logging.Logger] = None
+_exclusion_handler: Optional[logging.Handler] = None
+_memory_handler: Optional[logging.Handler] = None
 
 class ExclusionFormatter(logging.Formatter):
-    """
-    Custom formatter for exclusion events to ensure structured, parseable output.
-    Output format: ISO_TIMESTAMP | LEVEL | EXCLUSION_TYPE | SUBJECT_ID | REASON
-    """
-    def format(self, record):
-        # Ensure we have a structured message if it's a dict
-        if isinstance(record.msg, dict):
-            # Create a structured log entry
-            entry = {
-                "timestamp": datetime.utcnow().isoformat(),
-                "level": record.levelname,
-                "type": record.msg.get("type", "UNKNOWN"),
-                "subject_id": record.msg.get("subject_id", "N/A"),
-                "reason": record.msg.get("reason", "No reason provided"),
-                "details": record.msg.get("details", {})
-            }
-            record.msg = json.dumps(entry)
-            record.args = ()  # Clear args to prevent formatting issues
-        return super().format(record)
+    """Custom formatter for exclusion events to JSONL."""
 
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "subject_id": getattr(record, "subject_id", None),
+            "reason": getattr(record, "reason", None),
+            "details": getattr(record, "details", {}),
+        }
+        return json.dumps(log_data)
 
-def _ensure_log_dirs():
-    """Create log directories if they don't exist."""
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+class MemoryFormatter(logging.Formatter):
+    """Custom formatter for memory events to JSONL."""
 
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "current_rss_mb": getattr(record, "current_rss_mb", None),
+            "peak_rss_mb": getattr(record, "peak_rss_mb", None),
+            "limit_mb": getattr(record, "limit_mb", None),
+            "action": getattr(record, "action", None),
+        }
+        return json.dumps(log_data)
 
 def setup_logging(
-    level: int = logging.INFO,
-    general_log: bool = True,
-    exclusion_log: bool = True,
-    memory_log: bool = True
-) -> None:
+    log_level: int = logging.INFO,
+    console: bool = True,
+    file: bool = True,
+) -> logging.Logger:
     """
-    Configure the root logger with console and file handlers.
-
-    Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        general_log: If True, write general logs to pipeline.log.
-        exclusion_log: If True, write exclusion events to exclusions.log.
-        memory_log: If True, write memory events to memory_usage.log.
+    Initialize the global logger with standard, exclusion, and memory handlers.
+    Ensures log directories exist.
     """
-    _ensure_log_dirs()
+    global _logger, _exclusion_handler, _memory_handler
 
-    # Get root logger
-    logger = logging.getLogger()
-    logger.setLevel(level)
+    if _logger is not None:
+        return _logger
 
-    # Clear existing handlers to avoid duplicates on re-calls
-    if logger.handlers:
-        logger.handlers.clear()
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    _logger = logging.getLogger("llmXive")
+    _logger.setLevel(log_level)
+    _logger.handlers.clear()
 
-    # General File Handler
-    if general_log:
-        general_handler = logging.FileHandler(GENERAL_LOG_FILE)
-        general_handler.setLevel(level)
-        general_handler.setFormatter(console_formatter)
-        logger.addHandler(general_handler)
+    if console:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(log_level)
+        ch.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+        _logger.addHandler(ch)
 
-    # Exclusion File Handler (Custom Formatter)
-    if exclusion_log:
-        exclusion_handler = logging.FileHandler(EXCLUSION_LOG_FILE)
-        exclusion_handler.setLevel(level)
-        exclusion_formatter = ExclusionFormatter(
-            '%(asctime)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        exclusion_handler.setFormatter(exclusion_formatter)
-        # Add a filter to only handle exclusion logs if we wanted to be strict,
-        # but here we rely on the specific logger usage or just let the formatter handle structure
-        logger.addHandler(exclusion_handler)
+    if file:
+        fh = logging.FileHandler(LOG_DIR / LOG_FILE_NAME)
+        fh.setLevel(log_level)
+        fh.setFormatter(logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+        _logger.addHandler(fh)
 
-    # Memory File Handler
-    if memory_log:
-        memory_handler = logging.FileHandler(MEMORY_LOG_FILE)
-        memory_handler.setLevel(level)
-        memory_formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-        memory_handler.setFormatter(memory_formatter)
-        logger.addHandler(memory_handler)
+    exclusion_file = LOG_DIR / EXCLUSION_LOG_FILE_NAME
+    _exclusion_handler = logging.FileHandler(exclusion_file)
+    _exclusion_handler.setLevel(logging.INFO)
+    _exclusion_handler.setFormatter(ExclusionFormatter())
+    _logger.addHandler(_exclusion_handler)
 
-    logging.info("Logging infrastructure initialized.")
-    logging.info(f"Exclusion log: {EXCLUSION_LOG_FILE}")
-    logging.info(f"Memory log: {MEMORY_LOG_FILE}")
+    memory_file = LOG_DIR / MEMORY_LOG_FILE_NAME
+    _memory_handler = logging.FileHandler(memory_file)
+    _memory_handler.setLevel(logging.INFO)
+    _memory_handler.setFormatter(MemoryFormatter())
+    _logger.addHandler(_memory_handler)
 
+    return _logger
 
 def log_subject_exclusion(
     subject_id: str,
     reason: str,
-    exclusion_type: str = "SUBJECT_EXCLUSION",
-    details: Optional[Dict[str, Any]] = None
+    details: Optional[Dict[str, Any]] = None,
+    logger: Optional[logging.Logger] = None,
 ) -> None:
     """
-    Log a subject exclusion event.
-
-    Args:
-        subject_id: The identifier of the excluded subject.
-        reason: The reason for exclusion (e.g., "Mean FD > 0.2mm").
-        exclusion_type: Category of exclusion (default: SUBJECT_EXCLUSION).
-        details: Optional dictionary of additional context (e.g., actual FD value).
+    Log a subject exclusion event to both standard log and exclusion JSONL.
     """
-    logger = logging.getLogger()
-    log_entry = {
-        "type": exclusion_type,
+    if logger is None:
+        logger = _logger
+    if logger is None:
+        raise RuntimeError("Logging not initialized. Call setup_logging() first.")
+
+    log_record = logger.makeRecord(
+        logger.name,
+        logging.INFO,
+        "",
+        0,
+        f"Subject {subject_id} excluded: {reason}",
+        (),
+        None,
+    )
+    log_record.subject_id = subject_id
+    log_record.reason = reason
+    log_record.details = details or {}
+
+    if _exclusion_handler:
+        _exclusion_handler.emit(log_record)
+    
+    # Also emit to standard log for visibility
+    logger.info(f"EXCLUSION: Subject {subject_id} excluded due to {reason}", extra={
         "subject_id": subject_id,
         "reason": reason,
-        "details": details or {}
-    }
-    # Use a specific log level for exclusions, e.g., WARNING
-    logger.warning(log_entry)
-
+    })
 
 def log_memory_usage(
-    event: str,
-    current_rss_mb: Optional[float] = None,
-    peak_rss_mb: Optional[float] = None,
-    limit_mb: float = 7000.0,
-    details: Optional[Dict[str, Any]] = None
+    current_rss_mb: float,
+    peak_rss_mb: float,
+    limit_mb: float,
+    action: Optional[str] = None,
+    logger: Optional[logging.Logger] = None,
 ) -> None:
     """
-    Log a memory usage event.
-
-    Args:
-        event: Description of the event (e.g., "Start processing subject", "Peak memory check").
-        current_rss_mb: Current RSS in MB.
-        peak_rss_mb: Peak RSS in MB.
-        limit_mb: Memory limit in MB (default 7000).
-        details: Optional additional context.
+    Log a memory usage event to the memory JSONL and standard log.
     """
-    logger = logging.getLogger()
-    msg_parts = [f"EVENT={event}"]
-    if current_rss_mb is not None:
-        msg_parts.append(f"current_rss_mb={current_rss_mb:.2f}")
-    if peak_rss_mb is not None:
-        msg_parts.append(f"peak_rss_mb={peak_rss_mb:.2f}")
-    msg_parts.append(f"limit_mb={limit_mb}")
-    if details:
-        msg_parts.append(json.dumps(details))
+    if logger is None:
+        logger = _logger
+    if logger is None:
+        raise RuntimeError("Logging not initialized. Call setup_logging() first.")
 
-    message = " | ".join(msg_parts)
-    logger.info(message)
+    log_record = logger.makeRecord(
+        logger.name,
+        logging.INFO,
+        "",
+        0,
+        f"Memory usage: {current_rss_mb:.1f}MB (Peak: {peak_rss_mb:.1f}MB, Limit: {limit_mb:.1f}MB)",
+        (),
+        None,
+    )
+    log_record.current_rss_mb = current_rss_mb
+    log_record.peak_rss_mb = peak_rss_mb
+    log_record.limit_mb = limit_mb
+    log_record.action = action
+
+    if _memory_handler:
+        _memory_handler.emit(log_record)
+
+    logger.info(
+        f"MEMORY: {current_rss_mb:.1f}MB used, {peak_rss_mb:.1f}MB peak. Action: {action or 'monitoring'}",
+        extra={
+            "current_rss_mb": current_rss_mb,
+            "peak_rss_mb": peak_rss_mb,
+            "limit_mb": limit_mb,
+            "action": action,
+        }
+    )
+
+def get_exclusion_summary(logger: Optional[logging.Logger] = None) -> Dict[str, int]:
+    """
+    Read the exclusion JSONL file and return a summary of exclusion counts by reason.
+    """
+    if logger is None:
+        logger = _logger
+    if logger is None:
+        return {}
+
+    exclusion_file = LOG_DIR / EXCLUSION_LOG_FILE_NAME
+    if not exclusion_file.exists():
+        return {}
+
+    summary: Dict[str, int] = {}
+    try:
+        with open(exclusion_file, "r") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    data = json.loads(line)
+                    reason = data.get("reason", "unknown")
+                    summary[reason] = summary.get(reason, 0) + 1
+                except json.JSONDecodeError:
+                    continue
+    except Exception:
+        pass
+
+    return summary
+
+def main():
+    """
+    Simple CLI test for logging infrastructure.
+    """
+    setup_logging()
+    log = logging.getLogger("llmXive")
+    
+    log.info("Testing logging infrastructure...")
+    
+    log_subject_exclusion("sub-001", "Missing behavioral scores", {"file": "missing.csv"})
+    log_subject_exclusion("sub-002", "Excessive motion", {"mean_fd": 0.25})
+    
+    log_memory_usage(1024.5, 2048.0, 7168.0, "checkpoint")
+    log_memory_usage(6800.0, 6900.0, 7168.0, "warning_high")
+    
+    summary = get_exclusion_summary()
+    log.info(f"Exclusion Summary: {summary}")
+    
+    print("Logging test complete. Check data/logs/ for output files.")
 
 if __name__ == "__main__":
-    # Simple test of the logging infrastructure
-    setup_logging()
-    logging.info("Testing logging configuration...")
-    log_subject_exclusion("sub-001", "Missing behavioral scores", details={"file": "missing.csv"})
-    log_subject_exclusion("sub-002", "Mean FD > 0.2mm", details={"mean_fd": 0.25})
-    log_memory_usage("Initialization", current_rss_mb=500.0, peak_rss_mb=500.0)
-    log_memory_usage("Post-load", current_rss_mb=3500.0, peak_rss_mb=3500.0)
-    logging.info("Logging test complete. Check data/results/logs/ for output.")
+    main()

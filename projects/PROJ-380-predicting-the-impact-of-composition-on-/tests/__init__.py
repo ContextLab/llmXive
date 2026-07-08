@@ -1,3 +1,3 @@
 """
-Test suite for the BMG Shear Modulus prediction pipeline.
+Test suite for the research pipeline.
 """

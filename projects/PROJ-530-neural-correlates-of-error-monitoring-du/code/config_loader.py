@@ -1,9 +1,10 @@
 """
-Base configuration loader for the Neural Correlates of Error Monitoring project.
+Configuration Loader Module
 
-Handles loading of YAML configuration files, merging defaults with overrides,
-and validating required keys.
+Handles loading, validation, and management of project configuration files.
+Supports YAML-based configuration with defaults and type validation.
 """
+
 import os
 import yaml
 import logging
@@ -12,41 +13,35 @@ from typing import Dict, Any, Optional, Union
 
 from .logging_config import get_logger
 
-# Default configuration values
+# Default configuration structure
 DEFAULT_CONFIG = {
     "project": {
-        "name": "PROJ-530-neural-correlates-of-error-monitoring-du",
-        "version": "0.1.0",
-        "root_path": "projects/PROJ-530-neural-correlates-of-error-monitoring-du"
-    },
-    "data": {
-        "raw_dir": "data/raw",
-        "processed_dir": "data/processed",
-        "zenodo_url": None,
-        "checksum": None
-    },
-    "preprocessing": {
-        "sample_rate": 500,
-        "bandpass": {"low": 1.0, "high": 40.0},
-        "notch": 60.0,
-        "ica_components": 20,
-        "eog_channels": ["EOG", "HEOG", "VEOG"],
-        "mfn_window": {"pre": -0.2, "post": 0.8, "baseline": (-0.2, 0.0)},
-        "analysis_window": {"start": 0.2, "end": 0.4}
-    },
-    "analysis": {
-        "electrodes": ["FCz", "Cz", "Fz"],
-        "error_threshold": 10.0,
-        "sensitivity_thresholds": [5.0, 10.0, 15.0, 20.0],
-        "vif_threshold": 5.0,
-        "alpha": 0.05
+        "name": "neural-correlates-error-monitoring",
+        "version": "1.0.0",
+        "seed": 42
     },
     "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
         "results_models": "results/models",
         "results_figures": "results/figures",
         "results_diagnostics": "results/diagnostics",
         "code": "code",
         "tests": "tests"
+    },
+    "preprocessing": {
+        "filter_bandpass": [1.0, 40.0],
+        "filter_notch": 50.0,
+        "ica_components": 0.95,
+        "mfn_window_start": 200,
+        "mfn_window_end": 400,
+        "baseline_window_start": -200,
+        "baseline_window_end": 0
+    },
+    "analysis": {
+        "electrodes": ["FCz", "Cz", "Fz"],
+        "error_thresholds": [5, 10, 15, 20],
+        "alpha": 0.05
     },
     "logging": {
         "level": "INFO",
@@ -55,64 +50,159 @@ DEFAULT_CONFIG = {
     }
 }
 
-def load_config(
-    config_path: Optional[Union[str, Path]] = None,
-    project_root: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
+def load_config(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
     """
-    Load configuration from a YAML file, merging with defaults.
+    Load configuration from a YAML file.
     
     Args:
-        config_path: Path to the configuration YAML file. If None, looks for
-                    'config.yaml' in the project root.
-        project_root: Root directory of the project. If None, uses the current
-                     working directory.
-                     
+        config_path: Path to the configuration file. If None, looks for
+                    'config.yaml' in the current directory or uses defaults.
+                    
     Returns:
-        Merged configuration dictionary.
+        Dictionary containing the configuration.
         
     Raises:
-        FileNotFoundError: If config file is specified but doesn't exist.
-        yaml.YAMLError: If config file contains invalid YAML.
+        FileNotFoundError: If the config file doesn't exist and no defaults available.
+        yaml.YAMLError: If the config file is malformed.
     """
     logger = get_logger(__name__)
     
-    # Determine project root
-    if project_root is None:
-        project_root = Path.cwd()
-    else:
-        project_root = Path(project_root)
-        
-    # Determine config file path
     if config_path is None:
-        config_path = project_root / "config.yaml"
+        config_path = Path("config.yaml")
     else:
         config_path = Path(config_path)
-        
-    # Load defaults
-    config = DEFAULT_CONFIG.copy()
     
-    # Override with file if it exists
     if config_path.exists():
         logger.info(f"Loading configuration from {config_path}")
         with open(config_path, 'r', encoding='utf-8') as f:
-            file_config = yaml.safe_load(f)
-            if file_config:
-                _deep_merge(config, file_config)
+            config = yaml.safe_load(f)
+            # Merge with defaults to ensure all keys exist
+            merged_config = _deep_merge(DEFAULT_CONFIG, config)
+            return merged_config
     else:
-        logger.info(f"No configuration file found at {config_path}. Using defaults.")
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        return DEFAULT_CONFIG.copy()
+
+def validate_config(config: Dict[str, Any]) -> bool:
+    """
+    Validate the configuration dictionary.
+    
+    Args:
+        config: Configuration dictionary to validate.
         
-    # Resolve relative paths to absolute paths
-    config = _resolve_paths(config, project_root)
+    Returns:
+        True if valid, False otherwise.
+        
+    Note:
+        Logs validation errors but does not raise exceptions.
+    """
+    logger = get_logger(__name__)
+    is_valid = True
+    
+    # Check required sections
+    required_sections = ["project", "paths", "preprocessing", "analysis", "logging"]
+    for section in required_sections:
+        if section not in config:
+            logger.error(f"Missing required section: {section}")
+            is_valid = False
+    
+    # Validate project settings
+    if "project" in config:
+        if "seed" in config["project"]:
+            if not isinstance(config["project"]["seed"], int) or config["project"]["seed"] < 0:
+                logger.error("Project seed must be a non-negative integer")
+                is_valid = False
+    
+    # Validate preprocessing settings
+    if "preprocessing" in config:
+        if "filter_bandpass" in config["preprocessing"]:
+            bp = config["preprocessing"]["filter_bandpass"]
+            if not isinstance(bp, list) or len(bp) != 2 or bp[0] >= bp[1]:
+                logger.error("filter_bandpass must be a list of two numbers [low, high] with low < high")
+                is_valid = False
+        
+        if "mfn_window_start" in config["preprocessing"]:
+            if config["preprocessing"]["mfn_window_start"] >= config["preprocessing"]["mfn_window_end"]:
+                logger.error("mfn_window_start must be less than mfn_window_end")
+                is_valid = False
+    
+    # Validate analysis settings
+    if "analysis" in config:
+        if "electrodes" in config["analysis"]:
+            if not isinstance(config["analysis"]["electrodes"], list) or len(config["analysis"]["electrodes"]) == 0:
+                logger.error("electrodes must be a non-empty list")
+                is_valid = False
+    
+    return is_valid
+
+def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
+    """
+    Get a value from the configuration using a dot-notation path.
+    
+    Args:
+        config: Configuration dictionary.
+        key_path: Dot-separated path to the value (e.g., "project.seed").
+        default: Default value if the key is not found.
+                
+    Returns:
+        The configuration value or the default.
+    """
+    keys = key_path.split(".")
+    value = config
+    
+    try:
+        for key in keys:
+            value = value[key]
+        return value
+    except (KeyError, TypeError):
+        return default
+
+def save_config(config: Dict[str, Any], config_path: Union[str, Path]) -> None:
+    """
+    Save configuration to a YAML file.
+    
+    Args:
+        config: Configuration dictionary to save.
+        config_path: Path to the output file.
+    """
+    logger = get_logger(__name__)
+    config_path = Path(config_path)
+    
+    # Ensure parent directory exists
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(config_path, 'w', encoding='utf-8') as f:
+        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"Configuration saved to {config_path}")
+
+def create_default_config(output_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
+    """
+    Create a default configuration and optionally save it to a file.
+    
+    Args:
+        output_path: Path to save the configuration. If None, only returns the dict.
+        
+    Returns:
+        The default configuration dictionary.
+    """
+    logger = get_logger(__name__)
+    config = DEFAULT_CONFIG.copy()
+    
+    if output_path:
+        save_config(config, output_path)
+        logger.info(f"Default configuration created at {output_path}")
+    else:
+        logger.info("Default configuration created (not saved)")
     
     return config
 
 def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Recursively merge override dictionary into base dictionary.
+    Recursively merge two dictionaries.
     
     Args:
-        base: Base dictionary to merge into.
+        base: Base dictionary.
         override: Dictionary with values to override.
         
     Returns:
@@ -125,140 +215,5 @@ def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any
             result[key] = _deep_merge(result[key], value)
         else:
             result[key] = value
-            
+    
     return result
-
-def _resolve_paths(config: Dict[str, Any], project_root: Path) -> Dict[str, Any]:
-    """
-    Resolve relative paths in config to absolute paths based on project root.
-    
-    Args:
-        config: Configuration dictionary potentially containing relative paths.
-        project_root: Project root directory.
-        
-    Returns:
-        Configuration dictionary with absolute paths.
-    """
-    path_keys = [
-        ("project", "root_path"),
-        ("data", "raw_dir"),
-        ("data", "processed_dir"),
-        ("paths", "results_models"),
-        ("paths", "results_figures"),
-        ("paths", "results_diagnostics"),
-        ("paths", "code"),
-        ("paths", "tests"),
-        ("logging", "file")
-    ]
-    
-    for key_path in path_keys:
-        current = config
-        valid = True
-        
-        # Navigate to the nested key
-        for k in key_path[:-1]:
-            if isinstance(current, dict) and k in current:
-                current = current[k]
-            else:
-                valid = False
-                break
-                
-        if valid and isinstance(current, dict) and key_path[-1] in current:
-            value = current[key_path[-1]]
-            if isinstance(value, str) and not os.path.isabs(value):
-                current[key_path[-1]] = str(project_root / value)
-                
-    return config
-
-def validate_config(config: Dict[str, Any]) -> None:
-    """
-    Validate that required configuration keys are present and have valid values.
-    
-    Args:
-        config: Configuration dictionary to validate.
-        
-    Raises:
-        ValueError: If required keys are missing or invalid.
-    """
-    logger = get_logger(__name__)
-    
-    # Check required top-level sections
-    required_sections = ["project", "data", "preprocessing", "analysis", "paths"]
-    for section in required_sections:
-        if section not in config:
-            raise ValueError(f"Missing required configuration section: {section}")
-            
-    # Check project name
-    if not config["project"].get("name"):
-        raise ValueError("Project name is required")
-        
-    # Check data directories
-    if not config["data"].get("raw_dir"):
-        raise ValueError("Data raw directory is required")
-        
-    # Check preprocessing parameters
-    if not config["preprocessing"].get("sample_rate"):
-        raise ValueError("Sample rate is required for preprocessing")
-        
-    # Check analysis electrodes
-    if not config["analysis"].get("electrodes"):
-        raise ValueError("At least one electrode must be specified for analysis")
-        
-    logger.info("Configuration validation passed")
-
-def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
-    """
-    Get a value from the configuration using a dot-separated key path.
-    
-    Args:
-        config: Configuration dictionary.
-        key_path: Dot-separated path to the key (e.g., "preprocessing.sample_rate").
-        default: Default value if key is not found.
-        
-    Returns:
-        Value at the key path or default.
-    """
-    keys = key_path.split(".")
-    current = config
-    
-    for key in keys:
-        if isinstance(current, dict) and key in current:
-            current = current[key]
-        else:
-            return default
-            
-    return current
-
-def save_config(config: Dict[str, Any], output_path: Union[str, Path]) -> None:
-    """
-    Save configuration to a YAML file.
-    
-    Args:
-        config: Configuration dictionary to save.
-        output_path: Path to the output YAML file.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
-
-def create_default_config(output_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
-    """
-    Create a default configuration and optionally save it to a file.
-    
-    Args:
-        output_path: Path to save the configuration. If None, only returns the dict.
-        
-    Returns:
-        Default configuration dictionary.
-    """
-    config = DEFAULT_CONFIG.copy()
-    
-    if output_path:
-        save_config(config, output_path)
-        
-    return config
-
-# Convenience function to get logger for this module
-logger = get_logger(__name__)

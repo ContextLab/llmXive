@@ -140,6 +140,7 @@ class TestMemoryGuardContextManager:
             with pytest.raises(MemoryError):
                 with memory_guard(limit_gb=1):
                     pass
+
     def test_guard_resets_peak_on_enter(self):
         """Guard should reset peak RSS when entered."""
         reset_peak_rss()

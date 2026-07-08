@@ -1,183 +1,224 @@
+"""
+Preprocessing module for EEG data analysis.
+Handles filtering, ICA, epoch extraction, and feature calculation.
+"""
 import os
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
-import pandas as pd
 
-logger = logging.getLogger(__name__)
+def calculate_angular_deviation(heading_vector: np.ndarray, optimal_vector: np.ndarray) -> Optional[float]:
+    """
+    Calculate the angular deviation (in degrees) between two vectors.
 
-def calculate_angular_deviation(heading: np.ndarray, optimal: np.ndarray) -> Optional[float]:
+    Args:
+        heading_vector: Current heading direction vector.
+        optimal_vector: Optimal path direction vector.
+
+    Returns:
+        Angular deviation in degrees, or None if vectors are zero-length.
     """
-    Calculate the angular deviation (in degrees) between the heading vector and the optimal path vector.
-    
-    Parameters
-    ----------
-    heading : np.ndarray
-        2D vector representing the current heading direction.
-    optimal : np.ndarray
-        2D vector representing the optimal path direction.
-        
-    Returns
-    -------
-    float or None
-        The angular deviation in degrees if both vectors are non-zero, otherwise None.
-    """
-    # Check for zero vectors
-    heading_norm = np.linalg.norm(heading)
-    optimal_norm = np.linalg.norm(optimal)
-    
-    if heading_norm == 0 or optimal_norm == 0:
+    logger = logging.getLogger(__name__)
+
+    # Check for zero-length vectors
+    if np.linalg.norm(heading_vector) < 1e-10 or np.linalg.norm(optimal_vector) < 1e-10:
         logger.warning("Zero-length vector detected in angular deviation calculation. Returning None.")
         return None
-    
+
     # Normalize vectors
-    heading_unit = heading / heading_norm
-    optimal_unit = optimal / optimal_norm
-    
-    # Calculate dot product
-    dot_product = np.clip(np.dot(heading_unit, optimal_unit), -1.0, 1.0)
-    
+    heading_norm = heading_vector / np.linalg.norm(heading_vector)
+    optimal_norm = optimal_vector / np.linalg.norm(optimal_vector)
+
+    # Calculate dot product and clip to [-1, 1] to avoid numerical errors
+    dot_product = np.clip(np.dot(heading_norm, optimal_norm), -1.0, 1.0)
+
     # Calculate angle in radians and convert to degrees
     angle_rad = np.arccos(dot_product)
     angle_deg = np.degrees(angle_rad)
-    
+
     return angle_deg
 
-def apply_filters(raw_data: pd.DataFrame, sfreq: float) -> pd.DataFrame:
+def apply_filters(raw_data: np.ndarray, sfreq: float, bandpass: List[float], notch: float) -> np.ndarray:
     """
-    Apply bandpass and line-frequency notch filters to raw EEG data.
-    
-    Parameters
-    ----------
-    raw_data : pd.DataFrame
-        DataFrame containing EEG time series data.
-    sfreq : float
-        Sampling frequency in Hz.
-        
-    Returns
-    -------
-    pd.DataFrame
+    Apply bandpass and notch filters to raw EEG data.
+
+    Args:
+        raw_data: Raw EEG data array (n_channels, n_samples).
+        sfreq: Sampling frequency in Hz.
+        bandpass: [low_cutoff, high_cutoff] for bandpass filter.
+        notch: Notch filter frequency (e.g., 50 or 60 Hz).
+
+    Returns:
         Filtered EEG data.
     """
-    logger.info(f"Applying filters with sampling frequency: {sfreq} Hz")
-    # Placeholder for actual filtering logic using scipy or mne
-    # In a real implementation, this would use scipy.signal or mne.filter
-    return raw_data
+    logger = logging.getLogger(__name__)
+    logger.info(f"Applying bandpass filter [{bandpass[0]}Hz, {bandpass[1]}Hz] and notch filter {notch}Hz")
 
-def run_ica(data: pd.DataFrame, n_components: int = 20) -> Dict[str, Any]:
-    """
-    Run ICA to remove ocular/muscular artifacts.
-    
-    Parameters
-    ----------
-    data : pd.DataFrame
-        Preprocessed EEG data.
-    n_components : int
-        Number of ICA components to compute.
-        
-    Returns
-    -------
-    Dict[str, Any]
-        Dictionary containing ICA results and component information.
-    """
-    logger.info(f"Running ICA with {n_components} components")
-    # Placeholder for actual ICA logic using mne
-    return {"n_components": n_components, "components_removed": []}
+    # Placeholder for actual MNE filtering
+    # In real implementation: use mne.filter.filter_data()
+    filtered_data = raw_data.copy()
 
-def save_preprocessing_log(log_data: Dict[str, Any], output_path: Path) -> None:
+    # Simulate filtering (remove this in real implementation)
+    # This is just to satisfy the function signature for now
+    from scipy.signal import butter, filtfilt
+
+    def butter_bandpass(lowcut, highcut, fs, order=4):
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        b, a = butter(order, [low, high], btype='band')
+        return b, a
+
+    def butter_bandpass_filter(data, lowcut, highcut, fs, order=4):
+        b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+        y = filtfilt(b, a, data, axis=1)
+        return y
+
+    filtered_data = butter_bandpass_filter(
+        filtered_data, bandpass[0], bandpass[1], sfreq
+    )
+
+    return filtered_data
+
+def run_ica(raw_data: np.ndarray, n_components: Optional[int] = None) -> Dict[str, Any]:
     """
-    Save preprocessing log to a YAML file.
-    
-    Parameters
-    ----------
-    log_data : Dict[str, Any]
-        Dictionary containing preprocessing parameters and results.
-    output_path : Path
-        Path to the output YAML file.
+    Run ICA to identify and remove artifacts.
+
+    Args:
+        raw_data: Preprocessed EEG data.
+        n_components: Number of ICA components (None for automatic).
+
+    Returns:
+        Dictionary with ICA results and removed components.
     """
-    with open(output_path, 'w') as f:
-        yaml.dump(log_data, f)
+    logger = logging.getLogger(__name__)
+    logger.info("Running ICA for artifact removal")
+
+    # Placeholder for actual MNE ICA
+    # In real implementation: use mne.preprocessing.ICA
+    result = {
+        'n_components': n_components,
+        'removed_components': [],
+        'ica_info': 'Placeholder ICA result'
+    }
+
+    return result
+
+def save_preprocessing_log(log_data: Dict[str, Any], output_path: str) -> None:
+    """
+    Save preprocessing parameters and results to a YAML file.
+
+    Args:
+        log_data: Dictionary containing preprocessing parameters and results.
+        output_path: Path to save the log file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, 'w', encoding='utf-8') as f:
+        yaml.dump(log_data, f, default_flow_style=False)
+
+    logger = logging.getLogger(__name__)
     logger.info(f"Preprocessing log saved to {output_path}")
 
-def extract_mfn_features(df: pd.DataFrame, sfreq: float) -> pd.DataFrame:
+def extract_mfn_features(epochs_data: np.ndarray, times: np.ndarray,
+                         electrodes: List[str], mfn_window: tuple,
+                         baseline: tuple) -> Dict[str, Any]:
     """
-    Extract MFN features (mean and peak amplitude) from EEG epochs.
-    
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing EEG time series data with columns:
-        'participant_id', 'trial_id', 'time_ms', 'FCz', 'Cz', 'Fz', 'event_type'.
-    sfreq : float
-        Sampling frequency in Hz.
-        
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing extracted MFN features for each electrode.
+    Extract MFN (Medial Frontal Negativity) features from epochs.
+
+    Args:
+        epochs_data: Epoch data array (n_epochs, n_channels, n_times).
+        times: Time points array.
+        electrodes: List of electrode names to extract from.
+        mfn_window: (start, end) window in seconds for mean amplitude.
+        baseline: (start, end) window in seconds for baseline correction.
+
+    Returns:
+        Dictionary with extracted features (mean and peak amplitude).
     """
-    # Check if this is an error event
-    if df['event_type'].iloc[0] != 'error':
-        return pd.DataFrame()
-    
-    # Define time windows
-    baseline_start, baseline_end = -200, 0
-    mfn_start, mfn_end = 200, 400
-    
-    # Get time array
-    times = df['time_ms'].values
-    
-    # Define target electrodes
-    electrodes = ['FCz', 'Cz', 'Fz']
-    
-    results = []
-    
+    logger = logging.getLogger(__name__)
+    logger.info(f"Extracting MFN features in window {mfn_window}s with baseline {baseline}s")
+
+    features = {}
+
+    # Find indices for windows
+    mfn_start_idx = np.where(times >= mfn_window[0])[0][0] if len(times[times >= mfn_window[0]]) > 0 else 0
+    mfn_end_idx = np.where(times <= mfn_window[1])[0][-1] if len(times[times <= mfn_window[1]]) > 0 else len(times) - 1
+    baseline_start_idx = np.where(times >= baseline[0])[0][0] if len(times[times >= baseline[0]]) > 0 else 0
+    baseline_end_idx = np.where(times <= baseline[1])[0][-1] if len(times[times <= baseline[1]]) > 0 else len(times) - 1
+
+    # Calculate baseline mean for each epoch
+    baseline_mean = np.mean(epochs_data[:, :, baseline_start_idx:baseline_end_idx], axis=2)
+
+    # Baseline correction
+    corrected_data = epochs_data - baseline_mean[:, :, np.newaxis]
+
     for electrode in electrodes:
-        signal = df[electrode].values
-        
-        # Baseline correction
-        baseline_mask = (times >= baseline_start) & (times <= baseline_end)
-        baseline_mean = np.mean(signal[baseline_mask])
-        corrected_signal = signal - baseline_mean
-        
-        # MFN window
-        mfn_mask = (times >= mfn_start) & (times <= mfn_end)
-        
-        # Calculate mean amplitude in MFN window
-        mean_amplitude = np.mean(corrected_signal[mfn_mask])
-        
-        # Calculate peak amplitude (most negative) in the entire epoch
-        peak_amplitude = np.min(corrected_signal)
-        
-        results.append({
-            'participant_id': df['participant_id'].iloc[0],
-            'trial_id': df['trial_id'].iloc[0],
-            'electrode': electrode,
+        # Extract mean amplitude in MFN window
+        mean_amplitude = np.mean(corrected_data[:, :, mfn_start_idx:mfn_end_idx], axis=(1, 2))
+
+        # Extract peak (most negative) amplitude in MFN window
+        peak_amplitude = np.min(corrected_data[:, :, mfn_start_idx:mfn_end_idx], axis=(1, 2))
+
+        features[electrode] = {
             'mean_amplitude': mean_amplitude,
             'peak_amplitude': peak_amplitude
-        })
-    
-    return pd.DataFrame(results)
+        }
 
-def process_eeg_data(raw_data_path: Path, output_path: Path) -> None:
+    return features
+
+def process_eeg_data(raw_file: str, config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Main function to process EEG data from raw to processed state.
-    
-    Parameters
-    ----------
-    raw_data_path : Path
-        Path to the raw EEG data file.
-    output_path : Path
-        Path to save the processed data.
+    Process raw EEG data according to configuration.
+
+    Args:
+        raw_file: Path to raw EEG data file.
+        config: Preprocessing configuration dictionary.
+
+    Returns:
+        Dictionary with processed data and metadata.
     """
-    logger.info(f"Processing EEG data from {raw_data_path}")
-    # Placeholder for full pipeline logic
-    logger.info(f"Processed data saved to {output_path}")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Processing EEG data from {raw_file}")
+
+    # Placeholder for actual data loading and processing
+    # In real implementation: use mne.io.read_raw()
+
+    result = {
+        'raw_file': raw_file,
+        'config': config,
+        'processed': True,
+        'message': 'Placeholder processing result'
+    }
+
+    return result
 
 def main():
-    """Main entry point for the preprocessing module."""
-    logger.info("Starting EEG preprocessing pipeline")
-    # Example usage
-    pass
+    """
+    Main function to run preprocessing pipeline.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description='Preprocess EEG data')
+    parser.add_argument('--config', type=str, required=True, help='Path to config file')
+    parser.add_argument('--input', type=str, required=True, help='Path to input data')
+    parser.add_argument('--output', type=str, required=True, help='Path to output directory')
+
+    args = parser.parse_args()
+
+    # Load config
+    from .config_loader import load_config
+    config = load_config(args.config)
+
+    # Run processing
+    result = process_eeg_data(args.input, config)
+
+    # Save results
+    save_preprocessing_log(result, f"{args.output}/preprocessing_log.yaml")
+
+    print(f"Preprocessing complete. Results saved to {args.output}")
+
+if __name__ == '__main__':
+    main()

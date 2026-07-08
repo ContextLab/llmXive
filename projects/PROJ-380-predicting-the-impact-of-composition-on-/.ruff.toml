@@ -1,0 +1,45 @@
+# Ruff configuration for llmXive project
+# Configured for scientific code consistency and strict linting
+
+target-version = "py311"
+line-length = 100
+indent-width = 4
+
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by formatter/black)
+    "B008", # Do not perform function call in argument defaults (common in ML)
+    "C901", # Complex structure (allow flexibility in scientific logic)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific directories from linting
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    "data/raw", # Exclude raw data files if accidentally detected
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[lint.isort]
+known-first-party = ["code", "utils", "tests"]
+force-sort-within-sections = true

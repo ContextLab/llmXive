@@ -1,57 +1,75 @@
-.PHONY: all clean setup data features train evaluate viz help
+# Makefile for PROJ-380: Predicting the Impact of Composition on Shear Modulus
+# Orchestration entry point for the full pipeline (FR-010)
+
+.PHONY: all setup data features split validate train evaluate importance clean help
 
 # Default target: Run the full pipeline
-all: setup data features train evaluate viz
-	@echo "Pipeline completed successfully."
+all: setup data features split validate train evaluate importance
+	@echo "Pipeline execution completed successfully."
+	@echo "Check 'artifacts/' for reports and 'data/' for processed datasets."
 
-# Setup: Ensure directories and environment are ready
+# Setup: Ensure directories and configuration exist
 setup:
-	@echo "=== Setting up project environment ==="
-	@mkdir -p data/raw data/processed data/artifacts figures
-	@python -c "import sys; print(f'Python {sys.version}')"
+	@echo ">>> Step 1/9: Setting up directories and configuration..."
+	@python code/setup_data_dirs.py
 
-# Data: Ingest raw data (API or fallback)
+# Data Ingestion: Fetch raw data (Materials Project or Synthetic fallback)
 data:
-	@echo "=== Ingesting data ==="
-	python code/data/ingest.py
+	@echo ">>> Step 2/9: Ingesting raw data..."
+	@python code/data/ingest.py
 
-# Features: Compute descriptors and clean data
-features:
-	@echo "=== Engineering features ==="
-	python code/data/features.py
-	python code/data/clean.py
-	python code/data/split.py
-
-# Train: Train models and select best
-train:
-	@echo "=== Training models ==="
-	python code/models/train.py
-
-# Evaluate: Evaluate model performance
-evaluate:
-	@echo "=== Evaluating models ==="
-	python code/models/evaluate.py
-
-# Viz: Generate visualizations
-viz:
-	@echo "=== Generating visualizations ==="
-	python code/viz/plots.py
-
-# Clean: Remove generated files
+# Cleaning: Filter for BMG phase and standardize units
 clean:
-	@echo "=== Cleaning artifacts ==="
-	rm -rf data/raw/*.csv data/processed/*.csv data/artifacts/*.json data/artifacts/*.csv figures/*.png
+	@echo ">>> Step 3/9: Cleaning and filtering data..."
+	@python code/data/clean.py
+
+# Feature Engineering: Calculate descriptors and handle collinearity
+features:
+	@echo ">>> Step 4/9: Calculating features and handling collinearity..."
+	@python code/data/features.py
+
+# Splitting: Stratified split by alloy family
+split:
+	@echo ">>> Step 5/9: Splitting dataset..."
+	@python code/data/split.py
+
+# Validation: Ensure no missing target values
+validate:
+	@echo ">>> Step 6/9: Validating target variable..."
+	@python code/data/validate_target.py
+
+# Training: Train models with grid search
+train:
+	@echo ">>> Step 7/9: Training models..."
+	@python code/models/train.py
+
+# Evaluation: Statistical comparison and hybrid validation
+evaluate:
+	@echo ">>> Step 8/9: Evaluating models..."
+	@python code/models/evaluate.py
+
+# Importance: Feature importance and visualization
+importance:
+	@echo ">>> Step 9/9: Analyzing feature importance..."
+	@python code/models/importance.py
+
+# Clean: Remove generated data and artifacts
+clean:
+	@echo ">>> Cleaning generated artifacts..."
+	@rm -rf data/processed/* data/artifacts/* artifacts/*
 	@echo "Clean complete."
 
-# Help: Display this message
+# Help: Display available targets
 help:
 	@echo "Available targets:"
-	@echo "  all      - Run the full pipeline"
-	@echo "  setup    - Setup directories and environment"
-	@echo "  data     - Ingest raw data"
-	@echo "  features - Engineer features and split data"
-	@echo "  train    - Train models"
-	@echo "  evaluate - Evaluate model performance"
-	@echo "  viz      - Generate visualizations"
-	@echo "  clean    - Remove generated artifacts"
-	@echo "  help     - Show this help message"
+	@echo "  all        - Run the full pipeline (default)"
+	@echo "  setup      - Initialize directories"
+	@echo "  data       - Ingest raw data"
+	@echo "  clean      - Clean and filter data"
+	@echo "  features   - Engineer features"
+	@echo "  split      - Split dataset"
+	@echo "  validate   - Validate target"
+	@echo "  train      - Train models"
+	@echo "  evaluate   - Evaluate models"
+	@echo "  importance - Analyze feature importance"
+	@echo "  clean      - Remove generated files"

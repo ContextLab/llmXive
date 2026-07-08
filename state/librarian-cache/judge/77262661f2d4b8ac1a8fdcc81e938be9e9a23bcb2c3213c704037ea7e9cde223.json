@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.00408",
+  "judged_at": "2026-07-08T01:43:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+  "rationale": "The candidate paper is the foundational source for the user's question, as the user's query explicitly references it as a \"follow-up\" to the work titled \"Masking Stale Observations Helps Search Agents -- Until It Doesn't.\" This satisfies acceptance criteria (d) as the canonical reference for the specific mechanism and regime map being studied, and (a) as it provides the direct evidence for the \"masking stale observations\" mechanism the user intends to extend.",
+  "relevant": true
+}

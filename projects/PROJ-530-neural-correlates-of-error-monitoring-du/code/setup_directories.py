@@ -1,35 +1,33 @@
 """
-Script to create the project directory structure.
+Directory setup module for project initialization.
 """
 import os
 from pathlib import Path
 
-def create_project_directories(project_root: str = "projects/PROJ-530-neural-correlates-of-error-monitoring-du") -> None:
+def create_project_directories(base_path: str) -> None:
     """
     Create the standard project directory structure.
-    
-    Args:
-        project_root: Root path for the project.
-    """
-    root = Path(project_root)
-    
-    # Data directories
-    (root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (root / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    
-    # Results directories
-    (root / "results" / "models").mkdir(parents=True, exist_ok=True)
-    (root / "results" / "figures").mkdir(parents=True, exist_ok=True)
-    (root / "results" / "diagnostics").mkdir(parents=True, exist_ok=True)
-    
-    # Code and tests
-    (root / "code").mkdir(parents=True, exist_ok=True)
-    (root / "tests").mkdir(parents=True, exist_ok=True)
-    
-    # Specs
-    (root / "specs").mkdir(parents=True, exist_ok=True)
-    
-    print(f"Created directory structure at: {root.resolve()}")
 
-if __name__ == "__main__":
-    create_project_directories()
+    Args:
+        base_path: Base path for the project (e.g., 'projects/PROJ-530-...').
+    """
+    base = Path(base_path)
+
+    # Data directories
+    (base / 'data' / 'raw').mkdir(parents=True, exist_ok=True)
+    (base / 'data' / 'processed').mkdir(parents=True, exist_ok=True)
+
+    # Results directories
+    (base / 'results' / 'models').mkdir(parents=True, exist_ok=True)
+    (base / 'results' / 'figures').mkdir(parents=True, exist_ok=True)
+    (base / 'results' / 'diagnostics').mkdir(parents=True, exist_ok=True)
+
+    # Code and tests directories
+    (base / 'code').mkdir(parents=True, exist_ok=True)
+    (base / 'tests').mkdir(parents=True, exist_ok=True)
+
+    # Create __init__.py files
+    (base / 'code' / '__init__.py').touch()
+    (base / 'tests' / '__init__.py').touch()
+
+    print(f"Project directories created at {base}")

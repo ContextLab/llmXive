@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1406.7762",
+  "judged_at": "2026-07-08T01:44:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+  "rationale": "The paper focuses on laser-driven inertial confinement fusion physics (hydrodynamic simulations and illumination models), which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and search agent mechanisms in linguistics. There is no overlap in biological pathway, physical observable, algorithmic property, or empirical population, and the shared term \"model\" refers to distinct scientific constructs.",
+  "relevant": false
+}

@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-07-08T01:44:19Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \"",
+      "target_n": 5
+    },
+    "duration_seconds": 93.213,
+    "ended_at": "2026-07-08T01:44:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "stale observation masking in search agents"
+        ],
+        [
+          2,
+          "temporal relevance in language model search"
+        ],
+        [
+          3,
+          "observation decay effects in agent reasoning"
+        ],
+        [
+          4,
+          "diminishing returns of observation masking"
+        ],
+        [
+          5,
+          "search agent performance with stale context"
+        ],
+        [
+          6,
+          "context window management in LLM search"
+        ],
+        [
+          7,
+          "temporal attention mechanisms in language models"
+        ],
+        [
+          8,
+          "information staleness in retrieval-augmented generation"
+        ],
+        [
+          9,
+          "agent memory decay and search efficiency"
+        ],
+        [
+          10,
+          "limitations of masking strategies in LLM agents"
+        ],
+        [
+          11,
+          "dynamic context filtering for search agents"
+        ],
+        [
+          12,
+          "temporal coherence in large language model reasoning"
+        ],
+        [
+          13,
+          "impact of outdated observations on LLM decisions"
+        ],
+        [
+          14,
+          "search agent context pruning techniques"
+        ],
+        [
+          15,
+          "LLM reasoning with partial or stale information"
+        ],
+        [
+          16,
+          "adaptive observation masking in AI agents"
+        ],
+        [
+          17,
+          "trade-offs in context retention for search tasks"
+        ],
+        [
+          18,
+          "temporal signal degradation in language model agents"
+        ],
+        [
+          19,
+          "optimization of observation windows in LLM search"
+        ],
+        [
+          20,
+          "failure modes of stale data masking in agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \" linguistics": 0,
+        "stale observation masking in search agents": 3,
+        "temporal relevance in language model search": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "stale observation masking linguistic search",
+      "human-in-the-loop linguistic annotation delay",
+      "partial observability linguistic decision making",
+      "search agent evaluation linguistic task performance",
+      "information staleness cognitive load language processing"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2407.01476"
+      ]
+    },
+    "per_query_hit_count": {
+      "human-in-the-loop linguistic annotation delay": 3,
+      "information staleness cognitive load language processing": 3,
+      "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \" linguistics": 3,
+      "partial observability linguistic decision making": 3,
+      "search agent evaluation linguistic task performance": 2,
+      "stale observation masking linguistic search": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2605.05991",
+          "rationale": "The paper focuses on a multi-agent framework for automating e-commerce search relevance workflows (bad-case identification and resolution), which is an application domain distinct from the user's question about the specific mechanism of \"masking stale observations\" in search agents. While both involve \"search agents,\" the candidate paper does not measure the same biological, physical, or algorithmic mechanism regarding observation staleness, nor does it study the specific empirical population or",
+          "title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance"
+        },
+        {
+          "primary_pointer": "2004.01221",
+          "rationale": "The paper focuses on automatic language identification (LID) and sequence modeling in speech signals using attention mechanisms, which is a distinct domain from the user's question about extending a specific LLM search agent paper regarding \"masking stale observations.\" While both involve sequence modeling, the candidate paper does not address the specific mechanism of stale observation masking in search agents, nor does it study the same empirical population (LLM search agents vs. speech recogn",
+          "title": "Towards Relevance and Sequence Modeling in Language Recognition"
+        },
+        {
+          "primary_pointer": "1406.7762",
+          "rationale": "The paper focuses on laser-driven inertial confinement fusion physics (hydrodynamic simulations and illumination models), which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and search agent mechanisms in linguistics. There is no overlap in biological pathway, physical observable, algorithmic property, or empirical population, and the shared term \"model\" refers to distinct scientific constructs.",
+          "title": "Comparison between illumination model and hydrodynamic simulation for a Direct Drive laser irradiated target"
+        },
+        {
+          "primary_pointer": "1701.04392",
+          "rationale": "The paper focuses on quantum spatial search algorithms on temporal networks, which is a distinct domain from the user's question regarding Large Language Models (LLMs) and linguistic search agents. While both involve \"search\" and \"temporal\" concepts, the mechanisms (quantum walks vs. LLM masking strategies), variables, and empirical populations are entirely unrelated, failing to meet any inclusion criteria (a-f) and falling under the \"off-domain entirely\" rejection rule.",
+          "title": "Optimal quantum spatial search on random temporal networks"
+        },
+        {
+          "primary_pointer": "2503.21676",
+          "rationale": "The paper investigates the internal learning dynamics and factual recall mechanisms of language models during pre-training, which is distinct from the user's specific question regarding the \"Masking Stale Observations\" technique in search agents (a reinforcement learning/search context). While both involve LLMs, the paper does not measure the same mechanism (search agent observation masking), address the same variables (stale vs. fresh observations in a search trajectory), or provide a baseline ",
+          "title": "How do language models learn facts? Dynamics, curricula and hallucinations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-08T01:42:46Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+      "raw": "llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- Until It Doesn't: A \" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-08T01:43:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-08T01:43:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-08T01:43:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Relevance is a foundation of user experience in e-commerce search. We view relevance optimization as a closed-loop ecosystem involving multiple human roles: users who provide feedback, product managers who define standards, annotators who label data, algorithm engineers who optimize models, and evaluators who assess performance. Because improving relevance in practice means systematically resolving user-perceived bad cases, we ask a system-level question: can this ecosystem be reimagined by replacing its human roles with autonomous agents? To answer this question, we propose a case-driven multi-agent framework that automates the pipeline from bad-case identification to resolution. The framework instantiates an Annotator Agent for multi-turn annotation, an Optimizer Agent for autonomous bad-case analysis and resolution, and a User Agent that identifies bad cases through conversational interaction, together forming an autonomous and continually evolving system. To make the framework practical in production, we further adopt a harness-engineering paradigm and build a unified retrieval-and-ranking relevance model for efficient training, an instruction-following relevance model for real-time case resolution, Global Memory to reduce information asymmetry across agents, a Deep Search Agent to target underestimation failures, and an agent-based chatbot for human--agent collaboration. Extensive human evaluation shows that the framework performs relevance-related tasks effectively, improves annotation accuracy, and enables more timely and generalizable bad-case resolution, indicating a practical paradigm for industrial search relevance optimization.",
+          "claimed_authors": [
+            "Global E-Commerce Search Relevance Team"
+          ],
+          "claimed_title": "A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.05991"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='A Case-Driven Multi-Agent Framework for E-Commerce Search Relevance')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classical information encoded in composite quantum states can be completely hidden from the reduced subsystems and may be found only in the correlations. Can the same be true for quantum information? If quantum information is hidden from subsystems and spread over quantum correlation, we call it as masking of quantum information. We show that while this may still be true for some restricted sets of non-orthogonal quantum states, it is not possible for arbitrary quantum states. This result suggests that quantum qubit commitment -- a stronger version of the quantum bit commitment is not possible in general. Our findings may have potential applications in secret sharing and future quantum communication protocols.",
+          "claimed_authors": [
+            "Kavan Modi",
+            "Arun Kumar Pati",
+            "Aditi Sen De",
+            "Ujjwal Sen"
+          ],
+          "claimed_title": "Masking quantum information is impossible",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1608.01695"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Masking quantum information is impossible')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a simplified human-in-the-loop workflow for second language (L2) Korean morphosyntactic annotation by leveraging agreement between two domain-adapted parsers. We first evaluate whether parser agreement can serve as a proxy for annotation correctness by comparing it with independent human judgments. The results show strong correspondence between parser and human judgments, supporting the feasibility of semi-automatic L2-Korean UD annotation. Further analysis demonstrates that parser disagreements cluster in linguistically predictable domains such as grammatical-relation distinctions and clause-boundary ambiguity. While many disagreement cases are tractable for iterative model refinement, others reflect deeper representational challenges inherent in parsing and tagging L2-Korean corpora.",
+          "claimed_authors": [
+            "Hakyung Sung",
+            "Gyu-Ho Shin"
+          ],
+          "claimed_title": "Parser agreement and disagreement in L2 Korean UD: Implications for human-in-the-loop annotation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.06625"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Parser agreement and disagreement in L2 Korean UD: Implications for human-in-the-loop annotation')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High-quality human annotations are necessary for creating effective machine learning-driven stream processing systems. We study hybrid stream processing systems based on a Human-In-The-Loop Machine Learning (HITL-ML) paradigm, in which one or many human annotators and an automatic classifier (trained at least partially by the human annotators) label an incoming stream of instances. This is typical of many near-real-time social media analytics and web applications, including annotating social media posts during emergencies by digital volunteer groups. From a practical perspective, low-quality human annotations result in wrong labels for retraining automated classifiers and indirectly contribute to the creation of inaccurate classifiers.\n  Considering human annotation as a psychological process allows us to address these limitations. We show that human annotation quality is dependent on the ordering of instances shown to annotators and can be improved by local changes in the instance sequence/order provided to the annotators, yielding a more accurate annotation of the stream. We adapt a theoretically-motivated human error framework of mistakes and slips for the human annotation task to study the effect of ordering instances (i.e., an \"annotation schedule\"). Further, we propose an error-avoidance approach to the active learning paradigm for stream processing applications robust to these likely human errors (in the form of slips) when deciding a human annotation schedule. We support the human error framework using crowdsourcing experiments and evaluate the proposed algorithm against standard baselines for active learning via extensive experimentation on classification tasks of filtering relevant social media posts during natural disasters.",
+          "claimed_authors": [
+            "Rahul Pandey",
+            "Hemant Purohit",
+            "Carlos Castillo",
+            "Valerie L. Shalin"
+          ],
+          "claimed_title": "Modeling and mitigating human annotation errors to design efficient stream processing systems with human-in-the-loop machine learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.03177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Modeling and mitigating human annotation errors to design efficient stream processing systems with human-in-the-loop machine learning')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has been observed in recent works that, for several classes of linear time-invariant time-delay systems of retarded or neutral type with a single delay, if a root of its characteristic equation attains its maximal multiplicity, then this root is the rightmost spectral value, and hence it determines the exponential behavior of the system, a property usually referred to as multiplicity-induced-dominancy (MID). In this paper, we investigate the MID property for one of the simplest cases of systems with two delays, a scalar delay-differential equation of first order with two delayed terms of order zero. We discuss the standard approach based on the argument principle for establishing the MID property for single-delay systems and some of its limitations in the case of our simple system with two delays, before proposing a technique based on crossing imaginary roots that allows to conclude that the MID property holds in our setting.",
+          "claimed_authors": [
+            "Sébastien Fueyo",
+            "Guilherme Mazanti",
+            "Islam Boussaada",
+            "Yacine Chitour",
+            "Silviu-Iulian Niculescu"
+          ],
+          "claimed_title": "Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.11348"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Insights into the multiplicity-induced-dominancy for scalar delay-differential equations with two delays')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+          "claimed_authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "claimed_title": "Quantum decision making by social agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4918"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Quantum decision making by social agents')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Important decisions that impact human lives, livelihoods, and the natural environment are increasingly being automated. Delegating tasks to so-called automated decision-making systems (ADMS) can improve efficiency and enable new solutions. However, these benefits are coupled with ethical challenges. For example, ADMS may produce discriminatory outcomes, violate individual privacy, and undermine human self-determination. New governance mechanisms are thus needed that help organisations design and deploy ADMS in ways that are ethical, while enabling society to reap the full economic and social benefits of automation. In this article, we consider the feasibility and efficacy of ethics-based auditing (EBA) as a governance mechanism that allows organisations to validate claims made about their ADMS. Building on previous work, we define EBA as a structured process whereby an entity's present or past behaviour is assessed for consistency with relevant principles or norms. We then offer three contributions to the existing literature. First, we provide a theoretical explanation of how EBA can contribute to good governance by promoting procedural regularity and transparency. Second, we propose seven criteria for how to design and implement EBA procedures successfully. Third, we identify and discuss the conceptual, technical, social, economic, organisational, and institutional constraints associated with EBA. We conclude that EBA should be considered an integral component of multifaced approaches to managing the ethical risks posed by ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Jessica Morley",
+            "Mariarosaria Taddeo",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10980"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Organisations increasingly use automated decision-making systems (ADMS) to inform decisions that affect humans and their environment. While the use of ADMS can improve the accuracy and efficiency of decision-making processes, it is also coupled with ethical challenges. Unfortunately, the governance mechanisms currently used to oversee human decision-making often fail when applied to ADMS. In previous work, we proposed that ethics-based auditing (EBA), i.e. a structured process by which ADMS are assessed for consistency with relevant principles or norms, can (a) help organisations verify claims about their ADMS and (b) provide decision-subjects with justifications for the outputs produced by ADMS. In this article, we outline the conditions under which EBA procedures can be feasible and effective in practice. First, we argue that EBA is best understood as a 'soft' yet 'formal' governance mechanism. This implies that the main responsibility of auditors should be to spark ethical deliberation at key intervention points throughout the software development process and ensure that there is sufficient documentation to respond to potential inquiries. Second, we frame ADMS as parts of larger socio-technical systems to demonstrate that to be feasible and effective, EBA procedures must link to intervention points that span all levels of organisational governance and all phases of the software lifecycle. The main function of EBA should therefore be to inform, formalise, assess, and interlink existing governance structures. Finally, we discuss the policy implications of our findings. To support the emergence of feasible and effective EBA procedures, policymakers and regulators could provide standardised reporting formats, facilitate knowledge exchange, provide guidance on how to resolve normative tensions, and create an independent body to oversee EBA of ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Maria Axente"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.04380"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent methods train search agents via reinforcement learning from (question, answer, evidence) tuples without requiring expert trajectories. The tuples serve as the training environment, and whose properties directly shape what search strategies and generalization abilities the agent can develop. While prior works have made encouraging progress in improving training data quality, existing environments remain predominantly text-based and existing approaches can struggle to construct training environments that are controllable, scalable, and account for multimodal data. Given this, we propose DocArena, a fully automated data curation pipeline building on the practical need for multimodal document search and question-answering. It transforms raw document collections into training environments for search agents without any human annotation. The pipeline first structures and indexes documents through MLLM-based visual perception, then profiles and leverage the cross-page information distribution to construct reasoning-intensive QA pairs, as well as performs cascaded quality assurance operations via MLLM. We introduce DocArena-79K with QA pairs from 8,336 documents spanning 16 domains and 49 languages. We further design a Doc-Search agent infrastructure that decouples visual perception from the policy model, allowing text-based LLMs to serve as the reasoning backbone for multimodal document retrieval and QA. Under a unified evaluation framework where only the policy model differs, experiments on six multimodal document scenarios and seven text-based QA benchmarks show that agents trained on DocArena data achieve the best performance on both retrieval accuracy and QA quality. Further analysis on agent search behaviors confirms the effectiveness and controllability of the constructed training environment.",
+          "claimed_authors": [
+            "Jiamian Wang",
+            "Ruiyi Zhang",
+            "Tong Yu",
+            "Jing Shi",
+            "Samyadeep Basu",
+            "Rajiv Jain",
+            "Zhiqiang Tao",
+            "Tong Sun"
+          ],
+          "claimed_title": "DocArena: Turning Raw Documents into Controllable Training Environments for Document Search Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.26122"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='DocArena: Turning Raw Documents into Controllable Training Environments for Document Search Agents')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+          "claimed_authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "claimed_title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prompting has become a practical method for utilizing pre-trained language models (LMs). This approach offers several advantages. It allows an LM to adapt to new tasks with minimal training and parameter updates, thus achieving efficiency in both storage and computation. Additionally, prompting modifies only the LM's inputs and harnesses the generative capabilities of language models to address various downstream tasks in a unified manner. This significantly reduces the need for human labor in designing task-specific models. These advantages become even more evident as the number of tasks served by the LM scales up. Motivated by the strengths of prompting, we are the first to explore the potential of prompting speech LMs in the domain of speech processing. Recently, there has been a growing interest in converting speech into discrete units for language modeling. Our pioneer research demonstrates that these quantized speech units are highly versatile within our unified prompting framework. Not only can they serve as class labels, but they also contain rich phonetic information that can be re-synthesized back into speech signals for speech generation tasks. Specifically, we reformulate speech processing tasks into speech-to-unit generation tasks. As a result, we can seamlessly integrate tasks such as speech classification, sequence generation, and speech generation within a single, unified prompting framework. The experiment results show that the prompting method can achieve competitive performance compared to the strong fine-tuning method based on self-supervised learning models with a similar number of trainable parameters. The prompting method also shows promising results in the few-shot setting. Moreover, with the advanced speech LMs coming into the stage, the proposed prompting framework attains great potential.",
+          "claimed_authors": [
+            "Kai-Wei Chang",
+            "Haibin Wu",
+            "Yu-Kai Wang",
+            "Yuan-Kuei Wu",
+            "Hua Shen",
+            "Wei-Cheng Tseng",
+            "Iu-thing Kang",
+            "Shang-Wen Li",
+            "Hung-yi Lee"
+          ],
+          "claimed_title": "SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.13040"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='SpeechPrompt: Prompting Speech Language Models for Speech Processing Tasks')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language understanding is a key scientific issue in the fields of cognitive and computer science. However, the two disciplines differ substantially in the specific research questions. Cognitive science focuses on analyzing the specific mechanism of the brain and investigating the brain's response to language; few studies have examined the brain's language system as a whole. By contrast, computer scientists focus on the efficiency of practical applications when choosing research questions but may ignore the most essential laws of language. Given these differences, can a combination of the disciplines offer new insights for building intelligent language models and studying language cognitive mechanisms? In the following text, we first review the research questions, history, and methods of language understanding in cognitive and computer science, focusing on the current progress and challenges. We then compare and contrast the research of language understanding in cognitive and computer sciences. Finally, we review existing work that combines insights from language cognition and language computation and offer prospects for future development trends.",
+          "claimed_authors": [
+            "Shaonan Wang",
+            "Nai Ding",
+            "Nan Lin",
+            "Jiajun Zhang",
+            "Chengqing Zong"
+          ],
+          "claimed_title": "Language Cognition and Language Computation -- Human and Machine Language Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.04788"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Masking Stale Observations Helps Search Agents -- ', candidate_title='Language Cognition and Language Computation -- Human and Machine Language Understanding')",
+        "failed_at": "2026-07-08T01:43:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haoxiang Zhang",
+            "Qixin Xu",
+            "Zhuofeng Li",
+            "Lei Zhang",
+            "Pengcheng Jiang",
+            "Yu Zhang",
+            "Julian McAuley"
+          ],
+          "title": "Masking Stale Observations Helps Search Agents -- Until It Doesn't: A Regime Map and Its Mechanism",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.00408",
+        "summary": "Long-horizon search agents accumulate large amounts of retrieved content across many tool calls, making context-budget efficiency increasingly important. A minimal intervention is to mask stale observations from the context as the trajectory progresses, but it remains unclear when this form of context management helps and why. We study observation masking through a systematic sweep over various agent backbones (4B to 284B parameters) and three retrievers on offline and live-web agentic search benchmarks. We find that the accuracy gain from masking follows an asymmetric inverted-U shape when plotted against the model's accuracy without context management: a plateau under weak retrievers, a peak when a strong retriever meets a mid-capacity model, and a sharp collapse when the model is saturated. This pattern reflects the interaction between retriever recall and the model's implicit filtering capacity, rather than either factor in isolation. Mechanistically, masking implements a token-for-turn trade-off: it removes observations the model has largely stopped attending to and pages the agent rarely re-opens. The added turns help when they convert failures into successes, but they fail when masking removes evidence the model would otherwise have used. We therefore reframe context management as a regime-dependent intervention and provide a holistic perspective for analyzing context use in agentic deep search. We release our scaffold and trajectories here (https://github.com/i-DeepSearch/observation-masking) to support future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.00408",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T01:43:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jing Yu Koh",
+            "Stephen McAleer",
+            "Daniel Fried",
+            "Ruslan Salakhutdinov"
+          ],
+          "title": "Tree Search for Language Model Agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.01476",
+        "summary": "Autonomous agents powered by language models (LMs) have demonstrated promise in their ability to perform decision-making tasks such as web automation. However, a key limitation remains: LMs, primarily optimized for natural language understanding and generation, struggle with multi-step reasoning, planning, and using environmental feedback when attempting to solve realistic computer tasks. Towards addressing this, we propose an inference-time search algorithm for LM agents to explicitly perform exploration and multi-step planning in interactive web environments. Our approach is a form of best-first tree search that operates within the actual environment space, and is complementary with most existing state-of-the-art agents. It is the first tree search algorithm for LM agents that shows effectiveness on realistic web tasks. On the challenging VisualWebArena benchmark, applying our search algorithm on top of a GPT-4o agent yields a 39.7% relative increase in success rate compared to the same baseline without search, setting a state-of-the-art success rate of 26.4%. On WebArena, search also yields a 28.0% relative improvement over a baseline agent, setting a competitive success rate of 19.2%. Our experiments highlight the effectiveness of search for web agents, and we demonstrate that performance scales with increased test-time compute. We conduct a thorough analysis of our results to highlight improvements from search, limitations, and promising directions for future work. Our code and models are publicly released at https://jykoh.com/search-agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.01476",
+          "http_status": 200,
+          "pdf_sample_score": 0.2961,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T01:43:38Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

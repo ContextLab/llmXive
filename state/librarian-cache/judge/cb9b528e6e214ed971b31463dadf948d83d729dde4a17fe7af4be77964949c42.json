@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.21676",
+  "judged_at": "2026-07-08T01:44:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"masking stale observations helps search agents -- until it doesn't: a \" linguistics",
+  "rationale": "The paper investigates the internal learning dynamics and factual recall mechanisms of language models during pre-training, which is distinct from the user's specific question regarding the \"Masking Stale Observations\" technique in search agents (a reinforcement learning/search context). While both involve LLMs, the paper does not measure the same mechanism (search agent observation masking), address the same variables (stale vs. fresh observations in a search trajectory), or provide a baseline ",
+  "relevant": false
+}
