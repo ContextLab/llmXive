@@ -1,0 +1,23 @@
+- artifact_hash: 675e0c0aa606d92f3277616ec2718cf150f0eff76b614c3b1dd92d19020c6499
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.humanconnectome.org/study/hcp-young-adult/data-release`
+  verification_status: mismatch
+  verified_against_url: https://www.humanconnectome.org/study/hcp-young-adult/data-release
+  verified_at: '2026-07-08T05:42:56.136255Z'
+- artifact_hash: 675e0c0aa606d92f3277616ec2718cf150f0eff76b614c3b1dd92d19020c6499
+  artifact_path: projects/PROJ-128-investigating-the-influence-of-network-t/specs/001-investigating-the-influence-of-network-t/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
+    \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal`
+  verification_status: verified
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verified_at: '2026-07-08T05:42:56.136255Z'

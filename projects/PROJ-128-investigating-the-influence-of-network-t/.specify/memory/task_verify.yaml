@@ -1,0 +1,8 @@
+T001 Create project directory structure (`code/`, `data/`, `contracts/`, `tests/`) as per implementation plan.: 1
+? T002 Create `requirements.txt` pinning all dependencies (nilearn, networkx, scikit-learn,
+  pandas, numpy, statsmodels, scipy, pyyaml).
+: 1
+T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` or `.pre-commit-config.yaml`.: 1
+T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters (30 TR window, 20 TR sensitivity, k=5).: 1
+T005 [P] Implement `code/config.py` hyperparameters section for density thresholds and statistical alpha levels.: 1
+T006 [P] Create `code/preprocess/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).: 1

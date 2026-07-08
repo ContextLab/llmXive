@@ -1,0 +1,38 @@
+version: "1.0"
+description: Schema for input dataset metadata from HCP OpenNeuro.
+type: object
+properties:
+  source:
+    type: string
+    description: Data source identifier (e.g., "HCP_1200")
+  dataset_id:
+    type: string
+    description: Unique dataset identifier from the repository
+  subjects:
+    type: array
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+        session_id:
+          type: string
+        modality:
+          type: string
+          enum: [dmri, fmri]
+        file_path:
+          type: string
+          description: Relative path to the raw file
+        acquisition_params:
+          type: object
+          properties:
+            tr:
+              type: number
+            te:
+              type: number
+            resolution:
+              type: number
+required:
+  - source
+  - dataset_id
+  - subjects

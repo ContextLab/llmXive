@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HCP Dataset Schema"
+description: "Schema for the input HCP dataset (Parquet/CSV) containing structural and functional data. Validates the Subject entity."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  structural_matrix:
+    type: array
+    description: "200x200 connectivity matrix."
+    items:
+      type: array
+      items:
+        type: number
+  fMRI_timeseries:
+    type: array
+    description: "200xT time series array."
+    items:
+      type: array
+      items:
+        type: number
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if any (e.g., 'sparsity >90%')."
+required:
+  - subject_id
+  - structural_matrix
+  - fMRI_timeseries
+additionalProperties: false

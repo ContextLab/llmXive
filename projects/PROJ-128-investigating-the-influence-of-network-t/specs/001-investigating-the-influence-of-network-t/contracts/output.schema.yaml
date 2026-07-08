@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the output correlation results including FDR correction. Validates the CorrelationResult entity."
+type: object
+properties:
+  structural_metric_name:
+    type: string
+    description: "Name of the structural metric (e.g., 'global_efficiency')."
+  dynamic_metric_name:
+    type: string
+    description: "Name of the dynamic metric (e.g., 'mean_dwell_time_state_1')."
+  correlation_coefficient:
+    type: number
+    description: "Pearson or Spearman correlation coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value."
+  fdr_corrected_p_value:
+    type: number
+    description: "Benjamini-Hochberg corrected p-value."
+  is_significant:
+    type: boolean
+    description: "True if FDR corrected p-value < 0.05."
+  method:
+    type: string
+    enum:
+      - "Pearson"
+      - "Spearman"
+    description: "Correlation method used."
+  window_length_tr:
+    type: integer
+    description: "Sliding window length in TRs (30 or 20)."
+  causal_claim:
+    type: boolean
+    const: false
+    description: "Always false. Findings are associational."
+required:
+  - structural_metric_name
+  - dynamic_metric_name
+  - correlation_coefficient
+  - p_value
+  - fdr_corrected_p_value
+  - is_significant
+  - method
+  - window_length_tr
+  - causal_claim
+additionalProperties: false

@@ -1,0 +1,94 @@
+version: "1.0"
+description: Schema for pipeline output metrics and reports.
+properties:
+  structural_metrics:
+    type: array
+    description: Per-subject structural network metrics
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+        global_efficiency:
+          type: number
+        average_clustering:
+          type: number
+        modularity:
+          type: number
+        node_count:
+          type: integer
+        edge_count:
+          type: integer
+        density:
+          type: number
+        excluded_reason:
+          type: ["string", "null"]
+  dynamic_metrics:
+    type: array
+    description: Per-subject dynamic functional state metrics
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+        dwell_times:
+          type: array
+          items:
+            type: number
+          description: Mean dwell time for each of the 5 states
+        visited_states:
+          type: integer
+          description: Number of unique states visited
+        state_sequence:
+          type: array
+          items:
+            type: integer
+          description: Sequence of state labels over time
+  correlation_results:
+    type: array
+    description: Structure-function correlation results
+    items:
+      type: object
+      properties:
+        metric_pair:
+          type: string
+          description: e.g., "global_efficiency_vs_dwell_time_0"
+        correlation_type:
+          type: string
+          enum: [pearson, spearman]
+        r_value:
+          type: number
+        p_value:
+          type: number
+        fdr_corrected_p:
+          type: number
+        significant:
+          type: boolean
+  sensitivity_analysis:
+    type: object
+    properties:
+      window_length_comparison:
+        type: object
+        properties:
+          baseline_tr:
+            type: integer
+          sensitivity_tr:
+            type: integer
+          absolute_diff_r:
+            type: number
+            description: Absolute difference in correlation coefficients
+  exclusion_log:
+    type: array
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+        reason:
+          type: string
+        timestamp:
+          type: string
+required:
+  - structural_metrics
+  - dynamic_metrics
+  - correlation_results
