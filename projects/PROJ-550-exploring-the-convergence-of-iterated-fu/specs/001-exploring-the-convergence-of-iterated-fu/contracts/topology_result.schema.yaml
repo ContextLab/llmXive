@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Topological Descriptor Schema"
+description: "Schema for the computed Minkowski-Bouligand dimension and related metrics."
+type: "object"
+required:
+  - "ifs_id"
+  - "box_counting_dim"
+  - "scale_count"
+  - "r_squared"
+properties:
+  ifs_id:
+    type: "string"
+    pattern: "^ifs_[0-9]{4}$"
+    description: "Foreign key to the IFS instance."
+  box_counting_dim:
+    type: "number"
+    description: "Estimated Minkowski-Bouligand dimension (for Converged sets)."
+  transient_dim:
+    type: "number"
+    nullable: true
+    description: "Dimension of the transient cloud (for Bounded-Chaotic or Divergent sets)."
+  scale_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of scales used in the box-counting method."
+  r_squared:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "R-squared value of the log-log regression fit."
+  scales:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of epsilon scales used."
+  counts:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Number of boxes covering the set at each scale."

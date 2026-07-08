@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Chaos Game Result Schema"
+description: "Schema for the output of the Monte Carlo Chaos Game simulation for a single IFS instance."
+type: "object"
+required:
+  - "ifs_id"
+  - "behavior_class"
+  - "wasserstein_2"
+  - "point_count"
+  - "histogram_bins"
+properties:
+  ifs_id:
+    type: "string"
+    pattern: "^ifs_[0-9]{4}$"
+    description: "Foreign key to the IFS instance."
+  behavior_class:
+    type: "string"
+    enum:
+      - "Converged"
+      - "Bounded-Chaotic"
+      - "Uniform"
+      - "Divergent"
+    description: "Classification of the system behavior."
+  wasserstein_2:
+    type: "number"
+    description: "Wasserstein-2 distance between the last 10 iteration windows."
+  point_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of points retained in the final point cloud."
+  histogram_bins:
+    type: "object"
+    description: "2D histogram representation of the empirical measure using Sturges' rule."
+    properties:
+      bin_edges_x:
+        type: "array"
+        items:
+          type: "number"
+        description: "Edges of the x-axis bins."
+      bin_edges_y:
+        type: "array"
+        items:
+          type: "number"
+        description: "Edges of the y-axis bins."
+      counts:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Flattened Array of bin counts."
+  escape_time:
+    type: "integer"
+    nullable: true
+    description: "Iteration count at which points escaped the bounding box (only for Divergent)."
+  lyapunov_exponent:
+    type: "number"
+    description: "Approximated Lyapunov exponent."
+  convergence_threshold:
+    type: "number"
+    description: "The threshold used for W2 convergence check (default 0.01)."

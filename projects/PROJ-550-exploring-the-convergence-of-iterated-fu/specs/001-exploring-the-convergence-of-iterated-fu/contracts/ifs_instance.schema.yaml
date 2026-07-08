@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IFS Instance Schema"
+description: "Schema for a single synthetic Iterated Function System instance generated for the project."
+type: "object"
+required:
+  - "id"
+  - "target_lipschitz"
+  - "computed_lipschitz"
+  - "num_maps"
+  - "maps"
+  - "overlap_geometry"
+properties:
+  id:
+    type: "string"
+    pattern: "^ifs_[0-9]{4}$"
+    description: "Unique identifier for the IFS instance."
+  target_lipschitz:
+    type: "number"
+    minimum: 0.5
+    maximum: 2.0
+    description: "The intended Lipschitz constant target value (theoretical parameter)."
+  computed_lipschitz:
+    type: "number"
+    description: "The numerically computed Lipschitz constant on the 5000-point grid (for non-contractive)."
+  num_maps:
+    type: "integer"
+    minimum: 2
+    maximum: 4
+    description: "Number of affine maps in the system."
+  maps:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "matrix"
+        - "translation"
+        - "probability"
+      properties:
+        matrix:
+          type: "array"
+          items:
+            type: "array"
+            items:
+              type: "number"
+            minItems: 2
+            maxItems: 2
+          minItems: 2
+          maxItems: 2
+          description: "2x2 Affine transformation matrix."
+        translation:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+          description: "Translation vector (x, y)."
+        probability:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Probability weight for this map in the Chaos Game."
+    description: "List of affine maps defining the IFS."
+  overlap_geometry:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of the area of intersection of map images to the unit square area."
+  validation_status:
+    type: "string"
+    enum:
+      - "valid"
+      - "regenerate"
+      - "failed"
+    description: "Status of the Lipschitz validation check."
+  validation_error:
+    type: "string"
+    nullable: true
+    description: "Error message if validation failed or requires regeneration."

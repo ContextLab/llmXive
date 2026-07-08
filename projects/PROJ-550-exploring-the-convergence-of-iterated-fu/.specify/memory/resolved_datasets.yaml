@@ -1,0 +1,107 @@
+resolved_at: '2026-07-07T23:45:47.696412+00:00'
+datasets:
+- intent: IFS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LiquidAI/ifstruct-v1.0/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/IFSTalfredoswald/MBTI/resolve/main/data/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 821
+      parsed: true
+  - url: https://huggingface.co/datasets/ThWu/if_style_instructions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103266
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/LiquidAI/ifstruct-v1.0/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/IFSTalfredoswald/MBTI/resolve/main/data/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ThWu/if_style_instructions/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kareem99/ifso/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HANTIFARAH/Farah-Ifsmm31PdXo/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Vision_and_Development_of_a_Design_Implementation_and_Verification_Automation_DIVA_Software_Platform_for_DNA_Construction/32928484
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_09036153255_Ladoke_Akintola_University_of_Technology_Ogbomoso_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_/32928479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photocatalytic_Scalable_Anti-Markovnikov_Hydrocarboxylation_of_Unactivated_Alkenes_via_Amine-Mediated_CO_sub_2_sub_sup_sup_Generation_from_Formate/32928481
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Assessment_of_Immune_and_Proteomic_Markers_in_Exhaled_Breath_Condensate_A_Feasibility_Study/32928478
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mapping_Rare_Earth_Element_Distribution_in_MSWI_Ash_Using_Physical_Separation_and_Sequential_Extraction/32928475
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5824456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/34037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13989375
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8385949
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8398378
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:1675775613/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/9588#doi
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02243
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05100
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.03170
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-12T17:34:15.485482Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-550-exploring-the-convergence-of-iterated-fu
-last_run_id: 5114a369-89e4-446a-b02a-86061414e6dc
+last_run_id: 1fec8069-f7d6-4e1b-9bf6-0fafdda01cf5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-550-exploring-the-convergence-of-iterated-fu/specs/001-exploring-the-convergence-of-iterated-fu
 title: Exploring the Convergence of Iterated Function Systems with Non-Contractive
   Maps
-updated_at: '2026-06-28T21:34:51.734153Z'
+updated_at: '2026-07-08T00:27:39.719776Z'

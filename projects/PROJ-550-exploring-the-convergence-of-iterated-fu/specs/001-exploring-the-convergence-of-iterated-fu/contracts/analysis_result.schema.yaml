@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the aggregated analysis results used in logistic regression and sensitivity analysis."
+type: "object"
+required:
+  - "ifs_id"
+  - "invariant_measure_exists"
+  - "lipschitz_group"
+  - "model_predicted_prob"
+  - "behavior_class"
+properties:
+  ifs_id:
+    type: "string"
+    pattern: "^ifs_[0-9]{4}$"
+    description: "Foreign key to the IFS instance."
+  invariant_measure_exists:
+    type: "boolean"
+    description: "True if the system is classified as 'Converged' (Invariant Measure Exists)."
+  lipschitz_group:
+    type: "string"
+    enum:
+      - "contractive"
+      - "marginally_stable"
+      - "non_contractive_low"
+      - "non_contractive_high"
+    description: "Binned Lipschitz category for sensitivity analysis."
+  model_predicted_prob:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Probability output from the logistic regression model."
+  behavior_class:
+    type: "string"
+    enum:
+      - "Converged"
+      - "Bounded-Chaotic"
+      - "Uniform"
+      - "Divergent"
+    description: "Ground truth behavior class from the Chaos Game."
+  features:
+    type: "object"
+    properties:
+      target_lipschitz:
+        type: "number"
+      overlap_geometry:
+        type: "number"
+    description: "Features used in the logistic regression model (Target Lipschitz, not Computed)."
