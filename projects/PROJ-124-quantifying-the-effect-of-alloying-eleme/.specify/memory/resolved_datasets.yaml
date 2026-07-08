@@ -1,0 +1,414 @@
+resolved_at: '2026-07-08T02:18:38.815932+00:00'
+datasets:
+- intent: GFA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 59850
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/gfathertech/Publications/461fa1af7749152a8593d4f179136e40b1132597/project_1.json?%2Fdatasets%2Fgfathertech%2FPublications%2Fresolve%2Fmain%2Fproject_1.json=&etag=%229ef508710b205b0fde1bc17f4f5cd7591cb2c217%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ro.uow.edu.au/articles/journal_contribution/Mobile_mental_health_application_use_and_app_feature_preferences_among_individuals_with_mental_disorders_in_Ethiopia_A_cross-sectional_survey/32928905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14740121
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1966177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21057967
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157554
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10889251
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234706
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/rice_mitochondrial_genome/32887271
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.16165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06564
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06111
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05906
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GFA-D2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 59850
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14740121
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5749720
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1463872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2631884
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17599056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Elementary_Weak_Solutions_of_the_Navier_Stokes_Equations_by_a_New_Fixed_Point_Theorem/32900846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05814
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079712
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21079712
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251726
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251726
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5746
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/JoshVictor/medcode-FT-CuData/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Elementary_Weak_Solutions_of_the_Navier_Stokes_Equations_by_a_New_Fixed_Point_Theorem/32900846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06523
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05920
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05457
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252410
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EngineeredDatasetSchema"
+description: "Schema for the feature-engineered dataset containing composition descriptors and target variables."
+type: object
+properties:
+  columns:
+    type: array
+    items:
+      type: string
+    description: "List of column names in the CSV."
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        composition_id:
+          type: string
+          description: "Unique hash of the composition."
+        elements:
+          type: object
+          description: "Map of element symbol to atomic fraction."
+          additionalProperties:
+            type: number
+        atomic_radius_mean:
+          type: number
+          description: "Weighted mean atomic radius in Angstroms."
+        electronegativity_var:
+          type: number
+          description: "Variance of electronegativity."
+        vec_mean:
+          type: number
+          description: "Weighted mean Valence Electron Concentration."
+        vec_raw:
+          type: number
+          description: "Sum of weighted Valence Electron Counts (aggregate)."
+        size_mismatch:
+          type: number
+          description: "Atomic size mismatch parameter delta."
+        pairwise_mismatch:
+          type: number
+          description: "Sum of absolute differences for all unique pairs."
+        triplet_interaction:
+          type: number
+          description: "Variance of radii among the three elements."
+        log_rc_target:
+          type: number
+          description: "Target variable log10(Rc)."
+        family_cluster:
+          type: string
+          description: "Primary metallic element family."
+      required:
+        - composition_id
+        - elements
+        - atomic_radius_mean
+        - electronegativity_var
+        - vec_mean
+        - vec_raw
+        - size_mismatch
+        - pairwise_mismatch
+        - triplet_interaction
+        - log_rc_target
+        - family_cluster
+    description: "Array of processed alloy records."
+required:
+  - columns
+  - data
+additionalProperties: false

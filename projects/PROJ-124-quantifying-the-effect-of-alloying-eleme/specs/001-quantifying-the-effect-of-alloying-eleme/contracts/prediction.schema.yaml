@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GFA_Prediction_Output"
+description: "Schema for the top candidate list output and verification request."
+type: object
+properties:
+  request_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for this verification request"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Time of generation"
+  candidates:
+    type: array
+    minItems: 0
+    maxItems: 10
+    items:
+      type: object
+      required:
+        - rank
+        - composition
+        - predicted_log_rc
+        - confidence_interval
+        - extrapolation_risk
+        - status
+        - conservative_score
+        - novelty
+      properties:
+        rank:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: "Ranking order (1 is best). Determined by ascending Conservative Score."
+        composition:
+          type: string
+          description: "Human-readable composition string (e.g., 'Zr50Cu30Al20')"
+        predicted_log_rc:
+          type: number
+          description: "Predicted log10(R_c)"
+        confidence_interval:
+          type: object
+          required:
+            - lower
+            - upper
+          properties:
+            lower:
+              type: number
+              description: "2.5th percentile of bootstrapped + conformal predictions"
+            upper:
+              type: number
+              description: "97.5th percentile of bootstrapped + conformal predictions"
+        conservative_score:
+          type: number
+          description: "Ranking metric: predicted_mean - 1.645 * (upper - lower). Used to penalize high uncertainty."
+        extrapolation_risk:
+          type: boolean
+          description: "True if Mahalanobis distance > 3.0 sigma OR outside convex hull. Candidates with this flag are EXCLUDED from the final Top 10 list."
+        novelty:
+          type: boolean
+          description: "True if candidate is not found in training set or Materials Project."
+        status:
+          type: string
+          enum:
+            - "Flagged for Verification"
+            - "High Risk"
+            - "Hypothetical"
+          description: "Recommended action for the candidate. 'Hypothetical' indicates the candidate is outside the training convex hull but included for discovery (if not excluded by DoA)."
+  transmission_status:
+    type: string
+    enum:
+      - "Pending Lab Review"
+      - "Sent"
+      - "Acknowledged"
+    description: "Status of the verification request transmission"
+  feedback_status:
+    type: string
+    enum:
+      - "Awaiting Feedback"
+      - "Feedback Received"
+    description: "Status of the external validation feedback loop"
+required:
+  - request_id
+  - timestamp
+  - candidates
+  - transmission_status
+  - feedback_status

@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CandidateScreeningOutputSchema"
+description: "Schema for the top candidate list and verification requests."
+type: object
+properties:
+  candidates:
+    type: array
+    items:
+      type: object
+      properties:
+        rank:
+          type: integer
+          description: "Rank in the sorted list (1-based)."
+        composition_string:
+          type: string
+          description: "String representation of the alloy."
+        predicted_log_rc:
+          type: number
+          description: "Predicted log10(Rc)."
+        confidence_lower:
+          type: number
+          description: "2.5th percentile of bootstrap predictions."
+        confidence_upper:
+          type: number
+          description: "97.5th percentile of bootstrap predictions."
+        do_a_status:
+          type: string
+          enum: ["in_do_a", "high_extrapolation_risk"]
+          description: "Domain of Applicability status."
+      required:
+        - rank
+        - composition_string
+        - predicted_log_rc
+        - confidence_lower
+        - confidence_upper
+        - do_a_status
+    description: "List of top candidates (max 10)."
+  verification_requests:
+    type: array
+    items:
+      type: object
+      properties:
+        candidate_id:
+          type: string
+        composition:
+          type: string
+        predicted_rc:
+          type: number
+          description: "Predicted Rc in K s^-1 (10^log_rc)."
+        status:
+          type: string
+          const: "pending_verification"
+        risk_flag:
+          type: string
+          enum: ["low", "high"]
+      required:
+        - candidate_id
+        - composition
+        - predicted_rc
+        - status
+        - risk_flag
+    description: "JSON artifact for top candidates."
+required:
+  - candidates
+  - verification_requests
+additionalProperties: false

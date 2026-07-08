@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelTrainingOutputSchema"
+description: "Schema for the model training metrics and selection logic output."
+type: object
+properties:
+  model_selection:
+    type: object
+    properties:
+      best_model_name:
+        type: string
+        enum: ["RandomForest", "GradientBoosting"]
+        description: "Name of the selected model."
+      selection_reason:
+        type: string
+        description: "Reason for selection (e.g., lowest MAE)."
+      best_mae:
+        type: number
+        description: "Mean Absolute Error on the validation set."
+      best_r2:
+        type: number
+        description: "R-squared on the validation set."
+    required:
+      - best_model_name
+      - selection_reason
+      - best_mae
+      - best_r2
+  cross_validation:
+    type: object
+    properties:
+      method:
+        type: string
+        const: "Leave-One-Cluster-Out"
+      mean_mae:
+        type: number
+      std_mae:
+        type: number
+      folds:
+        type: integer
+    required:
+      - method
+      - mean_mae
+      - std_mae
+      - folds
+  heteroscedasticity_check:
+    type: object
+    properties:
+      test_name:
+        type: string
+        const: "Breusch-Pagan"
+      p_value:
+        type: number
+      is_heteroscedastic:
+        type: boolean
+      weighted_model_saved:
+        type: boolean
+        description: "True if best_model_weighted.pkl was saved."
+    required:
+      - test_name
+      - p_value
+      - is_heteroscedastic
+      - weighted_model_saved
+required:
+  - model_selection
+  - cross_validation
+  - heteroscedasticity_check
+additionalProperties: false
