@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-26T07:23:27Z",
+  "fetched_at": "2026-07-08T01:31:04Z",
   "field": "statistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "Statistical Analysis of Lottery Number Frequency and Player Behavior",
       "target_n": 5
     },
-    "duration_seconds": 242.069,
-    "ended_at": "2026-06-26T07:23:27Z",
+    "duration_seconds": 100.767,
+    "ended_at": "2026-07-08T01:31:04Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Lottery number distribution analysis"
+          "lottery number distribution patterns"
         ],
         [
           2,
-          "Gambling behavior statistics"
+          "player selection bias in lottery games"
         ],
         [
           3,
-          "Randomness testing in lottery draws"
+          "randomness testing in lottery draws"
         ],
         [
           4,
-          "Gambler's fallacy and lottery selection"
+          "hot and cold numbers in lotteries"
         ],
         [
           5,
-          "Probability theory in games of chance"
+          "gambler's fallacy in lottery behavior"
         ],
         [
           6,
-          "Frequency analysis of winning numbers"
+          "statistical anomalies in lottery outcomes"
         ],
         [
           7,
-          "Lottery player decision making"
+          "lottery ticket sales and number popularity"
         ],
         [
           8,
-          "Statistical patterns in lottery outcomes"
+          "psychological factors in lottery number choice"
         ],
         [
           9,
-          "Behavioral economics of lotteries"
+          "frequency analysis of lottery winning numbers"
         ],
         [
           10,
-          "Hot and cold number strategies"
+          "human vs random number generation in lotteries"
         ],
         [
           11,
-          "Chi-square goodness of fit lottery"
+          "lottery draw uniformity verification"
         ],
         [
           12,
-          "Lottery ticket sales data analysis"
+          "number clustering in player picks"
         ],
         [
           13,
-          "Stochastic modeling of lottery draws"
+          "statistical modeling of lottery participation"
         ],
         [
           14,
-          "Cognitive biases in gambling"
+          "temporal trends in lottery number selection"
         ],
         [
           15,
-          "Uniform distribution validation lottery"
+          "bias detection in lottery player strategies"
         ],
         [
           16,
-          "Number selection bias in lotteries"
+          "probability distribution of lottery outcomes"
         ],
         [
           17,
-          "Time series analysis of lottery results"
+          "behavioral economics of lottery betting"
         ],
         [
           18,
-          "Risk perception in lottery participation"
+          "lottery number recurrence intervals"
         ],
         [
           19,
-          "Empirical analysis of lottery randomness"
+          "data mining lottery player preferences"
         ],
         [
           20,
-          "Game theory and lottery participation"
+          "chi-square test for lottery number fairness"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Lottery number distribution analysis": 5,
-        "Statistical Analysis of Lottery Number Frequency and Player Behavior statistics": 0
+        "Statistical Analysis of Lottery Number Frequency and Player Behavior statistics": 0,
+        "lottery number distribution patterns": 2,
+        "player selection bias in lottery games": 3
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "random draw uniformity test",
-      "lottery bettors gambling participation",
-      "gambler's fallacy representativeness heuristic",
-      "number selection entropy uniformity",
-      "independence assumption randomness misconception"
+      "gambler fallacy hot hand fallacy regression",
+      "lottery draw number distribution random uniform",
+      "pari-mutuel betting demand elasticity",
+      "number frequency bias player selection patterns",
+      "independence hypothesis stochastic process lottery"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +121,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2208.10842"
+        "2404.17027"
       ]
     },
     "per_query_hit_count": {
       "Statistical Analysis of Lottery Number Frequency and Player Behavior statistics": 3,
-      "gambler's fallacy representativeness heuristic": 3,
-      "independence assumption randomness misconception": 3,
-      "lottery bettors gambling participation": 3,
-      "number selection entropy uniformity": 3,
-      "random draw uniformity test": 3
+      "gambler fallacy hot hand fallacy regression": 3,
+      "independence hypothesis stochastic process lottery": 2,
+      "lottery draw number distribution random uniform": 3,
+      "number frequency bias player selection patterns": 3,
+      "pari-mutuel betting demand elasticity": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -142,34 +143,34 @@
           "title": "The Statistical Analysis of fMRI Data"
         },
         {
-          "primary_pointer": "2203.12496",
-          "rationale": "This paper is off-domain entirely, focusing on quantum cryptographic protocols for lottery security rather than the statistical analysis of traditional lottery number frequencies and player behavior; it shares only the keyword \"lottery\" but addresses a distinct construct.",
-          "title": "Quantum and Semi-Quantum Lottery: Strategies and Advantages"
-        },
-        {
-          "primary_pointer": "math/9808012",
-          "rationale": "This paper concerns advanced set theory and large cardinal forcing techniques, sharing only the homonym keyword \"lottery\" with the user's question about gambling statistics and player behavior. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "The Lottery Preparation"
-        },
-        {
           "primary_pointer": "2005.03454",
           "rationale": "This paper addresses the \"Lottery Ticket Hypothesis\" in deep learning (neural network pruning), which is a distinct construct sharing only the homonym keyword \"Lottery\" with the user's question about gambling statistics and player behavior. It falls under the rejection rule for distinct constructs sharing only homonym keywords or being off-domain entirely.",
           "title": "Successfully Applying the Stabilized Lottery Ticket Hypothesis to the Transformer Architecture"
         },
         {
-          "primary_pointer": "1912.05671",
-          "rationale": "This paper addresses the \"Lottery Ticket Hypothesis\" in machine learning (neural network pruning and optimization), which is a distinct construct from the user's question about gambling lottery number frequency and player behavior, fitting the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "Linear Mode Connectivity and the Lottery Ticket Hypothesis"
-        },
-        {
           "primary_pointer": "2208.10842",
           "rationale": "This paper addresses the \"Lottery Ticket Hypothesis\" in machine learning (neural network pruning and subnetworks), which is a distinct construct from the user's question about real-world gambling lottery statistics and player behavior, fitting the rejection rule for distinct constructs sharing only homonym keywords.",
           "title": "Lottery Pools: Winning More by Interpolating Tickets without Increasing Training or Inference Cost"
+        },
+        {
+          "primary_pointer": "2404.17027",
+          "rationale": "The paper focuses on emergent narrative behaviors in LLM-driven text adventure games, which is an off-domain topic entirely unrelated to the statistical analysis of lottery number frequencies or player betting behavior. It shares no measurable connection to the user's specific mechanism, domain, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+          "title": "Player-Driven Emergence in LLM-Driven Game Narrative"
+        },
+        {
+          "primary_pointer": "2503.02686",
+          "rationale": "The paper focuses on quantifying randomness and skill in tabletop games (dice/cards) to optimize game design, which is an off-domain application distinct from the statistical analysis of lottery number frequencies and player behavior in gambling contexts. It does not measure the specific variables (lottery draws, betting patterns) or the underlying mechanism (lottery player psychology/statistics) required by the user's question, failing to meet any of the inclusion criteria (a-f).",
+          "title": "Seeding for Success: Skill and Stochasticity in Tabletop Games"
+        },
+        {
+          "primary_pointer": "1907.03947",
+          "rationale": "The paper focuses on video game player engagement, churn, and in-game purchasing behavior, which is an entirely different domain from lottery number frequency and lottery player statistics. It does not measure the same biological, physical, or social mechanisms (a), nor does it address the specific variables of lottery draws or betting patterns (b), failing to meet any inclusion criteria.",
+          "title": "Understanding Player Engagement and In-Game Purchasing Behavior with Ensemble Learning"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-26T07:19:25Z",
+    "started_at": "2026-07-08T01:29:23Z",
     "term_input": {
       "normalized": "statistical analysis of lottery number frequency and player behavior statistics",
       "raw": "Statistical Analysis of Lottery Number Frequency and Player Behavior statistics"
@@ -188,7 +189,7 @@
           "primary_pointer": "1106.2895"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Statistical Inference: The Big Picture')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -204,73 +205,57 @@
           "primary_pointer": "1207.5103"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We analyze the asymptotic fluctuations of linear eigenvalue statistics of random centrosymmetric matrices with i.i.d. entries. We prove that for a complex analytic test function, the centered and normalized linear eigenvalue statistics of random centrosymmetric matrices converge to a normal distribution. We find the exact expression of the variance of the limiting normal distribution via combinatorial arguments. Moreover, we also argue that the limiting spectral distribution of properly scaled centrosymmetric matrices follows the circular law.",
+          "claimed_abstract": "In the present article we introduce a quantum mechanism which is able to describe the creation of correlations in the evaluation of random independent events: such correlations, known as positive and negative recency, correspond respectively to the hot hand's and to the gambler's fallacies. Thus we propose a description of these effects in terms of qubits, which may become entangled, forming a system which can not be described completely only in terms of its constituents. We show that such formalism is able to describe and interpret the experimental results, thus providing a general and unifying framework for the cognitive heuristics.",
           "claimed_authors": [
-            "Indrajit Jana",
-            "Sunita Rani"
+            "Riccardo Franco"
           ],
-          "claimed_title": "Spectrum of random centrosymmetric matrices; CLT and Circular law",
+          "claimed_title": "Belief revision in quantum decision theory: gambler's and hot hand fallacies",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.03513"
+          "claimed_year": 2008,
+          "primary_pointer": "0801.4472"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Spectrum of random centrosymmetric matrices; CLT and Circular law')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title=\"Belief revision in quantum decision theory: gambler's and hot hand fallacies\")",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+          "claimed_abstract": "We study a class of permutation tests of the randomness of a collection of Bernoulli sequences and their application to analyses of the human tendency to perceive streaks of consecutive successes as overly representative of positive dependence - the hot hand fallacy. In particular, we study permutation tests of the null hypothesis of randomness (i.e., that trials are i.i.d.) based on test statistics that compare the proportion of successes that directly follow k consecutive successes with either the overall proportion of successes or the proportion of successes that directly follow k consecutive failures. We characterize the asymptotic distributions of these test statistics and their permutation distributions under randomness, under a set of general stationary processes, and under a class of Markov chain alternatives, which allow us to derive their local asymptotic power. The results are applied to evaluate the empirical support for the hot hand fallacy provided by four controlled basketball shooting experiments. We establish that substantially larger data sets are required to derive an informative measurement of the deviation from randomness in basketball shooting. In one experiment, for which we were able to obtain data, multiple testing procedures reveal that one shooter exhibits a shooting pattern significantly inconsistent with randomness - supplying strong evidence that basketball shooting is not random for all shooters all of the time. However, we find that the evidence against randomness in this experiment is limited to this shooter. Our results provide a mathematical and statistical foundation for the design and validation of experiments that directly compare deviations from randomness with human beliefs about deviations from randomness, and thereby constitute a direct test of the hot hand fallacy.",
           "claimed_authors": [
-            "Sivaram Ambikasaran"
+            "David M. Ritzwoller",
+            "Joseph P. Romano"
           ],
-          "claimed_title": "A simple way to speedup Gauss Elimination",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1101.4081"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='A simple way to speedup Gauss Elimination')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We prove that in all regular robust expanders $G$ every edge is asymptotically equally likely contained in a uniformly chosen perfect matching $M$. We also show that given any fixed matching or spanning regular graph $N$ in $G$, the random variable $|M\\cap E(N)|$ is approximately Poisson distributed. This in particular confirms a conjecture and a question due to Spiro and Surya, and complements results due to Kahn and Kim who proved that in a regular graph every vertex is asymptotically equally likely contained in a uniformly chosen matching. Our proofs rely on the switching method and the fact that simple random walks mix rapidly in robust expanders.",
-          "claimed_authors": [
-            "Bertille Granet",
-            "Felix Joos"
-          ],
-          "claimed_title": "Random perfect matchings in regular graphs",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2301.10131"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Random perfect matchings in regular graphs')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Auction theories are believed to provide a better selling opportunity for the resources to be allocated. Various organizations have taken measures to increase trust among participants towards their auction system, but trust alone cannot ensure a high level of participation. We propose a new type of auction system which takes advantage of lucky draw and gambling addictions to increase the engagement level of candidates in an auction. Our system makes use of security features present in existing auction systems for ensuring fairness and maintaining trust among participants.",
-          "claimed_authors": [
-            "Ravin Kumar"
-          ],
-          "claimed_title": "Addictive Auctions: using lucky-draw and gambling addiction to increase participation during auctioning",
+          "claimed_title": "Uncertainty in the Hot Hand Fallacy: Detecting Streaky Alternatives to Random Bernoulli Sequences",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1906.03237"
+          "primary_pointer": "1908.01406"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Addictive Auctions: using lucky-draw and gambling addiction to increase participation during auctioning')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Uncertainty in the Hot Hand Fallacy: Detecting Streaky Alternatives to Random Bernoulli Sequences')",
+        "failed_at": "2026-07-08T01:30:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that a subtle but substantial bias exists in a common measure of the conditional dependence of present outcomes on streaks of past outcomes in sequential data. The magnitude of this streak selection bias generally decreases as the sequence gets longer, but increases in streak length, and remains substantial for a range of sequence lengths often used in empirical work. We observe that the canonical study in the influential hot hand fallacy literature, along with replications, are vulnerable to the bias. Upon correcting for the bias we find that the long-standing conclusions of the canonical study are reversed.",
+          "claimed_authors": [
+            "Joshua B. Miller",
+            "Adam Sanjurjo"
+          ],
+          "claimed_title": "Surprised by the Hot Hand Fallacy? A Truth in the Law of Small Numbers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.01265"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Surprised by the Hot Hand Fallacy? A Truth in the Law of Small Numbers')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -287,193 +272,187 @@
           "primary_pointer": "2203.12496"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Quantum and Semi-Quantum Lottery: Strategies and Advantages')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "As blockchain technology advances, Ethereum based gambling decentralized applications (DApps) represent a new paradigm in online gambling. This paper examines the concepts, principles, implementation, and prospects of Ethereum based gambling DApps. First, we outline the concept and operational principles of gambling DApps. These DApps are blockchain based online lottery platforms. They utilize smart contracts to manage the entire lottery process, including issuance, betting, drawing, and prize distribution. Being decentralized, lottery DApps operate without central oversight, unlike traditional lotteries. This ensures fairness and eliminates control by any single entity. Automated smart contract execution further reduces management costs, increases profitability, and enhances game transparency and credibility. Next, we analyze an existing Ethereum based gambling DApp, detailing its technical principles, implementation, operational status, vulnerabilities, and potential solutions. We then elaborate on the implementation of lottery DApps. Smart contracts automate the entire lottery process including betting, drawing, and prize distribution. Although developing lottery DApps requires technical expertise, the expanding Ethereum ecosystem provides growing tools and frameworks, lowering development barriers. Finally, we discuss current limitations and prospects of lottery DApps. As blockchain technology and smart contracts evolve, lottery DApps are positioned to significantly transform the online lottery industry. Advantages like decentralization, automation, and transparency will likely drive broader future adoption.",
+          "claimed_abstract": "The lottery preparation, a new general kind of Laver preparation, works uniformly with supercompact cardinals, strongly compact cardinals, strong cardinals, measurable cardinals, or what have you. And like the Laver preparation, the lottery preparation makes these cardinals indestructible by various kinds of further forcing. A supercompact cardinal kappa, for example, becomes fully indestructible by kappa-directed closed forcing; a strong cardinal kappa becomes indestructible by less-than-or-equal-kappa-strategically closed forcing; and a strongly compact cardinal kappa becomes indestructible by, among others, the forcing to add a Cohen subset to kappa, the forcing to shoot a club C in kappa which avoids the measurable cardinals and the forcing to add various long Prikry sequences. The lottery preparation works best when performed after fast function forcing, which adds a new completely general kind of Laver function for any large cardinal, thereby freeing the Laver function concept from the supercompact cardinal context.",
           "claimed_authors": [
-            "Xu Long",
-            "Yishun Wang",
-            "Xiaoqi Li"
+            "Joel David Hamkins"
           ],
-          "claimed_title": "From Fomo3D to Lottery DAPP: Analysis of Ethereum-Based Gambling Applications",
+          "claimed_title": "The Lottery Preparation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.12303"
+          "claimed_year": 1998,
+          "primary_pointer": "math/9808012"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='From Fomo3D to Lottery DAPP: Analysis of Ethereum-Based Gambling Applications')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='The Lottery Preparation')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the present article we introduce a quantum mechanism which is able to describe the creation of correlations in the evaluation of random independent events: such correlations, known as positive and negative recency, correspond respectively to the hot hand's and to the gambler's fallacies. Thus we propose a description of these effects in terms of qubits, which may become entangled, forming a system which can not be described completely only in terms of its constituents. We show that such formalism is able to describe and interpret the experimental results, thus providing a general and unifying framework for the cognitive heuristics.",
+          "claimed_abstract": "We study whether a neural network optimizes to the same, linearly connected minimum under different samples of SGD noise (e.g., random data order and augmentation). We find that standard vision models become stable to SGD noise in this way early in training. From then on, the outcome of optimization is determined to a linearly connected region. We use this technique to study iterative magnitude pruning (IMP), the procedure used by work on the lottery ticket hypothesis to identify subnetworks that could have trained in isolation to full accuracy. We find that these subnetworks only reach full accuracy when they are stable to SGD noise, which either occurs at initialization for small-scale settings (MNIST) or early in training for large-scale settings (ResNet-50 and Inception-v3 on ImageNet).",
           "claimed_authors": [
-            "Riccardo Franco"
+            "Jonathan Frankle",
+            "Gintare Karolina Dziugaite",
+            "Daniel M. Roy",
+            "Michael Carbin"
           ],
-          "claimed_title": "Belief revision in quantum decision theory: gambler's and hot hand fallacies",
+          "claimed_title": "Linear Mode Connectivity and the Lottery Ticket Hypothesis",
           "claimed_venue": "arXiv",
-          "claimed_year": 2008,
-          "primary_pointer": "0801.4472"
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05671"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title=\"Belief revision in quantum decision theory: gambler's and hot hand fallacies\")",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Linear Mode Connectivity and the Lottery Ticket Hypothesis')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Classical measurements are passive, in the sense that they do not affect the physical properties of the measured system. Normally, quantum measurements are not passive in that sense. In the infinite dimensional Hilbert space, however, we find that quantum projective measurement can be passive in a way which is impossible in finite dimensional Hilbert spaces. Specifically, we find that expectation value of a hermitian Hamiltonian can have an imaginary part in the infinite dimensional Hilbert space and that such an imaginary part implies a possibility to avoid quantum Zeno effect, which can physically be realized in quantum arrival experiments. The avoidance of quantum Zeno effect can also be understood as avoidance of a quantum version of gambler's fallacy, leading to the notion of passive quantum measurement that updates information about the physical system without affecting its physical properties. The arrival time probability distribution of a particle is found to be given by the flux of the probability current. Possible negative fluxes correspond to regimes at which there is no arrival at all, physically understood as regimes at which the particle departs rather than arrives.",
+          "claimed_abstract": "Recently, several new pari-mutuel mechanisms have been introduced to organize markets for contingent claims. Hanson introduced a market maker derived from the logarithmic scoring rule, and later Chen and Pennock developed a cost function formulation for the market maker. On the other hand, the SCPM model of Peters et al. is based on ideas from a call auction setting using a convex optimization model. In this work, we develop a unified framework that bridges these seemingly unrelated models for centrally organizing contingent claim markets. The framework, developed as a generalization of the SCPM, will support many desirable properties such as proper scoring, truthful bidding (in a myopic sense), efficient computation, and guarantees on worst case loss. In fact, our unified framework will allow us to express various proper scoring rules, existing or new, from classical utility functions in a convex optimization problem representing the market organizer. Additionally, we utilize concepts from duality to show that the market model is equivalent to a risk minimization problem where a convex risk measure is employed. This will allow us to more clearly understand the differences in the risk attitudes adopted by various mechanisms, and particularly deepen our intuition about popular mechanisms like Hanson's market-maker. In aggregate, we believe this work advances our understanding of the objectives that the market organizer is optimizing in popular pari-mutuel mechanisms by recasting them into one unified framework.",
           "claimed_authors": [
-            "Tajron Jurić",
-            "Hrvoje Nikolić"
+            "Shipra Agrawal",
+            "Erick Delage",
+            "Mark Peters",
+            "Zizhuo Wang",
+            "Yinyu Ye"
           ],
-          "claimed_title": "Passive quantum measurement: Arrival time, quantum Zeno effect and gambler's fallacy",
+          "claimed_title": "A Unified Framework for Dynamic Pari-Mutuel Information Market Design",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.09140"
+          "claimed_year": 2009,
+          "primary_pointer": "0902.2429"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title=\"Passive quantum measurement: Arrival time, quantum Zeno effect and gambler's fallacy\")",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='A Unified Framework for Dynamic Pari-Mutuel Information Market Design')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "I study endogenous learning dynamics for people who misperceive intertemporal correlations in random sequences. Biased agents face an optimal-stopping problem. They are uncertain about the underlying distribution and learn its parameters from predecessors. Agents stop when early draws are \"good enough,\" so predecessors' experiences contain negative streaks but not positive streaks. When agents wrongly expect systematic reversals (the \"gambler's fallacy\"), they understate the likelihood of consecutive below-average draws, converge to over-pessimistic beliefs about the distribution's mean, and stop too early. Agents uncertain about the distribution's variance overestimate it to an extent that depends on predecessors' stopping thresholds. I also analyze how other misperceptions of intertemporal correlation interact with endogenous data censoring.",
+          "claimed_abstract": "A classical problem in power systems is to allocate in-coming (elastic or inelastic) demands without violating the operating constraints of electric networks in an online fashion. Although online decision problems have been well-studied in the literature, a unique challenge arising in power systems is the presence of non-linear constraints, a departure from the traditional settings. A particular example is the capacity constraint of apparent power, which gives rise to a quadratic constraint, rather than typical linear constraints. In this paper, we present a competitive randomized online algorithm for deciding whether a sequence of inelastic demands can be allocated for the requested intervals, subject to the total satisfiable apparent power within a time-varying capacity constraint. We also consider an alternative setting with nodal voltage constraint, using a variant of the online algorithm. Finally, simulation studies are provided to evaluate the algorithms empirically.",
           "claimed_authors": [
-            "Kevin He"
+            "Areg Karapetyan",
+            "Majid Khonji",
+            "Chi-Kin Chau",
+            "Khaled Elbassioni"
           ],
-          "claimed_title": "Mislearning from Censored Data: The Gambler's Fallacy and Other Correlational Mistakes in Optimal-Stopping Problems",
+          "claimed_title": "Online Algorithm for Demand Response with Inelastic Demands and Apparent Power Constraint",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1803.08170"
+          "claimed_year": 2016,
+          "primary_pointer": "1611.00559"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title=\"Mislearning from Censored Data: The Gambler's Fallacy and Other Correlational Mistakes in Optimal-Stopping Problems\")",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Online Algorithm for Demand Response with Inelastic Demands and Apparent Power Constraint')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We obtain inequalities involving the entropy of a positive integer and the divergence of two positive integers, respectively the entropy of an ideal and the divergence of two ideals in a ring of algebraic integers. Among the important results, we show that the minimal entropy arises for sharp localization, and the maximal entropy occurs for equidistribution. We also study other interesting estimates of entropy and divergence for numbers and for ideals. Finally, we determine the entropies of probability distributions on infinite trees of Schur σ-groups, which are realized by 3-class field tower groups of imaginary quadratic number fields.",
+          "claimed_abstract": "A technique for developing convex dual variational principles for the governing PDE of nonlinear elastostatics and elastodynamics is presented. This allows the definition of notions of a variational dual solution and a dual solution corresponding to the PDEs of nonlinear elasticity, even when the latter arise as formal Euler-Lagrange equations corresponding to non-quasiconvex elastic energy functionals whose energy minimizers do not exist. This is demonstrated rigorously in the case of elastostatics for the Saint-Venant Kirchhoff material (in all dimensions), where the existence of variational dual solutions is also proven. The existence of a variational dual solution for the incompressible neo-Hookean material in 2-d is also shown. Stressed and unstressed elastostatic and elastodynamic solutions in 1 space dimension corresponding to a non-convex, double-well energy are computed using the dual methodology. In particular, we show the stability of a dual elastodynamic equilibrium solution for which there are regions of non-vanishing length with negative elastic stiffness, i.e.~non-hyperbolic regions, for which the corresponding primal problem is ill-posed and demonstrates an explosive `Hadamard instability;' this appears to have implications for the modeling of physically observed softening behavior in macroscopic mechanical response.",
           "claimed_authors": [
-            "Daniel C. Mayer",
-            "Nicusor Minculete",
-            "Diana Savin",
-            "Vlad Monescu"
+            "Siddharth Singh",
+            "Janusz Ginster",
+            "Amit Acharya"
           ],
-          "claimed_title": "Some results about entropy and divergence in number theory",
+          "claimed_title": "A Hidden Convexity of Nonlinear Elasticity",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2409.18229"
+          "primary_pointer": "2401.08538"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Some results about entropy and divergence in number theory')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='A Hidden Convexity of Nonlinear Elasticity')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
           "claimed_authors": [
-            "Remo Garattini"
+            "Fabian Haak",
+            "Philipp Schaer"
           ],
-          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2000,
-          "primary_pointer": "gr-qc/0003089"
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We consider the description of open quantum systems with probability sinks (or sources) in terms of general non-Hermitian Hamiltonians.~Within such a framework, we study novel possible definitions of the quantum linear entropy as an indicator of the flow of information during the dynamics. Such linear entropy functionals are necessary in the case of a partially Wigner-transformed non-Hermitian Hamiltonian (which is typically useful within a mixed quantum-classical representation). Both the case of a system represented by a pure non-Hermitian Hamiltonian as well as that of the case of non-Hermitian dynamics in a classical bath are explicitly considered.",
+          "claimed_abstract": "We analyze noise properties of time series of frequency data from different counting modes of a Keysight 53230A frequency counter. We use a 10 MHz reference signal from a passive hydrogen maser connected via phase-stable Huber+Suhner Sucoflex 104 cables to the reference and input connectors of the counter. We find that the high resolution gap-free (CONT) frequency counting process imposes long-term correlations in the output data, resulting in a modified Allan deviation that is characteristic of random walk phase noise. Equally important, the CONT mode results in a frequency bias. In contrast, the counter's undocumented raw continuous mode (RCON) yields unbiased frequency stability estimates with white phase noise characteristics, and of a magnitude consistent with the counter's 20 ps single-shot resolution. Furthermore, we demonstrate that a 100-point running average filter in conjunction with the RCON mode yields resolution enhanced frequency estimates with flicker phase noise characteristics. For instance, the counter's built-in moving-average function can be used. The improved noise characteristics of the averaged RCON mode versus the CONT mode imply that the former mode yields frequency estimates with improved confidence for a given measurement time.",
           "claimed_authors": [
-            "Alessandro Sergi",
-            "Paolo V. Giaquinta"
+            "Tim Dunker",
+            "Harald Hauglin",
+            "Ole Petter Rønningen"
           ],
-          "claimed_title": "Linear Quantum Entropy and Non-Hermitian Hamiltonians",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1612.05917"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Linear Quantum Entropy and Non-Hermitian Hamiltonians')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "To generate genuine random numbers, random number generators based on quantum theory are essential. However, ensuring that the process used to produce randomness meets desired security standards can pose challenges for traditional quantum random number generators. This thesis delves into Device Independent (DI) and Semi-Device Independent (semi-DI) protocols of randomness expansion, based on a minimal set of experimentally verifiable security assumptions. The security in DI protocols relies on the violation of Bell inequalities, which certify the quantum behavior of devices. The semi-DI protocols discussed in this thesis require the characterization of only one device - a power meter. These protocols exploit the fact that quantum states can be prepared such that they cannot be distinguished with certainty, thereby creating a randomness resource. In this study, we introduce enhanced DI and semi-DI protocols that surpass existing ones in terms of output randomness rate, security, or in some instances, both. Our analysis employs the Entropy Accumulation Theorem (EAT) to determine the extractable randomness for finite rounds. A notable contribution is the introduction of randomness expansion protocols that recycle input randomness, significantly enhancing finite round randomness rates for DI protocols based on the CHSH inequality violation. In the final section of the thesis, we delve into Generalized Probability Theories (GPTs), with a focus on Boxworld, the largest GPT capable of producing correlations consistent with relativity. A tractable criterion for identifying a Boxworld channel is presented.",
-          "claimed_authors": [
-            "Rutvij Bhavsar"
-          ],
-          "claimed_title": "Improvements on Device Independent and Semi-Device Independent Protocols of Randomness Expansion",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.13528"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Improvements on Device Independent and Semi-Device Independent Protocols of Randomness Expansion')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Randomness is critical for many information processing applications, including numerical modeling and cryptography. Device-independent quantum random number generation (DIQRNG) based on the loophole free violation of Bell inequality produces unpredictable genuine randomness without any device assumption and is therefore an ultimate goal in the field of quantum information science. However, due to formidable technical challenges, there were very few reported experimental studies of DIQRNG, which were vulnerable to the adversaries. Here we present a fully functional DIQRNG against the most general quantum adversaries. We construct a robust experimental platform that realizes Bell inequality violation with entangled photons with detection and locality loopholes closed simultaneously. This platform enables a continuous recording of a large volume of data sufficient for security analysis against the general quantum side information and without assuming independent and identical distribution. Lastly, by developing a large Toeplitz matrix (137.90 Gb $\\times$ 62.469 Mb) hashing technique, we demonstrate that this DIQRNG generates $6.2469\\times 10^7$ quantum-certified random bits in 96 hours (or 181 bits/s) with uniformity within $10^{-5}$. We anticipate this DIQRNG may have profound impact on the research of quantum randomness and information-secured applications.",
-          "claimed_authors": [
-            "Yang Liu",
-            "Qi Zhao",
-            "Ming-Han Li",
-            "Jian-Yu Guan",
-            "Yanbao Zhang",
-            "Bing Bai",
-            "Weijun Zhang",
-            "Wen-Zhao Liu",
-            "Cheng Wu",
-            "Xiao Yuan",
-            "Hao Li",
-            "W. J. Munro",
-            "Zhen Wang",
-            "Lixing You",
-            "Jun Zhang",
-            "Xiongfeng Ma",
-            "Jingyun Fan",
-            "Qiang Zhang",
-            "Jian-Wei Pan"
-          ],
-          "claimed_title": "Device independent quantum random number generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1807.09611"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Device independent quantum random number generation')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Random numbers are a fundamental resource in science and engineering with important applications in simulation and cryptography. The inherent randomness at the core of quantum mechanics makes quantum systems a perfect source of entropy. Quantum random number generation is one of the most mature quantum technologies with many alternative generation methods. We discuss the different technologies in quantum random number generation from the early devices based on radioactive decay to the multiple ways to use the quantum states of light to gather entropy from a quantum origin. We also discuss randomness extraction and amplification and the notable possibility of generating trusted random numbers even with untrusted hardware using device independent generation protocols.",
-          "claimed_authors": [
-            "Miguel Herrero-Collantes",
-            "Juan Carlos Garcia-Escartin"
-          ],
-          "claimed_title": "Quantum Random Number Generators",
+          "claimed_title": "On temporal correlations in high-resolution frequency counting",
           "claimed_venue": "arXiv",
           "claimed_year": 2016,
-          "primary_pointer": "1604.03304"
+          "primary_pointer": "1604.05076"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Quantum Random Number Generators')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='On temporal correlations in high-resolution frequency counting')",
+        "failed_at": "2026-07-08T01:30:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We observe an instance of gender-induced bias in a downstream application, despite the absence of explicit gender words in the test cases. We provide a test set, SoWinoBias, for the purpose of measuring such latent gender bias in coreference resolution systems. We evaluate the performance of current debiasing methods on the SoWinoBias test set, especially in reference to the method's design and altered embedding space properties. See https://github.com/hillarydawkins/SoWinoBias.",
+          "claimed_authors": [
+            "Hillary Dawkins"
+          ],
+          "claimed_title": "Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14047"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution')",
+        "failed_at": "2026-07-08T01:30:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pruning is a well-established technique for removing unnecessary structure from neural networks after training to improve the performance of inference. Several recent results have explored the possibility of pruning at initialization time to provide similar benefits during training. In particular, the \"lottery ticket hypothesis\" conjectures that typical neural networks contain small subnetworks that can train to similar accuracy in a commensurate number of steps. The evidence for this claim is that a procedure based on iterative magnitude pruning (IMP) reliably finds such subnetworks retroactively on small vision tasks. However, IMP fails on deeper networks, and proposed methods to prune before training or train pruned networks encounter similar scaling limitations. In this paper, we argue that these efforts have struggled on deeper networks because they have focused on pruning precisely at initialization. We modify IMP to search for subnetworks that could have been obtained by pruning early in training (0.1% to 7% through) rather than at iteration 0. With this change, it finds small subnetworks of deeper networks (e.g., 80% sparsity on Resnet-50) that can complete the training process to match the accuracy of the original network on more challenging tasks (e.g., ImageNet). In situations where IMP fails at iteration 0, the accuracy benefits of delaying pruning accrue rapidly over the earliest iterations of training. To explain these behaviors, we study subnetwork \"stability,\" finding that - as accuracy improves in this fashion - IMP subnetworks train to parameters closer to those of the full network and do so with improved consistency in the face of gradient noise. These results offer new insights into the opportunity to prune large-scale networks early in training and the behaviors underlying the lottery ticket hypothesis",
+          "claimed_authors": [
+            "Jonathan Frankle",
+            "Gintare Karolina Dziugaite",
+            "Daniel M. Roy",
+            "Michael Carbin"
+          ],
+          "claimed_title": "Stabilizing the Lottery Ticket Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.01611"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Stabilizing the Lottery Ticket Hypothesis')",
+        "failed_at": "2026-07-08T01:30:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sparse models require less memory for storage and enable a faster inference by reducing the necessary number of FLOPs. This is relevant both for time-critical and on-device computations using neural networks. The stabilized lottery ticket hypothesis states that networks can be pruned after none or few training iterations, using a mask computed based on the unpruned converged model. On the transformer architecture and the WMT 2014 English-to-German and English-to-French tasks, we show that stabilized lottery ticket pruning performs similar to magnitude pruning for sparsity levels of up to 85%, and propose a new combination of pruning techniques that outperforms all other techniques for even higher levels of sparsity. Furthermore, we confirm that the parameter's initial sign and not its specific value is the primary factor for successful training, and show that magnitude pruning could be used to find winning lottery tickets.",
+          "claimed_authors": [
+            "Christopher Brix",
+            "Parnia Bahar",
+            "Hermann Ney"
+          ],
+          "claimed_title": "Successfully Applying the Stabilized Lottery Ticket Hypothesis to the Transformer Architecture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.03454"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Successfully Applying the Stabilized Lottery Ticket Hypothesis to the Transformer Architecture')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -492,7 +471,7 @@
           "primary_pointer": "1811.04127"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Policy Regret in Repeated Games')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -509,7 +488,7 @@
           "primary_pointer": "1903.05788"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='On non-unique solutions in mean field games')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -526,7 +505,7 @@
           "primary_pointer": "1912.06908"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Deep Nash and Sequential Mean-Field Equilibria in Cooperative and Non-cooperative Games with Imperfect Information Structures')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -544,24 +523,7 @@
           "primary_pointer": "2010.04820"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Finding geodesics on graphs using reinforcement learning')",
-        "failed_at": "2026-06-26T07:21:37Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "theoremsearch",
-          "claimed_abstract": "We consider multi-agent decision making where each agent optimizes its convex cost function subject to individual and coupling constraints. The constraint sets are compact convex subsets of a Euclidean space. To learn Nash equilibria, we propose a novel distributed payoff-based algorithm, such that each agent uses information only about its cost function values and the constraint function values with their associated dual multiplier. We prove convergence of this algorithm to a Nash equilibrium, under the assumption that the game admits a strictly convex potential function. In the absence of coupling constraints, we prove convergence to Nash equilibria under significantly weaker assumptions, not requiring a potential function. Namely, strict monotonicity of the game mapping is sufficient for convergence. We also derive the convergence rate of the algorithm for strongly monotone game maps.",
-          "claimed_authors": [
-            "Tatiana Tatarenko",
-            "Maryam Kamgarpour"
-          ],
-          "claimed_title": "Learning Generalized Nash Equilibria in a Class of Convex Games",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1703.04113"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Learning Generalized Nash Equilibria in a Class of Convex Games')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -580,7 +542,24 @@
           "primary_pointer": "2010.05059"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Card Guessing with Partial Feedback')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We consider multi-agent decision making where each agent optimizes its convex cost function subject to individual and coupling constraints. The constraint sets are compact convex subsets of a Euclidean space. To learn Nash equilibria, we propose a novel distributed payoff-based algorithm, such that each agent uses information only about its cost function values and the constraint function values with their associated dual multiplier. We prove convergence of this algorithm to a Nash equilibrium, under the assumption that the game admits a strictly convex potential function. In the absence of coupling constraints, we prove convergence to Nash equilibria under significantly weaker assumptions, not requiring a potential function. Namely, strict monotonicity of the game mapping is sufficient for convergence. We also derive the convergence rate of the algorithm for strongly monotone game maps.",
+          "claimed_authors": [
+            "Tatiana Tatarenko",
+            "Maryam Kamgarpour"
+          ],
+          "claimed_title": "Learning Generalized Nash Equilibria in a Class of Convex Games",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1703.04113"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Learning Generalized Nash Equilibria in a Class of Convex Games')",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -596,7 +575,7 @@
           "primary_pointer": "1808.07994"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Choosing 1 of N with and without lucky numbers')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -615,7 +594,7 @@
           "primary_pointer": "2004.00603"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='No-Regret Learning Dynamics for Extensive-Form Correlated Equilibrium')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -633,7 +612,7 @@
           "primary_pointer": "2104.10657"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Lottery Number Frequency and Player Behavior statistics', candidate_title='Rationally Inattentive Echo Chambers')",
-        "failed_at": "2026-06-26T07:21:37Z",
+        "failed_at": "2026-07-08T01:30:41Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -661,60 +640,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:37Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Sandeep Mishra",
-            "Anirban Pathak"
-          ],
-          "title": "Quantum and Semi-Quantum Lottery: Strategies and Advantages",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2022
-        },
-        "primary_pointer": "2203.12496",
-        "summary": "Lottery is a game in which multiple players take chances in the hope of getting some rewards in cash or kind. In addition, from the time of the early civilizations, lottery has also been considered as an apposite method to allocate scarce resources. Technically, any scheme for lottery needs to be fair and secure, but none of the classical schemes for lottery are unconditionally secure and fair. As fairness demands complete unpredictability of the outcome of the lottery, it essentially requires perfect randomness. Quantum mechanics not only guarantees the generation of perfect randomness, it can also provide unconditional security. Motivated by these facts, a set of strategies for performing lottery using different type of quantum resources (e.g., single photon states, and entangled states) are proposed here, and it's established that the proposed strategies leads to unconditionally secure and fair lottery schemes. A scheme for semi-quantum lottery that allows some classical users to participate in the lottery involving quantum resources is also proposed and the merits and demerits of all the proposed schemes are critically analysed. Its also established that the level of security is intrinsically related to the type of quantum resources being utilized. Further, its shown that the proposed schemes can be experimentally realized using currently available technology, and that may herald a new era of commercial lottery.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2203.12496",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:57Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Joel David Hamkins"
-          ],
-          "title": "The Lottery Preparation",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 1998
-        },
-        "primary_pointer": "math/9808012",
-        "summary": "The lottery preparation, a new general kind of Laver preparation, works uniformly with supercompact cardinals, strongly compact cardinals, strong cardinals, measurable cardinals, or what have you. And like the Laver preparation, the lottery preparation makes these cardinals indestructible by various kinds of further forcing. A supercompact cardinal kappa, for example, becomes fully indestructible by kappa-directed closed forcing; a strong cardinal kappa becomes indestructible by less-than-or-equal-kappa-strategically closed forcing; and a strongly compact cardinal kappa becomes indestructible by, among others, the forcing to add a Cohen subset to kappa, the forcing to shoot a club C in kappa which avoids the measurable cardinals and the forcing to add various long Prikry sequences. The lottery preparation works best when performed after fast function forcing, which adds a new completely general kind of Laver function for any large cardinal, thereby freeing the Laver function concept from the supercompact cardinal context.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/math/9808012",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:57Z"
+          "verified_at": "2026-07-08T01:30:41Z"
         }
       },
       {
@@ -737,41 +663,12 @@
           "final_url": "https://arxiv.org/abs/2005.03454",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:57Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jonathan Frankle",
-            "Gintare Karolina Dziugaite",
-            "Daniel M. Roy",
-            "Michael Carbin"
-          ],
-          "title": "Linear Mode Connectivity and the Lottery Ticket Hypothesis",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2019
-        },
-        "primary_pointer": "1912.05671",
-        "summary": "We study whether a neural network optimizes to the same, linearly connected minimum under different samples of SGD noise (e.g., random data order and augmentation). We find that standard vision models become stable to SGD noise in this way early in training. From then on, the outcome of optimization is determined to a linearly connected region. We use this technique to study iterative magnitude pruning (IMP), the procedure used by work on the lottery ticket hypothesis to identify subnetworks that could have trained in isolation to full accuracy. We find that these subnetworks only reach full accuracy when they are stable to SGD noise, which either occurs at initialization for small-scale settings (MNIST) or early in training for large-scale settings (ResNet-50 and Inception-v3 on ImageNet).",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1912.05671",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:58Z"
+          "verified_at": "2026-07-08T01:30:46Z"
         }
       },
       {
@@ -796,13 +693,107 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2208.10842",
           "http_status": 200,
-          "pdf_sample_score": 0.3057,
-          "query_relevance_score": 0.6667,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-26T07:21:58Z"
+          "verified_at": "2026-07-08T01:30:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiangyu Peng",
+            "Jessica Quaye",
+            "Sudha Rao",
+            "Weijia Xu",
+            "Portia Botchway",
+            "Chris Brockett",
+            "Nebojsa Jojic",
+            "Gabriel DesGarennes",
+            "Ken Lobb",
+            "Michael Xu",
+            "Jorge Leandro",
+            "Claire Jin",
+            "Bill Dolan"
+          ],
+          "title": "Player-Driven Emergence in LLM-Driven Game Narrative",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.17027",
+        "summary": "We explore how interaction with large language models (LLMs) can give rise to emergent behaviors, empowering players to participate in the evolution of game narratives. Our testbed is a text-adventure game in which players attempt to solve a mystery under a fixed narrative premise, but can freely interact with non-player characters generated by GPT-4, a large language model. We recruit 28 gamers to play the game and use GPT-4 to automatically convert the game logs into a node-graph representing the narrative in the player's gameplay. We find that through their interactions with the non-deterministic behavior of the LLM, players are able to discover interesting new emergent nodes that were not a part of the original narrative but have potential for being fun and engaging. Players that created the most emergent nodes tended to be those that often enjoy games that facilitate discovery, exploration and experimentation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.17027",
+          "http_status": 200,
+          "pdf_sample_score": 0.2215,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T01:30:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James Goodman",
+            "Diego Perez-Liebana",
+            "Simon Lucas"
+          ],
+          "title": "Seeding for Success: Skill and Stochasticity in Tabletop Games",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.02686",
+        "summary": "Games often incorporate random elements in the form of dice or shuffled card decks. This randomness is a key contributor to the player experience and the variety of game situations encountered. There is a tension between a level of randomness that makes the game interesting and contributes to the player enjoyment of a game, and a level at which the outcome itself is effectively random and the game becomes dull. The optimal level for a game will depend on the design goals and target audience. We introduce a new technique to quantify the level of randomness in game outcome and use it to compare 15 tabletop games and disentangle the different contributions to the overall randomness from specific parts of some games. We further explore the interaction between game randomness and player skill, and how this innate randomness can affect error analysis in common game experiments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.02686",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T01:30:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anna Guitart",
+            "Ana Fernández del Río",
+            "África Periáñez"
+          ],
+          "title": "Understanding Player Engagement and In-Game Purchasing Behavior with Ensemble Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1907.03947",
+        "summary": "As video games attract more and more players, the major challenge for game studios is to retain them. We present a deep behavioral analysis of churn (game abandonment) and what we called \"purchase churn\" (the transition from paying to non-paying user). A series of churning behavior profiles are identified, which allows a classification of churners in terms of whether they eventually return to the game (false churners)--or start purchasing again (false purchase churners)--and their subsequent behavior. The impact of excluding some or all of these churners from the training sample is then explored in several churn and purchase churn prediction models. Our results suggest that discarding certain combinations of \"zombies\" (players whose activity is extremely sporadic) and false churners has a significant positive impact in all models considered.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1907.03947",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T01:30:51Z"
         }
       }
     ]
