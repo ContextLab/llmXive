@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 0e2511cff99c105e2b01af11882c4293ba9c7d54bd198c7fa58a4cac3b5f6506
+  artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000305`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000305
+  verified_at: '2026-07-08T22:13:20.516750Z'

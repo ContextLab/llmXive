@@ -18,8 +18,8 @@ As a researcher, I need to compute the sample entropy of resting-state BOLD time
 **Acceptance Scenarios**:
 
 1. **Given** a preprocessed 4D fMRI NIfTI file and the Schaefer 200 parcellation mask, **When** the system computes sample entropy (m=2, r=0.2*SD) for each parcel, **Then** a 1D array of 200 entropy values is returned for that subject.
-2. **Given** a subject with excessive motion artifacts (framewise displacement > 0.5mm for > 20% of volumes), **When** the system computes entropy, **Then** the specific parcel time series affected are flagged, but the computation proceeds for remaining valid parcels without crashing.
-3. **Given** the full ADHD-200 dataset, **When** the system processes all subjects, **Then** a single CSV file `subject_entropy_features.csv` is produced with columns `subject_id`, `parcel_01`...`parcel_200`, containing no missing values.
+2. **Given** a subject with excessive motion artifacts (framewise displacement > 0.2mm for > 20% of volumes), **When** the system performs motion scrubbing and subsampling to N=120, **Then** the subject is excluded if the remaining time points are < 100, or included with a fixed length of 120; any parcels with zero variance are flagged and imputed.
+3. **Given** the full ADHD-200 dataset, **When** the system processes all valid subjects, **Then** a single CSV file `subject_entropy_features.csv` is produced with columns `subject_id`, `parcel_01`...`parcel_200`, containing no missing values (imputed where necessary).
 
 ---
 
@@ -35,7 +35,7 @@ As a researcher, I need to train ridge regression and logistic ridge models usin
 
 1. **Given** the entropy feature matrix and ADHD symptom scores, **When** the system performs 5-fold stratified cross-validation with ridge regression, **Then** it outputs the mean Pearson correlation coefficient and standard deviation.
 2. **Given** the same features, **When** the system trains a logistic ridge classifier for binary diagnosis, **Then** it outputs the mean Area Under the Curve (AUC) and standard deviation.
-3. **Given** a baseline connectivity feature matrix, **When** the system trains the same models, **Then** it outputs comparative metrics allowing a paired t-test to be calculated between the entropy model and the baseline model.
+3. **Given** the computed connectivity baseline feature matrix (200 PCA components), **When** the system trains the same models, **Then** it outputs comparative metrics allowing a paired t-test to be calculated between the entropy model and the baseline model.
 
 ---
 
@@ -55,20 +55,27 @@ As a researcher, I need to validate the model results via permutation testing an
 
 ### Edge Cases
 
-- What happens when a subject's fMRI scan has fewer than 100 time points after preprocessing? (System must skip this subject or impute, but must log the exclusion).
-- How does the system handle subjects in the ADHD-200 dataset who have missing ADHD-RS scores? (System must exclude them from the regression analysis but retain them for binary diagnosis if the diagnostic label is present).
-- How does the system handle parcels with zero variance in the time series (e.g., signal dropouts)? (System must detect zero variance and set entropy to 0 or NaN, excluding them from the feature matrix).
+- **Short Time Series**: If a subject has fewer than 100 time points after motion scrubbing, the system MUST exclude the subject and log the exclusion to `exclusions.log` with the subject ID and reason.
+- **Missing Phenotypic Data**: If a subject has missing ADHD-RS scores, the system MUST exclude them from the regression analysis but retain them for binary diagnosis if the diagnostic label is present.
+- **Zero Variance Parcels**: If a parcel has zero variance in the time series (e.g., signal dropouts), the system MUST set the entropy to the median value of that parcel across the cohort and log the event.
+- **Motion Confound**: If the correlation between entropy features and Framewise Displacement (FD) exceeds |0.3|, the system MUST flag the result as potentially confounded by motion in the final report.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST compute sample entropy for every parcel in the Schaefer 200 atlas for every valid subject in the dataset, using embedding dimension m=2 and tolerance r=0.2 * standard deviation (See US-1).
+- **FR-001**: The system MUST compute sample entropy for every parcel in the Schaefer 200 atlas for every subject that meets the validity criteria (≥100 time points post-scrubbing), using embedding dimension m=2 and tolerance r=0.2 * standard deviation (See US-1).
 - **FR-002**: The system MUST implement a 5-fold stratified cross-validation loop that preserves the balance of diagnostic labels (ADHD vs. Control) in each fold (See US-2).
 - **FR-003**: The system MUST train and evaluate three distinct models: (1) Entropy-only, (2) Connectivity-only, and (3) Combined Entropy+Connectivity, storing all cross-validated metrics (See US-2).
 - **FR-004**: The system MUST perform 1,000 permutation tests by shuffling outcome labels while maintaining the feature matrix structure to derive empirical p-values (See US-3).
 - **FR-005**: The system MUST execute a sensitivity analysis sweeping the entropy tolerance parameter `r` over the set {0.15, 0.20, 0.25} and report the resulting performance variance (See US-3).
 - **FR-006**: The system MUST apply False Discovery Rate (FDR) correction to the parcel-level statistical tests to control for multiple comparisons (See US-3).
+- **FR-007**: The system MUST exclude subjects with fewer than 100 time points after motion scrubbing and log the exclusion to `exclusions.log` with the subject ID and reason (See US-1 Edge Cases).
+- **FR-008**: The system MUST compute the baseline connectivity features by calculating the full 200x200 functional connectivity matrix ([deferred] features) for each subject, then applying Principal Component Analysis (PCA) to reduce the dimensionality to 200 components (See US-2).
+- **FR-009**: The system MUST impute missing or zero-variance parcel entropy values using the median entropy value of that specific parcel across the entire cohort (See US-1 Edge Cases).
+- **FR-010**: The system MUST calculate the standard deviation (SD) used for the entropy tolerance parameter `r` using ONLY the time points remaining after motion scrubbing (See US-1).
+- **FR-011**: The system MUST subsample all valid subjects to a fixed time series length of N=120 volumes (via truncation or interpolation) after motion scrubbing to ensure consistent SampEn length bias (See US-1).
+- **FR-012**: The system MUST perform motion scrubbing by removing volumes with Framewise Displacement (FD) > 0.2mm prior to entropy calculation (See US-1).
 
 ### Key Entities
 
@@ -77,22 +84,25 @@ As a researcher, I need to validate the model results via permutation testing an
 - **EntropyFeature**: A scalar value representing the complexity of the BOLD time series for a specific Subject-Parcel pair.
 - **PhenotypicScore**: The ADHD-RS total score and subscale scores (Inattention, Hyperactivity) for a Subject.
 - **ModelPerformance**: A record containing cross-validated metrics (r, AUC) and standard deviations for a specific model configuration.
+- **ConnectivityMatrix**: The full 200x200 functional connectivity matrix derived from the BOLD time series.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The mean cross-validated Pearson correlation (r) of the Entropy-only model predicting continuous ADHD-RS scores is measured against the Connectivity-only baseline; the goal is a statistically significant improvement (p < 0.05) or a difference ≥ 0.05 (See US-2).
-- **SC-002**: The mean cross-validated AUC for binary diagnosis using the Entropy-only model is measured against the Connectivity-only baseline; the goal is a ΔAUC ≥ 0.05 (See US-2).
+- **SC-001**: Success is verified if the empirical p-value for the Entropy-only model predicting continuous ADHD-RS scores is < 0.05 AND the difference in mean Pearson correlation (Δr) between the Entropy-only and Connectivity-only models is ≥ 0.05 (See US-2). *Justification: 0.05 is the community-standard minimum effect size for neuroimaging biomarker studies.*
+- **SC-002**: Success is verified if the lower bound of the 95% confidence interval for the difference in AUC (ΔAUC) between the Entropy-only and Connectivity-only models is ≥ 0.05 (See US-2). *Justification: 0.05 is the community-standard minimum effect size for neuroimaging biomarker studies.*
 - **SC-003**: The empirical p-value derived from 1,000 permutations for the primary model's performance metric is measured against the significance threshold of 0.05; the result must be < 0.05 to confirm non-chance performance (See US-3).
-- **SC-004**: The variation in model performance (AUC/r) across the sensitivity sweep of `r` ∈ {0.15, 0.20, 0.25} is measured; the result must show that the performance at r=0.20 is not an outlier (i.e., within 10% of the mean of the sweep) to justify the parameter choice (See US-3).
+- **SC-004**: The variation in model performance (AUC/r) across the sensitivity sweep of `r` ∈ {0.15, 0.20, 0.25} is measured; success is verified if |perf(0.20) - mean(perf)| / mean(perf) ≤ 0.10 (See US-3).
 - **SC-005**: The number of parcels identified as significant predictors after FDR correction is measured; a non-zero count of significant parcels indicates spatial specificity of the biomarker (See US-3).
+- **SC-006**: The absolute correlation coefficient between the mean entropy feature vector and the mean Framewise Displacement (FD) vector across subjects is measured; success requires |r| < 0.3 to confirm the biomarker is not primarily a proxy for motion (See US-3 Edge Cases).
 
 ## Assumptions
 
-- The ADHD-200 dataset on OpenNeuro contains the necessary phenotypic CSV with ADHD-RS scores and diagnostic labels for a sufficient number of subjects (n ≥ 100) to achieve statistical power for the planned regression analysis, though the exact power calculation is deferred to the implementation phase.
-- The minimally preprocessed fMRI data (4mm isotropic) provided by OpenNeuro is of sufficient quality to compute sample entropy without requiring additional custom motion scrubbing beyond the standard pipeline.
+- The ADHD-200 dataset on OpenNeuro contains the necessary phenotypic CSV with ADHD-RS scores and diagnostic labels for a sufficient number of subjects (n ≥ 100) to achieve statistical power for the planned regression analysis.
+- Motion scrubbing (removing volumes with FD > 0.2mm) is sufficient to mitigate the confounding effects of head motion on entropy calculations, provided the remaining time series length is standardized.
 - The `antropy` Python library is compatible with the CPU-only GitHub Actions runner environment and does not require GPU acceleration or CUDA libraries.
 - The Schaefer 200 atlas parcellation mask aligns correctly with the MNI space of the preprocessed fMRI data provided in the dataset.
-- The sample entropy computation is computationally feasible within the 6-hour CI time limit for the full dataset, assuming standard CPU performance.
+- The sample entropy computation is computationally feasible within the CI time limit for the full dataset, assuming standard CPU performance.
 - The relationship between fMRI entropy and ADHD symptoms is associational, not causal, due to the observational nature of the dataset; the analysis will not claim causal inference.
+- The correlation between entropy and motion (SC-006) is expected to be low (< 0.3) if the scrubbing and standardization steps are effective.

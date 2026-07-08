@@ -1,0 +1,136 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for the model_metrics.json output file containing cross-validated performance metrics."
+type: "object"
+properties:
+  models:
+    type: "array"
+    description: "List of model results"
+    items:
+      type: "object"
+      properties:
+        model_type:
+          type: "string"
+          enum:
+            - "entropy_only"
+            - "connectivity_only"
+            - "combined"
+          description: "Type of model"
+        task:
+          type: "string"
+          enum:
+            - "regression"
+            - "classification"
+          description: "Prediction task"
+        metric:
+          type: "string"
+          enum:
+            - "pearson_r"
+            - "auc"
+          description: "Performance metric"
+        mean_score:
+          type: "number"
+          description: "Mean cross-validated score"
+        std_score:
+          type: "number"
+          description: "Standard deviation of cross-validated score"
+        p_value_permutation:
+          type: "number"
+          description: "Empirical p-value from permutation testing"
+        ci_lower:
+          type: "number"
+          description: "Lower bound of 95% confidence interval (bootstrapped difference)"
+        ci_upper:
+          type: "number"
+          description: "Upper bound of 95% confidence interval (bootstrapped difference)"
+        p_value_nested_test:
+          type: "number"
+          description: "P-value from Likelihood Ratio Test (Entropy vs Connectivity)"
+      required:
+        - "model_type"
+        - "task"
+        - "metric"
+        - "mean_score"
+        - "std_score"
+        - "p_value_permutation"
+        - "ci_lower"
+        - "ci_upper"
+        - "p_value_nested_test"
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the r-parameter sensitivity sweep"
+    properties:
+      r_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of r values tested"
+      performance_variance:
+        type: "object"
+        description: "Variance in performance across r values for both r and AUC"
+        properties:
+          pearson_r_variance:
+            type: "number"
+          auc_variance:
+            type: "number"
+        required:
+          - "pearson_r_variance"
+          - "auc_variance"
+    required:
+      - "r_values"
+      - "performance_variance"
+  significant_parcels:
+    type: "array"
+    description: "List of parcels significant after FDR correction"
+    items:
+      type: "object"
+      properties:
+        parcel_index:
+          type: "integer"
+        p_value:
+          type: "number"
+        fdr_q_value:
+          type: "number"
+      required:
+        - "parcel_index"
+        - "p_value"
+        - "fdr_q_value"
+  significant_parcels_count:
+    type: "integer"
+    description: "Total count of significant parcels (SC-005)"
+  motion_confound:
+    type: "object"
+    description: "Motion confound check result (SC-006)"
+    properties:
+      correlation_coefficient:
+        type: "number"
+      is_flagged:
+        type: "boolean"
+        description: "True if |r| >= 0.3"
+    required:
+      - "correlation_coefficient"
+      - "is_flagged"
+  power_analysis:
+    type: "object"
+    description: "Minimum Detectable Effect Size (MDES) analysis"
+    properties:
+      n_subjects:
+        type: "integer"
+      assumed_effect_size:
+        type: "number"
+        description: "Cohen's d used for calculation"
+      mdes:
+        type: "number"
+        description: "Minimum detectable effect size for alpha=0.05, power=0.8"
+    required:
+      - "n_subjects"
+      - "assumed_effect_size"
+      - "mdes"
+required:
+  - "models"
+  - "sensitivity_analysis"
+  - "significant_parcels"
+  - "significant_parcels_count"
+  - "motion_confound"
+  - "power_analysis"
+additionalProperties: false

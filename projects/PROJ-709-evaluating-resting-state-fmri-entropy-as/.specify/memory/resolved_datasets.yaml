@@ -1,0 +1,411 @@
+resolved_at: '2026-07-08T22:01:00.177025+00:00'
+datasets:
+- intent: ADHD-200
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/beotborry/TABLeT-ADHD200_new/resolve/main/Brown/sub-0026001/ses-1/func/sub-0026001_ses-1_task-rest_run-1_desc-confounds_timeseries.tsv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1227447
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/51600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/chapter/10.1007/978-3-319-24888-2_8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18006131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15052754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fqpkm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/zbyje/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01901
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/uncovering-three-faces-fragile-x-fxd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29695
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/35sxv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007354/versions/2.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008136/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008066/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007058/versions/1.2.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ADHD-RS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11247581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18006131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://reference-global.com/article/10.21307/sjcapp-2013-002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15052754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://reference-global.com/article/10.21307/sjcapp-2014-002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Decreased_attention_in_10-_and_14-month-olds_with_neurofibromatosis_type_1_and_association_with_later_ADHD_traits/8573364
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Decreased_attention_in_10-_and_14-month-olds_with_neurofibromatosis_type_1_and_association_with_later_ADHD_traits/8573364/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/handle/20.500.12422/247933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c86db/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ekcj4/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MNI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ylecun/mnist/resolve/main/mnist/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zalando-datasets/fashion_mnist/resolve/main/fashion_mnist/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ylecun/mnist/resolve/main/mnist/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zalando-datasets/fashion_mnist/resolve/main/fashion_mnist/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8380698
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5653600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14857391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14857335
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3823451
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ADHD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Therax/ADHD_data/resolve/main/data_adhd_questions.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2491
+      parsed: true
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_ADHD__How_Anyone_Can_Improve_Their_Focus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 72138
+      parsed: true
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Adderall_Stimulants__Modafinil_for_ADHD_Short-__Long-Term_Effects/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 62729
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Rami/adhd_question/fe7d534f004f5cc2d50235bdbf6260fb43cb88cc/context.csv?%2Fdatasets%2FRami%2Fadhd_question%2Fresolve%2Fmain%2Fcontext.csv=&etag=%22f45a474857129c883cc92528799f794e8f244aa4%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Therax/ADHD_data/resolve/main/data_adhd_questions.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_ADHD__How_Anyone_Can_Improve_Their_Focus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Adderall_Stimulants__Modafinil_for_ADHD_Short-__Long-Term_Effects/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Peraboom/ADHD_Related_Concerns/resolve/main/adhd.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8187741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://reference-global.com/article/10.21307/sjcapp-2014-002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18006131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15052754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18228565
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/t9xea/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pfuza/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/studies/00004775/isLanding
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/dataPackages/PR00004775.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/dataPackages/PR00004773.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
