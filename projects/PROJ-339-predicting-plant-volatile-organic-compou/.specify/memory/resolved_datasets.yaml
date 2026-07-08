@@ -1,0 +1,726 @@
+resolved_at: '2026-07-08T23:25:48.939107+00:00'
+datasets:
+- intent: RNA-seq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4185
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suzuki-2001/athaliana_rnaseq_splicing/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18008608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.65v002b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rf10
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17131667
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/c9db5904-6e44-4f33-958c-75e4e48ad368
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.q573n5tzv
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/9jstff2ggc/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/9jstff2ggc
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/scRNA-seq_bulk_RNA-seq_and_spatial_transcriptomics_datasets/32521659/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VOC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/fuliucansheng/pascal_voc/resolve/main/voc2007.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nateraw/pascal-voc-2012/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/besimple-ai/vocal-affect-bench/resolve/main/baselines/predictions/gemini_3_5_flash.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 14849
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/besimple-ai/vocal-affect-bench/resolve/main/baselines/predictions/gemini_3_5_flash.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/fuliucansheng/pascal_voc/resolve/main/voc2007.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/moumeneb1/large_vocabulary_dataset/resolve/main/data/dev-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/vocab-transformers/wiki-en-passages-20210101/resolve/main/train.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/nateraw/pascal-voc-2012/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7323182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7128112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12818293
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19158328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7179185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4ug25/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://parc.ipp.pt/index.php/PRPAEH/article/view/7163
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000801709
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.3929/ethz-c-000800518
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21259173
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f57bc258-cfaa-4603-80f0-d258da87f736
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GEO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/truemanv5666/GeoText1652_Dataset/5d32fdcf69ebea22005782a9f78fee27062c79e2/test_24G_version.json?%2Fdatasets%2Ftruemanv5666%2FGeoText1652_Dataset%2Fresolve%2Fmain%2Ftest_24G_version.json=&etag=%22b875bed32b0e42e03cee0b2c7eefb7986857ad9f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Darsala/english_georgian_corpora/resolve/main/corp_dict.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19467316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7603435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798419
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16736158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ahz58/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269033
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269033
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TPM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/TPM-28/emotion-FR/resolve/main/data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mikemoubarak/pangenome-tpm/resolve/main/testing.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Adring/TPMN_QA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7649
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/CogniVerse/tpmify/109ede6937a5820943158a3355ecd791debe7e90/embeddings.csv?%2Fdatasets%2FCogniVerse%2Ftpmify%2Fresolve%2Fmain%2Fembeddings.csv=&etag=%2251ce069c73893819dc96cf93b1a7509b75d80e60%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/660e66c8a7f16af58a1063bf/5da7e1e0bc539683df76ea0c6b0c1ac2ce061026b6f72a2fdfc92c2ab016b7bf?user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alpaca_data_cleaned-fr.json%3B+filename%3D%22alpaca_data_cleaned-fr.json%22%3B&Expires=1783556605&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYwZTY2YzhhN2YxNmFmNThhMTA2M2JmLzVkYTdlMWUwYmM1Mzk2ODNkZjc2ZWEwYzZiMGMxYWMyY2UwNjEwMjZiNmY3MmEyZmRmYzkyYzJhYjAxNmI3YmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdhbHBhY2FfZGF0YV9jbGVhbmVkLWZyLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJhbHBhY2FfZGF0YV9jbGVhbmVkLWZyLmpzb24lMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1NjYwNX19fV19&Signature=MEUCIEdDr-xMOQ3hdGmwY21qWI4yj1ciq4M7aVKH4JCwjsvkAiEAo2XX74psJ4UqjipLCONmRdDaQ33xghN2IyMukdNZM2I_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/TPM-28/emotion-FR/resolve/main/data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Adring/TPMN_QA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mikemoubarak/pangenome-tpm/resolve/main/testing.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11368814
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11369627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19387851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11369351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11370021
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/vyz294t5j9/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vyz294t5j9
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/2dpdyxjzvf/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/2dpdyxjzvf
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21262064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&user_id=public&X-Xet-Cas-Uid=public&Expires=1783556645&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1NTY2NDV9fX1dfQ__&Signature=MEYCIQDETBoXmYsoLQsq2QXDr97z4rfczETbgRL5aT7r-CqQggIhAIAuvsNSB-uvMBxXItDjzVPrsFBPjBWjpFOIpN7M7vkt&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17167994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cris.usm.cl/entities/tesis/d147da4c-3692-4f7f-b269-ca1159f320c7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/wf6dfy2jcf/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/wf6dfy2jcf
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269707
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269707
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269555
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VOC-related
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Novel_insecticidal_proteins_from_ferns_resemble_insecticidal_proteins_from_Bacillus_thuringiensis/32766741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MATLAB_Codes_for_Simultaneous_characterization_of_irregular_non-point_contaminant_sources_and_channelized_hydraulic_conductivity_fields_using_advanced_data_assimilation_methods_/32928878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Supplementary_Materials_for_/32681247
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18829760
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12818293
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11214032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17418277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7128112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250693
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250693
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2ngf1vj37
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CO2
+  status: unresolved
+  candidates: []
+  candidates_tried: []

@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T05:14:13.688086Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-339-predicting-plant-volatile-organic-compou
-last_run_id: fb864e82-e652-4531-a125-768fc6738efe
+last_run_id: f3facdfb-26d7-4fa9-8b9f-f98212da312d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-339-predicting-plant-volatile-organic-compou/specs/001-predicting-plant-volatile-organic-compou
 title: Predicting Plant Volatile Organic Compound Emission Profiles from Publicly
   Available Genomic and Environmental Data
-updated_at: '2026-06-29T01:12:38.103890Z'
+updated_at: '2026-07-08T23:56:40.565219Z'

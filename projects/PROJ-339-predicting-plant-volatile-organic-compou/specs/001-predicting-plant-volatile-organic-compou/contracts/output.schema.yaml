@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    properties:
+      r2_score:
+        type: "number"
+        description: "R² score from cross-validation"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error"
+      baseline_r2:
+        type: "number"
+        description: "R² of the mean-predictor baseline"
+      fdr_threshold:
+        type: "number"
+        description: "The False Discovery Rate threshold used for multiple comparison correction"
+    required:
+      - r2_score
+      - rmse
+      - baseline_r2
+      - fdr_threshold
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance_score:
+          type: "number"
+        p_value:
+          type: "number"
+        is_significant:
+          type: "boolean"
+          description: "True if p_value < corrected threshold"
+      required:
+        - feature_name
+        - importance_score
+        - p_value
+        - is_significant
+  biological_overlap:
+    type: "object"
+    properties:
+      top_genes:
+        type: "array"
+        items:
+          type: "string"
+      known_voc_genes:
+        type: "array"
+        items:
+          type: "string"
+      overlap_proportion:
+        type: "number"
+        description: "Proportion of top genes overlapping with known VOC-related families"
+    required:
+      - top_genes
+      - known_voc_genes
+      - overlap_proportion
+  disclaimer:
+    type: "string"
+    description: "Associational findings disclaimer"
+    const: "Findings are associational due to observational data"
+required:
+  - metrics
+  - feature_importance
+  - biological_overlap
+  - disclaimer
+additionalProperties: false
