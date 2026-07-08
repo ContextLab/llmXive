@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Output Report Schema"
+description: "Schema for the final research report output (summary of all findings)"
+type: object
+properties:
+  study_id:
+    type: string
+    description: "Unique identifier for the study run"
+  hypothesis:
+    type: string
+    description: "The primary hypothesis being tested (Revised: Textual Variance vs. Engagement)"
+  dataset_source:
+    type: string
+    description: "URL of the primary dataset used"
+  main_findings:
+    type: array
+    items:
+      type: object
+      properties:
+        metric:
+          type: string
+        correlation:
+          type: number
+        p_value:
+          type: number
+        interpretation:
+          type: string
+    description: "Key statistical findings"
+  limitations:
+    type: array
+    items:
+      type: string
+    description: "List of study limitations (e.g., observational nature, domain gap, lack of AI traits)"
+  reproducibility_hash:
+    type: string
+    description: "SHA-256 hash of the code and data used for this run"
+required:
+  - study_id
+  - hypothesis
+  - dataset_source
+  - main_findings
+  - limitations
+  - reproducibility_hash
+additionalProperties: false

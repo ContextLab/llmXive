@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Sessions Dataset Schema"
+description: "Schema for data/processed/sessions_metrics.csv (converted to JSON for validation)"
+type: object
+properties:
+  session_id:
+    type: string
+    description: "Unique identifier for the conversation session"
+  turn_count:
+    type: integer
+    minimum: 3
+    description: "Total number of turns in the session (must be >= 3)"
+  sentiment_variance:
+    type: number
+    description: "Variance of sentiment scores across Turns 1 to N-1"
+  ttr_variance:
+    type: number
+    description: "Variance of Type-Token Ratio across Turns 1 to N-1"
+  variance_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Composite variance score (0 = high variance, 1 = low variance)"
+  turn_n_length:
+    type: integer
+    minimum: 0
+    description: "Word count of Turn N (Outcome)"
+  total_length:
+    type: integer
+    minimum: 0
+    description: "Total word count of the session (Control)"
+required:
+  - session_id
+  - turn_count
+  - sentiment_variance
+  - ttr_variance
+  - variance_score
+  - turn_n_length
+  - total_length
+additionalProperties: false

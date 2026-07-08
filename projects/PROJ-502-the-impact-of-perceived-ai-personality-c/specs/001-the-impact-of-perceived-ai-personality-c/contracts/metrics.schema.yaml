@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Results Schema"
+description: "Schema for output/results.json containing GLM and Linear regression outputs"
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "GLM_Poisson"
+      - "GLM_NegativeBinomial"
+      - "Linear_Regression"
+    description: "Type of statistical model used"
+  outcome:
+    type: string
+    description: "The dependent variable (e.g., turn_n_length)"
+  predictors:
+    type: array
+    items:
+      type: string
+    description: "List of independent variables included in the model"
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of predictor names to their regression coefficients"
+  p_values:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of predictor names to their FDR-corrected p-values"
+  r_squared:
+    type: ["number", "null"]
+    description: "Variance explained (R²) or pseudo R² for the model"
+  power_analysis:
+    type: object
+    properties:
+      sample_size:
+        type: integer
+      effect_size:
+        type: number
+      power:
+        type: number
+    description: "Post-hoc power analysis results"
+  limitations:
+    type: array
+    items:
+      type: string
+    description: "List of study limitations (e.g., observational nature, domain gap)"
+required:
+  - model_type
+  - outcome
+  - predictors
+  - coefficients
+  - p_values
+  - limitations
+additionalProperties: false

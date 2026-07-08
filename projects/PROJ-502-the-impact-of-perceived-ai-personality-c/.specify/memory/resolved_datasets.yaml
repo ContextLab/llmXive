@@ -1,0 +1,478 @@
+resolved_at: '2026-07-08T18:32:28.250472+00:00'
+datasets:
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://researchdata.up.ac.za/articles/dataset/How_information_professionals_can_prepare_themselves_to_identify_and_mitigate_the_influence_of_disruptive_technologies/32935901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Test_Article_-_Cloud_Links/32942084
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/ULTRAFAST_LASER_DRIVEN_PHASE_CHANGE_IN_HAFNIUM_ZIRCONIUM_OXIDE/32939882
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Introduction_to_the_radiation_therapy_clinical_workflow/32942069
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Predictive_Model_for_Early_Neurological_Deterioration_in_Medullary_Infarction_Based_on_Explainable_Machine_Learning/32932907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DailyDialog
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/roskoN/dailydialog/resolve/main/test.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 178601
+      parsed: true
+  - url: https://huggingface.co/datasets/ConvLab/dailydialog/resolve/main/dummy_data.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 37937
+      parsed: true
+  - url: https://huggingface.co/datasets/pixelsandpointers/daily_dialog_w_turn_templates/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/roskoN/dailydialog/resolve/main/test.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/pixelsandpointers/daily_dialog_w_turn_templates/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ia-bentebib/daily_dialog_fr/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ConvLab/dailydialog/resolve/main/dummy_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://researchdata.up.ac.za/articles/dataset/How_information_professionals_can_prepare_themselves_to_identify_and_mitigate_the_influence_of_disruptive_technologies/32935901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Test_Article_-_Cloud_Links/32942084
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/ULTRAFAST_LASER_DRIVEN_PHASE_CHANGE_IN_HAFNIUM_ZIRCONIUM_OXIDE/32939882
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Introduction_to_the_radiation_therapy_clinical_workflow/32942069
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Predictive_Model_for_Early_Neurological_Deterioration_in_Medullary_Infarction_Based_on_Explainable_Machine_Learning/32932907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3539605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17049649
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17238270
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14600063
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15126395
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/68427-towards-diverse-relevant-and-coherent-open-domain-dialogue-generation-via-hybrid-latent-variables
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/102696-triple-encoders-representations-that-fire-together-wire-together
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.09837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/147166-chat-ghosting-methods-for-auto-completion-in-dialog-systems
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.03056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TTR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jack008/TTR/resolve/main/styles.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2691
+      parsed: true
+  - url: https://huggingface.co/datasets/ttrung1402/UIT-ViIC/resolve/main/data/annotations.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pytorch-lifestream/ttrs/resolve/main/ttrs.csv.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jack008/TTR/resolve/main/styles.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ttrung1402/UIT-ViIC/resolve/main/data/annotations.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/pytorch-lifestream/ttrs/resolve/main/ttrs.csv.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/YiDuo1999/ttro/resolve/main/Wiki/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yasalma/tt-ru-mt/resolve/main/train.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://researchdata.up.ac.za/articles/dataset/How_information_professionals_can_prepare_themselves_to_identify_and_mitigate_the_influence_of_disruptive_technologies/32935901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Test_Article_-_Cloud_Links/32942084
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/ULTRAFAST_LASER_DRIVEN_PHASE_CHANGE_IN_HAFNIUM_ZIRCONIUM_OXIDE/32939882
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Introduction_to_the_radiation_therapy_clinical_workflow/32942069
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Predictive_Model_for_Early_Neurological_Deterioration_in_Medullary_Infarction_Based_on_Explainable_Machine_Learning/32932907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6125995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14572694
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7703833
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6414572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6125424
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266548
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266548
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/me7ds/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02886
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01865
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AI-human
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/acmc/multi_domain_ai_human_text/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kushinm/WID_sym_human_vs_ai/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 11128
+      parsed: true
+  - url: https://huggingface.co/datasets/NabeelShar/ai_and_human_text/resolve/main/train_ai.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/acmc/multi_domain_ai_human_text/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ai-habitat/habitat_humanoids/resolve/main/female_0/female_0.ao_config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/kushinm/WID_sym_human_vs_ai/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NabeelShar/ai_and_human_text/resolve/main/train_ai.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://researchdata.up.ac.za/articles/dataset/How_information_professionals_can_prepare_themselves_to_identify_and_mitigate_the_influence_of_disruptive_technologies/32935901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Test_Article_-_Cloud_Links/32942084
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/ULTRAFAST_LASER_DRIVEN_PHASE_CHANGE_IN_HAFNIUM_ZIRCONIUM_OXIDE/32939882
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Introduction_to_the_radiation_therapy_clinical_workflow/32942069
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Predictive_Model_for_Early_Neurological_Deterioration_in_Medullary_Infarction_Based_on_Explainable_Machine_Learning/32932907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14693324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13882619
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15427809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13826694
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15061476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18133284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18203931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18203931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AI-chatbot
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ruslanmv/ai-medical-chatbot/resolve/main/dialogues.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/openaccess-ai-collective/chatbot-arena-elo-scores/resolve/main/data/train-00000-of-00001-ca31580125dedd37.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1669
+      parsed: true
+  - url: https://huggingface.co/datasets/agie-ai/lmsys-chatbot_arena_conversations/resolve/main/data/train-00000-of-00001-f4a410a7274a9509.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ruslanmv/ai-medical-chatbot/resolve/main/dialogues.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/openaccess-ai-collective/chatbot-arena-elo-scores/resolve/main/data/train-00000-of-00001-ca31580125dedd37.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/agie-ai/lmsys-chatbot_arena_conversations/resolve/main/data/train-00000-of-00001-f4a410a7274a9509.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/KE-AI/Chatbot-snepi/resolve/main/dataset_kel.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/IEEEVITPune-AI-Team/chatbotAlpha/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/How_information_professionals_can_prepare_themselves_to_identify_and_mitigate_the_influence_of_disruptive_technologies/32935901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Test_Article_-_Cloud_Links/32942084
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/ULTRAFAST_LASER_DRIVEN_PHASE_CHANGE_IN_HAFNIUM_ZIRCONIUM_OXIDE/32939882
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Introduction_to_the_radiation_therapy_clinical_workflow/32942069
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Predictive_Model_for_Early_Neurological_Deterioration_in_Medullary_Infarction_Based_on_Explainable_Machine_Learning/32932907
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://infotech-soccult.knukim.edu.ua/article/view/293598
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17522831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19396394
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15711484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19427083
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/n9bcs/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8jsm2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nfxv5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wsr2k/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

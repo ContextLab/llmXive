@@ -1,0 +1,5 @@
+'|al et smith':
+  quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+  source_id: golden_ratio
+  url: https://en.wikipedia.org/wiki/Golden_ratio
+  value: '1.618033988749895'
