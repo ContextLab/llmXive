@@ -1,0 +1,67 @@
+[
+  {
+    "url": "https://example.com/ab-test-1",
+    "domain": "example.com",
+    "publication_year": 2023,
+    "test_type": "binary",
+    "outcome_type": "binary",
+    "p_value_reported": 0.045,
+    "p_value_reconstructed": 0.048,
+    "effect_size_reported": 0.05,
+    "effect_size_reconstructed": 0.052,
+    "sample_size_control": 1000,
+    "sample_size_treatment": 1000
+  },
+  {
+    "url": "https://example.com/ab-test-2",
+    "domain": "example.com",
+    "publication_year": 2023,
+    "test_type": "binary",
+    "outcome_type": "binary",
+    "p_value_reported": 0.03,
+    "p_value_reconstructed": 0.09,
+    "effect_size_reported": 0.08,
+    "effect_size_reconstructed": 0.085,
+    "sample_size_control": 1000,
+    "sample_size_treatment": 1000
+  },
+  {
+    "url": "https://example.com/ab-test-3",
+    "domain": "testsite.org",
+    "publication_year": 2022,
+    "test_type": "continuous",
+    "outcome_type": "continuous",
+    "p_value_reported": 0.02,
+    "p_value_reconstructed": 0.021,
+    "effect_size_reported": 0.12,
+    "effect_size_reconstructed": 0.125,
+    "sample_size_control": 500,
+    "sample_size_treatment": 500
+  },
+  {
+    "url": "https://example.com/ab-test-4",
+    "domain": "testsite.org",
+    "publication_year": 2022,
+    "test_type": "binary",
+    "outcome_type": "binary",
+    "p_value_reported": 0.01,
+    "p_value_reconstructed": 0.012,
+    "effect_size_reported": 0.15,
+    "effect_size_reconstructed": 0.155,
+    "sample_size_control": null,
+    "sample_size_treatment": 800
+  },
+  {
+    "url": "https://example.com/ab-test-5",
+    "domain": "anotherdomain.net",
+    "publication_year": 2024,
+    "test_type": "continuous",
+    "outcome_type": "continuous",
+    "p_value_reported": 0.06,
+    "p_value_reconstructed": 0.062,
+    "effect_size_reported": 0.10,
+    "effect_size_reconstructed": 0.101,
+    "sample_size_control": 2000,
+    "sample_size_treatment": 2000
+  }
+]

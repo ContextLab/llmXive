@@ -1,7 +1,8 @@
 """
-Script to run the inconsistency validator on sample data.
-Usage: python scripts/run_validator.py
+Script to run the inconsistency validator on reconstructed summaries.
+Reads from data/reconstructed_summaries.json and writes to output/audit_report.json.
 """
+
 import sys
 from pathlib import Path
 
@@ -11,16 +12,15 @@ sys.path.insert(0, str(project_root))
 
 from code.src.audit.validator import main as validator_main
 
-if __name__ == "__main__":
-    # Default paths
-    input_path = project_root / "data" / "sample_summaries_for_validation.json"
-    output_path = project_root / "output" / "audit_report.json"
 
-    if not input_path.exists():
-        print(f"Error: Input file not found: {input_path}")
+def main():
+    """Entry point for validator script."""
+    try:
+        validator_main()
+    except Exception as e:
+        print(f"Error running validator: {e}")
         sys.exit(1)
 
-    # Override sys.argv to pass arguments
-    sys.argv = ["run_validator.py", "--input", str(input_path), "--output", str(output_path)]
-    validator_main()
-    print(f"Audit report written to: {output_path}")
+
+if __name__ == "__main__":
+    main()
