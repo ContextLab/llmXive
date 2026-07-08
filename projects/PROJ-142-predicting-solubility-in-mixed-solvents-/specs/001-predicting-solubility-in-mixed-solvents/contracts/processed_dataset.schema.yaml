@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessedDataset"
+description: "Schema for the final feature-enriched dataset used for model training."
+type: "object"
+properties:
+  columns:
+    type: "array"
+    description: "List of column names in the dataset."
+    items:
+      type: "string"
+  data_types:
+    type: "object"
+    description: "Mapping of column names to their expected data types."
+    additionalProperties:
+      type: "string"
+      enum:
+        - "integer"
+        - "float"
+        - "string"
+        - "boolean"
+  constraints:
+    type: "object"
+    description: "Business logic constraints for the data."
+    properties:
+      max_mw:
+        type: "number"
+        description: "Maximum allowed molecular weight."
+        const:
+      mole_fraction_sum_tolerance:
+        type: "number"
+        description: "Tolerance for mole fraction sum (must be 1.0)."
+        const:
+      max_imputation_rate:
+        type: "number"
+        description: "Maximum allowed percentage of imputed rows."
+        const:
+    required:
+      - max_mw
+      - mole_fraction_sum_tolerance
+      - max_imputation_rate
+required:
+  - columns
+  - data_types
+  - constraints
+additionalProperties: false

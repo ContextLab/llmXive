@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SolubilityRecord"
+description: "Schema for a single solubility measurement record in the processed dataset."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  solute_smiles:
+    type: "string"
+    description: "SMILES string of the solute."
+  solute_mw:
+    type: "number"
+    description: "Molecular weight of the solute in Daltons."
+    minimum: 0
+    maximum: 500
+  solvent_ids:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of solvent identifiers."
+  mole_fractions:
+    type: "array"
+    items:
+      type: "number"
+    description: "Mole fractions of solvents. Sum must be approx 1.0."
+    minItems: 1
+  experimental_logS:
+    type: "number"
+    description: "Experimental solubility value (logS)."
+  source_dataset:
+    type: "string"
+    description: "Source dataset name (e.g., 'EPA', 'MoleculeNet')."
+  is_imputed:
+    type: "boolean"
+    description: "True if any feature was imputed via KNN."
+required:
+  - record_id
+  - solute_smiles
+  - solute_mw
+  - solvent_ids
+  - mole_fractions
+  - experimental_logS
+  - source_dataset
+additionalProperties: false
