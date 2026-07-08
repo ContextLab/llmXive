@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Result Schema"
+description: "Schema for OLS regression results per dataset and strategy"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Source dataset name"
+  strategy:
+    type: string
+    enum:
+      - "Raw"
+      - "IQR"
+      - "Z-Score"
+      - "Cooks"
+    description: "Outlier removal strategy used"
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of feature to coefficient"
+  p_values:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of feature to p-value"
+  r_squared:
+    type: number
+    description: "Model R-squared"
+  rmse:
+    type: number
+    description: "Root Mean Squared Error"
+  vif_flags:
+    type: object
+    additionalProperties:
+      type: integer
+    description: "Map of feature to VIF (only if > 5)"
+  status:
+    type: string
+    enum:
+      - "success"
+      - "data_loss"
+      - "skipped"
+    description: "Execution status"
+required:
+  - dataset_name
+  - strategy
+  - coefficients
+  - p_values
+  - r_squared
+  - rmse
+  - status

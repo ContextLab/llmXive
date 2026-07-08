@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+description: "Schema for the aggregated sensitivity report"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Source dataset name"
+  metric_changes:
+    type: object
+    properties:
+      r2_delta:
+        type: number
+      rmse_delta:
+        type: number
+      coef_deltas:
+        type: object
+        additionalProperties:
+          type: number
+    description: "Change in metrics between Raw and Cleaned"
+  statistical_test_results:
+    type: object
+    properties:
+      wilcoxon_p_value:
+        type: number
+      t_test_p_value:
+        type: number
+      test_statistic:
+        type: number
+    description: "Results of Wilcoxon Signed-Rank and Paired t-test"
+  sweep_results:
+    type: array
+    items:
+      type: object
+      properties:
+        multiplier:
+          type: number
+        r2_delta:
+          type: number
+        rmse_delta:
+          type: number
+      required:
+        - multiplier
+        - r2_delta
+        - rmse_delta
+    description: "Results for IQR multiplier sweep"
+required:
+  - dataset_name
+  - metric_changes
+  - statistical_test_results

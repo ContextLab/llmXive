@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for UCI dataset metadata and preprocessing status"
+type: object
+properties:
+  name:
+    type: string
+    description: "UCI dataset identifier"
+  target_variable:
+    type: string
+    description: "Name of the target column"
+  continuous_features:
+    type: array
+    items:
+      type: string
+    description: "List of continuous feature names"
+  categorical_features:
+    type: array
+    items:
+      type: string
+    description: "List of categorical feature names"
+  sample_size:
+    type: integer
+    description: "Number of rows in the dataset"
+  feature_count:
+    type: integer
+    description: "Total number of features after encoding"
+  status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+      - "skipped_no_continuous"
+    description: "Preprocessing status"
+required:
+  - name
+  - target_variable
+  - continuous_features
+  - categorical_features
+  - sample_size
+  - feature_count
+  - status
