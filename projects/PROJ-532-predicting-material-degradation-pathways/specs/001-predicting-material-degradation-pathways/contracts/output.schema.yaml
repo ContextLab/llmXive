@@ -1,0 +1,103 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationOutputSchema"
+description: "Schema for the final evaluation report and metrics."
+type: "object"
+properties:
+  model_performance:
+    type: "object"
+    properties:
+      macro_f1_score:
+        type: "number"
+        description: "Macro-averaged F1 score of the model."
+      baseline_f1_score:
+        type: "number"
+        description: "F1 score of the stratified random baseline."
+      f1_margin:
+        type: "number"
+        description: "Difference between model and baseline F1 (target: ≥ 0.05)."
+      permutation_test_p_value:
+        type: "number"
+        description: "P-value from the permutation test (target: < 0.05)."
+      success_criteria_met:
+        type: "boolean"
+        description: "True if p < 0.05 AND margin ≥ 0.05."
+    required:
+      - "macro_f1_score"
+      - "baseline_f1_score"
+      - "f1_margin"
+      - "permutation_test_p_value"
+      - "success_criteria_met"
+  ood_generalization:
+    type: "object"
+    properties:
+      ood_macro_f1:
+        type: "number"
+        description: "Macro-F1 on the OOD test set (target: ≥ 0.5)."
+      held_out_classes:
+        type: "array"
+        items:
+          type: "string"
+        description: "Classes held out for OOD testing."
+    required:
+      - "ood_macro_f1"
+      - "held_out_classes"
+  explainability:
+    type: "object"
+    properties:
+      shap_ranking_correlation:
+        type: "number"
+        description: "Spearman rank correlation between SHAP values and Reference Vector (target: ≥ 0.6)."
+      top_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            element:
+              type: "string"
+            shap_value:
+              type: "number"
+          required:
+            - "element"
+            - "shap_value"
+        description: "Top 10 features by SHAP value."
+      sensitivity_analysis:
+        type: "object"
+        properties:
+          baseline_threshold:
+            type: "number"
+            default: 0.5
+          tested_deltas:
+            type: "array"
+            items:
+              type: "number"
+            description: "List of deltas tested (e.g., [0.01, 0.05, 0.1])."
+          max_variance:
+            type: "number"
+            description: "Maximum variance in F1 across thresholds (target: ≤ 5%)."
+          stability_confirmed:
+            type: "boolean"
+            description: "True if variance is within 5%."
+    required:
+      - "shap_ranking_correlation"
+      - "top_features"
+      - "sensitivity_analysis"
+  limitations:
+    type: "object"
+    properties:
+      environmental_confounding:
+        type: "boolean"
+        description: "True if environmental variables were missing."
+      confidence_interval_widening_factor:
+        type: "number"
+        description: "Factor applied to CIs (e.g., 1.20 for 20% widening). [deferred] if exact factor unknown."
+      causal_framing:
+        type: "string"
+        description: "Must be 'associational'."
+    required:
+      - "environmental_confounding"
+      - "causal_framing"
+required:
+  - "model_performance"
+  - "ood_generalization"
+  - "explainability"
+  - "limitations"

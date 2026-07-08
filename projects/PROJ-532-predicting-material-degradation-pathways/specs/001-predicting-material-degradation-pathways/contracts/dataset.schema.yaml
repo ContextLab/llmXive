@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrosionDatasetSchema"
+description: "Schema for the cleaned and encoded corrosion dataset."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Zenodo DOI or URL of the source dataset."
+      record_count:
+        type: "integer"
+        description: "Total number of records in the dataset."
+      retention_rate:
+        type: "number"
+        description: "Percentage of records retained after filtering (target: ≥ 70%)."
+      valid_record_count:
+        type: "integer"
+        description: "Absolute count of valid records (target: ≥ 200)."
+  records:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "material_class"
+        - "composition"
+        - "degradation_labels"
+      properties:
+        id:
+          type: "string"
+          description: "Unique identifier for the record."
+        material_class:
+          type: "string"
+          description: "Classification of the alloy (e.g., 'Stainless Steel', 'High-Entropy Alloy')."
+        composition:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            description: "Elemental weight percentage. Keys are element symbols."
+        derived_properties:
+          type: "object"
+          properties:
+            electronegativity:
+              type: "number"
+              description: "Calculated average electronegativity."
+            atomic_radius:
+              type: "number"
+              description: "Calculated average atomic radius."
+          description: "Derived atomic properties (not used for training)."
+        degradation_labels:
+          type: "array"
+          items:
+            type: "string"
+          description: "List of degradation pathways (e.g., 'pitting', 'scc')."
+        source_metadata:
+          type: "object"
+          description: "Optional environmental context (pH, temperature)."
+          additionalProperties: true
+      required:
+        - "id"
+        - "material_class"
+        - "composition"
+        - "degradation_labels"
+  split_info:
+    type: "object"
+    properties:
+      train_classes:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of alloy classes in the training set."
+      test_classes:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of alloy classes in the OOD test set."
+required:
+  - "metadata"
+  - "records"
+  - "split_info"
