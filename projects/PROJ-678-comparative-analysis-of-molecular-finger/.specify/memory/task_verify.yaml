@@ -1,0 +1,13 @@
+? 'T001 Create project directory structure: `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`
+  with subdirs `data/raw/`, `data/processed/`, `code/`, `tests/`. Note: `specs/` is
+  a sibling to `projects/`, not nested inside.'
+: 1
+? 'T002 Initialize Python project files: `requirements.txt` (pinning rdkit, scikit-learn,
+  pandas, numpy, requests, pytest), `pyproject.toml` (linting config), `README.md`'
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`: 1
+T004 [P] Create `data/raw/` and `data/processed/` directories with `.gitkeep`: 1
+? T008 [P] Create `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`
+  defining Compound, Fingerprint, Model, and PerformanceMetric entities with schema.
+  This task must be completed before Phase 1.
+: 1

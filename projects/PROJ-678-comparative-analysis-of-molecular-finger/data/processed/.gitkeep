@@ -1,0 +1,2 @@
+# This directory stores data derived from raw inputs (e.g., filtered CSVs, fingerprints).
+# Intermediate files and final analysis artifacts are stored here.

@@ -1,0 +1,7 @@
+# Constants for Molecular Fingerprint Analysis
+SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"
+TANIMOTO_THRESHOLD = 0.85
+MORGAN_RADIUS = 2
+MORGAN_BITS = 2048
+MACCS_BITS = 166
+N_FOLDS = 5

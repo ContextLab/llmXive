@@ -1,0 +1,7 @@
+rdkit==2024.3.5
+scikit-learn==1.5.0
+pandas==2.2.2
+numpy==1.26.4
+requests==2.32.3
+pytest==8.2.2
+datasets==2.20.0

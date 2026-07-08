@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.04640",
+  "judged_at": "2026-07-08T11:54:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
+  "rationale": "The paper focuses on natural language processing and content moderation for Moroccan Darija text, which is an entirely different domain (social media safety) from the user's question regarding molecular fingerprints and pesticide toxicity in chemistry. The shared term \"toxicity\" refers to distinct constructs (linguistic harm vs. chemical hazard), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-27T06:04:58Z",
+  "fetched_at": "2026-07-08T11:54:32Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction",
       "target_n": 5
     },
-    "duration_seconds": 1006.158,
-    "ended_at": "2026-06-27T06:04:58Z",
+    "duration_seconds": 40.028,
+    "ended_at": "2026-07-08T11:54:32Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "QSAR pesticide toxicity prediction"
+          "molecular descriptors for pesticide toxicity"
         ],
         [
           2,
-          "Molecular descriptors agrochemical toxicity"
+          "QSAR models for agrochemical toxicity"
         ],
         [
           3,
-          "In silico pesticide toxicity"
+          "fingerprint-based toxicity prediction"
         ],
         [
           4,
-          "Quantitative Structure-Activity Relationship pesticides"
+          "structural alerts for pesticide toxicity"
         ],
         [
           5,
-          "Chemical fingerprints toxicity benchmarking"
+          "machine learning pesticide toxicity classification"
         ],
         [
           6,
-          "Computational toxicology pesticides"
+          "substructure fingerprints environmental toxicity"
         ],
         [
           7,
-          "ECFP pesticide toxicity models"
+          "comparative QSAR pesticide hazard assessment"
         ],
         [
           8,
-          "Descriptor comparison pesticide toxicity"
+          "molecular representation learning toxicity"
         ],
         [
           9,
-          "Machine learning pesticide hazard"
+          "ECFP fingerprints pesticide toxicity"
         ],
         [
           10,
-          "Structural fingerprints environmental toxicity"
+          "topological indices pesticide toxicity"
         ],
         [
           11,
-          "Cheminformatics pesticide safety"
+          "in silico toxicity prediction pesticides"
         ],
         [
           12,
-          "Substructure keys toxicity modeling"
+          "cheminformatics approaches to pesticide risk"
         ],
         [
           13,
-          "Comparative QSAR pesticide models"
+          "toxicophore identification in pesticides"
         ],
         [
           14,
-          "Deep learning molecular fingerprints toxicity"
+          "graph-based molecular representations toxicity"
         ],
         [
           15,
-          "Toxicity endpoint molecular structure"
+          "environmental fate and toxicity QSAR"
         ],
         [
           16,
-          "Chemical graph representations toxicity"
+          "molecular similarity toxicity prediction"
         ],
         [
           17,
-          "Ecotoxicity prediction descriptors"
+          "fingerprint similarity pesticide safety"
         ],
         [
           18,
-          "ADMET prediction pesticides"
+          "deep learning molecular fingerprints toxicity"
         ],
         [
           19,
-          "Agrochemical hazard prediction"
+          "predictive modeling pesticide acute toxicity"
         ],
         [
           20,
-          "Pesticide risk assessment computational"
+          "chemoinformatics pesticide hazard screening"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry": 0,
-        "QSAR pesticide toxicity prediction": 5
+        "molecular descriptors for pesticide toxicity": 2
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "molecular descriptors structural fingerprints",
-      "organophosphate neonicotinoid acute toxicity LD50",
-      "cheminformatics benchmarking model performance",
-      "toxicity AUC ROC classification accuracy",
-      "molecular similarity principle chemical space"
+      "Morgan fingerprints ECFP circular descriptors",
+      "Tox21 ToxCast pesticide toxicity QSAR dataset",
+      "molecular descriptor homology structural alert toxicity",
+      "AUC ROC regression error toxicity prediction benchmark",
+      "structure-activity relationship mechanistic toxicology endpoint"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,21 +120,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2403.17954"
+        "2502.05414"
       ]
     },
     "per_query_hit_count": {
+      "AUC ROC regression error toxicity prediction benchmark": 2,
       "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry": 3,
-      "cheminformatics benchmarking model performance": 3,
-      "molecular descriptors structural fingerprints": 2,
-      "molecular similarity principle chemical space": 2,
-      "organophosphate neonicotinoid acute toxicity LD50": 3,
-      "toxicity AUC ROC classification accuracy": 2
+      "Morgan fingerprints ECFP circular descriptors": 3,
+      "Tox21 ToxCast pesticide toxicity QSAR dataset": 2,
+      "molecular descriptor homology structural alert toxicity": 2,
+      "structure-activity relationship mechanistic toxicology endpoint": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 3,
       "rejections": [
         {
           "primary_pointer": "2501.14469",
@@ -142,24 +142,19 @@
           "title": "Pesti-Gen: Unleashing a Generative Molecule Approach for Toxicity Aware Pesticide Design"
         },
         {
-          "primary_pointer": "2109.13918",
-          "rationale": "The paper focuses on carbon nanomaterials rather than pesticides and does not address molecular fingerprinting or computational prediction methods, making it off-domain for a cheminformatics study on pesticide toxicity modeling (Rejection: Off-domain entirely).",
-          "title": "Toxicity of Carbon Nanomaterials"
+          "primary_pointer": "2505.04640",
+          "rationale": "The paper focuses on natural language processing and content moderation for Moroccan Darija text, which is an entirely different domain (social media safety) from the user's question regarding molecular fingerprints and pesticide toxicity in chemistry. The shared term \"toxicity\" refers to distinct constructs (linguistic harm vs. chemical hazard), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "A Comparative Benchmark of a Moroccan Darija Toxicity Detection Model (Typica.ai) and Major LLM-Based Moderation APIs (OpenAI, Mistral, Anthropic)"
         },
         {
-          "primary_pointer": "2304.00970",
-          "rationale": "The paper focuses on uncertainty quantification methods (Conformal Prediction) rather than comparing molecular fingerprint representations, which is the specific independent variable of interest in the user's question. It addresses a distinct methodological construct (output confidence intervals vs. input representation efficacy) despite sharing the general QSAR/toxicity domain.",
-          "title": "Development and Evaluation of Conformal Prediction Methods for QSAR"
-        },
-        {
-          "primary_pointer": "2412.05892",
-          "rationale": "This paper addresses AI safety and jailbreak attacks on Large Vision Language Models, whereas the user's question concerns chemical toxicity prediction using molecular fingerprints. The shared term \"toxicity\" refers to distinct constructs (AI-generated harmful content vs. chemical hazard to organisms), fitting the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "PBI-Attack: Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for Toxicity Maximization"
+          "primary_pointer": "1812.11115",
+          "rationale": "The paper focuses on deriving mathematical bounds for molecular descriptors of saturated hydrocarbons, which is a theoretical graph-theory exercise, and does not address the specific domain of pesticide toxicity prediction or the comparative utility of molecular fingerprints for that application. It fails to meet criteria (a) or (b) as it neither studies the target mechanism (toxicity) nor the target population (pesticides), and it is not a foundational method for toxicity prediction (d).",
+          "title": "Estimating Some General Molecular Descriptors of Saturated Hydrocarbons"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-27T05:48:12Z",
+    "started_at": "2026-07-08T11:53:52Z",
     "term_input": {
       "normalized": "comparative analysis of molecular fingerprints for pesticide toxicity prediction chemistry",
       "raw": "Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction chemistry"
@@ -184,7 +179,7 @@
           "primary_pointer": "astro-ph/0609027"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
-        "failed_at": "2026-06-27T05:52:33Z",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -208,7 +203,7 @@
           "primary_pointer": "2510.08900"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
-        "failed_at": "2026-06-27T05:52:33Z",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -229,25 +224,114 @@
           "primary_pointer": "2411.19113"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
-        "failed_at": "2026-06-27T05:52:33Z",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Three general molecular descriptors, namely the general sum-connectivity index, general Platt index and ordinary generalized geometric-arithmetic index, are studied here. Best possible bounds for the aforementioned descriptors of arbitrary saturated hydrocarbons are derived. These bounds are expressed in terms of number of carbon atoms and number of carbon-carbon bonds of the considered hydrocarbons.",
+          "claimed_abstract": "In fingerprint matching, fixed-length descriptors generally offer greater efficiency compared to minutiae set, but the recognition accuracy is not as good as that of the latter. Although much progress has been made in deep learning based fixed-length descriptors recently, they often fall short when dealing with incomplete or partial fingerprints, diverse fingerprint poses, and significant background noise. In this paper, we propose a three-dimensional representation called Fixed-length Dense Descriptor (FDD) for efficient fingerprint matching. FDD features great spatial properties, enabling it to capture the spatial relationships of the original fingerprints, thereby enhancing interpretability and robustness. Our experiments on various fingerprint datasets reveal that FDD outperforms other fixed-length descriptors, especially in matching fingerprints of different areas, cross-modal fingerprint matching, and fingerprint matching with background noise.",
           "claimed_authors": [
-            "Akbar Ali",
-            "Zhibin Du",
-            "Kiran Shehzadi"
+            "Zhiyu Pan",
+            "Yongjie Duan",
+            "Jianjiang Feng",
+            "Jie Zhou"
           ],
-          "claimed_title": "Estimating Some General Molecular Descriptors of Saturated Hydrocarbons",
+          "claimed_title": "Fixed-length Dense Descriptor for Efficient Fingerprint Matching",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1812.11115"
+          "claimed_year": 2023,
+          "primary_pointer": "2311.18576"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Estimating Some General Molecular Descriptors of Saturated Hydrocarbons')",
-        "failed_at": "2026-06-27T05:52:33Z",
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Fixed-length Dense Descriptor for Efficient Fingerprint Matching')",
+        "failed_at": "2026-07-08T11:54:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-07-08T11:54:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-08T11:54:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper aims to answer the following question: Given an adjunction between two categories, how is Quillen (co)homology in one category related to that in the other? We identify the induced comparison diagram, giving necessary and sufficient conditions for it to arise, and describe the various comparison maps. Examples are given. Along the way, we clarify some categorical assumptions underlying Quillen (co)homology: cocomplete categories with a set of small projective generators provide a convenient setup.",
+          "claimed_authors": [
+            "Martin Frankland"
+          ],
+          "claimed_title": "Behavior of Quillen (co)homology with respect to adjunctions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.5156"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Behavior of Quillen (co)homology with respect to adjunctions')",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -264,90 +348,7 @@
           "primary_pointer": "2109.13918"
         },
         "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Toxicity of Carbon Nanomaterials')",
-        "failed_at": "2026-06-27T05:52:33Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This article focuses on the control center of each human body: the brain. We will point out the pivotal role of the cerebral vasculature and how its complex mechanisms may vary between subjects. We then emphasize a specific acute pathological state, i.e., acute ischemic stroke, and show how medical imaging and its analysis can be used to define the treatment. We show how the core-penumbra concept is used in practice using mismatch criteria and how machine learning can be used to make predictions of the final infarct, either via deconvolution or convolutional neural networks.",
-          "claimed_authors": [
-            "Jeroen Bertels",
-            "David Robben",
-            "Dirk Vandermeulen",
-            "Robin Lemmens"
-          ],
-          "claimed_title": "Final infarct prediction in acute ischemic stroke",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2211.04850"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Final infarct prediction in acute ischemic stroke')",
-        "failed_at": "2026-06-27T05:52:33Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Understanding the vulnerabilities of Large Vision Language Models (LVLMs) to jailbreak attacks is essential for their responsible real-world deployment. Most previous work requires access to model gradients, or is based on human knowledge (prompt engineering) to complete jailbreak, and they hardly consider the interaction of images and text, resulting in inability to jailbreak in black box scenarios or poor performance. To overcome these limitations, we propose a Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for toxicity maximization, referred to as PBI-Attack. Our method begins by extracting malicious features from a harmful corpus using an alternative LVLM and embedding these features into a benign image as prior information. Subsequently, we enhance these features through bidirectional cross-modal interaction optimization, which iteratively optimizes the bimodal perturbations in an alternating manner through greedy search, aiming to maximize the toxicity of the generated response. The toxicity level is quantified using a well-trained evaluation model. Experiments demonstrate that PBI-Attack outperforms previous state-of-the-art jailbreak methods, achieving an average attack success rate of 92.5% across three open-source LVLMs and around 67.3% on three closed-source LVLMs. Disclaimer: This paper contains potentially disturbing and offensive content.",
-          "claimed_authors": [
-            "Ruoxi Cheng",
-            "Yizhong Ding",
-            "Shuirong Cao",
-            "Ranjie Duan",
-            "Xiaoshuang Jia",
-            "Shaowei Yuan",
-            "Simeng Qin",
-            "Zhiqiang Wang",
-            "Xiaojun Jia"
-          ],
-          "claimed_title": "PBI-Attack: Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for Toxicity Maximization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2412.05892"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='PBI-Attack: Prior-Guided Bimodal Interactive Black-Box Jailbreak Attack for Toxicity Maximization')",
-        "failed_at": "2026-06-27T05:52:33Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
-          "claimed_authors": [
-            "Vittorio Cortellessa",
-            "Daniele Di Pompeo",
-            "Michele Tucci"
-          ],
-          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.13875"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
-        "failed_at": "2026-06-27T05:52:33Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "An autotuning is an approach that explores a search space of possible implementations/configurations of a kernel or an application by selecting and evaluating a subset of implementations/configurations on a target platform and/or use models to identify a high performance implementation/configuration. In this paper, we develop an autotuning framework that leverages Bayesian optimization to explore the parameter space search. We select six of the most complex benchmarks from the application domains of the PolyBench benchmarks (syr2k, 3mm, heat-3d, lu, covariance, and Floyd-Warshall) and apply the newly developed LLVM Clang/Polly loop optimization pragmas to the benchmarks to optimize them. We then use the autotuning framework to optimize the pragma parameters to improve their performance. The experimental results show that our autotuning approach outperforms the other compiling methods to provide the smallest execution time for the benchmarks syr2k, 3mm, heat-3d, lu, and covariance with two large datasets in 200 code evaluations for effectively searching the parameter spaces with up to 170,368 different configurations. We compare four different supervised learning methods within Bayesian optimization and evaluate their effectiveness. We find that the Floyd-Warshall benchmark did not benefit from autotuning because Polly uses heuristics to optimize the benchmark to make it run much slower. To cope with this issue, we provide some compiler option solutions to improve the performance.",
-          "claimed_authors": [
-            "Xingfu Wu",
-            "Michael Kruse",
-            "Prasanna Balaprakash",
-            "Hal Finkel",
-            "Paul Hovland",
-            "Valerie Taylor",
-            "Mary Hall"
-          ],
-          "claimed_title": "Autotuning PolyBench Benchmarks with LLVM Clang/Polly Loop Optimization Pragmas Using Bayesian Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2010.08040"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Autotuning PolyBench Benchmarks with LLVM Clang/Polly Loop Optimization Pragmas Using Bayesian Optimization')",
-        "failed_at": "2026-06-27T05:52:33Z",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -363,66 +364,57 @@
           "primary_pointer": "2311.08559"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Alternatives to the ROC Curve AUC and C-statistic for Risk Prediction Models')",
-        "failed_at": "2026-06-27T05:52:38Z",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Optimal performance is critical for decision-making tasks from medicine to autonomous driving, however common performance measures may be too general or too specific. For binary classifiers, diagnostic tests or prognosis at a timepoint, measures such as the area under the receiver operating characteristic curve, or the area under the precision recall curve, are too general because they include unrealistic decision thresholds. On the other hand, measures such as accuracy, sensitivity or the F1 score are measures at a single threshold that reflect an individual single probability or predicted risk, rather than a range of individuals or risk. We propose a method in between, deep ROC analysis, that examines groups of probabilities or predicted risks for more insightful analysis. We translate esoteric measures into familiar terms: AUC and the normalized concordant partial AUC are balanced average accuracy (a new finding); the normalized partial AUC is average sensitivity; and the normalized horizontal partial AUC is average specificity. Along with post-test measures, we provide a method that can improve model selection in some cases and provide interpretation and assurance for patients in each risk group. We demonstrate deep ROC analysis in two case studies and provide a toolkit in Python.",
+          "claimed_abstract": "Following our earlier work we establish kinematic endpoint relations for baryon decays using the Wigner-Eckart theorem and apply them to $\\frac{1}{2} \\to \\frac{1}{2}$ and $\\frac{1}{2} \\to \\frac{3}{2}$ baryon transitions. We provide angular distributions at the kinematic endpoint which hold for the generic $d=6$ model-independent effective Hamiltonian. Moreover, we explicitly verify the endpoint relations using an explicit form factor parametrisation and clarify constraints on helicity based form factors to evidence endpoint relations. Our results provide guidance for phenomenological parameterisations, consistency checks for theory computations and experiment. Results are applicable to ongoing and future new physics searches at LHCb, BES III and Belle II with rare semileptonic-, dineutrino-and charged-modes, which include $Λ_b \\to Λ^{(*)} \\ell \\ell, Λ_b \\to Λ^{(*)} νν$, $Ω_b \\to Ω\\ell \\ell$, $Λ_c \\to p \\ell \\ell$, $Σ\\to p \\ell \\ell$ and $Λ_b \\to Λ_c^{(*)} \\ell ν$",
           "claimed_authors": [
-            "André M. Carrington",
-            "Douglas G. Manuel",
-            "Paul W. Fieguth",
-            "Tim Ramsay",
-            "Venet Osmani",
-            "Bernhard Wernly",
-            "Carol Bennett",
-            "Steven Hawken",
-            "Matthew McInnes",
-            "Olivia Magwood",
-            "Yusuf Sheikh",
-            "Andreas Holzinger"
+            "Gudrun Hiller",
+            "Roman Zwicky"
           ],
-          "claimed_title": "Deep ROC Analysis and AUC as Balanced Average Accuracy to Improve Model Selection, Understanding and Interpretation",
+          "claimed_title": "Endpoint Relations for Baryons",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2103.11357"
+          "primary_pointer": "2107.12993"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Deep ROC Analysis and AUC as Balanced Average Accuracy to Improve Model Selection, Understanding and Interpretation')",
-        "failed_at": "2026-06-27T05:52:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Endpoint Relations for Baryons')",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The emergence of cross species interactions at protein level is a part of molecular mechanisms that lead to parasitic diseases. Comprehensive modelling can capture such interactions and could be useful to understand their pathophysiology and assist in identifying novel drug targets. Using combination of databases, text minig and predictive methods, we expanded the sparse information space of protein-protein interactions in three parasitic diseases namely, malaria, sleeping sickness and cattle east coast fever. These network models revealed significant similarities in molecular mechanisms underlaying host's invasion, immuno-modulation and energy metabolism. The models also suggested new possible pathways in the inter-species protein interaction maps. Enrichment of these maps with drug-target informations showed a plethora of drug space to be explored and led to proposal of two new targets for each malaria and sleeping sickness.",
+          "claimed_abstract": "We prove the folklore endpoint multilinear $k_j$-plane conjecture originated from the paper \\cite{bennett2006multilinear} of Bennett, Carbery and Tao. Along the way we prove a more general result, namely the endpoint multilinear $k_j$-variety theorem. Finally, we generalize our results to the endpoint perturbed Beascamp-Lieb inequality using techniques in this paper.",
           "claimed_authors": [
-            "Modeling inter-species molecular cross-talks in three host- parasite systems by expansion of their sparse information space"
+            "Ruixiang Zhang"
           ],
-          "claimed_title": "Paurush Praveen, Erfan Younesi and Martin Hofmann-Apitius",
+          "claimed_title": "The Endpoint Perturbed Brascamp-Lieb Inequality with Examples",
           "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1209.5588"
+          "claimed_year": 2015,
+          "primary_pointer": "1510.09132"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Paurush Praveen, Erfan Younesi and Martin Hofmann-Apitius')",
-        "failed_at": "2026-06-27T05:52:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='The Endpoint Perturbed Brascamp-Lieb Inequality with Examples')",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The two-body problem of variational electrodynamics possesses differential-delay equations of motion with state-dependent delays of neutral type and solutions that can have velocity discontinuities on countable sets. From a periodic orbit possessing some mild properties at breaking points, we define a synchronization function in R x R3, which is further used to construct two bounded oscillatory functions vanishing at breaking points and whose first derivatives are continuous and defined everywhere but at breaking points. The oscillatory functions are associated with a PDE identity in H2(R3), and we postulate ordering conditions for the PDE identity to define a Fredholm-Schroedinger operator with an O(1/r2) spin-orbit forcing term belonging to L2(R3). As an application, we introduce the Chemical Principle criterion to select orbits with asymptotically vanishing far-fields and estimate the Bohr radius parameter of the Fredholm-Schroedinger PDE using the boundary-layer of orbits chosen according to the Chemical Principle criterion. Last, working backward, we derive a Chemical Principle-like condition from the ordering conditions.",
+          "claimed_abstract": "Mechanistic interpretability (MI) aims to understand AI models by reverse-engineering the exact algorithms neural networks learn. Most works in MI so far have studied behaviors and capabilities that are trivial and token-aligned. However, most capabilities important for safety and trust are not that trivial, which advocates for the study of hidden representations inside these networks as the unit of analysis. We formalize representations for features and behaviors, highlight their importance and evaluation, and perform an exploratory study of dishonesty representations in `Mistral-7B-Instruct-v0.1'. We justify that studying representations is an important and under-studied field, and highlight several challenges that arise while attempting to do so through currently established methods in MI, showing their insufficiency and advocating work on new frameworks for the same.",
           "claimed_authors": [
-            "Jayme De Luca"
+            "Satvik Golechha",
+            "James Dao"
           ],
-          "claimed_title": "Chemical Principle and PDE of Variational Electrodynamics",
+          "claimed_title": "Challenges in Mechanistically Interpreting Model Representations",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1606.07646"
+          "claimed_year": 2024,
+          "primary_pointer": "2402.03855"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Chemical Principle and PDE of Variational Electrodynamics')",
-        "failed_at": "2026-06-27T05:52:38Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction', candidate_title='Challenges in Mechanistically Interpreting Model Representations')",
+        "failed_at": "2026-07-08T11:54:20Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -430,55 +422,30 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Markus Dablander",
-            "Thierry Hanser",
-            "Renaud Lambiotte",
-            "Garrett M. Morris"
+            "Ali Al-Lawati",
+            "Jason Lucas",
+            "Zhiwei Zhang",
+            "Prasenjit Mitra",
+            "Suhang Wang"
           ],
-          "title": "Sort & Slice: A Simple and Superior Alternative to Hash-Based Folding for Extended-Connectivity Fingerprints",
+          "title": "Graph-based Molecular In-context Learning Grounded on Morgan Fingerprints",
           "venue": "arXiv",
-          "year": 2024
+          "year": 2025
         },
-        "primary_pointer": "2403.17954",
-        "summary": "Extended-connectivity fingerprints (ECFPs) are a ubiquitous tool in current cheminformatics and molecular machine learning, and one of the most prevalent molecular feature extraction techniques used for chemical prediction. Atom features learned by graph neural networks can be aggregated to compound-level representations using a large spectrum of graph pooling methods; in contrast, sets of detected ECFP substructures are by default transformed into bit vectors using only a simple hash-based folding procedure. We introduce a general mathematical framework for the vectorisation of structural fingerprints via a formal operation called substructure pooling that encompasses hash-based folding, algorithmic substructure-selection, and a wide variety of other potential techniques. We go on to describe Sort & Slice, an easy-to-implement and bit-collision-free alternative to hash-based folding for the pooling of ECFP substructures. Sort & Slice first sorts ECFP substructures according to their relative prevalence in a given set of training compounds and then slices away all but the $L$ most frequent substructures which are subsequently used to generate a binary fingerprint of desired length, $L$. We computationally compare the performance of hash-based folding, Sort & Slice, and two advanced supervised substructure-selection schemes (filtering and mutual-information maximisation) for ECFP-based molecular property prediction. Our results indicate that, despite its technical simplicity, Sort & Slice robustly (and at times substantially) outperforms traditional hash-based folding as well as the other investigated methods across prediction tasks, data splitting techniques, machine-learning models and ECFP hyperparameters. We thus recommend that Sort & Slice canonically replace hash-based folding as the default substructure-pooling technique to vectorise ECFPs for supervised molecular machine learning.",
+        "primary_pointer": "2502.05414",
+        "summary": "In-context learning (ICL) effectively conditions large language models (LLMs) for molecular tasks, such as property prediction and molecule captioning, by embedding carefully selected demonstration examples into the input prompt. This approach avoids the computational overhead of extensive pertaining and fine-tuning. However, current prompt retrieval methods for molecular tasks have relied on molecule feature similarity, such as Morgan fingerprints, which do not adequately capture the global molecular and atom-binding relationships. As a result, these methods fail to represent the full complexity of molecular structures during inference. Moreover, small-to-medium-sized LLMs, which offer simpler deployment requirements in specialized systems, have remained largely unexplored in the molecular ICL literature. To address these gaps, we propose a self-supervised learning technique, GAMIC (Graph-Aligned Molecular In-Context learning, which aligns global molecular structures, represented by graph neural networks (GNNs), with textual captions (descriptions) while leveraging local feature similarity through Morgan fingerprints. In addition, we introduce a Maximum Marginal Relevance (MMR) based diversity heuristic during retrieval to optimize input prompt demonstration samples. Our experimental findings using diverse benchmark datasets show GAMIC outperforms simple Morgan-based ICL retrieval methods across all tasks by up to 45%.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2403.17954",
+          "final_url": "https://arxiv.org/abs/2502.05414",
           "http_status": 200,
-          "pdf_sample_score": 0.3553,
+          "pdf_sample_score": 0.2749,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-27T05:52:33Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Marcelo T. de Oliveira",
-            "Edson Katekawa"
-          ],
-          "title": "On the Virtues of Automated QSAR The New Kid on the Block",
-          "venue": "arXiv",
-          "year": 2017
-        },
-        "primary_pointer": "1711.02639",
-        "summary": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1711.02639",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-27T05:54:17Z"
+          "verified_at": "2026-07-08T11:54:20Z"
         }
       }
     ]

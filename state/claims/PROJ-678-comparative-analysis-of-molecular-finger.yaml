@@ -1,0 +1,98 @@
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Organophosphate filtering uses SMARTS pattern [P](=O)([O,SC])[O,SC]
+  claim_id: c_c4f603c3
+  context: 'SMARTS Pattern: Organophosphate filtering strictly uses [P](=O)([O,SC])[O,SC].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Organophosphate_filtering_uses_SMARTS_pattern_%5BP%5D(=O)(%5BO,SC%5D
+  kind: entity_fact
+  raw_text: Organophosphate filtering strictly uses the SMARTS pattern [P](=O)([O,SC])[O,SC].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:32:27Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Morgan fingerprint radius 2 with 2048 bits
+  claim_id: c_aad5d7e2
+  context: 'Fingerprint Parameters: Morgan: Radius=2, n_bits=2048'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Morgan fingerprint uses a radius of 2 and 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:32:38Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: MACCS fingerprint uses 166 bits
+  claim_id: c_63b79e6a
+  context: 'Fingerprint Parameters: MACCS: n_bits=166'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MACCS fingerprint uses 166 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:32:53Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Random Forest model 100 estimators max depth 15
+  claim_id: c_2a334ba7
+  context: 'Model Configuration: Random Forest (n_estimators=100, max_depth=15).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model uses 100 estimators and a maximum depth of 15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:33:09Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Data split into 5 folds Tanimoto < 0.85
+  claim_id: c_1ab6872d
+  context: 'Splitting: Data is split into 5 folds using Greedy Maximal Dissimilarity
+    (Tanimoto < 0.85).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_split_into_5_folds_Tanimoto_%3C_0.85
+  kind: magnitude
+  raw_text: Data is split into 5 folds using Greedy Maximal Dissimilarity with a Tanimoto
+    threshold of less than 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:33:31Z'
+- artifact_path: projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/data-model.md
+  attempts: 1
+  canonical: Compounds originate from Tox21 dataset
+  claim_id: c_43501490
+  context: 'Data Source: All compounds originate from the Tox21 dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compounds_originate_from_Tox21_dataset
+  kind: entity_fact
+  raw_text: All compounds originate from the Tox21 dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T12:33:54Z'

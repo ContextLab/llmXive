@@ -1,0 +1,146 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Evaluation Report Schema"
+description: "Schema for the final statistical comparison report between Morgan and MACCS models."
+type: "object"
+properties:
+  meta:
+    type: "object"
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      random_seed:
+        type: "integer"
+      split_method:
+        type: "string"
+        description: "Method used for train/test split."
+        const: "greedy_maximal_dissimilarity_5fold_cv"
+      tanimoto_threshold:
+        type: "number"
+        description: "Maximum allowed Tanimoto similarity between train and test."
+        const: 0.85
+    required:
+      - timestamp
+      - random_seed
+      - split_method
+      - tanimoto_threshold
+  dataset_stats:
+    type: "object"
+    properties:
+      total_organophosphates:
+        type: "integer"
+      train_size_per_fold:
+        type: "integer"
+      test_size_per_fold:
+        type: "integer"
+      min_test_size_met:
+        type: "boolean"
+        description: "True if test_size >= 20 for all folds."
+    required:
+      - total_organophosphates
+      - train_size_per_fold
+      - test_size_per_fold
+      - min_test_size_met
+  results:
+    type: "array"
+    description: "Results for each toxicity endpoint."
+    items:
+      type: "object"
+      properties:
+        endpoint:
+          type: "string"
+        morgan_roc_auc:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Mean ROC-AUC across 5 folds."
+        maccs_roc_auc:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Mean ROC-AUC across 5 folds."
+        difference_roc_auc:
+          type: "number"
+          description: "Mean difference (Morgan AUC - MACCS AUC)."
+        p_value_t_test:
+          type: "number"
+          description: "P-value from corrected resampled t-test (Nadeau & Bengio)."
+        is_significant:
+          type: "boolean"
+          description: "True if p_value < 0.05."
+        bootstrap_ci_95:
+          type: "object"
+          properties:
+            lower:
+              type: "number"
+            upper:
+              type: "number"
+          required:
+            - lower
+            - upper
+        balanced_accuracy_morgan:
+          type: ["number", "null"]
+          description: "Mean Balanced Accuracy across 5 folds (only if imbalance > 10:1)."
+        balanced_accuracy_maccs:
+          type: ["number", "null"]
+          description: "Mean Balanced Accuracy across 5 folds (only if imbalance > 10:1)."
+        pr_auc_morgan:
+          type: "number"
+          description: "Mean Precision-Recall AUC across 5 folds."
+        pr_auc_maccs:
+          type: "number"
+          description: "Mean Precision-Recall AUC across 5 folds."
+        tanimoto_distribution:
+          type: "object"
+          properties:
+            mean:
+              type: "number"
+            max:
+              type: "number"
+            min:
+              type: "number"
+            std:
+              type: "number"
+          required:
+            - mean
+            - max
+            - min
+            - std
+          description: "Distribution of Tanimoto similarities between train and test sets."
+        feature_importance_analysis:
+          type: "object"
+          properties:
+            p_center_bits_importance:
+              type: "number"
+              description: "Sum of Gini importance for P-center bits."
+            non_p_center_importance:
+              type: "number"
+              description: "Sum of Gini importance for non-P-center bits."
+            ratio:
+              type: "number"
+              description: "Ratio of P-center importance to non-P-center importance."
+          required:
+            - p_center_bits_importance
+            - non_p_center_importance
+            - ratio
+      required:
+        - endpoint
+        - morgan_roc_auc
+        - maccs_roc_auc
+        - difference_roc_auc
+        - p_value_t_test
+        - is_significant
+        - bootstrap_ci_95
+        - tanimoto_distribution
+  warnings:
+    type: "array"
+    description: "List of warnings generated during execution."
+    items:
+      type: "string"
+    default: []
+required:
+  - meta
+  - dataset_stats
+  - results
+  - warnings
+additionalProperties: false

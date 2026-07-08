@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Organophosphate Tox21 Dataset Schema"
+description: "Schema for the filtered organophosphate subset of the Tox21 dataset."
+type: "object"
+properties:
+  meta:
+    type: "object"
+    properties:
+      source_url:
+        type: "string"
+        description: "URL of the original Tox21 dataset source."
+      filter_pattern:
+        type: "string"
+        description: "SMARTS pattern used for filtering."
+        const: "[P](=O)([O,SC])[O,SC]"
+      row_count:
+        type: "integer"
+        minimum: 0
+      checksum_sha256:
+        type: "string"
+        description: "SHA256 hash of the file content."
+    required:
+      - source_url
+      - filter_pattern
+      - row_count
+      - checksum_sha256
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        smiles:
+          type: "string"
+          description: "Canonical SMILES string."
+        mol_id:
+          type: "string"
+          description: "Unique compound identifier."
+        NR-AR:
+          type: ["integer", "null"]
+          description: "Androgen Receptor endpoint (0/1/NaN)."
+        NR-AR-LBD:
+          type: ["integer", "null"]
+          description: "Androgen Receptor Ligand Binding Domain endpoint."
+        NR-AR-SR:
+          type: ["integer", "null"]
+          description: "Androgen Receptor Splice Variant endpoint."
+        NR-AhR:
+          type: ["integer", "null"]
+          description: "Aryl Hydrocarbon Receptor endpoint."
+        NR-Aromatase:
+          type: ["integer", "null"]
+          description: "Aromatase endpoint."
+        NR-ER:
+          type: ["integer", "null"]
+          description: "Estrogen Receptor endpoint."
+        NR-ER-LBD:
+          type: ["integer", "null"]
+          description: "Estrogen Receptor Ligand Binding Domain endpoint."
+        NR-PPAR-gamma:
+          type: ["integer", "null"]
+          description: "PPAR-gamma endpoint."
+        SR-ARE:
+          type: ["integer", "null"]
+          description: "Stress Response ARE endpoint."
+        SR-ATAD5:
+          type: ["integer", "null"]
+          description: "ATAD5 endpoint."
+        SR-HSE:
+          type: ["integer", "null"]
+          description: "Heat Shock Response endpoint."
+        SR-MMP:
+          type: ["integer", "null"]
+          description: "Mitochondrial Membrane Potential endpoint."
+        SR-p53:
+          type: ["integer", "null"]
+          description: "p53 pathway endpoint."
+      required:
+        - smiles
+        - mol_id
+    minItems: 1
+required:
+  - meta
+  - data
+additionalProperties: false
