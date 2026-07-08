@@ -1,0 +1,21 @@
+# Python 3.11+ dependencies for PROJ-521: The Impact of Linguistic Complexity on Trust in AI-Generated Text
+# Core Data & Numerical
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+
+# NLP & Text Processing
+nltk>=3.8.0
+textstat>=0.7.0
+datasets>=2.14.0
+
+# Deep Learning (CPU compatible)
+torch>=2.0.0
+transformers>=4.35.0
+
+# Statistical Analysis
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Visualization
+seaborn>=0.13.0

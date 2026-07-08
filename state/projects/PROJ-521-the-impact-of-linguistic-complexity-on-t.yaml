@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T08:45:35.335731Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-521-the-impact-of-linguistic-complexity-on-t
-last_run_id: 9700c6ac-5459-4672-af1e-0c849325dbbf
+last_run_id: f511b75c-6ff3-4703-b633-68cf63b70422
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/specs/001-the-impact-of-linguistic-complexity-on-t
 title: The Impact of Linguistic Complexity on Trust in AI-Generated Text
-updated_at: '2026-07-04T10:13:34.083790Z'
+updated_at: '2026-07-08T10:44:00.834456Z'

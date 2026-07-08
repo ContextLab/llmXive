@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Text Sample
+description: Schema for a generated text sample with computed linguistic complexity metrics.
+type: object
+required:
+  - text_id
+  - raw_text
+  - source_id
+  - flesch_kincaid
+  - mtld
+  - avg_sentence_length
+properties:
+  text_id:
+    type: string
+    description: Unique identifier for the text sample.
+    pattern: "^TS[0-9]{6}$"
+  raw_text:
+    type: string
+    description: The full generated text content.
+    minLength: 1
+  source_id:
+    type: string
+    description: Identifier of the source article (e.g., Wikipedia ID).
+    type: string
+  flesch_kincaid:
+    type: number
+    description: Flesch-Kincaid Grade Level score.
+    minimum: 0.0
+    maximum: 20.0
+  mtld:
+    type: number
+    description: Measure of Textual Lexical Diversity.
+    minimum: 0.0
+  avg_sentence_length:
+    type: number
+    description: Average number of words per sentence.
+    minimum: 0.0
+additionalProperties: false

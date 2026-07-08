@@ -1,0 +1,7 @@
+# Standalone ruff configuration file
+# Extends pyproject.toml settings if needed, or provides defaults
+
+extend = "pyproject.toml"
+
+# Explicitly set output format for CI
+output-format = "full"

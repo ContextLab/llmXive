@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Result
+description: Schema for the output of the statistical analysis (regression results).
+type: object
+required:
+  - analysis_id
+  - metric_name
+  - model_type
+  - coefficients
+  - p_values
+  - r_squared
+  - bonferroni_adjusted_p
+  - significant
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run.
+    pattern: "^ANALYSIS[0-9]{4}$"
+  metric_name:
+    type: string
+    description: Name of the linguistic metric used (e.g., flesch_kincaid).
+    enum:
+      - flesch_kincaid
+      - mtld
+      - avg_sentence_length
+  model_type:
+    type: string
+    description: Type of model fitted.
+    enum:
+      - univariate_linear_quadratic
+      - ordinal_logistic
+  coefficients:
+    type: object
+    description: Model coefficients (intercept, linear, quadratic).
+    properties:
+      intercept:
+        type: number
+      linear_term:
+        type: number
+      quadratic_term:
+        type: number
+    required:
+      - intercept
+      - linear_term
+      - quadratic_term
+  p_values:
+    type: object
+    description: P-values for the coefficients.
+    properties:
+      intercept:
+        type: number
+      linear_term:
+        type: number
+      quadratic_term:
+        type: number
+    required:
+      - intercept
+      - linear_term
+      - quadratic_term
+  r_squared:
+    type: number
+    description: R-squared value of the model.
+    minimum: 0.0
+    maximum: 1.0
+  bonferroni_adjusted_p:
+    type: number
+    description: P-value adjusted for multiple comparisons.
+    minimum: 0.0
+    maximum: 1.0
+  significant:
+    type: boolean
+    description: Whether the quadratic term is significant after correction.
+  power_analysis:
+    type: object
+    description: Optional power analysis results for this metric.
+    properties:
+      effect_size_f2:
+        type: number
+      power:
+        type: number
+      minimum_detectable_f2:
+        type: number
+    required:
+      - effect_size_f2
+      - power
+additionalProperties: false

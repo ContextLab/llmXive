@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 4da5d3a277810ab70a89c058a8dce3323ac618fb5587502e97a5d8ddb9f8beff
+  artifact_path: projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/specs/001-the-impact-of-linguistic-complexity-on-t/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: metadata.json
+  kind: url
+  value: https://huggingface.co/datasets/Abeyankar/mtl_ds_full_fin/resolve/main/metadata.json
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Abeyankar/mtl_ds_full_fin/5e9820aa9e760ea5bb214df989a4be5b5c8c9583/metadata.json?%2Fdatasets%2FAbeyankar%2Fmtl_ds_full_fin%2Fresolve%2Fmain%2Fmetadata.json=&etag=%2203f3b1517aa9d6070dbe7a02e2cf2871fc9d6d7b%22
+  verified_at: '2026-07-08T10:18:34.377856Z'
+- artifact_hash: f3647ee784e0501a70306d8cb696574f668a6228fc33080b1a336848ed83931f
+  artifact_path: projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/specs/001-the-impact-of-linguistic-complexity-on-t/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-08T10:18:57.524207Z'

@@ -1,0 +1,103 @@
+resolved_at: '2026-07-08T10:10:55.428831+00:00'
+datasets:
+- intent: MTLD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_full_fin/resolve/main/metadata.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7400
+      parsed: true
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_mini_fin/resolve/main/metadata.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7732
+      parsed: true
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_7k_full_fin/resolve/main/metadata.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7724
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_full_fin/resolve/main/metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_mini_fin/resolve/main/metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_7k_full_fin/resolve/main/metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Abeyankar/mtl_ds_7k_full/resolve/main/metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://tandf.figshare.com/articles/journal_contribution/Creativity_and_AI_skill_demand_in_the_post-ChatGPT_labour_market_evidence_from_UK_job_vacancies/32935391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Hybrid_3D_concrete_printing_waste_classification_and_circular_reuse_as_a_sand_replacement/32895401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Improving_Urdu_Comprehension_Skills_of_Students_with_Learning_Disabilities_through_a_Cognitive_Load_Aware_Scaffolded_Program_CLASP-C_Conference_Presentation_Slides_/32935301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prognostic_model_for_colorectal_cancer_based_on_folic_acid_metabolism-related_genes_reveals_immune_landscape/32309700
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://su.figshare.com/articles/report/REPORT_-_Thematic_Analysis_Supporting_the_Evaluation_of_a_Method_Framework_for_Military_C2-System_Design/32918918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14663507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12779396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3888971
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pressto.amu.edu.pl/index.php/sh/article/view/54933
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5360429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/147200-beyond-random-sampling-efficient-language-model-pretraining-via-curriculum-learning
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20609870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20609870
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieee-dataport.org/documents/synthetic-hawthorne-effect-llm-agents-debate-corpus-and-lexical-robustness-dataset
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20449529
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

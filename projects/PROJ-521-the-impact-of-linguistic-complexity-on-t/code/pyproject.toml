@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linguistic-complexity-trust"
+version = "0.1.0"
+description = "Research pipeline for analyzing the impact of linguistic complexity on trust in AI-generated text"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "torch",
+    "scikit-learn",
+    "statsmodels",
+    "pandas",
+    "numpy",
+    "seaborn",
+    "textstat",
+    "nltk",
+    "datasets",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.ruff]
+extend = ".ruff.toml"
+
+[tool.black]
+extend = ".black.toml"

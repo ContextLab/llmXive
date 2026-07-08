@@ -1,0 +1,13 @@
+? 'T001a [P] Create directory structure: `code/`, `data/raw/`, `data/processed/`,
+  `data/outputs/figures/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
+  in `projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/`'
+: 2
+? T001b [P] Initialize `README.md` with installation instructions and project overview
+  in `projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/`
+: 2
+? T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-521-the-impact-of-linguistic-complexity-on-t/`
+: 2
+? T005 [P] Create `contracts/text_sample.schema.yaml`, `contracts/participant_response.schema.yaml`,
+  and `contracts/analysis_result.schema.yaml` in `specs/001-the-impact-of-linguistic-complexity-on-t/contracts/`
+: 2
+T006 [P] Implement `tests/contract/test_schemas.py` to validate JSON/CSV data against the YAML schemas defined in T005: 1
