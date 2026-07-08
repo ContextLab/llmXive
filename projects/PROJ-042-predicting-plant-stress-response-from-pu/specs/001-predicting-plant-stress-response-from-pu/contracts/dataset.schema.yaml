@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+description: "Schema for the harmonized, normalized, and batch‑corrected transcriptomic data matrix."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      accession_id:
+        type: string
+        description: "NCBI GEO accession identifier."
+      stress_type:
+        type: string
+        enum:
+          - "drought"
+          - "salinity"
+          - "heat"
+          - "cold"
+          - "control"
+        description: "The experimental condition label."
+      species:
+        type: string
+        description: "Plant species (e.g., Arabidopsis thaliana)."
+      sample_id:
+        type: string
+        description: "Unique identifier for the sample."
+      included:
+        type: boolean
+        description: "Whether the dataset passed content verification (Plant + ≥2 stress types)."
+    required:
+      - accession_id
+      - stress_type
+      - species
+      - sample_id
+      - included
+  counts:
+    type: object
+    additionalProperties:
+      type: number
+      format: float
+      description: "TPM normalized expression value for a specific gene in a specific sample."
+  feature_space:
+    type: object
+    properties:
+      gene_ids:
+        type: array
+        items:
+          type: string
+ description: "List of gene identifiers present in the matrix ([deferred] intersection across included datasets)."
+      top_k_genes:
+        type: array
+        items:
+          type: string
+        description: "Subset of gene_ids selected for high variance."
+      variance_threshold:
+        type: number
+        description: "Minimum variance required for inclusion."
+    required:
+      - gene_ids
+      - top_k_genes
+required:
+  - metadata
+  - counts
+  - feature_space

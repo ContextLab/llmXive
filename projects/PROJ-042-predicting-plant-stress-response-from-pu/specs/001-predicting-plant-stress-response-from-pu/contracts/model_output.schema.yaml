@@ -1,0 +1,143 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the Random Forest classifier results and evaluation metrics."
+type: object
+properties:
+  model_info:
+    type: object
+    properties:
+      model_id:
+        type: string
+        description: "Unique hash identifying the model configuration."
+      hyperparameters:
+        type: object
+        properties:
+          n_estimators:
+            type: integer
+          max_depth:
+            type: integer
+          random_state:
+            type: integer
+        required:
+          - n_estimators
+          - random_state
+      training_method:
+        type: string
+        enum:
+          - "leave-one-dataset-out"
+          - "5-fold-cv"
+    required:
+      - model_id
+      - hyperparameters
+      - training_method
+  metrics:
+    type: object
+    properties:
+      within_dataset:
+        type: object
+        properties:
+          accuracy:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Accuracy on the training split (80/20)."
+          f1_macro:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Macro‑averaged F1 score."
+        required:
+          - accuracy
+          - f1_macro
+      cross_dataset:
+        type: object
+        properties:
+          accuracy:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Accuracy on the held‑out independent dataset."
+          f1_macro:
+            type: number
+            minimum: 0
+            maximum: 1
+            description: "Macro‑averaged F1 score on held‑out data."
+          generalization_gap:
+            type: number
+            description: "Difference between within‑dataset and cross‑dataset accuracy."
+        required:
+          - accuracy
+          - f1_macro
+          - generalization_gap
+      null_distribution:
+        type: object
+        properties:
+          mean:
+            type: number
+            description: "Mean accuracy from permutation test (null hypothesis)."
+          std:
+            type: number
+            description: "Standard deviation from permutation test."
+          p_value:
+            type: number
+            description: "P‑value from permutation test."
+        required:
+          - mean
+          - std
+          - p_value
+      posthoc_power:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Estimated power to detect the observed accuracy lift."
+      mdes:
+        type: number
+        description: "Minimum Detectable Effect Size at [deferred] power."
+      confusion_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: integer
+        description: "N × N matrix of predicted vs. true labels."
+      classes_used:
+        type: array
+        items:
+          type: string
+        description: "List of stress types actually used in the classification."
+    required:
+      - within_dataset
+      - cross_dataset
+      - null_distribution
+      - posthoc_power
+      - mdes
+      - confusion_matrix
+      - classes_used
+  feature_importance:
+    type: object
+    properties:
+      top_genes:
+        type: array
+        items:
+          type: object
+          properties:
+            gene_id:
+              type: string
+            importance_score:
+              type: number
+            stability_score:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: "Stability score from bootstrapping (0.0‑1.0)."
+          required:
+            - gene_id
+            - importance_score
+            - stability_score
+        description: "List of top 50 genes ranked by importance (filtered by stability > 0.8)."
+    required:
+      - top_genes
+required:
+  - model_info
+  - metrics
+  - feature_importance

@@ -1,0 +1,925 @@
+resolved_at: '2026-07-08T21:11:46.286913+00:00'
+datasets:
+- intent: RNA-seq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4185
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suzuki-2001/athaliana_rnaseq_splicing/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18008608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.65v002b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rf10
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20390640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/9jstff2ggc/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/9jstff2ggc
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/scRNA-seq_bulk_RNA-seq_and_spatial_transcriptomics_datasets/32521659/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/scRNA-seq_bulk_RNA-seq_and_spatial_transcriptomics_datasets/32521659
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267283
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GEO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/truemanv5666/GeoText1652_Dataset/5d32fdcf69ebea22005782a9f78fee27062c79e2/test_24G_version.json?%2Fdatasets%2Ftruemanv5666%2FGeoText1652_Dataset%2Fresolve%2Fmain%2Ftest_24G_version.json=&etag=%22b875bed32b0e42e03cee0b2c7eefb7986857ad9f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Darsala/english_georgian_corpora/resolve/main/corp_dict.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19467316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7603435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798419
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19603782
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21193610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21262112
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UMAP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/dclure/laion-aesthetics-12m-umap/resolve/main/train.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mt0rm0/glove.6B.50d.umap.2d/resolve/main/glove.6B.50d.umap.2d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Yuto2007/scFoundationEmbeddings_UMAP/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dclure/laion-aesthetics-12m-umap/resolve/main/train.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mt0rm0/glove.6B.50d.umap.2d/resolve/main/glove.6B.50d.umap.2d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Yuto2007/scFoundationEmbeddings_UMAP/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/saracandu/stl_formulae_umap/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18975893
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8045458
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17341692
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3665743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5123024
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21263723
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21263723
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18236172
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18236172
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_for_Journal_of_Neurophysiology_Submission/32939975
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/snehangshuk/test-dataset/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Sneka/test/resolve/main/train_dataset.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10154
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/641153174792d950fb0a99c0/9b5f2cd9efd6e74c5e3561551506afccb19b6bf5a6e83d1465693b2977f64570?user_id=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27OAS_pair_sequence.csv%3B+filename%3D%22OAS_pair_sequence.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1783548505&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxMTUzMTc0NzkyZDk1MGZiMGE5OWMwLzliNWYyY2Q5ZWZkNmU3NGM1ZTM1NjE1NTE1MDZhZmNjYjE5YjZiZjVhNmU4M2QxNDY1NjkzYjI5NzdmNjQ1NzBcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3T0FTX3BhaXJfc2VxdWVuY2UuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyT0FTX3BhaXJfc2VxdWVuY2UuY3N2JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1NDg1MDV9fX1dfQ__&Signature=MEUCIQD-jzzkWVsq8YkImYwgTBulJ2RAzWTfDFMT9nTcUaP-YQIgNkNJVv2iKOS9QtSTuUHXypik6SoK2Gkin65YnjdyA-g_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/snehangshuk/test-dataset/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Sneka/test/resolve/main/train_dataset.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19130637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3294095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15765561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7311056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10395872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207995
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21207995
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.04633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/844050
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/fy93xjjrb8
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21268380
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hustvl/GSEval/resolve/main/GroundingSuite-Eval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 30
+      parsed: true
+  - url: https://huggingface.co/datasets/shaunliu82714/GSEN/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hustvl/GSEval/resolve/main/GroundingSuite-Eval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/erickdp/data-gsemodel/resolve/main/processed/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/gserafico/imdb_reviews/f23b5e9f057b3fc3d577b3f41881a4c452696627/imdb_reviews.csv?%2Fdatasets%2Fgserafico%2Fimdb_reviews%2Fresolve%2Fmain%2Fimdb_reviews.csv=&etag=%2221b4fbab49eed03991bed49c1c629097a1fcfa37%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65c3680670b1fe3392ca2e37/68babe22dd3fc12bd8210997833d54e68cca8ea564072cbad8b34809be18c9b4?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27IMDB_Dataset.csv%3B+filename%3D%22IMDB_Dataset.csv%22%3B&user_id=public&response-content-type=text%2Fcsv&Expires=1783548551&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjMzY4MDY3MGIxZmUzMzkyY2EyZTM3LzY4YmFiZTIyZGQzZmMxMmJkODIxMDk5NzgzM2Q1NGU2OGNjYThlYTU2NDA3MmNiYWQ4YjM0ODA5YmUxOGM5YjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3SU1EQl9EYXRhc2V0LmNzdiUzQitmaWxlbmFtZSUzRCUyMklNREJfRGF0YXNldC5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU0ODU1MX19fV19&Signature=MEYCIQC~urmDxOjH3A8alDYhftwoLWzjAE6Hie5rS7jjp5taLQIhAPtgsJ0zuKcookBkOSMcTr5Vc~DdK1mEoCiWERyICn17&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/shaunliu82714/GSEN/resolve/main/data/train-00000-of-00053.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5286634
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5286630
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4763138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5286628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5286636
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/air-support-analysis/fleet-size-requirements-each-gse-type-each-airport
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/air-support-analysis/gse-daily-energy-consumption-each-airport
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/air-support-analysis/charger-requirements-for-gse-at-each-airport
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/air-support-analysis/gse-yearly-load-profiles-airports-under-six-charging-scenarios
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/air-support-analysis/airport-ground-support-analysis
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE40677
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE51148
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE59991
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE66904
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Anomaly_Detection_of_Internet_of_Medical_Things_Cyberattacks_Using_Federated_Learning/32075466/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Anomaly_Detection_of_Internet_of_Medical_Things_Cyberattacks_Using_Federated_Learning/32075466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Anomaly_Detection_of_Internet_of_Medical_Things_Cyberattacks_Using_Federated_Learning/32075466/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ComBat
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Dr._Zachary_Knight_The_Science_of_Hunger__Medications_to_Combat_Obesity/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 89646
+      parsed: true
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Dr__Zachary_Knight_The_Science_of_Hunger__Medications_to_Combat_Obesity/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 89646
+      parsed: true
+  - url: https://huggingface.co/datasets/combatsolutions/tenderdata_test/resolve/main/dataset.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7962
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6652dc4ff8137bb6506251f0/044293f702c874d5dd297aafee90b6e23f7f72b5c7656b257a92ede884882ce6?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.json%3B+filename%3D%22data.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&Expires=1783548665&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY1MmRjNGZmODEzN2JiNjUwNjI1MWYwLzA0NDI5M2Y3MDJjODc0ZDVkZDI5N2FhZmVlOTBiNmUyM2Y3ZjcyYjVjNzY1NmIyNTdhOTJlZGU4ODQ4ODJjZTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YS5qc29uJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24mWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU0ODY2NX19fV19&Signature=MEUCIA4Nu2KyG69TFYEz0kqVL6Im-NnOUaH0As~1t464Q5BbAiEAm1pSypte4RINoZcV7ERnc73NsNiVqovRz98estpCAiQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Dr._Zachary_Knight_The_Science_of_Hunger__Medications_to_Combat_Obesity/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_Dr__Zachary_Knight_The_Science_of_Hunger__Medications_to_Combat_Obesity/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/combatsolutions/tenderdata_test/resolve/main/dataset.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/combatsolutions/tender_dataset/resolve/main/data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4593845
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jj34m
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://health-man.com.ua/article/view/316671
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17590168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bakhtiniada.ru/2658-5480/article/view/383320
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267165
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.gchumanrights.org/handle/20.500.11825/3216
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/d9j2zwky2m/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/d9j2zwky2m
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: StressDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Volume_3_-_Arquivo_Documental_De_Antes_de_2011_at_2026_para_as_Gera_es_Vindouras_Portugu_s/32942489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_7/32942483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_6/32942477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Fig_5/32942456
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5752350
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FeatureSpace
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Computational_Insights_into_the_Mechanism_of_4_2_Cycloaddition_of_Aza-ortho-quinone_Methides_with_Terminal_Alkynes/32942521
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSE30047
+  status: unresolved
+  candidates: []
+  candidates_tried: []

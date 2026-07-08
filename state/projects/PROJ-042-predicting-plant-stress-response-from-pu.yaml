@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T13:42:09.970211Z'
-current_stage: flesh_out_complete
+current_stage: specified
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-042-predicting-plant-stress-response-from-pu
-last_run_id: 79fd2dff-cd9a-432e-83d1-4a70950a94bc
+last_run_id: a4437578-2b1b-47b8-933f-32e9df383f7e
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-042-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu
 title: Predicting Plant Stress Response from Publicly Available Transcriptomic Data
-updated_at: '2026-06-28T13:59:07.159258Z'
+updated_at: '2026-07-08T21:46:15.599794Z'
