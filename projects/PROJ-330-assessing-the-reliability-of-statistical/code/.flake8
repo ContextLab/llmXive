@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, E501, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
+per-file-ignores =
+    # Allow unused imports in __init__.py for public API exposure
+    code/src/__init__.py: F401
+    code/tests/__init__.py: F401

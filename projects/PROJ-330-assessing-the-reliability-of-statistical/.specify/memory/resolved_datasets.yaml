@@ -1,0 +1,528 @@
+resolved_at: '2026-07-08T12:15:16.930082+00:00'
+datasets:
+- intent: RNA-seq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4185
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suzuki-2001/athaliana_rnaseq_splicing/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://repository.lboro.ac.uk/articles/poster/Digital_Art_Therapy_for_Young_Asian_Male_Students_in_the_UK/32936093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/English_US_Dual-Channel_Speech_Dataset/32936054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18008608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.65v002b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rf10
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17131667
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/2PV6PW
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133141
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mukrc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Transcriptome_and_small_RNA_landscapes_of_testis_and_epididymis_across_reproductive_seasons_in_the_tree_shrew/30993742/4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Transcriptome_and_small_RNA_landscapes_of_testis_and_epididymis_across_reproductive_seasons_in_the_tree_shrew/30993742
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TCGA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 57242
+      parsed: true
+  - url: https://huggingface.co/datasets/dakomura/tcga-ut/resolve/main/train_val_test_split.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 130591
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ratschlab/TCGA_virtual_spatial_transcriptomics_atlas/resolve/main/data/TCGA_ACC/FF/TCGA-OR-A5J1-01A-01-TS1.CFE08710-54B8-45B0-86AE-500D6E36D8A5.h5ad.gz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Codatta/Refined-TCGA-PRAD-Prostate-Cancer-Pathology-Dataset/resolve/main/dataset/PRAD/PRAD.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/dakomura/tcga-ut/resolve/main/train_val_test_split.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/RJKiseki/TCGA/resolve/main/TCGA-05-4244-01Z-00-DX1.h5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://repository.lboro.ac.uk/articles/poster/Digital_Art_Therapy_for_Young_Asian_Male_Students_in_the_UK/32936093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/English_US_Dual-Channel_Speech_Dataset/32936054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936229
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Metallaboroxine_Siloxane_Macrocycles_An_Approach_to_Superhydrophobic_Materials/32936226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0299685
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.h8m74
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20719257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4015959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.5x69p8d4r
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405925
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prognostic_model_for_colorectal_cancer_based_on_folic_acid_metabolism-related_genes_reveals_immune_landscape/32309700
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Prognostic_model_for_colorectal_cancer_based_on_folic_acid_metabolism-related_genes_reveals_immune_landscape/32309700/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GEO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 14725
+      parsed: true
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/truemanv5666/GeoText1652_Dataset/5d32fdcf69ebea22005782a9f78fee27062c79e2/test_24G_version.json?%2Fdatasets%2Ftruemanv5666%2FGeoText1652_Dataset%2Fresolve%2Fmain%2Ftest_24G_version.json=&etag=%22b875bed32b0e42e03cee0b2c7eefb7986857ad9f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Programmable_Anomalous_Photovoltaics_Enabled_by_Light-Electric_Dual-Field_Control/32936298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Digital_Art_Therapy_for_Young_Asian_Male_Students_in_the_UK/32936093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/English_US_Dual-Channel_Speech_Dataset/32936054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19467316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7603435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17214172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19603782
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1139948
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21255051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21255051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21260107
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21260107
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENCODE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Programmable_Anomalous_Photovoltaics_Enabled_by_Light-Electric_Dual-Field_Control/32936298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Digital_Art_Therapy_for_Young_Asian_Male_Students_in_the_UK/32936093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/English_US_Dual-Channel_Speech_Dataset/32936054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16414829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://amsacta.unibo.it/id/eprint/7046/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3564813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19153349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bw2qn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18979384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18979384
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19255370
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DESeq2
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Tacrolimus_inhibits_CVB3-targeted_regulation_of_TFEB_by_PPP3_calcineurin_docx/32936309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Programmable_Anomalous_Photovoltaics_Enabled_by_Light-Electric_Dual-Field_Control/32936298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/Digital_Art_Therapy_for_Young_Asian_Male_Students_in_the_UK/32936093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/English_US_Dual-Channel_Speech_Dataset/32936054
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10278225
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17457811
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16374436
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20844823
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13799873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.tx95x6bc1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.962217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GenomicDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_xlsx/32936357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_docx/32936366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_xlsx/32936372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Psychometric_validation_of_the_Turkish_version_of_the_short_nutrition_literacy_scale_and_its_association_with_intuitive_eating_and_body_appreciation_in_young_adults_pdf/32936369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Psychometric_validation_of_the_Turkish_version_of_the_short_nutrition_literacy_scale_and_its_association_with_intuitive_eating_and_body_appreciation_in_young_adults_docx/32936360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3360996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SubsetAnalysis
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_xlsx/32936357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_docx/32936366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Nutrient_reduction_scenarios_cannot_offset_climate-driven_habitat_deterioration_of_Posidonia_oceanica_xlsx/32936372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Psychometric_validation_of_the_Turkish_version_of_the_short_nutrition_literacy_scale_and_its_association_with_intuitive_eating_and_body_appreciation_in_young_adults_pdf/32936369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Psychometric_validation_of_the_Turkish_version_of_the_short_nutrition_literacy_scale_and_its_association_with_intuitive_eating_and_body_appreciation_in_young_adults_docx/32936360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,7 @@
+T001 Create project structure per implementation plan (`code/src/`, `code/scripts/`, `code/tests/`): 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn,
+  matplotlib, seaborn, pyyaml, requests, tqdm, statsmodels) and R 4.3 environment
+: 1
+T003 [P] Configure linting (flake8) and formatting (black) tools: 1
+T005 [P] Implement `code/src/versioning.py` to compute SHA256 hashes of artifacts and update `state.yaml`: 1
+T006 [P] Create `code/scripts/setup_env.sh` to initialize R `renv` and Python `venv`: 1

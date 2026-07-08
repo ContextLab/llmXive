@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GenomicDatasetSchema"
+description: "Schema for the raw and processed genomic dataset structure."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Unique identifier for the dataset (e.g., 'GEO:GSE12345')."
+  source:
+    type: string
+    description: "Source repository (TCGA, ENCODE, GEO)."
+    enum: ["TCGA", "ENCODE", "GEO", "Recount"]
+  raw_count_matrix_path:
+    type: string
+    description: "Relative path to the raw count matrix file."
+  metadata_path:
+    type: string
+    description: "Relative path to the metadata file."
+  n_samples:
+    type: integer
+    description: "Total number of samples in the dataset."
+  n_genes:
+    type: integer
+    description: "Total number of genes in the dataset."
+  checksum:
+    type: string
+    description: "SHA256 checksum of the raw file."
+  batch_metadata_available:
+    type: boolean
+    description: "Whether batch metadata is present for stratified splitting."
+required:
+  - dataset_id
+  - source
+  - raw_count_matrix_path
+  - n_samples
+  - checksum
+additionalProperties: false

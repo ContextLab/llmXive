@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StabilityMetricsSchema"
+description: "Schema for the final stability and inflation metrics output."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Identifier of the analyzed dataset."
+  stability_correlation:
+    type: number
+    description: "Pearson correlation coefficient of effect sizes (log2FC) between full set and subsets (calculated on ALL genes)."
+  stability_std:
+    type: number
+    description: "Standard deviation of the correlation across subsets."
+  inflation_metric_d:
+    type: number
+    description: "KS statistic (D) comparing empirical p-values to Uniform(0,1)."
+  inflation_p_value:
+    type: number
+    description: "KS test p-value. High value (>0.05) indicates consistency with uniformity."
+  inflation_flag:
+    type: string
+    description: "Status of p-value inflation."
+    enum: ["OK", "Inflated", "Low Confidence", "Sparse Null"]
+  iteration_count:
+    type: integer
+    description: "Number of permutations actually performed."
+  runtime_hours:
+    type: number
+    description: "Actual runtime in hours."
+  dispersion_fixed:
+    type: boolean
+    description: "True if Fixed-Dispersion approximation was used."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the analysis."
+required:
+  - dataset_id
+  - stability_correlation
+  - inflation_metric_d
+  - inflation_p_value
+  - inflation_flag
+  - iteration_count
+  - timestamp
+additionalProperties: false
