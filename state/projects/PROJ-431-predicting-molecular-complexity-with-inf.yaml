@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T08:43:01.905671Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-431-predicting-molecular-complexity-with-inf
-last_run_id: 7cef0357-9bb2-4aa2-abee-eae14214c2ef
+last_run_id: c59069d4-b155-42a1-a831-aeebe6c1964b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-431-predicting-molecular-complexity-with-inf/specs/001-predicting-molecular-complexity-with-inf
 title: Predicting Molecular Complexity with Information Theory
-updated_at: '2026-06-28T10:18:00.494201Z'
+updated_at: '2026-07-08T17:51:19.279031Z'

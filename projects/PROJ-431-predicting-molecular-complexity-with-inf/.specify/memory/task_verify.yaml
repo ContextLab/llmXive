@@ -1,0 +1,9 @@
+? 'T001a Create project directory structure: `data/raw`, `data/processed`, `results/models`,
+  `results/reports`, `results/plots`, `code`, `tests` (Reference: `projects/PROJ-431-predicting-molecular-complexity-with-inf/`)'
+: 2
+T001b Create `scripts/init_structure.sh` to automate directory creation and initial file scaffolding: 2
+T003 [P] Configure linting (flake8/black) and formatting tools: 2
+? 'T004 [P] Implement `code/utils.py` for logging, SMILES validation (RDKit), file
+  I/O, and **mandatory dataset verification hard gate**: Abort execution with error
+  if input CSV lacks `smiles`, `logS`, or `logP` columns (FR-008, Plan: Dataset Verification)'
+: 2

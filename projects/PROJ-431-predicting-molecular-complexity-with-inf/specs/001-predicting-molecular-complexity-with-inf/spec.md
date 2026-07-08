@@ -1,7 +1,7 @@
 # Feature Specification: Predicting Molecular Complexity with Information Theory
 
 **Feature Branch**: `[PROJ-431-predicting-molecular-complexity]`  
-**Created**: 2026-06-24  
+**Created**: 2026-06-28  
 **Status**: Draft  
 **Input**: User description: "Predicting Molecular Complexity with Information Theory – evaluate how information‑theoretic descriptors of molecular graphs correlate with solubility and membrane permeability."
 
@@ -25,7 +25,7 @@ A researcher wants to generate entropy‑based complexity scores for a curated s
 
 ### User Story 2 – Train & Evaluate Ridge Regression Models (Priority: P2)
 
-A chemoinformatics analyst wants to assess whether the entropy scores predict aqueous solubility (logS) and octanol‑water partition coefficient (logP) using a simple regression model. **logP is employed as a widely accepted proxy for membrane permeability**, reflecting the compound's ability to cross lipid bilayers.
+A chemoinformatics analyst wants to assess whether the entropy scores predict aqueous solubility (logS) and octanol‑water partition coefficient (logP) using a simple regression model. **logP is employed as a widely accepted proxy for membrane permeability**, reflecting the compound's ability to cross lipid bilayers. The system tests for a significant correlation (|r| ≥ 0.30), hypothesizing that higher structural complexity may correlate with lower solubility.
 
 **Why this priority**: This story validates the scientific hypothesis and produces the quantitative results required for the project’s expected outcomes.
 
@@ -68,17 +68,19 @@ A data scientist wants quick visual confirmation of the relationship between ent
 
 ### Functional Requirements
 
-- **FR-001**: System MUST ingest a CSV file containing a `smiles` column with up to **10 000** rows.
-- **FR-002**: System MUST compute the **Shannon entropy** of the atom‑type frequency distribution for each molecule and store it as `atom_entropy`. (Implemented via RDKit atom type counting.)
-- **FR-003**: System MUST compute the **Shannon entropy** of the bond‑type frequency distribution for each molecule and store it as `bond_entropy`. (Implemented via RDKit bond type counting.)
-- **FR-004**: System MUST join each molecule with its experimentally measured physicochemical labels (`logS`, `logP`) from the provided metadata columns.
-- **FR-005**: System MUST split the enriched dataset into an **[deferred]** training and **[deferred]** testing partition using a reproducible random seed **42**.
-- **FR-006**: System MUST train a **Ridge Regression** model (α = 1.0 by default) for each target property and output:
+- **FR-001 (See US-1)**: System MUST ingest a CSV file containing a `smiles` column with up to **10 000** rows.
+- **FR-002 (See US-1)**: System MUST compute the **Shannon entropy** of the atom‑type **degree distribution** (topological) for each molecule and store it as `atom_entropy`. (Implemented via RDKit atom degree counting.)
+- **FR-003 (See US-1)**: System MUST compute the **Shannon entropy** of the bond‑type **degree distribution** (topological) for each molecule and store it as `bond_entropy`. (Implemented via RDKit bond degree counting.)
+- **FR-004 (See US-2)**: System MUST join each molecule with its experimentally measured physicochemical labels (`logS`, `logP`) from the provided metadata columns.
+- **FR-005 (See US-2)**: System MUST split the enriched dataset into an **80/20** training/testing partition using a **random split** with a reproducible seed **42**.
+- **FR-006 (See US-2)**: System MUST train a **Ridge Regression** model (α = 1.0 by default) for each target property and output:
   - a serialized model file (`*.pkl`),
   - a JSON report containing **RMSE** and **Pearson correlation coefficient** on the test set.
-- **FR-007**: System MUST generate PNG scatter‑plot visualizations of each entropy metric versus each target property, overlaying a linear regression line and reporting **R²**.
-- **FR-008**: System MUST log warnings for malformed SMILES and missing property values, and abort with an informative error if the input file is empty.  
-- **FR-009**: System MUST expose a command‑line interface with sub‑commands `compute_entropy`, `train_model`, and `plot_correlation`.  
+- **FR-007 (See US-3)**: System MUST generate PNG scatter‑plot visualizations of each entropy metric versus each target property, overlaying a linear regression line and reporting **R²**.
+- **FR-008 (See US-1)**: System MUST log warnings for malformed SMILES and missing property values, and abort with an informative error if the input file is empty.  
+- **FR-009 (See US-1)**: System MUST expose a command‑line interface with sub‑commands `compute_entropy`, `train_model`, and `plot_correlation`.  
+- **FR-010 (See US-2)**: System MUST apply a **Bonferroni correction** to p-values for the set of **4 hypothesis tests** (2 entropy types × 2 properties) to control family-wise error rate at **α = 0.05**.
+- **FR-011 (See US-2)**: System MUST perform a **sensitivity analysis** on the Ridge Regression regularization parameter (α), sweeping values over the set {0.1, 1.0, 10.0} and reporting the variance in RMSE and Pearson r for the test set.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -90,20 +92,27 @@ A data scientist wants quick visual confirmation of the relationship between ent
 
 ### Measurable Outcomes
 
-- **SC-001**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logS** on the test set must be **≥ 0.30** after applying a Bonferroni correction for the two evaluated pairs (atom_entropy–logS, bond_entropy–logS).  
-- **SC-002**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logS` must be **≤ 1.0** log units on the test set (reference: baseline simple linear model using molecular weight).  
-- **SC-003**: The pipeline must successfully process a **10 000‑molecule** dataset in **≤ 30 minutes** on a single‑CPU machine (reference: CPU‑only RDKit performance benchmarks).  
-- **SC-004**: Generated correlation plots must be saved as PNG files with a resolution of **≥ 300 dpi** and include axis labels, regression line, and R² annotation (reference: standard scientific figure quality).  
-- **SC-005**: The CSV output produced by `compute_entropy` must contain **both** `atom_entropy` and `bond_entropy` columns for every valid input molecule.  
-- **SC-006**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logP** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (atom_entropy–logP, bond_entropy–logP).  
-- **SC-007**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logP` must be **≤ 1.0** log units on the test set (reference: baseline simple linear model using molecular weight).  
-- **SC-008**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logS** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (bond_entropy–logS, atom_entropy–logS).  
-- **SC-009**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logP** on the test set must be **≥ 0.30** after Bonferroni correction for the evaluated pairs (bond_entropy–logP, atom_entropy–logP).  
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001 (See US-2)**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logS** on the test set must be **≥ 0.30** AND the adjusted p-value (Bonferroni corrected for 4 tests) must be **< 0.05**.
+- **SC-002 (See US-2)**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logS` must be **≤ 1.0** log units on the test set.
+- **SC-003 (See US-1)**: The pipeline must successfully process a **10 000‑molecule** dataset in **≤ 30 minutes** on a single‑CPU machine (reference: CPU‑only RDKit performance benchmarks).
+- **SC-004 (See US-3)**: Generated correlation plots must be saved as PNG files with a resolution of **≥ 300 dpi** and include axis labels, regression line, and R² annotation (reference: standard scientific figure quality).
+- **SC-005 (See US-1)**: The CSV output produced by `compute_entropy` must contain **both** `atom_entropy` and `bond_entropy` columns for every valid input molecule.
+- **SC-006 (See US-2)**: Pearson correlation coefficient (|r|) between **atom_entropy** and **logP** on the test set must be **≥ 0.30** AND the adjusted p-value (Bonferroni corrected for 4 tests) must be **< 0.05**.
+- **SC-007 (See US-2)**: Root‑Mean‑Square Error for the Ridge Regression model predicting `logP` must be **≤ 1.0** log units on the test set.
+- **SC-008 (See US-2)**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logS** on the test set must be **≥ 0.30** AND the adjusted p-value (Bonferroni corrected for 4 tests) must be **< 0.05**.
+- **SC-009 (See US-2)**: Pearson correlation coefficient (|r|) between **bond_entropy** and **logP** on the test set must be **≥ 0.30** AND the adjusted p-value (Bonferroni corrected for 4 tests) must be **< 0.05**.
+- **SC-010 (See US-2)**: The sensitivity analysis of the regularization parameter (α) must demonstrate that the model performance (RMSE and Pearson r) varies by **< 10%** (relative range: (max - min) / mean) across the tested sweep range {0.1, 1.0, 10.0}, confirming model stability.
 
 ## Assumptions
 
 - The execution environment has **Python 3.10+**, **RDKit** installed via `pip install rdkit`, and standard scientific libraries (`numpy`, `pandas`, `scikit‑learn`, `matplotlib`).
 - Public FTP endpoints for ZINC15 or ChEMBL provide **SMILES** and associated `logS` / `logP` metadata in CSV format.
-- All calculations are performed **CPU‑only**; no GPU resources are required.
+- All calculations are performed **CPU‑only**; no GPU resources are required, and no quantization (e.g., 8-bit) is used.
 - The random subset of molecules is **representative** of chemical space such that results generalize to larger libraries.
 - Users have **read/write** access to the working directory where input CSVs and output artifacts are stored.
+- The dataset variables (atom types, bond types, logS, logP) are sufficiently complete in the source data; if specific missing values are encountered, they are handled via exclusion as per FR-008.
+- *Note on Baseline*: While the success criteria use an absolute RMSE threshold (≤ 1.0 log units) for clarity, a simple linear model using molecular weight is expected to serve as a reference baseline for context in the final report, though it is not a formal success criterion.

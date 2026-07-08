@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question asks about a substantive relationship between information-theoretic complexity measures and physicochemical behavior (solubility, permeability), independent of any specific ML architecture. The methodology (Ridge regression on entropy scores) is simply the tool to test the relationship, not the question itself.
+The question asks about the fundamental relationship between information-theoretic structural descriptors and physicochemical behavior (solubility, permeability), independent of the specific regression algorithm used to measure it. While the methodology section specifies Ridge Regression, the core inquiry is whether structural complexity *as defined by entropy* correlates with these properties, not whether a specific model architecture can achieve a benchmark score.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (graph-based Shannon entropy from SMILES/molecular structure) and the predicted variable (experimentally measured solubility and permeability from ChEMBL/ZINC) come from independent sources. The entropy is computed from molecular topology, while the physicochemical properties are measured laboratory values stored in dataset metadata.
+The predictor (entropy calculated from SMILES-derived atom/bond frequency distributions) and the predicted variables (logS and logP) are derived from distinct physical concepts: the former measures structural heterogeneity, while the latter measures thermodynamic solvation and partitioning behavior. Although both can be computed from the same molecular graph, the target properties are not simple mathematical transformations of the entropy values, ensuring the relationship is empirical rather than mechanically guaranteed.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive correlation would validate information-theoretic descriptors as computationally cheap proxies for ADMET screening. A null result would challenge assumptions about molecular complexity being predictive of bulk physicochemical behavior. Both outcomes advance the field's understanding of structure-property relationships.
+A positive correlation would validate information theory as a proxy for "drug-likeness" and explain why highly complex molecules often fail solubility constraints, while a null result would be equally informative by demonstrating that structural complexity is orthogonal to bulk thermodynamic properties. Neither outcome is predetermined by current domain knowledge, as the specific quantitative link between Shannon entropy of graphs and logP has not been established in the literature.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question names a domain relationship (information-theoretic complexity → physicochemical properties) rather than an implementation constraint. It asks "to what extent" rather than "can method M achieve accuracy X within budget B."
+The question explicitly names a domain relationship ("To what extent do information-theoretic measures... predict... physicochemical properties") rather than focusing on implementation constraints like runtime, memory, or specific hyperparameters. The mention of "Ridge Regression" in the methodology is a tool to answer the question, not the question itself.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All four checks pass. The research question is a genuine domain question about molecular structure-property relationships, uses independent data sources for predictor and outcome, and would yield informative results under either positive or null findings. The project is ready to advance to initialization.
+All checks pass; the research question targets a genuine gap in understanding the link between structural information content and ADMET properties. The proposed methodology is a valid means to test this hypothesis without falling into circular reasoning or implementation-fixation traps. The project is ready to advance to initialization.

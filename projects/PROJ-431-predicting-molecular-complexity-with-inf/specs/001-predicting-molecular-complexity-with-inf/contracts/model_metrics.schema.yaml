@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelMetrics"
+description: "Schema for Ridge Regression model evaluation metrics."
+type: "object"
+properties:
+  target:
+    type: "string"
+    description: "The target variable (logS or logP)."
+    enum:
+      - "logS"
+      - "logP"
+  alpha:
+    type: "number"
+    description: "Ridge regularization parameter used."
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error on the test set."
+    minimum: 0
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient on the test set."
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: "number"
+    description: "Raw p-value for the correlation test."
+    minimum: 0
+    maximum: 1
+  p_value_bonferroni:
+    type: "number"
+    description: "Bonferroni-corrected p-value (alpha=0.05, n=4)."
+    minimum: 0
+    maximum: 1
+  p_value_fdr:
+    type: "number"
+    description: "Benjamini-Hochberg (FDR) adjusted p-value."
+    minimum: 0
+    maximum: 1
+  n_train:
+    type: "integer"
+    description: "Number of samples in training set."
+  n_test:
+    type: "integer"
+    description: "Number of samples in test set."
+  baseline_null_rmse:
+    type: "number"
+    description: "RMSE of the Null model (predicting mean)."
+  baseline_null_r:
+    type: "number"
+    description: "Pearson r of the Null model (always 0)."
+  baseline_size_rmse:
+    type: "number"
+    description: "RMSE of the Size baseline model (MW + Atom Count)."
+  baseline_size_r:
+    type: "number"
+    description: "Pearson r of the Size baseline model."
+  partial_corr_control_mw:
+    type: "number"
+    description: "Partial correlation controlling for Molecular Weight."
+required:
+  - "target"
+  - "alpha"
+  - "rmse"
+  - "pearson_r"
+  - "p_value"
+  - "p_value_bonferroni"
+  - "n_train"
+  - "n_test"
+  - "baseline_null_rmse"
+  - "baseline_size_rmse"
+additionalProperties: false
