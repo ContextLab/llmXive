@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Nostalgia and Cognitive Flexibility Study"
+description: "Schema defining the structure and constraints for the cleaned dataset used in the study."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        description: "Schema version"
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of dataset generation"
+      source:
+        type: string
+        description: "Original data source (e.g., OpenML ID, URL)"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the raw source data"
+      mmse_available:
+        type: boolean
+        description: "Flag indicating if MMSE column was present in raw data (from T013b)"
+      exclusion_counts:
+        type: object
+        properties:
+          total_raw:
+            type: integer
+          excluded_missing_age:
+            type: integer
+          excluded_missing_birth_year:
+            type: integer
+          excluded_missing_score:
+            type: integer
+          excluded_stimulus_null:
+            type: integer
+          total_excluded:
+            type: integer
+  participants:
+    type: array
+    items:
+      type: object
+      required:
+        - participant_id
+        - stimulus_type
+        - age
+        - persevertive_errors
+        - categories_completed
+      properties:
+        participant_id:
+          type: string
+          description: "Unique identifier for the participant"
+        stimulus_type:
+          type: string
+          enum:
+            - nostalgia
+            - control
+          description: "Condition assigned to the participant"
+        age:
+          type: integer
+          minimum: 65
+          description: "Age of participant (must be >= 65)"
+        birth_year:
+          type: integer
+          description: "Optional birth year if age was derived"
+        persevertive_errors:
+          type: number
+          description: "Number of perseverative errors on WCST"
+        categories_completed:
+          type: integer
+          description: "Number of categories completed on WCST"
+        mmse_score:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 30
+          description: "Mini-Mental State Examination score (optional, used for robustness checks)"
+        cognitive_score:
+          type: number
+          description: "Derived cognitive flexibility metric"
+        exclusion_reason:
+          type: string
+          nullable: true
+          description: "Reason for exclusion if applicable (ERR_MISSING_AGE_FIELD, etc.)"
+required:
+  - metadata
+  - participants

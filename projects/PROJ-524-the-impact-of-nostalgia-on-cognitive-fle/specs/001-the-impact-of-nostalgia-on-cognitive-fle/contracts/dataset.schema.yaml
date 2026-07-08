@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WCST Dataset Schema"
+description: "Schema for validated WCST performance dataset"
+type: object
+required:
+  - participant_id
+  - age
+  - stimulus_type
+  - perseverative_errors
+  - categories_completed
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for participant"
+  age:
+    type: integer
+    minimum: 65
+    description: "Age of participant in years"
+  stimulus_type:
+    type: string
+    enum:
+      - "nostalgia"
+      - "control"
+    description: "Type of stimulus exposure"
+  perseverative_errors:
+    type: number
+    description: "Number of perseverative errors in WCST"
+  categories_completed:
+    type: number
+    description: "Number of categories completed in WCST"
+  mmse_score:
+    type: integer
+    minimum: 0
+    maximum: 30
+    description: "Mini-Mental State Examination score (optional, for exclusion)"
+additionalProperties: false

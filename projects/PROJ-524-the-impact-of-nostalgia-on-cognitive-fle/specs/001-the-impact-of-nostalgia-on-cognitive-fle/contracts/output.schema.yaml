@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis results"
+type: object
+required:
+  - comparison_name
+  - p_value
+  - p_value_corrected
+  - effect_size
+  - effect_size_ci_lower
+  - effect_size_ci_upper
+  - significance_status
+  - mdes
+  - adjustment_status
+  - validity_status
+properties:
+  comparison_name:
+    type: string
+    description: "Name of the comparison (e.g., 'nostalgia vs control - errors')"
+  p_value:
+    type: number
+    description: "Raw p-value from statistical test (Welch's t-test)"
+  p_value_corrected:
+    type: number
+    description: "Bonferroni-corrected p-value"
+  effect_size:
+    type: number
+    description: "Cohen's d effect size"
+  effect_size_ci_lower:
+    type: number
+    description: "Lower bound of 95% CI for effect size"
+  effect_size_ci_upper:
+    type: number
+    description: "Upper bound of 95% CI for effect size"
+  significance_status:
+    type: string
+    enum:
+      - "significant"
+      - "non-significant"
+      - "sensitive"
+    description: "Significance status at α=0.05"
+  mdes:
+    type: number
+ description: "Minimum Detectable Effect Size ([deferred] power) - framed as a limitation"
+  adjustment_status:
+    type: string
+    enum:
+      - "adjusted"
+      - "unadjusted"
+      - "covariates_missing"
+    description: "Status of confound adjustment (adjusted, unadjusted, or covariates missing)"
+  validity_status:
+    type: string
+    enum:
+      - "verified"
+      - "unverified"
+      - "simulation"
+    description: "Status of stimulus validity (verified citation, unverified, or simulation)"
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      required:
+        - threshold
+        - significance_status
+      properties:
+        threshold:
+          type: number
+          description: "Significance threshold (e.g., 0.01, 0.05, 0.1)"
+        significance_status:
+          type: string
+          enum:
+            - "significant"
+            - "non-significant"
+          description: "Significance status at this threshold"
+additionalProperties: false

@@ -1,0 +1,399 @@
+resolved_at: '2026-07-08T12:56:22.827834+00:00'
+datasets:
+- intent: WCST
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://rdr.ucl.ac.uk/articles/dataset/Global_health_burden_of_ammonia_emissions_from_fossil-fuel-derived_synthetic_nitrogen_fertilizer/27045664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coverage_and_determinants_of_COVID-19_vaccination_among_36_555_Nigerian_women_of_childbearing_age_a_mixed-effects_analysis_of_nationally_representative_data/32936522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_effectiveness_of_the_cogmed_computer-assisted_cognitive_rehabilitation_program_on_the_reading_skills_of_linguistic_dyslexic_children/32936620
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/The_affective_performance_of_the_researcher_Embodiment_space_and_the_politics_of_elite_research/32935937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3553566
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10985741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/801676
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14258069
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14834094
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/s43jm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4y8bs/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Alcohol-induced_damage_to_the_fimbria_fornix_reduces_hippocampal-prefrontal_cortex_connection_during_early_abstinence/26598857/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Alcohol-induced_damage_to_the_fimbria_fornix_reduces_hippocampal-prefrontal_cortex_connection_during_early_abstinence/26598857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ngmdu/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MDES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/zeqixiao/m_desert/resolve/main/0/000000.npz
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 9404
+      parsed: true
+  - url: https://huggingface.co/datasets/jilwang804/M-DESIGN-Knowledge-Base/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 13134
+      parsed: true
+  - url: https://huggingface.co/datasets/md-esmaeili/rogii-data/resolve/main/rogii-data.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/zeqixiao/m_desert/resolve/main/0/000000.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/jilwang804/M-DESIGN-Knowledge-Base/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/md-esmaeili/rogii-data/resolve/main/rogii-data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_01/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_00_03/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rdr.ucl.ac.uk/articles/dataset/Global_health_burden_of_ammonia_emissions_from_fossil-fuel-derived_synthetic_nitrogen_fertilizer/27045664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coverage_and_determinants_of_COVID-19_vaccination_among_36_555_Nigerian_women_of_childbearing_age_a_mixed-effects_analysis_of_nationally_representative_data/32936522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_effectiveness_of_the_cogmed_computer-assisted_cognitive_rehabilitation_program_on_the_reading_skills_of_linguistic_dyslexic_children/32936620
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/The_affective_performance_of_the_researcher_Embodiment_space_and_the_politics_of_elite_research/32935937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5497524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s00127-003-0682-8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18778471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20028509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20669054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/25t4r/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/x8kae/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mv6nr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21000496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21000496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1408
+      parsed: true
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 44738
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://rdr.ucl.ac.uk/articles/dataset/Global_health_burden_of_ammonia_emissions_from_fossil-fuel-derived_synthetic_nitrogen_fertilizer/27045664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coverage_and_determinants_of_COVID-19_vaccination_among_36_555_Nigerian_women_of_childbearing_age_a_mixed-effects_analysis_of_nationally_representative_data/32936522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_effectiveness_of_the_cogmed_computer-assisted_cognitive_rehabilitation_program_on_the_reading_skills_of_linguistic_dyslexic_children/32936620
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/The_affective_performance_of_the_researcher_Embodiment_space_and_the_politics_of_elite_research/32935937
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1134/S2079057021030036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7223594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/26179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10752418
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17283433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://memorial.scholaris.ca/handle/20.500.14783/15629
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://memorial.scholaris.ca/handle/20.500.14783/15628
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26262/heal.auth.ir.374730
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
+      port=80): Max retries exceeded with url: /record/374730 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
+      port=80) at 0x7f38d7725310>, ''Connection to ikee.lib.auth.gr timed out. (connect
+      timeout=20.0)''))'
+  - url: https://arxiv.org/abs/2607.03517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/R_Codes_used_in_Balbuena-Boon_Imputation/32936621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Heatwaves_are_dangerous_but_they_re_also_a_useful_warning_of_what_needs_to_change/32925404
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/Global_health_burden_of_ammonia_emissions_from_fossil-fuel-derived_synthetic_nitrogen_fertilizer/27045664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coverage_and_determinants_of_COVID-19_vaccination_among_36_555_Nigerian_women_of_childbearing_age_a_mixed-effects_analysis_of_nationally_representative_data/32936522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261692
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261692
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21261524
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU-accelerated
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/media/R_Codes_used_in_Balbuena-Boon_Imputation/32936621
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Heatwaves_are_dangerous_but_they_re_also_a_useful_warning_of_what_needs_to_change/32925404
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rdr.ucl.ac.uk/articles/dataset/Global_health_burden_of_ammonia_emissions_from_fossil-fuel-derived_synthetic_nitrogen_fertilizer/27045664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coverage_and_determinants_of_COVID-19_vaccination_among_36_555_Nigerian_women_of_childbearing_age_a_mixed-effects_analysis_of_nationally_representative_data/32936522
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13937876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7649179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15863506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17138571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.ck2br
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21259844
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21259844
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251649
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
