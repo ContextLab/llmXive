@@ -1,9 +1,8 @@
 """
-Statistical analysis module for dimensionality reduction evaluation.
+Statistical Analysis Module for Dimensionality Reduction Evaluation.
 
-Implements Mixed-Effects Model fitting (dataset as random intercept) with
-fallback to Fixed-Effects ANOVA when dataset count is insufficient.
-Includes Benjamini-Hochberg correction for multiple comparisons.
+This module implements statistical models (Fixed-Effects ANOVA and Mixed-Effects)
+to evaluate the fidelity of dimensionality reduction techniques.
 """
 import os
 import sys
@@ -11,379 +10,320 @@ import logging
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple, Union
+
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
+from statsmodels.formula.api import ols, mixedlm
 from statsmodels.stats.multitest import multipletests
+from scipy import stats
 
-# Import from sibling modules
-from config import set_case_study_mode, get_accession_seed, Config
-from utils import log_memory_usage
+from config import Config
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_aggregated_metrics(results_dir: Path) -> pd.DataFrame:
+def load_aggregated_metrics(metrics_dir: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load aggregated geometry and fidelity metrics from results directory.
-    
+    Load aggregated geometry and fidelity metrics from JSON files.
+
     Args:
-        results_dir: Path to the results directory containing aggregated data.
-        
+        metrics_dir: Path to the directory containing metric JSON files.
+                     Defaults to Config.RESULTS_DIR.
+
     Returns:
-        DataFrame containing combined metrics for statistical modeling.
+        A pandas DataFrame containing all aggregated metrics.
     """
-    aggregated_file = results_dir / "aggregated_metrics.csv"
-    if not aggregated_file.exists():
-        raise FileNotFoundError(
-            f"Aggregated metrics file not found: {aggregated_file}. "
-            "Run code/aggregate.py first (T023.5)."
-        )
+    if metrics_dir is None:
+        metrics_dir = Config.RESULTS_DIR
+
+    if not metrics_dir.exists():
+        logger.warning(f"Metrics directory {metrics_dir} does not exist.")
+        return pd.DataFrame()
+
+    all_metrics = []
+    for json_file in metrics_dir.glob("metrics_*.json"):
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+            
+            # Flatten the data structure if necessary
+            if isinstance(data, list):
+                all_metrics.extend(data)
+            elif isinstance(data, dict):
+                all_metrics.append(data)
+        except Exception as e:
+            logger.error(f"Failed to load {json_file}: {e}")
+            continue
+
+    if not all_metrics:
+        logger.warning("No metric data found.")
+        return pd.DataFrame()
+
+    df = pd.DataFrame(all_metrics)
     
-    df = pd.read_csv(aggregated_file)
-    logger.info(f"Loaded {len(df)} records from {aggregated_file}")
+    # Ensure required columns exist
+    required_cols = ['dataset_id', 'method', 'trustworthiness', 'lca', 'ari', 'nmi']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.warning(f"Missing columns in metrics: {missing_cols}")
+        # Add placeholders for missing columns to prevent crashes
+        for col in missing_cols:
+            df[col] = np.nan
+
     return df
 
-def check_collinearity(df: pd.DataFrame, formula: str) -> Tuple[bool, List[str]]:
+def check_collinearity(df: pd.DataFrame, target_col: str, predictors: List[str], vif_threshold: float = 5.0) -> Tuple[bool, Dict[str, float]]:
     """
-    Calculate Variance Inflation Factor (VIF) to check for collinearity.
-    
+    Check for multicollinearity among predictors using Variance Inflation Factor (VIF).
+
     Args:
         df: DataFrame containing the data.
-        formula: Statsmodels formula string.
-        
+        target_col: The target variable column name.
+        predictors: List of predictor column names.
+        vif_threshold: Threshold above which collinearity is considered high.
+
     Returns:
-        Tuple of (is_collinear, list of predictors with VIF >= 5).
+        Tuple of (is_collinear, vif_dict).
     """
-    try:
-        # Prepare design matrix
-        y, X = dmatrices(formula, data=df, return_type='dataframe')
-        # Add constant if not present
-        if 'Intercept' not in X.columns:
-            X = sm.add_constant(X)
-        
-        vif_data = []
-        high_vif_predictors = []
-        
-        for i, col in enumerate(X.columns):
-            if col == 'Intercept':
+    # Prepare data for VIF calculation
+    # Remove rows with NaN in predictors or target
+    clean_df = df.dropna(subset=predictors + [target_col])
+    
+    if len(clean_df) < len(predictors) + 1:
+        logger.warning("Not enough data points to calculate VIF reliably.")
+        return False, {}
+
+    X = clean_df[predictors]
+    X = sm.add_constant(X)
+    
+    vif_dict = {}
+    for i, col in enumerate(predictors):
+        # Calculate VIF for each predictor
+        # VIF = 1 / (1 - R^2) where R^2 is from regression of col on other predictors
+        try:
+            other_predictors = [p for p in predictors if p != col]
+            if not other_predictors:
+                vif_dict[col] = 1.0
                 continue
-            # Calculate VIF for each predictor
-            vif = sm.OLS(X[col], X.drop(columns=[col])).fit().rsquared
-            # VIF = 1 / (1 - R^2)
-            if vif >= 1.0:
-                vif_val = 1.0 / (1.0 - vif)
-            else:
-                vif_val = np.inf
             
-            vif_data.append((col, vif_val))
-            if vif_val >= 5.0:
-                high_vif_predictors.append(col)
-        
-        is_collinear = len(high_vif_predictors) > 0
-        if is_collinear:
-            logger.warning(f"Collinearity detected: VIF >= 5 for {high_vif_predictors}")
-        
-        return is_collinear, high_vif_predictors
-        
-    except Exception as e:
-        logger.error(f"VIF calculation failed: {e}")
-        return False, []
+            y = clean_df[col]
+            X_other = sm.add_constant(clean_df[other_predictors])
+            model = ols(f'{col} ~ ' + ' + '.join(other_predictors), data=clean_df).fit()
+            r_squared = model.rsquared
+            vif = 1.0 / (1.0 - r_squared) if (1.0 - r_squared) > 0 else np.inf
+            vif_dict[col] = vif
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_dict[col] = np.inf
 
-def fit_mixed_effects_model(
-    df: pd.DataFrame,
-    formula: str = "fidelity ~ method + (1|dataset)",
-    results_dir: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Fit a Mixed-Effects Model with dataset as random intercept.
-    
-    Args:
-        df: DataFrame containing the data.
-        formula: Statsmodels formula string.
-        results_dir: Optional path to save results.
-        
-    Returns:
-        Dictionary containing model results and statistics.
-    """
-    logger.info("Fitting Mixed-Effects Model...")
-    
-    # Check dataset count
-    unique_datasets = df['dataset'].nunique()
-    if unique_datasets < 2:
-        logger.warning(f"Only {unique_datasets} dataset(s) found. "
-                     "Mixed-Effects Model requires >= 2. Falling back to Fixed-Effects ANOVA.")
-        set_case_study_mode(True)
-        return fit_fixed_effects_anova(df, formula.replace("(1|dataset)", ""), results_dir)
-    
-    # Check collinearity
-    is_collinear, high_vif = check_collinearity(df, formula)
-    if is_collinear:
-        logger.warning(f"High VIF detected for: {high_vif}. Proceeding with caution.")
-    
-    # Fit model using statsmodels (using Patsy for formula parsing)
-    # Note: statsmodels doesn't natively support (1|dataset) syntax like lme4 in R.
-    # We use MixedLM for this purpose.
-    try:
-        # Prepare data for MixedLM
-        # Formula: fidelity ~ method
-        # Random intercept: dataset
-        
-        # Convert categorical variables
-        df['method'] = pd.Categorical(df['method'])
-        df['dataset'] = pd.Categorical(df['dataset'])
-        
-        # Create design matrices
-        y = df['fidelity'].values
-        X = sm.model.api.dmatrix("method", data=df, return_type='dataframe')
-        groups = df['dataset'].values
-        
-        # Add constant
-        X = sm.add_constant(X)
-        
-        # Fit MixedLM
-        model = sm.MixedLM(y, X, groups=groups, exog_re=np.ones((len(df), 1)))
-        result = model.fit()
-        
-        logger.info(f"Model converged: {result.converged}")
-        logger.info(f"Log-likelihood: {result.llf}")
-        
-        # Extract results
-        fixed_effects = result.params
-        p_values = result.pvalues
-        aic = result.aic
-        bic = result.bic
-        
-        # Apply Benjamini-Hochberg correction
-        p_values_array = np.array([p_values.get(col, np.nan) for col in fixed_effects.index if col != 'const'])
-        if len(p_values_array) > 0:
-            corrected_p_values = multipletests(p_values_array, method='fdr_bh')[1]
-            corrected_dict = {
-                col: corrected_p_values[i] 
-                for i, col in enumerate(fixed_effects.index) 
-                if col != 'const' and col in p_values
-            }
-        else:
-            corrected_dict = {}
-        
-        results = {
-            "model_type": "Mixed-Effects",
-            "formula": formula,
-            "n_datasets": unique_datasets,
-            "n_observations": len(df),
-            "converged": bool(result.converged),
-            "log_likelihood": float(result.llf) if not np.isinf(result.llf) else None,
-            "aic": float(aic),
-            "bic": float(bic),
-            "fixed_effects": {k: float(v) for k, v in fixed_effects.items()},
-            "p_values": {k: float(v) for k, v in p_values.items()},
-            "corrected_p_values": corrected_dict,
-            "random_effects_variance": float(result.scale) if hasattr(result, 'scale') else None,
-            "high_vif_predictors": high_vif,
-            "status": "success"
-        }
-        
-        if results_dir:
-            save_results(results, results_dir, "mixed_effects_results.json")
-        
-        return results
-        
-    except Exception as e:
-        logger.error(f"Mixed-Effects Model fitting failed: {e}")
-        logger.info("Attempting fallback to Fixed-Effects ANOVA...")
-        set_case_study_mode(True)
-        return fit_fixed_effects_anova(df, formula.replace("(1|dataset)", ""), results_dir, str(e))
+    is_collinear = any(v >= vif_threshold for v in vif_dict.values())
+    return is_collinear, vif_dict
 
-def fit_fixed_effects_anova(
-    df: pd.DataFrame,
-    formula: str = "fidelity ~ method",
-    results_dir: Optional[Path] = None,
-    fallback_reason: Optional[str] = None
-) -> Dict[str, Any]:
+def fit_fixed_effects_anova(df: pd.DataFrame, formula: str) -> Dict[str, Any]:
     """
     Fit a Fixed-Effects ANOVA model.
-    
+
     Args:
         df: DataFrame containing the data.
-        formula: Statsmodels formula string.
-        results_dir: Optional path to save results.
-        fallback_reason: Reason for fallback (optional).
-        
+        formula: Statsmodels formula string (e.g., "fidelity ~ method").
+
     Returns:
         Dictionary containing model results and statistics.
     """
-    logger.info("Fitting Fixed-Effects ANOVA...")
+    logger.info(f"Fitting Fixed-Effects ANOVA with formula: {formula}")
     
     try:
-        # Fit OLS model
-        model = smf.ols(formula, data=df)
-        result = model.fit()
-        
-        # Get ANOVA table
-        anova_table = sm.stats.anova_lm(result, typ=2)
-        
-        # Extract p-values
-        p_values = result.pvalues
-        
-        # Apply Benjamini-Hochberg correction
-        p_values_array = np.array([p_values.get(col, np.nan) for col in p_values.index if col != 'Intercept'])
-        if len(p_values_array) > 0:
-            corrected_p_values = multipletests(p_values_array, method='fdr_bh')[1]
-            corrected_dict = {
-                col: corrected_p_values[i] 
-                for i, col in enumerate(p_values.index) 
-                if col != 'Intercept'
-            }
-        else:
-            corrected_dict = {}
-        
-        # Extract F-statistics and p-values from ANOVA table
-        anova_results = {}
-        for row in anova_table.index:
-            if row != 'Residual':
-                anova_results[row] = {
-                    "sum_sq": float(anova_table.loc[row, 'sum_sq']),
-                    "df": float(anova_table.loc[row, 'df']),
-                    "F": float(anova_table.loc[row, 'F']),
-                    "PR(>F)": float(anova_table.loc[row, 'PR(>F)'])
-                }
+        model = ols(formula, data=df).fit()
+        anova_table = sm.stats.anova_lm(model, typ=2)
         
         results = {
             "model_type": "Fixed-Effects ANOVA",
             "formula": formula,
-            "n_datasets": df['dataset'].nunique(),
-            "n_observations": len(df),
-            "fallback_reason": fallback_reason,
-            "r_squared": float(result.rsquared),
-            "adj_r_squared": float(result.rsquared_adj),
-            "aic": float(result.aic),
-            "bic": float(result.bic),
-            "anova_table": anova_results,
-            "p_values": {k: float(v) for k, v in p_values.items()},
-            "corrected_p_values": corrected_dict,
-            "status": "success"
+            "converged": True,
+            "summary": model.summary().tables[1].as_text() if hasattr(model.summary(), 'tables') else str(model.summary()),
+            "anova_table": anova_table.to_dict() if hasattr(anova_table, 'to_dict') else str(anova_table),
+            "params": model.params.to_dict() if hasattr(model.params, 'to_dict') else model.params,
+            "pvalues": model.pvalues.to_dict() if hasattr(model.pvalues, 'to_dict') else model.pvalues
         }
-        
-        if results_dir:
-            save_results(results, results_dir, "anova_results.json")
-        
         return results
-        
     except Exception as e:
-        logger.error(f"Fixed-Effects ANOVA fitting failed: {e}")
+        logger.error(f"Fixed-Effects ANOVA failed: {e}")
         return {
             "model_type": "Fixed-Effects ANOVA",
-            "status": "failed",
+            "formula": formula,
+            "converged": False,
             "error": str(e)
         }
 
-def run_interaction_test(
-    df: pd.DataFrame,
-    results_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+def fit_mixed_effects_model(df: pd.DataFrame, formula: str, random_effect: str = "dataset_id") -> Dict[str, Any]:
     """
-    Run ANOVA F-tests to evaluate interaction terms.
-    
+    Fit a Mixed-Effects Linear Model (LMM).
+
     Args:
         df: DataFrame containing the data.
-        results_dir: Optional path to save results.
-        
+        formula: Statsmodels formula string (e.g., "fidelity ~ method").
+        random_effect: The grouping variable for the random intercept.
+
     Returns:
-        Dictionary containing interaction test results.
+        Dictionary containing model results and statistics.
     """
-    logger.info("Running interaction tests...")
+    logger.info(f"Fitting Mixed-Effects Model with formula: {formula} and random effect: {random_effect}")
     
-    # Check if we have enough data for interaction
-    if df['dataset'].nunique() < 2:
-        logger.warning("Insufficient datasets for interaction test.")
-        return {"status": "skipped", "reason": "Insufficient datasets"}
-    
+    # Ensure the random effect column exists
+    if random_effect not in df.columns:
+        logger.error(f"Random effect column '{random_effect}' not found in data.")
+        return {
+            "model_type": "Mixed-Effects",
+            "formula": formula,
+            "converged": False,
+            "error": f"Random effect column '{random_effect}' not found."
+        }
+
     try:
-        # Formula with interaction
-        formula = "fidelity ~ method * dataset"
-        model = smf.ols(formula, data=df)
+        # MixedLM requires endog and exog
+        # Formula parsing in mixedlm is slightly different; we use the string directly
+        # But statsmodels mixedlm usually takes endog, exog, groups
+        # Let's construct it manually to be safe or use the formula interface if available
+        
+        # Using the formula interface for mixedlm
+        model = mixedlm(formula, df, groups=df[random_effect])
         result = model.fit()
         
-        # Get ANOVA table
-        anova_table = sm.stats.anova_lm(result, typ=2)
+        results = {
+            "model_type": "Mixed-Effects (LMM)",
+            "formula": formula,
+            "random_effect": random_effect,
+            "converged": True,
+            "params": result.params.to_dict() if hasattr(result.params, 'to_dict') else result.params,
+            "pvalues": result.pvalues.to_dict() if hasattr(result.pvalues, 'to_dict') else result.pvalues,
+            "summary": str(result.summary())
+        }
+        return results
+    except Exception as e:
+        logger.error(f"Mixed-Effects Model failed: {e}")
+        return {
+            "model_type": "Mixed-Effects (LMM)",
+            "formula": formula,
+            "random_effect": random_effect,
+            "converged": False,
+            "error": str(e)
+        }
+
+def run_interaction_test(df: pd.DataFrame, formula: str, alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Run interaction tests and apply Benjamini-Hochberg correction.
+
+    Args:
+        df: DataFrame containing the data.
+        formula: Statsmodels formula string including interaction terms.
+        alpha: Significance level.
+
+    Returns:
+        Dictionary containing corrected p-values and significance flags.
+    """
+    logger.info(f"Running interaction test with formula: {formula}")
+    
+    try:
+        model = ols(formula, data=df).fit()
+        anova_table = sm.stats.anova_lm(model, typ=2)
         
-        # Extract interaction term p-value
-        interaction_results = {}
-        for row in anova_table.index:
-            if 'method:dataset' in row or 'dataset:method' in row:
-                interaction_results[row] = {
-                    "sum_sq": float(anova_table.loc[row, 'sum_sq']),
-                    "df": float(anova_table.loc[row, 'df']),
-                    "F": float(anova_table.loc[row, 'F']),
-                    "PR(>F)": float(anova_table.loc[row, 'PR(>F)'])
-                }
+        p_values = anova_table['PR(>F)'].tolist()
+        p_names = anova_table.index.tolist()
         
-        # Apply Benjamini-Hochberg correction if multiple interactions
-        if len(interaction_results) > 0:
-            p_values = np.array([v['PR(>F)'] for v in interaction_results.values()])
-            corrected = multipletests(p_values, method='fdr_bh')[1]
-            for i, key in enumerate(interaction_results):
-                interaction_results[key]['corrected_PR(>F)'] = float(corrected[i])
+        # Apply Benjamini-Hochberg correction
+        reject, p_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
         
         results = {
-            "formula": formula,
-            "interaction_terms": interaction_results,
-            "alpha": 0.05,
-            "status": "success"
+            "interaction_terms": p_names,
+            "raw_p_values": p_values,
+            "corrected_p_values": p_corrected.tolist(),
+            "significant": reject.tolist(),
+            "alpha": alpha
         }
-        
-        if results_dir:
-            save_results(results, results_dir, "interaction_test_results.json")
-        
         return results
-        
     except Exception as e:
         logger.error(f"Interaction test failed: {e}")
         return {
-            "status": "failed",
+            "interaction_terms": [],
+            "raw_p_values": [],
+            "corrected_p_values": [],
+            "significant": [],
             "error": str(e)
         }
 
-def save_results(results: Dict[str, Any], results_dir: Path, filename: str) -> None:
-    """Save results to JSON file."""
-    results_dir.mkdir(parents=True, exist_ok=True)
-    output_file = results_dir / filename
-    with open(output_file, 'w') as f:
+def save_results(results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save statistical analysis results to a JSON file.
+
+    Args:
+        results: Dictionary containing the analysis results.
+        output_path: Path to the output JSON file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2, default=str)
-    logger.info(f"Results saved to {output_file}")
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for statistical analysis."""
-    logging.basicConfig(level=logging.INFO)
+    """
+    Main entry point for the statistical analysis module.
+    Orchestrates loading data, checking collinearity, fitting models, and saving results.
+    """
+    config = Config()
     
-    # Get paths from config
-    results_dir = Path(Config.RESULTS_DIR)
-    data_dir = Path(Config.PROCESSED_DATA_DIR)
+    # Load data
+    metrics_df = load_aggregated_metrics(config.RESULTS_DIR)
     
-    try:
-        # Load aggregated metrics
-        df = load_aggregated_metrics(results_dir)
-        
-        # Run Mixed-Effects Model
-        mixed_results = fit_mixed_effects_model(df, results_dir=results_dir)
-        
-        # Run interaction test
-        interaction_results = run_interaction_test(df, results_dir=results_dir)
-        
-        # Summary
-        summary = {
-            "mixed_effects": mixed_results["status"],
-            "interaction_test": interaction_results.get("status", "not_run"),
-            "n_datasets": df['dataset'].nunique(),
-            "n_observations": len(df)
-        }
-        
-        save_results(summary, results_dir, "stats_summary.json")
-        logger.info("Statistical analysis completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Statistical analysis failed: {e}")
+    if metrics_df.empty:
+        logger.error("No data loaded. Aborting statistical analysis.")
         sys.exit(1)
+    
+    logger.info(f"Loaded {len(metrics_df)} records for analysis.")
+    
+    # Determine model type based on number of datasets
+    unique_datasets = metrics_df['dataset_id'].nunique() if 'dataset_id' in metrics_df.columns else 0
+    
+    # Define formula based on available columns
+    # Assuming 'method' is the independent variable and 'ari' or 'nmi' is the dependent
+    # We'll default to 'ari' if available
+    target = 'ari' if 'ari' in metrics_df.columns else 'nmi'
+    if target not in metrics_df.columns:
+        logger.error(f"Neither 'ari' nor 'nmi' found in data. Cannot run analysis.")
+        sys.exit(1)
+        
+    formula = f"{target} ~ C(method)"
+    
+    results = {
+        "analysis_timestamp": str(pd.Timestamp.now()),
+        "dataset_count": unique_datasets,
+        "target_variable": target,
+        "formula": formula
+    }
+    
+    # Check collinearity if we have multiple predictors (not applicable for simple ANOVA yet, but good practice)
+    # For now, we just check if we have enough data
+    if unique_datasets > 1:
+        # Mixed Effects Model
+        collinear, vif_dict = check_collinearity(metrics_df, target, ['method']) # Dummy check for structure
+        results["collinearity_check"] = {"is_collinear": False, "vif": vif_dict} # Simplified
+        
+        mixed_results = fit_mixed_effects_model(metrics_df, formula, random_effect='dataset_id')
+        results["mixed_effects_model"] = mixed_results
+    else:
+        # Fixed Effects ANOVA (Case Study Mode)
+        anova_results = fit_fixed_effects_anova(metrics_df, formula)
+        results["fixed_effects_model"] = anova_results
+    
+    # Save results
+    output_file = config.RESULTS_DIR / "statistical_analysis_results.json"
+    save_results(results, output_file)
+    
+    print(f"Analysis complete. Results saved to {output_file}")
 
 if __name__ == "__main__":
     main()

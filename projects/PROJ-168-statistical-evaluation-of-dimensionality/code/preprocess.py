@@ -1,344 +1,370 @@
-"""
-Preprocessing module for scRNA-seq data.
-
-Implements:
-- QC: Filter genes expressed in <5% of cells
-- HVG Selection: Top variable genes using variance-stabilizing selection
-- Deterministic Cell Sampling: Hash-based random_state if cell count > 10,000
-"""
 import os
 import sys
 import logging
 import hashlib
 import json
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any
-
+from typing import Dict, Any, Optional, Tuple, List, Union
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
-from scipy.stats import zscore
-
-# Import project configuration and utilities
-from config import Config
-from utils import time_wrapper, get_resource_monitor
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 class PreprocessingError(Exception):
-    """Custom exception for preprocessing failures."""
+    """Custom exception for preprocessing errors."""
     pass
 
-def load_count_matrix(file_path: str) -> Tuple[sp.csr_matrix, pd.Index, pd.Index]:
+def load_count_matrix(file_path: str) -> sp.csr_matrix:
     """
-    Load a count matrix from a supported format (MTX, CSV, TSV, or HDF5 via scanpy).
-    
-    Returns:
-        Tuple of (matrix, gene_names, cell_names)
-    """
-    path = Path(file_path)
-    
-    if path.suffix == '.csv' or path.suffix == '.tsv':
-        sep = ',' if path.suffix == '.csv' else '\t'
-        df = pd.read_csv(path, index_col=0, sep=sep)
-        # Ensure sparse if possible
-        if df.shape[0] > 10000: # Heuristic for large matrices
-            matrix = sp.csr_matrix(df.values)
-            genes = df.index
-            cells = df.columns
-        else:
-            matrix = sp.csr_matrix(df.values)
-            genes = df.index
-            cells = df.columns
-        return matrix, genes, cells
-    
-    elif path.suffix == '.mtx' or path.name.endswith('.mtx.gz'):
-        # Simple MTX loader using scipy
-        # Assumes 3-column format: row, col, value (1-based)
-        # and header lines starting with %%
-        try:
-            import scipy.io as sio
-            matrix = sio.mmread(str(path))
-            matrix = sp.csr_matrix(matrix)
-            # MTX files often don't have headers in the matrix itself, 
-            # we assume external files or standard naming if not present.
-            # For this implementation, we generate placeholder indices if not found.
-            # In a real pipeline, these would be loaded from separate .genes/.barcodes files.
-            n_genes, n_cells = matrix.shape
-            genes = pd.Index([f"Gene_{i}" for i in range(n_genes)])
-            cells = pd.Index([f"Cell_{i}" for i in range(n_cells)])
-            return matrix, genes, cells
-        except Exception as e:
-            raise PreprocessingError(f"Failed to load MTX file {path}: {e}")
-    
-    elif path.suffix == '.h5' or path.suffix == '.h5ad':
-        try:
-            import scanpy as sc
-            adata = sc.read_h5ad(str(path))
-            return adata.X, adata.var_names, adata.obs_names
-        except Exception as e:
-            raise PreprocessingError(f"Failed to load HDF5 file {path}: {e}")
-    
-    else:
-        # Fallback: try pandas
-        try:
-            df = pd.read_csv(path, index_col=0)
-            matrix = sp.csr_matrix(df.values)
-            return matrix, df.index, df.columns
-        except:
-            raise PreprocessingError(f"Unsupported file format: {path.suffix}")
-
-def filter_low_expr_genes(matrix: sp.csr_matrix, genes: pd.Index, threshold_pct: float = 5.0) -> Tuple[sp.csr_matrix, pd.Index]:
-    """
-    Filter out genes expressed in less than `threshold_pct` of cells.
+    Load a count matrix from a file (supports .mtx, .csv, .tsv, .h5ad).
     
     Args:
-        matrix: Sparse count matrix (genes x cells)
-        genes: Gene names
-        threshold_pct: Percentage of cells a gene must be expressed in (default 5.0)
+        file_path: Path to the count matrix file.
         
     Returns:
-        Filtered matrix and gene names
+        A sparse CSR matrix of counts.
+        
+    Raises:
+        PreprocessingError: If the file format is unsupported or loading fails.
     """
-    # Calculate non-zero count per gene
-    # matrix is genes x cells
-    n_cells = matrix.shape[1]
-    min_cells = int(np.ceil(n_cells * (threshold_pct / 100.0)))
+    path = Path(file_path)
+    if not path.exists():
+        raise PreprocessingError(f"File not found: {file_path}")
     
-    # Sum non-zeros per row (gene)
-    if sp.issparse(matrix):
-        non_zero_counts = matrix.getnnz(axis=1)
-    else:
-        non_zero_counts = np.count_nonzero(matrix, axis=1)
+    suffix = path.suffix.lower()
     
-    keep_mask = non_zero_counts >= min_cells
-    logger.info(f"Filtering genes: {np.sum(~keep_mask)} removed (expressed in <{threshold_pct}% of cells)")
-    
-    return matrix[keep_mask], genes[keep_mask]
+    try:
+        if suffix == '.mtx' or suffix == '.mtx.gz':
+            # Load Matrix Market format
+            # Matrix Market usually stores data in COO format
+            mtx = sp.load_npz(file_path) if suffix == '.npy' else sp.io.mmread(str(path))
+            if not isinstance(mtx, sp.coo_matrix):
+                mtx = sp.coo_matrix(mtx)
+            return sp.csr_matrix(mtx)
+        
+        elif suffix in ['.csv', '.tsv']:
+            # Load CSV/TSV
+            sep = ',' if suffix == '.csv' else '\t'
+            df = pd.read_csv(path, sep=sep, index_col=0)
+            # Ensure numeric
+            df = df.apply(pd.to_numeric, errors='coerce').fillna(0)
+            return sp.csr_matrix(df.values)
+        
+        elif suffix == '.h5ad':
+            import anndata
+            adata = anndata.read_h5ad(str(path))
+            return sp.csr_matrix(adata.X)
+        
+        else:
+            raise PreprocessingError(f"Unsupported file format: {suffix}")
+    except Exception as e:
+        raise PreprocessingError(f"Failed to load count matrix from {file_path}: {str(e)}")
 
-def select_hvgs(matrix: sp.csr_matrix, genes: pd.Index, n_top_genes: int = 2000) -> Tuple[sp.csr_matrix, pd.Index]:
+def filter_low_expr_genes(count_matrix: sp.csr_matrix, min_pct: float = 0.05) -> Tuple[sp.csr_matrix, np.ndarray]:
+    """
+    Filter out genes that are expressed in less than `min_pct` of cells.
+    
+    Args:
+        count_matrix: Sparse CSR matrix of shape (n_cells, n_genes).
+        min_pct: Minimum percentage of cells a gene must be expressed in (0.0 to 1.0).
+        
+    Returns:
+        Tuple of (filtered_matrix, gene_mask) where gene_mask is a boolean array.
+    """
+    if count_matrix.shape[0] == 0 or count_matrix.shape[1] == 0:
+        raise PreprocessingError("Empty matrix provided to filter_low_expr_genes")
+    
+    n_cells = count_matrix.shape[0]
+    threshold = int(np.ceil(n_cells * min_pct))
+    
+    # Calculate number of non-zero entries per gene (column)
+    # Since matrix is (cells, genes), we sum along axis 0
+    non_zero_counts = (count_matrix > 0).sum(axis=0)
+    
+    # Flatten the result (it comes as a matrix)
+    if hasattr(non_zero_counts, 'A1'):
+        non_zero_counts = non_zero_counts.A1
+    else:
+        non_zero_counts = np.asarray(non_zero_counts).flatten()
+    
+    gene_mask = non_zero_counts >= threshold
+    
+    filtered_matrix = count_matrix[:, gene_mask]
+    
+    logger.info(f"Filtered genes: kept {gene_mask.sum()} of {len(gene_mask)} genes "
+                f"(expressed in >= {min_pct*100}% of cells)")
+                
+    return filtered_matrix, gene_mask
+
+def calculate_variance_stabilized_variance(count_matrix: sp.csr_matrix) -> np.ndarray:
+    """
+    Calculate variance of log-counts (variance-stabilized) for each gene.
+    Uses log1p transformation to handle zeros.
+    
+    Args:
+        count_matrix: Sparse CSR matrix of shape (n_cells, n_genes).
+        
+    Returns:
+        Array of variances for each gene.
+    """
+    # Convert to dense for log calculation if sparse operations are too complex
+    # or use log1p on sparse if supported (scipy sparse doesn't support log directly)
+    # For large matrices, we might need to iterate or use a dense intermediate if memory allows.
+    # Given the sampling constraint later, we assume this runs on a manageable size or we convert.
+    
+    # Efficient approach: convert to dense if it fits, otherwise chunk.
+    # For now, assuming the matrix is pre-sampled or small enough for this step,
+    # or we rely on the fact that we only need variance of log(count+1).
+    
+    # To avoid OOM on huge matrices before sampling, we convert to dense only if necessary
+    # or use a sparse-aware variance calculation.
+    # Here we convert to dense for the log step as log is not element-wise on sparse in scipy.
+    # If the matrix is too large, the caller should sample first.
+    
+    try:
+        dense_matrix = count_matrix.toarray()
+    except MemoryError:
+        raise PreprocessingError("Matrix too large for variance calculation. Please sample first.")
+    
+    log_counts = np.log1p(dense_matrix)
+    variances = np.var(log_counts, axis=0)
+    
+    return variances
+
+def detect_elbow_knee(variances: np.ndarray) -> int:
+    """
+    Detect the elbow/knee point in the sorted variance plot to select HVGs.
+    Uses the 'knee' detection algorithm (distance from line connecting endpoints).
+    
+    Args:
+        variances: Array of variances for each gene.
+        
+    Returns:
+        Index of the elbow point (number of HVGs to keep).
+    """
+    # Sort variances in descending order
+    sorted_indices = np.argsort(variances)[::-1]
+    sorted_variances = variances[sorted_indices]
+    
+    n = len(sorted_variances)
+    if n == 0:
+        return 0
+    if n <= 2:
+        return n
+        
+    # Normalize to [0, 1] for both axes
+    x = np.arange(n)
+    y = sorted_variances
+    
+    # Normalize
+    x_norm = (x - x.min()) / (x.max() - x.min() + 1e-8)
+    y_norm = (y - y.min()) / (y.max() - y.min() + 1e-8)
+    
+    # Line from (0, 1) to (1, 0) in normalized space?
+    # Actually, we want the point farthest from the line connecting (0, y_max) and (n-1, y_min)
+    # In normalized space: (0, 1) to (1, 0)
+    
+    # Vector from (0,1) to (1,0)
+    line_vec = np.array([1, -1])
+    line_len = np.sqrt(2)
+    
+    max_dist = -1
+    elbow_idx = 0
+    
+    for i in range(n):
+        # Point (x_norm[i], y_norm[i])
+        # Vector from (0,1) to point
+        point_vec = np.array([x_norm[i], y_norm[i] - 1])
+        
+        # Distance from point to line
+        # Cross product magnitude / length of line vector
+        cross = abs(line_vec[0] * point_vec[1] - line_vec[1] * point_vec[0])
+        dist = cross / line_len
+        
+        if dist > max_dist:
+            max_dist = dist
+            elbow_idx = i
+            
+    logger.info(f"Detected elbow at index {elbow_idx} with distance {max_dist:.4f}")
+    return elbow_idx + 1  # +1 because index is 0-based, we want count
+
+def select_hvgs(count_matrix: sp.csr_matrix, min_pct: float = 0.05, 
+                max_hvgs: Optional[int] = None) -> Tuple[sp.csr_matrix, np.ndarray]:
     """
     Select Highly Variable Genes (HVGs) using variance-stabilizing selection.
     
-    Method:
-    1. Calculate log-counts (log1p)
-    2. Compute mean and variance for each gene
-    3. Fit a trend (variance ~ mean) or simply rank by dispersion
-    4. Select top N genes by dispersion (variance / mean or standardized variance)
+    1. Filter low expression genes.
+    2. Calculate variance of log-counts.
+    3. Detect elbow point.
+    4. Select top N genes.
     
     Args:
-        matrix: Sparse count matrix (genes x cells)
-        genes: Gene names
-        n_top_genes: Number of top HVGs to select
+        count_matrix: Sparse CSR matrix.
+        min_pct: Minimum percentage of cells for gene filtering.
+        max_hvgs: Maximum number of HVGs to select. If None, uses elbow detection.
         
     Returns:
-        Filtered matrix and gene names
+        Tuple of (HVG_matrix, hvg_mask).
     """
-    logger.info(f"Selecting top {n_top_genes} Highly Variable Genes...")
+    # Step 1: Filter low expression
+    filtered_matrix, gene_mask = filter_low_expr_genes(count_matrix, min_pct)
     
-    # Convert to dense for calculation if small enough, else use sparse stats
-    # For robustness with large sparse matrices, we use sparse operations
-    if matrix.shape[0] > 50000:
-        # Use sparse mean/var
-        mean_counts = np.array(matrix.mean(axis=1)).flatten()
-        # Variance: E[X^2] - (E[X])^2
-        # For sparse, we can approximate or use scanpy logic if available.
-        # Here we implement a simplified dispersion metric: Var/Mean (Fano factor)
-        # or standardized variance.
-        # To avoid dense conversion, we compute sum of squares manually for sparse.
-        sq_matrix = matrix.power(2)
-        mean_sq = np.array(sq_matrix.mean(axis=1)).flatten()
-        var_counts = mean_sq - (mean_counts ** 2)
-        var_counts = np.maximum(var_counts, 1e-10) # Avoid div by zero
+    if filtered_matrix.shape[1] == 0:
+        raise PreprocessingError("No genes passed the low expression filter.")
+    
+    # Step 2: Calculate variance
+    variances = calculate_variance_stabilized_variance(filtered_matrix)
+    
+    # Step 3: Select top genes
+    if max_hvgs is not None:
+        # Use fixed count
+        n_select = min(max_hvgs, len(variances))
+        top_indices = np.argsort(variances)[::-1][:n_select]
     else:
-        dense = matrix.toarray()
-        mean_counts = dense.mean(axis=1)
-        var_counts = dense.var(axis=1)
+        # Use elbow detection
+        n_select = detect_elbow_knee(variances)
+        n_select = min(n_select, len(variances))
+        top_indices = np.argsort(variances)[::-1][:n_select]
     
-    # Dispersion metric: (Var - Mean) / Mean or similar.
-    # Standardized variance (z-score of dispersion) is common.
-    # Simple approach: Rank by (variance / mean) or just variance if normalized.
-    # Let's use the "variance of log counts" approximation which is robust.
-    # Since we don't want to dense-ify huge matrices, we use the Fano factor approximation:
-    # Dispersion = Var / Mean
-    dispersion = var_counts / (mean_counts + 1e-10)
+    # Create mask for the filtered matrix
+    hvg_mask_filtered = np.zeros(len(variances), dtype=bool)
+    hvg_mask_filtered[top_indices] = True
     
-    # Normalize dispersion (z-score)
-    disp_mean = np.mean(dispersion)
-    disp_std = np.std(dispersion)
-    if disp_std > 0:
-        dispersion_z = (dispersion - disp_mean) / disp_std
-    else:
-        dispersion_z = dispersion
+    # Map back to original gene mask
+    # We need to reconstruct the full mask for the original matrix
+    full_hvg_mask = np.zeros(gene_mask.shape[0], dtype=bool)
+    original_indices = np.where(gene_mask)[0]
+    full_hvg_mask[original_indices[top_indices]] = True
     
-    # Select top N
-    top_indices = np.argsort(dispersion_z)[-n_top_genes:][::-1]
+    hvg_matrix = count_matrix[:, full_hvg_mask]
     
-    logger.info(f"Selected {len(top_indices)} HVGs based on dispersion.")
+    logger.info(f"Selected {n_select} HVGs out of {gene_mask.sum()} filtered genes")
     
-    return matrix[top_indices], genes[top_indices]
+    return hvg_matrix, full_hvg_mask
 
-def deterministic_sample_cells(matrix: sp.csr_matrix, cells: pd.Index, 
-                               target_max_cells: int = 10000, 
-                               accession: Optional[str] = None) -> Tuple[sp.csr_matrix, pd.Index]:
+def deterministic_sample_cells(count_matrix: sp.csr_matrix, accession: str, 
+                               max_cells: int = 10000, seed: Optional[int] = None) -> sp.csr_matrix:
     """
-    Deterministically sample cells if count > target_max_cells.
-    
-    Uses a hash of the accession (or a default seed) to ensure reproducibility.
+    Deterministically sample cells from the count matrix if it exceeds max_cells.
+    Uses a hash of the accession string to generate a reproducible random seed.
     
     Args:
-        matrix: Sparse count matrix (genes x cells)
-        cells: Cell names
-        target_max_cells: Maximum number of cells to retain
-        accession: Dataset accession ID for seeding
+        count_matrix: Sparse CSR matrix of shape (n_cells, n_genes).
+        accession: GSE accession string (e.g., "GSE131907").
+        max_cells: Maximum number of cells to retain.
+        seed: Optional explicit seed (overrides hash).
         
     Returns:
-        Sampled matrix and cell names
+        Sampled sparse CSR matrix.
+        
+    Raises:
+        PreprocessingError: If matrix dimensions are invalid.
     """
-    n_cells = matrix.shape[1]
+    n_cells = count_matrix.shape[0]
     
-    if n_cells <= target_max_cells:
-        logger.info(f"Cell count ({n_cells}) <= {target_max_cells}. No sampling needed.")
-        return matrix, cells
+    if n_cells <= max_cells:
+        logger.info(f"Dataset has {n_cells} cells (<= {max_cells}). No sampling needed.")
+        return count_matrix
     
-    logger.info(f"Cell count ({n_cells}) > {target_max_cells}. Sampling deterministically...")
+    # Determine seed
+    if seed is None:
+        # Hash the accession string to get a deterministic integer seed
+        # Use SHA256 and take first 8 bytes as int
+        hash_obj = hashlib.sha256(accession.encode('utf-8'))
+        hash_bytes = hash_obj.digest()[:8]
+        seed = int.from_bytes(hash_bytes, byteorder='big')
     
-    # Generate seed from accession
-    if accession:
-      seed_str = f"sample_seed_{accession}"
-    else:
-      seed_str = "sample_seed_default"
+    logger.info(f"Sampling {n_cells} cells down to {max_cells} using seed {seed} (accession: {accession})")
     
-    seed = int(hashlib.md5(seed_str.encode()).hexdigest(), 16) % (2**32)
+    # Generate deterministic random indices
     rng = np.random.default_rng(seed)
+    sample_indices = rng.choice(n_cells, size=max_cells, replace=False)
+    sample_indices.sort()
     
-    # Sample indices
-    n_sample = target_max_cells
-    sampled_indices = rng.choice(n_cells, size=n_sample, replace=False)
-    sampled_indices = np.sort(sampled_indices)
+    # Slice the matrix
+    sampled_matrix = count_matrix[sample_indices, :]
     
-    logger.info(f"Sampled {n_sample} cells using seed {seed}.")
-    
-    # Slice matrix (columns)
-    # matrix is genes x cells, so we slice axis 1
-    sampled_matrix = matrix[:, sampled_indices]
-    sampled_cells = cells[sampled_indices]
-    
-    return sampled_matrix, sampled_cells
+    logger.info(f"Sampled matrix shape: {sampled_matrix.shape}")
+    return sampled_matrix
 
-@time_wrapper
-def run_preprocessing(input_path: str, output_path: str, 
-                      accession: Optional[str] = None,
-                      config: Optional[Config] = None) -> Dict[str, Any]:
+def run_preprocessing(count_matrix: sp.csr_matrix, accession: str, 
+                      min_pct: float = 0.05, max_hvgs: Optional[int] = None,
+                      max_cells: int = 10000) -> Dict[str, Any]:
     """
-    Main preprocessing pipeline.
-    
-    Steps:
-    1. Load count matrix
-    2. Filter low-expression genes (<5% cells)
-    3. Select HVGs (top 2000)
-    4. Deterministically sample cells if > 10,000
-    5. Save results
+    Run the full preprocessing pipeline:
+    1. Deterministic sampling (if needed).
+    2. Filter low expression genes.
+    3. Select HVGs.
     
     Args:
-        input_path: Path to input count matrix
-        output_path: Path to save processed matrix (CSV/TSV)
-        accession: Dataset accession for seeding
-        config: Configuration object (optional, for defaults)
+        count_matrix: Raw count matrix.
+        accession: GSE accession string.
+        min_pct: Minimum percentage for gene filtering.
+        max_hvgs: Max HVGs to keep.
+        max_cells: Max cells to keep (for sampling).
         
     Returns:
-        Dictionary with stats
+        Dictionary with processed matrix and metadata.
     """
-    if config is None:
-        config = Config()
+    # Step 1: Sample cells if necessary
+    sampled_matrix = deterministic_sample_cells(count_matrix, accession, max_cells)
     
-    logger.info(f"Starting preprocessing for {input_path}")
+    # Step 2: Filter genes and select HVGs
+    hvg_matrix, hvg_mask = select_hvgs(sampled_matrix, min_pct, max_hvgs)
     
-    # 1. Load
-    matrix, genes, cells = load_count_matrix(input_path)
-    logger.info(f"Loaded matrix: {matrix.shape[0]} genes x {matrix.shape[1]} cells")
-    
-    # 2. Filter Genes
-    matrix, genes = filter_low_expr_genes(matrix, genes, threshold_pct=5.0)
-    logger.info(f"After gene filtering: {matrix.shape[0]} genes x {matrix.shape[1]} cells")
-    
-    if matrix.shape[0] == 0:
-        raise PreprocessingError("No genes remaining after filtering. Input data may be empty or too sparse.")
-    
-    # 3. HVG Selection
-    # Use config defaults if available, else hardcode 2000
-    n_hvgs = config.HVG_COUNT if config else 2000
-    matrix, genes = select_hvgs(matrix, genes, n_top_genes=n_hvgs)
-    logger.info(f"After HVG selection: {matrix.shape[0]} genes x {matrix.shape[1]} cells")
-    
-    # 4. Sampling
-    max_cells = config.MAX_CELLS if config else 10000
-    matrix, cells = deterministic_sample_cells(matrix, cells, target_max_cells=max_cells, accession=accession)
-    logger.info(f"After sampling: {matrix.shape[0]} genes x {matrix.shape[1]} cells")
-    
-    # 5. Save
-    # Convert to dense for saving if small enough, else save sparse format or CSV with chunks
-    # For compatibility with downstream (PCA, etc), dense is often easier if size permits.
-    # If too large, save as .npz or CSV.
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    if matrix.shape[0] * matrix.shape[1] < 50_000_000:
-        # Convert to dense for CSV
-        dense_matrix = matrix.toarray()
-        df = pd.DataFrame(dense_matrix, index=genes, columns=cells)
-        df.to_csv(output_path)
-    else:
-        # Save as sparse NPZ and separate index files
-        sparse_path = str(Path(output_path).with_suffix('.npz'))
-        np.savez_compressed(sparse_path, data=matrix.data, indices=matrix.indices, 
-                            indptr=matrix.indptr, shape=matrix.shape)
-        # Save indices
-        genes_path = str(Path(output_path).with_suffix('.genes.csv'))
-        cells_path = str(Path(output_path).with_suffix('.cells.csv'))
-        pd.Series(genes).to_csv(genes_path, index=False)
-        pd.Series(cells).to_csv(cells_path, index=False)
-        logger.info(f"Saved sparse matrix to {sparse_path} and indices.")
-        output_path = sparse_path # Update return path to point to the actual data file
-    
-    stats = {
-        "input_genes": len(genes) + (matrix.shape[0] - len(genes)), # Approximate original if we didn't track
-        "output_genes": matrix.shape[0],
-        "output_cells": matrix.shape[1],
-        "output_path": output_path
+    return {
+        "matrix": hvg_matrix,
+        "hvg_mask": hvg_mask,
+        "original_shape": count_matrix.shape,
+        "sampled_shape": sampled_matrix.shape,
+        "final_shape": hvg_matrix.shape,
+        "accession": accession
     }
-    
-    logger.info(f"Preprocessing complete. Output saved to {output_path}")
-    return stats
 
 def main():
-    """CLI entry point for preprocessing."""
-    import argparse
+    """
+    Entry point for command-line execution.
+    Expects: python preprocess.py <input_path> <accession> <output_path>
+    """
+    if len(sys.argv) < 4:
+        print("Usage: python preprocess.py <input_path> <accession> <output_path>")
+        sys.exit(1)
     
-    parser = argparse.ArgumentParser(description="Preprocess scRNA-seq count matrices")
-    parser.add_argument("--input", required=True, help="Path to input count matrix")
-    parser.add_argument("--output", required=True, help="Path to output processed matrix")
-    parser.add_argument("--accession", type=str, default=None, help="Dataset accession for seeding")
-    parser.add_argument("--config", type=str, default=None, help="Path to config file (optional)")
-    
-    args = parser.parse_args()
+    input_path = sys.argv[1]
+    accession = sys.argv[2]
+    output_path = sys.argv[3]
     
     try:
-        config = Config() if not args.config else Config.load(args.config)
-        stats = run_preprocessing(
-            input_path=args.input,
-            output_path=args.output,
-            accession=args.accession,
-            config=config
-        )
-        print(json.dumps(stats, indent=2))
+        logger.info(f"Loading count matrix from {input_path}")
+        matrix = load_count_matrix(input_path)
+        
+        logger.info("Running preprocessing pipeline")
+        result = run_preprocessing(matrix, accession)
+        
+        # Save the processed matrix (as .npz for sparse)
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        sp.save_npz(output_path, result["matrix"])
+        
+        # Save metadata
+        meta_path = Path(output_path).with_suffix('.json')
+        with open(meta_path, 'w') as f:
+            json.dump(result, f, indent=2, default=str)
+        
+        logger.info(f"Preprocessing complete. Output saved to {output_path}")
+        
+    except PreprocessingError as e:
+        logger.error(f"Preprocessing failed: {str(e)}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Preprocessing failed: {e}")
+        logger.error(f"Unexpected error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

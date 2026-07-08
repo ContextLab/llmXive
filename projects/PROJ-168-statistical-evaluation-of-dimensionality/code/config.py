@@ -38,7 +38,9 @@ class Config:
 
         # Analysis Parameters
         self.hvg_top_n = 2000
-        self.sampling_threshold = 10000  # Max cells before sampling
+        # Sampling threshold configured as order of magnitude (10^4 = 10,000 cells)
+        # If a dataset exceeds this, deterministic sampling is applied.
+        self.sampling_threshold = 10000 
         self.n_pcs = 50
         self.leiden_resolutions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 

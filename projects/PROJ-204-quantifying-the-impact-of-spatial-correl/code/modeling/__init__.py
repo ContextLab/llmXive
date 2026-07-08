@@ -1,3 +1,3 @@
 """
-Modeling package initialization.
+Modeling module.
 """

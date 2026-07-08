@@ -1,11 +1,3 @@
-"""
-Module to update the project state file with checksums of data artifacts.
-
-This script scans the `data/` directory for all files, computes their SHA-256
-checksums, and updates the project state YAML file located at:
-`state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml`
-with an `artifact_hashes` map.
-"""
 import os
 import hashlib
 import yaml
@@ -13,144 +5,107 @@ from pathlib import Path
 from typing import Dict, Any, List
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-PROJECT_ID = "PROJ-204-quantifying-the-impact-of-spatial-correl"
-DATA_DIR = Path("data")
-STATE_DIR = Path("state") / "projects"
-STATE_FILE = STATE_DIR / f"{PROJECT_ID}.yaml"
-
+__all__ = [
+    "compute_file_hash",
+    "scan_data_directory",
+    "load_or_create_state",
+    "update_state_file",
+    "update_state",
+]
 
 def compute_file_hash(file_path: Path) -> str:
     """
-    Compute the SHA-256 hash of a file.
+    Compute SHA‑256 hash of a file.
 
-    Args:
-        file_path: Path to the file to hash.
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file.
 
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
+    Returns
+    -------
+    str
+        Hexadecimal digest of the file's contents.
     """
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Failed to hash file {file_path}: {e}")
-        raise
+    h = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-
-def scan_data_directory(data_root: Path) -> Dict[str, str]:
+def scan_data_directory(data_dir: Path) -> Dict[str, str]:
     """
-    Recursively scan the data directory and compute hashes for all files.
+    Scan ``data_dir`` recursively and compute hashes for all files.
 
-    Args:
-        data_root: Root path of the data directory.
+    Parameters
+    ----------
+    data_dir: Path
+        Root data directory.
 
-    Returns:
-        Dictionary mapping relative file paths to their SHA-256 hashes.
+    Returns
+    -------
+    Dict[str, str]
+        Mapping from relative file paths (as strings) to their SHA‑256 hashes.
     """
-    if not data_root.exists():
-        logger.warning(f"Data directory {data_root} does not exist. Returning empty map.")
-        return {}
-
     artifact_hashes = {}
-    for file_path in data_root.rglob("*"):
-        if file_path.is_file():
-            relative_path = str(file_path.relative_to(data_root))
-            try:
-                file_hash = compute_file_hash(file_path)
-                artifact_hashes[relative_path] = file_hash
-                logger.debug(f"Hashed: {relative_path} -> {file_hash[:16]}...")
-            except Exception:
-                logger.warning(f"Skipping unhashable file: {relative_path}")
-                continue
-
+    for root, _, files in os.walk(data_dir):
+        for fname in files:
+            fpath = Path(root) / fname
+            rel_path = fpath.relative_to(data_dir).as_posix()
+            artifact_hashes[rel_path] = compute_file_hash(fpath)
     return artifact_hashes
 
-
-def load_or_create_state(project_id: str, state_file: Path) -> Dict[str, Any]:
+def load_or_create_state(state_path: Path) -> Dict[str, Any]:
     """
-    Load existing state file or create a new one with default structure.
+    Load the project state YAML file, creating a minimal skeleton if missing.
 
-    Args:
-        project_id: The project identifier.
-        state_file: Path to the state YAML file.
+    Parameters
+    ----------
+    state_path: Path
+        Path to the state YAML file.
 
-    Returns:
-        The state dictionary.
+    Returns
+    -------
+    Dict[str, Any]
+        Parsed state dictionary.
     """
-    if state_file.exists():
-        logger.info(f"Loading existing state from {state_file}")
-        with open(state_file, "r", encoding="utf-8") as f:
-            state = yaml.safe_load(f) or {}
-    else:
-        logger.info(f"State file {state_file} not found. Creating new state.")
-        state = {
-            "project_id": project_id,
-            "status": "initialized",
-            "artifact_hashes": {}
-        }
+    if state_path.is_file():
+        with state_path.open("r") as f:
+            return yaml.safe_load(f) or {}
+    # Create a minimal state structure
+    return {
+        "project": "PROJ-204-quantifying-the-impact-of-spatial-correl",
+        "artifact_hashes": {},
+    }
 
-    # Ensure project_id matches
-    if state.get("project_id") != project_id:
-        logger.warning(f"State file project_id mismatch. Expected {project_id}, got {state.get('project_id')}. Overwriting project_id.")
-        state["project_id"] = project_id
-
-    return state
-
-
-def update_state_file(state: Dict[str, Any], artifact_hashes: Dict[str, str], state_file: Path) -> None:
+def update_state_file(state_path: Path, new_hashes: Dict[str, str]) -> None:
     """
-    Update the state dictionary with new artifact hashes and write to disk.
+    Write updated state (including new artifact hashes) to ``state_path``.
 
-    Args:
-        state: The state dictionary to update.
-        artifact_hashes: The new map of file paths to hashes.
-        state_file: Path to the output YAML file.
+    Parameters
+    ----------
+    state_path: Path
+        Destination YAML file.
+    new_hashes: Dict[str, str]
+        Mapping of file paths to hashes to store under ``artifact_hashes``.
     """
-    state["artifact_hashes"] = artifact_hashes
-    state["last_updated"] = "auto-generated" # Placeholder for timestamp if needed
+    state = load_or_create_state(state_path)
+    state.setdefault("artifact_hashes", {}).update(new_hashes)
+    with state_path.open("w") as f:
+        yaml.safe_dump(state, f)
+    logging.info("State file %s updated.", state_path)
 
-    # Ensure directory exists
-    state_file.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Writing updated state to {state_file}")
-    with open(state_file, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
-
-
-def update_state() -> None:
+def update_state(data_root: Path = Path("data")) -> None:
     """
-    Main entry point to scan data and update the project state file.
+    Convenience wrapper that scans ``data_root`` and updates the global
+    project state file located at
+    ``state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml``.
+
+    Parameters
+    ----------
+    data_root: Path, optional
+        Root data directory (default ``'data'``).
     """
-    logger.info(f"Starting state update for project: {PROJECT_ID}")
-
-    # Ensure data directory exists before scanning
-    if not DATA_DIR.exists():
-        logger.error(f"Data directory {DATA_DIR} does not exist. Cannot compute checksums.")
-        raise FileNotFoundError(f"Data directory not found: {DATA_DIR}")
-
-    # Scan data directory
-    logger.info(f"Scanning {DATA_DIR} for artifacts...")
-    artifact_hashes = scan_data_directory(DATA_DIR)
-    logger.info(f"Found {len(artifact_hashes)} artifacts.")
-
-    # Load or create state
-    state = load_or_create_state(PROJECT_ID, STATE_FILE)
-
-    # Update state
-    update_state_file(state, artifact_hashes, STATE_FILE)
-
-    logger.info("State update completed successfully.")
-
-
-if __name__ == "__main__":
-    update_state()
+    artifact_hashes = scan_data_directory(data_root)
+    state_file = Path("state") / "projects" / "PROJ-204-quantifying-the-impact-of-spatial-correl.yaml"
+    update_state_file(state_file, artifact_hashes)

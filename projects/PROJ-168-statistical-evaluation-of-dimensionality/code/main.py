@@ -12,6 +12,7 @@ import os
 import logging
 import subprocess
 from pathlib import Path
+import json
 
 # Add project root to path for imports if running as script
 project_root = Path(__file__).resolve().parent.parent
@@ -27,7 +28,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Config.LOG_FILE)
+        logging.FileHandler(str(Path(project_root) / Config.LOG_FILE))
     ]
 )
 logger = logging.getLogger(__name__)
@@ -78,7 +79,7 @@ def main():
     
     # Save the data gap report to results (T044 dependency, but done here for flow)
     # Note: T044 is a separate task to formalize this, but we ensure the directory exists
-    results_dir = Path(Config.RESULTS_DIR)
+    results_dir = Path(project_root) / Config.RESULTS_DIR
     results_dir.mkdir(parents=True, exist_ok=True)
     
     report_data = {
@@ -89,7 +90,6 @@ def main():
     }
     
     report_path = results_dir / "data_gap_report.json"
-    import json
     with open(report_path, 'w') as f:
         json.dump(report_data, f, indent=2)
     logger.info(f"Data gap report saved to {report_path}")

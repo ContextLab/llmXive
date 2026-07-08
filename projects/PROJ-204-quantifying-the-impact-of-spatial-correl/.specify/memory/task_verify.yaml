@@ -1,13 +1,17 @@
-'T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `state/`, `docs/`': 1
+'T001 Create project structure: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `state/`, `docs/`': 2
 ? 'T002 Create `requirements.txt` containing pinned versions: numpy, scipy, scikit-learn,
   pandas, hyperSpy, pyyaml, matplotlib, statsmodels, pygam, pytest'
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+: 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
 ? T004 Implement `code/utils/update_state.py` to read `data/` checksums and update
   `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` with `artifact_hashes`
   map
-: 1
+: 2
 ? 'T005 [P] Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`,
   `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`, `code/report/`,
   `tests/`'
+: 2
+? 'T007 Implement `code/main_pipeline.py` entry point: accepts `--config` path, logs
+  to `logs/pipeline.log`, orchestrates download -> preprocess -> analyze -> report
+  steps'
 : 1

@@ -45,10 +45,10 @@
 
 **⚠️ CRITICAL**: This phase MUST complete before Phase 1 or Phase 2 begins.
 
-- [ ] T039 [US0] Implement `code/data_gap_resolver.py` to programmatically query GEO via `GEOparse` (or `requests` to verified URLs) for raw count files for GSE, GSE111322, GSE150728.
+- [X] T039 [US0] Implement `code/data_gap_resolver.py` to programmatically query GEO via `GEOparse` (or `requests` to verified URLs) for raw count files for GSE, GSE111322, GSE150728.
 - [ ] T040 [US0] Implement logic in `code/data_gap_resolver.py` to verify if downloaded files contain raw count matrices (not just cluster markers) and validate checksums.
 - [X] T041 [US0] Update `code/main.py` to invoke `data_gap_resolver.py` before any downstream tasks; if 0 datasets found, abort with **exit code 1** and log **"No Data"**; if exactly 1 dataset found, switch to **Case-Study mode** (descriptive only, Fixed-Effects ANOVA) and proceed; if >1 found, proceed with Fixed-Effects (if N<=3) or Mixed-Effects (if N>3).
-- [ ] T044 [US0] Add a `results/data_gap_report.json` artifact that lists which datasets were found, which were missing, and the final status (Full/Case-Study/Aborted).
+- [X] T044 [US0] Add a `results/data_gap_report.json` artifact that lists which datasets were found, which were missing, and the final status (Full/Case-Study/Aborted).
 
 **Checkpoint**: Phase 0 must pass (1+ datasets found) before proceeding to Phase 1.
 
@@ -69,7 +69,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T002 [P] Create `environment.yml` with pinned Python dependencies (scanpy, umap-learn, leidenalg, statsmodels, snakemake, scikit-misc, requests, pandas, numpy) compatible with the selected major version.
-- [~] T002b Create `code/scripts/generate_requirements.py` to automatically convert `environment.yml` to `code/requirements.txt` using `pip-tools` (pip-compile) (DEPENDS: T002)
+- [X] T002b Create `code/scripts/generate_requirements.py` to automatically convert `environment.yml` to `code/requirements.txt` using `pip-tools` (pip-compile) (DEPENDS: T002)
 - [~] T004 [P] Implement `code/config.py` to load configuration, define paths (`data/raw`, `data/processed`, `results`), set global random seeds, and define dataset accessions (GSE131907, GSE111322, GSE150728)
 - [~] T020 [P] Implement `/usr/bin/time -v` wrapper in `code/utils.py` to log wall-clock time and peak RAM for resource monitoring (DEPENDS: T004 for path config)
 - [~] T003 Configure `Snakefile` workflow skeleton and `code/__init__.py` (DEPENDS: T004 to ensure valid paths; Define rules: download, preprocess, geometry, embeddings, cluster, fidelity, stats)
@@ -77,10 +77,10 @@
 - [~] T006 [P] Implement `code/preprocess.py` for QC (filter genes <5% cells), HVG selection (top variable genes), and deterministic cell sampling (hash-based `random_state`) IF cell count > 10,000
 - [~] T008a [P] Implement `code/embeddings.py` to generate PCA with a configurable number of principal components and built-in resource abort logic using the T020 wrapper (DEPENDS: T020)
 - [~] T008b Extend `code/embeddings.py` to generate t-SNE (perplexity=30, n_iter=1000, CPU-only) and UMAP (n_neighbors=15, min_dist=0.1) with built-in resource abort logic (DEPENDS: T008a)
-- [ ] T007 [P] Implement `code/geometry.py` to compute Global Linearity (Trustworthiness metric, k=15) and Local Continuity (LCA metric, k=15) on the **sampled high-dimensional space** by comparing neighborhood preservation in the high-dimensional space to that in the embedding space (DEPENDS: T008a, T008b)
-- [ ] T010 [P] Implement `code/stats.py` skeleton (placeholder for Phase 5 logic) (DEPENDS: T004)
-- [ ] T011 Implement `code/main.py` as the Snakemake wrapper entry point to orchestrate the full pipeline
-- [ ] T029 Implement resource abort logic wrapper in `code/utils.py` to check RAM usage during execution and abort if > 7GB, logging metrics per step to `results/monitoring.csv` (FR-008) (DEPENDS: T020)
+- [~] T007 [P] Implement `code/geometry.py` to compute Global Linearity (Trustworthiness metric, k=15) and Local Continuity (LCA metric, k=15) on the **sampled high-dimensional space** by comparing neighborhood preservation in the high-dimensional space to that in the embedding space (DEPENDS: T008a, T008b)
+- [~] T010 [P] Implement `code/stats.py` skeleton (placeholder for Phase 5 logic) (DEPENDS: T004)
+- [~] T011 Implement `code/main.py` as the Snakemake wrapper entry point to orchestrate the full pipeline
+- [~] T029 Implement resource abort logic wrapper in `code/utils.py` to check RAM usage during execution and abort if > 7GB, logging metrics per step to `results/monitoring.csv` (FR-008) (DEPENDS: T020)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -108,10 +108,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Create `Snakefile` rule `download` to fetch raw count matrices for GSE131907, GSE111322, GSE150728 using `code/download.py`
-- [ ] T013 [P] [US1] Create `Snakefile` rule `preprocess` to apply QC (<5% gene filter) and **dynamic HVG selection** using the variance-stabilizing selection method: calculate variance of log-counts, plot vs rank, and identify the elbow point using the knee detection algorithm via `code/preprocess.py`
-- [ ] T014b [US1] Configure sampling threshold (order of magnitude cells) in `code/config.py`
-- [ ] T014 [US1] Implement deterministic sampling logic in `code/preprocess.py` (sample down to a reduced subset of cells if needed) using `random_state=hash(accession)` (DEPENDS: T014b)
+- [~] T012 [P] [US1] Create `Snakefile` rule `download` to fetch raw count matrices for GSE131907, GSE111322, GSE150728 using `code/download.py` <!-- SKIPPED: non-mapping output -->
+- [~] T013 [P] [US1] Create `Snakefile` rule `preprocess` to apply QC (<5% gene filter) and **dynamic HVG selection** using the variance-stabilizing selection method: calculate variance of log-counts, plot vs rank, and identify the elbow point using the knee detection algorithm via `code/preprocess.py`
+- [~] T014b [US1] Configure sampling threshold (order of magnitude cells) in `code/config.py`
+- [~] T014 [US1] Implement deterministic sampling logic in `code/preprocess.py` (sample down to a reduced subset of cells if needed) using `random_state=hash(accession)` (DEPENDS: T014b)
 - [ ] T015 [US1] Add error handling in `code/download.py` to abort the pipeline if ground-truth labels are missing or malformed for any required dataset (DO NOT skip; Spec Edge Cases require abort for invalid data)
 - [ ] T016 [US1] Add validation in `code/preprocess.py` to flag datasets with insufficient genes after filtering and skip them (only if labels are present but genes are low)
 

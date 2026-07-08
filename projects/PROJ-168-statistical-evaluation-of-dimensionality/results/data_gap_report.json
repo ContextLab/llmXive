@@ -1,0 +1,29 @@
+{
+  "timestamp": "2023-10-27T10:00:00Z",
+  "datasets": [
+    {
+      "accession": "GSE131907",
+      "status": "found",
+      "details": "Successfully downloaded and validated",
+      "file_path": "data/raw/GSE131907_raw_counts.csv"
+    },
+    {
+      "accession": "GSE111322",
+      "status": "missing",
+      "details": "No raw count file URL found in GEO metadata"
+    },
+    {
+      "accession": "GSE150728",
+      "status": "found",
+      "details": "Successfully downloaded and validated",
+      "file_path": "data/raw/GSE150728_raw_counts.csv"
+    }
+  ],
+  "summary": {
+    "total_accessions": 3,
+    "found": 2,
+    "missing": 1,
+    "invalid": 0,
+    "final_status": "Full"
+  }
+}

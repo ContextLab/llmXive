@@ -1,24 +1,26 @@
+# Ruff configuration for llmXive project
+line-length = 88
+target-version = "py310"
+
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults (common in data pipelines)
-  "C901", # too complex (temporarily relaxed for initial implementation)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C408", # unnecessary collection call
 ]
-fixable = ["ALL"]
-unfixable = []
 
 [lint.isort]
-known-first-party = ["analysis", "data", "preprocess", "modeling", "validation", "report", "utils", "setup_structure"]
-force-sort-within-sections = true
+known-first-party = ["code"]
+force-to-top = ["code"]
 
 [format]
 quote-style = "double"

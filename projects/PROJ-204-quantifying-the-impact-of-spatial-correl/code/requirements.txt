@@ -1,0 +1,27 @@
+# Core scientific computing
+numpy==1.24.3
+scipy==1.11.4
+scikit-learn==1.3.2
+pandas==2.1.4
+
+# Visualization
+matplotlib==3.8.2
+
+# Statistical modeling
+statsmodels==0.14.1
+pygam==0.9.1
+
+# Data handling and configuration
+pyyaml==6.0.1
+
+# Spectral analysis (optional, for hyperSpy integration)
+# Note: hyperSpy is large and optional; uncomment if needed
+# hyperspy==2.0.1
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Code quality
+ruff==0.1.6
+black==23.12.1

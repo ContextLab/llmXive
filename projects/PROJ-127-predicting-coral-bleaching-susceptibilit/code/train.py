@@ -4,240 +4,226 @@ import json
 import warnings
 from pathlib import Path
 from typing import Tuple, Dict, Any, Optional
-
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
 import xgboost as xgb
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.metrics import roc_auc_score, make_scorer
-from sklearn.preprocessing import StandardScaler
-
 import config
 
-# Ensure paths exist
-PROCESSED_DIR = Path(config.PROCESSED_DATA_DIR)
-MODELS_DIR = Path(config.MODEL_DIR)
-RESULTS_DIR = Path(config.RESULTS_DIR)
-
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-MODELS_DIR.mkdir(parents=True, exist_ok=True)
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
 def load_data() -> pd.DataFrame:
-    """Load the unified dataset and filtered features."""
-    unified_path = PROCESSED_DIR / "reef_species_unified.csv"
-    filtered_path = PROCESSED_DIR / "filtered_features.csv"
-
-    if not unified_path.exists():
-        raise FileNotFoundError(f"Unified data not found at {unified_path}. Run T014/T019 first.")
-    if not filtered_path.exists():
-        raise FileNotFoundError(f"Filtered features not found at {filtered_path}. Run T019 first.")
-
-    df = pd.read_csv(unified_path)
-    features_df = pd.read_csv(filtered_path)
-
-    # Determine target column based on spec (usually 'bleached' or similar)
-    # Assuming the target is 'bleaching_event' or 'bleached' based on typical schema
-    target_col = None
-    for col in ['bleaching_event', 'bleached', 'is_bleached']:
-        if col in df.columns:
-            target_col = col
-            break
-    
-    if target_col is None:
-        # Fallback to last column if standard names missing (bad practice but robust for skeleton)
-        target_col = df.columns[-1]
-        warnings.warn(f"Target column not explicitly found, using '{target_col}'.")
-
-    # Merge with filtered features to ensure only valid predictors are used
-    # The features_df usually contains the column names or the processed data
-    # Assuming features_df contains the processed feature matrix + target, or just a list of cols
-    # Based on T019 description: "Save filtered feature list to data/processed/filtered_features.csv"
-    # It might be a list of columns. Let's assume it's a DataFrame with the processed data or a list of columns.
-    # To be safe and robust: if it has 'feature_name' col, use it as a filter list.
-    if 'feature_name' in features_df.columns:
-        valid_features = features_df['feature_name'].tolist()
-        # Ensure target is in valid features if it was dropped by accident (unlikely)
-        valid_features.append(target_col)
-        valid_features.append('reef_id') # Keep ID for splitting if needed
-        valid_features.append('region') # Keep region for spatial split
-        
-        X = df[valid_features].copy()
-    else:
-        # If filtered_features.csv is the actual data
-        X = features_df.copy()
-        if target_col in X.columns:
-            pass
-        elif 'bleaching_event' in X.columns:
-            target_col = 'bleaching_event'
-        else:
-            raise ValueError("Could not determine target column in filtered data.")
-
-    return X, target_col
-
-def spatial_split(df: pd.DataFrame, target_col: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Split data spatially: Train (Western Pacific), Test (Eastern Pacific).
-    Assumes a 'region' or 'longitude' column exists.
+    Load the processed dataset from the unified CSV.
+    Expects 'data/processed/reef_species_unified.csv' or similar filtered output.
+    Since T019 produces 'data/processed/filtered_features.csv', we load that.
     """
-    # Heuristic for West vs East Pacific based on longitude
-    # Western Pacific: Longitude < 180 (or specific range like 100E-180E)
-    # Eastern Pacific: Longitude > -100 (or specific range like -100W to -80W)
-    # We need to infer the column name. Common names: 'longitude', 'lon', 'long'
-    lon_col = None
-    for c in ['longitude', 'lon', 'long', 'x']:
-        if c in df.columns:
-            lon_col = c
-            break
+    input_path = Path(config.PROJECT_ROOT) / "data" / "processed" / "filtered_features.csv"
     
-    if lon_col is None:
-        raise ValueError("Longitude column not found for spatial split.")
-
-    # Define split logic: West (Train) vs East (Test)
-    # Simple heuristic: < 150 (West) vs >= 150 (East) - adjust based on actual data distribution
-    # Using a standard Pacific split: 160E is a common boundary
-    # Let's assume positive longitudes are West Pacific (100-180) and negative are East Pacific (-180 to -60)
-    # Actually, standard WGS84: West Pacific ~ 120E to 180, East Pacific ~ -100 to -80.
-    # Let's split by > 0 (West) vs < 0 (East) as a robust proxy if data spans the dateline correctly?
-    # Better: Use a specific boundary. Let's assume 160 degrees East is the divider.
-    # 160E = 160. East Pacific is usually negative longitudes in this context.
-    # Let's try: Train if lon > 0 (West), Test if lon < 0 (East).
+    if not input_path.exists():
+        # Fallback to the unified CSV if filtered doesn't exist yet, though T019 should have run
+        input_path = Path(config.PROJECT_ROOT) / "data" / "processed" / "reef_species_unified.csv"
     
-    train_mask = df[lon_col] > 0
-    test_mask = df[lon_col] <= 0
-
-    train_df = df[train_mask]
-    test_df = df[test_mask]
-
-    y_train = train_df[target_col]
-    y_test = test_df[target_col]
+    if not input_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {input_path}. "
+                                "Ensure T019 (VIF filtering) has completed successfully.")
     
-    X_train = train_df.drop(columns=[target_col, lon_col])
-    X_test = test_df.drop(columns=[target_col, lon_col])
+    df = pd.read_csv(input_path)
+    
+    # Validate required columns exist
+    required_cols = ['latitude', 'longitude', 'bleaching_label']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns for spatial split: {missing}")
+    
+    return df
 
-    # Handle zero positives in test set
-    if y_test.sum() == 0:
-        warnings.warn("Test set has zero positive events. ROC-AUC will be skipped.")
-        return X_train, X_test, y_train, y_test
-
-    return X_train, X_test, y_train, y_test
-
-def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> Tuple[xgb.XGBClassifier, Dict[str, Any]]:
+def spatial_split(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Train XGBoost with 5-fold CV for hyperparameter tuning.
+    Split data spatially:
+    Train: Western Pacific (Longitude < 180)
+    Test: Eastern Pacific (Longitude >= 180 or Longitude < -150, depending on coordinate system)
+    
+    Based on standard geographic definitions for this project:
+    - Western Pacific: Longitudes roughly 100E to 180 (or -180 to -140)
+    - Eastern Pacific: Longitudes roughly 80W to 140W (-80 to -140)
+    
+    We assume the data uses standard -180 to 180 longitude.
+    Western Pacific: Longitude > 100 (approx)
+    Eastern Pacific: Longitude < -60 (approx)
+    
+    To be safe and specific to the task "West vs East Pacific":
+    We will define West as Longitude > 0 (East of Prime Meridian, covering Asia/Australia)
+    and East as Longitude < 0 (West of Prime Meridian, covering Americas).
+    However, the Pacific spans both.
+    
+    Refined Logic for Pacific Split:
+    Western Pacific (Train): Longitude between 100 and 180 (or -180 to -140)
+    Eastern Pacific (Test): Longitude between -140 and -60 (approx)
+    
+    Let's use a simpler heuristic based on the specific task "West vs East Pacific":
+    West Pacific: Longitude > 100 (covers Australia, Indonesia, etc.)
+    East Pacific: Longitude < -60 (covers Americas coast)
+    This might be too sparse.
+    
+    Let's try:
+    Train (West): Longitude > 0 (covers most of the Western Pacific)
+    Test (East): Longitude < 0 (covers Eastern Pacific and Atlantic, but we assume data is Pacific focused)
+    
+    Actually, a common split in coral studies is:
+    West Pacific: 100°E to 180°
+    East Pacific: 180° to 100°W (or -180 to -100)
+    
+    Let's implement a robust split:
+    Train: Longitude >= 100 (Western Pacific)
+    Test: Longitude <= -60 (Eastern Pacific)
+    This ensures we are comparing distinct ocean basins.
+    
+    If the data uses 0-360, we need to adjust. Assuming -180 to 180.
     """
-    param_grid = {
-        'max_depth': [3, 5, 7],
-        'learning_rate': [0.01, 0.1],
-        'n_estimators': [100, 200],
-        'subsample': [0.8, 1.0],
-        'colsample_bytree': [0.8, 1.0]
-    }
+    df = df.copy()
+    
+    # Ensure longitude is in -180 to 180 range
+    # If data is 0-360, convert: val > 180 -> val - 360
+    if df['longitude'].max() > 180:
+        df['longitude'] = df['longitude'].apply(lambda x: x - 360 if x > 180 else x)
+    
+    # Define regions
+    # Western Pacific: Longitude > 100 (e.g., Great Barrier Reef, Indonesia)
+    # Eastern Pacific: Longitude < -60 (e.g., Galapagos, Costa Rica)
+    # Note: This might exclude some data, but it's a strict spatial split.
+    
+    train_mask = df['longitude'] > 100
+    test_mask = df['longitude'] < -60
+    
+    # If masks are empty, fallback to a simpler split (e.g., >0 vs <0)
+    if train_mask.sum() == 0 or test_mask.sum() == 0:
+        warnings.warn("Strict Pacific split yielded empty sets. Falling back to >0 vs <0.")
+        train_mask = df['longitude'] > 0
+        test_mask = df['longitude'] <= 0
+    
+    train_df = df[train_mask].reset_index(drop=True)
+    test_df = df[test_mask].reset_index(drop=True)
+    
+    print(f"Spatial Split Summary:")
+    print(f"  Train (Western Pacific): {len(train_df)} rows")
+    print(f"  Test (Eastern Pacific): {len(test_df)} rows")
+    
+    if len(train_df) == 0 or len(test_df) == 0:
+        raise ValueError("Spatial split resulted in an empty train or test set. "
+                         "Check data distribution or split logic.")
+    
+    return train_df, test_df
 
+def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> xgb.XGBClassifier:
+    """
+    Train the XGBoost model with default parameters for now.
+    Hyperparameter tuning (T023) will be added later.
+    """
     model = xgb.XGBClassifier(
-        objective='binary:logistic',
+        use_label_encoder=False,
         eval_metric='logloss',
         random_state=config.RANDOM_SEED,
-        use_label_encoder=False
+        n_jobs=-1
     )
-
-    scorer = make_scorer(roc_auc_score, needs_proba=True)
-
-    grid_search = GridSearchCV(
-        model,
-        param_grid,
-        cv=5,
-        scoring=scorer,
-        n_jobs=-1,
-        verbose=1
-    )
-
-    grid_search.fit(X_train, y_train)
-
-    best_model = grid_search.best_estimator_
-    best_params = grid_search.best_params_
-
-    return best_model, best_params
+    
+    model.fit(X_train, y_train)
+    return model
 
 def evaluate_model(model: xgb.XGBClassifier, X_test: pd.DataFrame, y_test: pd.Series) -> Dict[str, Any]:
     """
-    Evaluate model on test set.
+    Evaluate the model on the test set.
+    Returns metrics including ROC-AUC.
     """
     y_pred_proba = model.predict_proba(X_test)[:, 1]
     
-    # Check for zero positives again before calculating AUC
-    if y_test.sum() == 0:
+    # Check for zero variance in target (edge case T024)
+    if len(y_test.unique()) < 2:
+        warnings.warn("Test set has only one class. ROC-AUC cannot be computed.")
         return {
             "roc_auc": None,
-            "warning": "Test set has zero positive events; ROC-AUC not calculated."
+            "message": "Test set has only one class"
         }
-
+    
     try:
-        roc_auc = roc_auc_score(y_test, y_pred_proba)
+        auc = roc_auc_score(y_test, y_pred_proba)
     except ValueError as e:
         warnings.warn(f"ROC-AUC calculation failed: {e}")
-        roc_auc = None
-
+        auc = None
+    
     return {
-        "roc_auc": roc_auc,
-        "n_test_samples": len(y_test),
-        "n_positive_test": int(y_test.sum())
+        "roc_auc": auc
     }
 
-def save_results(best_params: Dict[str, Any], eval_metrics: Dict[str, Any], model_path: Path):
-    """Save model and results."""
-    import joblib
+def save_results(results: Dict[str, Any]):
+    """
+    Save model results to data/models/results.json
+    """
+    output_path = Path(config.PROJECT_ROOT) / "data" / "models" / "results.json"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    joblib.dump(model_path, model_path)
-    
-    results = {
-        "best_params": best_params,
-        "evaluation_metrics": eval_metrics,
-        "model_path": str(model_path)
-    }
-
-    results_path = RESULTS_DIR / "training_results.json"
-    with open(results_path, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"Model saved to {model_path}")
-    print(f"Results saved to {results_path}")
+    print(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for training."""
-    print("Starting Training Pipeline (T008)...")
+    """
+    Main function for model training.
+    1. Load data
+    2. Spatial split
+    3. Train model
+    4. Evaluate
+    5. Save results
+    """
+    print("Starting Model Training (T022)...")
     
-    try:
-        # 1. Load Data
-        df, target_col = load_data()
-        print(f"Loaded data with {len(df)} rows. Target: {target_col}")
-
-        # 2. Spatial Split
-        X_train, X_test, y_train, y_test = spatial_split(df, target_col)
-        print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-
-        # 3. Train Model
-        model, best_params = train_model(X_train, y_train)
-        print(f"Training complete. Best params: {best_params}")
-
-        # 4. Evaluate
-        eval_metrics = evaluate_model(model, X_test, y_test)
-        print(f"Evaluation metrics: {eval_metrics}")
-
-        # 5. Save
-        model_path = MODELS_DIR / "xgboost_bleaching_model.joblib"
-        save_results(best_params, eval_metrics, model_path)
-
-        print("T008 Completed Successfully.")
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}. Ensure T014 and T019 are completed first.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error during training: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+    # Load data
+    df = load_data()
+    print(f"Loaded {len(df)} rows.")
+    
+    # Identify features and target
+    # Target is 'bleaching_label'
+    # Features are all numeric columns except coordinates and target
+    target_col = 'bleaching_label'
+    exclude_cols = ['latitude', 'longitude', target_col]
+    
+    # Filter for numeric features
+    feature_cols = [c for c in df.columns if c not in exclude_cols and pd.api.types.is_numeric_dtype(df[c])]
+    
+    if not feature_cols:
+        raise ValueError("No numeric feature columns found for training.")
+    
+    print(f"Training on {len(feature_cols)} features.")
+    
+    # Spatial Split
+    train_df, test_df = spatial_split(df)
+    
+    X_train = train_df[feature_cols]
+    y_train = train_df[target_col]
+    X_test = test_df[feature_cols]
+    y_test = test_df[target_col]
+    
+    # Train Model
+    print("Training XGBoost model...")
+    model = train_model(X_train, y_train)
+    
+    # Evaluate
+    print("Evaluating model...")
+    metrics = evaluate_model(model, X_test, y_test)
+    
+    # Prepare results
+    results = {
+        "task": "T022_Spatial_Split_Train",
+        "train_size": len(train_df),
+        "test_size": len(test_df),
+        "features_used": feature_cols,
+        "metrics": metrics
+    }
+    
+    # Save results
+    save_results(results)
+    
+    print("T022 completed successfully.")
 
 if __name__ == "__main__":
     main()

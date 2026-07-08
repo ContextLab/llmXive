@@ -1,16 +1,11 @@
 ? 'T001 Create project structure per implementation plan: `mkdir -p projects/001-gene-regulation/{data/raw,data/processed,results,code,tests}`'
 : 1
+? 'T001 Create project structure per implementation plan: `mkdir -p projects/001-statistical-evaluation-of-dimensionality/{data/raw,data/processed,results,code,tests}`'
+: 1
 ? T002 [P] Create `environment.yml` with pinned Python dependencies (scanpy, umap-learn,
   leidenalg, statsmodels, snakemake, scikit-misc, requests, pandas, numpy) compatible
   with the selected major version.
-: 1
-? T039 [US0] Implement `code/data_gap_resolver.py` to programmatically query GEO via
-  `GEOparse` (or `requests` to verified URLs) for raw count files for GSE, GSE111322,
-  GSE150728.
-: 1
+: 2
 ? T040 [US0] Implement logic in `code/data_gap_resolver.py` to verify if downloaded
   files contain raw count matrices (not just cluster markers) and validate checksums.
-: 1
-? T044 [US0] Add a `results/data_gap_report.json` artifact that lists which datasets
-  were found, which were missing, and the final status (Full/Case-Study/Aborted).
-: 1
+: 2

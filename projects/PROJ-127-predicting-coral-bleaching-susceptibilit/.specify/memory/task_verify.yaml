@@ -1,8 +1,9 @@
 ? 'T001 Create project structure per implementation plan (directories: `code/`, `data/raw`,
   `data/processed`, `data/models`, `tests/`)'
-: 1
+: 2
 ? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
   (xgboost, scikit-learn, pandas, geopandas, rasterio, numpy, requests, pyyaml)
-: 1
-T003 [P] Configure linting and formatting tools (ruff/black) in `code/`: 1
-T004 [P] Implement `code/config.py` with paths, random seeds, thresholds, and `DATA_GAP_HALT` flag: 1
+: 2
+T003 [P] Configure linting and formatting tools (ruff/black) in `code/`: 2
+'T007 Create `code/features.py` skeleton for VIF and lagged feature logic (Requires: T004)': 1
+'T008 Create `code/train.py` skeleton for XGBoost training logic (Requires: T004)': 1
