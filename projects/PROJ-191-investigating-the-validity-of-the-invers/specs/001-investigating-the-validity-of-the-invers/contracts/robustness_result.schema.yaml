@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RobustnessResult"
+description: "Schema for robustness and validation test results."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "leave_one_out"
+      - "uncertainty_inflation"
+      - "injection_recovery"
+      - "null_simulation"
+    description: "Type of robustness test."
+  parameter:
+    type: "string"
+    description: "Parameter being measured (alpha, lambda, bayes_factor)."
+  value:
+    type: "number"
+    description: "Measured value."
+  uncertainty:
+    type: "number"
+    description: "Uncertainty or interval width."
+  iteration:
+    type: "integer"
+    description: "Iteration index (for leave-one-out)."
+  status:
+    type: "string"
+    enum:
+      - "passed"
+      - "failed"
+      - "warning"
+    description: "Test status."
+required:
+  - test_type
+  - parameter
+  - value
+  - uncertainty
+  - status
+additionalProperties: false

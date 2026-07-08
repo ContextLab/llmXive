@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BayesianEvidence"
+description: "Schema for nested sampling evidence results."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    enum:
+      - "Newtonian"
+      - "Yukawa"
+    description: "Name of the model."
+  log_evidence:
+    type: "number"
+    description: "Logarithm of the Bayesian evidence."
+  evidence_error:
+    type: "number"
+    description: "Uncertainty on the log evidence."
+  bayes_factor:
+    type: "number"
+    description: "Bayes factor K (Yukawa / Newtonian)."
+  samples:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Weighted samples (optional)."
+required:
+  - model_name
+  - log_evidence
+  - evidence_error
+  - bayes_factor
+additionalProperties: false

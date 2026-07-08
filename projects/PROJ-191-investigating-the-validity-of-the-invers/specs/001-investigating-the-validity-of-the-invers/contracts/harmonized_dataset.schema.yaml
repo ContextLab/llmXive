@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HarmonizedDataset"
+description: "Schema for the unified force-vs-separation dataset with full covariance."
+type: "object"
+properties:
+  separation:
+    type: "array"
+    items:
+      type: "number"
+    description: "Separation distances in meters (m)."
+    minItems: 1
+  force:
+    type: "array"
+    items:
+      type: "number"
+    description: "Force measurements in Newtons (N)."
+    minItems: 1
+  force_stat_err:
+    type: "array"
+    items:
+      type: "number"
+    description: "Statistical uncertainty in Newtons (N)."
+    minItems: 1
+  force_sys_err:
+    type: "array"
+    items:
+      type: "number"
+    description: "Systematic uncertainty in Newtons (N)."
+    minItems: 1
+  covariance_matrix:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Full covariance matrix (N^2)."
+    minItems: 1
+  covariance_type:
+    type: "string"
+    enum:
+      - "full"
+      - "diagonal"
+      - "banded"
+    description: "Type of covariance matrix used (full, diagonal, or banded)."
+  subset_indices:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Indices of the original data points included in this subset (if subsampled)."
+  source_id:
+    type: "string"
+    description: "Identifier of the original experiment."
+  metadata:
+    type: "object"
+    description: "Metadata including original units and checksums."
+    properties:
+      original_units_force:
+        type: "string"
+      original_units_dist:
+        type: "string"
+      checksum:
+        type: "string"
+required:
+  - separation
+  - force
+  - force_stat_err
+  - force_sys_err
+  - covariance_matrix
+  - covariance_type
+  - subset_indices
+  - source_id
+  - metadata
+additionalProperties: false

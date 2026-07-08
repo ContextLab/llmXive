@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPosterior"
+description: "Schema for MCMC posterior samples."
+type: "object"
+properties:
+  samples:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Posterior samples [alpha, lambda]."
+    minItems: 1
+  burn_in:
+    type: "integer"
+    description: "Number of burn-in steps."
+    minimum: 0
+  gelman_rubin:
+    type: "number"
+    description: "Gelman-Rubin convergence statistic."
+    minimum: 1.0
+  metadata:
+    type: "object"
+    description: "MCMC configuration metadata."
+    properties:
+      seed:
+        type: "integer"
+      n_walkers:
+        type: "integer"
+      n_steps:
+        type: "integer"
+      prior_alpha_bounds:
+        type: "array"
+        items:
+          type: "number"
+      prior_lambda_bounds:
+        type: "array"
+        items:
+          type: "number"
+required:
+  - samples
+  - burn_in
+  - gelman_rubin
+  - metadata
+additionalProperties: false

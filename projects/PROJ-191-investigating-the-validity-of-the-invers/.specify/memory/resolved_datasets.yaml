@@ -1,0 +1,131 @@
+resolved_at: '2026-07-08T05:21:30.234569+00:00'
+datasets:
+- intent: MCMC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_math_mcmc_with_prompt/resolve/main/data/train-00000-of-00069.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_gsm8k_mcmc_with_prompt/resolve/main/data/train-00000-of-00036.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/odychlapanis/mcm-civil-procedure/resolve/main/dev_mutated.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 34825
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/GaussianWorld/replica_mcmc_3dgs/resolve/main/manifest/manifest.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/odychlapanis/mcm-civil-procedure/resolve/main/dev_mutated.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_math_mcmc_with_prompt/resolve/main/data/train-00000-of-00069.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/PMATHWORK/gemma2_9b_it_gsm8k_mcmc_with_prompt/resolve/main/data/train-00000-of-00036.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/GaussianWorld/hypersim_mcmc_3dgs/resolve/main/manifest/manifest.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Multi-Language_Intelligent_Voice_Interaction_Under_Noise_How_the_Noise_Type_and_Signal-to-Noise_Ratio_Shape_Comprehension_Performance_Pupil_Activity_and_User_Experience_Quality/32932715
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Toward_Bidirectional_Integration_of_Neural_Networks_and_Software_Testing_From_Enhancing_Fuzzing_to_Validating_ROS-based_Autonomous_Systems/32014023
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Cardiovascular_Disease/32932706
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16941620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14633245
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17901754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jf7b3
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3516603
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252849
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252849
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.11865
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.11711
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2408.11780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HarmonizedDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dataset_for_Evangelista_TEC2026_manuscript/32932712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Black_Holes_as_Toroidal_Coherence_Processors_Dual-Circulation_Dynamics_c_2_3_Attractor_and_a_Bounded_Test_Program_b_/32932688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Multi-Language_Intelligent_Voice_Interaction_Under_Noise_How_the_Noise_Type_and_Signal-to-Noise_Ratio_Shape_Comprehension_Performance_Pupil_Activity_and_User_Experience_Quality/32932715
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
