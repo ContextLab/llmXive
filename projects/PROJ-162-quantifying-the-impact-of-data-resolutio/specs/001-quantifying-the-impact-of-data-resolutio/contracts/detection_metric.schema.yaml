@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Detection Metric Aggregation"
+description: "Schema for aggregated detection statistics per resolution level."
+type: object
+properties:
+  resolution:
+    type: integer
+    enum: [4096, 2048, 1024, 512, 256]
+    description: "Sampling rate in Hz."
+  total_injections:
+    type: integer
+    description: "Total number of injections processed for this resolution."
+  detections:
+    type: integer
+    description: "Number of injections where reweighted_snr > 8.0."
+  detection_probability:
+    type: number
+    description: "Fraction of detections (detections / total_injections)."
+  median_snr:
+    type: number
+    description: "Median recovered SNR across all injections."
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for detection probability."
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for detection probability."
+  p_value_welch:
+    type: number
+    description: "P-value from Welch's t-test against the next higher resolution."
+  bonferroni_corrected_p:
+    type: number
+    description: "P-value after Bonferroni correction (applied to 4 adjacent pairs)."
+  is_significant:
+    type: boolean
+    description: "True if bonferroni_corrected_p < 0.05."
+  median_cpu_time_sec:
+    type: number
+    description: "Median wall-clock time for this resolution."
+  peak_memory_mb:
+    type: number
+    description: "Peak memory usage observed during processing."
+required:
+  - resolution
+  - total_injections
+  - detection_probability
+  - is_significant
+additionalProperties: false

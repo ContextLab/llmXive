@@ -1,4 +1,4 @@
-resolved_at: '2026-07-06T01:49:59.812339+00:00'
+resolved_at: '2026-07-08T22:13:52.122845+00:00'
 datasets:
 - intent: SNR
   status: verified
@@ -45,41 +45,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_Degradation_of_soil_stiffness_and_lateral_pile_impedance_under_repeated_lateral_loading_A_bender-element_and_PIV_model_study_b_/32812982
+  - url: https://opticapublishing.figshare.com/articles/dataset/Frequency_shift_when_changing_laser_focal_point/32132950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/book/_______/32904305
+  - url: https://opticapublishing.figshare.com/articles/dataset/Influence_of_optical_power_on_the_nanofilm_frequency/32133097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Decision_making_in_international_economic_organizations_and_international_commodity_trade_of_major_interest_to_developing_countries_legitimacy_efficacy_and_practicability_of_the_institutional_arrangements/15057888
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Decision_making_in_international_economic_organizations_and_international_commodity_trade_of_major_interest_to_developing_countries_legitimacy_efficacy_and_practicability_of_the_institutional_arrangements/15057888
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://bridges.monash.edu/articles/thesis/Verification_of_semantic_integrity_in_relational_databases/19573042
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Verification_of_semantic_integrity_in_relational_databases/19573042
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/may_19_2026_data_for_Promoter_hypermethylation_is_associated_with_reduced_Nrf2_and_antioxidative_enzyme_expression_in_mandibular_condylar_cartilage_in_mice_/32323776
+  - url: https://opticapublishing.figshare.com/articles/dataset/Data_File_1_csv/31669060
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7512309
-    source: zenodo
+  - url: https://tandf.figshare.com/articles/dataset/Enhanced_Marginal_Sensitivity_Model_and_Bounds/32942661
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Multilinear_Ordinary_Differential_Equations_for_Inferring_Gene_Regulatory_Network_from_Multimodal_Functional_Data/32942655
+    source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4724137
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5833958
+  - url: https://zenodo.org/records/7512309
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -87,30 +77,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v7i2.1167
+  - url: https://zenodo.org/records/5833958
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1167 (Caused
-      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7fe5bc36c6d0>,
-      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
-  - url: https://zenodo.org/records/21201532
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1167
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/collections/Passive_non-line-of-sight_imaging_with_diffuse-aware_attention-enhanced_encoding/8550738/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21201532
+  - url: https://opticapublishing.figshare.com/collections/Passive_non-line-of-sight_imaging_with_diffuse-aware_attention-enhanced_encoding/8550738
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210453
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Passive_Non-Line-of-Sight_Imaging_with_Diffuse-Aware_Attention-Enhanced_Encoding_-_7935592_pdf/32838434/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210453
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Passive_Non-Line-of-Sight_Imaging_with_Diffuse-Aware_Attention-Enhanced_Encoding_-_7935592_pdf/32838434/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19789171
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Passive_Non-Line-of-Sight_Imaging_with_Diffuse-Aware_Attention-Enhanced_Encoding_-_7935592_pdf/32838434
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

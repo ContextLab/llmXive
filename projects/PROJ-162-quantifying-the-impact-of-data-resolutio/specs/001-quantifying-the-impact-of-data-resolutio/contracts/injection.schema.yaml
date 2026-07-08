@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Injection Result"
+description: "Schema for a single injection event result including SNR metrics and detection status."
+type: object
+properties:
+  injection_id:
+    type: string
+    description: "Unique identifier for the injection (e.g., 'inj_001_mass10_dist200_res256')."
+  waveform_id:
+    type: string
+    description: "Reference to the source waveform file."
+  noise_segment_id:
+    type: string
+    description: "Reference to the GWOSC noise segment used."
+  gps_time:
+    type: number
+    description: "GPS time of the injection within the noise segment."
+  resolution:
+    type: integer
+    enum: [4096, 2048, 1024, 512, 256]
+    description: "Sampling rate in Hz."
+  mass_1:
+    type: number
+    description: "Primary component mass in solar masses."
+  mass_2:
+    type: number
+    description: "Secondary component mass in solar masses."
+  distance:
+    type: number
+    description: "Luminosity distance in Mpc."
+  injected_snr:
+    type: number
+    description: "Theoretical SNR of the injected signal."
+  recovered_snr:
+    type: number
+    description: "Matched-filter SNR recovered from the noisy data."
+  reweighted_snr:
+    type: number
+    description: "Re-weighted SNR ($\\hat{\\rho}$) accounting for $\\chi^2$ consistency."
+  chi2:
+    type: number
+    description: "Chi-squared consistency test statistic (16 bins)."
+  detected:
+    type: boolean
+    description: "True if reweighted_snr > 8.0."
+  wall_clock_time:
+    type: number
+    description: "Time taken to process this injection in seconds."
+required:
+  - injection_id
+  - resolution
+  - recovered_snr
+  - reweighted_snr
+  - detected
+additionalProperties: false
