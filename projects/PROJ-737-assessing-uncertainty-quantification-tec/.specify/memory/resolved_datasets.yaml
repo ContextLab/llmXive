@@ -1,4 +1,4 @@
-resolved_at: '2026-07-06T02:31:57.405693+00:00'
+resolved_at: '2026-07-08T23:06:46.600416+00:00'
 datasets:
 - intent: GPR
   status: verified
@@ -41,35 +41,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+  - url: https://figshare.com/articles/poster/Subcutaneous_Immunoglobulin_G_Infusions_in_Pediatric_Heart_Transplant_Recipients_With_Presumed_Functional_Antibody_Deficiency_A_Case_Series/32942702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+  - url: https://figshare.com/articles/software/BCAD/32942711
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19072912
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/13842586
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ieeexplore.ieee.org/document/8902528/
+  - url: https://zenodo.org/records/19072912
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,27 +73,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/8902528/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://rujec.org/article/97733/
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210387
+  - url: https://www.sciencebase.gov/catalog/item/6968fedcd4be0249f340d810
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210387
+  - url: https://zenodo.org/records/21260762
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209690
+  - url: https://zenodo.org/records/21260762
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209690
+  - url: https://zenodo.org/records/21134524
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21198051
+  - url: https://zenodo.org/records/21134524
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -146,23 +146,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+  - url: https://figshare.com/articles/poster/Subcutaneous_Immunoglobulin_G_Infusions_in_Pediatric_Heart_Transplant_Recipients_With_Presumed_Functional_Antibody_Deficiency_A_Case_Series/32942702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+  - url: https://figshare.com/articles/software/BCAD/32942711
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -247,23 +247,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Introducing_the_tri-layered_student_online_experience_framework_moving_from_file_repository_to_narrative_journey/22988597
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Extreme_weather_effects_on_marine_predator_breeding_outcomes_in_a_global_climate_change_hotspot_/32775174
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Maggie_Beer_s_Big_Mission_implementation_and_service-system_outcomes_of_a_multi-component_and_multi-disciplinary_mealtime_model_in_residential_aged_care_/32746497
+  - url: https://figshare.com/articles/poster/Subcutaneous_Immunoglobulin_G_Infusions_in_Pediatric_Heart_Transplant_Recipients_With_Presumed_Functional_Antibody_Deficiency_A_Case_Series/32942702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -322,40 +322,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Supporting_digital_engagement_an_evaluation_of_the_use_of_a_guide_for_effective_development_and_facilitation_of_online_discussion_boards/22989065
+  - url: https://figshare.com/articles/poster/Subcutaneous_Immunoglobulin_G_Infusions_in_Pediatric_Heart_Transplant_Recipients_With_Presumed_Functional_Antibody_Deficiency_A_Case_Series/32942702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -363,29 +354,34 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211653
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211653
+  - url: https://zenodo.org/records/21269707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://zenodo.org/records/21269725
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://zenodo.org/records/21269725
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.17863/cam.92383
+  - url: https://zenodo.org/records/21269555
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.repository.cam.ac.uk'',
-      port=443): Max retries exceeded with url: /handle/1810/344958 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.repository.cam.ac.uk'',
-      port=443) at 0x7f5b8035c190>, ''Connection to www.repository.cam.ac.uk timed
-      out. (connect timeout=20.0)''))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: ANOVA
   status: verified
   candidates:
@@ -401,27 +397,27 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Drift_Static_Signal_Australian_Sonic_Explorers_in_Antarctica/31768738
+  - url: https://figshare.com/articles/poster/Subcutaneous_Immunoglobulin_G_Infusions_in_Pediatric_Heart_Transplant_Recipients_With_Presumed_Functional_Antibody_Deficiency_A_Case_Series/32942702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10437571
+  - url: https://zenodo.org/records/1255322
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -429,11 +425,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1255322
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14242875
+  - url: https://zenodo.org/records/10437571
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -441,36 +433,33 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210925
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/b9shp/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210925
+  - url: https://osf.io/w394t/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209298
+  - url: https://osf.io/dp45k/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209298
+  - url: https://osf.io/tchpv/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_analysis_for_HepG2_cells_and_BEC_cells_MTT_assays_with_1-300_uM_IDR-1002_/32903285/1
+  - url: https://zenodo.org/records/21268733
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: NOT
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 10859
-      parsed: true
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     format: json
@@ -478,47 +467,58 @@ datasets:
     sample_check:
       downloaded_bytes: 39475
       parsed: true
-  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 2431
-      parsed: true
-  candidates_tried:
   - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
     source: huggingface
-    status: verified
     format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     status: verified
     format: json
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
   - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/The_Conversations_on_the_Move_-_Work_Integrated_Learning_program_that_prepares_allied_health_students_for_their_future_practice_with_neurological_clients/32904434
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -534,11 +534,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578581
+  - url: https://zenodo.org/records/17305397
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578377
+  - url: https://zenodo.org/records/4578581
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -546,23 +546,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -578,23 +578,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/dataset/Change_Blindness_Image_Database/28529984
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/S_Table1_16s_rDNA_primer_set/31771351
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -651,16 +651,48 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/S_Table2_The_raw_data_for_short-read_and_long-read_sequencing_of_Lacticaseibacillus_paracasei_TOKAI_83m_/32897783
+  - url: https://figshare.com/articles/figure/_b_Supplemental_Figure_S1_Blood_gas_analysis_during_the_experiment_b_/32942720
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/journal_contribution/Bridging_the_divide_GP_narratives_on_lung_cancer_care_in_Tasmania_/32886068
+  - url: https://figshare.com/articles/presentation/Electrodynamics/32942726
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.utas.edu.au/articles/conference_contribution/Reliability_analysis_of_long_slopes_with_spatially_variable_random_properties/32902100
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-broadband_THz_Emission_from_One-_and_Two-Color_Laser-Induced_Microplasmas_at_a_High_Repetition_Rate_-_7909478_pdf/32270283
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Daring_to_be_great_American_statecraft_in_the_progressive_era/32918969
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/An_Ultrastable_Self-Assembled_Antibacterial_Nanospears_Made_of_Protein/32766702
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4067184
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3547513
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/2328/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijtsrd.com/computer-science/database/15797/apis-and-restful-apis/mithilesh-tarkar
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7082551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: CGCNN

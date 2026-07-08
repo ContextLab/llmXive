@@ -1,88 +1,100 @@
 # Implementation Plan: Assessing Uncertainty Quantification Techniques for Materials Property Predictions
 
-**Branch**: `001-assessing-uq-techniques` | **Date**: 2026-06-19 | **Spec**: `specs/001-assessing-uq-techniques/spec.md`
+**Branch**: `001-assessing-uq-techniques` | **Date**: 2026-06-19 | **Spec**: `specs/001-assessing-uncertainty-quantification-tec/spec.md`
+**Input**: Feature specification from `specs/001-assessing-uncertainty-quantification-tec/spec.md`
 
 ## Summary
 
-This project implements a reproducible, CPU-constrained pipeline to evaluate four Uncertainty Quantification (UQ) methods—Gaussian Process Regression (GPR), Monte Carlo (MC) Dropout, Deep Ensembles, and Conformal Prediction—across three materials property datasets (Elastic Modulus, Band Gap, Thermal Conductivity). The system calculates Calibration Error and Prediction Interval Sharpness, performs independent-sample statistical significance testing (Welch's t-test/Mann-Whitney U), and conducts sensitivity analysis on conformal thresholds. The implementation strictly adheres to the project's computational budget (≤2 GB RAM, ≤1 hour runtime) by utilizing sampled datasets and CPU-optimized libraries.
+This project implements a reproducible pipeline to evaluate four Uncertainty Quantification (UQ) methods—Gaussian Process Regression (GPR), Monte Carlo (MC) Dropout, Deep Ensembles, and Split-Conformal Prediction—across three materials property datasets (Band Gap, Thermal Conductivity, and Formation Energy as a proxy for Elastic Modulus). The system calculates Calibration Error and Prediction Interval Sharpness, performs **Paired Wilcoxon Signed-Rank tests** on per-sample error distributions, and conducts sensitivity analysis on conformal thresholds. The implementation is strictly constrained to CPU-only execution on GitHub Actions (2 CPU, ≤2 GB RAM) by utilizing sampled datasets and lightweight models (XGBoost or small CGCNN).
+
+> **Critical Note on Scope**: The original Spec requested "Elastic Modulus" (FR-001). No verified dataset for Elastic Modulus exists in the provided `# Verified datasets` block. This plan substitutes **Formation Energy** (from OQMD) as the third property to maintain N=3 for statistical consistency (SC-005). The Spec requires amendment to reflect this substitution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `scikit-learn` (GPR, baseline), `xgboost` (baseline), `torch` (CPU-only MC Dropout/Ensembles), `matminer` (featurization), `numpy`, `pandas`, `scipy` (stats).  
-**Storage**: Local CSV/Parquet files in `data/` (downloaded and checksummed).  
+**Primary Dependencies**: `scikit-learn`, `xgboost`, `torch`, `numpy`, `pandas`, `scipy`, `matminer` (if accessible via public API, otherwise fallback to pre-featurized data).  
+**GPR Strategy**: Default to `sklearn.gaussian_process` (CPU-optimized). `gpytorch` is listed as an optional dependency but **not** used by default to avoid GPU/CUDA requirements.  
+**Storage**: Local filesystem (`data/`, `results/`). No external database.  
 **Testing**: `pytest` (unit tests for metrics, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions Runner: 2 CPU, ~7 GB RAM).  
-**Project Type**: Computational Research Pipeline / CLI Tool.  
-**Performance Goals**: Complete full pipeline (download → train → evaluate → stats) in ≤60 minutes. Peak RAM ≤2 GB.  
-**Constraints**: No GPU, no 8-bit quantization, no large LLMs. Dataset size limited to ≤10,000 samples per property to fit memory.  
-**Scale/Scope**: 3 datasets × 4 UQ methods = 12 model evaluations + statistical aggregation.
+**Target Platform**: Linux (GitHub Actions Runner).  
+**Project Type**: Data Science Pipeline / Research Tool.  
+**Performance Goals**: Complete full workflow (download, train, evaluate, test) within 1 hour; Peak RAM ≤ 2 GB.  
+**Constraints**: No GPU; No 8-bit quantization; Dataset size capped at [deferred] samples to fit memory; GPR kernel approximations if dimensionality is high.
+**Scale/Scope**: 3 datasets × 4 UQ methods = 12 model configurations; A statistical test per metric per dataset (Paired Wilcoxon).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility (Principle I)**: **PASS**. The plan mandates pinned `requirements.txt`, fixed random seeds in all model training/inference steps, and deterministic data downloading from verified URLs.
-2.  **Verified Accuracy (Principle II)**: **PASS**. All dataset URLs are sourced strictly from the `# Verified datasets` block. No external citations will be introduced without validation.
-3.  **Data Hygiene (Principle III)**: **PASS**. Data will be downloaded to `data/raw/`, checksummed, and processed into `data/processed/` without modifying raw files.
-4.  **Single Source of Truth (Principle IV)**: **PASS**. All metrics will be written to a single summary CSV (`data/results/metrics_summary.csv`) which serves as the source for all paper figures.
-5.  **Versioning Discipline (Principle V)**: **PASS**. The implementation will generate content hashes for data artifacts, which will be recorded in the project state file.
-6.  **Computational-Budget Discipline (Principle VI)**: **PASS**. The plan explicitly limits dataset size to ≤10k samples, uses CPU-only `torch` (no CUDA), and employs lightweight models (XGBoost/GPR) to ensure completion within 1 hour on 2 CPU cores.
-7.  **Statistical-Rigor Standard (Principle VII)**: **PASS**. The plan implements independent-sample tests (Welch's t-test/Mann-Whitney U) as mandated. *Note: The plan corrects the Constitution's instruction to use "paired tests" by adhering to the Spec's explicit requirement for independent tests due to the nature of the methods, ensuring scientific validity.*
+| Principle | Status | Verification / Mitigation |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. Datasets fetched from verified URLs (see `research.md`). `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs cited from the `# Verified datasets` block. No invented URLs. |
+| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw/` with checksums. Derived data written to `data/processed/` with new filenames. |
+| **IV. Single Source of Truth** | **PASS** | Metrics generated by `code/` scripts only. No manual entry in `paper/`. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will be checksummed in `state/` manifest. |
+| **VI. Computational-Budget Discipline** | **PASS** | Plan explicitly limits dataset size to ≤5k samples, uses CPU-only libraries, and caps ensemble size to a small number of models to fit 2GB RAM. |
+| **VII. Statistical-Rigor Standard** | **PASS** | **Resolution**: The Constitution mandates "paired statistical tests". The Spec (FR-004) incorrectly requested "independent tests". This Plan **overrides the Spec** and implements **Paired Wilcoxon Signed-Rank tests** on per-sample error distributions, as required by the Constitution and scientific validity (same test set). The Spec is flagged for amendment to align with this decision. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-assessing-uq-techniques/
+specs/001-assessing-uncertainty-quantification-tec/
 ├── plan.md              # This file
-├── research.md          # Research findings and dataset strategy
-├── data-model.md        # Data schemas and model definitions
-├── quickstart.md        # Execution instructions
-├── contracts/           # Validation schemas
-└── tasks.md             # (Generated by /speckit-tasks)
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output (Schema definitions)
+└── tasks.md             # Phase 2 output
 ```
 
-### Source Code
+### Source Code (repository root)
 
 ```text
 projects/PROJ-737-assessing-uncertainty-quantification-tec/
 ├── data/
-│   ├── raw/                  # Downloaded raw datasets (checksummed)
-│   └── processed/            # Featurized, split data
+│   ├── raw/                 # Downloaded datasets (with checksums)
+│   └── processed/           # Featurized and split data
 ├── code/
 │   ├── __init__.py
-│   ├── config.py             # Hyperparameters, seeds, paths
-│   ├── data_loader.py        # Download and preprocess logic
+│   ├── download.py          # Dataset acquisition
+│   ├── featurize.py         # Matminer/feature extraction
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── baseline.py       # XGBoost/CGCNN wrapper
-│   │   ├── gpr.py            # Gaussian Process implementation
-│   │   ├── mc_dropout.py     # MC Dropout wrapper
-│   │   ├── deep_ensemble.py  # Deep Ensemble trainer
-│   │   └── conformal.py      # Split Conformal Prediction
+│   │   ├── gpr.py           # GPR implementation
+│   │   ├── mc_dropout.py    # MC Dropout implementation
+│   │   ├── deep_ensemble.py # Deep Ensembles implementation
+│   │   └── conformal.py     # Split-Conformal implementation
 │   ├── metrics/
 │   │   ├── __init__.py
-│   │   ├── calibration.py    # Calibration Error calculation
-│   │   └── sharpness.py      # Interval width calculation
+│   │   └── evaluation.py    # Calibration Error, Sharpness
 │   ├── stats/
 │   │   ├── __init__.py
-│   │   └── significance.py   # Welch's t-test, sensitivity analysis
-│   └── main.py               # Orchestration script
+│   │   └── significance.py  # Paired Wilcoxon Signed-Rank
+│   ├── pipeline.py          # Orchestration script
+│   └── main.py              # Entry point
 ├── tests/
-│   ├── unit/                 # Metric unit tests
-│   └── integration/          # Pipeline integration tests
+│   ├── unit/
+│   │   └── test_metrics.py
+│   └── integration/
+│       └── test_pipeline.py
+├── results/
+│   └── summary.csv          # Final output
 ├── requirements.txt
 └── README.md
 ```
 
-**Structure Decision**: Single project structure with modular `code/` directory. This minimizes overhead and simplifies the GitHub Actions runner setup, ensuring all dependencies are installed once and the pipeline runs sequentially.
+**Structure Decision**: Single project structure with modular `code/` subdirectories. This minimizes overhead for a research pipeline and aligns with the "orchestrated script" requirement in US-1.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| 4 UQ Methods | Required by Spec (FR-002) to compare GPR, MC Dropout, Deep Ensembles, and Conformal Prediction. | Testing only 1 or 2 methods would fail to answer the core research question regarding relative performance. |
-| 3 Datasets | Required by Spec (FR-001) to assess generalizability across Elastic Modulus, Band Gap, and Thermal Conductivity. | Using a single dataset would not support the claim of robustness across materials properties. |
-| Independent Statistical Tests | Required by Spec (FR-004) and Constitution (Principle VII) correction. Methods are trained independently, not on the same split of the same model. | Paired tests (e.g., Wilcoxon signed-rank) are statistically invalid here as the samples are not paired by a single model instance. |
+| **Paired Wilcoxon Tests** | Required by Constitution (Principle VII) and scientific validity (same test set). | Independent tests (Spec FR-004) are invalid for dependent samples (same test points). |
+| **Dataset Sampling** | Required by Compute Feasibility (2GB RAM limit) for Deep Ensembles and GPR on large materials datasets. | Full dataset training would exceed RAM and time limits (1 hour), causing CI failure. |
+| **Fallback to sklearn GPR** | `gpytorch` often requires GPU or heavy memory for large datasets. | `sklearn.gaussian_process` is CPU-optimized and sufficient for the sampled dataset size. |
+| **Formation Energy Substitution** | Required because no verified "Elastic Modulus" dataset exists. | Proceeding with only 2 datasets would violate SC-005 (N=3 consistency). |

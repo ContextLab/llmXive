@@ -5,15 +5,15 @@ type: "object"
 properties:
   test_type:
     type: "string"
-    enum: ["t_test", "mann_whitney_u", "anova"]
-    description: "Type of statistical test performed. 'wilcoxon' is excluded as models are independent."
+    enum: ["t_test", "mann_whitney_u", "wilcoxon_signed_rank", "anova"]
+    description: "Type of statistical test performed. 'wilcoxon_signed_rank' is used for paired samples (same test set)."
   method_pair:
     type: "array"
     items:
       type: "string"
     minItems: 2
     maxItems: 2
-    description: "Pair of methods compared (for t_test/mann_whitney_u)."
+    description: "Pair of methods compared (for t_test/mann_whitney_u/wilcoxon)."
   dataset_name:
     type: "string"
     description: "Dataset name (or 'all' for ANOVA)."

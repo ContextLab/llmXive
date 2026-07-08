@@ -1,0 +1,107 @@
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC dropout passes limited to 200 or variance < 1e-4 over 50 passes
+  claim_id: c_83b8f060
+  context: "Implement code/models/mc_dropout.py using PyTorch. Constraint: Use a small\
+    \ MLP (\u22642M params) or XGBoost wrapper. Enable dropout during inference. Convergence:\
+    \ Limit MC passes to a maximum of 200 or until variance of predictions < 1e-4\
+    \ over 50 consecutive passes."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit MC passes to a maximum of 200 or until variance of predictions <
+    1e-4 over 50 consecutive passes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:36:50Z'
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: "Deep ensemble size limited to 3 models to ensure RAM usage \u2264 2GB"
+  claim_id: c_c3977db9
+  context: "Implement code/models/deep_ensemble.py. Constraint: Train 3 small models\
+    \ (XGBoost or small MLP) sequentially, discard weights after inference, and limit\
+    \ ensemble size to 3 to ensure total RAM usage \u2264 2GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train 3 small models (XGBoost or small MLP) sequentially, discard weights\
+    \ after inference, and limit ensemble size to 3 to ensure total RAM usage \u2264\
+    \ 2GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:37:27Z'
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps coverage from 0.80 to 0.99 with step size
+    0.01
+  claim_id: c_cfe5aaa1
+  context: 'Implement code/stats/significance.py function run_sensitivity_analysis(conformal_results,
+    coverage_range). Constraint: Sweep coverage levels from 0.80 to 0.99 with step
+    size 0.01. Report width/error trade-offs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep coverage levels from 0.80 to 0.99 with step size 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:38:13Z'
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Statistical tests flagged as inconclusive if test set size < 100 samples
+  claim_id: c_341b96ea
+  context: Add logic to flag statistical tests as 'inconclusive' if test set size
+    < 100 samples (per Assumptions in spec.md)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag statistical tests as 'inconclusive' if test set size < 100 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:38:13Z'
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 1 hour on CPU-only runner
+  claim_id: c_44d3a07e
+  context: 'Performance optimization: Ensure total pipeline time < 1 hour on CPU-only
+    runner'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure total pipeline time < 1 hour on CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:38:13Z'
+- artifact_path: projects/PROJ-737-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Hard cap on samples per dataset set to deferred value
+  claim_id: c_bcc9891b
+  context: 'Implement code/featurize.py using matminer (or fallback to pymatgen if
+    matminer fails) to convert raw compositions/structures to feature vectors. Constraint:
+    Must enforce a hard cap of [deferred] samples per dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hard_cap_on_samples_per_dataset_set_to_deferred_value
+  kind: entity_fact
+  raw_text: Enforce a hard cap of [deferred] samples per dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T23:39:16Z'

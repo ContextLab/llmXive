@@ -3,58 +3,52 @@ title: "MaterialsDatasetSchema"
 description: "Schema for the processed materials dataset used in UQ evaluation."
 type: object
 properties:
-  metadata:
-    type: object
-    properties:
-      name:
-        type: string
-        description: "Dataset identifier (e.g., 'OQMD_BandGap')"
-      source_url:
-        type: string
-        description: "Verified URL of the source dataset"
-      property:
-        type: string
-        description: "Target property (e.g., 'band_gap')"
-      sample_count:
-        type: integer
-        description: "Total number of samples in the dataset"
-    required:
-      - name
-      - source_url
-      - property
-      - sample_count
-  splits:
-    type: object
-    properties:
-      train:
-        type: array
-        items:
-          type: integer
-        description: "Indices for training set"
-      val:
-        type: array
-        items:
-          type: integer
-        description: "Indices for validation set"
-      test:
-        type: array
-        items:
-          type: integer
-        description: "Indices for test set"
-    required:
-      - train
-      - val
-      - test
+  dataset_id:
+    type: string
+    description: "Unique identifier for the dataset (e.g., 'elastic_modulus')."
+  source_url:
+    type: string
+    format: uri
+    description: "Verified URL from the research block."
+  property_name:
+    type: string
+    description: "Name of the target property."
+  n_samples:
+    type: integer
+    minimum: 1
+    description: "Total number of samples."
+  n_train:
+    type: integer
+    minimum: 1
+    description: "Number of training samples."
+  n_val:
+    type: integer
+    minimum: 0
+    description: "Number of validation samples."
+  n_test:
+    type: integer
+    minimum: 1
+    description: "Number of test samples."
   features:
     type: array
     items:
       type: string
-    description: "List of feature column names"
+    description: "List of feature column names."
   target:
     type: string
-    description: "Name of the target column"
+    description: "Name of the target column."
+  checksum:
+    type: string
+    description: "SHA256 checksum of the processed file."
 required:
-  - metadata
-  - splits
+  - dataset_id
+  - source_url
+  - property_name
+  - n_samples
+  - n_train
+  - n_val
+  - n_test
   - features
   - target
+  - checksum
+additionalProperties: false

@@ -1,0 +1,42 @@
+# Configuration for UQ Pipeline
+# This file contains hyperparameters and settings for the materials property prediction pipeline.
+
+data:
+  max_samples: 5000
+  test_size: 0.2
+  validation_size: 0.1
+  random_seed: 42
+  memory_limit_gb: 1.8
+
+models:
+  gpr:
+    kernel: "RBF"
+    alpha: 1.0e-10
+    n_restarts_optimizer: 5
+  
+  mc_dropout:
+    dropout_rate: 0.1
+    num_mc_samples: 100
+    max_epochs: 100
+    convergence_threshold: 1.0e-4
+    convergence_window: 50
+  
+  deep_ensemble:
+    num_models: 3
+    max_epochs: 100
+    early_stopping_patience: 10
+  
+  conformal:
+    coverage_levels: [0.80, 0.85, 0.90, 0.95, 0.99]
+    calibration_size: 0.1
+
+metrics:
+  nominal_coverage: 0.95
+  sharpness_weight: 1.0
+
+stats:
+  significance_level: 0.05
+  sensitivity_coverage_range:
+    start: 0.80
+    end: 0.99
+    step: 0.01

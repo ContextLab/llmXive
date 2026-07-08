@@ -2,68 +2,56 @@
 
 ## Prerequisites
 
-- Python 3.11+
+- Python +
 - Git
-- GitHub Actions Runner (or local environment with ≥2 GB RAM)
+- GitHub Actions Runner (or local machine with ≥2GB RAM)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-737-assessing-uncertainty-quantification-tec
-    ```
+1. **Clone the repository** (or the specific feature branch):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-737-assessing-uncertainty-quantification-tec
+   git checkout 001-assessing-uq-techniques
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` pins versions to ensure reproducibility.*
 
-## Execution
+## Running the Pipeline
 
-### Running the Full Pipeline
-
-Execute the main orchestration script. This will:
-1.  Download and preprocess datasets (OQMD, AFLOW).
-2.  Train GPR, MC Dropout, Deep Ensembles, and Conformal Prediction models.
-3.  Calculate Calibration Error and Sharpness.
-4.  Perform statistical significance testing.
-5.  Output `data/results/metrics_summary.csv`.
+Execute the full workflow (Download -> Featurize -> Train -> Evaluate -> Stats):
 
 ```bash
 python code/main.py
 ```
 
-### Running Specific Components
+### Parameters
+- `--dataset`: Optional. Specify a single dataset (e.g., `band_gap`) to skip others.
+- `--method`: Optional. Run only a specific UQ method (e.g., `gpr`).
+- `--max-samples`: Optional. Limit dataset size (default: a substantial number) to ensure RAM compliance.
 
-- **Data Download Only**:
-  ```bash
-  python code/main.py --stage download
-  ```
-- **Model Training Only** (requires data to be present):
-  ```bash
-  python code/main.py --stage train
-  ```
-- **Evaluation Only**:
-  ```bash
-  python code/main.py --stage evaluate
-  ```
+## Expected Outputs
 
-## Verification
-
-After running, verify the results:
-1.  Check `data/results/metrics_summary.csv` for the presence of all 12 method-dataset combinations.
-2.  Ensure no "OOM" (Out of Memory) errors occurred.
-3.  Verify that the `p_value` column contains values < 0.05 for significant differences (if any).
+1. **Console**: Progress logs and any skipped method warnings.
+2. **Files**:
+   - `data/processed/`: Featurized datasets (CSV/Parquet).
+   - `results/metrics.csv`: Per-method metrics (Calibration Error, Sharpness).
+   - `results/stats_results.csv`: P-values for pairwise comparisons.
+   - `results/sensitivity_conformal.csv`: Sensitivity analysis for Conformal Prediction.
+   - `logs/execution.log`: Full execution log including errors.
 
 ## Troubleshooting
 
-- **Memory Error**: If the script crashes with OOM, reduce the `MAX_SAMPLES` constant in `code/config.py` from 10000 to 5000.
-- **Dataset Missing**: If Elastic Modulus data is missing, the script will log a warning and skip that property. Check `logs/pipeline.log` for details.
-- **Import Errors**: Ensure all dependencies in `requirements.txt` are installed. If `torch` fails, install the CPU version explicitly: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+- **RAM Error**: If you encounter `MemoryError`, reduce `--max-samples` to 1000.
+- **Dataset Missing**: If a specific property (e.g., Elastic Modulus) is missing, check `logs/execution.log` for the "Data Gap" warning. The pipeline will continue with available properties.
+- **GPR Convergence**: If GPR fails, the pipeline logs the error and skips that method for the dataset.

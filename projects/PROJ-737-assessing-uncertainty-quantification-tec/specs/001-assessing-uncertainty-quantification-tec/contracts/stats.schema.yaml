@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalTestResultSchema"
+description: "Schema for the statistical significance test results."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Dataset context."
+  method_a:
+    type: string
+    description: "First method compared."
+  method_b:
+    type: string
+    description: "Second method compared."
+  metric_type:
+    type: string
+    enum:
+      - "calibration_error"
+      - "sharpness"
+    description: "Metric being compared."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from the test."
+  test_type:
+    type: string
+    enum:
+      - "welch_t"
+      - "mann_whitney_u"
+    description: "Type of statistical test used."
+  significant:
+    type: boolean
+    description: "True if p < 0.05."
+required:
+  - dataset_id
+  - method_a
+  - method_b
+  - metric_type
+  - p_value
+  - test_type
+  - significant
+additionalProperties: false
