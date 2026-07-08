@@ -28,6 +28,7 @@ properties:
           r2_ci_upper: { type: "number" }
           rmse_ci_lower: { type: "number" }
           rmse_ci_upper: { type: "number" }
+          underpowered: { type: "boolean" }
       Cl-:
         type: "object"
         properties:
@@ -39,6 +40,7 @@ properties:
           r2_ci_upper: { type: "number" }
           rmse_ci_lower: { type: "number" }
           rmse_ci_upper: { type: "number" }
+          underpowered: { type: "boolean" }
       Br-:
         type: "object"
         properties:
@@ -50,6 +52,7 @@ properties:
           r2_ci_upper: { type: "number" }
           rmse_ci_lower: { type: "number" }
           rmse_ci_upper: { type: "number" }
+          underpowered: { type: "boolean" }
       I-:
         type: "object"
         properties:
@@ -61,6 +64,7 @@ properties:
           r2_ci_upper: { type: "number" }
           rmse_ci_lower: { type: "number" }
           rmse_ci_upper: { type: "number" }
+          underpowered: { type: "boolean" }
     required: ["F-", "Cl-", "Br-", "I-"]
   feature_importance:
     type: "array"
@@ -76,12 +80,13 @@ properties:
     description: "Results of Bootstrap Resampling"
     properties:
       method: { type: "string", const: "Bootstrap Resampling" }
-      iterations: { type: "integer", const: 1000 }
+      iterations: { type: "integer", const: 10000 }
       correction: { type: "string", const: "Benjamini-Hochberg" }
       p_values: { type: "object" }
       ci_lower: { type: "object" }
       ci_upper: { type: "object" }
-    required: ["method", "iterations", "correction"]
+      aborted: { type: "boolean", description: "True if analysis was aborted due to underpowered data" }
+    required: ["method", "iterations", "aborted"]
   associational_disclaimer:
     type: "boolean"
     description: "Flag indicating findings are associational"
@@ -93,7 +98,8 @@ properties:
       top_features_in_curated_list: { type: "boolean" }
       slope_direction_valid: { type: "boolean" }
       is_chemically_implausible: { type: "boolean" }
-    required: ["top_features_in_curated_list", "slope_direction_valid", "is_chemically_implausible"]
+      simulated_mode_warning: { type: "boolean", description: "True if data is simulated and validation is trivial" }
+    required: ["top_features_in_curated_list", "slope_direction_valid", "is_chemically_implausible", "simulated_mode_warning"]
 required:
   - run_id
   - model_type

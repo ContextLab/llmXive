@@ -1,98 +1,93 @@
 # Research: Predicting Molecular Halide Binding Affinities with Machine Learning
 
-## 1. Problem Definition
+## Dataset Strategy
 
-The objective is to predict binding affinities of halide ions (F⁻, Cl⁻, Br⁻, I⁻) to organic host molecules using machine learning. The study aims to identify structural determinants (descriptors) that correlate with halide selectivity. Due to the observational nature of the data (no random assignment of hosts to halides), all findings are strictly **associational**.
+### Verified Data Availability
+The primary data sources are NIST Chemistry WebBook and PubChem. However, the **Verified datasets** block provided in the prompt does not contain a direct URL for NIST halide binding constants or PubChem halide-specific affinity data. The available datasets are:
 
-**Critical Data Note**: No verified dataset exists in the provided list that contains the full tuple (Host SMILES, Halide ID, Binding Constant). The primary research question (comparative analysis across halides) is **unanswerable** with the available verified resources. The project relies on a **physics-based simulated data fallback** to demonstrate the pipeline. If real data is found, the scope is comparative analysis; otherwise, the scope is reduced to single-halide prediction with a warning that the comparative question is unanswerable.
+- **NIST**: `nisten/opus-doctor-patient-conversations-all-human-diseases` (medical conversations, irrelevant)
+- **PubChem**: `sagawa/pubchem-10m-canonicalized` (molecular structures, no binding constants), `zpn/pubchem_selfies` (SMILES, no binding data)
+- **RDKit**: `fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors` (descriptors only, no halide binding)
 
-## 2. Dataset Strategy
+**Conclusion**: **No verified dataset in the provided list contains the required variables:** `host SMILES`, `halide identity (F⁻/Cl⁻/Br⁻/I⁻)`, `binding constant (log K or ΔG)`, and `solvent`.
 
-### 2.1 Primary Data Sources
+**Decision**: The pipeline will attempt to scrape NIST/PubChem as per FR-001. However, given the lack of verified URLs with binding data, it is **highly probable that FR-011 (Insufficient Data) will trigger**. The system will log the warning, identify the most abundant halide (likely Cl⁻ or Br⁻ based on general literature), and generate a simulated dataset using the physics-constrained formula:  
+`log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)`  
+where `charge_density` = sum of Gasteiger charges, `cavity_volume` = RDKit molecular volume (Å³).
 
-The project relies on the following **verified** datasets. No other URLs are used.
+**Critical Note on Simulated Data**: The simulated data generation formula **bakes in** the exact causal relationship the model is supposed to discover. Training a model on this data and then 'verifying' the sign of the coefficient (FR-013) is a **tautology**, not a validation of the model's ability to learn from real chemistry. **Therefore, in Simulated Data Mode, the comparative analysis (US-4) is strictly aborted.** The pipeline runs only to validate the code infrastructure, not to produce scientific results.
 
-| Dataset | Type | Verified URL | Usage |
-|---------|------|--------------|-------|
-| **NIST Chemistry WebBook** | Experimental Binding Constants | *No verified raw URL found in provided list* | Primary source for binding constants (log K / ΔG). **Scraping Logic**: Attempt to fetch via `requests` with rate limiting (1 req/sec), parse HTML tables for 'log K' and 'halide'. Handle errors gracefully (retry 3x with backoff). |
-| **PubChem** | Molecular Structures | `https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet` | Source for SMILES/InChI strings and molecular identifiers. |
-| **RDKit Descriptors** | Pre-computed Descriptors | `https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet` | Used to validate descriptor generation logic or as a fallback feature source. |
-| **SMILES Transformers** | SMILES Data | `https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet` | Alternative source for host molecule structures if PubChem lacks specific hosts. |
+| Dataset | URL | Variables Present | Variables Missing | Status |
+|---------|-----|-------------------|-------------------|--------|
+| NIST (General) | N/A (Scrape) | SMILES (if available) | Halide ID, Binding Constant, Solvent | **Unverified**; scraping attempted |
+| PubChem (Structures) | `sagawa/pubchem-10m-canonicalized` | SMILES, InChI | Halide ID, Binding Constant, Solvent | **Verified URL, Missing Variables** |
+| RDKit Descriptors | `fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors` | Descriptors, SMILES | Halide ID, Binding Constant, Solvent | **Verified URL, Missing Variables** |
 
-**Critical Note on Data Availability**:
-- The provided "Verified datasets" list **does not contain a direct URL** for NIST halide binding constants.
-- The `WebBooks-1` dataset URL (`https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt`) appears to be a text dataset, not a structured chemistry binding table.
-- **Contingency**: If the primary sources cannot be mapped to the required schema (Host SMILES, Halide ID, Binding Constant, Solvent) OR if the count of valid hosts is < 50, the system **MUST** trigger the fallback defined in **FR-011**: switch to a simulated dataset, reduce scope to single-halide prediction, and log the warning: "WARNING: Primary dataset insufficient (<50 hosts or missing columns). Scope reduced to single-halide prediction. Comparative analysis unanswerable with available data."
+**Fallback Plan**: If scraping yields <50 hosts with ≥3 halides each, switch to simulated data mode (FR-011). All outputs will be marked "Simulated Data Mode" and the comparative analysis (US-4) will be **aborted**.
 
-### 2.2 Simulated Data Generative Model
+## Model Strategy
 
-If the fallback is triggered, the system generates a simulated dataset that explicitly encodes halide binding physics:
-1. **Host Properties**: Generate host molecules with random SMILES (using RDKit) and calculate descriptors (MolWt, LogP, HBD, HBA, TPSA).
-2. **Cavity Size**: Estimate cavity size from molecular volume (calculated via `rdkit.Chem.rdMolDescriptors.CalcMolVolume`).
-3. **Electrostatics**: Assign a random electrostatic potential to each host.
-4. **Binding Constant Generation**:
-   - `log_K = (Alpha * ElectrostaticPotential * HalideCharge) + (Beta * CavitySize) - (Gamma * StericHindrance) + Noise`
-   - `HalideCharge`: F⁻ (-1), Cl⁻ (-1), etc. (all -1, but size varies).
-   - `StericHindrance`: Function of HBD/HBA counts and MolWt.
-   - `Noise`: Gaussian noise (std=0.5).
-   - Parameters (Alpha, Beta, Gamma) are fixed to reflect known chemistry (e.g., Alpha > 0 for electrostatic attraction).
-5. **Validation**: Ensure the generated data adheres to `dataset.schema.yaml` (valid SMILES pattern, correct enum values for halide identity, numeric binding constants).
+### Algorithm Selection
+- **Random Forest (RF)**: Robust to non-linear relationships, handles high-dimensional descriptors (ECFP4), provides feature importance.
+- **Gradient Boosting (GB)**: Higher predictive accuracy for structured data, captures complex interactions.
+- **Excluded**: Neural networks (GPU required, overkill for tabular data), linear regression (assumes linearity, fails on complex structure-affinity relationships).
 
-This ensures the simulated data reflects the underlying chemical phenomenon, making the fallback scientifically meaningful.
+### Training Protocol
+- **Cross-Validation**: 5-fold, split by **host molecule identity** (not measurement) to prevent leakage (FR-004).
+- **Hyperparameters**: Default scikit-learn settings (RF: `n_estimators=100`, GB: `n_estimators=100`, `learning_rate=0.1`) to ensure CPU feasibility and reproducibility.
+- **Metrics**: R², RMSE per fold; mean/std across folds.
+- **Compute Constraints**: Training on ≤7 GB RAM; data subset if necessary; no GPU/CUDA.
 
-## 3. Methodology
+### Statistical Rigor & Underpowered Analysis Gate
+- **Bootstrap CIs**: A large number of resamples for pairwise comparisons of R²/RMSE across halide ions (FR-009).
+- **Measurement-Level Bootstrap**: To avoid degenerate distributions from 5 folds, we use a measurement-level bootstrap stratified by halide and host.
+- **Underpowered Analysis Gate**: **If any halide group has <10 measurements, the pairwise comparison for that group is explicitly aborted.** The report will state the analysis is "underpowered" and report only descriptive statistics (mean, range) with a 95% CI width flag as "wide". No significance testing is performed.
+- **No Causal Claims**: All findings framed as associational (FR-008); no randomization or identification strategy available.
+- **Collinearity**: Variance Inflation Factor (VIF) calculated for predictors; joint relationships reported descriptively.
 
-### 3.1 Data Preprocessing
-1. **Ingestion**: Download from verified sources. If specific binding data is missing, generate simulated data with realistic distributions (log-normal binding constants, correlated with molecular size/polarity).
-2. **Filtering**:
-   - Exclude records with invalid SMILES (RDKit parsing failure).
-   - Exclude records with ambiguous halide identity.
-   - Filter to **non-aqueous solvents** (Acetonitrile, Chloroform) per Assumptions.
-   - Retain only hosts with **≥3 different halide measurements**.
-3. **Standardization**: Convert all binding constants to `log K`. If ΔG is provided, convert using ΔG = -RT ln(K).
+## Feature Engineering Strategy
 
-### 3.2 Feature Engineering
-- **Fingerprints**: ECFP4 (radius=2, nBits=2048) using RDKit.
-- **Descriptors**: Calculate RDKit descriptors (MolWt, LogP, HBA, HBD, TPSA, MolVol for Cavity Size, etc.).
-- **Collinearity Check**: Calculate Variance Inflation Factor (VIF) for descriptors. If VIF > 10, report collinearity but do not drop features (per spec assumptions).
+### Molecular Descriptors
+- **ECFP4 Fingerprints**: Circular fingerprints (radius=2) capturing local substructures; binary vectors (1024 bits).
+- **RDKit Descriptors**: 
+  - `charge_density`: Sum of Gasteiger charges (electrostatic component).
+  - `cavity_volume`: Molecular volume (Å³) via RDKit.
+  - `hbd_count`, `hba_count`: Hydrogen bond donor/acceptor counts.
+  - `logP`: Lipophilicity.
+  - `num_rotatable_bonds`: Flexibility.
+- **Halide Encoding**: One-hot encoding for F⁻, Cl⁻, Br⁻, I⁻ (if multi-halide prediction) or target variable for single-halide mode.
 
-### 3.3 Modeling Strategy
-- **Algorithms**: Random RF (`RandomForestRegressor`) and Gradient Boosting (`GradientBoostingRegressor`) from `scikit-learn`.
-- **Splitting**: **Stratified by Host ID**. K-fold Cross-Validation.
-  - *Constraint*: Ensure no host ID appears in both train and test sets within a fold.
-- **Hyperparameters**: Default `scikit-learn` parameters (per FR-005) to ensure CPU feasibility.
-- **Compute Budget**: Target < 6 hours runtime, < 7 GB RAM. If the dataset is large, sample to a manageable subset size.
+### Physical Plausibility Check (FR-013) - Clarified
+- **Real Data Mode**: Verify that the coefficient for `charge_density` is positive (higher positive charge → higher anion affinity) per Coulombic attraction. This is a consistency check, not a causal validation.
+- **Simulated Data Mode**: The model will mathematically be forced to recover the positive coefficient for `charge_density` because the target `log K_sim` is DEFINITIONALLY constructed as a linear function of `charge_density`. This is a **trivial confirmation** of the data generation script, not an empirical validation of the model's ability to learn structure-affinity relationships. **Comparative analysis is prohibited in this mode.**
+- **Unstable Features**: Flag features with CV ≥ 0.3 across 10 bootstrap resamples.
 
-### 3.4 Statistical Analysis
-- **Performance Metrics**: R² and RMSE calculated **per halide ion** (Constitution VI).
-- **Comparisons**:
-  - **Test**: **Bootstrap Resampling (1000 iterations)** to generate 95% Confidence Intervals for the **distribution of the difference in mean R² and RMSE** between halide pairs.
-  - **Conditional Execution**: If `is_simulated` is true, pairwise comparisons are **skipped**, and the report states that comparative analysis is unanswerable.
-  - **Correction**: Benjamini-Hochberg (FDR ≤ 0.05) applied to p-values if hypothesis testing is performed on the bootstrap distribution.
-- **Power Analysis**: Removed. Replaced with reporting of 95% Confidence Intervals.
+## Edge Case Handling
 
-### 3.5 Interpretability
-- **Feature Importance**: Permutation importance (scikit-learn).
-- **Visualization**: Partial Dependence Plots (PDP) for top features vs. halide identity.
-- **Domain Sanity Check**:
-  1. **Curated List**: {HBD, HBA, TPSA, MolWt, Cavity Size (MolVol)}.
-  2. **Validation**:
-     - Check if at least 1 of the top 3 features is from the curated list.
-     - Verify the slope direction of the top feature's relationship with binding affinity matches electrostatic theory (e.g., positive charge density correlates with higher affinity for anions).
-  3. **Flag**: If checks fail, flag model as "chemically implausible".
+| Edge Case | Handling Strategy |
+|-----------|-------------------|
+| **Inconsistent Units (log K vs ΔG)** | Exclude records with ambiguous units; standardize to log K if conversion possible (ΔG = -RT ln K). |
+| **Ambiguous Halide Labels** | Exclude records where halide identity is not explicitly F⁻, Cl⁻, Br⁻, or I⁻. |
+| **<50 Host Molecules** | Trigger FR-011: log warning, switch to simulated data, **abort comparative analysis**. |
+| **Duplicate Records** | Keep record with most complete metadata; if conflicting binding constants, average and log warning. |
+| **Missing SMILES/InChI** | Exclude record; log exclusion count (FR-010). |
+| **N < 10 per Halide** | **Abort pairwise comparison** for that halide; report only descriptive statistics. |
 
-## 4. Decision Rationale
+## Assumptions & Risks
+
+- **Assumption**: NIST/PubChem scraping will yield ≥50 hosts with ≥3 halides each. **Risk**: High probability of failure; fallback to simulation is critical. **Note**: If simulation is used, comparative analysis is aborted.
+- **Assumption**: Molecular descriptors (ECFP, RDKit) capture relevant structural features. **Risk**: May miss subtle electronic effects; physical plausibility check mitigates this.
+- **Assumption**: CPU-only training completes within 6 hours. **Risk**: Large descriptor sets may slow training; data subsampling if needed.
+- **Risk**: Simulated data may not reflect real chemistry; outputs will be explicitly labeled as "Simulated Data Mode" and not used for comparative analysis.
+- **Risk**: Small sample sizes (N < 10 per halide) will lead to underpowered analysis; comparative claims will be aborted.
+
+## Decision Log
 
 | Decision | Rationale |
 |----------|-----------|
-| **Simulated Data Fallback** | The verified dataset list lacks the specific "halide binding constant" column required for the primary research question. FR-011 mandates a fallback to ensure the pipeline is runnable and testable. The fallback data is now generated using a physics-based model to ensure scientific validity. |
-| **Host-Based Splitting** | Essential to prevent data leakage. Random splitting would allow the model to "memorize" host structures rather than learning generalizable structure-activity relationships. |
-| **Bootstrap Resampling** | Replaces the invalid Paired Wilcoxon test on N=5 folds. Bootstrap provides robust 95% Confidence Intervals for the difference in mean performance without assuming a specific dependency structure. |
-| **Domain Sanity Check** | Replaces the circular 'overlap' check. Validates the model's reliance on known physics (slope direction) rather than just feature presence. |
-| **CPU-Only, Default Precision** | Ensures compliance with GitHub Actions free-tier constraints (no GPU, 7GB RAM). |
-
-## 5. Risk Assessment
-
-- **Data Gap**: High risk. The verified sources do not contain the specific binding constants needed. **Mitigation**: Simulated data fallback implemented and documented with a physics-based generative model.
-- **Sample Size**: Low risk of <50 hosts if simulated. If real data is found, risk of <50 is high given the specificity of halide binding data.
-- **Collinearity**: High risk in molecular descriptors. **Mitigation**: VIF calculated and reported; results interpreted descriptively.
+| **Use Bootstrap CIs instead of Wilcoxon** | N=5 folds insufficient for Wilcoxon; bootstrap provides robust CI estimation (if powered). |
+| **Host-Identity Splitting** | Prevents data leakage; essential for valid out-of-sample performance. |
+| **Simulated Data Fallback** | Ensures pipeline completeness even if real data is insufficient; physics constraints maintain chemical relevance. **Comparative analysis aborted in this mode.** |
+| **CPU-Only, Default Hyperparameters** | Ensures feasibility on GitHub Actions free-tier; avoids GPU/CUDA dependencies. |
+| **Underpowered Analysis Gate** | Prevents meaningless statistics from small sample sizes; ensures scientific rigor. |
+| **Causal Limitations** | Observational data cannot support causal claims; all findings are associational. |

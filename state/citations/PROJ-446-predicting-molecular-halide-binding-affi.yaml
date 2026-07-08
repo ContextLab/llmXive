@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 7b9a419fda9cc936bee9b13477c433ab9211469e34417032e99baccb34ac6c8c
+  artifact_path: projects/PROJ-446-predicting-molecular-halide-binding-affi/specs/001-predicting-molecular-halide-binding-affi/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-08T20:34:23.857933Z'

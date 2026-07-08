@@ -1,67 +1,72 @@
 # Data Model: Predicting Molecular Halide Binding Affinities with Machine Learning
 
-## 1. Overview
+## Entity Definitions
 
-This document defines the data structures, schemas, and relationships for the project. All data artifacts must adhere to these contracts to ensure reproducibility and validation.
+### HostMolecule
+Represents an organic host compound.
+- `host_id`: Unique identifier (hash of SMILES).
+- `smiles`: Canonical SMILES string (required).
+- `inchi`: InChI string (optional, for validation).
+- `descriptors`: Dictionary of RDKit descriptors (charge_density, cavity_volume, hbd_count, etc.).
+- `ecfp4`: Binary vector (1024 bits) representing ECFP4 fingerprint.
 
-## 2. Core Entities
+### BindingMeasurement
+Represents a single experimental measurement.
+- `measurement_id`: Unique identifier.
+- `host_id`: Foreign key to `HostMolecule`.
+- `halide_identity`: Enum {F⁻, Cl⁻, Br⁻, I⁻}.
+- `binding_constant`: Float (log K or ΔG in kcal/mol).
+- `units`: Enum {log_K, kcal_mol}.
+- `solvent`: Enum {acetonitrile, chloroform, dichloromethane}.
+- `source`: Enum {NIST, PubChem, Simulated}.
+- `reference_doi`: DOI of the source publication (if available).
 
-### 2.1 HostMolecule
-Represents a unique organic host compound.
+### ModelRun
+Represents a trained model instance.
+- `run_id`: Unique identifier.
+- `model_type`: Enum {random_forest, gradient_boosting}.
+- `cross_validation_folds`: Integer (5).
+- `r2_mean`: Float.
+- `r2_std`: Float.
+- `rmse_mean`: Float.
+- `rmse_std`: Float.
+- `feature_stability_ranking`: List of (feature_name, cv_score).
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `host_id` | String | Unique identifier (e.g., hash of SMILES) | Primary Key, Unique |
-| `smiles` | String | Canonical SMILES string | Not Null, Valid RDKit parse |
-| `inchi` | String | IUPAC InChI string | Nullable |
-| `molecular_weight` | Float | Calculated molecular weight | > 0 |
-| `logp` | Float | Partition coefficient (XLogP) | Nullable |
-| `hbd_count` | Integer | Hydrogen bond donor count | ≥ 0 |
-| `hba_count` | Integer | Hydrogen bond acceptor count | ≥ 0 |
-| `ecfp4` | Array[Int] | ECFP4 fingerprint vector | Length=2048 |
+## Data Flow
 
-### 2.2 BindingMeasurement
-Represents a single experimental binding event.
+1. **Ingestion**: Raw data downloaded from NIST/PubChem (or simulated) → `data/raw/`.
+2. **Cleaning**: Filter by solvent, halide identity, valid SMILES → `data/processed/cleaned.csv`.
+3. **Feature Engineering**: Generate descriptors, ECFP4 → `data/processed/features.csv`.
+4. **Model Training**: Split by host_id → train RF/GB → `data/processed/models/`.
+5. **Analysis**: Feature stability, PDPs, bootstrap CIs → `data/processed/results/`.
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `measurement_id` | String | Unique ID | Primary Key |
-| `host_id` | String | Foreign Key to HostMolecule | Not Null |
-| `halide_identity` | Enum | F-, Cl-, Br-, I- | Not Null |
-| `binding_constant` | Float | log K value | Not Null |
-| `units` | String | "logK" or "kcal/mol" | Not Null |
-| `solvent` | String | Solvent name | Not Null |
-| `source` | Enum | "NIST", "PubChem", "Simulated" | Not Null |
-| `reference_doi` | String | Source DOI | Nullable |
+## Constraints & Validation
 
-### 2.3 ModelRun
-Represents a trained model instance and its results.
+- **Solvent Filter**: Only acetonitrile, chloroform, DCM allowed.
+- **Halide Filter**: Only F⁻, Cl⁻, Br⁻, I⁻ allowed.
+- **Host Filter**: Retain only hosts with ≥3 halide measurements.
+- **SMILES Validation**: Exclude records with invalid SMILES (RDKit parsing failure).
+- **Unit Standardization**: Convert ΔG to log K if necessary; exclude ambiguous units.
+- **Duplicate Handling**: If duplicate host-halide pairs exist, aggregate by taking the **mean binding constant** and logging the variance. The split strategy groups by (host_id, halide_identity) to ensure no intra-host variance leaks between train/test sets.
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `run_id` | String | Unique ID | Primary Key |
-| `model_type` | Enum | "RandomForest", "GradientBoosting" | Not Null |
-| `host_split_seed` | Integer | Random seed for splitting | Not Null |
-| `cv_folds` | Integer | Number of folds | 5 |
-| `r2_mean` | Float | Mean R² across folds | [-∞, 1] |
-| `r2_std` | Float | Std dev of R² | ≥ 0 |
-| `rmse_mean` | Float | Mean RMSE | ≥ 0 |
-| `rmse_std` | Float | Std dev of RMSE | ≥ 0 |
-| `feature_importance` | JSON | Ranked list of features | Not Null |
+## Simulated Data Schema (FR-011)
 
-## 3. Data Flow
+If real data is insufficient:
+- `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)`
+- `charge_density`: Sum of Gasteiger charges (computed from SMILES).
+- `cavity_volume`: Molecular volume (Å³) via RDKit.
+- `halide_identity`: Assigned based on most abundant halide in available data (or simulated uniformly).
+- `source`: "Simulated".
+- **Note**: This formula is hardcoded. In this mode, the model's recovery of coefficients is a trivial verification of the generation script, not an empirical discovery. **Comparative analysis is strictly prohibited.**
 
-1. **Raw Data**: Downloaded to `data/raw/` (checksummed).
-2. **Ingestion**: `data_ingestion.py` parses raw files, validates SMILES, and outputs `data/processed/raw_binding_data.csv`. **If simulated**, validates against `dataset.schema.yaml` before writing.
-3. **Filtering**: `feature_engineering.py` filters for ≥3 halides/host and non-aqueous solvents, outputs `data/processed/filtered_dataset.csv`.
-4. **Feature Generation**: Adds ECFP4 and descriptors, outputs `data/processed/feature_matrix.parquet`.
-5. **Modeling**: `model_training.py` reads feature matrix, performs CV, outputs `data/processed/model_results.json`.
-6. **Analysis**: `analysis.py` generates statistical reports and plots.
+## File Formats
 
-## 4. Constraints & Invariants
+- **CSV**: `host_id, smiles, halide_identity, binding_constant, solvent, source`
+- **Parquet**: For large descriptor matrices (ECFP4).
+- **YAML**: Model metadata, configuration.
 
-- **Invariant 1**: A `host_id` must appear in at most one fold of any cross-validation split.
-- **Invariant 2**: All `binding_constant` values must be standardized to `log K` before modeling.
-- **Invariant 3**: If `source` is "Simulated", a warning flag is set in the metadata.
-- **Invariant 4**: No PII or sensitive data is present in any dataset.
-- **Invariant 5**: Simulated data must be generated using the physics-based model defined in `research.md` Section 2.2.
+## Data Integrity
+
+- **Checksums**: All raw data files checksummed (SHA-256) and recorded in `state.yaml`.
+- **Versioning**: Each processed file includes a timestamp and source hash.
+- **Audit Trail**: Logs of excluded records (invalid SMILES, wrong solvent, etc.) maintained.

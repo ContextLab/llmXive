@@ -1,39 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Halide Binding Dataset Schema"
-type: "object"
+type: object
 properties:
   host_id:
-    type: "string"
-    description: "Unique identifier for the host molecule"
-  host_smiles:
-    type: "string"
-    description: "Canonical SMILES string of the host"
-    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}()<>|~_]+$"
+    type: string
+    description: "Unique identifier for the host molecule (hash of SMILES)"
+  smiles:
+    type: string
+    description: "Canonical SMILES string for the host molecule"
+  inchi:
+    type: string
+    description: "InChI string for the host molecule (optional)"
   halide_identity:
-    type: "string"
-    description: "Identity of the halide ion"
+    type: string
     enum: ["F-", "Cl-", "Br-", "I-"]
+    description: "Identity of the halide ion"
   binding_constant:
-    type: "number"
-    description: "Binding constant (log K)"
-    minimum: -100
-    maximum: 100
+    type: number
+    description: "Binding constant (log K or ΔG in kcal/mol)"
+  units:
+    type: string
+    enum: ["log_K", "kcal_mol"]
+    description: "Units of the binding constant"
   solvent:
-    type: "string"
+    type: string
+    enum: ["acetonitrile", "chloroform", "dichloromethane"]
     description: "Solvent used in the measurement"
   source:
-    type: "string"
-    description: "Source of the data"
+    type: string
     enum: ["NIST", "PubChem", "Simulated"]
-  units:
-    type: "string"
-    description: "Units of the binding constant"
-    enum: ["logK", "kcal/mol"]
+    description: "Source of the data"
+  reference_doi:
+    type: string
+    description: "DOI of the source publication (if available)"
 required:
   - host_id
-  - host_smiles
+  - smiles
   - halide_identity
   - binding_constant
+  - units
   - solvent
   - source
 additionalProperties: false
+description: "Schema for the halide binding affinity dataset. All records must have valid SMILES, halide identity, binding constant, and solvent. Simulated data will have source='Simulated'."

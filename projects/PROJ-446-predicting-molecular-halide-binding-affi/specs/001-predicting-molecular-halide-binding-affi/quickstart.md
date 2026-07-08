@@ -4,67 +4,88 @@
 
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or local environment with sufficient RAM
+- GitHub CLI (optional, for repo interaction)
 
-## 1. Clone and Setup
+## Installation
 
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-org/your-repo.git
+   cd your-repo
+   ```
+
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r projects/PROJ-446-predicting-molecular-halide-binding-affi/code/requirements.txt
+   ```
+
+## Running the Pipeline
+
+### Step 1: Data Ingestion
 ```bash
-git clone <repository-url>
-cd projects/001-predicting-halide-binding-affinities
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+cd projects/PROJ-446-predicting-molecular-halide-binding-affi/code
+python 01_data_ingestion.py
 ```
+- Downloads data from NIST/PubChem (or triggers simulation if insufficient).
+- **Note**: If no verified data is found, the pipeline switches to "Simulated Data Mode" and logs a warning.
+- Outputs: `data/processed/cleaned.csv`.
 
-## 2. Data Preparation
-
-The project includes a script to download data from verified sources.
-
+### Step 2: Feature Engineering
 ```bash
-# Download raw data (or generate simulated data if sources are missing)
-python code/data_ingestion.py --download
+python 02_feature_engineering.py
 ```
+- Generates ECFP4 fingerprints and RDKit descriptors.
+- Outputs: `data/processed/features.csv`.
 
-*Note: If the verified datasets do not contain the required binding constants, the script will automatically generate a simulated dataset using the physics-based model defined in `research.md` and log a warning.*
-
-## 3. Run the Pipeline
-
-Execute the full pipeline (ingestion -> modeling -> analysis):
-
+### Step 3: Model Training
 ```bash
-python code/run_pipeline.py
+python 03_model_training.py
 ```
+- Trains RF and GB models with 5-fold cross-validation (host-identity split).
+- **Note**: If N < 10 per halide, the training completes but comparative analysis is skipped.
+- Outputs: `data/processed/models/`, `data/processed/results/cv_metrics.csv`.
 
-This will:
-1. Ingest and clean data.
-2. Generate features (ECFP4, RDKit descriptors).
-3. Train Random Forest and Gradient Boosting models (5-fold CV).
-4. Perform statistical comparisons (Bootstrap Resampling, BH correction).
-5. Generate reports and plots.
-
-## 4. Verify Results
-
-Check the output directory:
-
+### Step 4: Feature Analysis
 ```bash
-ls data/processed/
-# Expected: filtered_dataset.csv, feature_matrix.parquet, model_results.json, report.pdf
+python 04_feature_analysis.py
 ```
+- Computes feature stability, generates partial dependence plots.
+- **Note**: In Simulated Data Mode, feature importance will trivially reflect the generation formula.
+- Outputs: `data/processed/results/feature_importance.csv`, `figures/`.
 
-Run unit tests:
+### Step 5: Statistical Reporting
+```bash
+python 05_statistical_reporting.py
+```
+- Computes bootstrap CIs for performance differences across halides.
+- **Note**: If any halide group has <10 measurements, the comparison is aborted and the report states "underpowered".
+- Outputs: `docs/paper/report.md`, `data/processed/results/bootstrap_ci.csv`.
 
+## Expected Outputs
+
+- `data/processed/cleaned.csv`: Cleaned dataset.
+- `data/processed/features.csv`: Feature matrix.
+- `data/processed/models/`: Trained model objects.
+- `docs/paper/report.md`: Final report with associational disclaimer.
+- `figures/`: Partial dependence plots, feature importance charts.
+
+## Troubleshooting
+
+- **Insufficient Data**: If the pipeline logs "WARNING: Insufficient data", it has switched to simulated data mode. All outputs will be marked "Simulated Data Mode". **Comparative analysis is aborted.**
+- **Underpowered Analysis**: If the report states "underpowered", it means N < 10 per halide. No significance testing was performed.
+- **RAM Errors**: If training fails due to RAM, reduce dataset size or use smaller descriptor sets.
+- **SMILES Parsing Errors**: Check `logs/excluded_records.log` for invalid SMILES.
+
+## Verification
+
+Run the test suite:
 ```bash
 pytest tests/
 ```
-
-## 5. Expected Output
-
-- **Model Performance**: R² and RMSE per halide ion with 95% Confidence Intervals.
-- **Feature Importance**: Top 10 determinants of halide selectivity.
-- **Statistical Report**: P-values (adjusted) for halide comparisons (if applicable).
-- **Plots**: Partial Dependence Plots for key features.
-
-## 6. Troubleshooting
-
-- **Memory Error**: If RAM exceeds 7GB, reduce the dataset size in `code/data_ingestion.py` (sample to a large-scale dataset).
-- **Data Missing**: If the pipeline falls back to simulated data, check `logs/data_ingestion.log` for the "Data Gap" warning.
+- Verifies data cleaning, model training, and statistical reporting.

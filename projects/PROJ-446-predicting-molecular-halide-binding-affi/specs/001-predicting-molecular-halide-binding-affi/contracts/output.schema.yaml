@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the model run"
+  model_type:
+    type: string
+    enum: ["random_forest", "gradient_boosting"]
+    description: "Type of model trained"
+  cross_validation_folds:
+    type: integer
+    description: "Number of cross-validation folds (should be 5)"
+  r2_mean:
+    type: number
+    description: "Mean R² score across folds"
+  r2_std:
+    type: number
+    description: "Standard deviation of R² scores"
+  rmse_mean:
+    type: number
+    description: "Mean RMSE across folds"
+  rmse_std:
+    type: number
+    description: "Standard deviation of RMSE scores"
+  feature_stability_ranking:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        cv_score:
+          type: number
+      required:
+        - feature_name
+        - cv_score
+    description: "Ranked list of features by stability (coefficient of variation)"
+  bootstrap_ci:
+    type: object
+    properties:
+      halide_pair:
+        type: string
+        description: "Pair of halides compared (e.g., 'F--Cl-')"
+      r2_diff:
+        type: number
+        description: "Difference in mean R²"
+      r2_ci_lower:
+        type: number
+        description: "Lower bound of 95% CI for R² difference"
+      r2_ci_upper:
+        type: number
+        description: "Upper bound of 95% CI for R² difference"
+      rmse_diff:
+        type: number
+        description: "Difference in mean RMSE"
+      rmse_ci_lower:
+        type: number
+        description: "Lower bound of 95% CI for RMSE difference"
+      rmse_ci_upper:
+        type: number
+        description: "Upper bound of 95% CI for RMSE difference"
+      aborted:
+        type: boolean
+        description: "True if comparison was aborted due to underpowered data (N < 10)"
+    required:
+      - halide_pair
+      - r2_diff
+      - r2_ci_lower
+      - r2_ci_upper
+      - rmse_diff
+      - rmse_ci_lower
+      - rmse_ci_upper
+      - aborted
+    description: "Bootstrap confidence intervals for performance differences between halide pairs"
+  data_mode:
+    type: string
+    enum: ["Real", "Simulated"]
+    description: "Whether the analysis used real or simulated data"
+  comparative_analysis_aborted:
+    type: boolean
+    description: "True if comparative analysis was aborted (e.g., due to simulated data or underpowered data)"
+required:
+  - run_id
+  - model_type
+  - cross_validation_folds
+  - r2_mean
+  - r2_std
+  - rmse_mean
+  - rmse_std
+  - feature_stability_ranking
+  - data_mode
+  - comparative_analysis_aborted
+additionalProperties: false
+description: "Schema for the model run output, including cross-validation metrics, feature stability, and bootstrap confidence intervals for halide comparisons."
