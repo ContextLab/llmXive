@@ -1,0 +1,9 @@
+T001 Create project structure per implementation plan (`projects/PROJ-546-predicting-molecular-properties-from-qua/`): 1
+T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas, rdkit, requests): 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+? T004 [P] Implement `code/download_data.py` to fetch experimental barrier dataset
+  from Zenodo (FR-001) with checksum verification
+: 1
+? T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log)
+  and OOM detection per spec.md Edge Cases
+: 1

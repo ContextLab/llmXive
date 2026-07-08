@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.07798",
+  "judged_at": "2026-07-08T21:57:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the predictive power of machine learning for identifying novel high-entropy alloy compositions materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it demonstrates the application of a machine learning framework (GAN inversion) to predict and generate novel alloy compositions with specific target properties, directly addressing the core mechanism of using ML for materials discovery in the domain of complex alloys. Although the specific alloy class (Shape Memory Alloys) differs from High-Entropy Alloys, the paper provides canonical evidence for the predictive power of ML in inverse materials desig",
+  "relevant": true
+}

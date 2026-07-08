@@ -56,10 +56,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup seed management and random state pinning in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`
-- [ ] T005 [P] Implement logging infrastructure with level configuration in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`
+- [X] T005 [P] Implement logging infrastructure with level configuration in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`
 - [X] T006 [P] Create base `PolymerGraph` entity class in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/polymer_graph.py` with node/edge feature schemas (atom type, hybridization, bond type)
-- [~] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
-- [~] T008 Setup CPU-only PyTorch environment check in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/main.py`
+- [ ] T007 Create `PermeabilityRecord` data model in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/permeability_record.py`
+- [ ] T008 Setup CPU-only PyTorch environment check in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/main.py`
 - [~] T009 Implement gradient clipping mechanism (max norm threshold) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -96,11 +96,11 @@
 - [~] T020 [US2] Implement Murcko scaffold splitting logic in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/preprocessing.py` (addressing spec US-2 marker by executing split immediately for pipeline continuity). **Input**: `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5`. **Algorithm**: Use RDKit's `GetScaffoldForMol` with a similarity cutoff of a high threshold (configurable via env var) to ensure test scaffolds are unseen in training.
 - [~] T021 [US2] Implement Message-Passing GNN (multiple layers, moderate hidden dimensions) in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/gnn.py` using CPU-compatible PyTorch. **Constraint**: Must use float32 precision; no mixed precision or 8-bit quantization.
 - [~] T022 [US2] Implement Random Forest baseline using ECFP4 fingerprints in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [ ] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
-- [ ] T024 [US2] Implement training loop with early stopping and gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
-- [ ] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
-- [ ] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [ ] T027 [US2] Add integration test for full training and evaluation pipeline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/integration/test_training.py`
+- [~] T023 [US2] Implement Linear Regression baseline using RDKit descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/baselines.py`
+- [~] T024 [US2] Implement training loop with early stopping and gradient clipping in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/models/trainer.py`
+- [~] T025 [US2] Implement evaluation logic to compute R², MAE, and Pearson correlation in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/metrics.py`
+- [~] T026 [US2] Generate JSON report comparing GNN vs. Baselines on test set in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
+- [~] T027 [US2] Add integration test for full training and evaluation pipeline in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/integration/test_training.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,12 +114,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T031 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
-- [ ] T033 [US3] Implement sensitivity analysis sweeping R² thresholds across a range of low-to-moderate values. in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Output**: Generate a JSON file containing the sweep results with keys: `threshold` (float), `false_positive_rate` (float), `true_positive_rate` (float). Ensure a set of rows corresponding to the specified thresholds.
-- [ ] T034 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
-- [ ] T035 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
+- [~] T030 [US3] Implement k-fold cross-validation wrapper in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [~] T031 [US3] Implement Wilcoxon signed-rank test for GNN vs. RF performance in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [~] T032 [US3] Implement Variance Inflation Factor (VIF) calculation for baseline descriptors in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`
+- [~] T033 [US3] Implement sensitivity analysis sweeping R² thresholds across a range of low-to-moderate values. in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/stats.py`. **Output**: Generate a JSON file containing the sweep results with keys: `threshold` (float), `false_positive_rate` (float), `true_positive_rate` (float). Ensure a set of rows corresponding to the specified thresholds.
+- [~] T034 [US3] Generate final statistical report including p-values and VIF flags in `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/evaluation/report.py`
+- [~] T035 [US3] Add unit tests for statistical functions in `projects/PROJ-512-predicting-molecular-permeability-of-pol/tests/unit/test_stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

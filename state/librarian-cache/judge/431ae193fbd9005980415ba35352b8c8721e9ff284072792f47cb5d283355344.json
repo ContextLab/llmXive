@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.07583",
+  "judged_at": "2026-07-08T21:57:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the predictive power of machine learning for identifying novel high-entropy alloy compositions materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly applies machine learning to the specific domain of high-entropy alloys (HEAs) to predict material properties, establishing the empirical baseline and methodological framework for the user's question regarding the predictive power of ML in this field.",
+  "relevant": true
+}

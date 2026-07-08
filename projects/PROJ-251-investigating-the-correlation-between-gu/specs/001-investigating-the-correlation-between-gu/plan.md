@@ -146,7 +146,7 @@ projects/PROJ-251-investigating-the-correlation-between-gu/
   - *Output*: `data/processed/responder_labels.csv`.
 - **T034-A**: Implement Nested K-Fold Cross-Validation (Random Forest).
   - *Input*: `cleared_with_diversity.csv`, `responder_labels.csv`.
-  - *Logic*: Outer loop 5-fold. Inner loop feature selection (top taxa) + hyperparameter tuning.
+  - *Logic*: Outer loop -fold. Inner loop feature selection (top taxa) + hyperparameter tuning.
   - *Output*: `data/results/cv_metrics.json`.
 - **T034-B**: Implement Permutation Baseline Testing (Microbiome Shuffle).
   - *Input*: `cleared_with_diversity.csv`, `responder_labels.csv`.

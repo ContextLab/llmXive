@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data artifacts (generated)
+data/raw/
+data/processed/
+data/checksums.txt
+
+# Reports
+data/reports/
+
+# Figures
+figures/
+
+# Logs
+*.log
+logs/
+
+# Local config
+.env
+config_local.yaml

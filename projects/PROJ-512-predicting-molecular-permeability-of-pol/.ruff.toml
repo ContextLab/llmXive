@@ -1,0 +1,3 @@
+# Extends pyproject.toml but allows for project-specific overrides if needed.
+# Currently, we rely on the configuration in pyproject.toml.
+extend = "pyproject.toml"

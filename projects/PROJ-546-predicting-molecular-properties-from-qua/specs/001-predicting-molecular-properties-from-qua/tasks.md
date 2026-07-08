@@ -38,9 +38,9 @@
 
 - [ ] T004 [P] Implement `code/download_data.py` to fetch experimental barrier dataset from Zenodo (FR-001) with checksum verification
 - [ ] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases
-- [ ] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
-- [ ] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
-- [ ] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
+- [X] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
+- [~] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (FR-001)
+- [~] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,12 +54,12 @@
 
 ### Tests for User Story 1
 
-- [ ] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py`
+- [~] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
-- [ ] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
+- [~] T013 [US1] Implement `code/generate_descriptors.py` to invoke DFTB+ for geometry optimization and descriptor extraction (FR-002), including unit normalization (eV for energies)
+- [~] T014 [US1] Add logic to skip molecules failing convergence (Edge Case) and log failures
 - [ ] T015 [US1] Add logic to validate output CSV columns and physical ranges (HOMO < LUMO, charge sum)
 - [ ] T016 [US1] Implement `code/utils/memory_monitor.py` using Python `resource` module to kill DFTB+ subprocess if RSS > 6.5GB and generate a user-facing suggestion to reduce the subset size upon OOM detection
 - [ ] T017 [US1] Add logging for DFTB+ invocation, timing, and resource usage
@@ -131,8 +131,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -194,9 +194,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -211,9 +211,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Reviewer Concerns Addressed**:
-  - **Scope Creep**: Removed unverified Phase 6 tasks (T033-T038 in previous version) that referenced external reviews and undefined constraints.
-  - **Geometry Protocol**: T027 now correctly validates subset alignment while respecting distinct geometry protocols (DFTB vs DFT).
-  - **Speedup Verification**: T025 now explicitly calculates and verifies the 10x speedup threshold (SC-004).
-  - **OOM Handling**: T016 now includes logic to generate a user-facing suggestion to reduce subset size.
-  - **Traceability**: Removed all persona names and dates from task descriptions.
-  - **Ordering**: Moved T011 to Phase 2 to ensure data validity before descriptor generation.
+ - **Scope Creep**: Removed unverified Phase 6 tasks (T033-T038 in previous version) that referenced external reviews and undefined constraints.
+ - **Geometry Protocol**: T027 now correctly validates subset alignment while respecting distinct geometry protocols (DFTB vs DFT).
+ - **Speedup Verification**: T025 now explicitly calculates and verifies the 10x speedup threshold (SC-004).
+ - **OOM Handling**: T016 now includes logic to generate a user-facing suggestion to reduce subset size.
+ - **Traceability**: Removed all persona names and dates from task descriptions.
+ - **Ordering**: Moved T011 to Phase 2 to ensure data validity before descriptor generation.

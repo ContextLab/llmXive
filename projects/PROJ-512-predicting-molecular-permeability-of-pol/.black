@@ -1,0 +1,4 @@
+# Black configuration is handled in pyproject.toml
+# This file is a placeholder to ensure the directory structure exists if needed
+# or to serve as a marker for the formatter.
+# No specific configuration needed here as pyproject.toml is authoritative.

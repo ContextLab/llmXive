@@ -1,4 +1,4 @@
-- artifact_hash: 34dd855d9db3e023cbfd63112daf4ed73b8625488b373cd39a2da57e5999af24
+- artifact_hash: 22e8a2d551ebc5f4eed738d9323d85a85079b3a15422f555a776b6409bc74233
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-001
   cited_authors: []
@@ -9,8 +9,8 @@
   value: https://doi.org/10.1038/s41597-020-00768-9
   verification_status: verified
   verified_against_url: https://www.nature.com/articles/s41597-020-00768-9
-  verified_at: '2026-07-07T11:00:25.483506Z'
-- artifact_hash: 34dd855d9db3e023cbfd63112daf4ed73b8625488b373cd39a2da57e5999af24
+  verified_at: '2026-07-08T22:12:52.424245Z'
+- artifact_hash: 22e8a2d551ebc5f4eed738d9323d85a85079b3a15422f555a776b6409bc74233
   artifact_path: projects/PROJ-525-predicting-the-yield-strength-of-bcc-all/specs/001-predicting-the-yield-strength-of-bcc-all/spec.md
   cite_id: c-002
   cited_authors: []
@@ -21,4 +21,4 @@
   value: 10.1038/s41597-020-00768-9
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/s41597-020-00768-9
-  verified_at: '2026-07-07T11:00:25.483506Z'
+  verified_at: '2026-07-08T22:12:52.424245Z'

@@ -128,33 +128,35 @@ def setup_logging(
         level = _get_log_level_from_env()
 
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    
+    # Only configure if handlers are not already present to avoid duplication
+    if not logger.handlers:
+        logger.setLevel(level)
 
-    # Avoid duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
 
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+        # Console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(level)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
 
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+        # File handler (optional)
+        if log_file:
+            # Ensure directory exists
+            log_dir = os.path.dirname(log_file)
+            if log_dir and not os.path.exists(log_dir):
+                os.makedirs(log_dir, exist_ok=True)
 
-    # File handler (optional)
-    if log_file:
-        # Ensure directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setLevel(level)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    else:
+        # If handlers exist, just ensure the level is correct
+        logger.setLevel(level)
 
     return logger
 

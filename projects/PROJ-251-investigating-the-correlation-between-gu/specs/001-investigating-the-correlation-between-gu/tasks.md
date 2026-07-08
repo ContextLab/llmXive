@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/raw, data/processed, data/results, specs/)
+- [ ] T001 Create project directories explicitly: code/, data/raw, data/processed, data/results, specs/contracts/
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, pyyaml, requests, biom-format, qiime2, dada2)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
@@ -71,28 +71,32 @@
 
 **Independent Test**: The system can be tested by running the ingestion script against a known valid subset and verifying the output CSV contains exactly N rows (N ≥ 50) with no nulls in required columns.
 
+### Strategy A: Primary Data Fetch
+
+- [ ] T011a [US1] Implement Strategy A: Fetch pre-processed S/serology CSV/Parquet from specific HuggingFace dataset or NCBI SRA pre-processed archive for accession SRP053178.
+- [ ] T011b [US1] Implement Strategy B: Download raw FASTQ files from NCBI SRA (using `prefetch`/`fasterq-dump` from SRA Toolkit) for the target study if Strategy A fails.
+- [ ] T011c [US1] Implement Strategy B: Run 16S processing pipeline (QIIME2 or DADA2 via Docker or lightweight Python wrapper) on raw FASTQ to generate OTU table.
+- [ ] T011d [US1] Implement Strategy B: Merge generated OTU table with serology metadata using `subject_id` to create the initial dataset.
+- [ ] T011e [US1] Implement orchestration logic in `code/01_ingest.py`: Attempt T011a; if it fails, trigger T011b-T011d.
+
+### Strategy B: Dynamic Sampling & Filtering
+
+- [ ] T012 [US1] Implement dynamic sampling strategy in `code/01_ingest.py`: If dataset exceeds available RAM, subsample subjects randomly while preserving class balance, logging the sampling method and final N.
+- [ ] T013 [US1] Implement filtering logic in `code/01_ingest.py` to exclude subjects missing baseline or post-vaccination titers
+- [ ] T014 [US1] Implement exclusion logic for subjects with titers below limit of detection (as per Edge Cases) in `code/01_ingest.py` and log the exclusion count and choice in the documentation
+- [ ] T015a [US1] Implement logic in `code/ingest.py` to calculate N (count of subjects with complete data)
+- [ ] T015b [US1] Implement logic in `code/01_ingest.py` to log N to console and file
+- [ ] T015c [US1] Implement conditional check in `code/01_ingest.py`: If N < 50, prepare error condition
+- [ ] T015d [US1] Implement exception raising in `code/01_ingest.py`: Raise `ValueError("ERR_NO_DATA: Insufficient Sample Size (N < 50)")` if check fails
+- [ ] T016 [US1] Write filtered dataset to `data/processed/filtered_data.csv` and log exclusion counts
+- [ ] T017 [US1] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Contract test for data schema validation in `code/tests/test_ingest.py`
 - [ ] T010 [P] [US1] Integration test for data filtering logic in `code/tests/test_ingest.py`
-
-### Implementation for User Story 1
-
-- [ ] T011 [US1] Implement Strategy A: Fetch pre-processed 16S/serology CSV/Parquet from specific HuggingFace dataset or NCBI SRA pre-processed archive. If fetch fails, trigger T011b (Strategy B).
-- [ ] T011b [US1] Implement Strategy B: Download raw FASTQ files from NCBI SRA (using `prefetch`/`fasterq-dump` from SRA Toolkit) for the target study if Strategy A fails.
-- [ ] T011c [US1] Implement Strategy B: Run 16S processing pipeline (QIIME2 or DADA2 via Docker or lightweight Python wrapper) on raw FASTQ to generate OTU table.
-- [ ] T011d [US1] Implement Strategy B: Merge generated OTU table with serology metadata using `subject_id` to create the initial dataset.
-- [ ] T012 [US1] Implement filtering logic in `code/01_ingest.py` to exclude subjects missing baseline or post-vaccination titers
-- [ ] T013 [US1] Implement data type validation in `code/01_ingest.py` (ensure numeric abundances and titers)
-- [ ] T014 [US1] Add logic to handle subjects with titers below limit of detection (impute to half detection limit or exclude)
-- [ ] T015a [US1] Implement logic in `code/01_ingest.py` to calculate N (count of subjects with complete data)
-- [ ] T015b [US1] Implement logic in `code/01_ingest.py` to log N to console and file
-- [ ] T015c [US1] Implement conditional check in `code/01_ingest.py`: If N < 50, prepare error condition
-- [ ] T015d [US1] Implement exception raising in `code/01_ingest.py`: Raise `ValueError("ERR_NO_DATA: Insufficient Sample Size (N < 50)")` if check fails
-- [ ] T016 [US1] Write filtered dataset to `data/processed/filtered_data.csv` and log exclusion counts
-- [ ] T017 [US1] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,24 +108,24 @@
 
 **Independent Test**: The system can be tested by running analysis on a synthetic dataset with known correlations and verifying correct identification of significant taxa and adjusted p-values.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`
-- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `code/tests/test_correlation.py`
-
 ### Implementation for User Story 2
 
 - [ ] T019a [US2] Implement zero-variance taxa exclusion in `code/02_preprocess.py`: Filter out taxa with 0 variance across all subjects BEFORE transformation to avoid division-by-zero.
 - [ ] T020 [US2] Implement Centered Log-Ratio (CLR) transformation in `code/02_preprocess.py` (handle zeros with pseudocount)
-- [ ] T021 [US2] Implement Shannon diversity index calculation in `code/02_preprocess.py`
+- [ ] T021 [US2] Implement Shannon diversity index calculation in `code/02_preprocess.py` using `data/processed/cleared_default.csv` (CLR-transformed data)
 - [ ] T022 [US2] Implement log-transformation of antibody titers in `code/02_preprocess.py`
 - [ ] T023 [US2] Implement Spearman rank correlation test in `code/03_correlation.py` (exclude zero-variance taxa)
 - [ ] T024 [US2] Implement Benjamini-Hochberg FDR correction in `code/03_correlation.py`
 - [ ] T025 [US2] Write correlation results (coeff, raw p, adj p) to `data/results/correlation_results.csv`
 - [ ] T025a [US2] Implement logic in `code/03_correlation.py` to calculate the count of taxa with adjusted p < 0.05
-- [ ] T025c [US2] Implement logic in `code/03_correlation.py` to explicitly calculate the count of significant taxa and compare it against the expected range defined in the spec, logging the result
+- [ ] T025c [US2] Implement logic in `code/_correlation.py` to explicitly calculate the count of significant taxa and log the result against the expected range (low single-digit to high single-digit) as a hypothesis check, NOT a hard failure
 - [ ] T026 [US2] Write diversity metrics to `data/results/diversity_metrics.csv`
 - [ ] T027 [US2] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/correlation_results.schema.yaml`
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T018 [P] [US2] Unit test for CLR transformation logic in `code/tests/test_correlation.py`
+- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg correction in `code/tests/test_correlation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,27 +137,28 @@
 
 **Independent Test**: The system can be tested by running training on the ingested dataset and verifying that feature selection is logged within each fold and accuracy is reported.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Unit test for nested CV structure in `code/tests/test_modeling.py`
-- [ ] T029 [P] [US3] Integration test for model performance metrics in `code/tests/test_modeling.py`
-
 ### Implementation for User Story 3
 
 - [ ] T030a [US3] Implement seroconversion logic (≥4-fold rise in titer) in `code/04_modeling.py`
 - [ ] T030b [US3] Implement absolute titer logic (e.g., HAI ≥ 40) in `code/04_modeling.py`
 - [ ] T030c [US3] Implement threshold parameterization for responder definition in `code/04_modeling.py`
 - [ ] T030d [US3] Apply responder definition to dataset in `code/04_modeling.py`
-- [ ] T031 [US3] Implement nested 5-fold cross-validation loop in `code/04_modeling.py`
-- [ ] T032 [US3] Implement feature selection (top taxa) strictly inside the inner training loop of each outer fold
+- [ ] T031 [US3] Implement an outer k-fold cross-validation split loop in `code/04_modeling.py`
+- [ ] T032 [US3] Implement feature selection (top taxa) strictly inside the inner training loop of each outer fold, using `data/processed/responder_labels.csv` from T030d
 - [ ] T033 [US3] Implement Random Forest classifier training in `code/04_modeling.py` (CPU-only, default precision)
 - [ ] T034a [US3] Implement permutation baseline testing: Generate null distribution of accuracy scores by shuffling labels in `code/04_modeling.py`
 - [ ] T034b [US3] Implement logic in `code/04_modeling.py` to compare Random Forest accuracy against the permutation baseline null distribution
-- [ ] T034c [US3] Implement explicit statistical comparison in `code/04_modeling.py` between Random Forest accuracy and the permutation baseline null distribution (p < 0.05)
-- [ ] T034d [US3] Implement halt/flag logic in `code/04_modeling.py` if the comparison condition (p < 0.05) is not met, satisfying SC-003
+- [ ] T034c [US3] Implement explicit statistical comparison in `code/04_modeling.py` between Random Forest accuracy and the permutation baseline null distribution (p < 0.05) and write result to `data/results/model_significance.json`
+- [ ] T034d [US3] Implement orchestration logic in `code/04_modeling.py` that waits for outputs from T031 and T034c, then halts or flags if the comparison condition (p < 0.05) is not met
+- [ ] T034e [US3] Calculate and log absolute cross-validated accuracy metric against SC-003 target (>60%) in `code/04_modeling.py`
 - [ ] T035 [US3] Calculate and log confusion matrix, precision, recall, F1-score for high/low responders
 - [ ] T036 [US3] Write model metrics to `data/results/model_metrics.json`
 - [ ] T037 [US3] Validate output against `specs/001-investigating-the-correlation-between-gu/contracts/model_metrics.schema.yaml`
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T028 [P] [US3] Unit test for nested CV structure in `code/tests/test_modeling.py`
+- [ ] T029 [P] [US3] Integration test for model performance metrics in `code/tests/test_modeling.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -175,10 +180,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 Code cleanup and refactoring
+- [ ] T039 Run ruff check and black format on all files in code/ and fix all reported issues
 - [ ] T040 [P] Additional unit tests for edge cases (zero variance, missing data)
 - [ ] T041 Run quickstart.md validation
-- [ ] T042 Verify runtime < 6h AND memory usage < 7GB on GitHub Actions free-tier runner using `memory_profiler` or similar tool
+- [ ] T042 Implement runtime monitoring in code/utils.py to log total runtime to data/results/resource_usage.json and assert < 21600s
 
 ---
 
@@ -275,4 +280,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only GitHub Actions free-tier runners (≤7GB RAM, ≤6h). No GPU, no 8-bit quantization.
-- **Data Strategy**: T011 (Strategy A) is preferred; T011b/T011c/T011d (Strategy B) is mandatory fallback if no pre-processed data exists.
+- **Data Strategy**: T011a (Strategy A) is preferred; T011b-d (Strategy B) is conditional fallback if T011a fails.

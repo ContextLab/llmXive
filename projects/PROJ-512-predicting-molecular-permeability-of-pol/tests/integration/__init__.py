@@ -1,1 +1,2 @@
-# Integration tests package
+# Integration tests package root
+pass

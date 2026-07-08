@@ -1,0 +1,529 @@
+{
+  "fetched_at": "2026-07-08T21:58:14Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions",
+      "target_n": 5
+    },
+    "duration_seconds": 73.12,
+    "ended_at": "2026-07-08T21:58:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning for high-entropy alloy discovery"
+        ],
+        [
+          2,
+          "data-driven design of high-entropy alloys"
+        ],
+        [
+          3,
+          "predictive modeling for multi-principal element alloys"
+        ],
+        [
+          4,
+          "computational screening of novel high-entropy alloys"
+        ],
+        [
+          5,
+          "machine learning-guided synthesis of high-entropy alloys"
+        ],
+        [
+          6,
+          "phase stability prediction in high-entropy alloys using AI"
+        ],
+        [
+          7,
+          "neural networks for high-entropy alloy composition optimization"
+        ],
+        [
+          8,
+          "generative models for high-entropy alloy design"
+        ],
+        [
+          9,
+          "accelerated materials discovery for high-entropy alloys"
+        ],
+        [
+          10,
+          "machine learning prediction of solid solution formation in HEAs"
+        ],
+        [
+          11,
+          "high-entropy alloy property prediction using supervised learning"
+        ],
+        [
+          12,
+          "active learning for high-entropy alloy exploration"
+        ],
+        [
+          13,
+          "descriptor-based machine learning for alloy design"
+        ],
+        [
+          14,
+          "inverse design of high-entropy alloys via machine learning"
+        ],
+        [
+          15,
+          "screening criteria for stable high-entropy alloys"
+        ],
+        [
+          16,
+          "thermodynamic stability prediction of multi-component alloys"
+        ],
+        [
+          17,
+          "machine learning for metastable high-entropy alloy identification"
+        ],
+        [
+          18,
+          "data-centric approaches to high-entropy alloy development"
+        ],
+        [
+          19,
+          "feature engineering for high-entropy alloy composition space"
+        ],
+        [
+          20,
+          "automated discovery of refractory high-entropy alloys"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions materials science": 0,
+        "machine learning for high-entropy alloy discovery": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "data contamination memorization training set leakage",
+      "CALPHAD thermodynamic database high-entropy alloys",
+      "composition space exploration Pareto front optimization",
+      "formation energy prediction accuracy held-out test set",
+      "inverse materials design generative models property mapping"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2012.07583"
+      ]
+    },
+    "per_query_hit_count": {
+      "CALPHAD thermodynamic database high-entropy alloys": 3,
+      "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions materials science": 3,
+      "composition space exploration Pareto front optimization": 3,
+      "data contamination memorization training set leakage": 3,
+      "formation energy prediction accuracy held-out test set": 3,
+      "inverse materials design generative models property mapping": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from the user's question about predicting high-entropy alloy compositions in materials science. It fails to address the specific mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper focuses on general validation recommendations for machine learning in biology, which is an off-domain application area for the user's specific question regarding high-entropy alloys in materials science. It does not measure the predictive power of ML for alloy compositions, nor does it provide a canonical baseline or mechanism specific to the materials science domain requested.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2602.11092",
+          "rationale": "The paper focuses on a software framework for benchmarking photonic and hybrid quantum machine learning algorithms, which is entirely off-domain from the user's question regarding the predictive power of machine learning for discovering high-entropy alloy compositions in materials science. It shares no measurable connection to the specific materials science variables, empirical populations, or causal mechanisms (alloy composition prediction) required by the user's research question.",
+          "title": "MerLin: A Discovery Engine for Photonic and Hybrid Quantum Machine Learning"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves for algorithm selection and resource management in machine learning, which does not address the specific domain of high-entropy alloys, the materials science context, or the evaluation of predictive power for discovering novel material compositions. It fails to meet any inclusion criteria (a-f) as it lacks the necessary domain-specific variables, mechanisms, or empirical population, and instead represents a distinct construct sharing only the homo",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-08T21:57:01Z",
+    "term_input": {
+      "normalized": "evaluating the predictive power of machine learning for identifying novel high-entropy alloy compositions materials science",
+      "raw": "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have investigated the plastic deformation properties of non-equiatomic single phase Zr-Nb-Ti-Ta-Hf high-entropy alloys from room temperature up to 300 °C. Uniaxial deformation tests at a constant strain rate of 10$^{-4}$ s$^{-1}$ were performed including incremental tests such as stress-relaxations, strain-rate- and temperature changes in order to determine the thermodynamic activation parameters of the deformation process. The microstructure of deformed samples was characterized by transmission electron microscopy. The strength of the investigated Zr-Nb-Ti-Ta-Hf phase is not as high as the values frequently reported for high-entropy alloys in other systems. We find an activation enthalpy of about 1 eV and a stress dependent activation volume between 0.5 and 2 nm$^3$. The measurement of the activation parameters at higher temperatures is affected by structural changes evolving in the material during plastic deformation.",
+          "claimed_authors": [
+            "M. Feuerbacher",
+            "M. Heidelmann",
+            "C. Thomas"
+          ],
+          "claimed_title": "Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.3997"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Plasticity of Zr-Nb-Ti-Ta-Hf high-entropy alloys')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter introduces the use of X-ray absorption spectroscopy (XAS) in studying the local electronic and atomic structure of high-entropy materials. The element selectivity of XAS makes it particularly suitable to address the challenges posed by the study of multicomponent compounds. By analysing different parts of the X-ray absorption spectra for each element, one can obtain information on its chemical state from the X-ray absorption near-edge structure (XANES) and its local environment, distortions, and lattice dynamics from the extended X-ray absorption fine structure (EXAFS). The theoretical background underlying X-ray absorption spectra and existing data analysis procedures are briefly described, with particular emphasis on advanced atomistic modelling techniques that enable more reliable extraction of structural information. Finally, an overview of the applications of the XAS technique in studying high-entropy materials is presented.",
+          "claimed_authors": [
+            "Alexei Kuzmin"
+          ],
+          "claimed_title": "6 -- X-ray absorption spectroscopy in high-entropy material research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.05944"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='6 -- X-ray absorption spectroscopy in high-entropy material research')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter presents a literature review of the serrated flow phenomenon in high-entropy alloys (HEAs). The serrated flow is important as it can result in permanent macroscopic and microstructural changes in HEAs. The literature reveals several important findings regarding the effect of strain rate and test temperature on the serrated flow. Furthermore, this chapter explores the relationship among the composition, microstructure, testing condition, and serration behavior. Towards the end of the chapter, a concise summary is presented for the temperature, strain rate, mechanical-testing type (compression/tension/nanoindentation), and serration type for HEAs. This chapter also provides an overview of the different types of analytical methods that have been successfully implemented to model and analyze the serration behavior in HEAs. Such techniques include the mean-field theory (MFT) formalism, complexity-analysis method, and multifractal technique. Finally, future research topics in this area are presented, such as the effects of twinning and irradiation on the serration behavior.",
+          "claimed_authors": [
+            "Jamieson Brechtl",
+            "Peter K. Liaw"
+          ],
+          "claimed_title": "The Serrated-Flow Behavior in High-Entropy Alloys",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14504"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='The Serrated-Flow Behavior in High-Entropy Alloys')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A nonsmooth set-gradient ascent method is developed for moving finite approximation sets toward the Pareto front in multiobjective optimization. The method optimizes layered set indicators: a base indicator is evaluated on successive nondomination layers, and the layer values are combined with rapidly decreasing weights. This gives ascent directions to nondominated and dominated points while preventing deeper layers from compensating for deterioration of the first front. Two base indicators are treated: the hypervolume indicator and the magnitude indicator of the dominated set, whose expansion over coordinate projections contains extent, projected-area, and volume terms. The scalar objectives are nonsmooth because nondomination layers change combinatorially and the active orthogonal-union geometry changes piecewise. On fixed strata, where layer assignments and active geometry remain unchanged, the indicators are piecewise smooth and chamberwise continuous. For the magnitude indicator, an exact gradient formula is derived as a linear combination of hypervolume gradients of projected shadow sets. Thus, for fixed objective dimension, magnitude gradients have the same asymptotic time complexity as hypervolume gradients. Lexicographic layer aggregation is related to a unary infinitesimal encoding. For finite-$ε$ surrogates, the main nonsmoothness mechanisms are isolated and chamberwise Lipschitz continuity on bounded sets is proved; a two-point counterexample shows that hard-layer scalarization is not globally continuous across layer switches. The theory motivates a projected finite-difference implementation with repulsion and recovery from stagnation. Numerical examples and reproducible code cover two- and three-objective settings, including objective-space tests, curved fronts, a supersphere benchmark, and traces comparing layered magnitude and hypervolume ascent.",
+          "claimed_authors": [
+            "Michael T. M. Emmerich"
+          ],
+          "claimed_title": "Nonsmooth Set-Gradient Ascent to the Pareto Front via Layered Hypervolume and Magnitude Indicators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.13468"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Nonsmooth Set-Gradient Ascent to the Pareto Front via Layered Hypervolume and Magnitude Indicators')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This note proposes an effective pruning-based Pareto front generation method in mixed-discrete bi-objective optimization. The mixed-discrete problem is decomposed into multiple continuous subproblems; two-phase pruning steps identify and prune out non-contributory subproblems to the Pareto front construction. The efficacy of the proposed method is demonstrated on two benchmark examples.",
+          "claimed_authors": [
+            "SeungBum Hong",
+            "Jaemyung Ahn",
+            "Han-Lim Choi"
+          ],
+          "claimed_title": "Pruning-Based Pareto Front Generation for Mixed-Discrete Bi-Objective Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.1589"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Pruning-Based Pareto Front Generation for Mixed-Discrete Bi-Objective Optimization')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge of the centre-of-mass energy at LEP2 is of primary importance to set the absolute energy scale for the measurement of the W-boson mass. The beam energy above 80 GeV is derived from continuous measurements of the magnetic bending field by 16 NMR probes situated in a number of the LEP dipoles. The relationship between the fields measured by the probes and the beam energy is calibrated against precise measurements of the average beam energy between 41 and 55 GeV made using the resonant depolarisation technique. The linearity of the relationship is tested by comparing the fields measured by the probes with the total bending field measured by a flux loop. This test results in the largest contribution to the systematic uncertainty. Several further corrections are applied to derive the the centre-of-mass energies at each interaction point. In addition the centre-of-mass energy spread is evaluated. The beam energy has been determined with a precision of 25 MeV for the data taken in 1997, corresponding to a relative precision of 2.7x10^{-4}. This is small in comparison to the present uncertainty on the W mass measurement at LEP. However, the ultimate statistical precision on the W mass with the full LEP2 data sample should be around 25 MeV, and a smaller uncertainty on the beam energy is desirable. Prospects for improvements are outlined.",
+          "claimed_authors": [
+            " The LEP Energy Working Group"
+          ],
+          "claimed_title": "Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "hep-ex/9901002"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Evaluation of the LEP Centre-of-Mass Energy Above the W-Pair Production Threshold')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We define the star transform as a generalization of the broken ray transform introduced by us in previous work. The advantages of using the star transform include the possibility to reconstruct the absorption and the scattering coefficients of the medium separately and simultaneously (from the same data) and the possibility to utilize scattered radiation which, in the case of the conventional X-ray tomography, is discarded. In this paper, we derive the star transform from physical principles, discuss its mathematical properties and analyze numerical stability of inversion. In particular, it is shown that stable inversion of the star transform can be obtained only for configurations involving odd number of rays. Several computationally-efficient inversion algorithms are derived and tested numerically.",
+          "claimed_authors": [
+            "Fan Zhao",
+            "John C. Schotland",
+            "Vadim A. Markel"
+          ],
+          "claimed_title": "Inversion of the star transform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.7655"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='Inversion of the star transform')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the first-principles design and subsequent synthesis of a new material with the specific functionalities required for a solid-state-based search for the permanent electric dipole moment of the electron. We show computationally that perovskite-structure europium barium titanate should exhibit the required large and pressure-dependent ferroelectric polarization, local magnetic moments, and absence of magnetic ordering even at liquid helium temperature. Subsequent synthesis and characterization of Eu$_{0.5}$Ba$_{0.5}$TiO$_3$ ceramics confirm the predicted desirable properties.",
+          "claimed_authors": [
+            "K. Z. Rushchanskii",
+            "S. Kamba",
+            "V. Goian",
+            "P. Vanvek",
+            "M. Savinov",
+            "J. Provlevska",
+            "D. Nuzhnyy",
+            "K. Knivsek",
+            "F. Laufek",
+            "S. Eckel",
+            "S. K. Lamoreaux",
+            "A. O. Sushkov",
+            "M. Lezaic",
+            "N. A. Spaldin"
+          ],
+          "claimed_title": "First-principles design and subsequent synthesis of a material to search for the permanent electric dipole moment of the electron",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.0376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Predictive Power of Machine Learning for Identifying Novel High-E', candidate_title='First-principles design and subsequent synthesis of a material to search for the permanent electric dipole moment of the electron')",
+        "failed_at": "2026-07-08T21:57:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Baldur Steingrimsson",
+            "Xuesong Fan",
+            "Anand Kulkarni",
+            "Michael C. Gao",
+            "Peter K. Liaw"
+          ],
+          "title": "Machine Learning and Data Analytics for Design and Manufacturing of High-Entropy Materials Exhibiting Mechanical or Fatigue Properties of Interest",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.07583",
+        "summary": "This chapter presents an innovative framework for the application of machine learning and data analytics for the identification of alloys or composites exhibiting certain desired properties of interest. The main focus is on alloys and composites with large composition spaces for structural materials. Such alloys or composites are referred to as high-entropy materials (HEMs) and are here presented primarily in context of structural applications. For each output property of interest, the corresponding driving (input) factors are identified. These input factors may include the material composition, heat treatment, manufacturing process, microstructure, temperature, strain rate, environment, or testing mode. The framework assumes the selection of an optimization technique suitable for the application at hand and the data available. Physics-based models are presented, such as for predicting the ultimate tensile strength (UTS) or fatigue resistance. We devise models capable of accounting for physics-based dependencies. We factor such dependencies into the models as a priori information. In case that an artificial neural network (ANN) is deemed suitable for the applications at hand, it is suggested to employ custom kernel functions consistent with the underlying physics, for the purpose of attaining tighter coupling, better prediction, and for extracting the most out of the - usually limited - input data available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.07583",
+          "http_status": 200,
+          "pdf_sample_score": 0.3171,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T21:57:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cheng Li",
+            "Pengfei Danga",
+            "Yuehui Xiana",
+            "Yumei Zhou",
+            "Bofeng Shi",
+            "Xiangdong Ding",
+            "Jun Suna",
+            "Dezhen Xue"
+          ],
+          "title": "Generative Inversion for Property-Targeted Materials Design: Application to Shape Memory Alloys",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.07798",
+        "summary": "The design of shape memory alloys (SMAs) with high transformation temperatures and large mechanical work output remains a longstanding challenge in functional materials engineering. Here, we introduce a data-driven framework based on generative adversarial network (GAN) inversion for the inverse design of high-performance SMAs. By coupling a pretrained GAN with a property prediction model, we perform gradient-based latent space optimization to directly generate candidate alloy compositions and processing parameters that satisfy user-defined property targets. The framework is experimentally validated through the synthesis and characterization of five NiTi-based SMAs. Among them, the Ni$_{49.8}$Ti$_{26.4}$Hf$_{18.6}$Zr$_{5.2}$ alloy achieves a high transformation temperature of 404 $^\\circ$C, a large mechanical work output of 9.9 J/cm$^3$, a transformation enthalpy of 43 J/g , and a thermal hysteresis of 29 °C, outperforming existing NiTi alloys. The enhanced performance is attributed to a pronounced transformation volume change and a finely dispersed of Ti$_2$Ni-type precipitates, enabled by sluggish Zr and Hf diffusion, and semi-coherent interfaces with localized strain fields. This study demonstrates that GAN inversion offers an efficient and generalizable route for the property-targeted discovery of complex alloys.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.07798",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T21:57:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the predictive power of machine learning for identifying novel high-entropy alloy compositions materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
