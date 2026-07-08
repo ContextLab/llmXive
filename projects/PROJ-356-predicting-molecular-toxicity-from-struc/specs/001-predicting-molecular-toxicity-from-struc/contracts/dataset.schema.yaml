@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Toxicity Dataset Schema"
+description: "Schema for the preprocessed molecular toxicity dataset used in the rule-based vs descriptor-based comparison."
+type: object
+properties:
+  canonical_smiles:
+    type: string
+    description: "Standardized SMILES string for the molecule."
+  molecular_weight:
+    type: number
+    description: "Molecular weight in Daltons. Must be < 1000."
+  mutagenicity_label:
+    type: integer
+    description: "Binary label: 1 for active (mutagenic), 0 for inactive."
+    minimum: 0
+    maximum: 1
+  structural_alerts:
+    type: array
+    description: "Binary vector indicating presence of curated structural alerts."
+    items:
+      type: integer
+      minimum: 0
+      maximum: 1
+    minItems: 10
+  global_descriptors:
+    type: array
+    description: "Vector of 20 global molecular descriptors (fixed set)."
+    items:
+      type: number
+    minItems: 20
+    maxItems: 20
+  murcko_scaffold:
+    type: string
+    description: "Canonicalized Murcko scaffold SMILES for error analysis."
+required:
+  - canonical_smiles
+  - molecular_weight
+  - mutagenicity_label
+  - structural_alerts
+  - global_descriptors
+  - murcko_scaffold
+additionalProperties: false

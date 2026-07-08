@@ -1,0 +1,11 @@
+- artifact_hash: c41ad63e4c8eb7a041f3acbd9d80f803f8811b113f1850208fbd8407510781c9
+  artifact_path: projects/PROJ-356-predicting-molecular-toxicity-from-struc/specs/001-predicting-molecular-toxicity-from-struc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: toxcast.csv
+  kind: url
+  value: https://huggingface.co/datasets/scikit-fingerprints/MoleculeNet_ToxCast/resolve/main/toxcast.csv
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/scikit-fingerprints/MoleculeNet_ToxCast/fcafd2b8a4922e2dd3649e8ec36670e3b10b9448/toxcast.csv?%2Fdatasets%2Fscikit-fingerprints%2FMoleculeNet_ToxCast%2Fresolve%2Fmain%2Ftoxcast.csv=&etag=%228586b2330cac3fa450c527cf54c7a540f511849f%22
+  verified_at: '2026-07-08T04:22:08.525702Z'

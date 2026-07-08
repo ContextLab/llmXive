@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "description": "Curated set of structural alerts with SMARTS patterns and toxicity weights for molecular toxicity prediction.",
+  "alerts": [
+    {
+      "id": "NitroAromatic",
+      "smarts": "[*;a]([N+](=O)[O-])",
+      "weight": 1.5,
+      "description": "Nitro aromatic compounds are known mutagens."
+    },
+    {
+      "id": "Epoxide",
+      "smarts": "[C;D3]1[O;D1][C;D3]1",
+      "weight": 2.0,
+      "description": "Epoxides are highly reactive electrophiles."
+    },
+    {
+      "id": "PrimaryAromaticAmine",
+      "smarts": "[N;D1;H2][c]",
+      "weight": 1.2,
+      "description": "Primary aromatic amines are common metabolic activation targets."
+    },
+    {
+      "id": "SecondaryAromaticAmine",
+      "smarts": "[N;D2;H1][c]",
+      "weight": 1.0,
+      "description": "Secondary aromatic amines exhibit moderate toxicity risk."
+    },
+    {
+      "id": "Azide",
+      "smarts": "[N;D1]=[N;D1]=[N;D1]",
+      "weight": 2.5,
+      "description": "Azides are unstable and potentially toxic."
+    },
+    {
+      "id": "Isocyanate",
+      "smarts": "[N;D1]=[C;D2]=[O;D1]",
+      "weight": 2.0,
+      "description": "Isocyanates are reactive and respiratory sensitizers."
+    },
+    {
+      "id": "Aldehyde",
+      "smarts": "[C;D2](=[O;D1])[H;D1]",
+      "weight": 0.8,
+      "description": "Aldehydes can form protein adducts."
+    },
+    {
+      "id": "HalogenatedAliphatic",
+      "smarts": "[C;D4][Cl,Br,I,F]",
+      "weight": 0.5,
+      "description": "Halogenated aliphatic chains may indicate metabolic stability or toxicity."
+    },
+    {
+      "id": "Azo",
+      "smarts": "[N;D1]=[N;D1]",
+      "weight": 1.8,
+      "description": "Azo compounds can be reduced to aromatic amines."
+    },
+    {
+      "id": "Hydrazine",
+      "smarts": "[N;D1][N;D1]",
+      "weight": 1.5,
+      "description": "Hydrazine derivatives are toxic and potentially carcinogenic."
+    }
+  ]
+}

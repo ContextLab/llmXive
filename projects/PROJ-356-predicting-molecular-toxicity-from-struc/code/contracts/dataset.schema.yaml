@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the molecular toxicity dataset used in the pipeline.
+type: object
+required:
+  - metadata
+  - compounds
+properties:
+  metadata:
+    type: object
+    required:
+      - assay_id
+      - assay_type
+      - source
+      - total_compounds
+      - date_retrieved
+    properties:
+      assay_id:
+        type: string
+        description: Unique identifier for the assay (e.g., PubChem AID 1851).
+      assay_type:
+        type: string
+        description: Type of assay (e.g., Ames, ToxCast).
+      source:
+        type: string
+        description: URL or name of the data source.
+      total_compounds:
+        type: integer
+        minimum: 1000
+        description: Total number of compounds in the dataset.
+      date_retrieved:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of data retrieval.
+  compounds:
+    type: array
+    items:
+      type: object
+      required:
+        - smiles
+        - label
+      properties:
+        smiles:
+          type: string
+          description: Canonical SMILES string of the molecule.
+        label:
+          type: integer
+          enum: [0, 1]
+          description: Binary label: 0 (non-toxic), 1 (toxic).
+        mw:
+          type: number
+          description: Molecular weight in Daltons.
+        canonical_smiles:
+          type: string
+          description: Canonicalized SMILES string.

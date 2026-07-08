@@ -1,0 +1,108 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for the JSON report containing model metrics and statistical test results."
+type: object
+properties:
+  rule_based_model:
+    type: object
+    description: "Metrics for the rule-based scoring model."
+    properties:
+      roc_auc:
+        type: number
+        description: "Area Under the ROC Curve."
+      f1_score:
+        type: number
+        description: "F1 Score."
+      recall:
+        type: number
+        description: "Recall metric."
+      confusion_matrix:
+        type: object
+        properties:
+          TP: { type: integer }
+          FP: { type: integer }
+          TN: { type: integer }
+          FN: { type: integer }
+        required: [TP, FP, TN, FN]
+    required: [roc_auc, f1_score, recall, confusion_matrix]
+  logistic_regression_model:
+    type: object
+    description: "Metrics for the Logistic Regression model."
+    properties:
+      roc_auc:
+        type: number
+        description: "Area Under the ROC Curve."
+      f1_score:
+        type: number
+        description: "F1 Score."
+      recall:
+        type: number
+        description: "Recall metric."
+      confusion_matrix:
+        type: object
+        properties:
+          TP: { type: integer }
+          FP: { type: integer }
+          TN: { type: integer }
+          FN: { type: integer }
+        required: [TP, FP, TN, FN]
+    required: [roc_auc, f1_score, recall, confusion_matrix]
+  statistical_test:
+    type: object
+    description: "Results of DeLong's test comparing the two models."
+    properties:
+      test_name:
+        type: string
+        const: "DeLong's Test"
+      p_value:
+        type: number
+        description: "P-value from the test."
+      significant:
+        type: boolean
+        description: "True if p_value < 0.05."
+      ci_lower:
+        type: number
+        description: "Lower bound of 95% Confidence Interval."
+      ci_upper:
+        type: number
+        description: "Upper bound of 95% Confidence Interval."
+    required: [test_name, p_value, significant, ci_lower, ci_upper]
+  recall_comparison:
+    type: object
+    description: "Comparison of recall between models."
+    properties:
+      rule_recall:
+        type: number
+      descriptor_recall:
+        type: number
+      difference:
+        type: number
+      exceeds_threshold:
+        type: boolean
+        description: "True if difference > 0.05."
+    required: [rule_recall, descriptor_recall, difference, exceeds_threshold]
+  error_analysis:
+    type: object
+    description: "Analysis of false negatives from the rule-based model."
+    properties:
+      false_negative_count:
+        type: integer
+      unique_motif_count:
+        type: integer
+        description: "Count of unique scaffolds in false negatives."
+      top_scaffolds:
+        type: array
+        description: "List of top 10 unique Murcko scaffolds found in false negatives."
+        items:
+          type: string
+        maxItems: 10
+      feasibility_note:
+        type: string
+    required: [false_negative_count, unique_motif_count, top_scaffolds, feasibility_note]
+required:
+  - rule_based_model
+  - logistic_regression_model
+  - statistical_test
+  - recall_comparison
+  - error_analysis
+additionalProperties: false

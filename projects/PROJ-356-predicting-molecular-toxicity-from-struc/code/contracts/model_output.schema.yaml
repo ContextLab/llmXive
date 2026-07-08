@@ -1,0 +1,119 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the model evaluation results and out-of-fold predictions.
+type: object
+required:
+  - dataset_metadata
+  - rule_based_metrics
+  - logistic_metrics
+  - oof_predictions
+properties:
+  dataset_metadata:
+    type: object
+    required:
+      - assay_id
+      - assay_type
+      - total_compounds
+    properties:
+      assay_id:
+        type: string
+      assay_type:
+        type: string
+      total_compounds:
+        type: integer
+  rule_based_metrics:
+    type: object
+    required:
+      - roc_auc
+      - f1
+      - recall
+    properties:
+      roc_auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+  logistic_metrics:
+    type: object
+    required:
+      - roc_auc
+      - f1
+      - recall
+    properties:
+      roc_auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+  statistical_significance:
+    type: object
+    properties:
+      delong_p_value:
+        type: number
+      confidence_interval_95:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      is_significant:
+        type: boolean
+  recall_difference:
+    type: object
+    properties:
+      logistic_recall:
+        type: number
+      rule_based_recall:
+        type: number
+      difference:
+        type: number
+      exceeds_threshold:
+        type: boolean
+        description: True if difference > 0.05 (5%).
+  oof_predictions:
+    type: array
+    description: Out-of-fold predictions for every instance.
+    items:
+      type: object
+      required:
+        - instance_id
+        - rule_based_prob
+        - logistic_prob
+        - true_label
+      properties:
+        instance_id:
+          type: integer
+        rule_based_prob:
+          type: number
+        logistic_prob:
+          type: number
+        true_label:
+          type: integer
+  error_analysis:
+    type: object
+    properties:
+      false_negatives_count:
+        type: integer
+      top_scaffolds:
+        type: array
+        items:
+          type: object
+          properties:
+            scaffold_smiles:
+              type: string
+            frequency:
+              type: integer

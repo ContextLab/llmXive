@@ -1,0 +1,559 @@
+resolved_at: '2026-07-08T04:11:41.752910+00:00'
+datasets:
+- intent: PubChem
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 65908
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zpn/pubchem_selfies/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644d439797a3b0904a5408ee/bfd168ffc7b989cd5190192535085fe2052dcb5d5733c22218a211f19a114195?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES.csv%3B+filename%3D%22PubChem10M_SELFIES.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1783487183&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZDQzOTc5N2EzYjA5MDRhNTQwOGVlL2JmZDE2OGZmYzdiOTg5Y2Q1MTkwMTkyNTM1MDg1ZmUyMDUyZGNiNWQ1NzMzYzIyMjE4YTIxMWYxOWExMTQxOTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTLmNzdiUzQitmaWxlbmFtZSUzRCUyMlB1YkNoZW0xME1fU0VMRklFUy5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzQ4NzE4M319fV19&Signature=MEUCIQDfhdCaF96C75tK6SdGka02k4EkhU~vquiR~qZR4lH3nQIgcHJVEsHCeB0dxM57fCr-ZIIzQBmWqzXOkCQuje0sZoE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644ed4c5a00f4b11d39aaac7/d43fe0e1abeffe5259c320645710e98605e42616aa50b4403d6cfa37ae862ab7?response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27PubChem10M_SELFIES_Tokenized.csv%3B+filename%3D%22PubChem10M_SELFIES_Tokenized.csv%22%3B&Expires=1783487184&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0ZWQ0YzVhMDBmNGIxMWQzOWFhYWM3L2Q0M2ZlMGUxYWJlZmZlNTI1OWMzMjA2NDU3MTBlOTg2MDVlNDI2MTZhYTUwYjQ0MDNkNmNmYTM3YWU4NjJhYjdcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3UHViQ2hlbTEwTV9TRUxGSUVTX1Rva2VuaXplZC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJQdWJDaGVtMTBNX1NFTEZJRVNfVG9rZW5pemVkLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDg3MTg0fX19XX0_&Signature=MEUCIQDA27t2Jb~VBTzD906I9op5~o-31eW5PA7v8klmRJqrxQIgb8E5bwBN1ITSofCa7GFR-GLi5W5m5tvvo0hYG9th8E8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Bridging_communication_Using_New_Zealand_Sign_Language_with_non-deaf_tamariki_in_early_childhood_education/32931167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Promoted_Trifluoromethylation_Ring-Opening_Reaction_of_Vinylcyclopropanes_by_an_EDA_Complex/32931164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.95x69p8jd
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8173428
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7562008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17360659
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15174498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237576
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21232677
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ToxCast
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/scikit-fingerprints/MoleculeNet_ToxCast/resolve/main/toxcast.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HR-machine/ToxCast/resolve/main/test_data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/liuganghuggingface/toxcast/resolve/main/toxcast_data.csv.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/scikit-fingerprints/MoleculeNet_ToxCast/resolve/main/toxcast.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/HR-machine/ToxCast/resolve/main/test_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/liuganghuggingface/toxcast/resolve/main/toxcast_data.csv.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Sebasdi/toxcast_v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/amirhallaji/Toxicity-Prediction-Task-ToxCast/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Bridging_communication_Using_New_Zealand_Sign_Language_with_non-deaf_tamariki_in_early_childhood_education/32931167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Promoted_Trifluoromethylation_Ring-Opening_Reaction_of_Vinylcyclopropanes_by_an_EDA_Complex/32931164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4905282
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2529091
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.zkh189367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/260006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/260010
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_weight_of_evidence_review_on_the_mode_of_action_adversity_and_the_human_relevance_of_xylene_s_observed_thyroid_effects_in_rats/28174684/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_weight_of_evidence_review_on_the_mode_of_action_adversity_and_the_human_relevance_of_xylene_s_observed_thyroid_effects_in_rats/28174684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845047
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845047
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/m74y-d408
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/k0698r435 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f8efb6e0b90>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5592
+      parsed: true
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&user_id=public&response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&Expires=1783487296&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDg3Mjk2fX19XX0_&Signature=MEUCIATmIwthgrP8GTngb5J~sSrBHdp8YgcNa24VTVoiqIrsAiEAuBhYSJykZ26fQaC7UePQk3VVHlr8XKknNry9BZ3VnRU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&user_id=public&response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&Expires=1783487297&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4mWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzQ4NzI5N319fV19&Signature=MEQCIGIOtsrPanrYzWWJz6SMB-~CWjX7b6jF0yLcJnuRqBqWAiBASyk7ZGcwfL7JemJ~3k49pgKR7VinaxEzx3nNBGjB1w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Constraint_Collapse_and_Fidelity_Decay_in_Scaled_Language_Models/31302028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/ct/article/208076
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602504724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.02537
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06224
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05736
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05691
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c854r/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMARTS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_vihangd__smartsolmix-4x10.7b-v1/resolve/main/2024-01-05T08-52-41.511718/details_harness|arc:challenge|25_2024-01-05T08-52-41.511718.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/texta1564/smartSentry-new/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/karemmo/SmartSchool/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 9013
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_vihangd__smartsolmix-4x10.7b-v1/resolve/main/2024-01-05T08-52-41.511718/details_harness|arc:challenge|25_2024-01-05T08-52-41.511718.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/ResplendentAI/Smarts/6b26e48ef37c53b8efffa53a5ad943fb6ed5cdad/NewTest.json?%2Fdatasets%2FResplendentAI%2FSmarts%2Fresolve%2Fmain%2FNewTest.json=&etag=%22937db7f3c612c90c4201d49b664d134d2dde35ca%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/texta1564/smartSentry-new/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/karemmo/SmartSchool/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Constraint_Collapse_and_Fidelity_Decay_in_Scaled_Language_Models/31302028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19896692
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19902300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7711848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7116311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4010930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ehdq4/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mybpe/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jv6xp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6qgj2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6fvrp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROC-AUC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Constraint_Collapse_and_Fidelity_Decay_in_Scaled_Language_Models/31302028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Multicentric_Mortality_Prediction/32931113/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Multicentric_Mortality_Prediction/32931113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_MIMIC-IV_Hospital_Mortality_Prediction/32929085/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_MIMIC-IV_Hospital_Mortality_Prediction/32929085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Diagnostic_value_of_cytokine_detection_in_children_with_Mycoplasma_pneumoniae_pneumonia_complicated_by_bacterial_or_viral_co-infections/8581206/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BioAssay
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/phanvancongthanh/pubchem_bioassay/resolve/main/data/train-00000-of-00027-e246c50db44f929d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/phanvancongthanh/pubchem_bioassay_standardized/resolve/main/data/train-00000-of-00021-bb85c7246ea8530f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pankajrajdeo/ChEMBL_Bioassay/resolve/main/ChEMBL_Bioassay.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/phanvancongthanh/pubchem_bioassay/resolve/main/data/train-00000-of-00027-e246c50db44f929d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/phanvancongthanh/pubchem_bioassay_standardized/resolve/main/data/train-00000-of-00021-bb85c7246ea8530f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/ChEMBL_Bioassay/resolve/main/ChEMBL_Bioassay.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/PubChem_bioassay/resolve/main/PubChem_bioassay_text.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lighteternal/BioAssayAlign-Assay-Compound-Data/resolve/main/prepared/compatibility-ranking/compat_assays.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/_b_ASET_SEBAGAI_BASIS_KEWENANGAN_REKONSTRUKSI_YURISDIKSI_SATPOL_PP_PROVINSI_TERHADAP_PARKIR_LIAR_DI_KOMPLEKS_PERKANTORAN_SETDA_KALIMANTAN_SELATAN_b_/32931140
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Constraint_Collapse_and_Fidelity_Decay_in_Scaled_Language_Models/31302028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g3t3cj8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.cg4qp
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11634321
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7187942
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AID
+  status: unresolved
+  candidates: []
+  candidates_tried: []
