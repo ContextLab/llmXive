@@ -53,7 +53,7 @@ samples:
   backlog: 318
 - at: '2026-07-08T05:16:04.006574+00:00'
   backlog: 322
-- at: '2026-07-08T06:54:18.758637+00:00'
+- at: '2026-07-08T07:06:59.251168+00:00'
   backlog: 321
 last_decision:
   requested: 5
@@ -61,6 +61,6 @@ last_decision:
   backlog: 321
   growth: -6
   window_hours: 24.0
-  kind: human
+  kind: auto
   reason: backlog flat/draining over the window (growth=-6); full intake
-  decided_at: '2026-07-08T06:54:18.758637+00:00'
+  decided_at: '2026-07-08T07:06:59.251168+00:00'
