@@ -100,8 +100,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
-- [ ] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
+- [X] T016 [P] [US2] Unit test for adjacency matrix thresholding logic in `tests/test_build_graphs.py`
+- [X] T017 [P] [US2] Unit test for Louvain algorithm convergence and seed stability in `tests/test_build_graphs.py`
 
 ### Implementation for User Story 2
 

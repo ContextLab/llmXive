@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-770-resting-state-network-modularity-predict",
   "stage": "analyzed",
-  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-770-resting-state-network-modularity-predict/tests'",
-  "last_seen": "2026-07-08T12:59:01.955890+00:00",
-  "count": 49
+  "last_error": "[Errno 17] File exists: '/home/runner/work/llmXive/llmXive/projects/PROJ-770-resting-state-network-modularity-predict/code'",
+  "last_seen": "2026-07-08T13:47:44.373092+00:00",
+  "count": 50
 }
