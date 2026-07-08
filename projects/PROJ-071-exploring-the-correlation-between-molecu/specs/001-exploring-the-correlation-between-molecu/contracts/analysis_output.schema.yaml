@@ -1,0 +1,105 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final analysis results JSON file or Data Insufficiency Report"
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      dataset_version:
+        type: string
+        description: "Hash or version of the input dataset"
+      rdkit_version:
+        type: string
+        description: "Version of RDKit used for calculations"
+      execution_date:
+        type: string
+        format: date-time
+    required:
+      - dataset_version
+      - rdkit_version
+      - execution_date
+  summary:
+    type: object
+    properties:
+      total_molecules:
+        type: integer
+        minimum: 0
+      molecules_with_degradation:
+        type: integer
+        minimum: 0
+      analysis_status:
+        type: string
+        enum: ["success", "partial", "data_insufficient"]
+      insufficiency_reason:
+        type: string
+        description: "Reason for insufficiency if status is data_insufficient"
+    required:
+      - total_molecules
+      - molecules_with_degradation
+      - analysis_status
+  correlations:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        pearson_r:
+          type: number
+        pearson_p:
+          type: number
+        spearman_r:
+          type: number
+        spearman_p:
+          type: number
+        is_significant:
+          type: boolean
+      required:
+        - feature
+        - pearson_r
+        - pearson_p
+  regression:
+    type: object
+    properties:
+      model_type:
+        type: string
+        enum: ["MLR", "LASSO"]
+      cv_r2_score:
+        type: number
+        minimum: -1
+        maximum: 1
+      coefficients:
+        type: array
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            coefficient:
+              type: number
+            p_value:
+              type: number
+          required:
+            - feature
+            - coefficient
+            - p_value
+      diagnostics:
+        type: object
+        properties:
+          shapiro_wilk_p:
+            type: number
+          breusch_pagan_p:
+            type: number
+        required:
+          - shapiro_wilk_p
+          - breusch_pagan_p
+    required:
+      - model_type
+      - cv_r2_score
+      - coefficients
+      - diagnostics
+required:
+  - metadata
+  - summary
+  - analysis_status
