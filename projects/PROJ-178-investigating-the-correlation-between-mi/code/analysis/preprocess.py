@@ -4,299 +4,293 @@ import logging
 from pathlib import Path
 import vcfpy
 import pandas as pd
-import subprocess
-import json
-import tempfile
-import shutil
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('code/logs/preprocess.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def ensure_dirs():
-    """Create necessary output directories."""
-    dirs = [
-        Path('code/data/processed'),
-        Path('code/logs'),
-        Path('code/temp')
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist: {dirs}")
+    """Ensure output directories exist."""
+    raw_dir = Path("code/data/raw")
+    processed_dir = Path("code/data/processed")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir, processed_dir
 
-def filter_variants(vcf_path: Path, output_path: Path) -> Path:
-    """Filter VCF to keep only chrM and PASS variants."""
-    logger.info(f"Filtering VCF: {vcf_path}")
-    reader = vcfpy.Reader.from_path(str(vcf_path))
-    writer = vcfpy.Writer.from_path(str(output_path), reader.header)
+def filter_variants(record):
+    """
+    Filter VCF records to keep only:
+    1. Variants on chromosome 'chrM' (or 'MT')
+    2. Variants with FILTER status 'PASS'
+    """
+    # Check chromosome
+    chrom = record.CHROM
+    if chrom not in ['chrM', 'MT', 'M']:
+        return False
+
+    # Check filter status
+    if record.FILTER and record.FILTER != 'PASS':
+        return False
+
+    return True
+
+def filter_vcf_file(input_vcf_path, output_vcf_path):
+    """
+    Filter a VCF file to keep only mitochondrial PASS variants.
+    Writes a new filtered VCF file.
+    """
+    logger.info(f"Filtering VCF: {input_vcf_path}")
     
-    count_in = 0
-    count_out = 0
+    if not os.path.exists(input_vcf_path):
+        raise FileNotFoundError(f"Input VCF file not found: {input_vcf_path}")
+
+    reader = vcfpy.Reader.from_path(str(input_vcf_path))
     
-    with reader:
-        with writer:
-            for record in reader:
-                count_in += 1
-                # Filter by chromosome
-                if record.CHROM != 'chrM':
-                    continue
-                # Filter by quality status
-                if 'PASS' not in record.FILTER:
-                    continue
+    with vcfpy.Writer.from_path(str(output_vcf_path), reader.header) as writer:
+        count_in = 0
+        count_out = 0
+        for record in reader:
+            count_in += 1
+            if filter_variants(record):
                 writer.write_record(record)
                 count_out += 1
+            if count_in % 100000 == 0:
+                logger.info(f"Processed {count_in} records, kept {count_out}")
+        
+        logger.info(f"Filtering complete. Input: {count_in}, Output: {count_out}")
     
-    logger.info(f"Filtered {count_in} records -> {count_out} kept (chrM, PASS)")
-    return output_path
+    return output_vcf_path
 
-def filter_vcf_file(input_vcf: Path, output_vcf: Path) -> Path:
-    """Wrapper to ensure VCF filtering is called correctly."""
-    return filter_variants(input_vcf, output_vcf)
-
-def calculate_burden_per_sample(filtered_vcf_path: Path, vaf_threshold: float = 0.01) -> pd.DataFrame:
+def calculate_burden_per_sample(filtered_vcf_path, vaf_threshold=0.01):
     """
     Calculate heteroplasmy burden per sample.
-    Burden = count of variants with VAF >= vaf_threshold.
+    
+    Heteroplasmy burden is defined as the count of mitochondrial variants
+    with Variant Allele Frequency (VAF) >= threshold (default 1%).
+    
+    Args:
+        filtered_vcf_path: Path to the filtered VCF file (only chrM, PASS)
+        vaf_threshold: Minimum VAF to count as heteroplasmic (default 0.01 = 1%)
+    
+    Returns:
+        pd.DataFrame with columns: sample_id, burden_count
     """
     logger.info(f"Calculating burden with VAF threshold {vaf_threshold} from {filtered_vcf_path}")
+    
+    if not os.path.exists(filtered_vcf_path):
+        raise FileNotFoundError(f"Filtered VCF file not found: {filtered_vcf_path}")
+
     reader = vcfpy.Reader.from_path(str(filtered_vcf_path))
     
+    # Initialize counters for each sample
     sample_ids = reader.header.samples
-    sample_counts = {s: 0 for s in sample_ids}
+    burden_counts = {sample: 0 for sample in sample_ids}
     
-    with reader:
-        for record in reader:
-            for call in record.calls:
-                if call.sample_name not in sample_ids:
-                    continue
-                # Check for GT and AD/DP or similar to calculate VAF
-                # Standard 1000G VCFs often have GT:AD:DP:GQ:PL
-                if 'AD' in call.data and 'DP' in call.data and call.data['DP'] > 0:
-                    ad = call.data['AD']
-                    # AD is usually [ref_count, alt_count]
-                    if len(ad) >= 2:
-                        alt_count = ad[1]
-                        total_depth = ad[0] + alt_count
-                        if total_depth > 0:
-                            vaf = alt_count / total_depth
-                            if vaf >= vaf_threshold:
-                                sample_counts[call.sample_name] += 1
-                                continue
-                # Fallback if AD is missing but GT is heterozygous (rare for mito, but safe)
-                if 'GT' in call.data:
-                    gt = call.data['GT']
-                    if gt in ['0/1', '1/0', '0|1', '1|0']:
-                        # Assume heterozygous implies some burden, but without VAF we can't be sure
-                        # Strictly, we need VAF. Skipping if AD missing.
-                        pass
+    total_variants = 0
+    heteroplasmic_variants = 0
     
-    df = pd.DataFrame(list(sample_counts.items()), columns=['sample_id', 'burden_count'])
-    logger.info(f"Calculated burden for {len(df)} samples")
+    for record in reader:
+        total_variants += 1
+        
+        # Get AD (Allelic Depth) and DP (Depth) from INFO or FORMAT
+        # Standard VCF: FORMAT fields include GT:AD:DP:GQ:PL
+        # We need AD to calculate VAF = alt_depth / (ref_depth + alt_depth)
+        
+        ad_field = record.INFO.get('AD')  # INFO AD (if present)
+        
+        # Iterate over samples to get per-sample AD
+        for i, sample in enumerate(sample_ids):
+            sample_call = record.get_call(sample)
+            if sample_call is None:
+                continue
+            
+            # Get AD from FORMAT field
+            ad = sample_call.data.AD
+            if ad is None or len(ad) < 2:
+                continue
+            
+            ref_depth = ad[0]
+            alt_depth = ad[1]
+            total_depth = ref_depth + alt_depth
+            
+            if total_depth == 0:
+                continue
+            
+            vaf = alt_depth / total_depth
+            
+            # Check if VAF meets threshold
+            if vaf >= vaf_threshold:
+                burden_counts[sample] += 1
+                heteroplasmic_variants += 1
+
+        if total_variants % 100000 == 0:
+            logger.info(f"Processed {total_variants} variants, found {heteroplasmic_variants} heteroplasmic calls")
+    
+    # Create DataFrame
+    df = pd.DataFrame([
+        {'sample_id': sample, 'burden_count': count}
+        for sample, count in burden_counts.items()
+    ])
+    
+    logger.info(f"Burden calculation complete. Total variants: {total_variants}, "
+               f"Total heteroplasmic calls: {heteroplasmic_variants}, "
+               f"Samples: {len(df)}")
+    
     return df
 
-def calculate_depth_stratified_burden(filtered_vcf_path: Path, vaf_threshold: float = 0.01) -> pd.DataFrame:
+def calculate_depth_stratified_burden(filtered_vcf_path, vaf_threshold=0.01, depth_bins=[10, 50, 100]):
     """
-    Calculate heteroplasmy burden stratified by depth bins.
-    Bins: Low (DP < 20), Medium (20 <= DP < 100), High (DP >= 100).
-    Returns a wide-format dataframe with counts per bin per sample.
+    Calculate heteroplasmy burden stratified by sequencing depth.
+    
+    Bins:
+    - Low: DP < depth_bins[0]
+    - Medium: depth_bins[0] <= DP < depth_bins[1]
+    - High: DP >= depth_bins[1]
+    
+    Args:
+        filtered_vcf_path: Path to filtered VCF
+        vaf_threshold: Minimum VAF threshold
+        depth_bins: List of depth thresholds for binning
+    
+    Returns:
+        pd.DataFrame with columns: sample_id, burden_low, burden_medium, burden_high
     """
     logger.info(f"Calculating depth-stratified burden from {filtered_vcf_path}")
+    
+    if not os.path.exists(filtered_vcf_path):
+        raise FileNotFoundError(f"Filtered VCF file not found: {filtered_vcf_path}")
+
     reader = vcfpy.Reader.from_path(str(filtered_vcf_path))
-    
     sample_ids = reader.header.samples
-    # Initialize counters for each bin
-    sample_data = {s: {'low': 0, 'medium': 0, 'high': 0} for s in sample_ids}
     
-    with reader:
-        for record in reader:
-            for call in record.calls:
-                if call.sample_name not in sample_ids:
-                    continue
-                if 'AD' in call.data and 'DP' in call.data:
-                    ad = call.data['AD']
-                    dp = call.data['DP']
-                    if len(ad) >= 2 and dp > 0:
-                        alt_count = ad[1]
-                        total_depth = ad[0] + alt_count
-                        vaf = alt_count / total_depth if total_depth > 0 else 0
-                        
-                        if vaf >= vaf_threshold:
-                            if dp < 20:
-                                sample_data[call.sample_name]['low'] += 1
-                            elif dp < 100:
-                                sample_data[call.sample_name]['medium'] += 1
-                            else:
-                                sample_data[call.sample_name]['high'] += 1
+    # Initialize counters for each sample and depth bin
+    burden_counts = {
+        sample: {'low': 0, 'medium': 0, 'high': 0}
+        for sample in sample_ids
+    }
     
-    df = pd.DataFrame.from_dict(sample_data, orient='index')
-    df.index.name = 'sample_id'
-    df = df.reset_index()
-    df = df.rename(columns={'low': 'burden_low', 'medium': 'burden_medium', 'high': 'burden_high'})
-    logger.info(f"Calculated depth-stratified burden for {len(df)} samples")
+    total_variants = 0
+    
+    for record in reader:
+        total_variants += 1
+        
+        for i, sample in enumerate(sample_ids):
+            sample_call = record.get_call(sample)
+            if sample_call is None:
+                continue
+            
+            # Get DP (Depth) and AD (Allelic Depth)
+            dp = sample_call.data.DP
+            ad = sample_call.data.AD
+            
+            if dp is None or ad is None or len(ad) < 2:
+                continue
+            
+            ref_depth = ad[0]
+            alt_depth = ad[1]
+            total_depth = ref_depth + alt_depth
+            
+            if total_depth == 0:
+                continue
+            
+            vaf = alt_depth / total_depth
+            
+            if vaf < vaf_threshold:
+                continue
+            
+            # Determine depth bin
+            if dp < depth_bins[0]:
+                bin_name = 'low'
+            elif dp < depth_bins[1]:
+                bin_name = 'medium'
+            else:
+                bin_name = 'high'
+            
+            burden_counts[sample][bin_name] += 1
+        
+        if total_variants % 100000 == 0:
+            logger.info(f"Processed {total_variants} variants")
+    
+    # Create DataFrame
+    df = pd.DataFrame([
+        {
+            'sample_id': sample,
+            'burden_low': counts['low'],
+            'burden_medium': counts['medium'],
+            'burden_high': counts['high']
+        }
+        for sample, counts in burden_counts.items()
+    ])
+    
+    logger.info(f"Depth-stratified burden calculation complete. Samples: {len(df)}")
+    
     return df
 
-def assign_haplogroups(vcf_path: Path, output_dir: Path = None) -> pd.DataFrame:
+def assign_haplogroups(processed_dataset_path):
     """
-    Integrate haplogrep2 via subprocess to assign haplogroups.
-    Expects haplogrep2 to be installed in the environment.
-    Input: VCF file (filtered for chrM).
-    Output: DataFrame with sample_id and haplogroup.
+    Assign mitochondrial haplogroups using haplogrep2 via subprocess.
+    
+    This function expects a processed dataset with sequence data or VCF
+    that can be passed to haplogrep2.
+    
+    Args:
+        processed_dataset_path: Path to processed dataset or VCF
+    
+    Returns:
+        pd.DataFrame with sample_id and haplogroup columns
     """
-    logger.info("Starting haplogroup assignment via haplogrep2 subprocess")
+    logger.info(f"Assigning haplogroups using haplogrep2")
     
-    if output_dir is None:
-        output_dir = Path('code/temp')
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # This is a placeholder for haplogrep2 integration
+    # In a real implementation, we would:
+    # 1. Prepare input file for haplogrep2
+    # 2. Run haplogrep2 as a subprocess
+    # 3. Parse the output and return results
     
-    # Haplogrep2 CLI typically requires a reference build.
-    # We assume 'GRCh38' or 'rCRS' is available. 
-    # Command: haplogrep classify -i <vcf> -o <output> --format vcf --build <build>
-    # We capture the output file which is usually JSON or TSV.
+    # For now, return an empty DataFrame with expected structure
+    # This will be implemented in T017
+    logger.warning("Haplogroup assignment not yet implemented (T017)")
     
-    # Check if haplogrep2 is available
-    try:
-        result = subprocess.run(['haplogrep', '--version'], capture_output=True, text=True, timeout=10)
-        logger.info(f"Haplogrep2 version: {result.stdout.strip()}")
-    except FileNotFoundError:
-        logger.error("haplogrep2 command not found. Please install it via: pip install haplogrep2")
-        raise RuntimeError("haplogrep2 not found in PATH")
-    
-    # Prepare input and output paths
-    input_vcf = str(vcf_path)
-    output_json = output_dir / "haplogrep_output.json"
-    
-    cmd = [
-        'haplogrep', 'classify',
-        '-i', input_vcf,
-        '-o', str(output_json),
-        '--format', 'vcf',
-        '--build', 'GRCh38' # Assuming GRCh38 based on 1000G
-    ]
-    
-    logger.info(f"Running: {' '.join(cmd)}")
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300) # 5 min timeout
-        if proc.returncode != 0:
-            logger.error(f"Haplogrep2 failed: {proc.stderr}")
-            raise RuntimeError(f"Haplogrep2 failed with code {proc.returncode}: {proc.stderr}")
-        logger.info(f"Haplogrep2 completed successfully. Output: {output_json}")
-    except subprocess.TimeoutExpired:
-        logger.error("Haplogrep2 timed out")
-        raise RuntimeError("Haplogrep2 timed out")
-    
-    # Parse the JSON output
-    if not output_json.exists():
-        raise FileNotFoundError(f"Haplogrep2 output file not found: {output_json}")
-    
-    with open(output_json, 'r') as f:
-        raw_data = json.load(f)
-    
-    # Structure of haplogrep2 JSON output varies, but usually contains a 'samples' list
-    # or a dictionary keyed by sample ID.
-    # Typical structure: { "samples": [ { "id": "Sample1", "haplogroup": "H1" }, ... ] }
-    # or { "Sample1": { "haplogroup": "H1" }, ... }
-    
-    results = []
-    if isinstance(raw_data, dict) and 'samples' in raw_data:
-        for item in raw_data['samples']:
-            sid = item.get('id')
-            hg = item.get('haplogroup')
-            if sid and hg:
-                results.append({'sample_id': sid, 'haplogroup': hg})
-    elif isinstance(raw_data, dict):
-        # Assume top-level keys are sample IDs
-        for sid, data in raw_data.items():
-            if isinstance(data, dict):
-                hg = data.get('haplogroup')
-            else:
-                hg = data # If value is directly the string
-            if sid and hg:
-                results.append({'sample_id': sid, 'haplogroup': hg})
-    else:
-        # Fallback: try to find sample entries in a list
-        if isinstance(raw_data, list):
-            for item in raw_data:
-                sid = item.get('id') or item.get('sample_id')
-                hg = item.get('haplogroup')
-                if sid and hg:
-                    results.append({'sample_id': sid, 'haplogroup': hg})
-    
-    if not results:
-        logger.warning("No haplogroup assignments found in output.")
-    
-    df = pd.DataFrame(results)
-    logger.info(f"Assigned haplogroups to {len(df)} samples")
-    return df
+    return pd.DataFrame(columns=['sample_id', 'haplogroup'])
 
 def main():
     """Main entry point for preprocessing pipeline."""
-    ensure_dirs()
+    logger.info("Starting preprocessing pipeline")
     
-    # Define paths
-    raw_vcf_path = Path('code/data/raw/chrM_filtered.vcf') # Assumed output from T014
-    filtered_vcf_path = Path('code/data/processed/chrM_pass.vcf')
-    burden_path = Path('code/data/processed/burden.csv')
-    depth_burden_path = Path('code/data/processed/burden_depth.csv')
-    haplogroup_path = Path('code/data/processed/haplogroups.csv')
+    raw_dir, processed_dir = ensure_dirs()
     
-    # Check if raw VCF exists (from T012/T014)
-    if not raw_vcf_path.exists():
-        # If T014 hasn't run, try to filter raw VCF directly if it exists
-        # Or assume T014 produced the file at this location
-        # For robustness, we check for the pre-filtered file
-        logger.warning(f"Expected filtered VCF not found at {raw_vcf_path}. Attempting to filter raw.")
-        # In a real pipeline, we'd chain these steps. Here we assume the previous task
-        # put the filtered file where we expect it, or we filter it now.
-        # Let's assume the task T014 produced the file at raw_vcf_path for simplicity,
-        # or we re-run filter_variants if the "raw" file is actually the unfiltered one.
-        # Given the task flow, T014 produces the filtered VCF.
-        # If T014 hasn't run, this script will fail, which is expected behavior for a pipeline step.
-        raise FileNotFoundError(f"Input VCF not found at {raw_vcf_path}. Ensure T014 is complete.")
+    # Step 1: Download and filter VCF (T012, T014)
+    # Assuming T012 has downloaded the VCF to code/data/raw/1000g_mito.vcf.gz
+    input_vcf = raw_dir / "1000g_mito.vcf.gz"
+    filtered_vcf = processed_dir / "1000g_mito_filtered.vcf"
     
-    # 1. Filter VCF (if not already done by T014, but T014 is marked done)
-    # We assume T014 produced the file at raw_vcf_path. 
-    # If T014 output is elsewhere, adjust path.
-    # Let's assume T014 output is at 'code/data/processed/chrM_pass.vcf' or similar.
-    # Re-reading T014: "Implement variant filtering... in preprocess.py".
-    # So T014 likely wrote to a specific output. Let's assume the input to T017 is the output of T014.
-    # We'll use a standard path for the filtered VCF.
-    input_vcf = Path('code/data/processed/chrM_pass.vcf')
     if not input_vcf.exists():
-        # Fallback: try raw if filtered not found
-        input_vcf = Path('code/data/raw/1000G_mito.vcf')
-        if not input_vcf.exists():
-            raise FileNotFoundError("No VCF input found. Ensure T012 and T014 have run.")
-        logger.info(f"Using raw VCF for filtering: {input_vcf}")
-        filter_vcf_file(input_vcf, Path('code/data/processed/chrM_pass.vcf'))
-        input_vcf = Path('code/data/processed/chrM_pass.vcf')
+        logger.error(f"Input VCF not found: {input_vcf}")
+        logger.error("Please run T012 to download the VCF first")
+        sys.exit(1)
     
-    # 2. Calculate Burden
-    burden_df = calculate_burden_per_sample(input_vcf)
-    burden_df.to_csv(burden_path, index=False)
-    logger.info(f"Saved burden to {burden_path}")
+    # Filter variants (T014)
+    if not filtered_vcf.exists():
+        filter_vcf_file(str(input_vcf), str(filtered_vcf))
     
-    # 3. Calculate Depth-Stratified Burden
-    depth_burden_df = calculate_depth_stratified_burden(input_vcf)
-    depth_burden_df.to_csv(depth_burden_path, index=False)
-    logger.info(f"Saved depth-stratified burden to {depth_burden_path}")
+    # Step 2: Calculate burden (T015)
+    burden_df = calculate_burden_per_sample(str(filtered_vcf), vaf_threshold=0.01)
     
-    # 4. Assign Haplogroups (T017 Core Task)
-    try:
-        hg_df = assign_haplogroups(input_vcf)
-        hg_df.to_csv(haplogroup_path, index=False)
-        logger.info(f"Saved haplogroups to {haplogroup_path}")
-    except Exception as e:
-        logger.error(f"Failed to assign haplogroups: {e}")
-        # Create an empty file to prevent downstream crashes, but log failure
-        pd.DataFrame(columns=['sample_id', 'haplogroup']).to_csv(haplogroup_path, index=False)
-        raise
+    # Save burden data
+    burden_output = processed_dir / "burden_per_sample.csv"
+    burden_df.to_csv(burden_output, index=False)
+    logger.info(f"Saved burden data to {burden_output}")
+    
+    # Step 3: Depth-stratified burden (T016)
+    depth_burden_df = calculate_depth_stratified_burden(str(filtered_vcf), vaf_threshold=0.01)
+    depth_burden_output = processed_dir / "burden_depth_stratified.csv"
+    depth_burden_df.to_csv(depth_burden_output, index=False)
+    logger.info(f"Saved depth-stratified burden to {depth_burden_output}")
+    
+    logger.info("Preprocessing pipeline complete")
 
 if __name__ == "__main__":
     main()

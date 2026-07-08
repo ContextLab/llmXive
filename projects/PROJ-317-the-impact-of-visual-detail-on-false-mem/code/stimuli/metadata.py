@@ -5,48 +5,128 @@ import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import Dict, Any, List, Optional
+import yaml
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ManipulationRecord:
     type: str
-    parameters: dict
-    success: bool
-    error_message: Optional[str] = None
+    parameters: Dict[str, Any]
+    output_path: str
+    complexity_score: float
 
 @dataclass
 class StimulusMetadata:
-    id: str
-    source_image_id: str
-    manipulation_records: List[ManipulationRecord] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.now)
-    complexity_score: Optional[float] = None
+    image_id: str
+    original_path: str
+    manipulations: List[ManipulationRecord]
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    version: str = "1.0"
 
-def generate_metadata_for_image(image_id: str, source_image_id: str, manipulation_type: str, success: bool, error: Optional[str] = None) -> StimulusMetadata:
-    record = ManipulationRecord(
-        type=manipulation_type,
-        parameters={},
-        success=success,
-        error_message=error
-    )
+def generate_metadata_for_image(
+    image_id: str,
+    original_path: str,
+    enhanced_path: str,
+    reduced_path: str,
+    original_score: float,
+    enhanced_score: float,
+    reduced_score: float,
+    manipulation_details: Dict[str, Any]
+) -> StimulusMetadata:
+    """
+    Generate metadata for a processed image.
+    
+    Args:
+        image_id: Unique identifier for the image.
+        original_path: Path to the original image.
+        enhanced_path: Path to the enhanced image.
+        reduced_path: Path to the reduced image.
+        original_score: Complexity score of original.
+        enhanced_score: Complexity score of enhanced.
+        reduced_score: Complexity score of reduced.
+        manipulation_details: Details of manipulations performed.
+        
+    Returns:
+        StimulusMetadata object.
+    """
+    manipulations = [
+        ManipulationRecord(
+            type="enhanced",
+            parameters=manipulation_details.get("enhanced", {}),
+            output_path=enhanced_path,
+            complexity_score=enhanced_score
+        ),
+        ManipulationRecord(
+            type="reduced",
+            parameters=manipulation_details.get("reduced", {}),
+            output_path=reduced_path,
+            complexity_score=reduced_score
+        )
+    ]
+    
     return StimulusMetadata(
-        id=f"{source_image_id}_{manipulation_type}",
-        source_image_id=source_image_id,
-        manipulation_records=[record]
+        image_id=image_id,
+        original_path=original_path,
+        manipulations=manipulations
     )
 
 def save_metadata_as_yaml(metadata: StimulusMetadata, output_path: Path):
-    import yaml
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        yaml.dump(asdict(metadata), f)
+    """
+    Save metadata to a YAML file.
+    
+    Args:
+        metadata: StimulusMetadata object.
+        output_path: Path to save the YAML file.
+    """
+    try:
+        with open(output_path, 'w') as f:
+            # Convert dataclass to dict
+            data = asdict(metadata)
+            # Convert ManipulationRecord objects to dict if they are not already
+            # asdict handles nested dataclasses recursively
+            yaml.dump(data, f, default_flow_style=False)
+        logger.info(f"Saved metadata to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save metadata to {output_path}: {e}")
+        raise
 
-def load_metadata_from_yaml(path: Path) -> StimulusMetadata:
-    import yaml
-    with open(path, 'r') as f:
-        data = yaml.safe_load(f)
-    return StimulusMetadata(**data)
+def load_metadata_from_yaml(input_path: Path) -> Optional[StimulusMetadata]:
+    """
+    Load metadata from a YAML file.
+    
+    Args:
+        input_path: Path to the YAML file.
+        
+    Returns:
+        StimulusMetadata object or None.
+    """
+    try:
+        with open(input_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        # Reconstruct ManipulationRecord objects
+        manipulations = []
+        for m_data in data.get('manipulations', []):
+            manipulations.append(ManipulationRecord(**m_data))
+        
+        return StimulusMetadata(
+            image_id=data['image_id'],
+            original_path=data['original_path'],
+            manipulations=manipulations,
+            created_at=data.get('created_at', ''),
+            version=data.get('version', '1.0')
+        )
+    except Exception as e:
+        logger.error(f"Failed to load metadata from {input_path}: {e}")
+        return None
 
 def main():
-    # Placeholder for CLI usage if needed
+    """Main entry point for metadata generation (for testing)."""
+    logging.basicConfig(level=logging.INFO)
+    # This is just a placeholder for CLI usage if needed
     pass
+
+if __name__ == "__main__":
+    main()

@@ -91,14 +91,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/analysis/load_data.py` to download mitochondrial VCFs from 1000 Genomes FTP and metadata panel
+- [X] T012 [P] [US1] Implement `code/analysis/load_data.py` to download mitochondrial VCFs from 1000 Genomes FTP and metadata panel
 - [ ] T013A [P] [US1] Implement chunked VCF reading in `code/analysis/load_data.py` using `vcfpy` to handle large files within 7GB RAM
 - [ ] T013B [P] [US1] Add logic to aggregate variant counts per sample in memory without loading full VCF
 - [X] T014 [US1] Implement variant filtering in `code/analysis/preprocess.py` (retain only `PASS` status and `chrM`)
 - [ ] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
-- [~] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
-- [~] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
-- [~] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs
+- [ ] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
+- [ ] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
+- [ ] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs
 - [~] T019 [US1] Implement exclusion logic for samples with missing age or failed haplogroup assignment
 - [~] T020 [US1] Write processed dataset to `code/data/processed/mito_aging_dataset.csv` with checksum generation
 

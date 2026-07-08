@@ -2,54 +2,57 @@ import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+_config: Optional['Config'] = None
+
 class Config:
-    def __init__(self, project_root: Optional[Path] = None):
-        if project_root is None:
-            # Default to current working directory if no root provided
-            self.project_root = Path.cwd()
-        else:
-            self.project_root = project_root
-        
-        # Define base directories relative to project root
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
         self.data_dir = self.project_root / "data"
-        self.code_dir = self.project_root / "code"
-        self.tests_dir = self.project_root / "tests"
-        self.docs_dir = self.project_root / "docs"
-        
-        # Sub-directories
         self.stimuli_dir = self.data_dir / "stimuli"
         self.stimuli_metadata_dir = self.data_dir / "stimuli_metadata"
         self.responses_dir = self.data_dir / "responses"
         self.processed_dir = self.data_dir / "processed"
         self.ethics_dir = self.data_dir / "ethics"
         self.logs_dir = self.data_dir / "logs"
-        self.figures_dir = self.project_root / "figures"
+        self.figures_dir = self.data_dir / "figures"
+        self.code_dir = self.project_root / "code"
+        self.tests_dir = self.project_root / "tests"
         
-        # Code sub-directories
-        self.code_data_dir = self.code_dir / "data"
-        self.code_stimuli_dir = self.code_dir / "stimuli"
-        self.code_participants_dir = self.code_dir / "participants"
-        self.code_analysis_dir = self.code_dir / "analysis"
-        
-        # Test sub-directories
-        self.tests_unit_dir = self.tests_dir / "unit"
-        self.tests_integration_dir = self.tests_dir / "integration"
-        self.tests_contract_dir = self.tests_dir / "contract"
-        
-        # Docs sub-directories
-        self.docs_ethics_dir = self.docs_dir / "ethics"
+        # Ensure directories exist
+        self.ensure_directories()
 
-# Global config instance (lazy initialization)
-_config: Optional[Config] = None
-
-def get_config() -> Config:
-    global _config
-    if _config is None:
-        _config = Config()
-    return _config
+    def ensure_directories(self):
+        """Ensure all required directories exist."""
+        dirs = [
+            self.data_dir,
+            self.stimuli_dir,
+            self.stimuli_metadata_dir,
+            self.responses_dir,
+            self.processed_dir,
+            self.ethics_dir,
+            self.logs_dir,
+            self.figures_dir,
+            self.code_dir,
+            self.tests_dir
+        ]
+        for d in dirs:
+            d.mkdir(parents=True, exist_ok=True)
 
 def get_project_root() -> Path:
-    return get_config().project_root
+    """Get the project root directory."""
+    global _config
+    if _config is None:
+        # Assume project root is the parent of 'code' directory
+        # This might need adjustment based on actual deployment
+        _config = Config(Path(__file__).resolve().parent.parent)
+    return _config.project_root
+
+def get_config() -> Config:
+    """Get the global config object."""
+    global _config
+    if _config is None:
+        _config = Config(get_project_root())
+    return _config
 
 def get_data_dir() -> Path:
     return get_config().data_dir
@@ -88,33 +91,10 @@ def get_log_file_path() -> Path:
     return get_logs_dir() / "app.log"
 
 def get_error_log_file_path() -> Path:
-    return get_logs_dir() / "error.log"
+    return get_logs_dir() / "errors.log"
 
 def get_manipulation_error_log_path() -> Path:
     return get_logs_dir() / "manipulation_errors.log"
-
-def ensure_directories():
-    """Ensure all required directories exist."""
-    config = get_config()
-    dirs_to_create = [
-        config.stimuli_dir,
-        config.stimuli_metadata_dir,
-        config.responses_dir,
-        config.processed_dir,
-        config.ethics_dir,
-        config.logs_dir,
-        config.figures_dir,
-        config.code_data_dir,
-        config.code_stimuli_dir,
-        config.code_participants_dir,
-        config.code_analysis_dir,
-        config.tests_unit_dir,
-        config.tests_integration_dir,
-        config.tests_contract_dir,
-        config.docs_ethics_dir
-    ]
-    for d in dirs_to_create:
-        d.mkdir(parents=True, exist_ok=True)
 
 def get_dataset_source() -> str:
     return os.getenv("DATASET_SOURCE", "mock")

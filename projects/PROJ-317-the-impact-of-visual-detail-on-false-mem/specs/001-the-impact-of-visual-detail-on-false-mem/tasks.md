@@ -65,7 +65,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T013 [P] Implement Image Entity class in `code/data/image.py`: Define `Image` class with attributes `id`, `path`, `complexity_score`, `metadata_path`.
 - [X] T014 [P] Implement Participant and Response Entity classes in `code/data/participant.py`: Define `Participant` (id, condition, timestamp) and `Response` (id, question_id, value, timestamp) classes.
 - [X] T008 Configure logging infrastructure in `code/utils/logging.py`
-- [ ] T009 [P] Setup environment configuration management in `code/config.py`
+- [X] T009 [P] Setup environment configuration management in `code/config.py`
 - [X] T010 [P] Generate ethics artifacts: Create `data/ethics/informed_consent.md` and `data/ethics/irb_placeholder.md` with GDPR-compliant templates and placeholders for IRB approval as required by Constitution VI.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,8 +88,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [~] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
-- [~] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
+- [ ] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
+- [X] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
 - [~] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
 - [~] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
 - [~] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
@@ -157,9 +157,9 @@ Examples of foundational tasks (adjust based on your project):
 - [~] T040 [P] Documentation updates in `docs/` (including ethics placeholders)
 - [~] T041 Code cleanup and refactoring across `code/` <!-- FAILED: unspecified -->
 - [~] T042 Performance optimization for image manipulation (ensure < 30s/image)
-- [ ] T043 [P] Additional unit tests for edge cases (dropout, network timeout) in `tests/unit/`
-- [ ] T044 Security hardening (ensure no PII leakage in logs)
-- [ ] T045 Run quickstart.md validation
+- [~] T043 [P] Additional unit tests for edge cases (dropout, network timeout) in `tests/unit/`
+- [~] T044 Security hardening (ensure no PII leakage in logs)
+- [~] T045 Run quickstart.md validation <!-- FAILED: unspecified -->
 
 ---
 

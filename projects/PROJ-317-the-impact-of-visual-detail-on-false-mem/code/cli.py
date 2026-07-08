@@ -4,89 +4,82 @@ import sys
 from pathlib import Path
 from utils.logging import get_logger, get_manipulation_error_log_path
 from config import (
-    get_project_root, get_stimuli_dir, get_stimuli_metadata_dir,
-    get_responses_dir, get_processed_dir, get_figures_dir
+    get_config, ensure_directories, get_log_level, get_log_file_path,
+    get_error_log_file_path, get_manipulation_error_log_path as get_manip_log
 )
-from stimuli.manipulator import main as manipulator_main
-from stimuli.metadata import main as metadata_main
-from participants.interface import main as interface_main
-from analysis.stats import main as stats_main
-from analysis.viz import main as viz_main
+from analysis.stats import main as run_power_analysis
+from data.loader import main as run_loader
+from stimuli.manipulator import main as run_manipulator
+from stimuli.metadata import main as run_metadata
+from participants.session import main as run_session
+from analysis.viz import main as run_viz
 
 def setup_logging():
-    """Configure root logger for CLI operations."""
-    logger = get_logger("cli")
-    logger.setLevel(logging.INFO)
-    return logger
+    """Configure logging based on environment."""
+    log_level = get_log_level()
+    logging.basicConfig(
+        level=getattr(logging, log_level),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(get_log_file_path()),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 def cmd_manipulate(args):
-    """Run the image manipulation pipeline."""
-    logger = get_logger("manipulator")
-    logger.info(f"Processing stimuli from: {get_stimuli_dir()}")
-    # Pass arguments to the manipulator's main function
-    manipulator_main()
+    """Run image manipulation pipeline."""
+    setup_logging()
+    run_manipulator()
 
 def cmd_metadata(args):
-    """Generate metadata for processed stimuli."""
-    logger = get_logger("metadata")
-    logger.info(f"Generating metadata for: {get_stimuli_dir()}")
-    metadata_main()
+    """Generate stimulus metadata."""
+    setup_logging()
+    run_metadata()
 
 def cmd_simulate_session(args):
-    """Run the simulated participant interface."""
-    logger = get_logger("session")
-    logger.info("Starting simulated participant session")
-    interface_main()
+    """Run simulated participant session."""
+    setup_logging()
+    run_session()
 
 def cmd_analyze(args):
-    """Run statistical analysis and generate visualizations."""
-    logger = get_logger("analysis")
-    logger.info("Starting statistical analysis pipeline")
-    # Run stats analysis (ANOVA, power, etc.)
-    stats_main()
-    # Run visualization generation
-    viz_main()
-    logger.info("Analysis pipeline completed")
+    """Run statistical analysis."""
+    setup_logging()
+    if args.power:
+        run_power_analysis()
+    else:
+        run_viz()
 
 def main():
-    """CLI entry point for the llmXive research pipeline."""
-    parser = argparse.ArgumentParser(
-        description="llmXive Automated Science Pipeline CLI"
-    )
+    """Main CLI entry point."""
+    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Manipulate command
-    parser_manipulate = subparsers.add_parser(
-        "manipulate", help="Run image manipulation pipeline"
-    )
-    parser_manipulate.set_defaults(func=cmd_manipulate)
+    p_manipulate = subparsers.add_parser("manipulate", help="Run image manipulation")
+    p_manipulate.set_defaults(func=cmd_manipulate)
 
     # Metadata command
-    parser_metadata = subparsers.add_parser(
-        "metadata", help="Generate stimulus metadata"
-    )
-    parser_metadata.set_defaults(func=cmd_metadata)
+    p_metadata = subparsers.add_parser("metadata", help="Generate metadata")
+    p_metadata.set_defaults(func=cmd_metadata)
 
     # Simulate command
-    parser_simulate = subparsers.add_parser(
-        "simulate", help="Run simulated participant session"
-    )
-    parser_simulate.set_defaults(func=cmd_simulate_session)
+    p_simulate = subparsers.add_parser("simulate", help="Run simulation")
+    p_simulate.set_defaults(func=cmd_simulate_session)
 
     # Analyze command
-    parser_analyze = subparsers.add_parser(
-        "analyze", help="Run statistical analysis and generate visualizations"
-    )
-    parser_analyze.set_defaults(func=cmd_analyze)
+    p_analyze = subparsers.add_parser("analyze", help="Run analysis")
+    p_analyze.add_argument("--power", action="store_true", help="Run power analysis only")
+    p_analyze.set_defaults(func=cmd_analyze)
 
     args = parser.parse_args()
-
-    if not args.command:
+    
+    # Ensure directories exist
+    ensure_directories()
+    
+    if args.command:
+        args.func(args)
+    else:
         parser.print_help()
-        sys.exit(1)
-
-    setup_logging()
-    args.func(args)
 
 if __name__ == "__main__":
     main()
