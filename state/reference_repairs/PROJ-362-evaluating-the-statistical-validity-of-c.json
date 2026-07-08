@@ -256,5 +256,53 @@
         "intent": "robust The project relies on TREC qrels files. specific datasets and their verified sources are listed below. Note : previous reference to was unreachable"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-08T04:06:21.190213+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04.100.qrels",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04.100.qrels TREC 2004 Mirror or datasets.load_dataset \"trec 2004\" Verified Reachable Used for core permutation tests. If NIST direct fails, a HuggingFace is used."
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-07-08T04:13:03.060642+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/04/robust04.qrels.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust 04 TREC 2004 Search relevance judgments for Track Primary dataset permutation tests"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/09/wt09.qrels.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 09 TREC 2009 Track relevance judgments from Supplementary dataset"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/10/wt10.qrels.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 10 TREC 2010 Track relevance judgments from Supplementary dataset"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/11/wt11.qrels.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 11 TREC 2011 Track relevance judgments from Supplementary dataset"
+      },
+      {
+        "dead_url": "https://trec.nist.gov/data/web/12/wt12.qrels.gz",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web 12 TREC 2012 Track relevance judgments from Supplementary dataset"
+      }
+    ]
   }
 ]
