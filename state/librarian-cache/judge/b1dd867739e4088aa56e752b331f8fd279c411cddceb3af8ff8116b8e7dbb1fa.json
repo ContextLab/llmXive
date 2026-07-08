@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1706.06150",
+  "judged_at": "2026-07-08T15:41:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "The paper focuses on the statistical methodology for estimating prediction variance in Random Forests using the infinitesimal jackknife, which is a general machine learning theory problem, rather than addressing the specific domain of predicting molecular properties or the use of Open Babel fingerprints. It fails to meet criteria (a) or (b) because it does not measure the biological/chemical mechanism or the specific variables (molecular properties, fingerprints) central to the user's question, ",
+  "relevant": false
+}

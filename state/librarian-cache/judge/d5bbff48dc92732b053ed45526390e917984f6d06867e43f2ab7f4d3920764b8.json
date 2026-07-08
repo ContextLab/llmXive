@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.08900",
+  "judged_at": "2026-07-08T15:41:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper belongs in the literature review because it is a comprehensive survey of the broader domain of \"molecular property prediction,\" satisfying criterion (d) as a foundational reference for the field and criterion (f) by covering the canonical alternative-vocabulary cluster (modern AI/ML methods) for the user's specific task of predicting properties from molecular representations. While the user focuses on a specific classical pipeline (Open Babel + Random Forests), a literature review on ",
+  "relevant": true
+}

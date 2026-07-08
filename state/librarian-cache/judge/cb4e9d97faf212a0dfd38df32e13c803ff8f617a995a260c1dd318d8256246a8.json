@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.09182",
+  "judged_at": "2026-07-08T15:41:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "The paper is rejected because it addresses a distinct construct sharing only the keyword \"forest\" (ecological forest dynamics vs. Random Forest machine learning algorithm) and is entirely off-domain (ecology/finance vs. computational chemistry). It does not measure molecular properties, use chemical fingerprints, or apply the Random Forest algorithm to chemical data.",
+  "relevant": false
+}

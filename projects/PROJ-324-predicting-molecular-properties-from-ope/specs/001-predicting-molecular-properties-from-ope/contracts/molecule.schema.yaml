@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule"
+description: "Represents a chemical entity with experimental properties and SMILES."
+type: object
+required:
+  - id
+  - smiles
+  - logP_exp
+  - solubility_exp
+  - boiling_point_exp
+properties:
+  id:
+    type: string
+    description: "Unique identifier (e.g., PubChem CID)."
+  smiles:
+    type: string
+    description: "Canonical SMILES string."
+    pattern: "^[A-Za-z0-9@%+\\-\\[\\]\\(\\)\\{\\}\\.\\#\\^]+$"
+  logP_exp:
+    type: number
+    description: "Experimental logP value."
+  solubility_exp:
+    type: number
+    description: "Experimental solubility value (g/L or logS)."
+  boiling_point_exp:
+    type: number
+    description: "Experimental boiling point value (K or C)."
+  is_outlier:
+    type: boolean
+    default: false
+    description: "Flag indicating if the molecule was excluded due to outlier status."
+  missing_covariate:
+    type: array
+    items:
+      type: string
+    description: "List of missing covariates (e.g., 'pH', 'temperature')."
+    default: []
+examples:
+  - id: "CID12345"
+    smiles: "CCO"
+    logP_exp: -0.3
+    solubility_exp: 1000.0
+    boiling_point_exp: 351.0
+    is_outlier: false
+    missing_covariate: []

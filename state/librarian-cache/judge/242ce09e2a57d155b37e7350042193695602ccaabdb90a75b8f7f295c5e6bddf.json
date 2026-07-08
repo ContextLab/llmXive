@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.02639",
+  "judged_at": "2026-07-08T15:41:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
+  "rationale": "This paper qualifies under category (a) and (d) because it addresses the core mechanism of predicting molecular properties using machine learning (specifically automated QSAR), which is the fundamental domain of the user's question, even though it focuses on the \"AutoQSAR\" framework rather than explicitly detailing Random Forests on Open Babel fingerprints. It serves as a canonical reference for the application of ML in QSAR, a necessary component of the literature review for any study on this t",
+  "relevant": true
+}

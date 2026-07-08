@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction"
+description: "Record of a model prediction, experimental value, and residual error."
+type: object
+required:
+  - molecule_id
+  - model_type
+  - property
+  - value_pred
+  - value_exp
+  - residual
+  - abs_error
+properties:
+  molecule_id:
+    type: string
+    description: "Reference to the molecule ID."
+  model_type:
+    type: string
+    enum:
+      - "Additive"
+      - "RandomForest"
+    description: "Type of model used for prediction."
+  property:
+    type: string
+    enum:
+      - "logP"
+      - "solubility"
+      - "boiling_point"
+    description: "Target property being predicted."
+  value_pred:
+    type: number
+    description: "Predicted value."
+  value_exp:
+    type: number
+    description: "Experimental ground truth."
+  residual:
+    type: number
+    description: "Experimental minus Predicted."
+  abs_error:
+    type: number
+    description: "Absolute value of the residual."
+examples:
+  - molecule_id: "CID12345"
+    model_type: "Additive"
+    property: "logP"
+    value_pred: -0.2
+    value_exp: -0.3
+    residual: -0.1
+    abs_error: 0.1

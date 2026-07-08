@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-27T18:32:31Z",
+  "fetched_at": "2026-07-08T15:41:32Z",
   "field": "chemistry",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests",
       "target_n": 5
     },
-    "duration_seconds": 243.082,
-    "ended_at": "2026-06-27T18:32:31Z",
+    "duration_seconds": 55.854,
+    "ended_at": "2026-07-08T15:41:32Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "QSAR modeling with molecular fingerprints"
+          "Molecular property prediction using molecular fingerprints"
         ],
         [
           2,
-          "QSPR prediction using machine learning"
+          "Random forest models for QSAR analysis"
         ],
         [
           3,
-          "Random forest algorithms in chemoinformatics"
+          "Open Babel molecular descriptor generation"
         ],
         [
           4,
-          "Binary molecular fingerprint property estimation"
+          "Machine learning for quantitative structure-activity relationships"
         ],
         [
           5,
-          "Open Babel descriptor based modeling"
+          "Substructure fingerprinting in cheminformatics"
         ],
         [
           6,
-          "Supervised learning for chemical property prediction"
+          "Supervised learning for molecular property estimation"
         ],
         [
           7,
-          "Substructure fingerprints QSAR analysis"
+          "Random forest regression on chemical datasets"
         ],
         [
           8,
-          "Ensemble learning methods for molecular properties"
+          "MACCS keys and Morgan fingerprints for property prediction"
         ],
         [
           9,
-          "Computational chemistry molecular property modeling"
+          "Data-driven approaches to molecular descriptor modeling"
         ],
         [
           10,
-          "Chemical structure activity relationship prediction"
+          "Ensemble methods for chemical property classification"
         ],
         [
           11,
-          "ECFP fingerprints Random Forest regression"
+          "Feature engineering with Open Babel for cheminformatics"
         ],
         [
           12,
-          "Machine learning regression for molecular descriptors"
+          "Binary fingerprint representation in drug discovery"
         ],
         [
           13,
-          "Cheminformatics data mining chemical properties"
+          "Non-linear regression for molecular activity prediction"
         ],
         [
           14,
-          "Molecular graph features property prediction"
+          "Comparative analysis of molecular fingerprinting algorithms"
         ],
         [
           15,
-          "Decision tree ensembles in drug discovery"
+          "Computational prediction of physicochemical properties"
         ],
         [
           16,
-          "Descriptor selection and Random Forest modeling"
+          "Structural alerts and fingerprint-based toxicity prediction"
         ],
         [
           17,
-          "Predictive models for physicochemical properties"
+          "Deep learning versus random forest in molecular modeling"
         ],
         [
           18,
-          "SMILES based property prediction with machine learning"
+          "High-throughput virtual screening using fingerprint descriptors"
         ],
         [
           19,
-          "Statistical learning for chemical informatics"
+          "Cheminformatics pipelines for property inference"
         ],
         [
           20,
-          "AI-driven molecular property estimation"
+          "Statistical learning on chemical graph representations"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
+        "Molecular property prediction using molecular fingerprints": 1,
         "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests chemistry": 0,
-        "QSAR modeling with molecular fingerprints": 2,
-        "QSPR prediction using machine learning": 5
+        "Random forest models for QSAR analysis": 4
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "QSAR molecular fingerprints tree-based models",
-      "MoleculeNet ChEMBL QSAR datasets",
-      "2D structural descriptors bit vectors",
-      "RMSE R2 property evaluation metrics",
-      "structure activity relationship feature importance"
+      "molecular descriptor fingerprints cheminformatics",
+      "Open Babel RDKit Morgan fingerprints",
+      "QM9 dataset GNN molecular property",
+      "QSAR model performance benchmark",
+      "feature selection overfitting random forest"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,21 +121,21 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2104.02604"
+        "1711.02639"
       ]
     },
     "per_query_hit_count": {
-      "2D structural descriptors bit vectors": 3,
-      "MoleculeNet ChEMBL QSAR datasets": 2,
+      "Open Babel RDKit Morgan fingerprints": 2,
       "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests chemistry": 3,
-      "QSAR molecular fingerprints tree-based models": 3,
-      "RMSE R2 property evaluation metrics": 3,
-      "structure activity relationship feature importance": 3
+      "QM9 dataset GNN molecular property": 2,
+      "QSAR model performance benchmark": 3,
+      "feature selection overfitting random forest": 3,
+      "molecular descriptor fingerprints cheminformatics": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 6,
+      "rejected_count": 4,
       "rejections": [
         {
           "primary_pointer": "1405.0352",
@@ -143,56 +143,29 @@
           "title": "Asymptotic Theory for Random Forests"
         },
         {
-          "primary_pointer": "2306.04338",
-          "rationale": "This paper is off-domain entirely, focusing on machine learning for official government statistics rather than cheminformatics or molecular property prediction. It does not address molecular fingerprints, Random Forests applied to chemistry, or the specific empirical population (molecules) required for the user's literature review.",
-          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+          "primary_pointer": "2304.02632",
+          "rationale": "The paper focuses on mapping forest biomass and carbon stocks using remote sensing data (Landsat, LiDAR) and ecological inventories, which is entirely off-domain from the user's question regarding predicting molecular properties using chemical fingerprints and machine learning. Although both fields utilize \"Random Forests\" as a modeling technique, the paper does not address the specific biological mechanism, chemical variables, or empirical population (molecules) required by the user's research ",
+          "title": "Mapping historical forest biomass for stock-change assessments at parcel to landscape scales"
         },
         {
-          "primary_pointer": "2006.16189",
-          "rationale": "This paper is about general ML validation recommendations in biology (DOME framework) and does not measure molecular properties, use molecular fingerprints, apply Random Forests, or focus on chemistry. It fails all acceptance criteria (a-f) as it addresses methodology validation rather than the specific prediction task, domain, or variables in the user's question.",
-          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+          "primary_pointer": "1911.09182",
+          "rationale": "The paper is rejected because it addresses a distinct construct sharing only the keyword \"forest\" (ecological forest dynamics vs. Random Forest machine learning algorithm) and is entirely off-domain (ecology/finance vs. computational chemistry). It does not measure molecular properties, use chemical fingerprints, or apply the Random Forest algorithm to chemical data.",
+          "title": "Autoregressive Modeling of Forest Dynamics"
         },
         {
-          "primary_pointer": "2201.12150",
-          "rationale": "This paper is off-domain entirely for the user's chemistry/molecular property prediction question. While it discusses machine learning algorithms generally, it does not address molecular fingerprints, chemical data, Random Forests for chemistry, or molecular property prediction—only general learning curve methodology in ML. This falls under the rejection rule for papers with no measurable connection to the user's mechanism, domain, variables, or empirical setting.",
-          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
-        },
-        {
-          "primary_pointer": "2302.08893",
-          "rationale": "This paper is off-domain entirely for the user's research question. It is a general machine learning survey about active learning for data streams with no connection to chemistry, molecular property prediction, Open Babel fingerprints, or Random Forests applied to molecular data. It does not satisfy any of the acceptance criteria (a-f) as it lacks measurable connection to the user's mechanism, domain, variables, or empirical setting.",
-          "title": "Active learning for data streams: a survey"
-        },
-        {
-          "primary_pointer": "2304.02381",
-          "rationale": "This paper is about machine learning interpretability using energy landscape methods, not molecular property prediction with Open Babel fingerprints and Random Forests. While it mentions molecular sciences as an analogy, it does not measure the same mechanism, variables, or empirical setting as the user's research question, and it is not a foundational reference for the specific methodology (Random Forests + molecular fingerprints) being studied.",
-          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+          "primary_pointer": "1706.06150",
+          "rationale": "The paper focuses on the statistical methodology for estimating prediction variance in Random Forests using the infinitesimal jackknife, which is a general machine learning theory problem, rather than addressing the specific domain of predicting molecular properties or the use of Open Babel fingerprints. It fails to meet criteria (a) or (b) because it does not measure the biological/chemical mechanism or the specific variables (molecular properties, fingerprints) central to the user's question, ",
+          "title": "A Comparison of Resampling and Recursive Partitioning Methods in Random Forest for Estimating the Asymptotic Variance Using the Infinitesimal Jackknife"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-27T18:28:27Z",
+    "started_at": "2026-07-08T15:40:36Z",
     "term_input": {
       "normalized": "predicting molecular properties from open babel fingerprints with random forests chemistry",
       "raw": "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests chemistry"
     },
     "verification_failures": [
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We endow the set of all invariant measures of a topological dynamical system with a metric $\\barρ$, which induces a topology stronger than the the weak$^*$-topology. Then, we study the closedness of ergodic measures within a characteristic class under this metric. Specifically, we show that if a sequence of generic points associated with ergodic measures from a fixed characteristic class converges in the Besicovitch pseudometric, then the limit point is generic for an ergodic measure in the same class. This implies that the set of ergodic measures belonging to a fixed characteristic class is closed in $\\barρ$ (by a result of Babel, Can, Kwietniak, and Oprocha in [1]).",
-          "claimed_authors": [
-            "Sejal Babel",
-            "Martha Łącka"
-          ],
-          "claimed_title": "On the closedness of ergodic measures in a characteristic class",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.26564"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='On the closedness of ergodic measures in a characteristic class')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
       {
         "candidate": {
           "backend": "arxiv",
@@ -207,24 +180,43 @@
           "primary_pointer": "1911.10829"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Neural Random Forest Imitation')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_abstract": "We endow the set of all invariant measures of a topological dynamical system with a metric $\\barρ$, which induces a topology stronger than the the weak$^*$-topology. Then, we study the closedness of ergodic measures within a characteristic class under this metric. Specifically, we show that if a sequence of generic points associated with ergodic measures from a fixed characteristic class converges in the Besicovitch pseudometric, then the limit point is generic for an ergodic measure in the same class. This implies that the set of ergodic measures belonging to a fixed characteristic class is closed in $\\barρ$ (by a result of Babel, Can, Kwietniak, and Oprocha in [1]).",
           "claimed_authors": [
-            "Marcelo T. de Oliveira",
-            "Edson Katekawa"
+            "Sejal Babel",
+            "Martha Łącka"
           ],
-          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_title": "On the closedness of ergodic measures in a characteristic class",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1711.02639"
+          "claimed_year": 2025,
+          "primary_pointer": "2510.26564"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='On the closedness of ergodic measures in a characteristic class')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extended-connectivity fingerprints (ECFPs) are a ubiquitous tool in current cheminformatics and molecular machine learning, and one of the most prevalent molecular feature extraction techniques used for chemical prediction. Atom features learned by graph neural networks can be aggregated to compound-level representations using a large spectrum of graph pooling methods; in contrast, sets of detected ECFP substructures are by default transformed into bit vectors using only a simple hash-based folding procedure. We introduce a general mathematical framework for the vectorisation of structural fingerprints via a formal operation called substructure pooling that encompasses hash-based folding, algorithmic substructure-selection, and a wide variety of other potential techniques. We go on to describe Sort & Slice, an easy-to-implement and bit-collision-free alternative to hash-based folding for the pooling of ECFP substructures. Sort & Slice first sorts ECFP substructures according to their relative prevalence in a given set of training compounds and then slices away all but the $L$ most frequent substructures which are subsequently used to generate a binary fingerprint of desired length, $L$. We computationally compare the performance of hash-based folding, Sort & Slice, and two advanced supervised substructure-selection schemes (filtering and mutual-information maximisation) for ECFP-based molecular property prediction. Our results indicate that, despite its technical simplicity, Sort & Slice robustly (and at times substantially) outperforms traditional hash-based folding as well as the other investigated methods across prediction tasks, data splitting techniques, machine-learning models and ECFP hyperparameters. We thus recommend that Sort & Slice canonically replace hash-based folding as the default substructure-pooling technique to vectorise ECFPs for supervised molecular machine learning.",
+          "claimed_authors": [
+            "Markus Dablander",
+            "Thierry Hanser",
+            "Renaud Lambiotte",
+            "Garrett M. Morris"
+          ],
+          "claimed_title": "Sort & Slice: A Simple and Superior Alternative to Hash-Based Folding for Extended-Connectivity Fingerprints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.17954"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Sort & Slice: A Simple and Superior Alternative to Hash-Based Folding for Extended-Connectivity Fingerprints')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
@@ -246,228 +238,252 @@
           "primary_pointer": "astro-ph/0609027"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "With the consolidation of deep learning in drug discovery, several novel algorithms for learning molecular representations have been proposed. Despite the interest of the community in developing new methods for learning molecular embeddings and their theoretical benefits, comparing molecular embeddings with each other and with traditional representations is not straightforward, which in turn hinders the process of choosing a suitable representation for QSAR modeling. A reason behind this issue is the difficulty of conducting a fair and thorough comparison of the different existing embedding approaches, which requires numerous experiments on various datasets and training scenarios. To close this gap, we reviewed the literature on methods for molecular embeddings and reproduced three unsupervised and two supervised molecular embedding techniques recently proposed in the literature. We compared these five methods concerning their performance in QSAR scenarios using different classification and regression datasets. We also compared these representations to traditional molecular representations, namely molecular descriptors and fingerprints. As opposed to the expected outcome, our experimental setup consisting of over 25,000 trained models and statistical tests revealed that the predictive performance using molecular embeddings did not significantly surpass that of traditional representations. While supervised embeddings yielded competitive results compared to those using traditional molecular representations, unsupervised embeddings tended to perform worse than traditional representations. Our results highlight the need for conducting a careful comparison and analysis of the different embedding techniques prior to using them in drug design tasks, and motivate a discussion about the potential of molecular embeddings in computer-aided drug design.",
+          "claimed_abstract": "In fingerprint matching, fixed-length descriptors generally offer greater efficiency compared to minutiae set, but the recognition accuracy is not as good as that of the latter. Although much progress has been made in deep learning based fixed-length descriptors recently, they often fall short when dealing with incomplete or partial fingerprints, diverse fingerprint poses, and significant background noise. In this paper, we propose a three-dimensional representation called Fixed-length Dense Descriptor (FDD) for efficient fingerprint matching. FDD features great spatial properties, enabling it to capture the spatial relationships of the original fingerprints, thereby enhancing interpretability and robustness. Our experiments on various fingerprint datasets reveal that FDD outperforms other fixed-length descriptors, especially in matching fingerprints of different areas, cross-modal fingerprint matching, and fingerprint matching with background noise.",
           "claimed_authors": [
-            "María Virginia Sabando",
-            "Ignacio Ponzoni",
-            "Evangelos E. Milios",
-            "Axel J. Soto"
+            "Zhiyu Pan",
+            "Yongjie Duan",
+            "Jianjiang Feng",
+            "Jie Zhou"
           ],
-          "claimed_title": "Using Molecular Embeddings in QSAR Modeling: Does it Make a Difference?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.02604"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Using Molecular Embeddings in QSAR Modeling: Does it Make a Difference?')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Garments are ubiquitous in both real and many of the virtual worlds. They are highly deformable objects, exhibit an immense variety of designs and shapes, and yet, most garments are created from a set of regularly shaped flat pieces. Exploration of garment structure presents a peculiar case for an object structure estimation task and might prove useful for downstream tasks of neural 3D garment modeling and reconstruction by providing strong prior on garment shapes. To facilitate research in these directions, we propose a method for generating large synthetic datasets of 3D garment designs and their sewing patterns. Our method consists of a flexible description structure for specifying parametric sewing pattern templates and the automatic generation pipeline to produce garment 3D models with little-to-none manual intervention. To add realism, the pipeline additionally creates corrupted versions of the final meshes that imitate artifacts of 3D scanning.\n  With this pipeline, we created the first large-scale synthetic dataset of 3D garment models with their sewing patterns. The dataset contains more than 20000 garment design variations produced from 19 different base types. Seven of these garment types are specifically designed to target evaluation of the generalization across garment sewing pattern topologies.",
-          "claimed_authors": [
-            "Maria Korosteleva",
-            "Sung-Hee Lee"
-          ],
-          "claimed_title": "Generating Datasets of 3D Garments with Sewing Patterns",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.05633"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Generating Datasets of 3D Garments with Sewing Patterns')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Many modern cheminformatics workflows derive datasets from ChEMBL, but few of these datasets are published with accompanying code for their generation. Consequently, their methodologies (e.g., selection, filtering, aggregation) are opaque, reproduction is difficult, and interpretation of results therefore lacks important context. Further, such static datasets quickly become out-of-date. For example, the current version of ChEMBL is v35 (as of December 2024), but ExCAPE-DB uses v20, Deep Confidence uses v23, the consensus dataset from Isigkeit _et al._ (2022) uses v28, and Papyrus uses v30. Therefore, there is a need for tools that provide reproducible bulk access to the latest (or a given) version of ChEMBL in order to enable researchers to make their derived datasets more transparent, updatable, and trustworthy. This article introduces `chembl-downloader`, a Python package for the reproducible acquisition, access, and manipulation of ChEMBL data through its FTP server. It can be downloaded under the MIT license from https://github.com/cthoyt/chembl-downloader and installed from PyPI with `pip install chembl-downloader.`",
-          "claimed_authors": [
-            "Charles Tapley Hoyt"
-          ],
-          "claimed_title": "Improving reproducibility of cheminformatics workflows with chembl-downloader",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.17783"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Improving reproducibility of cheminformatics workflows with chembl-downloader')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
-          "claimed_authors": [
-            "Eduard Manziuk",
-            "Oleksander Barmak",
-            "Pavlo Radiuk",
-            "Vladislav Kuznetsov",
-            "Iurii Krak",
-            "Sergiy Yakovlev"
-          ],
-          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2411.19113"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Two-dimensional (2D) tin monoxide (SnO) has attracted much attention owing to its distinctive electronic and optical properties, which render itself suitable as a channel material in field effect transistors (FETs). However, upon contact with metals for such applications, the Fermi level pinning effect may occur, where states are induced in its band gap by the metal, hindering its intrinsic semiconducting properties. We propose the insertion of graphene at the contact interface to alleviate the metal-induced gap states. By using gold (Au) as the electrode material and monolayer SnO (mSnO) as the channel material, the geometry, bonding strength, charge transfer and tunnel barriers of charges, and electronic properties including the work function, band structure, density of states, and Schottky barriers are thoroughly investigated using first-principles calculations for the structures with and without graphene to reveal the contact behaviours and Fermi level depinning mechanism. It has been demonstrated that strong covalent bonding is formed between gold and mSnO, while the graphene interlayer forms weak van der Waals interaction with both materials, which minimises the perturbance to the band structure of mSnO. The effects of out-of-plane compression are also analysed to assess the performance of the contact under mechanical deformation, and a feasible fabrication route for the heterostructure with graphene is proposed. This work systematically explores the properties of the Au-mSnO contact for applications in FETs and provides thorough guidance for future exploitation of 2D materials in various electronic applications and for selection of buffer layers to improve metal-semiconductor contact.",
-          "claimed_authors": [
-            "Yujia Tian",
-            "Devesh R. Kripalani",
-            "Ming Xue",
-            "Kun Zhou"
-          ],
-          "claimed_title": "Fermi level depinning via insertion of a graphene buffer layer at the gold-2D tin monoxide contact",
+          "claimed_title": "Fixed-length Dense Descriptor for Efficient Fingerprint Matching",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2308.15820"
+          "primary_pointer": "2311.18576"
         },
-        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Fermi level depinning via insertion of a graphene buffer layer at the gold-2D tin monoxide contact')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Fixed-length Dense Descriptor for Efficient Fingerprint Matching')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Accurate structural response prediction forms a main driver for structural health monitoring and control applications. This often requires the proposed model to adequately capture the underlying dynamics of complex structural systems. In this work, we utilize a learnable Extended Kalman Filter (EKF), named the Neural Extended Kalman Filter (Neural EKF) throughout this paper, for learning the latent evolution dynamics of complex physical systems. The Neural EKF is a generalized version of the conventional EKF, where the modeling of process dynamics and sensory observations can be parameterized by neural networks, therefore learned by end-to-end training. The method is implemented under the variational inference framework with the EKF conducting inference from sensing measurements. Typically, conventional variational inference models are parameterized by neural networks independent of the latent dynamics models. This characteristic makes the inference and reconstruction accuracy weakly based on the dynamics models and renders the associated training inadequate. In this work, we show that the structure imposed by the Neural EKF is beneficial to the learning process. We demonstrate the efficacy of the framework on both simulated and real-world structural monitoring datasets, with the results indicating significant predictive capabilities of the proposed scheme.",
+          "claimed_abstract": "In-context learning (ICL) effectively conditions large language models (LLMs) for molecular tasks, such as property prediction and molecule captioning, by embedding carefully selected demonstration examples into the input prompt. This approach avoids the computational overhead of extensive pertaining and fine-tuning. However, current prompt retrieval methods for molecular tasks have relied on molecule feature similarity, such as Morgan fingerprints, which do not adequately capture the global molecular and atom-binding relationships. As a result, these methods fail to represent the full complexity of molecular structures during inference. Moreover, small-to-medium-sized LLMs, which offer simpler deployment requirements in specialized systems, have remained largely unexplored in the molecular ICL literature. To address these gaps, we propose a self-supervised learning technique, GAMIC (Graph-Aligned Molecular In-Context learning, which aligns global molecular structures, represented by graph neural networks (GNNs), with textual captions (descriptions) while leveraging local feature similarity through Morgan fingerprints. In addition, we introduce a Maximum Marginal Relevance (MMR) based diversity heuristic during retrieval to optimize input prompt demonstration samples. Our experimental findings using diverse benchmark datasets show GAMIC outperforms simple Morgan-based ICL retrieval methods across all tasks by up to 45%.",
           "claimed_authors": [
-            "Wei Liu",
-            "Zhilu Lai",
-            "Kiran Bacsa",
-            "Eleni Chatzi"
+            "Ali Al-Lawati",
+            "Jason Lucas",
+            "Zhiwei Zhang",
+            "Prasenjit Mitra",
+            "Suhang Wang"
           ],
-          "claimed_title": "Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems",
+          "claimed_title": "Graph-based Molecular In-context Learning Grounded on Morgan Fingerprints",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2210.04165"
+          "claimed_year": 2025,
+          "primary_pointer": "2502.05414"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Graph-based Molecular In-context Learning Grounded on Morgan Fingerprints')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A vector-based any-angle path planner, R2, is evolved in to R2+ in this paper. By delaying line-of-sight, R2 and R2+ search times are largely unaffected by the distance between the start and goal points, but are exponential in the worst case with respect to the number of collisions during searches. To improve search times, additional discarding conditions in the overlap rule are introduced in R2+. In addition, R2+ resolves interminable chases in R2 by replacing ad hoc points with limited occupied-sector traces from target nodes, and simplifies R2 by employing new abstract structures and ensuring target progression during a trace. R2+ preserves the speed of R2 when paths are expected to detour around few obstacles, and searches significantly faster than R2 in maps with many disjoint obstacles.",
+          "claimed_abstract": "Large language models (LLMs) have revolutionized natural language processing (NLP), yet open-source multilingual LLMs remain scarce, with existing models often limited in language coverage. Such models typically prioritize well-resourced languages, while widely spoken but under-resourced languages are often overlooked. To address this disparity, we introduce $\\texttt{Babel}$, an open multilingual LLM that covers the top 25 languages by number of speakers, supports over 90% of the global population, and includes many languages neglected by other open multilingual LLMs. Unlike traditional continue pretraining approaches, Babel expands its parameter count through a layer extension technique that elevates Babel's performance ceiling. We introduce two variants: $\\texttt{Babel-9B}$, designed for efficient inference and fine-tuning, and $\\texttt{Babel-83B}$, which sets a new standard for open multilingual LLMs. Extensive evaluations on multilingual tasks demonstrate its superior performance compared to open LLMs of comparable size. In addition, using open-source supervised fine-tuning datasets, Babel achieves remarkable performance, with Babel-9B-Chat leading among 10B-sized LLMs and Babel-83B-Chat setting a new standard for multilingual tasks, reaching the same level of commercial models.",
           "claimed_authors": [
-            "Yan Kai Lai",
-            "Prahlad Vadakkepat",
-            "Cheng Xiang"
+            "Yiran Zhao",
+            "Chaoqun Liu",
+            "Yue Deng",
+            "Jiahao Ying",
+            "Mahani Aljunied",
+            "Zhaodonghui Li",
+            "Lidong Bing",
+            "Hou Pong Chan",
+            "Yu Rong",
+            "Deli Zhao",
+            "Wenxuan Zhang"
           ],
-          "claimed_title": "Evolving R2 to R2+: Optimal, Delayed Line-of-sight Vector-based Path Planning",
+          "claimed_title": "Babel: Open Multilingual Large Language Models Serving Over 90% of Global Speakers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.00865"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Babel: Open Multilingual Large Language Models Serving Over 90% of Global Speakers')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2405.04952"
+          "primary_pointer": "2405.19595"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Evolving R2 to R2+: Optimal, Delayed Line-of-sight Vector-based Path Planning')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Reasoning over dynamic visual content remains a central challenge for multimodal large language models. Recent thinking models generate explicit reasoning traces for interpretability; however, their reasoning often appears convincing while being logically inconsistent or weakly grounded in visual evidence. We identify and formalize these issues through two diagnostic metrics: Think Answer Consistency (TAC), which measures the alignment between reasoning and answers, and Video Attention Score (VAS), which captures the extent to which reasoning depends on visual versus textual cues. Analysis across 11 video reasoning benchmarks shows that current models rely heavily on linguistic priors rather than visual content. To address this, we propose a reinforcement learning approach that enhances both temporal precision and reasoning consistency. Our approach combines timestamp aware supervised fine tuning with Group Relative Policy Optimization (GRPO) guided by a novel Temporal Alignment Reward (TAR). This dual step post training stage encourages temporally aligned and causally coherent video reasoning. The resulting model, Video R2, achieves consistently higher TAC, VAS, and accuracy across multiple benchmarks, demonstrating that improvements in temporal alignment and reasoning coherence lead to more accurate and trustworthy video understanding. Code: https://github.com/mbzuai-oryx/Video-R2",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
           "claimed_authors": [
-            "Muhammad Maaz",
-            "Hanoona Rasheed",
-            "Fahad Shahbaz Khan",
-            "Salman Khan"
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
           ],
-          "claimed_title": "Video-R2: Reinforcing Consistent and Grounded Reasoning in Multimodal Language Models",
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2511.23478"
+          "primary_pointer": "2510.08900"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Video-R2: Reinforcing Consistent and Grounded Reasoning in Multimodal Language Models')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
           "claimed_authors": [
-            "Dayananda Herurkar",
-            "Ahmad Ali",
-            "Andreas Dengel"
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
           ],
-          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.20900"
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The automatic, sensor-based assessment of challenging behavior of persons with dementia is an important task to support the selection of interventions. However, predicting behaviors like apathy and agitation is challenging due to the large inter- and intra-patient variability. Goal of this paper is to improve the recognition performance by making use of the observation that patients tend to show specific behaviors at certain times of the day or week. We propose to identify such segments of similar behavior via clustering the distributions of annotations of the time segments. All time segments within a cluster then consist of similar behaviors and thus indicate a behavioral predisposition (BPD). We utilize BPDs by training a classifier for each BPD. Empirically, we demonstrate that when the BPD per time segment is known, activity recognition performance can be substantially improved.",
+          "claimed_abstract": "Software systems continuously evolve due to new functionalities, requirements, or maintenance activities. In the context of software evolution, software refactoring has gained a strategic relevance. The space of possible software refactoring is usually very large, as it is given by the combinations of different refactoring actions that can produce software system alternatives. Multi-objective algorithms have shown the ability to discover alternatives by pursuing different objectives simultaneously. Performance of such algorithms in the context of software model refactoring is of paramount importance. Therefore, in this paper, we conduct a performance analysis of three genetic algorithms to compare them in terms of performance and quality of solutions. Our results show that there are significant differences in performance among the algorithms (e.g., PESA2 seems to be the fastest one, while NSGA-II shows the least memory usage).",
           "claimed_authors": [
-            "Maximilian Popko",
-            "Sebastian Bader",
-            "Stefan Lüdtke",
-            "Thomas Kirste"
+            "Vittorio Cortellessa",
+            "Daniele Di Pompeo",
+            "Michele Tucci"
           ],
-          "claimed_title": "Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition",
+          "claimed_title": "Performance of Genetic Algorithms in the Context of Software Model Refactoring",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Performance of Genetic Algorithms in the Context of Software Model Refactoring')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The performance in higher secondary school education in India is a turning point in the academic lives of all students. As this academic performance is influenced by many factors, it is essential to develop predictive data mining model for students' performance so as to identify the slow learners and study the influence of the dominant factors on their academic performance. In the present investigation, a survey cum experimental methodology was adopted to generate a database and it was constructed from a primary and a secondary source. While the primary data was collected from the regular students, the secondary data was gathered from the school and office of the Chief Educational Officer (CEO). A total of 1000 datasets of the year 2006 from five different schools in three different districts of Tamilnadu were collected. The raw data was preprocessed in terms of filling up missing values, transforming values in one form into another and relevant attribute/ variable selection. As a result, we had 772 student records, which were used for CHAID prediction model construction. A set of prediction rules were extracted from CHIAD prediction model and the efficiency of the generated CHIAD prediction model was found. The accuracy of the present model was compared with other model and it has been found to be satisfactory.",
+          "claimed_authors": [
+            "M. Ramaswami",
+            "R. Bhaskaran"
+          ],
+          "claimed_title": "A CHAID Based Performance Prediction Model in Educational Data Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1144"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='A CHAID Based Performance Prediction Model in Educational Data Mining')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Empirical observations suggest that in pure even-aged forests, the mean diameter of forest trees (D, diameter at breast height, 1.3 m above ground) tends to remain a constant proportion of stand height (H, average height of the largest trees in a stand) divided by the logarithm of stand density (N, number of trees per hectare): D = beta (H-1.3)/Ln(N). Thinning causes a relatively small and temporary change in the slope beta, the magnitude and duration of which depends on the nature of the thinning. This relationship may provide a robust predictor of growth in situations where scarce data and resources preclude more sophisticated modelling approaches.",
+          "claimed_authors": [
+            "Jerome K Vanclay"
+          ],
+          "claimed_title": "Tree diameter, height and stocking in even-aged forests",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0904.1215"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Tree diameter, height and stocking in even-aged forests')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Feature Selection Library (FSLib) introduces a comprehensive suite of feature selection (FS) algorithms for MATLAB, aimed at improving machine learning and data mining tasks. FSLib encompasses filter, embedded, and wrapper methods to cater to diverse FS requirements. Filter methods focus on the inherent characteristics of features, embedded methods incorporate FS within model training, and wrapper methods assess features through model performance metrics. By enabling effective feature selection, FSLib addresses the curse of dimensionality, reduces computational load, and enhances model generalizability. The elimination of redundant features through FSLib streamlines the training process, improving efficiency and scalability. This facilitates faster model development and boosts key performance indicators such as accuracy, precision, and recall by focusing on vital features. Moreover, FSLib contributes to data interpretability by revealing important features, aiding in pattern recognition and understanding. Overall, FSLib provides a versatile framework that not only simplifies feature selection but also significantly benefits the machine learning and data mining ecosystem by offering a wide range of algorithms, reducing dimensionality, accelerating model training, improving model outcomes, and enhancing data insights.",
+          "claimed_authors": [
+            "Giorgio Roffo"
+          ],
+          "claimed_title": "Feature Selection Library (MATLAB Toolbox)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.01327"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Feature Selection Library (MATLAB Toolbox)')",
+        "failed_at": "2026-07-08T15:41:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The accuracy of a classifier, when performing Pattern recognition, is mostly tied to the quality and representativeness of the input feature vector. Feature Selection is a process that allows for representing information properly and may increase the accuracy of a classifier. This process is responsible for finding the best possible features, thus allowing us to identify to which class a pattern belongs. Feature selection methods can be categorized as Filters, Wrappers, and Embed. This paper presents a survey on some Filters and Wrapper methods for handcrafted feature selection. Some discussions, with regard to the data structure, processing time, and ability to well represent a feature vector, are also provided in order to explicitly show how appropriate some methods are in order to perform feature selection. Therefore, the presented feature selection methods can be accurate and efficient if applied considering their positives and negatives, finding which one fits best the problem's domain may be the hardest task.",
+          "claimed_authors": [
+            "Alysson Ribeiro da Silva",
+            "Camila Guedes Silveira"
+          ],
+          "claimed_title": "Handcrafted Feature Selection Techniques for Pattern Recognition: A Survey",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2207.08816"
+          "primary_pointer": "2209.02746"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
-          "claimed_authors": [
-            "Tomasz Kajdanowicz",
-            "Przemyslaw Kazienko",
-            "Piotr Doskocz"
-          ],
-          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1303.0095"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
-        "failed_at": "2026-06-27T18:30:12Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human Activity Recognition (HAR) on mobile devices has been demonstrated to be possible using neural models trained on data collected from the device's inertial measurement units. These models have used Convolutional Neural Networks (CNNs), Long Short-Term Memory (LSTMs), Transformers or a combination of these to achieve state-of-the-art results with real-time performance. However, these approaches have not been extensively evaluated in real-world situations where the input data may be different from the training data. This paper highlights the issue of data heterogeneity in machine learning applications and how it can hinder their deployment in pervasive settings. To address this problem, we propose and publicly release the code of two sensor-wise Transformer architectures called HART and MobileHART for Human Activity Recognition Transformer. Our experiments on several publicly available datasets show that these HART architectures outperform previous architectures with fewer floating point operations and parameters than conventional Transformers. The results also show they are more robust to changes in mobile position or device brand and hence better suited for the heterogeneous environments encountered in real-life settings. Finally, the source code has been made publicly available.",
-          "claimed_authors": [
-            "Sannara EK",
-            "François Portet",
-            "Philippe Lalanda"
-          ],
-          "claimed_title": "Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2209.11750"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition')",
-        "failed_at": "2026-06-27T18:30:12Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Properties from Open Babel Fingerprints with Random Forests', candidate_title='Handcrafted Feature Selection Techniques for Pattern Recognition: A Survey')",
+        "failed_at": "2026-07-08T15:41:03Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -475,57 +491,60 @@
       {
         "bibliographic_info": {
           "authors": [
-            "María Virginia Sabando",
-            "Ignacio Ponzoni",
-            "Evangelos E. Milios",
-            "Axel J. Soto"
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
           ],
-          "title": "Using Molecular Embeddings in QSAR Modeling: Does it Make a Difference?",
+          "title": "Few-shot Molecular Property Prediction: A Survey",
           "venue": "arXiv",
-          "year": 2021
+          "year": 2025
         },
-        "primary_pointer": "2104.02604",
-        "summary": "With the consolidation of deep learning in drug discovery, several novel algorithms for learning molecular representations have been proposed. Despite the interest of the community in developing new methods for learning molecular embeddings and their theoretical benefits, comparing molecular embeddings with each other and with traditional representations is not straightforward, which in turn hinders the process of choosing a suitable representation for QSAR modeling. A reason behind this issue is the difficulty of conducting a fair and thorough comparison of the different existing embedding approaches, which requires numerous experiments on various datasets and training scenarios. To close this gap, we reviewed the literature on methods for molecular embeddings and reproduced three unsupervised and two supervised molecular embedding techniques recently proposed in the literature. We compared these five methods concerning their performance in QSAR scenarios using different classification and regression datasets. We also compared these representations to traditional molecular representations, namely molecular descriptors and fingerprints. As opposed to the expected outcome, our experimental setup consisting of over 25,000 trained models and statistical tests revealed that the predictive performance using molecular embeddings did not significantly surpass that of traditional representations. While supervised embeddings yielded competitive results compared to those using traditional molecular representations, unsupervised embeddings tended to perform worse than traditional representations. Our results highlight the need for conducting a careful comparison and analysis of the different embedding techniques prior to using them in drug design tasks, and motivate a discussion about the potential of molecular embeddings in computer-aided drug design.",
+        "primary_pointer": "2510.08900",
+        "summary": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2104.02604",
+          "final_url": "https://arxiv.org/abs/2510.08900",
           "http_status": 200,
-          "pdf_sample_score": 0.2829,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-27T18:30:58Z"
+          "verified_at": "2026-07-08T15:41:08Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Belaguppa Manjunath Ashwin Desai",
-            "Merla Sudha",
-            "Suvarna Ghosh",
-            "Pronama Biswas"
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
           ],
-          "title": "Prediction of Novel CXCR7 Inhibitors Using QSAR Modeling and Validation via Molecular Docking",
+          "title": "On the Virtues of Automated QSAR The New Kid on the Block",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2017
         },
-        "primary_pointer": "2505.12055",
-        "summary": "CXCR7, a G-protein-coupled chemokine receptor, has recently emerged as a key player in cancer progression, particularly in driving angiogenesis and metastasis. Despite its significance, currently, few effective inhibitors exist for targeting this receptor. In this study aimed to address this gap by developing a QSAR model to predict potential CXCR7 inhibitors, followed by validation through molecular docking. Using the Extra Trees classifier for QSAR modeling and employing a combination of physicochemical descriptors and molecular fingerprints, compounds were classified as active or inactive with a high accuracy of 0.85. The model could efficiently screen a large dataset, identifying several promising CXCR7 inhibitors. The predicted inhibitors were further validated through molecular docking studies, revealing strong binding affinities, with the best docking score of -12.24 +- 0.49 kcal/mol. Visualization of the docked structures in both 2D and 3D confirmed the interactions between the inhibitors and the CXCR7 receptor, reinforcing their potential efficacy.",
+        "primary_pointer": "1711.02639",
+        "summary": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2505.12055",
+          "final_url": "https://arxiv.org/abs/1711.02639",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": 0.1737,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-27T18:30:58Z"
+          "verified_at": "2026-07-08T15:41:13Z"
         }
       }
     ]

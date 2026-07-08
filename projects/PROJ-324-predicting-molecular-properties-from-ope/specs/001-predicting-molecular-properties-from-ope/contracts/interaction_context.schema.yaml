@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InteractionContext"
+description: "Derived entity representing a fingerprint bit pair with high interaction strength."
+type: object
+required:
+  - bit_i
+  - bit_j
+  - interaction_strength
+  - substructure_desc
+  - context_type
+properties:
+  bit_i:
+    type: integer
+    description: "Index of the first fingerprint bit."
+  bit_j:
+    type: integer
+    description: "Index of the second fingerprint bit."
+  interaction_strength:
+    type: number
+    description: "SHAP interaction value magnitude."
+  substructure_desc:
+    type: string
+    description: "Chemical description of the substructures (e.g., 'hydroxyl adjacent to aromatic ring')."
+  context_type:
+    type: string
+    enum:
+      - "Topological-Steric-Proxy"
+      - "Topological-Electronic-Proxy"
+      - "Hydrophobic"
+      - "Unknown"
+    description: "Classification of the interaction context. Note: 'Steric' and 'Electronic' are renamed to 'Proxy' to reflect that 2D fingerprints capture topological correlations, not 3D physical phenomena."
+examples:
+  - bit_i: 12
+    bit_j: 45
+    interaction_strength: 0.85
+    substructure_desc: "Hydroxyl group adjacent to aromatic ring"
+    context_type: "Topological-Electronic-Proxy"
