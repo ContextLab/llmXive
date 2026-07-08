@@ -5,33 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to "
 
-## Summary of the prior work
-ResearchStudio-Reel automates the "last mile" of research dissemination by composing five agent skills to convert a single paper PDF into three editable artifacts: a conference poster, a narrated talk video, and a bilingual blog post. Its core innovations include a shared upstream extractor (Paper2Assets) to ensure factual consistency across artifacts, deterministic primitives wrapped in "measured-fill loops" with hard pass/fail render gates, and a unified interactive HTML viewer (Paper2Reel) that synchronizes navigation across all three formats. The system uniquely produces native, editable files (PowerPoint and Word) rather than static renders, outperforming prior isolated systems on aesthetic and information consistency benchmarks.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, rule-based "layout-aware fact-checker" running entirely on CPU reduce hallucinated citations and figure misattribution in the generated artifacts by 40% compared to the current LLM-based "measured-fill" loop, without increasing generation latency? This matters because while ResearchStudio-Reel solves the *format* consistency problem, it still relies on VLMs for semantic verification, which is computationally expensive and prone to subtle factual drift in dense scientific texts; a CPU-tractable alternative would enable real-time, scalable deployment in resource-constrained environments like local lab servers or browser-based tools.
+## Research question
+
+Can a deterministic, layout-aware rule-based verification module reduce hallucinated citations and figure misattribution in automated research dissemination artifacts compared to a learned LLM-based verification loop, while operating entirely on CPU resources?
+
+## Motivation
+
+Current automated dissemination systems like ResearchStudio-Reel rely on Vision-Language Models (VLMs) for semantic verification, which introduces high latency, GPU dependency, and susceptibility to subtle factual drift in dense scientific texts. A lightweight, CPU-tractable alternative that leverages structural document properties (e.g., figure IDs, citation anchors) could enable real-time, scalable deployment in resource-constrained environments like local lab servers or browser-based tools without sacrificing factual consistency.
+
+## Related work
+
+- [ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog](https://arxiv.org/abs/2607.04438) — Establishes the baseline "measured-fill" loop using VLMs for artifact generation and notes the computational cost of semantic verification as a remaining bottleneck.
+- [The Shiny Scary Future of Automated Research Synthesis in HCI](https://arxiv.org/abs/2501.16084) — Discusses the growing role of LLMs in research synthesis and highlights the trade-offs between automation efficiency and the reliability of secondary research outputs.
+- [Enhancing Understandability and Transparency of Research Software: Tracing Research to Code](https://arxiv.org/abs/2604.10793) — Addresses the broader challenge of tracing research artifacts to their source material, providing context for the need for deterministic, transparent verification mechanisms in automated pipelines.
+
+## Expected results
+
+The proposed rule-based module will achieve a statistically significant reduction (≥40%) in hallucinated figure references and citation errors compared to the VLM baseline, while reducing average generation latency by at least 50% on CPU-only hardware. The null hypothesis (no improvement in factual precision) would imply that structural heuristics are insufficient for semantic grounding, while the positive result would validate a scalable, deterministic path for factual consistency in automated research dissemination.
 
 ## Methodology sketch
-**Data:** We will use the 500-paper test set from the original Paper2Poster benchmark, augmented with a manually verified "Gold Truth" JSON file containing exact figure IDs, citation strings, and claim-to-evidence spans for each paper.
-**Procedure:** 
-1. Implement a deterministic "Layout-Aware Fact-Checker" (LAFC) module that uses regex and simple graph traversal on the extracted `Paper2Assets` bundle to cross-reference generated content against the Gold Truth (e.g., verifying that "Figure 3" in the blog text actually maps to the figure object labeled "Figure 3" in the asset bundle).
-2. Replace the VLM-based verification step in the original "measured-fill loop" with this LAFC module for the extension condition, while keeping the original LLM-based loop as the baseline.
-3. Run both pipelines on a standard CPU-only server (e.g., 8-core Intel Xeon) to measure latency and token costs.
-4. Evaluate the output artifacts using a new "Factual Precision" metric (percentage of correct figure/citation references) and a "Drift Score" (semantic distance between original claims and generated summaries).
-**Expected Result:** The LAFC extension will achieve a ≥40% reduction in hallucinated references (specifically figure misattribution and citation errors) compared to the baseline, while reducing average generation time by 60% and eliminating GPU dependency, with no statistically significant drop in overall readability scores.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the 500-paper test set from the original Paper2Poster benchmark and the associated "Gold Truth" JSON file (containing verified figure IDs, citation strings, and claim-to-evidence spans) from the ResearchStudio-Reel repository or Zenodo mirror.
+- **Baseline Execution**: Run the original ResearchStudio-Reel pipeline (with VLM-based verification) on the test set using a standard CPU-only environment (simulating the lack of GPU) and record generation latency and token costs.
+- **Module Implementation**: Develop the "Layout-Aware Fact-Checker" (LAFC) using Python regex and simple graph traversal on the extracted `Paper2Assets` bundle to cross-reference generated text against structural anchors (e.g., matching "Figure 3" text to the object labeled "Figure 3" in the asset metadata).
+- **Extension Execution**: Replace the VLM verification step in the measured-fill loop with the LAFC module and re-run the pipeline on the same test set under identical CPU constraints.
+- **Metric Calculation**: Compute "Factual Precision" (percentage of exact matches for figure/citation references against Gold Truth) and "Drift Score" (semantic distance between original claims and generated summaries using a lightweight sentence transformer) for both conditions.
+- **Statistical Testing**: Apply a paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) to compare factual precision and latency between the baseline and LAFC conditions across the 500 papers.
+- **Resource Profiling**: Monitor CPU utilization and memory footprint during execution to ensure the method stays within the 7GB RAM and 6-hour runtime constraints of standard CI runners.
 
-- **ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog** — Lingao Xiao, Yalun Dai, Yangyu Huang, Qihao Zhao, Wenshan Wu, Hugo He, Ruishuo Chen, Jin Jiang, Qianli Ma, Jiahuan Zhang, Xin Zhang, Ying Xin, Yang Ou, Yan Xia, Scarlett Li, Longbo Huang, Zhipeng Zhang, Yang He, Yap Kim Hui, Yan Lu. https://arxiv.org/abs/2607.04438.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_04438,
-  title = {ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog},
-  author = {Lingao Xiao and Yalun Dai and Yangyu Huang and Qihao Zhao and Wenshan Wu and Hugo He and Ruishuo Chen and Jin Jiang and Qianli Ma and Jiahuan Zhang and Xin Zhang and Ying Xin and Yang Ou and Yan Xia and Scarlett Li and Longbo Huang and Zhipeng Zhang and Yang He and Yap Kim Hui and Yan Lu},
-  year = {2026},
-  eprint = {2607.04438},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.04438},
-  url = {https://arxiv.org/abs/2607.04438}
-}
-```
+- Reviewed existing ideas: llmXive follow-up: extending "ResearchStudio-Reel...".
+- Closest match: llmXive follow-up (this is the current revision of the same seed).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-08T12:49:24Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to " computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile of Research from Paper to " computer science | 0 |
+| 1 | research automation tools for paper to code | 4 |
+| 2 | automated research pipeline generation from academic papers | 0 |
+| 3 | converting research papers to executable code automatically | 0 |
+| 4 | end-to-end research workflow automation systems | 0 |
+| 5 | machine learning for research reproducibility and implementation | 0 |
+| 6 | natural language processing for code synthesis from papers | 0 |
+| 7 | automated scientific software development from literature | 0 |
+| 8 | paper-to-reproducibility frameworks in computer science | 0 |
+| 9 | intelligent research assistants for experimental replication | 0 |
+| 10 | automated literature review to code generation | 0 |
+| 11 | semantic extraction of algorithms from research articles | 0 |
+| 12 | research code generation using large language models | 0 |
+| 13 | automating the transition from theoretical papers to software | 0 |
+| 14 | tools for replicating research experiments via automation | 0 |
+| 15 | AI-driven research implementation platforms | 0 |
+| 16 | natural language to executable research code | 0 |
+| 17 | automated extraction of methodology from scientific texts | 0 |
+| 18 | research workflow orchestration for paper-to-code conversion | 0 |
+| 19 | intelligent systems for automating research software creation | 0 |
+| 20 | bridging the gap between academic papers and code repositories | 0 |
+
+### Verified citations
+
+1. **ResearchStudio-Reel: Automate the Last Mile of Research from Paper to Poster, Video, and Blog** (2026). Lingao Xiao, Yalun Dai, Yangyu Huang, Qihao Zhao, Wenshan Wu, et al.. arXiv. [2607.04438](https://arxiv.org/abs/2607.04438). PDF-sampled: No.
+2. **The Shiny Scary Future of Automated Research Synthesis in HCI** (2025). Katja Rogers. arXiv. [2501.16084](https://arxiv.org/abs/2501.16084). PDF-sampled: No.
+3. **Enhancing Understandability and Transparency of Research Software: Tracing Research to Code** (2026). Adrian Bajraktari, Andreas Vogelsang. arXiv. [2604.10793](https://arxiv.org/abs/2604.10793). PDF-sampled: No.

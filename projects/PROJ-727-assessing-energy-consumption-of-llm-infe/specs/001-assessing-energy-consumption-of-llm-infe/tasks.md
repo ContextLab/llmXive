@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-727-assessing-energy-consumption-of-llm-infe/`)
-- [ ] T002 Initialize Python 3.10+ project with `requirements.txt` (transformers, torch-cpu, codecarbon, pandas, numpy, scipy, statsmodels, matplotlib, seaborn, human-eval, huggingface_hub)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-727-assessing-energy-consumption-of-llm-infe/`)
+- [X] T002 Initialize Python 3.10+ project with `requirements.txt` (transformers, torch-cpu, codecarbon, pandas, numpy, scipy, statsmodels, matplotlib, seaborn, human-eval, huggingface_hub)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,8 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005a [AMEND] Update `spec.md` (FR-001, US-1) and `plan.md` to explicitly replace 'StarCoder-base' with 'StarCoder-1B' and authorize this substitution due to RAM constraints. Ensure the spec text is updated BEFORE any code implementation begins (FR-001, Plan Feasibility Note).
-- [ ] T004 Create `code/config.py` with constants: seeds, model IDs (GPT2-small, CodeBERT, StarCoder-1B), parameter counts, max tokens, temperature=0.0. Ensure data/raw/ directory exists.
+- [X] T005a [AMEND] Update `spec.md` (FR-001, US-1) and `plan.md` to explicitly replace 'StarCoder-base' with 'StarCoder-1B' and authorize this substitution due to RAM constraints. Ensure the spec text is updated BEFORE any code implementation begins (FR-001, Plan Feasibility Note).
+- [X] T004 Create `code/config.py` with constants: seeds, model IDs (GPT2-small, CodeBERT, StarCoder-1B), parameter counts, max tokens, temperature=0.0. Ensure data/raw/ directory exists.
 - [X] T005 [P] Create `code/download.py` to fetch HumanEval dataset from ` and save to `data/raw/human_eval_data.jsonl`. Ensure data/raw/ directory exists before saving (FR-001).
 - [ ] T006 Create `code/calibration.py` implementing a CPU-bound load loop (not matrix multiply) to validate `codecarbon` power draw detection. The script must exit with code 1 or raise an exception if deviation > 10% (FR-010).
 - [~] T007 Create `code/versioning.py` to hash artifacts and update project state YAML (Constitution Principle V)
@@ -126,10 +126,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates: Update `quickstart.md` with run instructions and expected artifacts
-- [ ] T032 Code cleanup and refactoring of `code/main.py` orchestrator
-- [ ] T033 Verify `run.sh` completes full pipeline (Inference + Stats + Plots) within 6 hours on free-tier runner
-- [ ] T034 [P] Final validation: Run `run.sh` on clean GitHub Actions runner to ensure all artifacts are generated and non-null where required
+- [~] T031 [P] Documentation updates: Update `quickstart.md` with run instructions and expected artifacts
+- [~] T032 Code cleanup and refactoring of `code/main.py` orchestrator
+- [~] T033 Verify `run.sh` completes full pipeline (Inference + Stats + Plots) within 6 hours on free-tier runner
+- [~] T034 [P] Final validation: Run `run.sh` on clean GitHub Actions runner to ensure all artifacts are generated and non-null where required <!-- ATOMIZE: requested -->
 
 ---
 

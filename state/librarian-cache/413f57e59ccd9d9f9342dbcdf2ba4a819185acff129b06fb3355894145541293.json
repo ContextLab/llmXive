@@ -1,0 +1,618 @@
+{
+  "fetched_at": "2026-07-08T12:48:18Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scientific Figure Generati\"",
+      "target_n": 5
+    },
+    "duration_seconds": 53.415,
+    "ended_at": "2026-07-08T12:48:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multi-agent systems for scientific figure generation"
+        ],
+        [
+          2,
+          "automated editable scientific visualization"
+        ],
+        [
+          3,
+          "collaborative AI agents for data visualization"
+        ],
+        [
+          4,
+          "generative models for scientific charts and plots"
+        ],
+        [
+          5,
+          "editable vector graphics generation with AI"
+        ],
+        [
+          6,
+          "multi-agent frameworks for scientific publishing"
+        ],
+        [
+          7,
+          "LLM-driven scientific figure creation"
+        ],
+        [
+          8,
+          "automated figure editing and modification"
+        ],
+        [
+          9,
+          "AI-assisted scientific illustration tools"
+        ],
+        [
+          10,
+          "natural language to scientific plot generation"
+        ],
+        [
+          11,
+          "interactive scientific visualization agents"
+        ],
+        [
+          12,
+          "generative AI for reproducible research figures"
+        ],
+        [
+          13,
+          "multi-agent coordination for visual data synthesis"
+        ],
+        [
+          14,
+          "semantic editing of scientific diagrams"
+        ],
+        [
+          15,
+          "autonomous agents for scientific data representation"
+        ],
+        [
+          16,
+          "large language models for figure generation"
+        ],
+        [
+          17,
+          "programmatic generation of editable scientific graphics"
+        ],
+        [
+          18,
+          "AI agents for scientific communication visualizations"
+        ],
+        [
+          19,
+          "dynamic scientific figure synthesis"
+        ],
+        [
+          20,
+          "generative AI for LaTeX and vector figure output"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scientific Figure Generati\" computer science": 0,
+        "multi-agent systems for scientific figure generation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multi-agent figure generation editable",
+      "Crafter framework scientific illustration automation",
+      "agent collaboration diagram synthesis",
+      "vector graphics generation evaluation metrics",
+      "automated figure editing data contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.30611"
+      ]
+    },
+    "per_query_hit_count": {
+      "Crafter framework scientific illustration automation": 3,
+      "agent collaboration diagram synthesis": 3,
+      "automated figure editing data contamination": 3,
+      "llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scientific Figure Generati\" computer science": 3,
+      "multi-agent figure generation editable": 3,
+      "vector graphics generation evaluation metrics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1311.5108",
+          "rationale": "The paper proposes a general methodology for engineering multi-level agent-based simulations to optimize computational resources, which is distinct from the user's specific focus on a \"multi-agent harness for editable scientific figure generation.\" While both involve multi-agent systems, the candidate paper addresses simulation dynamics and scale aggregation rather than the specific mechanism of generating or editing scientific figures, failing to meet the criteria for same-mechanism evidence, s",
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations"
+        },
+        {
+          "primary_pointer": "2412.06333",
+          "rationale": "The paper focuses on multi-agent reinforcement learning (MARL) and cooperation strategies in the specific domain of the card game Hanabi, which is distinct from the user's question regarding a \"Multi-Agent Harness for Editable Scientific Figure Generation.\" While both involve multi-agent systems, the paper does not address the specific mechanism of figure generation, editing, or the scientific visualization domain, nor does it provide a foundational methodology for the specific task of generatin",
+          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi"
+        },
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper focuses on learning ethical value systems and moral alignment in multi-agent systems using inverse reinforcement learning, which is a distinct construct from the user's question about extending a specific framework for generating and editing scientific figures. While both involve \"multi-agent\" systems, the paper addresses the domain of AI ethics and value alignment rather than the computer vision, generative modeling, or figure-editing mechanisms central to the user's query, failing to",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2510.13343",
+          "rationale": "The paper focuses on Multi-Agent Reinforcement Learning (MARL) architectures for sequential decision-making in game and robotics benchmarks (StarCraft, MuJoCo), which is a distinct domain from the user's question about a multi-agent system for generating and editing scientific figures. While both involve \"multi-agent\" systems, the paper does not address the specific mechanism of figure generation, the \"Crafter\" framework, or the computer science domain of scientific visualization, failing to mee",
+          "title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-08T12:47:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"crafter: a multi-agent harness for editable scientific figure generati\" computer science",
+      "raw": "llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scientific Figure Generati\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
+          "claimed_authors": [
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
+          ],
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The International Particle Physics Outreach Group (IPPOG) has been making concerted and systematic efforts to present and popularise particle physics across all audiences and age groups since 1997. Today the scientific community has in IPPOG a strategic pillar in fostering long-term, sustainable support for fundamental research around the world. One of the main tools IPPOG has been offering to the scientific community, teachers and educators for almost 10 years is the Resource Database (RDB), an online platform containing a collection of high quality engaging education and outreach materials in particle physics and related sciences.",
+          "claimed_authors": [
+            "Barbora Bruant Gulejova"
+          ],
+          "claimed_title": "IPPOG : Bridging the gap between science education at school and modern scientific research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.14743"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='IPPOG : Bridging the gap between science education at school and modern scientific research')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Significant progress has been achieved in high-fidelity video synthesis, yet current paradigms often fall short in effectively integrating identity information from multiple subjects. This leads to semantic conflicts and suboptimal performance in preserving identities and interactions, limiting controllability and applicability. To tackle this issue, we introduce ID-Crafter, a framework for multi-subject video generation that achieves superior identity preservation and semantic coherence. ID-Crafter integrates three key components: (i) a hierarchical identity-preserving attention mechanism that progressively aggregates features at intra-subject, inter-subject, and cross-modal levels; (ii) a semantic understanding module powered by a pretrained Vision-Language Model (VLM) to provide fine-grained guidance and capture complex inter-subject relationships; and (iii) an online reinforcement learning phase to further refine the model for critical concepts. Furthermore, we construct a new dataset to facilitate robust training and evaluation. Extensive experiments demonstrate that ID-Crafter establishes new state-of-the-art performance on multi-subject video generation benchmarks, excelling in identity preservation, temporal consistency, and overall video quality. Project page: https://angericky.github.io/ID-Crafter",
+          "claimed_authors": [
+            "Panwang Pan",
+            "Jingjing Zhao",
+            "Yuchen Lin",
+            "Chenguo Lin",
+            "Chenxin Li",
+            "Hengyu Liu",
+            "Tingting Shen",
+            "Yadong MU"
+          ],
+          "claimed_title": "ID-Crafter: VLM-Grounded Online RL for Compositional Multi-Subject Video Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.00511"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='ID-Crafter: VLM-Grounded Online RL for Compositional Multi-Subject Video Generation')",
+        "failed_at": "2026-07-08T12:47:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI agents powered by large language models (LLMs) have shown strong capabilities in problem solving. Through combining many intelligent agents, multi-agent collaboration has emerged as a promising approach to tackle complex, multi-faceted problems that exceed the capabilities of single AI agents. However, designing the collaboration protocols and evaluating the effectiveness of these systems remains a significant challenge, especially for enterprise applications. This report addresses these challenges by presenting a comprehensive evaluation of coordination and routing capabilities in a novel multi-agent collaboration framework. We evaluate two key operational modes: (1) a coordination mode enabling complex task completion through parallel communication and payload referencing, and (2) a routing mode for efficient message forwarding between agents. We benchmark on a set of handcrafted scenarios from three enterprise domains, which are publicly released with the report. For coordination capabilities, we demonstrate the effectiveness of inter-agent communication and payload referencing mechanisms, achieving end-to-end goal success rates of 90%. Our analysis yields several key findings: multi-agent collaboration enhances goal success rates by up to 70% compared to single-agent approaches in our benchmarks; payload referencing improves performance on code-intensive tasks by 23%; latency can be substantially reduced with a routing mechanism that selectively bypasses agent orchestration. These findings offer valuable guidance for enterprise deployments of multi-agent systems and advance the development of scalable, efficient multi-agent collaboration frameworks.",
+          "claimed_authors": [
+            "Raphael Shu",
+            "Nilaksh Das",
+            "Michelle Yuan",
+            "Monica Sunkara",
+            "Yi Zhang"
+          ],
+          "claimed_title": "Towards Effective GenAI Multi-Agent Collaboration: Design and Evaluation for Enterprise Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.05449"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Towards Effective GenAI Multi-Agent Collaboration: Design and Evaluation for Enterprise Applications')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "On 2017 August 17 a binary neutron star coalescence candidate (later designated GW170817) with merger time 12:41:04 UTC was observed through gravitational waves by the Advanced LIGO and Advanced Virgo detectors. The Fermi Gamma-ray Burst Monitor independently detected a gamma-ray burst (GRB 170817A) with a time delay of $\\sim$1.7 s with respect to the merger time. From the gravitational-wave signal, the source was initially localized to a sky region of 31 deg$^2$ at a luminosity distance of $40^{+8}_{-8}$ Mpc and with component masses consistent with neutron stars. The component masses were later measured to be in the range 0.86 to 2.26 Msun. An extensive observing campaign was launched across the electromagnetic spectrum leading to the discovery of a bright optical transient (SSS17a, now with the IAU identification of AT 2017gfo) in NGC 4993 (at $\\sim$40 Mpc) less than 11 hours after the merger by the One-Meter, Two Hemisphere (1M2H) team using the 1 m Swope Telescope. The optical transient was independently detected by multiple teams within an hour. Subsequent observations targeted the object and its environment. Early ultraviolet observations revealed a blue transient that faded within 48 hours. Optical and infrared observations showed a redward evolution over $\\sim$10 days. Following early non-detections, X-ray and radio emission were discovered at the transient's position $\\sim$9 and $\\sim$16 days, respectively, after the merger. Both the X-ray and radio emission likely arise from a physical process that is distinct from the one that generates the UV/optical/near-infrared emission. No ultra-high-energy gamma-rays and no neutrino candidates consistent with the source were found in follow-up searches. (Abridged)",
+          "claimed_authors": [
+            " LIGO Scientific Collaboration",
+            " Virgo Collaboration",
+            "Fermi GBM",
+            " INTEGRAL",
+            "IceCube Collaboration",
+            "AstroSat Cadmium Zinc Telluride Imager Team",
+            "IPN Collaboration",
+            "The Insight-Hxmt Collaboration",
+            "ANTARES Collaboration",
+            "The Swift Collaboration",
+            "AGILE Team",
+            "The 1M2H Team",
+            "The Dark Energy Camera GW-EM Collaboration",
+            "the DES Collaboration",
+            "The DLT40 Collaboration",
+            " GRAWITA",
+            " :",
+            "GRAvitational Wave Inaf TeAm",
+            "The Fermi Large Area Telescope Collaboration",
+            " ATCA",
+            " :",
+            "Australia Telescope Compact Array",
+            " ASKAP",
+            " :",
+            "Australian SKA Pathfinder",
+            "Las Cumbres Observatory Group",
+            " OzGrav",
+            " DWF",
+            " AST3",
+            "CAASTRO Collaborations",
+            "The VINROUGE Collaboration",
+            "MASTER Collaboration",
+            " J-GEM",
+            " GROWTH",
+            " JAGWAR",
+            "Caltech- NRAO",
+            " TTU-NRAO",
+            "NuSTAR Collaborations",
+            " Pan-STARRS",
+            "The MAXI Team",
+            "TZAC Consortium",
+            "KU Collaboration",
+            "Nordic Optical Telescope",
+            " ePESSTO",
+            " GROND",
+            "Texas Tech University",
+            "SALT Group",
+            " TOROS",
+            " :",
+            "Transient Robotic Observatory of the South Collaboration",
+            "The BOOTES Collaboration",
+            " MWA",
+            " :",
+            "Murchison Widefield Array",
+            "The CALET Collaboration",
+            "IKI-GW Follow-up Collaboration",
+            "H. E. S. S. Collaboration",
+            "LOFAR Collaboration",
+            " LWA",
+            " :",
+            "Long Wavelength Array",
+            "HAWC Collaboration",
+            "The Pierre Auger Collaboration",
+            "ALMA Collaboration",
+            "Euro VLBI Team",
+            "Pi of the Sky Collaboration",
+            "The Chandra Team at McGill University",
+            " DFN",
+            " :",
+            "Desert Fireball Network",
+            " ATLAS",
+            "High Time Resolution Universe Survey",
+            " RIMAS",
+            " RATIR",
+            "SKA South Africa/MeerKAT"
+          ],
+          "claimed_title": "Multi-messenger Observations of a Binary Neutron Star Merger",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.05833"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Multi-messenger Observations of a Binary Neutron Star Merger')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are increasingly used to power autonomous agents for complex, multi-step tasks. However, human-agent interaction remains pointwise and reactive: users approve or correct individual actions to mitigate immediate risks, without visibility into subsequent consequences. This forces users to mentally simulate long-term effects, a cognitively demanding and often inaccurate process. Users have control over individual steps but lack the foresight to make informed decisions. We argue that effective collaboration requires foresight, not just control. We propose simulation-in-the-loop, an interaction paradigm that enables users and agents to explore simulated future trajectories before committing to decisions. Simulation transforms intervention from reactive guesswork into informed exploration, while helping users discover latent constraints and preferences along the way. This perspective paper characterizes the limitations of current paradigms, introduces a conceptual framework for simulation-based collaboration, and illustrates its potential through concrete human-agent collaboration scenarios.",
+          "claimed_authors": [
+            "Gaole He",
+            "Brian Y. Lim"
+          ],
+          "claimed_title": "From Control to Foresight: Simulation as a New Paradigm for Human-Agent Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.11677"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='From Control to Foresight: Simulation as a New Paradigm for Human-Agent Collaboration')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent deep learning methods can generate diverse graphic design layouts efficiently. However, these methods often create layouts with flaws, such as misalignment, unwanted overlaps, and unsatisfied containment. To tackle this issue, we propose an optimization-based method called LayoutRectifier, which gracefully rectifies auto-generated graphic design layouts to reduce these flaws while minimizing deviation from the generated layout. The core of our method is a two-stage optimization. First, we utilize grid systems, which professional designers commonly use to organize elements, to mitigate misalignments through discrete search. Second, we introduce a novel box containment function designed to adjust the positions and sizes of the layout elements, preventing unwanted overlapping and promoting desired containment. We evaluate our method on content-agnostic and content-aware layout generation tasks and achieve better-quality layouts that are more suitable for downstream graphic design tasks. Our method complements learning-based layout generation methods and does not require additional training.",
+          "claimed_authors": [
+            "I-Chao Shen",
+            "Ariel Shamir",
+            "Takeo Igarashi"
+          ],
+          "claimed_title": "LayoutRectifier: An Optimization-based Post-processing for Graphic Design Layout Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.11177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='LayoutRectifier: An Optimization-based Post-processing for Graphic Design Layout Generation')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While large vision-language models can generate motion graphics animations from text prompts, they regularly fail to include all spatio-temporal properties described in the prompt. We introduce MoVer, a motion verification DSL based on first-order logic that can check spatio-temporal properties of a motion graphics animation. We identify a general set of such properties that people commonly use to describe animations (e.g., the direction and timing of motions, the relative positioning of objects, etc.). We implement these properties as predicates in MoVer and provide an execution engine that can apply a MoVer program to any input SVG-based motion graphics animation. We then demonstrate how MoVer can be used in an LLM-based synthesis and verification pipeline for iteratively refining motion graphics animations. Given a text prompt, our pipeline synthesizes a motion graphics animation and a corresponding MoVer program. Executing the verification program on the animation yields a report of the predicates that failed and the report can be automatically fed back to LLM to iteratively correct the animation. To evaluate our pipeline, we build a synthetic dataset of 5600 text prompts paired with ground truth MoVer verification programs. We find that while our LLM-based pipeline is able to automatically generate a correct motion graphics animation for 58.8% of the test prompts without any iteration, this number raises to 93.6% with up to 50 correction iterations. Our code and dataset are at https://mover-dsl.github.io.",
+          "claimed_authors": [
+            "Jiaju Ma",
+            "Maneesh Agrawala"
+          ],
+          "claimed_title": "MoVer: Motion Verification for Motion Graphics Animations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.13372"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='MoVer: Motion Verification for Motion Graphics Animations')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sensory illusions - where a sensory stimulus causes people to perceive effects that are altered by a different sensory stimulus - have the potential to enrich mixed-reality based interactions. The well-known colour-temperature illusion is a sensory illusion that causes people to, somewhat counterintuitively, perceive blue objects to feel warmer and red objects to feel colder. There is currently little information about whether this illusion can be recreated in mixed reality (MR). Additionally, it is unknown whether dynamic graphical effects made possible by mixed-reality systems could create a similar or potentially stronger effect to the color-temperature illusion. The results of our study (n=30) support that the color-temperature illusion can be recreated in MR and that dynamic graphics can create a new temperature-sensory illusion. Our dynamic-graphics-temperature illusion creates a stronger effect than the color-temperature illusion and has more intuitive relationship between the stimulus and the effect: cold graphical effects (a virtual ice ball) are perceived as colder and hot graphical effects (a virtual fire ball) as hotter. Our results demonstrate that mixed reality has the potential to create novel and stronger temperature-based illusions and encourage further investigation into graphical effects to shape user perception.",
+          "claimed_authors": [
+            "Connor Wilson",
+            "Daniel J. Rea",
+            "Scott Bateman"
+          ],
+          "claimed_title": "Temperature Illusions in Mixed Reality using Color and Dynamic Graphics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.03241"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Temperature Illusions in Mixed Reality using Color and Dynamic Graphics')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Crafter: A Multi-Agent Harness for Editable Scient', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-07-08T12:47:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haozhe Zhao",
+            "Shuzheng Si",
+            "Zhenhailong Wang",
+            "Zheng Wang",
+            "Liang Chen",
+            "Xiaotong Li",
+            "Zhixiang Liang",
+            "Maosong Sun",
+            "Minjia Zhang"
+          ],
+          "title": "Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from Diverse Inputs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.30611",
+        "summary": "Scientific figures are among the most effective means of communicating complex research ideas, yet producing publication-quality illustrations remains one of the most labor-intensive parts of paper preparation. Existing automated systems each target a single figure type under text-only input, leaving the diversity of types and conditions researchers actually use unaddressed; their raster outputs further cannot be locally revised. Because scientific figures are structured compositions of discrete semantic components, the localized errors generators produce on such layouts demand not a stronger backbone but a harness. We instantiate this harness in two complementary systems: Crafter, a multi-agent harness for figure generation that generalizes across figure types and input conditions without architectural changes, and CraftEditor, which applies the same pattern to convert raster outputs into editable SVGs. Moreover, we introduce CraftBench, a benchmark spanning three figure types and four input conditions with human quality annotation. Experiments show that Crafter substantially outperforms both standalone generators and the agentic baseline on PaperBanana-Bench and CraftBench, with ablations confirming each component's independent contribution; CraftEditor faithfully converts outputs into editable SVGs that surpass all baselines. Our code and benchmark are available at https://github.com/HaozheZhao/Crafter.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.30611",
+          "http_status": 200,
+          "pdf_sample_score": 0.2697,
+          "query_relevance_score": 0.5385,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T12:47:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.08975",
+        "summary": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.08975",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-08T12:48:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"crafter: a multi-agent harness for editable scientific figure generati\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

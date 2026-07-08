@@ -1,32 +1,28 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-energy-assessment"
+name = "llmxive-energy-assessment"
 version = "0.1.0"
 description = "Assessing Energy Consumption of LLM Inference for Code Completion"
 requires-python = ">=3.10"
 dependencies = [
-    "transformers>=4.35.0",
-    "torch>=2.0.0,!=1.13.0",
-    "codecarbon>=2.2.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-    "human-eval>=0.0.0",
-    "huggingface_hub>=0.19.0"
+    "transformers",
+    "torch-cpu",
+    "codecarbon",
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "human-eval",
+    "huggingface_hub",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py310']
-
-[tool.ruff]
-line-length = 88
-target-version = "py310"
-select = ["E", "F", "W", "I"]
-ignore = ["E501"]
+skip-string-normalization = false
+exclude = "/(\\.git|\\.venv|venv|__pycache__|build|dist)/"

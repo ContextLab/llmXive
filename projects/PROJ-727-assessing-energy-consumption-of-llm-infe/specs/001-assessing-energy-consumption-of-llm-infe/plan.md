@@ -1,63 +1,70 @@
-# Implementation Plan: Assessing Energy Consumption of LLM Inference
+# Plan: Assessing Energy Consumption of LLM Inference for Code Completion
 
-## 1. Project Overview
+## Implementation Strategy
+The project will be implemented in phases, starting with setup and foundational tasks, followed by user stories in priority order.
 
-This project implements an automated pipeline to assess the energy consumption of LLMs (GPT-2-small, CodeBERT, StarCoder-1B) on the HumanEval dataset.
+## Phase 1: Setup
+- Create project structure
+- Initialize Python environment
+- Configure linting and formatting
 
-## 2. Architecture
+## Phase 2: Foundational
+- **CRITICAL**: This phase must be completed before any user story implementation.
+- **FR-001 Amendment**: Update spec and plan to replace 'StarCoder-base' with 'StarCoder-1B' due to RAM constraints.
+- Create configuration files
+- Download HumanEval dataset
+- Implement calibration script
+- Create versioning logic
+- Implement environment verification
 
-- **Language**: Python 3.10+
-- **Core Libraries**: `transformers`, `torch` (CPU), `codecarbon`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`
-- **Data Source**: HumanEval (via `human_eval` package or direct download)
-- **Execution**: Sequential model loading to manage RAM constraints.
+## Phase 3: User Story 1 (MVP)
+- Implement inference logic
+- Evaluate completions
+- Handle edge cases
+- Aggregate results
+- Add logging
 
-## 3. Feasibility Notes & Amendments
+## Phase 4: User Story 2
+- Implement ANOVA
+- Implement Tukey HSD
+- Implement regression
+- Perform sensitivity analysis
+- Generate stats report
 
-### RAM Constraints and Model Substitution
-The initial plan proposed evaluating "StarCoder-base" (15B parameters). However, on the target CPU-only execution environment with limited RAM, loading a 15B model is infeasible and will result in Out-of-Memory (OOM) failures.
+## Phase 5: User Story 3
+- Implement visualization logic
+- Generate bar plot
+- Generate scatter plot
+- Calculate scatter slope
 
-**Amendment (FR-001)**:
-- **Original**: StarCoder-base
-- **Replaced With**: StarCoder-1B
-- **Justification**: StarCoder-1B is small enough to fit in available RAM while still providing a meaningful data point for the "larger model" category in the comparative analysis. This substitution is authorized and required for the pipeline to complete successfully.
+## Phase 6: Polish
+- Update documentation
+- Clean up code
+- Verify pipeline execution
+- Final validation
 
-## 4. Execution Phases
+## Feasibility Notes
+- **RAM Constraint**: Standard CPU-only environments (e.g., GitHub Actions) have limited RAM (typically 7GB-16GB).
+- **Model Substitution**: The original target model "StarCoder-base" is too large for CPU inference without quantization.
+- **Authorized Substitution**: Per FR-001, "StarCoder-1B" is used instead. This model is small enough to fit in memory while still providing meaningful code completion results.
+- **No Quantization**: The project explicitly forbids GPU quantization or 8-bit loading to maintain consistency in measurement methodology.
+- **Execution Time**: The full pipeline must complete within 6 hours on a free-tier runner.
 
-### Phase 1: Setup
-- Initialize project structure.
-- Configure dependencies (`requirements.txt`).
-- Set up linting and formatting.
+## Risk Mitigation
+- **OOM Errors**: Models are loaded sequentially and unloaded explicitly to free RAM.
+- **Calibration Failure**: The calibration script will exit with code 1 if `codecarbon` fails to detect power draw accurately.
+- **Data Integrity**: All analysis uses real HumanEval data and real `codecarbon` logs. No synthetic data is used.
 
-### Phase 2: Foundational
-- **Critical**: Update `spec.md` and `plan.md` to reflect StarCoder-1B substitution (Task T005a).
-- Create configuration constants (`code/config.py`).
-- Download HumanEval dataset.
-- Implement calibration and versioning.
-
-### Phase 3: User Story 1 (Inference)
-- Implement `code/inference.py` to run models sequentially.
-- Use `codecarbon` for energy tracking.
-- Generate `data/processed/energy_results_raw.csv`.
-
-### Phase 4: User Story 2 (Analysis)
-- Implement statistical tests (ANOVA, Tukey, Regression).
-- Perform sensitivity analysis.
-- Generate `data/processed/stats_report.csv`.
-
-### Phase 5: User Story 3 (Visualization)
-- Generate plots.
-- Save to `data/processed/`.
-
-## 5. Risk Management
-
-- **OOM Errors**: Mitigated by using StarCoder-1B and explicit garbage collection (`gc.collect()`) between model loads.
-- **CodeCarbon Accuracy**: Mitigated by calibration task (T006) ensuring CPU load detection works.
-- **Data Integrity**: Enforced by requiring real HumanEval data and real measurements; no synthetic data allowed.
-
-## 6. Deliverables
-
-- `data/processed/energy_results_aggregated.csv`
-- `data/processed/stats_report.csv`
-- `data/processed/energy_bar.png`
-- `data/processed/tradeoff_scatter.png`
-- `data/processed/sensitivity_delta.csv`
+## Dependencies
+- Python 3.10+
+- transformers
+- torch-cpu
+- codecarbon
+- pandas
+- numpy
+- scipy
+- statsmodels
+- matplotlib
+- seaborn
+- human-eval
+- huggingface_hub

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-07-08T12:48:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"crafter: a multi-agent harness for editable scientific figure generati\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"Multi-Agent\" mechanism central to the user's question about extending a multi-agent figure generation system. Although it focuses on Deep Reinforcement Learning rather than generative editing specifically, it provides the essential theoretical framework and classification of communication protocols that any researcher extending a multi-agent harness would need to cite as prior work.",
+  "relevant": true
+}

@@ -87,6 +87,10 @@
     "classified_at": "2026-06-26T14:38:00Z",
     "verdict": false
   },
+  "PROJ-1012-llmxive-follow-up-extending-researchstud::1.6.0": {
+    "classified_at": "2026-07-08T12:49:04Z",
+    "verdict": false
+  },
   "PROJ-102-predicting-sleep-stage-transitions-from-::1.6.0": {
     "classified_at": "2026-07-06T11:30:00Z",
     "verdict": false
@@ -869,6 +873,10 @@
   },
   "PROJ-841-llmxive-follow-up-extending-shuttermuse::1.6.0": {
     "classified_at": "2026-07-07T16:02:47Z",
+    "verdict": false
+  },
+  "PROJ-856-llmxive-follow-up-extending-crafter-a-mu::1.6.0": {
+    "classified_at": "2026-07-08T12:47:55Z",
     "verdict": false
   },
   "PROJ-861-llmxive-follow-up-extending-appo-agentic::1.6.0": {

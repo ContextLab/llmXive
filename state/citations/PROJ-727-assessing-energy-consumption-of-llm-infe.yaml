@@ -1,11 +1,1 @@
-- artifact_hash: 403337a39683e09defab90451635928b9f9e2746cd4a27450f1175418b8b330e
-  artifact_path: projects/PROJ-727-assessing-energy-consumption-of-llm-infe/specs/001-assessing-energy-consumption-of-llm-infe/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: test-00000-of-00001.parquet
-  kind: url
-  value: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet`
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f06/19ddd404720790f95c7d65d0c801d9024ce7a6b69ea8fae939e635418afc6cfe?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783420473&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA2LzE5ZGRkNDA0NzIwNzkwZjk1YzdkNjVkMGM4MDFkOTAyNGNlN2E2YjY5ZWE4ZmFlOTM5ZTYzNTQxOGFmYzZjZmVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM0MjA0NzN9fX1dfQ__&Signature=MEUCIHQBO%7E5OS3oYf80xjWLPUBQsLmQiiwO4BLk7QkJ487ETAiEAoH5w6LhplhoAIVq5I-Zazt0nXdou4vHDeTSUDcJHTd4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T09:34:33.223159Z'
+[]

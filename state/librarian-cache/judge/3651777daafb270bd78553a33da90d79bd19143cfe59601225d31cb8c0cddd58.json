@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.03117",
+  "judged_at": "2026-07-08T12:49:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"researchstudio-reel: automate the last mile of research from paper to \" computer science",
+  "rationale": "The paper focuses on automating building permit checks using IFC models in the construction domain, which is an entirely different application area and technical mechanism than the user's question regarding automating the \"last mile\" of computer science research workflows. It fails all inclusion criteria (a-f) as it does not measure the same variables, study the same population, or provide foundational methodology for research automation in computer science.",
+  "relevant": false
+}

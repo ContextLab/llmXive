@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.30611",
+  "judged_at": "2026-07-08T12:48:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"crafter: a multi-agent harness for editable scientific figure generati\" computer science",
+  "rationale": "The candidate paper is the foundational work (\"Crafter\") that the user's research question explicitly references as the subject of a follow-up study, making it the essential canonical reference for any literature review on extending this specific multi-agent harness. This satisfies acceptance criteria (d) as the foundational methodology paper and (a) as it defines the exact mechanism and system the user intends to extend.",
+  "relevant": true
+}

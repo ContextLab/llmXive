@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-08T04:20:39.070042Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1012-llmxive-follow-up-extending-researchstud
-last_run_id: null
+last_run_id: 86e898a6-22f9-48e4-8e20-239ca2fdcc2d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "ResearchStudio-Reel: Automate the Last Mile
   of Research from Paper to "'
-updated_at: '2026-07-08T04:20:39.070042Z'
+updated_at: '2026-07-08T12:49:41.219594Z'

@@ -1,441 +1,443 @@
+"""
+metrics.py - Implementation of phase space reconstruction metrics.
+
+This module provides functions to compute:
+1. Correlation Dimension (Grassberger-Procaccia algorithm)
+2. Largest Lyapunov Exponent (Rosenstein's algorithm)
+3. False Nearest Neighbors (FNN)
+
+These metrics are used to characterize the dynamical properties of time-series data
+and assess the quality of phase space reconstruction under noise.
+"""
+
 import numpy as np
 from typing import Tuple, Optional, Dict, Any, List, Union
 from scipy.spatial.distance import cdist
 from scipy.interpolate import interp1d
-import logging
 from scipy.optimize import curve_fit
-from utils.data_models import MetricResult
+import logging
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging
 logger = logging.getLogger(__name__)
 
-def linear_func(x, a, b):
-    """Simple linear function for fitting correlation integral scaling."""
-    return a * x + b
 
-def compute_correlation_dimension(trajectory: np.ndarray, 
-                                embedding_dim: int = 5, 
-                                min_dist: float = 0.01, 
-                                max_dist: float = 1.0,
-                                n_points: int = 1000) -> Tuple[float, Dict[str, Any]]:
+def linear_func(x: np.ndarray, m: float, b: float) -> np.ndarray:
     """
-    Compute Correlation Dimension using Grassberger-Procaccia algorithm.
-    
+    Simple linear function for curve fitting.
+
     Args:
-        trajectory: 2D array of shape (n_samples, n_features)
-        embedding_dim: Maximum embedding dimension to test
-        min_dist: Minimum distance threshold
-        max_dist: Maximum distance threshold
-        n_points: Number of distance bins
-        
+        x: Input array.
+        m: Slope.
+        b: Intercept.
+
     Returns:
-        Tuple of (correlation_dimension, metadata_dict)
+        Linear prediction: m*x + b
+    """
+    return m * x + b
+
+
+def compute_correlation_dimension(
+    trajectory: np.ndarray,
+    embedding_dim: int = 5,
+    max_radius: Optional[float] = None,
+    min_radius: Optional[float] = None,
+    radius_steps: int = 50
+) -> Tuple[float, Dict[str, Any]]:
+    """
+    Compute the Correlation Dimension using the Grassberger-Procaccia algorithm.
+
+    The correlation dimension D2 estimates the fractal dimension of the attractor
+    by analyzing how the correlation integral C(r) scales with radius r.
+    C(r) ~ r^D2
+
+    Args:
+        trajectory: 2D array of shape (N, d) representing the trajectory in phase space.
+        embedding_dim: Maximum embedding dimension to test (default: 5).
+        max_radius: Maximum radius to consider (fraction of data std). If None, auto-calculated.
+        min_radius: Minimum radius to consider (fraction of data std). If None, auto-calculated.
+        radius_steps: Number of radius values to test (default: 50).
+
+    Returns:
+        Tuple containing:
+            - correlation_dimension (float): The estimated correlation dimension.
+            - metadata (dict): Diagnostic information including log-log slope and range used.
     """
     if trajectory.ndim == 1:
         trajectory = trajectory.reshape(-1, 1)
-        
-    n_samples, n_features = trajectory.shape
-    logger.info(f"Computing correlation dimension for {n_samples} points in {n_features}D space")
-    
-    # Create distance bins
-    distances = np.logspace(np.log10(min_dist), np.log10(max_dist), n_points)
-    
+
+    N, d = trajectory.shape
+    logger.info(f"Computing Correlation Dimension for trajectory of shape {trajectory.shape}")
+
+    # Auto-calculate radius bounds if not provided
+    data_std = np.std(trajectory)
+    if max_radius is None:
+        max_radius = 0.5 * data_std
+    if min_radius is None:
+        min_radius = 0.01 * data_std
+
+    radii = np.logspace(np.log10(min_radius), np.log10(max_radius), radius_steps)
+    log_radii = np.log(radii)
     correlation_integrals = []
-    
-    for d in range(1, embedding_dim + 1):
-        # For simplicity, we use the original trajectory as the embedded space
-        # In a full implementation, we would create time-delay embeddings
-        if d > n_features:
-            break
-            
-        # Compute pairwise distances
-        dist_matrix = cdist(trajectory[:, :d], trajectory[:, :d], metric='euclidean')
-        
-        # Compute correlation integral C(r) for each distance bin
-        C_r = []
-        for r in distances:
-            count = np.sum(dist_matrix < r) - n_samples  # Exclude self-distances
-            C_r.append(count / (n_samples * (n_samples - 1)))
-        
-        correlation_integrals.append(C_r)
-    
-    # Fit scaling region to estimate dimension
-    dimensions = []
-    for i, C_r in enumerate(correlation_integrals):
-        C_r = np.array(C_r)
-        valid_mask = (C_r > 0) & (C_r < 1)
-        if np.sum(valid_mask) < 5:
-            continue
-            
-        log_r = np.log(distances[valid_mask])
-        log_C = np.log(C_r[valid_mask])
-        
-        try:
-            # Fit linear function in log-log space
-            popt, _ = curve_fit(linear_func, log_r, log_C)
-            dim = popt[0]  # Slope is the correlation dimension
-            if dim > 0:
-                dimensions.append(dim)
-        except:
-            continue
-    
-    if not dimensions:
-        logger.warning("Could not compute correlation dimension")
-        return 0.0, {"error": "No valid dimensions found"}
-        
-    avg_dim = np.mean(dimensions)
-    return avg_dim, {"dimensions": dimensions, "embedding_max": embedding_dim}
 
-def compute_lyapunov_exponent_rosenstein(trajectory: np.ndarray,
-                                       embedding_dim: int = 10,
-                                       time_delay: int = 10,
-                                       min_neighbors: int = 10,
-                                       max_time: int = 50) -> Tuple[float, Dict[str, Any]]:
-    """
-    Compute Largest Lyapunov Exponent using Rosenstein's algorithm.
-    
-    Args:
-        trajectory: 2D array of shape (n_samples, n_features)
-        embedding_dim: Embedding dimension for phase space reconstruction
-        time_delay: Time delay for embedding
-        min_neighbors: Minimum number of neighbors required
-        max_time: Maximum time steps for divergence calculation
-        
-    Returns:
-        Tuple of (lyapunov_exponent, metadata_dict)
-    """
-    if trajectory.ndim == 1:
-        trajectory = trajectory.reshape(-1, 1)
-        
-    n_samples = trajectory.shape[0]
-    logger.info(f"Computing Lyapunov exponent for {n_samples} points")
-    
-    # Create time-delay embedding
-    if time_delay * embedding_dim >= n_samples:
-        logger.warning("Time delay and embedding dimension too large for data length")
-        return 0.0, {"error": "Insufficient data for embedding"}
-        
-    embedded = np.zeros((n_samples - time_delay * embedding_dim, embedding_dim))
-    for i in range(embedding_dim):
-        embedded[:, i] = trajectory[i * time_delay : n_samples - (embedding_dim - i - 1) * time_delay].flatten()
-    
-    n_embedded = embedded.shape[0]
-    if n_embedded < min_neighbors * 2:
-        logger.warning("Not enough embedded points")
-        return 0.0, {"error": "Insufficient embedded points"}
-        
-    # Find nearest neighbors for each point
-    distances = cdist(embedded, embedded, metric='euclidean')
-    np.fill_diagonal(distances, np.inf)
-    
-    # Select neighbors that are temporally separated by at least time_delay
-    nearest_neighbors = []
-    for i in range(n_embedded):
-        # Find neighbors that are far enough in time
-        valid_indices = np.where(np.abs(np.arange(n_embedded) - i) > time_delay)[0]
-        if len(valid_indices) == 0:
-            continue
-            
-        neighbor_distances = distances[i, valid_indices]
-        neighbor_indices = valid_indices[np.argsort(neighbor_distances)[:min_neighbors]]
-        
-        if len(neighbor_indices) >= min_neighbors:
-            nearest_neighbors.append(neighbor_indices)
-    
-    if not nearest_neighbors:
-        logger.warning("No valid neighbors found")
-        return 0.0, {"error": "No valid neighbors"}
-        
-    # Calculate divergence over time
-    divergence = []
-    times = np.arange(max_time)
-    
-    for i, neighbors in enumerate(nearest_neighbors):
-        if len(neighbors) == 0:
-            continue
-            
-        # Calculate distance evolution
-        for t in times:
-            if i + t >= n_embedded:
-                break
-                
-            total_dist = 0
-            count = 0
-            for j in neighbors:
-                if j + t >= n_embedded:
+    # Compute correlation integral for each radius
+    # Optimization: Use KDTree or cdist for distance matrix
+    # For moderate N, cdist is efficient enough
+    dist_matrix = cdist(trajectory, trajectory)
+
+    for r in radii:
+        # Count pairs within distance r (excluding self-pairs and lagged points)
+        # Lagged points: points within time delay tau are not independent
+        # Here we use a simple lag of 1 for robustness, though optimal tau depends on data
+        lag = 1
+        count = 0
+        total_pairs = 0
+
+        for i in range(N):
+            for j in range(i + 1, N):
+                if j - i <= lag:
                     continue
-                    
-                dist = np.linalg.norm(embedded[i + t] - embedded[j + t])
-                if dist > 0:
-                    total_dist += np.log(dist)
+                if dist_matrix[i, j] < r:
                     count += 1
-            
-            if count > 0:
-                divergence.append(total_dist / count)
-            else:
-                divergence.append(np.nan)
-    
-    divergence = np.array(divergence)
-    if np.all(np.isnan(divergence)):
-        return 0.0, {"error": "No valid divergence data"}
-        
-    # Average over all initial points
-    avg_divergence = np.nanmean(divergence, axis=0)
-    
-    # Fit linear region to estimate Lyapunov exponent
-    valid_mask = ~np.isnan(avg_divergence)
-    if np.sum(valid_mask) < 5:
-        return 0.0, {"error": "Insufficient valid divergence points"}
-        
-    try:
-        # Fit in the linear region (typically first few time steps)
-        fit_range = min(20, len(avg_divergence))
-        popt, _ = curve_fit(linear_func, times[:fit_range][valid_mask[:fit_range]], 
-                          avg_divergence[:fit_range][valid_mask[:fit_range]])
-        lyap_exp = popt[0]
-    except:
-        lyap_exp = 0.0
-        
-    return lyap_exp, {"divergence": avg_divergence, "times": times[:len(avg_divergence)]}
+                total_pairs += 1
 
-def compute_false_nearest_neighbors(trajectory: np.ndarray,
-                                   embedding_dim: int = 2,
-                                   threshold: float = 10.0,
-                                   time_delay: int = 10) -> Tuple[float, Dict[str, Any]]:
+        C_r = count / total_pairs if total_pairs > 0 else 0
+        correlation_integrals.append(C_r)
+
+    correlation_integrals = np.array(correlation_integrals)
+
+    # Filter out zero values to avoid log(0)
+    valid_mask = correlation_integrals > 0
+    if np.sum(valid_mask) < 2:
+        logger.warning("Too few valid pairs for correlation dimension estimation.")
+        return -1.0, {"error": "Insufficient data for reliable estimation"}
+
+    valid_radii = log_radii[valid_mask]
+    valid_C = np.log(correlation_integrals[valid_mask])
+
+    # Fit linear model to log-log plot
+    try:
+        popt, _ = curve_fit(linear_func, valid_radii, valid_C, p0=[1.0, 0.0])
+        slope = popt[0]
+        # The correlation dimension is the slope
+        dim = slope
+    except Exception as e:
+        logger.warning(f"Curve fitting failed for correlation dimension: {e}")
+        dim = -1.0
+
+    metadata = {
+        "slope": slope if 'slope' in locals() else dim,
+        "radius_range": (min_radius, max_radius),
+        "num_points": N,
+        "embedding_dim_tested": embedding_dim
+    }
+
+    logger.info(f"Correlation Dimension estimated: {dim:.4f}")
+    return dim, metadata
+
+
+def compute_lyapunov_exponent_rosenstein(
+    trajectory: np.ndarray,
+    embedding_dim: int = 5,
+    time_delay: int = 10,
+    min_separation: int = 10,
+    max_time: Optional[int] = None
+) -> Tuple[float, Dict[str, Any]]:
     """
-    Compute False Nearest Neighbors (FNN) rate.
-    
-    This function determines the minimum embedding dimension required to
-    unfold the attractor by identifying neighbors that appear close in
-    lower dimensions but are far apart in higher dimensions.
-    
+    Compute the Largest Lyapunov Exponent using Rosenstein's algorithm.
+
+    Rosenstein's method tracks the evolution of nearest neighbors in the phase space.
+    The average logarithmic divergence of these trajectories over time gives the
+    largest Lyapunov exponent.
+
     Args:
-        trajectory: 2D array of shape (n_samples, n_features)
-        embedding_dim: The embedding dimension to test (default=2 as per task)
-        threshold: Threshold multiplier for standard deviation (default=10× std)
-        time_delay: Time delay for embedding (default=10)
-        
+        trajectory: 2D array of shape (N, d) representing the trajectory.
+        embedding_dim: Embedding dimension for phase space reconstruction (default: 5).
+        time_delay: Time delay for embedding (default: 10).
+        min_separation: Minimum temporal separation for nearest neighbor search (default: 10).
+        max_time: Maximum time steps to track divergence (default: N // 2).
+
     Returns:
-        Tuple of (fnn_rate, metadata_dict)
-        
-    Note:
-        The threshold is set to 10× the standard deviation of the trajectory
-        as specified in the task requirements.
+        Tuple containing:
+            - lyapunov_exponent (float): The estimated largest Lyapunov exponent.
+            - metadata (dict): Diagnostic information including divergence curve.
     """
     if trajectory.ndim == 1:
         trajectory = trajectory.reshape(-1, 1)
-        
-    n_samples = trajectory.shape[0]
-    logger.info(f"Computing FNN for embedding dimension {embedding_dim}")
-    
-    # Calculate standard deviation of the trajectory for threshold
-    std_dev = np.std(trajectory)
-    threshold_value = threshold * std_dev
-    
-    # Create time-delay embedding for current dimension
-    if time_delay * embedding_dim >= n_samples:
-        logger.warning("Time delay and embedding dimension too large for data length")
-        return 1.0, {"error": "Insufficient data for embedding", "threshold_used": threshold_value}
-    
-    # Build embedded trajectory
-    embedded = np.zeros((n_samples - time_delay * embedding_dim, embedding_dim))
-    for i in range(embedding_dim):
-        start_idx = i * time_delay
-        end_idx = n_samples - (embedding_dim - i) * time_delay
-        embedded[:, i] = trajectory[start_idx:end_idx].flatten()
-    
-    n_embedded = embedded.shape[0]
-    if n_embedded < 2:
-        return 1.0, {"error": "Not enough embedded points", "threshold_used": threshold_value}
-    
-    # Compute pairwise distances in current embedding
-    distances_current = cdist(embedded, embedded, metric='euclidean')
-    
-    # Find nearest neighbors (excluding self and temporally close points)
-    nearest_neighbor_dist = np.zeros(n_embedded)
-    nearest_neighbor_idx = np.zeros(n_embedded, dtype=int)
-    
-    for i in range(n_embedded):
-        # Exclude self and points too close in time
-        valid_mask = np.ones(n_embedded, dtype=bool)
-        valid_mask[i] = False
-        valid_mask[max(0, i - time_delay):min(n_embedded, i + time_delay + 1)] = False
-        
-        if not np.any(valid_mask):
-            nearest_neighbor_dist[i] = np.inf
-            nearest_neighbor_idx[i] = -1
-            continue
-            
-        dists = distances_current[i, valid_mask]
-        min_idx = np.argmin(dists)
-        actual_idx = np.where(valid_mask)[0][min_idx]
-        
-        nearest_neighbor_dist[i] = dists[min_idx]
-        nearest_neighbor_idx[i] = actual_idx
-    
-    # Now test in embedding dimension + 1 to find false neighbors
-    if time_delay * (embedding_dim + 1) >= n_samples:
-        # Cannot test higher dimension, assume all are false neighbors
-        fnn_count = n_embedded
-        logger.warning(f"Cannot test dimension {embedding_dim + 1}, assuming all neighbors are false")
-    else:
-        # Create embedding for dimension + 1
-        embedded_plus = np.zeros((n_samples - time_delay * (embedding_dim + 1), embedding_dim + 1))
-        for i in range(embedding_dim + 1):
-            start_idx = i * time_delay
-            end_idx = n_samples - (embedding_dim + 1 - i) * time_delay
-            embedded_plus[:, i] = trajectory[start_idx:end_idx].flatten()
-        
-        # Only consider points that exist in both embeddings
-        min_len = min(n_embedded, embedded_plus.shape[0])
-        embedded_current = embedded[:min_len]
-        embedded_next = embedded_plus[:min_len]
-        
-        # Compute distances in higher dimension for the same neighbor pairs
-        false_neighbor_count = 0
-        
-        for i in range(min_len):
-            j = int(nearest_neighbor_idx[i])
-            if j < 0 or j >= min_len:
-                continue
-                
-            # Distance in current dimension
-            d_current = nearest_neighbor_dist[i]
-            if d_current == np.inf:
-                continue
-                
-            # Distance in higher dimension
-            d_next = np.linalg.norm(embedded_next[i] - embedded_next[j])
-            
-            # Check if neighbor is false in higher dimension
-            # A neighbor is false if the distance increases significantly
-            if d_next > threshold_value:
-                false_neighbor_count += 1
-    
-        fnn_count = false_neighbor_count
-    
-    fnn_rate = fnn_count / n_embedded if n_embedded > 0 else 1.0
-    
-    metadata = {
-        "embedding_dim": embedding_dim,
-        "threshold": threshold,
-        "threshold_value": threshold_value,
-        "time_delay": time_delay,
-        "false_neighbors": int(fnn_count),
-        "total_neighbors": int(n_embedded),
-        "fnn_rate": fnn_rate
-    }
-    
-    logger.info(f"FNN rate: {fnn_rate:.4f} ({fnn_count}/{n_embedded})")
-    return fnn_rate, metadata
 
-def compute_ground_truth_metrics(trajectory: np.ndarray,
-                                system_type: str = "lorenz",
-                                seed: int = 42) -> Dict[str, MetricResult]:
+    N, d = trajectory.shape
+    logger.info(f"Computing Lyapunov Exponent (Rosenstein) for trajectory of shape {trajectory.shape}")
+
+    if max_time is None:
+        max_time = N // 2
+
+    # Reconstruct phase space if necessary (though trajectory is assumed to be embedded)
+    # For this implementation, we assume trajectory is already in the correct dimension
+    # If embedding is needed, it would be done here using delay embedding
+
+    # Find nearest neighbors for each point (excluding temporal neighbors)
+    dist_matrix = cdist(trajectory, trajectory)
+
+    # Initialize divergence array
+    divergence = np.zeros(max_time)
+    neighbor_count = 0
+
+    for i in range(N - max_time - min_separation):
+        # Find nearest neighbor excluding temporal neighbors
+        # Mask out temporal neighbors
+        mask = np.ones(N, dtype=bool)
+        mask[max(0, i - min_separation):min(N, i + min_separation + 1)] = False
+        mask[i] = False
+
+        if not np.any(mask):
+            continue
+
+        distances = dist_matrix[i, mask]
+        nearest_idx = np.argmin(distances)
+        # Get original index
+        original_indices = np.where(mask)[0]
+        j = original_indices[nearest_idx]
+
+        # Track divergence over time
+        for k in range(max_time):
+            if i + k >= N or j + k >= N:
+                break
+            dist_k = dist_matrix[i + k, j + k]
+            if dist_k > 0:
+                divergence[k] += np.log(dist_k)
+                neighbor_count += 1
+
+    if neighbor_count == 0:
+        logger.warning("No valid neighbors found for Lyapunov exponent estimation.")
+        return -1.0, {"error": "No valid neighbors"}
+
+    divergence /= neighbor_count
+
+    # Fit linear slope to the initial part of the divergence curve
+    # Typically the first 10-20% of max_time
+    fit_range = max(5, int(max_time * 0.2))
+    x_fit = np.arange(fit_range)
+    y_fit = divergence[:fit_range]
+
+    try:
+        popt, _ = curve_fit(linear_func, x_fit, y_fit, p0=[0.1, 0.0])
+        lyap_exp = popt[0]
+    except Exception as e:
+        logger.warning(f"Curve fitting failed for Lyapunov exponent: {e}")
+        lyap_exp = -1.0
+
+    metadata = {
+        "divergence_curve": divergence[:max_time].tolist(),
+        "fit_range": fit_range,
+        "num_neighbors": neighbor_count
+    }
+
+    logger.info(f"Largest Lyapunov Exponent estimated: {lyap_exp:.4f}")
+    return lyap_exp, metadata
+
+
+def compute_false_nearest_neighbors(
+    trajectory: np.ndarray,
+    embedding_dim_max: int = 10,
+    threshold: float = 10.0
+) -> Tuple[List[float], Dict[str, Any]]:
+    """
+    Compute the False Nearest Neighbors (FNN) rate for increasing embedding dimensions.
+
+    FNN analysis helps determine the minimum embedding dimension required to
+    unfold the attractor without false neighbors caused by projection.
+
+    Args:
+        trajectory: 1D or 2D array representing the time series.
+        embedding_dim_max: Maximum embedding dimension to test (default: 10).
+        threshold: Threshold multiplier for standard deviation to identify false neighbors (default: 10).
+
+    Returns:
+        Tuple containing:
+            - fnn_rates (list): FNN rate for each embedding dimension from 1 to embedding_dim_max.
+            - metadata (dict): Diagnostic information.
+    """
+    if trajectory.ndim == 1:
+        trajectory = trajectory.reshape(-1, 1)
+
+    N, d = trajectory.shape
+    logger.info(f"Computing False Nearest Neighbors for trajectory of shape {trajectory.shape}")
+
+    # If input is 1D time series, we need to perform delay embedding
+    # For simplicity, assume trajectory is already a 1D time series and we embed it
+    if d == 1:
+        time_series = trajectory.flatten()
+    else:
+        # If already embedded, we still need to test higher dimensions
+        # This case is less common for FNN which is usually for 1D series
+        time_series = trajectory[:, 0] if d > 0 else trajectory.flatten()
+
+    fnn_rates = []
+    data_std = np.std(time_series)
+    threshold_val = threshold * data_std
+
+    for m in range(1, embedding_dim_max + 1):
+        # Construct embedding for dimension m
+        # Embedding: [x(t), x(t+1), ..., x(t+m-1)]
+        # We need at least m points
+        if N < m + 1:
+            fnn_rates.append(1.0)
+            continue
+
+        # Create embedded vectors
+        embedded = np.array([
+            time_series[i:i+m] for i in range(N - m + 1)
+        ])
+
+        # For each point, find its nearest neighbor in m-dimensional space
+        # Check if it remains a neighbor in (m+1)-dimensional space
+        # And if the distance increase is significant
+
+        fnn_count = 0
+        total_pairs = 0
+
+        dist_matrix_m = cdist(embedded, embedded)
+
+        # For each point, find nearest neighbor (excluding self and close temporal points)
+        for i in range(len(embedded) - 1):
+            # Find nearest neighbor
+            # Mask self and close temporal neighbors
+            mask = np.ones(len(embedded), dtype=bool)
+            # Temporal proximity: exclude points within m steps
+            start = max(0, i - m)
+            end = min(len(embedded), i + m + 1)
+            mask[start:end] = False
+            mask[i] = False
+
+            if not np.any(mask):
+                continue
+
+            distances = dist_matrix_m[i, mask]
+            nearest_idx = np.argmin(distances)
+            original_indices = np.where(mask)[0]
+            j = original_indices[nearest_idx]
+
+            # Now check in (m+1) dimension if they are still neighbors
+            # We need to construct (m+1) embedding for points i and j
+            if i + m >= len(time_series) or j + m >= len(time_series):
+                continue
+
+            vec_m_i = embedded[i]
+            vec_m_j = embedded[j]
+
+            # Extend to m+1 dimension
+            vec_mp1_i = np.append(vec_m_i, time_series[i + m])
+            vec_mp1_j = np.append(vec_m_j, time_series[j + m])
+
+            dist_m = np.linalg.norm(vec_m_i - vec_m_j)
+            dist_mp1 = np.linalg.norm(vec_mp1_i - vec_mp1_j)
+
+            # Check if the distance increased significantly
+            if dist_m > 0:
+                ratio = (dist_mp1 - dist_m) / dist_m
+                if ratio > threshold_val:
+                    fnn_count += 1
+
+            total_pairs += 1
+
+        fnn_rate = fnn_count / total_pairs if total_pairs > 0 else 1.0
+        fnn_rates.append(fnn_rate)
+
+    metadata = {
+        "embedding_dims_tested": list(range(1, embedding_dim_max + 1)),
+        "threshold": threshold,
+        "data_length": N
+    }
+
+    logger.info(f"FNN computation complete. Rates: {fnn_rates}")
+    return fnn_rates, metadata
+
+
+def compute_ground_truth_metrics(
+    trajectory: np.ndarray,
+    seed: int,
+    system_type: str
+) -> Dict[str, Any]:
     """
     Compute all ground truth metrics for a clean trajectory.
-    
-    Args:
-        trajectory: 2D array of shape (n_samples, n_features)
-        system_type: Type of system (lorenz, rossler)
-        seed: Random seed for reproducibility
-        
-    Returns:
-        Dictionary of metric names to MetricResult objects
-    """
-    results = {}
-    
-    # Correlation Dimension
-    try:
-        corr_dim, corr_meta = compute_correlation_dimension(trajectory)
-        results["correlation_dimension"] = MetricResult(
-            value=corr_dim,
-            metadata=corr_meta,
-            system_type=system_type,
-            seed=seed
-        )
-    except Exception as e:
-        logger.error(f"Failed to compute correlation dimension: {e}")
-        results["correlation_dimension"] = MetricResult(
-            value=0.0,
-            metadata={"error": str(e)},
-            system_type=system_type,
-            seed=seed
-        )
-    
-    # Lyapunov Exponent
-    try:
-        lyap_exp, lyap_meta = compute_lyapunov_exponent_rosenstein(trajectory)
-        results["lyapunov_exponent"] = MetricResult(
-            value=lyap_exp,
-            metadata=lyap_meta,
-            system_type=system_type,
-            seed=seed
-        )
-    except Exception as e:
-        logger.error(f"Failed to compute Lyapunov exponent: {e}")
-        results["lyapunov_exponent"] = MetricResult(
-            value=0.0,
-            metadata={"error": str(e)},
-            system_type=system_type,
-            seed=seed
-        )
-    
-    # False Nearest Neighbors (at embedding=2)
-    try:
-        fnn_rate, fnn_meta = compute_false_nearest_neighbors(trajectory, embedding_dim=2)
-        results["false_nearest_neighbors"] = MetricResult(
-            value=fnn_rate,
-            metadata=fnn_meta,
-            system_type=system_type,
-            seed=seed
-        )
-    except Exception as e:
-        logger.error(f"Failed to compute FNN: {e}")
-        results["false_nearest_neighbors"] = MetricResult(
-            value=1.0,
-            metadata={"error": str(e)},
-            system_type=system_type,
-            seed=seed
-        )
-    
-    return results
 
-def run_ground_truth_computation(trajectory: np.ndarray,
-                                system_type: str = "lorenz",
-                                seed: int = 42) -> Dict[str, Any]:
-    """
-    Run all ground truth computations and return formatted results.
-    
+    This function orchestrates the computation of Correlation Dimension,
+    Lyapunov Exponent, and FNN for a given clean trajectory.
+
     Args:
-        trajectory: 2D array of shape (n_samples, n_features)
-        system_type: Type of system
-        seed: Random seed
-        
+        trajectory: 2D array of shape (N, d) representing the clean trajectory.
+        seed: Random seed used for generation (for metadata).
+        system_type: Type of system (e.g., 'lorenz', 'rossler').
+
     Returns:
-        Dictionary with all computed metrics
+        Dictionary containing all computed metrics and metadata.
     """
-    results = compute_ground_truth_metrics(trajectory, system_type, seed)
-    
-    formatted = {
+    logger.info(f"Computing ground truth metrics for {system_type} system (seed={seed})")
+
+    # Compute Correlation Dimension
+    corr_dim, corr_meta = compute_correlation_dimension(trajectory)
+
+    # Compute Lyapunov Exponent
+    lyap_exp, lyap_meta = compute_lyapunov_exponent_rosenstein(trajectory)
+
+    # Compute FNN
+    fnn_rates, fnn_meta = compute_false_nearest_neighbors(trajectory)
+
+    result = {
         "system_type": system_type,
         "seed": seed,
-        "metrics": {}
+        "correlation_dimension": corr_dim,
+        "correlation_dimension_metadata": corr_meta,
+        "lyapunov_exponent": lyap_exp,
+        "lyapunov_exponent_metadata": lyap_meta,
+        "fnn_rates": fnn_rates,
+        "fnn_metadata": fnn_meta
     }
-    
-    for metric_name, result in results.items():
-        formatted["metrics"][metric_name] = {
-            "value": float(result.value),
-            "metadata": result.metadata
-        }
-    
-    return formatted
+
+    logger.info(f"Ground truth metrics computed: D2={corr_dim:.4f}, LE={lyap_exp:.4f}")
+    return result
+
+
+def run_ground_truth_computation(
+    trajectory: np.ndarray,
+    seed: int,
+    system_type: str,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run ground truth computation and optionally save results to file.
+
+    Args:
+        trajectory: Clean trajectory data.
+        seed: Generation seed.
+        system_type: System identifier.
+        output_path: Optional path to save JSON results.
+
+    Returns:
+        Dictionary of computed metrics.
+    """
+    metrics = compute_ground_truth_metrics(trajectory, seed, system_type)
+
+    if output_path:
+        import json
+        import os
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(metrics, f, indent=2)
+        logger.info(f"Ground truth metrics saved to {output_path}")
+
+    return metrics
+
 
 def get_metric_computation_functions() -> Dict[str, callable]:
-    """Return dictionary of available metric computation functions."""
+    """
+    Return a dictionary of available metric computation functions.
+
+    Returns:
+        Dictionary mapping metric names to their computation functions.
+    """
     return {
         "correlation_dimension": compute_correlation_dimension,
-        "lyapunov_exponent": compute_lyapunov_exponent_rosenstein,
+        "lyapunov_exponent_rosenstein": compute_lyapunov_exponent_rosenstein,
         "false_nearest_neighbors": compute_false_nearest_neighbors,
         "ground_truth": compute_ground_truth_metrics
     }

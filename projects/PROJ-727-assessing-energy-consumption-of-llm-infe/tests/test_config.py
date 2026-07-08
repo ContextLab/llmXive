@@ -1,78 +1,87 @@
 """
-Tests for the code/config.py module.
-Verifies that constants are defined correctly and directories are created.
+Tests for the configuration module (code/config.py).
 """
-import os
 import pytest
+import os
 from pathlib import Path
+import sys
 
-# Import the config module
+# Add the parent directory to the path to allow importing 'code'
+# Assuming tests are run from the root or the code directory structure is relative.
+# In a real run, this might be handled by pytest configuration or PYTHONPATH.
+# Here we assume the test is run from the project root.
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from code.config import (
-    PROJECT_ROOT,
-    DATA_DIR,
-    DATA_RAW_DIR,
-    DATA_PROCESSED_DIR,
-    FIGURES_DIR,
-    MODEL_CONFIG,
-    MODEL_KEYS,
+    MODEL_CONFIGS,
+    MODEL_IDS,
     SEED,
+    MAX_TOKENS,
     TEMPERATURE,
-    MAX_NEW_TOKENS,
-    NULL_ENERGY_VALUE,
-    DEVICE
+    DATA_RAW_DIR,
+    get_model_hf_id,
+    get_model_params_m,
 )
 
-def test_directories_exist():
-    """Ensure that the data and figures directories are created upon import."""
-    assert DATA_RAW_DIR.exists(), f"Directory {DATA_RAW_DIR} should exist"
-    assert DATA_PROCESSED_DIR.exists(), f"Directory {DATA_PROCESSED_DIR} should exist"
-    assert FIGURES_DIR.exists(), f"Directory {FIGURES_DIR} should exist"
-    assert DATA_RAW_DIR.is_dir(), f"{DATA_RAW_DIR} should be a directory"
-    assert DATA_PROCESSED_DIR.is_dir(), f"{DATA_PROCESSED_DIR} should be a directory"
-    assert FIGURES_DIR.is_dir(), f"{FIGURES_DIR} should be a directory"
 
-def test_model_keys():
-    """Verify that the expected model keys are present."""
-    expected_keys = {"gpt2", "codebert", "starcoder_1b"}
-    assert set(MODEL_KEYS) == expected_keys, f"Model keys mismatch: {set(MODEL_KEYS)} vs {expected_keys}"
+class TestModelConstants:
+    """Test that model constants are correctly defined."""
 
-def test_model_config_structure():
-    """Verify that each model has the required configuration fields."""
-    required_fields = {"model_id", "parameter_count", "max_tokens", "temperature", "description"}
-    
-    for key in MODEL_KEYS:
-        assert key in MODEL_CONFIG, f"Model {key} not found in MODEL_CONFIG"
-        config = MODEL_CONFIG[key]
-        assert required_fields.issubset(config.keys()), f"Missing fields in {key} config: {required_fields - set(config.keys())}"
+    def test_model_ids_list(self):
+        """Verify the list of model IDs contains the required models."""
+        # The task requires GPT2-small, CodeBERT, StarCoder-1B
+        # We check the keys in MODEL_CONFIGS as that is the authoritative source
+        required_models = {"GPT2-small", "CodeBERT", "StarCoder-1B"}
+        assert required_models.issubset(set(MODEL_CONFIGS.keys())), \
+            f"Missing required models. Found: {set(MODEL_CONFIGS.keys())}"
+
+    def test_model_hf_ids(self):
+        """Verify HuggingFace IDs are correctly mapped."""
+        assert get_model_hf_id("GPT2-small") == "gpt2"
+        assert get_model_hf_id("CodeBERT") == "microsoft/codebert-base"
+        assert get_model_hf_id("StarCoder-1B") == "bigcode/starcoderbase-1b"
+
+    def test_model_param_counts(self):
+        """Verify parameter counts are reasonable integers."""
+        assert get_model_params_m("GPT2-small") > 0
+        assert get_model_params_m("CodeBERT") > 0
+        assert get_model_params_m("StarCoder-1B") > 0
         
-        # Specific type checks
-        assert isinstance(config["parameter_count"], int), f"parameter_count for {key} must be int"
-        assert isinstance(config["max_tokens"], int), f"max_tokens for {key} must be int"
-        assert isinstance(config["temperature"], float), f"temperature for {key} must be float"
+        # Rough sanity checks
+        assert get_model_params_m("GPT2-small") < 200  # ~117M
+        assert get_model_params_m("StarCoder-1B") > 500 # ~1B
 
-def test_starcoder_1b_config():
-    """Specific check for StarCoder-1B configuration."""
-    starcoder = MODEL_CONFIG.get("starcoder_1b")
-    assert starcoder is not None, "starcoder_1b must be configured"
-    # The task specifically requested StarCoder-1B
-    assert "1b" in starcoder["model_id"].lower() or "starcoderbase-1b" in starcoder["model_id"].lower(), \
-        f"StarCoder model ID should indicate 1B variant, got: {starcoder['model_id']}"
+    def test_inference_settings(self):
+        """Verify inference settings match requirements."""
+        assert SEED == 42
+        assert MAX_TOKENS == 128
+        assert TEMPERATURE == 0.0
 
-def test_inference_params():
-    """Verify inference parameters are set as per task requirements."""
-    assert TEMPERATURE == 0.0, "Temperature must be 0.0"
-    assert MAX_NEW_TOKENS == 50, "Max new tokens must be 50"
-    assert SEED == 42, "Seed must be 42"
+    def test_unknown_model_raises(self):
+        """Verify that requesting an unknown model raises a KeyError."""
+        with pytest.raises(KeyError):
+            get_model_hf_id("NonExistentModel")
+        
+        with pytest.raises(KeyError):
+            get_model_params_m("NonExistentModel")
 
-def test_device_constraint():
-    """Verify that the device is set to CPU."""
-    assert DEVICE == "cpu", "Device must be set to 'cpu' for this project"
+class TestDirectoryStructure:
+    """Test that required directories exist."""
 
-def test_null_values():
-    """Verify null placeholders are defined."""
-    assert NULL_ENERGY_VALUE is None, "NULL_ENERGY_VALUE should be None"
+    def test_data_raw_exists(self):
+        """Verify data/raw directory exists."""
+        assert DATA_RAW_DIR.exists(), f"data/raw directory does not exist: {DATA_RAW_DIR}"
+        assert DATA_RAW_DIR.is_dir(), f"data/raw is not a directory: {DATA_RAW_DIR}"
 
-def test_project_root():
-    """Verify project root is a valid Path object."""
-    assert isinstance(PROJECT_ROOT, Path), "PROJECT_ROOT must be a Path object"
-    assert PROJECT_ROOT.exists(), "PROJECT_ROOT path must exist"
+    def test_data_processed_exists(self):
+        """Verify data/processed directory exists (created by config init)."""
+        # The config module creates this on import
+        from code.config import DATA_PROCESSED_DIR
+        assert DATA_PROCESSED_DIR.exists(), f"data/processed directory does not exist: {DATA_PROCESSED_DIR}"
+        assert DATA_PROCESSED_DIR.is_dir(), f"data/processed is not a directory: {DATA_PROCESSED_DIR}"
+
+    def test_figures_exists(self):
+        """Verify figures directory exists."""
+        from code.config import FIGURES_DIR
+        assert FIGURES_DIR.exists(), f"figures directory does not exist: {FIGURES_DIR}"
+        assert FIGURES_DIR.is_dir(), f"figures directory is not a directory: {FIGURES_DIR}"

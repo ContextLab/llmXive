@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.10793",
+  "judged_at": "2026-07-08T12:49:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"researchstudio-reel: automate the last mile of research from paper to \" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of the user's question: automating the linkage between research papers and their implementation code using LLMs. It provides the specific \"last mile\" automation context (tracing ideas to code) that the user's proposed \"ResearchStudio-Reel\" system aims to extend, serving as a canonical prior work for the methodology and domain.",
+  "relevant": true
+}

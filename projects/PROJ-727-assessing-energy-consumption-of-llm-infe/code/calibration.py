@@ -51,7 +51,6 @@ def main():
     
     try:
         # Initialize the tracker. We disable file/API saves as we only need the runtime value.
-        # We set 'on_csv_write' to 'append' or similar if we were saving, but here we just want the object.
         with EmissionsTracker(save_to_file=False, save_to_api=False) as tracker:
             # Execute the load
             result = cpu_load_loop(duration_seconds=CALIBRATION_DURATION_SECONDS)
