@@ -4,7 +4,7 @@
 
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI execution) or local environment with 7GB+ RAM.
+- Access to the internet (for `gwpy` data fetch)
 
 ## Installation
 
@@ -24,68 +24,50 @@
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: `requirements.txt` pins `gwpy`, `bilby`, `dynesty`, `scipy`, `numpy`, `pandas`, `h5py`.*
 
 ## Running the Pipeline
 
-### Step 1: Download Data
-Fetch the GW150914 strain data from GWOSC.
-```bash
-python code/download.py --event GW150914 --output data/raw/GW150914.h5
-```
-*Output*: `data/raw/GW150914.h5` (checksum verified).
+The pipeline is designed to run sequentially.
 
-### Step 2: Process Data (Downsample & Quantize)
-Generate derived datasets for different resolutions.
+### Step 1: Fetch Data
+Download high-SNR strain data from GWOSC.
 ```bash
-python code/process.py \
-  --input data/raw/GW150914.h5 \
-  --rates 4096 2048 1024 \
-  --bit-depths 16 32 \
-  --output-dir data/derived/
+python code/scripts/fetch_data.py --event GW150914
 ```
-*Output*: `data/derived/GW150914_2048Hz_16bit.h5`, etc.
+
+### Step 2: Preprocess
+Downsample and quantize the data.
+```bash
+python code/scripts/preprocess.py --event GW150914 --rates 4096 2048 1024 --bits 32 16
+```
 
 ### Step 3: Run Inference
-Execute the `bilby` pipeline with `dynesty` for a specific configuration.
+Execute Bayesian parameter estimation.
 ```bash
-python code/infer.py \
-  --input data/derived/GW150914_2048Hz_16bit.h5 \
-  --waveform IMRPhenomPv2 \
-  --max-iterations 10000 \
-  --dlogz-threshold 0.1 \
-  --output results/posteriors/GW150914_2048Hz_16bit.h5
+python code/scripts/run_inference.py --event GW150914 --config all
 ```
-*Output*: Posterior file with `convergence_status` (converged/inconclusive) and `dlogz` value.
+*Note: This step may take 1-2 hours per configuration on a CPU.*
 
-### Step 4: Calculate Metrics
-Compute divergence and consistency deviation.
+### Step 4: Analyze Metrics
+Calculate Hellinger distances and bias.
 ```bash
-python code/metrics.py \
-  --posterior results/posteriors/GW150914_2048Hz_16bit.h5 \
-  --ground-truth GW150914 \
-  --output results/metrics/GW150914_2048Hz_16bit.json
+python code/scripts/analyze_metrics.py --event GW150914
 ```
 
 ### Step 5: Aggregate Results
-Identify resolution trends.
+Generate the final summary report.
 ```bash
-python code/aggregate.py \
-  --metrics-dir results/metrics/ \
-  --output results/summary_report.csv
+python code/scripts/aggregate_results.py
 ```
 
 ## Verification
 
-Run the test suite to ensure contract compliance:
+To verify the pipeline on a single configuration:
 ```bash
-pytest tests/contract/ -v
+python -m pytest code/tests/ -v
 ```
-*Expected*: All schema validation tests pass.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--max-iterations` or use a smaller time window in `process.py`.
-- **Convergence Failure**: The run will be marked "inconclusive" if `dlogz` > 0.1 after max iterations. Check logs for `dlogz` statistics.
-- **GWOSC Timeout**: Ensure network connectivity; `gwpy` has built-in retries.
-- **Sampler Issues**: Ensure `dynesty` is installed and compatible with `bilby` version.
+- **GWOSC Timeout**: If `fetch_data.py` fails, check internet connectivity or GWOSC status.
+- **Convergence Failure**: If `run_inference.py` flags "inconclusive", the `dlogz` threshold was not met within 5000 steps. This is expected for low-SNR or highly degenerate cases.

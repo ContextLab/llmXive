@@ -41,8 +41,8 @@
 - [X] T004 [P] Create `code/config.yaml` for global seeds, topology targets, and simulation parameters
 - [X] T004b [P] Implement logic to inject specific random seeds used during a run into `data/run_log.json` (do NOT update config.yaml) to ensure reproducibility (FR-007)
 - [X] T005 [P] Implement logging infrastructure in `code/src/utils/logging.py` to capture seeds, parameters, and runtime metrics, writing to `data/run_log.json`
-- [ ] T006 [P] Create `code/src/utils/io.py` for saving/loading graphs (`gpickle`, `json`) and managing `data/` directory checksums
-- [ ] T007 [P] Implement base configuration loader in `code/src/utils/config.py` to validate `config.yaml` against required schema
+- [X] T006 [P] Create `code/src/utils/io.py` for saving/loading graphs (`gpickle`, `json`) and managing `data/` directory checksums
+- [X] T007 [P] Implement base configuration loader in `code/src/utils/config.py` to validate `config.yaml` against required schema
 - [X] T008 [P] Setup `code/tests/conftest.py` with fixtures for temporary data directories and seeded random states
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -62,11 +62,11 @@
 - [X] T009 [P] [US1] Unit test for Erdős-Rényi generation in `code/tests/test_generators.py`
 - [ ] T010 [P] [US1] Unit test for Watts-Strogatz (Small-World) generation with retry logic in `code/tests/test_generators.py` <!-- ATOMIZE: requested -->
 - [ ] T011 [P] [US1] Unit test for Barabási-Albert (Scale-Free) generation in `code/tests/test_generators.py`
-- [ ] T012 [P] [US1] Integration test verifying connectivity and clustering target success rates in `code/tests/test_integration.py`
+- [X] T012 [P] [US1] Integration test verifying connectivity and clustering target success rates in `code/tests/test_integration.py`
 
 ### Implementation for User Story 1
 
-- [~] T016a [P] Implement global timeout utility function in `code/src/generators/timeout.py` with explicit logging and fallback behavior (log warning, proceed) if timeout is hit or a maximum number of retries is exhausted, defining function signature and verifying timeout triggers after X seconds
+- [ ] T016a [P] Implement global timeout utility function in `code/src/generators/timeout.py` with explicit logging and fallback behavior (log warning, proceed) if timeout is hit or a maximum number of retries is exhausted, defining function signature and verifying timeout triggers after X seconds
 - [~] T016 [US1] Implement base generator logic in `code/src/generators/base.py` with shared logic for connectivity checks, A retry limit
 
 The specific value to remove/generalize: 'a configurable number'

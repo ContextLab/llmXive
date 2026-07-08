@@ -1,179 +1,148 @@
 """
-I/O utilities for graph persistence and data integrity management.
+I/O utilities for the llmXive network topology project.
 
-Provides functions to:
-- Save/Load graphs in gpickle and JSON formats
-- Compute file and directory checksums (SHA-256)
-- Manage checksum manifests for data integrity verification
+Provides functions for:
+- Saving and loading graphs in gpickle and JSON formats.
+- Computing file and directory checksums (SHA-256).
+- Managing a checksum manifest for the data directory.
 """
-
 import json
 import hashlib
 import os
 import pickle
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Union, List
+from typing import Dict, Any, Optional, List, Union
 
 import networkx as nx
 
 logger = logging.getLogger(__name__)
 
 
+# --- Checksum Utilities ---
+
 def compute_file_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
     Compute the checksum of a single file.
 
     Args:
-        file_path: Path to the file to checksum.
+        file_path: Path to the file.
         algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
-        Hexadecimal string of the file checksum.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        Hexadecimal digest string.
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
+        raise FileNotFoundError(f"Cannot compute checksum: file not found at {path}")
 
     hasher = hashlib.new(algorithm)
-    try:
-        with open(path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                hasher.update(chunk)
-    except IOError as e:
-        raise IOError(f"Failed to read file {path}: {e}")
-
+    with open(path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
     return hasher.hexdigest()
 
 
-def compute_directory_checksum(dir_path: Union[str, Path], algorithm: str = "sha256", 
-                               exclude_patterns: Optional[List[str]] = None) -> Dict[str, Any]:
+def compute_directory_checksum(dir_path: Union[str, Path], algorithm: str = "sha256", exclude_patterns: Optional[List[str]] = None) -> str:
     """
-    Compute checksums for all files in a directory recursively.
-    
-    This manages directory-level integrity by hashing every file and 
-    returning a manifest structure.
+    Compute a combined checksum for all files in a directory.
+
+    The checksum is computed by hashing the sorted list of (relative_path, file_hash) pairs.
 
     Args:
         dir_path: Path to the directory.
-        algorithm: Hash algorithm to use (default: sha256).
-        exclude_patterns: List of glob patterns to exclude (e.g., ["*.log", "__pycache__/*"]).
+        algorithm: Hash algorithm to use.
+        exclude_patterns: List of glob patterns to exclude (e.g., ['*.log', '__pycache__']).
 
     Returns:
-        Dictionary containing:
-            - 'directory': The directory path
-            - 'algorithm': The algorithm used
-            - 'files': Dict mapping relative paths to checksums
-            - 'total_files': Count of files processed
-            - 'timestamp': ISO timestamp of computation (optional, added if needed later)
-
-    Raises:
-        NotADirectoryError: If path is not a directory.
+        Hexadecimal digest string representing the directory state.
     """
-    path = Path(dir_path)
-    if not path.is_dir():
-        raise NotADirectoryError(f"Path is not a directory: {path}")
+    directory = Path(dir_path)
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Cannot compute directory checksum: not a directory at {directory}")
 
     if exclude_patterns is None:
         exclude_patterns = []
 
-    files_checksums = {}
-    total_files = 0
+    import fnmatch
 
-    for root, dirs, files in os.walk(path):
-        # Filter directories in-place to skip excluded ones
-        dirs[:] = [d for d in dirs if not any(
-            Path(root, d).match(p) or Path(root, d).name == p for p in exclude_patterns
-        )]
+    files_to_hash = []
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            rel_path = file_path.relative_to(directory)
+            # Check exclusion patterns
+            excluded = False
+            for pattern in exclude_patterns:
+                if fnmatch.fnmatch(str(rel_path), pattern) or fnmatch.fnmatch(file_path.name, pattern):
+                    excluded = True
+                    break
+            if not excluded:
+                files_to_hash.append((str(rel_path), compute_file_checksum(file_path, algorithm)))
 
-        for file in files:
-            file_path = Path(root) / file
-            rel_path = file_path.relative_to(path)
-            
-            # Check exclusion patterns against relative path
-            if any(str(rel_path).match(p) or str(rel_path).match(f"*{p}*") for p in exclude_patterns):
-                continue
+    # Sort to ensure deterministic order
+    files_to_hash.sort(key=lambda x: x[0])
 
-            try:
-                checksum = compute_file_checksum(file_path, algorithm)
-                files_checksums[str(rel_path)] = checksum
-                total_files += 1
-            except (FileNotFoundError, IOError) as e:
-                logger.warning(f"Skipping file {file_path}: {e}")
+    # Hash the concatenated string of paths and hashes
+    combined_str = "\n".join(f"{path}:{h}" for path, h in files_to_hash)
+    hasher = hashlib.new(algorithm)
+    hasher.update(combined_str.encode("utf-8"))
+    return hasher.hexdigest()
 
-    return {
-        "directory": str(path),
-        "algorithm": algorithm,
-        "files": files_checksums,
-        "total_files": total_files
-    }
 
+# --- Graph I/O Utilities ---
 
 def save_graph_gpickle(graph: nx.Graph, file_path: Union[str, Path]) -> None:
     """
-    Save a NetworkX graph to a .gpickle file.
+    Save a NetworkX graph to a file in gpickle format.
 
     Args:
-        graph: The graph to save.
-        file_path: Path to the output file.
+        graph: The NetworkX graph to save.
+        file_path: Destination path.
     """
     path = Path(file_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(path, "wb") as f:
         pickle.dump(graph, f)
-    
-    logger.info(f"Graph saved to {path}")
+    logger.info(f"Saved graph to {path}")
 
 
 def load_graph_gpickle(file_path: Union[str, Path]) -> nx.Graph:
     """
-    Load a NetworkX graph from a .gpickle file.
+    Load a NetworkX graph from a gpickle file.
 
     Args:
-        file_path: Path to the input file.
+        file_path: Path to the file.
 
     Returns:
         The loaded NetworkX graph.
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Graph file not found: {path}")
-
+        raise FileNotFoundError(f"Cannot load graph: file not found at {path}")
     with open(path, "rb") as f:
         graph = pickle.load(f)
-    
-    logger.info(f"Graph loaded from {path}")
+    logger.info(f"Loaded graph from {path}")
     return graph
 
 
 def save_graph_json(graph: nx.Graph, file_path: Union[str, Path]) -> None:
     """
     Save a NetworkX graph to a JSON file using NetworkX's json_graph.
-    
-    Uses the node-link format which is standard and widely supported.
 
     Args:
-        graph: The graph to save.
-        file_path: Path to the output file.
+        graph: The NetworkX graph to save.
+        file_path: Destination path.
     """
     path = Path(file_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    import networkx.readwrite.json_graph as json_graph
-    
-    # Convert to node-link JSON
-    data = json_graph.node_link_data(graph)
-    
+    # Use node_link_data for standard JSON serialization
+    data = nx.node_link_data(graph)
+
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-    
-    logger.info(f"Graph saved to {path} (JSON)")
+    logger.info(f"Saved graph to {path}")
 
 
 def load_graph_json(file_path: Union[str, Path]) -> nx.Graph:
@@ -181,43 +150,41 @@ def load_graph_json(file_path: Union[str, Path]) -> nx.Graph:
     Load a NetworkX graph from a JSON file.
 
     Args:
-        file_path: Path to the input file.
+        file_path: Path to the file.
 
     Returns:
         The loaded NetworkX graph.
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Graph JSON file not found: {path}")
-
-    import networkx.readwrite.json_graph as json_graph
+        raise FileNotFoundError(f"Cannot load graph: file not found at {path}")
 
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
-    graph = json_graph.node_link_graph(data)
-    logger.info(f"Graph loaded from {path} (JSON)")
+
+    graph = nx.node_link_graph(data)
+    logger.info(f"Loaded graph from {path}")
     return graph
 
 
-def save_checksum_manifest(checksum_data: Dict[str, Any], manifest_path: Union[str, Path]) -> None:
+# --- Manifest Management ---
+
+def save_checksum_manifest(manifest_path: Union[str, Path], checksums: Dict[str, str]) -> None:
     """
-    Save a checksum manifest to a JSON file.
+    Save a dictionary of checksums to a JSON manifest file.
 
     Args:
-        checksum_data: The dictionary returned by compute_directory_checksum.
         manifest_path: Path to the manifest file.
+        checksums: Dictionary mapping file paths to their checksums.
     """
     path = Path(manifest_path)
     path.parent.mkdir(parents=True, exist_ok=True)
-
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(checksum_data, f, indent=2)
-    
-    logger.info(f"Checksum manifest saved to {path}")
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Saved checksum manifest to {path}")
 
 
-def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, Any]:
+def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, str]:
     """
     Load a checksum manifest from a JSON file.
 
@@ -225,57 +192,45 @@ def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, Any]:
         manifest_path: Path to the manifest file.
 
     Returns:
-        The manifest dictionary.
+        Dictionary of file paths to checksums.
     """
     path = Path(manifest_path)
     if not path.exists():
-        raise FileNotFoundError(f"Manifest file not found: {path}")
-
+        raise FileNotFoundError(f"Cannot load manifest: file not found at {path}")
     with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    return data
+        return json.load(f)
 
 
-def verify_directory_integrity(manifest_path: Union[str, Path], 
-                               directory_path: Optional[Union[str, Path]] = None) -> bool:
+def verify_directory_integrity(dir_path: Union[str, Path], manifest_path: Union[str, Path]) -> bool:
     """
-    Verify the integrity of a directory against a saved manifest.
+    Verify that the current state of a directory matches a stored manifest.
 
     Args:
-        manifest_path: Path to the checksum manifest.
-        directory_path: Path to the directory to verify. If None, uses the path stored in the manifest.
+        dir_path: The directory to verify.
+        manifest_path: Path to the manifest file containing expected checksums.
 
     Returns:
-        True if all files match their checksums, False otherwise.
+        True if all files match, False otherwise.
     """
+    directory = Path(dir_path)
     manifest = load_checksum_manifest(manifest_path)
-    target_dir = Path(directory_path) if directory_path else Path(manifest["directory"])
-    
-    if not target_dir.exists():
-        logger.error(f"Directory to verify does not exist: {target_dir}")
+
+    current_checksums = {}
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            rel_path = str(file_path.relative_to(directory))
+            current_checksums[rel_path] = compute_file_checksum(file_path)
+
+    if set(current_checksums.keys()) != set(manifest.keys()):
+        logger.warning(f"File set mismatch. Missing: {set(manifest.keys()) - set(current_checksums.keys())}, Extra: {set(current_checksums.keys()) - set(manifest.keys())}")
         return False
 
-    current_checksums = compute_directory_checksum(target_dir, manifest["algorithm"])
-    
-    if len(current_checksums["files"]) != manifest["total_files"]:
-        logger.warning(f"File count mismatch: expected {manifest['total_files']}, found {current_checksums['total_files']}")
-        return False
-
-    for rel_path, expected_hash in manifest["files"].items():
-        file_path = target_dir / rel_path
-        if not file_path.exists():
-            logger.error(f"Missing file during verification: {file_path}")
-            return False
-        
-        try:
-            actual_hash = compute_file_checksum(file_path, manifest["algorithm"])
-            if actual_hash != expected_hash:
-                logger.error(f"Checksum mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
-                return False
-        except (FileNotFoundError, IOError) as e:
-            logger.error(f"Error reading file {file_path} during verification: {e}")
+    for rel_path, expected_hash in manifest.items():
+        if rel_path not in current_checksums:
+            continue
+        if current_checksums[rel_path] != expected_hash:
+            logger.error(f"Checksum mismatch for {rel_path}")
             return False
 
-    logger.info(f"Directory integrity verified: {target_dir}")
+    logger.info("Directory integrity verified.")
     return True

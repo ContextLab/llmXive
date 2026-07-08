@@ -2,68 +2,56 @@
 
 ## Overview
 
-This document defines the data structures for the project, ensuring consistency between the download, processing, inference, and aggregation phases. All data is stored in `data/` (raw/derived) and `results/` (posteriors/metrics).
+This document defines the data structures used throughout the pipeline, from raw strain data to final bias metrics. All data is stored in the `data/` directory with checksums recorded.
 
-## Entity Definitions
+## Entities
 
 ### 1. StrainEvent
-Represents a specific gravitational wave detection.
-- `event_id` (string): Unique identifier (e.g., "GW150914").
-- `source` (string): "GWOSC" or "Simulated".
-- `original_sampling_rate` (int): Original rate in Hz (e.g., 16384).
-- `snr` (float): Signal-to-noise ratio.
-- `duration` (float): Duration of the analysis window in seconds.
-- `ground_truth` (dict): Catalog parameters (mass_1, mass_2, spin_1, spin_2, etc.) OR injected parameters (for simulated).
+Represents a gravitational wave detection event.
+- **Attributes**:
+  - `event_id`: string (e.g., "GW150914")
+  - `original_sampling_rate`: float (Hz)
+  - `snr`: float (Signal-to-Noise Ratio)
+  - `duration`: float (seconds)
+  - `ground_truth_params`: dict (mass_1, mass_2, spin_1, spin_2, etc.)
 
 ### 2. ResolutionConfig
 Represents a specific data processing state.
-- `sampling_rate` (int): Target rate in Hz (4096, 2048, 1024).
-- `bit_depth` (int): Target bit depth (16, 32).
-- `quantization_method` (string): "round", "truncate", or "nearest".
-- `filter_type` (string): "IIR" (for `scipy.signal.decimate`).
+- **Attributes**:
+  - `sampling_rate`: int (Hz) (e.g., 4096, 2048, 1024)
+  - `bit_depth`: int (bits) (e.g., 32, 16)
+  - `quantization_method`: string ("float16", "float32")
 
 ### 3. PosteriorDistribution
-Output of the `bilby` inference pipeline.
-- `parameters` (dict): Keys: `mass_1`, `mass_2`, `spin_1z`, `spin_2z`, etc. Values: list of samples (float).
-- `credible_intervals` (dict): Keys: parameter name. Values: tuple `[lower_90, upper_90]`.
-- `samples_count` (int): Number of posterior samples.
-- `convergence_status` (string): "converged" or "inconclusive".
-- `dlogz` (float): Evidence tolerance value from `dynesty`.
-- `iterations` (int): Number of nested sampling iterations executed.
-- `nlive` (int): Number of live points used.
-- `posterior_to_prior_ratio` (float): Ratio of posterior width to prior width.
-- `metadata` (dict): Links to `event_id` and `resolution_config`.
+Output of the inference pipeline.
+- **Attributes**:
+  - `samples`: array (N x D) where D is the number of parameters.
+  - `parameters`: list of strings (e.g., ["mass_1", "mass_2", "chi_eff"])
+  - `credible_intervals`: dict (param -> [lower, upper])
+  - `convergence_status`: string ("converged", "inconclusive")
+  - `dlogz`: float (change in log evidence)
 
 ### 4. BiasMetric
-Result of the comparison analysis.
-- `event_id` (string).
-- `resolution_config` (ResolutionConfig).
-- `hellinger_distance` (float): Value between 0 and 1 (Divergence).
-- `consistency_deviation` (float): Absolute deviation from catalog reference estimate (for catalog data).
-- `absolute_bias` (float): Absolute bias from injected truth (for simulated data only, null otherwise).
-- `exceeds_threshold` (boolean): True if deviation/bias > baseline uncertainty.
-- `status` (string): "valid", "inconclusive", "failed".
-
-## Storage Schema
-
-### Raw Data (`data/raw/`)
-- Files: `GW150914.h5` (original).
-- Format: HDF5 (via `gwpy`).
-- Checksum: SHA-256 recorded in `state/`.
-
-### Derived Data (`data/derived/`)
-- Files: `GW150914_2048Hz_16bit.h5`.
-- Format: HDF5.
-- Metadata: Includes `ResolutionConfig` in HDF5 attributes.
-
-### Results (`results/`)
-- `posteriors/`: `.h5` files containing `PosteriorDistribution` data.
-- `metrics/`: `.json` or `.csv` files containing `BiasMetric` aggregates.
+Comparative analysis result.
+- **Attributes**:
+  - `event_id`: string
+  - `resolution_config`: dict (sampling_rate, bit_depth)
+  - `hellinger_distance`: float (0.0 to 1.0)
+  - `mass_bias_percentage`: float
+  - `spin_bias_percentage`: float
+  - `exceeds_threshold`: boolean (True if bias > catalog 90% CI)
+  - `truth_source`: string ("catalog", "injected")
 
 ## Data Flow
 
-1. **Download**: `download.py` -> `data/raw/GW150914.h5`.
-2. **Process**: `process.py` reads raw, applies `ResolutionConfig`, writes `data/derived/GW150914_XXXX.h5`.
-3. **Infer**: `infer.py` reads derived, runs `bilby` (dynesty), writes `results/posteriors/GW150914_XXXX.h5`.
-4. **Metric**: `metrics.py` reads posterior + ground truth, writes `results/metrics/GW150914_XXXX.json`.
-5. **Aggregate**: `aggregate.py` reads all metrics, writes `results/summary_report.csv`.
+1. **Raw Data**: `data/raw/{event_id}.dat` (GWOSC strain).
+2. **Processed Data**: `data/processed/{event_id}_{rate}_{bit}.dat` (downsampled/quantized).
+3. **Posterior**: `data/outputs/{event_id}_{rate}_{bit}_posterior.h5` (Bilby output).
+4. **Metrics**: `data/outputs/{event_id}_{rate}_{bit}_metrics.json`.
+5. **Aggregated**: `data/outputs/summary.csv`.
+
+## Constraints
+
+- **Immutability**: Raw data is never overwritten.
+- **Checksums**: Every file in `data/` has a corresponding SHA-256 hash recorded in `state/`.
+- **Precision**: All float operations use at least 32-bit precision unless explicitly quantized to 16-bit for the experiment.

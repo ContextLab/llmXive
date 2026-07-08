@@ -1,47 +1,48 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: BiasMetric
-description: Schema for bias, divergence, and consistency metrics calculated from posteriors
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bias Metric Output Schema"
+description: "Schema for the bias and divergence metrics calculated from posterior distributions."
+type: "object"
 properties:
   event_id:
-    type: string
-    description: "Identifier of the GW event"
+    type: "string"
+    description: "Identifier of the gravitational wave event."
   resolution_config:
-    type: object
+    type: "object"
     properties:
       sampling_rate:
-        type: integer
+        type: "integer"
       bit_depth:
-        type: integer
+        type: "integer"
     required:
       - sampling_rate
       - bit_depth
   hellinger_distance:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Hellinger distance between downsampled and baseline posterior (Divergence)"
-  consistency_deviation:
-    type: number
-    description: "Absolute deviation from catalog reference estimate (for catalog data)"
-  absolute_bias:
-    type: number
-    description: "Absolute bias from injected truth (for simulated data only, null otherwise)"
+    description: "Hellinger distance between the downsampled posterior and the baseline."
+  mass_bias_percentage:
+    type: "number"
+    description: "Percentage bias in the estimated mass parameter."
+  spin_bias_percentage:
+    type: "number"
+    description: "Percentage bias in the estimated spin parameter."
   exceeds_threshold:
-    type: boolean
-    description: "True if deviation/bias exceeds the baseline uncertainty threshold"
-  status:
-    type: string
-    enum:
-      - "valid"
-      - "inconclusive"
-      - "failed"
-    description: "Status of the metric calculation"
+    type: "boolean"
+    description: "True if the bias exceeds the catalog-reported 90% confidence interval."
+  catalog_uncertainty_90:
+    type: "number"
+    description: "The catalog-reported 90% confidence interval width used for comparison."
+  truth_source:
+    type: "string"
+    description: "Source of truth used for bias calculation (e.g., 'catalog', 'injected')."
 required:
   - event_id
   - resolution_config
   - hellinger_distance
-  - consistency_deviation
-  - absolute_bias
+  - mass_bias_percentage
+  - spin_bias_percentage
   - exceeds_threshold
-  - status
+  - catalog_uncertainty_90
+  - truth_source
+additionalProperties: false

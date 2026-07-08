@@ -33,6 +33,9 @@ properties:
     type: string
     format: date-time
     description: "Time of metric calculation"
+  truth_source:
+    type: string
+    description: "Source of truth used (e.g., 'catalog', 'injected')"
 required:
   - posterior_id
   - baseline_posterior_id
@@ -42,4 +45,5 @@ required:
   - exceeds_threshold
   - threshold_reference
   - convergence_failure
+  - truth_source
 additionalProperties: false

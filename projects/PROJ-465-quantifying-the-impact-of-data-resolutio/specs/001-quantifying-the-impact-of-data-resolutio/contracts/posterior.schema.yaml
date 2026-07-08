@@ -1,67 +1,49 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: PosteriorDistribution
-description: Schema for bilby posterior output files (HDF5 attributes or JSON export)
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Posterior Distribution Output Schema"
+description: "Schema for the posterior distribution output from the bilby inference pipeline."
+type: "object"
 properties:
   event_id:
-    type: string
-    description: "Identifier of the GW event (e.g., GW150914)"
+    type: "string"
+    description: "Identifier of the gravitational wave event (e.g., GW150914)."
   resolution_config:
-    type: object
+    type: "object"
     properties:
       sampling_rate:
-        type: integer
-        description: "Sampling rate in Hz (e.g., 4096)"
+        type: "integer"
+        description: "Sampling rate in Hz (e.g., 4096, 2048, 1024)."
       bit_depth:
-        type: integer
-        description: "Bit depth (16 or 32)"
-      quantization_method:
-        type: string
-        description: "Method used for quantization"
+        type: "integer"
+        description: "Bit depth of the quantized data (e.g., 32, 16)."
     required:
       - sampling_rate
       - bit_depth
-      - quantization_method
   parameters:
-    type: object
-    description: "Keys are parameter names (mass_1, spin_1z), values are arrays of samples"
-    additionalProperties:
-      type: array
-      items:
-        type: number
+    type: "array"
+    items:
+      type: "string"
+    description: "List of parameter names included in the posterior samples."
+  samples_count:
+    type: "integer"
+    description: "Total number of posterior samples generated."
   credible_intervals:
-    type: object
-    description: "90% credible intervals for key parameters"
+    type: "object"
     additionalProperties:
-      type: array
+      type: "array"
       items:
-        type: number
+        type: "number"
       minItems: 2
       maxItems: 2
-  samples_count:
-    type: integer
-    minimum: 1
+      description: "Tuple of [lower, upper] bounds for the 90% credible interval."
   convergence_status:
-    type: string
+    type: "string"
     enum:
       - "converged"
       - "inconclusive"
-    description: "Status of the nested sampling run"
+    description: "Status of the nested sampling run."
   dlogz:
-    type: number
-    description: "Evidence tolerance value (dlogz) from dynesty"
-  iterations:
-    type: integer
-    minimum: 1
-    maximum: 10000
-    description: "Number of iterations executed before stopping"
-  nlive:
-    type: integer
-    minimum: 1
-    description: "Number of live points used"
-  posterior_to_prior_ratio:
-    type: number
-    description: "Ratio of posterior width to prior width"
+    type: "number"
+    description: "Change in log evidence (dlogz) at convergence."
 required:
   - event_id
   - resolution_config
@@ -69,6 +51,4 @@ required:
   - samples_count
   - convergence_status
   - dlogz
-  - iterations
-  - nlive
-  - posterior_to_prior_ratio
+additionalProperties: false
