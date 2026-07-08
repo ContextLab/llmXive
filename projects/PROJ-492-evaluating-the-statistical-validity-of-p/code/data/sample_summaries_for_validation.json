@@ -1,0 +1,64 @@
+{
+  "summaries": [
+    {
+      "url": "https://example.com/test-consistent",
+      "domain": "example.com",
+      "publication_year": 2023,
+      "is_binary": true,
+      "p_value": 0.03,
+      "effect_size": 0.05,
+      "n_control": 1000,
+      "n_treatment": 1000,
+      "conversions_control": 50,
+      "conversions_treatment": 55
+    },
+    {
+      "url": "https://example.com/test-p-mismatch",
+      "domain": "example.com",
+      "publication_year": 2023,
+      "is_binary": true,
+      "p_value": 0.01,
+      "effect_size": 0.05,
+      "n_control": 1000,
+      "n_treatment": 1000,
+      "conversions_control": 50,
+      "conversions_treatment": 55
+    },
+    {
+      "url": "https://example.com/test-effect-mismatch",
+      "domain": "example.com",
+      "publication_year": 2023,
+      "is_binary": true,
+      "p_value": 0.04,
+      "effect_size": 0.10,
+      "n_control": 1000,
+      "n_treatment": 1000,
+      "conversions_control": 50,
+      "conversions_treatment": 55
+    },
+    {
+      "url": "https://example.com/test-missing-sample",
+      "domain": "example.com",
+      "publication_year": 2023,
+      "is_binary": true,
+      "p_value": 0.04,
+      "effect_size": 0.05,
+      "n_control": null,
+      "n_treatment": 1000,
+      "conversions_control": 50,
+      "conversions_treatment": 55
+    },
+    {
+      "url": "https://example.com/test-extreme-imbalance",
+      "domain": "example.com",
+      "publication_year": 2023,
+      "is_binary": true,
+      "p_value": 0.04,
+      "effect_size": 0.05,
+      "n_control": 10,
+      "n_treatment": 1000,
+      "conversions_control": 5,
+      "conversions_treatment": 50
+    }
+  ]
+}

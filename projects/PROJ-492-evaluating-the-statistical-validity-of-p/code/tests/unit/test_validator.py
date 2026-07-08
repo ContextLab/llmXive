@@ -1,425 +1,429 @@
 """
-Unit tests for the Inconsistency Validator (T025)
+Unit tests for the inconsistency validator module (T025).
 
-Tests:
-- Absolute p-difference > 0.05 threshold
-- Relative effect-size > 5% threshold
-- Sample-size mismatch detection and exclusion
-- Data quality warning generation
+Tests cover:
+- Absolute p-value difference threshold (> 0.05)
+- Relative effect-size difference threshold (> 5%)
+- Sample-size mismatch detection and exclusion from prevalence
+- AuditRecord generation with data_quality_warning
 """
 
 import json
-import pytest
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
+import pytest
 import numpy as np
 
-from code.src.models.data_models import ABTestSummary, AuditRecord
 from code.src.audit.validator import (
     calculate_absolute_p_difference,
     calculate_relative_effect_size_difference,
     detect_sample_size_mismatch,
     check_p_value_consistency,
     check_effect_size_consistency,
+    create_audit_record,
     validate_summary,
-    validate_all_summaries,
     filter_for_prevalence,
+    validate_all_summaries,
     write_audit_report,
     P_VALUE_THRESHOLD,
-    EFFECT_SIZE_RELATIVE_THRESHOLD
+    EFFECT_SIZE_RELATIVE_THRESHOLD,
 )
+from code.src.models.data_models import ABTestSummary, AuditRecord
 
 
 class TestPValueDifference:
-    """Tests for p-value difference calculation"""
+    """Tests for p-value difference calculations."""
 
-    def test_absolute_p_difference_normal(self):
-        """Test normal p-value difference calculation"""
-        diff = calculate_absolute_p_difference(0.04, 0.10)
-        assert diff == 0.06
+    def test_absolute_p_difference_within_threshold(self):
+        """Test p-value difference within 0.05 threshold."""
+        diff = calculate_absolute_p_difference(0.04, 0.03)
+        assert diff == 0.01
+        assert diff <= P_VALUE_THRESHOLD
 
-    def test_absolute_p_difference_identical(self):
-        """Test when p-values are identical"""
-        diff = calculate_absolute_p_difference(0.05, 0.05)
-        assert diff == 0.0
+    def test_absolute_p_difference_exceeds_threshold(self):
+        """Test p-value difference exceeding 0.05 threshold."""
+        diff = calculate_absolute_p_difference(0.10, 0.03)
+        assert diff == 0.07
+        assert diff > P_VALUE_THRESHOLD
 
-    def test_absolute_p_difference_none_values(self):
-        """Test when one or both values are None"""
-        assert np.isnan(calculate_absolute_p_difference(None, 0.05))
-        assert np.isnan(calculate_absolute_p_difference(0.05, None))
-        assert np.isnan(calculate_absolute_p_difference(None, None))
+    def test_p_value_consistency_pass(self):
+        """Test p-value consistency check when within threshold."""
+        is_consistent, msg = check_p_value_consistency(0.04, 0.03)
+        assert is_consistent
+        assert "within threshold" in msg
+
+    def test_p_value_consistency_fail(self):
+        """Test p-value consistency check when exceeding threshold."""
+        is_consistent, msg = check_p_value_consistency(0.10, 0.03)
+        assert not is_consistent
+        assert "exceeds threshold" in msg
 
 
 class TestEffectSizeDifference:
-    """Tests for effect size relative difference calculation"""
+    """Tests for effect-size difference calculations."""
 
-    def test_relative_effect_size_normal(self):
-        """Test normal relative effect size difference"""
-        # Reported 0.10, Reconstructed 0.095 -> diff = 0.005 / 0.095 ≈ 0.0526 (5.26%)
-        diff = calculate_relative_effect_size_difference(0.10, 0.095)
-        assert abs(diff - 0.0526) < 0.0001
+    def test_relative_effect_size_within_threshold(self):
+        """Test relative effect-size difference within 5% threshold."""
+        # 10% vs 10.5% is 5% relative difference
+        diff = calculate_relative_effect_size_difference(0.105, 0.10)
+        assert abs(diff - 0.05) < 1e-6
+        assert diff <= EFFECT_SIZE_RELATIVE_THRESHOLD
 
-    def test_relative_effect_size_consistent(self):
-        """Test when effect sizes are within 5% threshold"""
-        # 4.9% difference
-        diff = calculate_relative_effect_size_difference(0.10, 0.0951)
-        assert diff < 0.05
+    def test_relative_effect_size_exceeds_threshold(self):
+        """Test relative effect-size difference exceeding 5% threshold."""
+        # 10% vs 11% is 10% relative difference
+        diff = calculate_relative_effect_size_difference(0.11, 0.10)
+        assert abs(diff - 0.10) < 1e-6
+        assert diff > EFFECT_SIZE_RELATIVE_THRESHOLD
 
-    def test_relative_effect_size_zero_reconstructed(self):
-        """Test when reconstructed effect is zero"""
-        assert np.isinf(calculate_relative_effect_size_difference(0.01, 0.0))
-        assert calculate_relative_effect_size_difference(0.0, 0.0) == 0.0
+    def test_relative_effect_size_zero_baseline(self):
+        """Test relative effect-size with zero baseline."""
+        # Both zero -> 0 difference
+        diff = calculate_relative_effect_size_difference(0.0, 0.0)
+        assert diff == 0.0
 
-    def test_relative_effect_size_none_values(self):
-        """Test when one or both values are None"""
-        assert np.isnan(calculate_relative_effect_size_difference(None, 0.05))
-        assert np.isnan(calculate_relative_effect_size_difference(0.05, None))
+        # Non-zero vs zero -> 100% difference
+        diff = calculate_relative_effect_size_difference(0.1, 0.0)
+        assert diff == 1.0
+
+    def test_effect_size_consistency_pass(self):
+        """Test effect-size consistency check when within threshold."""
+        is_consistent, msg = check_effect_size_consistency(0.105, 0.10)
+        assert is_consistent
+        assert "within threshold" in msg
+
+    def test_effect_size_consistency_fail(self):
+        """Test effect-size consistency check when exceeding threshold."""
+        is_consistent, msg = check_effect_size_consistency(0.11, 0.10)
+        assert not is_consistent
+        assert "exceeds threshold" in msg
 
 
 class TestSampleSizeMismatch:
-    """Tests for sample size mismatch detection (FR-004b)"""
+    """Tests for sample-size mismatch detection."""
 
-    def test_no_mismatch(self):
-        """Test when sample sizes match conversions and rates"""
+    def test_valid_sample_sizes(self):
+        """Test that valid sample sizes are not flagged."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            n_control=1000,
-            n_treatment=1000,
-            conversions_control=100,
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
             conversion_rate_control=0.10,
-            conversions_treatment=120,
-            conversion_rate_treatment=0.12
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_mismatch, msg = detect_sample_size_mismatch(summary)
-        assert not is_mismatch
-        assert msg is None
+        assert not detect_sample_size_mismatch(summary)
 
-    def test_mismatch_control(self):
-        """Test when control sample size mismatches"""
+    def test_missing_sample_size_control(self):
+        """Test that missing control sample size is flagged."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            n_control=1000,  # Reported 1000
-            n_treatment=1000,
-            conversions_control=100,
-            conversion_rate_control=0.10,  # Implies 1000, but let's force mismatch
-            conversions_treatment=120,
-            conversion_rate_treatment=0.12
-        )
-        # Manually create a mismatch scenario: reported 1000, implied 900
-        summary.n_control = 1000
-        summary.conversions_control = 90
-        summary.conversion_rate_control = 0.10  # Implies 900
-        is_mismatch, msg = detect_sample_size_mismatch(summary)
-        assert is_mismatch
-        assert "Sample size mismatch" in msg
-        assert "n_control" in msg
-
-    def test_mismatch_treatment(self):
-        """Test when treatment sample size mismatches"""
-        summary = ABTestSummary(
-            url="http://example.com",
-            domain="example.com",
-            n_control=1000,
-            n_treatment=1000,
-            conversions_control=100,
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=None,
+            sample_size_treatment=1000,
             conversion_rate_control=0.10,
-            conversions_treatment=120,
-            conversion_rate_treatment=0.12
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        summary.n_treatment = 1000
-        summary.conversions_treatment = 110
-        summary.conversion_rate_treatment = 0.10  # Implies 1100
-        is_mismatch, msg = detect_sample_size_mismatch(summary)
-        assert is_mismatch
-        assert "n_treatment" in msg
+        assert detect_sample_size_mismatch(summary)
 
-    def test_missing_sample_sizes(self):
-        """Test when sample sizes are missing"""
+    def test_missing_sample_size_treatment(self):
+        """Test that missing treatment sample size is flagged."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            n_control=None,
-            n_treatment=None,
-            conversions_control=100,
-            conversion_rate_control=0.10
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=None,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_mismatch, msg = detect_sample_size_mismatch(summary)
-        assert not is_mismatch
-        assert msg is None
+        assert detect_sample_size_mismatch(summary)
 
-
-class TestValidationThresholds:
-    """Tests for FR-004 threshold application"""
-
-    def test_p_value_consistent(self):
-        """Test p-value within threshold (0.05)"""
+    def test_zero_sample_size(self):
+        """Test that zero sample size is flagged."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            reported_p_value=0.04,
-            reconstructed_p_value=0.06,  # Diff = 0.02
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.10,
-            n_control=1000,
-            n_treatment=1000
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=0,
+            sample_size_treatment=1000,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_consistent, diff, msg = check_p_value_consistency(summary)
-        assert is_consistent
-        assert diff == 0.02
-        assert msg is None
+        assert detect_sample_size_mismatch(summary)
 
-    def test_p_value_inconsistent(self):
-        """Test p-value outside threshold (> 0.05)"""
+
+class TestAuditRecordCreation:
+    """Tests for AuditRecord creation and data_quality_warning."""
+
+    def test_record_with_sample_size_mismatch_has_warning(self):
+        """Test that sample-size mismatch generates data_quality_warning."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            reported_p_value=0.01,
-            reconstructed_p_value=0.10,  # Diff = 0.09
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.10,
-            n_control=1000,
-            n_treatment=1000
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=None,
+            sample_size_treatment=1000,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_consistent, diff, msg = check_p_value_consistency(summary)
-        assert not is_consistent
-        assert diff == 0.09
-        assert "P-value inconsistency" in msg
+        
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p=0.03,
+            reported_p=0.03,
+            reconstructed_effect=0.05,
+            reported_effect=0.05,
+            p_consistent=True,
+            effect_consistent=True,
+            sample_size_mismatch=True,
+            reconstruction_success=True
+        )
+        
+        assert record.data_quality_warning is True
+        assert record.is_inconsistent is True
+        assert any("SAMPLE_SIZE_MISMATCH" in note for note in record.inconsistency_reasons)
 
-    def test_effect_size_consistent(self):
-        """Test effect size within 5% threshold"""
+    def test_record_without_issues_has_no_warning(self):
+        """Test that valid records have no data_quality_warning."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            reported_p_value=0.04,
-            reconstructed_p_value=0.04,
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.096,  # ~4% diff
-            n_control=1000,
-            n_treatment=1000
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_consistent, diff, msg = check_effect_size_consistency(summary)
-        assert is_consistent
-        assert diff < 0.05
-        assert msg is None
+        
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p=0.03,
+            reported_p=0.03,
+            reconstructed_effect=0.05,
+            reported_effect=0.05,
+            p_consistent=True,
+            effect_consistent=True,
+            sample_size_mismatch=False,
+            reconstruction_success=True
+        )
+        
+        assert record.data_quality_warning is False
+        assert record.is_inconsistent is False
 
-    def test_effect_size_inconsistent(self):
-        """Test effect size outside 5% threshold"""
+    def test_record_with_p_value_inconsistency(self):
+        """Test that p-value inconsistency flags record."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            reported_p_value=0.04,
-            reconstructed_p_value=0.04,
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.08,  # 25% diff
-            n_control=1000,
-            n_treatment=1000
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        is_consistent, diff, msg = check_effect_size_consistency(summary)
-        assert not is_consistent
-        assert diff > 0.05
-        assert "Effect size inconsistency" in msg
+        
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p=0.10,  # Exceeds threshold
+            reported_p=0.03,
+            reconstructed_effect=0.05,
+            reported_effect=0.05,
+            p_consistent=False,
+            effect_consistent=True,
+            sample_size_mismatch=False,
+            reconstruction_success=True
+        )
+        
+        assert record.is_inconsistent is True
+        assert record.data_quality_warning is False  # Not a data quality issue, just inconsistency
 
-
-class TestAuditRecordGeneration:
-    """Tests for AuditRecord creation and data_quality_warning"""
-
-    def test_audit_record_consistent(self):
-        """Test AuditRecord for consistent summary"""
+    def test_record_with_reconstruction_failure(self):
+        """Test that reconstruction failure generates warning."""
         summary = ABTestSummary(
-            url="http://example.com",
+            url="https://example.com/test",
             domain="example.com",
-            reported_p_value=0.04,
-            reconstructed_p_value=0.05,
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.10,
-            n_control=1000,
-            n_treatment=1000
+            reported_p_value=0.03,
+            reported_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            conversion_rate_control=0.10,
+            conversion_rate_treatment=0.11,
+            outcome_type="binary"
         )
-        record = validate_summary(summary)
-        assert not record.is_inconsistent
-        assert record.data_quality_warning is None
-
-    def test_audit_record_inconsistent(self):
-        """Test AuditRecord for inconsistent summary"""
-        summary = ABTestSummary(
-            url="http://example.com",
-            domain="example.com",
-            reported_p_value=0.01,
-            reconstructed_p_value=0.10,
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.10,
-            n_control=1000,
-            n_treatment=1000
+        
+        record = create_audit_record(
+            summary=summary,
+            reconstructed_p=0.0,
+            reported_p=0.03,
+            reconstructed_effect=0.0,
+            reported_effect=0.05,
+            p_consistent=False,
+            effect_consistent=False,
+            sample_size_mismatch=False,
+            reconstruction_success=False
         )
-        record = validate_summary(summary)
-        assert record.is_inconsistent
-        assert "P-value discrepancy" in record.data_quality_warning
-
-    def test_audit_record_sample_mismatch_warning(self):
-        """Test AuditRecord with sample-size mismatch (FR-004b)"""
-        summary = ABTestSummary(
-            url="http://example.com",
-            domain="example.com",
-            reported_p_value=0.04,
-            reconstructed_p_value=0.05,
-            reported_effect_size=0.10,
-            reconstructed_effect_size=0.10,
-            n_control=1000,
-            n_treatment=1000,
-            conversions_control=90,
-            conversion_rate_control=0.10  # Implies 900, not 1000
-        )
-        record = validate_summary(summary)
-        assert "Data quality warning" in str(record.data_quality_warning)
-        assert record.validation_details["sample_size_mismatch"] is True
+        
+        assert record.data_quality_warning is True
+        assert record.is_inconsistent is True
 
 
 class TestPrevalenceExclusion:
-    """Tests for FR-004b: Exclude sample-size mismatches from prevalence"""
+    """Tests for FR-004b: exclusion of sample-size mismatches from prevalence."""
 
-    def test_filter_for_prevalence(self):
-        """Test that sample-mismatch records are excluded"""
+    def test_filter_excludes_sample_size_mismatches(self):
+        """Test that filter_for_prevalence excludes records with data_quality_warning."""
+        # Create records with and without warnings
+        record_good = AuditRecord(
+            url="https://good.com",
+            domain="good.com",
+            reported_p_value=0.03,
+            reconstructed_p_value=0.03,
+            reported_effect_size=0.05,
+            reconstructed_effect_size=0.05,
+            sample_size_control=1000,
+            sample_size_treatment=1000,
+            is_inconsistent=False,
+            inconsistency_reasons=["All checks passed"],
+            data_quality_warning=False
+        )
+        
+        record_mismatch = AuditRecord(
+            url="https://bad.com",
+            domain="bad.com",
+            reported_p_value=0.03,
+            reconstructed_p_value=0.03,
+            reported_effect_size=0.05,
+            reconstructed_effect_size=0.05,
+            sample_size_control=None,
+            sample_size_treatment=1000,
+            is_inconsistent=True,
+            inconsistency_reasons=["SAMPLE_SIZE_MISMATCH"],
+            data_quality_warning=True
+        )
+        
+        records = [record_good, record_mismatch]
+        filtered = filter_for_prevalence(records)
+        
+        assert len(filtered) == 1
+        assert filtered[0].url == "https://good.com"
+        assert record_mismatch not in filtered
+
+    def test_filter_includes_valid_records(self):
+        """Test that filter_for_prevalence includes all valid records."""
         records = [
             AuditRecord(
-                url="http://example.com/1",
-                domain="example.com",
-                reported_p_value=0.04,
-                reconstructed_p_value=0.05,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
+                url=f"https://test{i}.com",
+                domain=f"test{i}.com",
+                reported_p_value=0.03,
+                reconstructed_p_value=0.03,
+                reported_effect_size=0.05,
+                reconstructed_effect_size=0.05,
+                sample_size_control=1000,
+                sample_size_treatment=1000,
                 is_inconsistent=False,
-                data_quality_warning=None,
-                validation_details={"sample_size_mismatch": False}
-            ),
-            AuditRecord(
-                url="http://example.com/2",
-                domain="example.com",
-                reported_p_value=0.04,
-                reconstructed_p_value=0.05,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
-                is_inconsistent=False,
-                data_quality_warning=["Data quality warning: Mismatch"],
-                validation_details={"sample_size_mismatch": True}
-            ),
-            AuditRecord(
-                url="http://example.com/3",
-                domain="example.com",
-                reported_p_value=0.01,
-                reconstructed_p_value=0.10,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
-                is_inconsistent=True,
-                data_quality_warning=["P-value discrepancy"],
-                validation_details={"sample_size_mismatch": False}
+                inconsistency_reasons=["All checks passed"],
+                data_quality_warning=False
             )
+            for i in range(5)
         ]
-
+        
         filtered = filter_for_prevalence(records)
-        assert len(filtered) == 2
-        assert filtered[0].url == "http://example.com/1"
-        assert filtered[1].url == "http://example.com/3"
-        # The record with sample_size_mismatch should be excluded
-
-    def test_filter_all_excluded(self):
-        """Test when all records have sample mismatches"""
-        records = [
-            AuditRecord(
-                url="http://example.com/1",
-                domain="example.com",
-                reported_p_value=0.04,
-                reconstructed_p_value=0.05,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
-                is_inconsistent=False,
-                data_quality_warning=["Warning"],
-                validation_details={"sample_size_mismatch": True}
-            )
-        ]
-        filtered = filter_for_prevalence(records)
-        assert len(filtered) == 0
+        assert len(filtered) == 5
 
 
 class TestWriteAuditReport:
-    """Tests for writing audit report to JSON"""
+    """Tests for audit report file generation."""
 
-    def test_write_audit_report(self, tmp_path):
-        """Test that audit report is written correctly"""
+    def test_write_audit_report_creates_json(self):
+        """Test that write_audit_report creates a valid JSON file."""
         records = [
             AuditRecord(
-                url="http://example.com/1",
+                url="https://example.com",
                 domain="example.com",
-                reported_p_value=0.04,
-                reconstructed_p_value=0.05,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
+                reported_p_value=0.03,
+                reconstructed_p_value=0.03,
+                reported_effect_size=0.05,
+                reconstructed_effect_size=0.05,
+                sample_size_control=1000,
+                sample_size_treatment=1000,
                 is_inconsistent=False,
-                data_quality_warning=None,
-                validation_details={"sample_size_mismatch": False}
+                inconsistency_reasons=["All checks passed"],
+                data_quality_warning=False
+            )
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "audit_report.json"
+            write_audit_report(records, output_path)
+            
+            assert output_path.exists()
+            
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["total_records"] == 1
+            assert data["inconsistent_count"] == 0
+            assert data["data_quality_warnings"] == 0
+            assert len(data["records"]) == 1
+            assert data["records"][0]["url"] == "https://example.com"
+
+    def test_write_audit_report_with_mismatches(self):
+        """Test report generation includes mismatch counts."""
+        records = [
+            AuditRecord(
+                url="https://good.com",
+                domain="good.com",
+                reported_p_value=0.03,
+                reconstructed_p_value=0.03,
+                reported_effect_size=0.05,
+                reconstructed_effect_size=0.05,
+                sample_size_control=1000,
+                sample_size_treatment=1000,
+                is_inconsistent=False,
+                inconsistency_reasons=["All checks passed"],
+                data_quality_warning=False
             ),
             AuditRecord(
-                url="http://example.com/2",
-                domain="example.com",
-                reported_p_value=0.01,
-                reconstructed_p_value=0.10,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
+                url="https://bad.com",
+                domain="bad.com",
+                reported_p_value=0.03,
+                reconstructed_p_value=0.03,
+                reported_effect_size=0.05,
+                reconstructed_effect_size=0.05,
+                sample_size_control=None,
+                sample_size_treatment=1000,
                 is_inconsistent=True,
-                data_quality_warning=["P-value discrepancy"],
-                validation_details={"sample_size_mismatch": False}
+                inconsistency_reasons=["SAMPLE_SIZE_MISMATCH"],
+                data_quality_warning=True
             )
         ]
-
-        output_path = tmp_path / "audit_report.json"
-        write_audit_report(records, output_path)
-
-        assert output_path.exists()
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        assert data["summary"]["total_records"] == 2
-        assert data["summary"]["inconsistent_count"] == 1
-        assert len(data["records"]) == 2
-        assert data["records"][0]["is_inconsistent"] is False
-        assert data["records"][1]["is_inconsistent"] is True
-
-    def test_write_audit_report_with_sample_mismatch(self, tmp_path):
-        """Test that sample mismatch counts are tracked"""
-        records = [
-            AuditRecord(
-                url="http://example.com/1",
-                domain="example.com",
-                reported_p_value=0.04,
-                reconstructed_p_value=0.05,
-                reported_effect_size=0.10,
-                reconstructed_effect_size=0.10,
-                n_control=1000,
-                n_treatment=1000,
-                is_inconsistent=False,
-                data_quality_warning=["Data quality warning"],
-                validation_details={"sample_size_mismatch": True}
-            )
-        ]
-
-        output_path = tmp_path / "audit_report.json"
-        write_audit_report(records, output_path)
-
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-
-        assert data["summary"]["sample_mismatch_count"] == 1
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "audit_report.json"
+            write_audit_report(records, output_path)
+            
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert data["total_records"] == 2
+            assert data["inconsistent_count"] == 1
+            assert data["data_quality_warnings"] == 1
