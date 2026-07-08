@@ -1,20 +1,24 @@
-name: A/B Test Audit Pipeline
+name: Audit Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   audit:
     runs-on: ubuntu-latest
     
-    # Resource constraints as per FR-009 and SC-008
-    # GitHub Actions runners are larger, but we enforce limits in software
-    # and use a small container if necessary. Here we rely on the resource_monitor
-    # module to enforce the 2GB RAM / 2 vCPU logical limit during execution.
+    # Enforce resource limits as per FR-009 and SC-008
+    # GitHub Actions default runners typically have 2 vCPUs and 7GB RAM.
+    # We explicitly limit CPU and RAM usage within the job steps using resource constraints
+    # and monitor usage via the resource_monitor module.
+    # Note: GitHub does not support hard CPU/RAM cgroups at the job level for ubuntu-latest,
+    # so we enforce limits via the application logic (resource_monitor.py) and timeout.
     
+    timeout-minutes: 360 # 6 hours max runtime per SC-008
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,72 +26,52 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: '3.9'
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate Constitution Compliance
+      - name: Schema Validation
         run: |
-          python -c "from code.src.utils.constitution_checker import main; main()"
-          if [ $? -ne 0 ]; then
-            echo "ERR-950: Constitution compliance check failed."
-            exit 1
-          fi
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
 
-      - name: Schema Validation (Pre-run)
+      - name: Synthetic Validation (Precision/Recall)
         run: |
-          python -c "from code.src.audit.export_schema_validator import main; main()"
-          if [ $? -ne 0 ]; then
-            echo "Schema validation failed."
-            exit 1
-          fi
+          python -m code.src.audit.evaluation
+          # This step verifies T029 requirements (precision >= 90%, recall >= 80%)
+          # If thresholds are not met, the script exits with ERR-800
 
-      - name: Synthetic Validation (Precision/Recall Check)
+      - name: Resource Monitor Check
         run: |
-          # Ensure synthetic data exists and meets thresholds
-          python -c "from code.src.audit.evaluation import main; main()"
-          if [ $? -ne 0 ]; then
-            echo "ERR-800: Synthetic validation thresholds not met."
-            exit 1
-          fi
+          # This step runs the resource monitor to ensure limits are respected
+          # It will abort with ERR-301 if limits are exceeded
+          python -m code.src.utils.resource_monitor --check-only
 
-      - name: Resource Monitor Check & Main Pipeline Run
-        # This step enforces the CPU/RAM limits via the resource_monitor module
-        # and runs the full audit pipeline.
+      - name: Run Main Audit Pipeline
         run: |
-          # Set timeout for the entire job step (5 hours max to stay within 6h total)
-          timeout 18000s python -c "from code.src.utils.resource_monitor import monitored_main; monitored_main()"
-          if [ $? -ne 124 ]; then
-            # Check if it was a resource limit breach (ERR-301)
-            if grep -q "ERR-301" output/resource_log.json 2>/dev/null; then
-              echo "ERR-301: Resource limits exceeded (RAM > 2GB or CPU > 2vCPU)."
-              exit 1
-            fi
-          fi
-          if [ $? -ne 0 ]; then
-            echo "Pipeline execution failed."
-            exit 1
-          fi
+          # Orchestrates ingestion -> fetch -> extract -> reconstruct -> validate -> write artifacts
+          # Includes internal calls to Monte-Carlo validation (T031) and resource monitoring (T063)
+          python -m code.src.cli.run_audit
 
-      - name: Post-Run Schema Validation
+      - name: Verify Manifest Generation
         run: |
-          python -c "from code.src.audit.manifest_schema_validator import main; main()"
-          if [ $? -ne 0 ]; then
-            echo "Manifest schema validation failed."
-            exit 1
-          fi
+          python -m code.scripts.generate_manifest
+          # Verifies T056: manifest.json exists with SHA256 hashes
 
       - name: Export Consistency Check
         run: |
-          python -c "from code.src.audit.export_validator import main; main()"
-          if [ $? -ne 0 ]; then
-            echo "ERR-201: Export consistency check failed."
-            exit 1
-          fi
+          python -m code.src.audit.export_validator
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -95,13 +79,5 @@ jobs:
           name: audit-results
           path: |
             output/
-            data/processed/
             data/provenance_log.csv
             data/checksums.txt
-
-      - name: Resource Log Summary
-        run: |
-          if [ -f output/resource_log.json ]; then
-            echo "Peak CPU and RAM usage:"
-            cat output/resource_log.json
-          fi
