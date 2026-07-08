@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T10:27:42.146966Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-192-the-impact-of-environmental-factors-on-f
-last_run_id: bacd7112-53e9-4dfd-902f-d405b55faf9b
+last_run_id: c7371d1f-9b0f-4540-a622-de27bab39917
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-192-the-impact-of-environmental-factors-on-f/specs/001-the-impact-of-environmental-factors-on-f
 title: The Impact of Environmental Factors on Fungal Community Structure in Soil
-updated_at: '2026-07-03T23:47:09.910310Z'
+updated_at: '2026-07-08T03:33:09.493058Z'

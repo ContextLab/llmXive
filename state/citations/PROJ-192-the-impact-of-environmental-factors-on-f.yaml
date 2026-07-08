@@ -1,1 +1,11 @@
-[]
+- artifact_hash: cd5f2ee36004252500accdc76ca4d6195815bcd4e253e93fe040fbdac2966895
+  artifact_path: projects/PROJ-192-the-impact-of-environmental-factors-on-f/specs/001-the-impact-of-environmental-factors-on-f/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Ontology Lookup Service (OLS)
+  kind: url
+  value: http://purl.obolibrary.org/obo/ENVO_01000026`
+  verification_status: verified
+  verified_against_url: https://www.ebi.ac.uk/ols4/ontologies/envo/entities/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FENVO_01000026
+  verified_at: '2026-07-08T03:17:18.411778Z'

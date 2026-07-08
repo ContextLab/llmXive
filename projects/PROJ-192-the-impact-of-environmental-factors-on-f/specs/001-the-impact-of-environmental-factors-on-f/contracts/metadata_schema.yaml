@@ -10,9 +10,36 @@ properties:
     description: "Identifier of the source study (e.g., SRI accession)."
   pH:
     type: "number"
-    description: "SOil pH"
+    description: "Soil pH value."
   nitrogen:
     type: "number"
-    description: "Total    
-
-
+    description: "Total nitrogen concentration (mg/kg)."
+  phosphorus:
+    type: "number"
+    description: "Total phosphorus concentration (mg/kg)."
+  potassium:
+    type: "number"
+    description: "Total potassium concentration (mg/kg)."
+  temperature:
+    type: "number"
+    description: "Soil temperature (°C)."
+  moisture:
+    type: "number"
+    description: "Soil moisture percentage."
+  biome:
+    type: "string"
+    description: "Biome classification (ENVO URI)."
+  study_id:
+    type: "string"
+    description: "Source study identifier."
+required:
+  - sample_id
+  - study_id
+  - pH
+  - nitrogen
+  - phosphorus
+  - potassium
+  - temperature
+  - moisture
+  - biome
+additionalProperties: false

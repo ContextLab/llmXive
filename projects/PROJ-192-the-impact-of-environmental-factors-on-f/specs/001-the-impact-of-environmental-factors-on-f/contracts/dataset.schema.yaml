@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Harmonized Environmental Metadata Schema"
+description: "Schema for the harmonized environmental metadata CSV containing abiotic variables and biome classification. Biome must be an ENVO URI."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  pH:
+    type: number
+    description: "Soil pH value."
+    minimum: 0
+    maximum: 14
+  nitrogen:
+    type: number
+    description: "Nitrogen concentration (mg/kg or ppm)."
+    minimum: 0
+  phosphorus:
+    type: number
+    description: "Phosphorus concentration (mg/kg or ppm)."
+    minimum: 0
+  potassium:
+    type: number
+    description: "Potassium concentration (mg/kg or ppm)."
+    minimum: 0
+  temperature:
+    type: number
+    description: "Soil temperature (°C)."
+  moisture:
+    type: number
+    description: "Soil moisture percentage."
+    minimum: 0
+    maximum: 100
+  biome:
+    type: string
+    description: "Standardized biome classification using ENVO URI (e.g., http://purl.obolibrary.org/obo/ENVO_01000026)."
+    pattern: "^http://purl.obolibrary.org/obo/ENVO_\\d+$"
+  study_id:
+    type: string
+    description: "Identifier for the source study."
+required:
+  - sample_id
+  - pH
+  - nitrogen
+  - phosphorus
+  - potassium
+  - temperature
+  - moisture
+  - biome
+  - study_id
+additionalProperties: false

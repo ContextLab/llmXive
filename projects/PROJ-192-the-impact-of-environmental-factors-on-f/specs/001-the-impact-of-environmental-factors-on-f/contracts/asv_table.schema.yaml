@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ASV Table Schema"
+description: "Schema for the processed ASV count table (sparse matrix representation)."
+type: object
+properties:
+  shape:
+    type: array
+    description: "Dimensions of the matrix [n_samples, n_asvs]."
+    items:
+      type: integer
+      minimum: 0
+    minItems: 2
+    maxItems: 2
+  data:
+    type: array
+    description: "Flattened non-zero values of the sparse matrix."
+    items:
+      type: integer
+      minimum: 0
+  indices:
+    type: array
+    description: "Column indices of non-zero values."
+    items:
+      type: integer
+      minimum: 0
+  indptr:
+    type: array
+    description: "Index pointers for rows."
+    items:
+      type: integer
+      minimum: 0
+  sample_ids:
+    type: array
+    description: "List of sample IDs corresponding to rows."
+    items:
+      type: string
+  asv_ids:
+    type: array
+    description: "List of ASV IDs corresponding to columns."
+    items:
+      type: string
+required:
+  - shape
+  - data
+  - indices
+  - indptr
+  - sample_ids
+  - asv_ids

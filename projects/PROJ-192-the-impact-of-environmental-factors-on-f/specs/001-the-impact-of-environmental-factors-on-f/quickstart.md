@@ -1,56 +1,77 @@
 # Quickstart: Impact of Environmental Factors on Fungal Community Structure in Soil
 
-This guide shows how to run the full analysis on a fresh GitHub Actions runner (or local Linux environment) using the provided CLI.
-
 ## Prerequisites
-```bash
-# Clone the repository (assumes you are in the project root)
-git clone https://github.com/yourorg/impact-of-environmental-factors.git
-cd impact-of-environmental-factors
+*   Python 3.11+
+*   `git`
+*   At least 14 GB free disk space (for data and dependencies).
 
-# Create a virtualenv and install exact dependencies
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt   # pins versions as per plan
+## Installation
+
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd <project-dir>
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins all versions to ensure reproducibility.*
+
+## Data Setup
+
+**Important**: This project requires at least 3 verified datasets with ITS sequences and matching metadata.
+*   If no verified datasets are found in the `data/` directory, the workflow will abort with a `FATAL` error.
+*   For development, you may generate synthetic data using `code/utils/generate_synthetic_data.py` (only for testing pipeline logic, not for final results).
+
+1.  **Place data in `data/`**:
+    *   Raw FASTQs (if available): `data/raw-seq/`
+    *   Metadata CSVs: `data/metadata/raw/`
+
+2.  **Verify data integrity**:
+    ```bash
+    python code/utils/checksums.py --verify
+    ```
+
+## Running the Workflow
+
+Execute the full pipeline:
+```bash
+python -m src.cli.main --run-full
 ```
 
-## Important Note
-The scientific workflow **requires** at least three verified public ITS datasets that contain all required abiotic columns (`pH`, `nitrogen`, `phosphorus`, `potassium`, `temperature`, `moisture`, `biome`). If such datasets are not provided, the pipeline **will abort** with a CRITICAL error and exit code 2. Users may optionally run the analysis with the `--placeholder` flag to generate empty stub files for CI sanity checks; no ecological conclusions will be drawn.
+### Options
+*   `--run-full`: Run ingestion, preprocessing, analysis, and reporting.
+*   `--stratify-by biome`: Enable biome-specific stratification (FR-005).
+*   `--sweep-thresholds`: Run sensitivity analysis (FR-006).
+*   `--dry-run`: Validate configuration and data availability without processing.
+*   `--mode pipeline-validation`: Use synthetic data for code testing (skips real data abort).
 
-## Step‑by‑Step Commands
+### Example: Stratified Analysis
+```bash
+python -m src.cli.main --run-full --stratify-by biome --sweep-thresholds
+```
 
-1. **Set random seed (reproducibility)**
-   ```bash
-   python -c "import code.seed as s; s.set_seed(an arbitrary integer)"
+## Output
 
-The research question is: Can large language models be effectively utilized for automated hypothesis generation in materials science?
-The method is: We will employ a large language model (specifically, GPT-3.5-turbo) to generate novel hypotheses regarding material properties based on a curated dataset of materials science literature. The generated hypotheses will then be evaluated by expert materials scientists for plausibility and novelty.
-References: (Smith et al., 2023) [DOI: 10.1021/acs.nanolett.3c02000]; (Jones, 2022) [arXiv:2205.10000]
-   ````
+Results are saved in the `results/` directory:
+*   `results/permanova_summary.csv`: Global PERMANOVA results.
+*   `results/db_rda_variance.csv`: Variance explained by each predictor.
+*   `results/db_rda_biome_<NAME>.csv`: Stratified results per biome.
+*   `results/sensitivity_analysis.csv`: Robustness of driver ranking.
+*   `results/robustness_summary.md`: Narrative summary of findings.
+*   `results/sampling_report.csv`: **Mandatory** log of subsampling ratios (FR-009).
+*   `results/plots/`: PNG figures (db-RDA triplots, etc.).
 
-2. **Download & Harmonize Datasets**  
-   *(If you have a verified ITS dataset, replace the placeholder IDs)*
-   ```bash
-   python -m code.cli.run_analysis download \
-       --study-ids SRR1234567 SRR2345678 SRR3456789 \
-       --metadata-url https://example.com/soil_metadata.csv \
-       . . .
-   ```
+## Troubleshooting
 
-3. **Denoise Sequences (DADA2)**
-   ```bash
-   python -m code.cli.run_analysis dada2 \
-       --raw-dir data/raw-seq/ \
-       --output-dir data/asv/
-   ```
-
-4. **Compute Diversity Metrics**
-   ```bash
-   python -m code.cli.run_analysis diversity \
-       --asv-dir data/asv/ \
-       . . .
-   ```
-
-5. **Prepare Environmental Matrix ****** **
-
-
+*   **"Insufficient datasets for global analysis"**: Ensure at least 3 datasets with all required metadata columns (pH, nutrients, etc.) are present in `data/metadata/`.
+*   **"Memory limit exceeded"**: The system will automatically subsample. Check `results/sampling_report.csv` for the ratio used.
+*   **"MICE convergence failed"**: Samples with missing values in those studies will be excluded. Check logs for warnings.

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PERMANOVA Results Schema"
+description: "Schema for the PERMANOVA summary results CSV."
+type: object
+properties:
+  predictor:
+    type: string
+    description: "Name of the environmental predictor variable."
+  r_squared:
+    type: number
+    description: "R-squared value (variance explained)."
+    minimum: 0
+    maximum: 1
+  p_value:
+    type: number
+    description: "Raw p-value from PERMANOVA."
+    minimum: 0
+    maximum: 1
+  fdr_p_value:
+    type: number
+    description: "Benjamini-Hochberg corrected p-value."
+    minimum: 0
+    maximum: 1
+  permutations:
+    type: integer
+    description: "Number of permutations used."
+    minimum: 999
+  significant:
+    type: boolean
+    description: "Whether the result is significant after FDR correction (p < 0.05)."
+required:
+  - predictor
+  - r_squared
+  - p_value
+  - fdr_p_value
+  - permutations
+  - significant
+additionalProperties: false
