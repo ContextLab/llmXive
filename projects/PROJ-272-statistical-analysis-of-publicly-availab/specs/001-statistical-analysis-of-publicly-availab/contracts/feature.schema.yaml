@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Linguistic Feature Matrix Schema
+description: |
+  Schema for the extracted linguistic feature matrix (lexical, syntactic, semantic)
+  used for statistical testing and modeling.
+type: object
+required:
+  - participant_id
+  - label
+  - features
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier matching the dataset schema
+    pattern: "^[a-zA-Z0-9_-]+$"
+  label:
+    type: string
+    description: Cognitive status label
+    enum:
+      - "Control"
+      - "MCI"
+      - "AD"
+  features:
+    type: object
+    description: |
+      Dictionary of extracted features. Keys are feature names, values are floats.
+      Includes lexical (TTR, MTLD), syntactic (Mean Clause Length, T-unit),
+      and semantic (embedding cosine similarity) metrics.
+    additionalProperties:
+      type: number
+      description: Feature value (float)
+    examples:
+      TTR: 0.65
+      MTLD: 42.3
+      noun_verb_ratio: 1.2
+      mean_clause_length: 12.5
+      t_unit_count: 15
+      semantic_coherence: 0.85
+additionalProperties: false

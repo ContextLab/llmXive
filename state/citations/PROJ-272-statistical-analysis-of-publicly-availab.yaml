@@ -1,0 +1,22 @@
+- artifact_hash: 05b0d49a20f293f9dbd5a1791eb7611ea21fb1f0f8507d41a45d45fb5f088564
+  artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/jaehyupark/ADReSS-IS2020-Data`
+  verification_status: mismatch
+  verified_against_url: https://github.com/jaehyupark/ADReSS-IS2020-Data
+  verified_at: '2026-07-08T15:57:00.504940Z'
+- artifact_hash: 05b0d49a20f293f9dbd5a1791eb7611ea21fb1f0f8507d41a45d45fb5f088564
+  artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "pruiu/ADReSS-IS2020_emb \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb
+  verified_at: '2026-07-08T15:57:00.504940Z'

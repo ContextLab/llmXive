@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T19:39:55.957373Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-272-statistical-analysis-of-publicly-availab
-last_run_id: 2064fdc1-7fb2-4d66-a1f0-c513e9495649
+last_run_id: 31cc2b7e-1f00-465d-99ad-7d0895244d7c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab
 title: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive
   Decline
-updated_at: '2026-06-29T00:55:48.244956Z'
+updated_at: '2026-07-08T16:27:39.536421Z'

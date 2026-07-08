@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ADReSS Cleaned Dataset Schema
+description: |
+  Schema for the cleaned, preprocessed ADReSS dataset used in the
+  statistical analysis of cognitive decline. Derived from raw transcripts
+  after text cleaning and filtering (T013, T014).
+type: object
+required:
+  - participant_id
+  - label
+  - text
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant (e.g., 'p001', 'control_01')
+    pattern: "^[a-zA-Z0-9_-]+$"
+    examples:
+      - "p001"
+      - "control_12"
+      - "ad_45"
+  label:
+    type: string
+    description: Cognitive status label derived from ADReSS metadata
+    enum:
+      - "Control"
+      - "MCI"
+      - "AD"
+    examples:
+      - "Control"
+      - "MCI"
+      - "AD"
+  text:
+    type: string
+    description: |
+      Cleaned transcript text. Non-verbal annotations (e.g., <laughter>, <pause>)
+      removed, normalized to UTF-8, and filtered for minimum length (>= 50 words).
+    minLength: 50
+    examples:
+      - "The patient described the cookie theft picture in detail mentioning the water spilling."
+      - "Control subject provided a coherent narrative about the picture with correct grammar."
+additionalProperties: false

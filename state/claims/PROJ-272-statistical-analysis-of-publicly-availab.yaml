@@ -1,0 +1,359 @@
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sentence embeddings shape N by 384 with float32 dtype
+  claim_id: c_843780b5
+  context: Implement semantic feature extraction (Sentence Embedding Cosine Similarity)
+    using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings to data/processed/embeddings.npy
+    with shape [N, 384], dtype float32 (Depends on T016)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save embeddings to data/processed/embeddings.npy with shape [N, 384],
+    dtype float32
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:15:51Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: use all-MiniLM-L6-v2 model for sentence embeddings
+  claim_id: c_a3aff0b4
+  context: Implement semantic feature extraction (Sentence Embedding Cosine Similarity)
+    using all-MiniLM-L6-v2 in code/features.py (CPU-only); Save embeddings to data/processed/embeddings.npy
+    with shape [N, 384], dtype float32 (Depends on T016)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_all-MiniLM-L6-v2_model_for_sentence_embeddings
+  kind: entity_fact
+  raw_text: Use all-MiniLM-L6-v2 for embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:16:14Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: total runtime less than or equal to 6 hours and peak memory less than
+    or equal to 7 GB
+  claim_id: c_b6aac9a1
+  context: "Verify total runtime \u2264 6 hours AND memory usage \u2264 7 GB using\
+    \ tracemalloc; Generate data/results/runtime_log.json with total_seconds and data/results/memory_profile.json\
+    \ with peak_rss_gb (Depends on T040)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_or_equal_to_6_hours_and_peak_memory
+  kind: magnitude
+  raw_text: "Verify total runtime \u2264 6 hours AND memory usage \u2264 7 GB using\
+    \ tracemalloc"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:16:32Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: nested cross-validation memory constraint less than 7 GB
+  claim_id: c_c2215dfc
+  context: Ensure nested CV uses CPU-only models and respects memory constraints (<
+    7 GB) (Depends on T037)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Nested_cross-validation_memory_constraint_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure nested CV uses CPU-only models and respects memory constraints
+    (< 7 GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:16:53Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ADReSS dataset used as primary source; DementiaBank excluded
+  claim_id: c_a22d6c29
+  context: 'Scope reduced to ADReSS only per plan.md. Note: DementiaBank is excluded
+    as primary source (see T012c).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ADReSS_dataset_used_as_primary_source;_DementiaBank_excluded
+  kind: entity_fact
+  raw_text: The ADReSS dataset is used as the primary data source, while DementiaBank
+    is excluded as a primary source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:21:24Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model used for sentence embeddings
+  claim_id: c_d5c0470c
+  context: 'Constraint Reminder: All models must run on CPU only (no CUDA, no 8-bit
+    quantization). Use all-MiniLM-L6-v2 for embeddings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All-MiniLM-L6-v2_model_used_for_sentence_embeddings
+  kind: entity_fact
+  raw_text: The project requires the use of the all-MiniLM-L6-v2 model for sentence
+    embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:21:44Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Semantic embeddings shape [N, 384] dtype float32
+  claim_id: c_e21f6742
+  context: Implement semantic feature extraction (Sentence Embedding Cosine Similarity)
+    using all-MiniLM-L6-v2... Save embeddings to data/processed/embeddings.npy with
+    shape [N, 384], dtype float32.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The semantic embeddings are saved with a shape of [N, 384] and dtype float32.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:22:28Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline validates minimum 500 participants per group
+  claim_id: c_4363c717
+  context: "Validate dataset size in code/ingestion.py: Check if ADReSS dataset contains\
+    \ \u2265 500 participants per group; Fail pipeline with specific error if threshold\
+    \ not met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_validates_minimum_500_participants_per_group
+  kind: magnitude
+  raw_text: The pipeline is designed to handle datasets with at least 500 participants
+    per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:22:57Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Total runtime constraint <= 6 hours
+  claim_id: c_cec474ea
+  context: "Verify total runtime \u2264 6 hours AND memory usage \u2264 7 GB using\
+    \ tracemalloc."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_constraint_%3C=_6_hours
+  kind: magnitude
+  raw_text: The total runtime of the pipeline is constrained to be less than or equal
+    to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:23:30Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Peak memory usage constraint <= 7 GB
+  claim_id: c_1b5bbf39
+  context: "Verify total runtime \u2264 6 hours AND memory usage \u2264 7 GB using\
+    \ tracemalloc."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_constraint_%3C=_7_GB
+  kind: magnitude
+  raw_text: The peak memory usage of the pipeline is constrained to be less than or
+    equal to 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:23:53Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_d4e99248
+  context: 'Initialize Python 3.11 project with dependencies: Create requirements.txt
+    with pinned versions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project utilizes Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:24:29Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pandas version >= 2.0.0
+  claim_id: c_c91efdf6
+  context: 'Create requirements.txt with pinned versions: pandas>=2.0.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:24:48Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: scikit-learn version >= 1.3.0
+  claim_id: c_c80278f6
+  context: 'Create requirements.txt with pinned versions: ...scikit-learn>=1.3.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.3.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:25:06Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: NLTK version >= 3.8
+  claim_id: c_812af6d8
+  context: 'Create requirements.txt with pinned versions: ...nltk>=3.8...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses NLTK version 3.8 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:25:23Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spaCy version >= 3.7
+  claim_id: c_31f80139
+  context: 'Create requirements.txt with pinned versions: ...spacy>=3.7...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses spaCy version 3.7 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:25:39Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: sentence-transformers version >= 2.2.0
+  claim_id: c_3d3353a0
+  context: 'Create requirements.txt with pinned versions: ...sentence-transformers>=2.2.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses sentence-transformers version 2.2.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:25:58Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: numpy version >= 1.24.0
+  claim_id: c_c852779c
+  context: 'Create requirements.txt with pinned versions: ...numpy>=1.24.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.24.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:26:15Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: scipy version >= 1.10.0
+  claim_id: c_56fc9167
+  context: 'Create requirements.txt with pinned versions: ...scipy>=1.10.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scipy version 1.10.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:26:32Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pyyaml version >= 6.0
+  claim_id: c_684fdb46
+  context: 'Create requirements.txt with pinned versions: ...pyyaml>=6.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:26:45Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: tqdm version >= 4.65.0
+  claim_id: c_6e175b8b
+  context: 'Create requirements.txt with pinned versions: ...tqdm>=4.65.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses tqdm version 4.65.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:27:01Z'
+- artifact_path: projects/PROJ-272-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Transcripts with fewer than 50 words are excluded
+  claim_id: c_e8f11557
+  context: 'Implement record filtering in code/ingestion.py: exclude transcripts <
+    50 words and missing labels.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Transcripts_with_fewer_than_50_words_are_excluded
+  kind: magnitude
+  raw_text: The project excludes transcripts with fewer than 50 words.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T16:27:22Z'

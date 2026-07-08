@@ -1,0 +1,486 @@
+resolved_at: '2026-07-08T15:49:07.593981+00:00'
+datasets:
+- intent: DementiaBank
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/MearaHe/dementiabank/aff6607a637a200035c97ccb8d2818a68e316981/Updated_Formatted_Dataset.json?%2Fdatasets%2FMearaHe%2Fdementiabank%2Fresolve%2Fmain%2FUpdated_Formatted_Dataset.json=&etag=%22ed353030712215ffb7aea258f6a4671c1de5b454%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pollution_indices_to_model_anthropogenic_metals_in_the_sediments_of_two_northern_Egyptian_lagoons_a_major_regional_sink/32939331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hypoxia-induced_EPAS1_HIF2A-USP33-ATG101_axis_drives_oncogenic_autophagy_and_peritoneal_metastasis_in_gastric_cancer/32939149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.leedsbeckett.ac.uk/articles/thesis/From_Victims_to_Peacebuilders_Transforming_the_Role_of_Religious_and_Ethnic_Minority_Groups_in_Iraq/26490793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Diagnosis_of_Spatiotemporal_Evolution_and_Driving_Factors_of_Surface_Ozone_Pollution_Episodes_An_Application_in_Jiangsu_Province_China/32939310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_on_fluid_sediment_partitioning_in_subduction_zones/32935637
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.isca-archive.org/interspeech_2020/pan20d_interspeech.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.isca-archive.org/interspeech_2019/pan19_interspeech.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20478456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7127685
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19043947
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://talkbank.org/dementia/access/Spanish/PerLA.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://talkbank.org/dementia/access/Spanish/Ivanova.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://talkbank.org/dementia/access/English/Pitt.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://talkbank.org/dementia/access/Greek/Dem@Care.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://talkbank.org/dementia/access/English/WLS.html
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ADReSS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb/resolve/main/IS2020_test_embeddings/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 441
+      parsed: true
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_rel_batiment_construction_adresse_METROPOLE/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_rel_batiment_groupe_adresse_METROPOLE/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pruiu/ADReSS-IS2020_emb/resolve/main/IS2020_test_embeddings/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_rel_batiment_construction_adresse_METROPOLE/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_rel_batiment_groupe_adresse_METROPOLE/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_rel_batiment_construction_adresse_01/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alihmaou/bdnb_2023-11.a_adresse_metrique_01/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/The_Great_and_Little_Dipper_relative_to_true_north_in_10450_BC/32939309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pollution_indices_to_model_anthropogenic_metals_in_the_sediments_of_two_northern_Egyptian_lagoons_a_major_regional_sink/32939331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hypoxia-induced_EPAS1_HIF2A-USP33-ATG101_axis_drives_oncogenic_autophagy_and_peritoneal_metastasis_in_gastric_cancer/32939149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.leedsbeckett.ac.uk/articles/thesis/From_Victims_to_Peacebuilders_Transforming_the_Role_of_Religious_and_Ethnic_Minority_Groups_in_Iraq/26490793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Diagnosis_of_Spatiotemporal_Evolution_and_Driving_Factors_of_Surface_Ozone_Pollution_Episodes_An_Application_in_Jiangsu_Province_China/32939310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13886974
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15402266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/570163
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18664847
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7797521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mfqn8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://komodo21.numerev.com/articles/revue-12/2517-finamor-trobairitz-numerique
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mediatum.ub.tum.de/1854060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wvuj8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02415
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mcimpoi/dtd_split_1/resolve/main/data/test-00000-of-00001-d6ecda0bacf8f78c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mcimpoi/alot/resolve/main/data/dev-00000-of-00001-3f81b93584a9d264.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mcimpoi/fmd_materials/resolve/main/data/test-00000-of-00001-2b99e6a3c9b4e4e6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mcimpoi/dtd_split_1/resolve/main/data/test-00000-of-00001-d6ecda0bacf8f78c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcimpoi/alot/resolve/main/data/dev-00000-of-00001-3f81b93584a9d264.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcimpoi/fmd_materials/resolve/main/data/test-00000-of-00001-2b99e6a3c9b4e4e6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mcipriano/stackoverflow-kubernetes-questions/resolve/main/data/kubernetes_dump.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/A_Unified_Retrocausal_Field_Theory_for_Asynchronous_Temporal_Reasoning_Architecture_Stability_and_Deployment/32939324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/The_Great_and_Little_Dipper_relative_to_true_north_in_10450_BC/32939309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pollution_indices_to_model_anthropogenic_metals_in_the_sediments_of_two_northern_Egyptian_lagoons_a_major_regional_sink/32939331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hypoxia-induced_EPAS1_HIF2A-USP33-ATG101_axis_drives_oncogenic_autophagy_and_peritoneal_metastasis_in_gastric_cancer/32939149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.leedsbeckett.ac.uk/articles/thesis/From_Victims_to_Peacebuilders_Transforming_the_Role_of_Religious_and_Ethnic_Minority_Groups_in_Iraq/26490793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11468262
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7764249
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11074341
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17770915
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14168844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6pycr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/h8k9y/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nhbkq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150259
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Do_Anthropomorphic_Features_Affect_User_Engagement_Exploring_the_Dual-Path_Effects_of_Anthropomorphic_Design_on_MCI_User_Engagement_Efficacy/30772735/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 177802
+      parsed: true
+  - url: https://huggingface.co/datasets/hesandism/colombo-tea-auction-prices/resolve/main/colombo_tea_auction_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 256589
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hesandism/colombo-tea-auction-prices/resolve/main/colombo_tea_auction_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Surajsangwan90/AucklandTransport-FAQs/6f8b774f6ae151509358621641ffaa77b734cdb6/auckland_transport_dialogue_based_faq.csv?%2Fdatasets%2FSurajsangwan90%2FAucklandTransport-FAQs%2Fresolve%2Fmain%2Fauckland_transport_dialogue_based_faq.csv=&etag=%2204053b600b77df84e8458e78145c6f2699390dc7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/A_Unified_Retrocausal_Field_Theory_for_Asynchronous_Temporal_Reasoning_Architecture_Stability_and_Deployment/32939324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/The_Great_and_Little_Dipper_relative_to_true_north_in_10450_BC/32939309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pollution_indices_to_model_anthropogenic_metals_in_the_sediments_of_two_northern_Egyptian_lagoons_a_major_regional_sink/32939331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hypoxia-induced_EPAS1_HIF2A-USP33-ATG101_axis_drives_oncogenic_autophagy_and_peritoneal_metastasis_in_gastric_cancer/32939149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.leedsbeckett.ac.uk/articles/thesis/From_Victims_to_Peacebuilders_Transforming_the_Role_of_Religious_and_Ethnic_Minority_Groups_in_Iraq/26490793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18836515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18897449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154218
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18880607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/217462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Bank_Marketing_Campaign_Prediction_-_Portugal/32939153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Bank_Marketing_Campaign_Prediction_-_Portugal/32939153/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14111705
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14111705
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/A_Unified_Retrocausal_Field_Theory_for_Asynchronous_Temporal_Reasoning_Architecture_Stability_and_Deployment/32939324
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/The_Great_and_Little_Dipper_relative_to_true_north_in_10450_BC/32939309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Pollution_indices_to_model_anthropogenic_metals_in_the_sediments_of_two_northern_Egyptian_lagoons_a_major_regional_sink/32939331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hypoxia-induced_EPAS1_HIF2A-USP33-ATG101_axis_drives_oncogenic_autophagy_and_peritoneal_metastasis_in_gastric_cancer/32939149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.leedsbeckett.ac.uk/articles/thesis/From_Victims_to_Peacebuilders_Transforming_the_Role_of_Religious_and_Ethnic_Minority_Groups_in_Iraq/26490793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/945784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Bank_Marketing_Campaign_Prediction_-_Portugal/32939153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Bank_Marketing_Campaign_Prediction_-_Portugal/32939153/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Credit_Card_Fraud_Detection_-_Europe/32939138/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Credit_Card_Fraud_Detection_-_Europe/32939138
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

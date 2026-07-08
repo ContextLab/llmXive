@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (keep raw/processed if needed, but ignore large binaries if specified)
+# data/raw/*
+# data/processed/*
+# But allow specific tracked files via gitattributes if needed
+data/interim/*
+data/results/*
+*.npy
+*.pkl
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.secrets.baseline
