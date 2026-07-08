@@ -1,6 +1,5 @@
-'|calculated minimum':
-  quote: D. Adhikari,8, 9 N. Adhikari ,10 R. X. Adhikari ,11 V. K. Adkins, 12 S. Afroz
-    ,13 A. Agapito,14 D. Agarwal ,15
-  source_id: '2510.17487'
-  url: https://arxiv.org/abs/2510.17487
-  value: '10'
+'|accuracy extraction least real set validation world':
+  quote: "FusiformNet 96.45\xB1 0.79 99.30\xB1 0.15"
+  source_id: '2011.00577'
+  url: https://arxiv.org/abs/2011.00577
+  value: '96.45'

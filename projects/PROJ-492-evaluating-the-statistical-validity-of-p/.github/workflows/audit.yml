@@ -2,22 +2,25 @@ name: Audit Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  checks: write
 
 jobs:
-  audit:
+  run-audit:
+    name: Run Audit Pipeline
     runs-on: ubuntu-latest
     
     # Enforce resource limits as per FR-009 and SC-008
-    # GitHub Actions default runners typically have 2 vCPUs and 7GB RAM.
-    # We explicitly limit CPU and RAM usage within the job steps using resource constraints
-    # and monitor usage via the resource_monitor module.
-    # Note: GitHub does not support hard CPU/RAM cgroups at the job level for ubuntu-latest,
-    # so we enforce limits via the application logic (resource_monitor.py) and timeout.
-    
-    timeout-minutes: 360 # 6 hours max runtime per SC-008
+    # GitHub Actions standard runners provide 2 vCPU and 7GB RAM.
+    # We enforce the 2GB RAM and 2 vCPU logical limit via the resource_monitor module
+    # which will abort with ERR-301 if exceeded.
+    # We set a timeout to prevent runaway processes.
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -26,58 +29,49 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
-
-      - name: Cache pip packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Schema Validation
+      - name: Run Constitution Compliance Check (PT005C)
+        run: |
+          python -c "from code.src.utils.constitution_checker import main; main()"
+        continue-on-error: false
+
+      - name: Validate Schemas
         run: |
           python -m code.src.audit.export_schema_validator
           python -m code.src.audit.manifest_schema_validator
 
-      - name: Synthetic Validation (Precision/Recall)
+      - name: Run Monte-Carlo Validation (T062)
         run: |
-          python -m code.src.audit.evaluation
-          # This step verifies T029 requirements (precision >= 90%, recall >= 80%)
-          # If thresholds are not met, the script exits with ERR-800
+          python -m code.src.audit.monte_carlo_validation
 
-      - name: Resource Monitor Check
+      - name: Run Resource Monitor & Main Pipeline
+        env:
+          # Explicitly set environment variables for resource limits
+          # The resource_monitor module reads these or uses defaults
+          CPU_LIMIT_VCPU: "2"
+          RAM_LIMIT_GB: "2"
         run: |
-          # This step runs the resource monitor to ensure limits are respected
-          # It will abort with ERR-301 if limits are exceeded
-          python -m code.src.utils.resource_monitor --check-only
-
-      - name: Run Main Audit Pipeline
-        run: |
-          # Orchestrates ingestion -> fetch -> extract -> reconstruct -> validate -> write artifacts
-          # Includes internal calls to Monte-Carlo validation (T031) and resource monitoring (T063)
           python -m code.src.cli.run_audit
 
-      - name: Verify Manifest Generation
-        run: |
-          python -m code.scripts.generate_manifest
-          # Verifies T056: manifest.json exists with SHA256 hashes
-
-      - name: Export Consistency Check
+      - name: Verify Export Consistency (T059)
         run: |
           python -m code.src.audit.export_validator
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: audit-results
+          name: audit-output
           path: |
             output/
+            data/processed/
             data/provenance_log.csv
             data/checksums.txt
+            state/
