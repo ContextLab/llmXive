@@ -304,5 +304,17 @@
         "intent": "web 12 TREC 2012 Track relevance judgments from Supplementary dataset"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-08T09:20:12.442437+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/web/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "web TREC Track 2009 2012 qrels for years General ir_datasets.load 'trec 2009' , etc."
+      }
+    ]
   }
 ]
