@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Material Graph Data Schema"
+description: "Schema for the PyTorch Geometric graph data representing a single material."
+type: "object"
+properties:
+  x:
+    type: "array"
+    description: "Node features tensor [N_nodes, 10]"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  edge_index:
+    type: "array"
+    description: "Edge index tensor [2, N_edges]"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  edge_attr:
+    type: "array"
+    description: "Edge features tensor [N_edges, 5]"
+    items:
+      type: "array"
+      items:
+        type: "number"
+  y:
+    type: "array"
+    description: "Target vector [Young's, Shear, Poisson's]"
+    items:
+      type: "number"
+    minItems: 3
+    maxItems: 3
+  material_id:
+    type: "string"
+    description: "Material ID associated with the graph"
+required:
+  - x
+  - edge_index
+  - edge_attr
+  - y
+  - material_id
+additionalProperties: false

@@ -1,0 +1,2 @@
+# Standalone Ruff configuration (redundant if using pyproject.toml, but explicit for IDEs)
+extend = "pyproject.toml"

@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Filtered Materials Dataset Schema"
+description: "Schema for the filtered_materials.csv file containing 2D materials with complete elastic tensors."
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier for the material (e.g., mp-12345)"
+  formula:
+    type: "string"
+    description: "Chemical formula (e.g., MoS2)"
+  space_group:
+    type: "integer"
+    description: "Space group number"
+  elastic_tensor:
+    type: "string"
+    description: "JSON string containing the 6-component elastic tensor in Voigt notation"
+    pattern: "^\\[.*\\]$"
+  family:
+    type: "string"
+    description: "Material family classification (e.g., TMD, MXene, Oxide)"
+  is_2d:
+    type: "boolean"
+    description: "Flag indicating if the material is designated as 2D"
+required:
+  - material_id
+  - formula
+  - space_group
+  - elastic_tensor
+  - family
+  - is_2d
+additionalProperties: false

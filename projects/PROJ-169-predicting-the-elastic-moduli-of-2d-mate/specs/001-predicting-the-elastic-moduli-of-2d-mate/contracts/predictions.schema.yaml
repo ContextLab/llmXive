@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Results Schema"
+description: "Schema for the predictions.csv file containing model outputs and errors."
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Material ID"
+  family:
+    type: "string"
+    description: "Material family"
+  true_young:
+    type: "number"
+    description: "True Young's Modulus (GPa)"
+  pred_young:
+    type: "number"
+    description: "Predicted Young's Modulus (GPa)"
+  true_shear:
+    type: "number"
+    description: "True Shear Modulus (GPa)"
+  pred_shear:
+    type: "number"
+    description: "Predicted Shear Modulus (GPa)"
+  true_poisson:
+    type: "number"
+    description: "True Poisson's Ratio"
+  pred_poisson:
+    type: "number"
+    description: "Predicted Poisson's Ratio"
+  error_young:
+    type: "number"
+    description: "Absolute Error for Young's Modulus"
+  mape_young:
+    type: "number"
+    description: "Mean Absolute Percentage Error for Young's Modulus"
+required:
+  - material_id
+  - family
+  - true_young
+  - pred_young
+  - true_shear
+  - pred_shear
+  - true_poisson
+  - pred_poisson
+  - error_young
+  - mape_young
+additionalProperties: false

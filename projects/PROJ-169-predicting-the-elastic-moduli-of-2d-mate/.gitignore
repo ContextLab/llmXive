@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Environment
+.env
+venv/
+.venv/
+
+# Data (Raw data is excluded, processed is versioned but large)
+data/raw/
+data/processed/*.parquet
+data/results/*.json
+!data/results/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

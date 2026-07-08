@@ -1,0 +1,387 @@
+resolved_at: '2026-07-08T04:10:58.630449+00:00'
+datasets:
+- intent: AFLOW
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9686
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 91694
+      parsed: true
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 75446
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kamabata/aflow_graph_ids/resolve/main/id_jsons/00/0000.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/foundry-ml/dataset_debyet_aflow/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Bridging_communication_Using_New_Zealand_Sign_Language_with_non-deaf_tamariki_in_early_childhood_education/32931167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Promoted_Trifluoromethylation_Ring-Opening_Reaction_of_Vinylcyclopropanes_by_an_EDA_Complex/32931164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Visible-Light-Promoted_Trifluoromethylation_Ring-Opening_Reaction_of_Vinylcyclopropanes_by_an_EDA_Complex/32931161
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20089143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14216795
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2563185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19679862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openkim.org/id/TD_199652920580_000
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20841352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4723
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CIFs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-mp-cifs/resolve/main/data/train-00000-of-00001-6120e01dff050de0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Jamie1701/final_cifs_ft_it_2_with_training/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 100781
+      parsed: true
+  - url: https://huggingface.co/datasets/Jamie1701/final_cifs_ft_it_2_with_training_cleaned/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 84326
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-mp-cifs/resolve/main/data/train-00000-of-00001-6120e01dff050de0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Jamie1701/final_cifs_ft_it_2_with_training/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Jamie1701/final_cifs_ft_it_2_with_training_cleaned/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Bridging_communication_Using_New_Zealand_Sign_Language_with_non-deaf_tamariki_in_early_childhood_education/32931167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Promoted_Trifluoromethylation_Ring-Opening_Reaction_of_Vinylcyclopropanes_by_an_EDA_Complex/32931164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8233585
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11033315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17251959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18220910
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15621349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154226
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CiferAI/Cifer-Fraud-Detection-Dataset-AF/resolve/main/Cifer-Fraud-Detection-Dataset-AF-part-1-14.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CiferAI/Cifer-Fraud-Detection-Dataset-AF/resolve/main/Cifer-Fraud-Detection-Dataset-AF-part-1-14.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/uoft-cs/cifar10/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/uoft-cs/cifar100/resolve/main/cifar100/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rafay/upside_down_detection_cifar100/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Bridging_communication_Using_New_Zealand_Sign_Language_with_non-deaf_tamariki_in_early_childhood_education/32931167
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5759499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2564072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4153196
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8011611
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MSDS_-_gum_damar_-_dammar_gum_-_gomme_damar_-_resina_dammar_-_dammar_resin_-_indonesian_gum_damar_-_resina_dammar_-_gum_damar_abx/32930453/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/MSDS_-_gum_damar_-_dammar_gum_-_gomme_damar_-_resina_dammar_-_dammar_resin_-_indonesian_gum_damar_-_resina_dammar_-_gum_damar_abx/32930453
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249069
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21246915
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DFT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Constraint_Collapse_and_Fidelity_Decay_in_Scaled_Language_Models/31302028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/1xBet_Download_2026_Complete_Guide_for_Fast_Secure_Installation/32931176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://torrens.figshare.com/articles/thesis/Has_Music_Fallen_Off_the_Ai_Stage_An_Investigation_of_Industry_Challenges/32931119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Robust_Carbon_Overlayer_as_Hydrogen_Spillover_Highway_and_CO-Binding_Barrier_Enhances_Reverse_Water_Gas_Shift/32931170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Measuring_Fidelity_Decay_A_Framework_for_Semantic_Drift_and_Collapse/30422107
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6417557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8401258
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3771172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7861665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GNN
+  status: unresolved
+  candidates: []
+  candidates_tried: []

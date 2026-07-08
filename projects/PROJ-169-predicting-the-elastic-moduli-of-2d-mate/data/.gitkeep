@@ -1,0 +1,2 @@
+# This file ensures the data directory exists in git.
+# Real data will be downloaded here by the pipeline.
