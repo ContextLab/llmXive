@@ -1,0 +1,395 @@
+resolved_at: '2026-07-08T09:23:54.131019+00:00'
+datasets:
+- intent: GEO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 14725
+      parsed: true
+  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/truemanv5666/GeoText1652_Dataset/5d32fdcf69ebea22005782a9f78fee27062c79e2/test_24G_version.json?%2Fdatasets%2Ftruemanv5666%2FGeoText1652_Dataset%2Fresolve%2Fmain%2Ftest_24G_version.json=&etag=%22b875bed32b0e42e03cee0b2c7eefb7986857ad9f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Supplementary_Data_for_the_Study_on_Adolescent_Sports_Preference_and_Sports_Aggression/32935115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genomes_used_in_chicken_campylobacter_jejuni_evolution_paper/31410435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_use_of_psychological_tests_for_the_selection_of_coloureds_as_mine_workers_conducted_at_Black_Mountain_Mine/32335473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Conditioner_network_checkpoints_and_experiment_results/32935031
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Freezing_temperatures_drive_functional_trait_clustering_more_than_habitat_structure_in_eelgrass_communities_in_the_Gulf_of_Maine/32935103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19467316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7603435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17214172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798419
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20797015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20797015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rg1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1139948
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/169980
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENCODE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://data.dtu.dk/articles/dataset/Supporting_dataset_for_Deep_tree_roots_at_risk_of_accelerating_groundwater_pollution_beneath_clay-rich_aquitards/31323313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Data_for_the_Study_on_Adolescent_Sports_Preference_and_Sports_Aggression/32935115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genomes_used_in_chicken_campylobacter_jejuni_evolution_paper/31410435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_use_of_psychological_tests_for_the_selection_of_coloureds_as_mine_workers_conducted_at_Black_Mountain_Mine/32335473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Conditioner_network_checkpoints_and_experiment_results/32935031
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16414829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19153349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://amsacta.unibo.it/id/eprint/7046/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3564813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258021
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/thesis/Flexibility_in_the_Positional_Processing_of_Radicals_in_Chinese_Word_Recognition/32923460
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RNA-seq
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4185
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    format: csv
+    relevance: 0.5
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Unprocessed_Data/resolve/main/Paul.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Prarabdha/Paul_RNA_Sequence_Processed_Dataset/resolve/main/Paul_Processed.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suzuki-2001/athaliana_rnaseq_splicing/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Parental_broad_autism_phenotype_traits_and_executive_function_in_families_of_children_with_autism_spectrum_disorder_docx/32935148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/Supporting_dataset_for_Deep_tree_roots_at_risk_of_accelerating_groundwater_pollution_beneath_clay-rich_aquitards/31323313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Data_for_the_Study_on_Adolescent_Sports_Preference_and_Sports_Aggression/32935115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genomes_used_in_chicken_campylobacter_jejuni_evolution_paper/31410435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_use_of_psychological_tests_for_the_selection_of_coloureds_as_mine_workers_conducted_at_Black_Mountain_Mine/32335473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18008608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.83420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.65v002b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rf10
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20390640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258021
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258021
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rg1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/102446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133141
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DESeq2
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Parental_broad_autism_phenotype_traits_and_executive_function_in_families_of_children_with_autism_spectrum_disorder_docx/32935148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/Supporting_dataset_for_Deep_tree_roots_at_risk_of_accelerating_groundwater_pollution_beneath_clay-rich_aquitards/31323313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Data_for_the_Study_on_Adolescent_Sports_Preference_and_Sports_Aggression/32935115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genomes_used_in_chicken_campylobacter_jejuni_evolution_paper/31410435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_use_of_psychological_tests_for_the_selection_of_coloureds_as_mine_workers_conducted_at_Black_Mountain_Mine/32335473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10278225
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17457811
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20844823
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13799873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16374436
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.962217
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20269433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20269433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OmicsDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Parental_broad_autism_phenotype_traits_and_executive_function_in_families_of_children_with_autism_spectrum_disorder_docx/32935148
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/Supporting_dataset_for_Deep_tree_roots_at_risk_of_accelerating_groundwater_pollution_beneath_clay-rich_aquitards/31323313
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_Data_for_the_Study_on_Adolescent_Sports_Preference_and_Sports_Aggression/32935115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Genomes_used_in_chicken_campylobacter_jejuni_evolution_paper/31410435
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_use_of_psychological_tests_for_the_selection_of_coloureds_as_mine_workers_conducted_at_Black_Mountain_Mine/32335473
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

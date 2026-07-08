@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GeneVarianceProfile Schema
+description: Schema for the unified variance matrix containing epigenetic and expression variance for each gene.
+type: object
+properties:
+  gene_id:
+    type: string
+    description: "Unique gene identifier (e.g., ENSMUSG...)"
+  epigenetic_variance:
+    type: number
+    description: "Coefficient of Variation (CV) of methylation, normalized for CpG density, calculated on odd generations."
+  expression_variance:
+    type: number
+    description: "Variance of normalized RNA-seq counts, calculated on even generations."
+  organism:
+    type: string
+    enum:
+      - "mouse"
+      - "C. elegans"
+      - "Drosophila"
+    description: "Model organism source."
+  condition:
+    type: string
+    enum:
+      - "fluctuating"
+      - "constant"
+      - "unknown"
+    description: "Environmental condition metadata."
+  stressor_type:
+    type: string
+    description: "Specific stressor type (e.g., temperature, nutrient) if available."
+  generation_count:
+    type: integer
+    minimum: 1
+    description: "Number of generations in the dataset."
+  disjoint_samples:
+    type: boolean
+    const: true
+    description: "Always true. Variance calculated on disjoint generation sets (LOGO jackknife)."
+  uncertainty_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval for the variance estimate."
+  is_valid:
+    type: boolean
+    description: "True if both variances are > 0 and data is present."
+required:
+  - gene_id
+  - epigenetic_variance
+  - expression_variance
+  - organism
+  - condition
+  - generation_count
+  - disjoint_samples
+  - is_valid
+additionalProperties: false
