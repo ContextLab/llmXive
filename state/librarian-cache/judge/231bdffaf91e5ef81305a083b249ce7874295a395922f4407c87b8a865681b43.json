@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.1799",
+  "judged_at": "2026-07-08T13:46:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper focuses on Bayesian nonparametric methods for survey sampling and weighted inference in finite populations, which is a distinct statistical domain from anomaly detection in time series. While it shares the \"Bayesian Nonparametrics\" keyword, it does not address the specific mechanism (anomaly detection), the data structure (time series), or the application goal of the user's question, falling under the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

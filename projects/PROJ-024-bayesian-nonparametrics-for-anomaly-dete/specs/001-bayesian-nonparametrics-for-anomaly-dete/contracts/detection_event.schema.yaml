@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DetectionEvent
+description: Schema for anomaly detection events recorded in data/processed/detection_events.json
+type: object
+properties:
+  method:
+    type: string
+    description: "Name of the model used (e.g., 'DPGMM', 'GMM_3', 'ARIMA')"
+    pattern: "^(DPGMM|GMM_[0-9]+|ARIMA)$"
+  injection_time:
+    type: integer
+    description: "Ground truth timestamp of anomaly injection"
+    minimum: 0
+  detection_time:
+    type: integer
+    description: "Timestamp of first threshold crossing"
+    minimum: 0
+  time_to_detection:
+    type: integer
+    description: "Steps from injection to detection"
+    minimum: 0
+  score:
+    type: number
+    description: "Anomaly score at the moment of detection"
+    minimum: 0.0
+required:
+  - method
+  - injection_time
+  - detection_time
+  - time_to_detection
+  - score
+additionalProperties: false

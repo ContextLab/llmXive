@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1608.02740",
+  "judged_at": "2026-07-08T13:46:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it applies Bayesian Nonparametrics (specifically a BNP-Lasso prior) to time series data (VAR models), establishing a foundational methodological reference for the user's domain even though its primary focus is on causal network extraction rather than anomaly detection.",
+  "relevant": true
+}

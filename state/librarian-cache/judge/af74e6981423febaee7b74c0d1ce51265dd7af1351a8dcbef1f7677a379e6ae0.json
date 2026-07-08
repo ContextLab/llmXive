@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1304.3676",
+  "judged_at": "2026-07-08T13:46:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "This paper qualifies under category (d) as a foundational methodological critique and category (a) as it addresses the core mechanism of Bayesian Nonparametrics, which is the primary subject of the user's query. Although it does not specifically focus on \"anomaly detection in time series,\" it provides the essential theoretical context and cautionary framework regarding the uncertainty quantification and hyperparameter sensitivity of Bayesian Nonparametric methods that any literature review on th",
+  "relevant": true
+}

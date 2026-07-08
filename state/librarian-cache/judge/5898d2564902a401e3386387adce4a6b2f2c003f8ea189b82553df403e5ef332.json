@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.19086",
+  "judged_at": "2026-07-08T13:46:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "The paper focuses on probabilistic forecasting of intermittent time series using Gaussian Processes and Tweedie likelihoods, which does not address the specific mechanism of \"anomaly detection\" nor the \"Bayesian Nonparametrics\" framework (as GPs with fixed likelihoods are often parametric or semi-parametric in this context, and the goal is forecasting, not outlier identification). It fails to satisfy criteria (a) or (b) because it measures forecast accuracy rather than anomaly detection performa",
+  "relevant": false
+}

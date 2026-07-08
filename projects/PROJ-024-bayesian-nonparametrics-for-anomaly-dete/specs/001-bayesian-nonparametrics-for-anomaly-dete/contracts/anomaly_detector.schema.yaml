@@ -3,11 +3,22 @@ title: "AnomalyDetector"
 type: object
 required:
   - model_type
-  - convergence_threshold
+  - max_components
+  - advi_iters
 properties:
   model_type:
     type: string
-  n_components:
+    description: "Type of model (e.g., 'DPGMM')"
+  max_components:
     type: integer
+    description: "Maximum number of components for truncated DP-GMM"
+    minimum: 1
+  advi_iters:
+    type: integer
+    description: "Maximum iterations for ADVI inference"
+    minimum: 100
   convergence_threshold:
     type: number
+    description: "ELBO delta threshold for convergence"
+    minimum: 0.0
+    maximum: 1.0

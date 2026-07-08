@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.14295",
+  "judged_at": "2026-07-08T13:46:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "bayesian nonparametrics for anomaly detection in time series computational statistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides a foundational nonparametric methodology (energy distance) for analyzing time series distributions, which is a canonical approach for detecting structural anomalies or deviations in multivariate time series without assuming a specific parametric model. While it focuses on clustering rather than explicit anomaly detection, it establishes the empirical baseline and mechanism for measuring distributional separation in time series, a core comp",
+  "relevant": true
+}

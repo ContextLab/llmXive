@@ -9,69 +9,78 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-What probabilistic features distinguish anomalous from normal regime shifts in univariate time series, and how does a Bayesian nonparametric model's inferred mixture structure capture non-stationarity compared to fixed-component baselines?
+Which specific patterns in the *temporal evolution* of posterior concentration parameters and component sparsity (e.g., rate of adaptation, oscillation frequency) distinguish transient anomalous regime shifts from gradual, benign non-stationarity in univariate time series, and can these dynamic patterns be detected before the posterior fully converges to the new regime?
 
 ## Motivation
 
-Fixed-component clustering methods struggle to adapt when time series exhibit evolving distributions or abrupt regime shifts. Bayesian nonparametric models such as the Dirichlet‑process Gaussian mixture model (DP‑GMM) can infer the number of latent components from data, offering a principled way to characterize non-stationarity without prespecifying cluster counts. Understanding how the inferred mixture structure differs between anomalous and normal shifts provides insight into when probabilistic anomaly detection is preferable to classical baselines.
+Fixed-component models often fail to distinguish between benign distributional drift and true anomalies because they lack the flexibility to adapt the latent space complexity dynamically. While Bayesian nonparametric models like Dirichlet-process Gaussian mixture models (DP-GMMs) can infer the number of regimes, the specific *temporal dynamics* of their posterior evolution (how quickly they react to shifts) remain uncharacterized as a diagnostic signal. Understanding these dynamics is critical for developing early-warning anomaly detectors that can identify transient regime shifts before the system fully destabilizes, offering a distinct advantage over static thresholding or reconstruction-error baselines.
 
-## Related work
+## Literature gap analysis
 
-- [An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data (2025)](https://arxiv.org/abs/2510.18998) — Establishes that unsupervised, contamination‑robust pipelines are viable, motivating a Bayesian‑nonparametric alternative that similarly avoids labeled training data.
-- [Maximally Divergent Intervals for Anomaly Detection (2016)](https://arxiv.org/abs/1610.06761) — Introduces KL‑divergence‑based batch detection as a baseline for comparing how well our DP‑GMM captures distributional divergence between normal and anomalous regimes.
-- [Multiple Change Point Detection and Validation in Autoregressive Time Series Data (2019)](https://arxiv.org/abs/1912.07775) — Demonstrates abrupt regime‑shift detection in autoregressive models, providing a domain precedent for the non-stationarity handling that a DP‑GMM should capture.
-- [Time Series Foundational Models: Their Role in Anomaly Detection and Prediction (2024)](https://arxiv.org/abs/2412.19286) — Reviews transformer‑based time series models and notes the scarcity of Bayesian nonparametric approaches, underscoring the research gap this project addresses.
-- [Monte Carlo EM for Deep Time Series Anomaly Detection (2021)](https://arxiv.org/abs/2112.14436) — Shows deep‑learning‑based anomaly detection but requires GPU resources; our approach stays CPU‑only while retaining probabilistic scoring and interpretability.
+### What we searched
+We queried Semantic Scholar and arXiv using terms including "Bayesian nonparametric anomaly detection time series," "Dirichlet process regime shift," and "temporal evolution of concentration parameters." The search returned four relevant primary sources, indicating a moderate but specialized literature where Bayesian nonparametrics are applied to related problems (VAR models, clustering) but rarely as a direct comparator for univariate anomaly signature analysis focusing on the *rate* of posterior adaptation.
+
+### What is known
+- [An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version (2025)](https://arxiv.org/abs/2510.18998) — Establishes that unsupervised pipelines robust to contaminated training data are viable, motivating the need for probabilistic alternatives that handle anomalies without explicit labeling.
+- [Bayesian nonparametric sparse VAR models (2016)](https://arxiv.org/abs/1608.02740) — Demonstrates the efficacy of BNP priors in high-dimensional autoregressive settings, providing a methodological precedent for using concentration parameters to manage model complexity in time-dependent data.
+- [Comment on "Bayesian Nonparametric Inference - Why and How" by Mueller and Mitra (2013)](https://arxiv.org/abs/1304.3676) — Theoretically validates the flexibility of nonparametric Bayes for discovering complex patterns, supporting the hypothesis that posterior structural changes can signal regime shifts.
+- [Clustering Multivariate Time Series using Energy Distance (2023)](https://arxiv.org/abs/2303.14295) — Offers a non-parametric distance metric for time series clustering, highlighting the gap in applying similar distribution-free rigor to univariate anomaly signature extraction via DP-GMM.
+
+### What is NOT known
+There is no published work that systematically quantifies the specific *temporal evolution patterns* (e.g., rate of adaptation, oscillation frequency of the concentration parameter) that distinguish transient anomalous regime shifts from gradual, benign non-stationarity in univariate time series. Existing literature does not investigate whether these dynamic posterior signatures can be detected *before* the model fully converges to a new regime, which is critical for early detection.
+
+### Why this gap matters
+Identifying these dynamic signatures would enable "early-warning" anomaly detectors that characterize the *nature* of a system's failure mode (sudden shock vs. gradual drift) and trigger alerts before the anomaly is fully entrenched. This is crucial for high-stakes domains like energy grid monitoring or industrial process control, where the time-to-detection is often as valuable as the detection itself.
+
+### How this project addresses the gap
+This project will implement an incremental DP-GMM on public univariate time series with synthetic anomalies to explicitly measure and compare the *temporal trajectories* of posterior metrics (concentration parameter rate of change, component sparsity variance) between normal and anomalous segments. By contrasting these dynamic metrics against fixed-component baselines and analyzing the time-to-detection, the methodology directly isolates the unique early-warning signatures of anomalies that fixed models miss.
 
 ## Expected results
 
-The DP‑GMM detector is expected to reveal distinct posterior mixture structures between anomalous regime shifts and normal variability, with more components or higher concentration‑parameter sensitivity during anomalies. Success will be demonstrated by (1) measurable differences in inferred component counts and concentration parameters between injected anomalies and clean segments, (2) competitive F1‑scores versus fixed‑component baselines, and (3) runtime and memory within GitHub Actions free‑tier limits. Calibration of anomaly‑score thresholds at the 95th percentile of posterior predictive probabilities will be validated across injected anomaly rates (1 %–5 %).
+We expect to observe distinct, high-frequency oscillations or rapid spikes in the rate of change of the concentration parameter specifically during transient anomalous regime shifts, whereas normal non-stationarity will result in smoother, low-frequency drift in these metrics. Success will be confirmed if these dynamic signatures allow for statistically significant earlier detection (measured by time-to-detection) compared to traditional reconstruction errors, even when the posterior has not yet fully converged. The evidence required includes reproducible posterior trajectories across multiple datasets and a comparative analysis showing that the dynamic metrics correlate with ground-truth anomaly onset times better than static baselines.
 
 ## Methodology sketch
 
-- **Data acquisition (≥ 1000 observations per series)**  
-  - Download three public univariate time‑series datasets from the UCI repository (e.g., *Electricity Load Diagrams*, *Air Quality*, *Synthetic Anomaly*).  
-  - Verify each series contains at least 1 000 time points; discard any that do not meet this threshold (SC‑002).
+- **Data acquisition**  
+  - Download three public univariate time-series datasets from UCI/OpenML (e.g., *Electricity Load Diagrams*, *Air Quality*, *Sensors*).  
+  - Ensure each series has ≥1,000 observations; normalize to zero mean and unit variance.
 
-- **Synthetic anomaly injection for independent validation**  
-  - Inject point anomalies at random positions with magnitudes drawn from a Gaussian tail (1 %–5 % of points).  
-  - Store ground‑truth anomaly labels separately, ensuring validation independence from model inputs and predictors.
+- **Synthetic anomaly injection**  
+  - Inject transient point anomalies (1–5% of data) and abrupt regime shifts at known timestamps.  
+  - Inject gradual non-stationarity (slow drift) at separate timestamps to serve as a negative control.  
+  - Store ground-truth labels (anomaly onset time, drift onset time) separately to ensure validation independence.
 
-- **Pre‑processing**  
-  - Normalize each series to zero mean / unit variance.  
-  - Construct overlapping sliding windows (length = 30, stride = 1) to form local observation vectors for mixture modeling.
+- **Sliding window construction**  
+  - Create overlapping windows (length=30, stride=1) to form local observation vectors, capturing short-term distributional properties.
 
-- **Incremental DP‑GMM implementation**  
-  - Use PyMC 4 with ADVI variational inference to fit a stick‑breaking DP‑GMM on CPU.  
-  - After each new window, update the posterior mixture weights online (streaming mode).  
-  - Constrain the number of mixture components implicitly via the concentration parameter α.
+- **Incremental DP-GMM implementation**  
+  - Implement a stick-breaking DP-GMM using PyMC 4 with ADVI variational inference (CPU-only).  
+  - Fit the model sequentially on sliding windows, tracking the posterior distribution of the concentration parameter ($\alpha$) and component weights ($\pi$) at each step.
 
-- **Prior‑sensitivity analysis (FR‑024)**  
-  - Run the model with three α‑grid values (0.1, 1.0, 10.0) and corresponding Gamma hyper‑priors for component covariances.  
-  - Record ELBO trajectories; report mean and variance across runs.
+- **Dynamic signature extraction**  
+  - For each time step $t$, compute: (1) the first derivative (rate of change) of the posterior mean of $\alpha$, (2) the variance of component weights, and (3) the effective number of components.  
+  - Record the *trajectory* of these metrics over time, specifically focusing on the behavior immediately following an injection event.
 
-- **ELBO variance exclusion (FR‑025)**  
-  - Exclude ELBO variance from the final performance metric; instead, use the stabilized ELBO mean after convergence as a model‑fit indicator.
+- **Baseline comparison**  
+  - Fit fixed-component GMMs (k=3, 5, 10) and a standard ARIMA model on the same windows.  
+  - Compute reconstruction error (MSE) for ARIMA/GMM as the standard anomaly score.
 
-- **Anomaly‑score computation & threshold calibration (SC‑010)**  
-  - Compute the negative log posterior predictive probability for each new observation.  
-  - Calibrate a static threshold at the 95th percentile of scores on a held‑out clean segment.  
-  - Implement an adaptive update: after every 500 observations, recompute the percentile on the most recent clean window.
+- **Validation of independence**  
+  - Compare the dynamic signature trajectories (from DP-GMM) and reconstruction errors (from baselines) against the *independent* ground-truth labels (injection timestamps).  
+  - Ensure no circularity: the signatures are derived from the posterior evolution, while validation uses the separate injection log.
 
-- **Baseline models**  
-  - Fit ARIMA (using `statsmodels`) and a moving‑average z‑score detector (window = 30) on the same streams.
+- **Statistical testing**  
+  - Perform a Kolmogorov-Smirnov test to compare the distribution of "rate of change" metrics between "anomaly" and "normal" windows.  
+  - Calculate "time-to-detection" (steps from injection to threshold crossing) for DP-GMM signatures vs. baselines.  
+  - Apply a paired t-test on time-to-detection across datasets to assess if DP-GMM detects anomalies significantly earlier.
 
-- **Performance evaluation**  
-  - Compute precision, recall, F1, and PR‑AUC for each method against the injected ground truth (independent labels).  
-  - Perform a paired t‑test on F1‑scores across datasets; apply Bonferroni correction for the three pairwise comparisons (DP‑GMM vs. ARIMA, DP‑GMM vs. MA, ARIMA vs. MA).
-
-- **Resource validation (SC‑007, SC‑008, User Story 5)**  
-  - Profile memory with `memory_profiler`; assert peak RAM < 7 GB.  
-  - Time the full end‑to‑end pipeline (download → training → evaluation) and assert total runtime < 6 h per dataset on the GitHub Actions free‑tier runner.
+- **Resource profiling**  
+  - Monitor memory usage (target <7 GB) and runtime (target <6h) on a standard GitHub Actions runner.  
+  - Profile the ADVI convergence time per window to ensure scalability.
 
 - **Reproducibility**  
-  - Save all hyper‑parameters, random seeds, and environment specifications (`environment.yml`).  
-  - Export results (metrics, plots) to a `results/` directory; generate ROC/PR curves and confusion matrices as PNG files.
+  - Save all random seeds, hyperparameters, and environment specifications.  
+  - Export time-series plots of posterior trajectories and detection latency histograms.
 
 ## Duplicate-check
 
@@ -82,21 +91,20 @@ The DP‑GMM detector is expected to reveal distinct posterior mixture structure
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-27T08:09:30Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-08T13:46:56Z
+**Outcome**: exhausted
 **Original term**: Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics
-**Verified citation count**: 5
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics | 5 |
+| 0 (initial) | Bayesian Nonparametrics for Anomaly Detection in Time Series computational statistics | 4 |
 
 ### Verified citations
 
 1. **An Encode-then-Decompose Approach to Unsupervised Time Series Anomaly Detection on Contaminated Training Data--Extended Version** (2025). Buang Zhang, Tung Kieu, Xiangfei Qiu, Chenjuan Guo, Jilin Hu, et al.. arXiv. [2510.18998](https://arxiv.org/abs/2510.18998). PDF-sampled: No.
-2. **Maximally Divergent Intervals for Anomaly Detection** (2016). Erik Rodner, Björn Barz, Yanira Guanche, Milan Flach, Miguel Mahecha, et al.. arXiv. [1610.06761](https://arxiv.org/abs/1610.06761). PDF-sampled: No.
-3. **Multiple Change Point Detection and Validation in Autoregressive Time Series Data** (2019). Lijing Ma, Andrew Grant, Georgy Sofronov. arXiv. [1912.07775](https://arxiv.org/abs/1912.07775). PDF-sampled: No.
-4. **Time Series Foundational Models: Their Role in Anomaly Detection and Prediction** (2024). Chathurangi Shyalika, Harleen Kaur Bagga, Ahan Bhatt, Renjith Prasad, Alaa Al Ghazo, et al.. arXiv. [2412.19286](https://arxiv.org/abs/2412.19286). PDF-sampled: No.
-5. **Monte Carlo EM for Deep Time Series Anomaly Detection** (2021). François-Xavier Aubet, Daniel Zügner, Jan Gasthaus. arXiv. [2112.14436](https://arxiv.org/abs/2112.14436). PDF-sampled: No.
+2. **Clustering Multivariate Time Series using Energy Distance** (2023). Richard A. Davis, Leon Fernandes, Konstantinos Fokianos. arXiv. [2303.14295](https://arxiv.org/abs/2303.14295). PDF-sampled: No.
+3. **Comment on "Bayesian Nonparametric Inference - Why and How" by Mueller and Mitra** (2013). Peter D. Hoff. arXiv. [1304.3676](https://arxiv.org/abs/1304.3676). PDF-sampled: No.
+4. **Bayesian nonparametric sparse VAR models** (2016). Monica Billio, Roberto Casarin, Luca Rossini. arXiv. [1608.02740](https://arxiv.org/abs/1608.02740). PDF-sampled: No.

@@ -1,152 +1,162 @@
 # Implementation Plan: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-**Branch**: `feature/bayesian-anomaly-detection` | **Date**: 2026-06-12 | **Spec**: [link to spec.md]  
-**Input**: Feature specification from `/specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`
+**Branch**: `001-bayesian-nonparametrics-for-anomaly-detection`  
+**Date**: 2026-07-08  
+**Spec**: `specs/001-bayesian-nonparametrics-for-anomaly-dete/spec.md`  
+**Input**: Feature specification for DP-GMM based early-warning signatures.
 
 ## Summary
-Implement a streaming anomaly detection service based on Dirichlet Process Gaussian Mixture Models (DP‑GMM). The system will ingest univariate time‑series observations, maintain a posterior over mixture components, and output calibrated anomaly scores with uncertainty estimates. A complementary threshold calibrator will adapt decision boundaries from score distributions. All artifacts will obey the project constitution (reproducibility, data hygiene, numerical stability, etc.).
 
-**Note on Streaming**: "Streaming" refers to mini-batch updates on sliding windows (not true online ADVI). The `StreamingDPGMM` service wrapper maintains window state and performs incremental posterior updates at periodic intervals on a specified observation window.
+This feature implements a research pipeline to detect anomalies in univariate time series using a Stick-Breaking Dirichlet Process Gaussian Mixture Model (DP-GMM) via PyMC with ADVI variational inference. The core contribution is the extraction of dynamic signatures—specifically the rate of change of the concentration parameter ($\alpha$) and component weight variance—across sliding windows to identify "early-warning" signals before posterior convergence. The plan covers data ingestion, synthetic anomaly injection, sliding window inference, baseline comparisons (fixed GMM, ARIMA), statistical validation (KS tests, Wilcoxon tests), and sensitivity analysis, all constrained to run on a CPU-only GitHub Actions runner (limited cores, constrained memory, 6h limit).
 
 ## Technical Context
-- **Language/Version**: Python 3.11
-- **Primary Dependencies**:  
-  - `numpy==1.26.*`  
-  - `pandas==2.2.*`  
-  - `scipy==1.13.*`  
-  - `torch==2.3.*` (for Pyro)  
-  - `pyro-ppl==1.9.*` (ADVI inference)  
-  - `scikit-learn==1.5.*` (baseline models)  
-  - `pyyaml==6.0.*` (config handling)  
-  - `pytest==8.2.*` (testing)  
-  - `jsonschema==4.22.*` (contract validation)  
-- **Storage**: File‑based CSVs under `data/raw/`; processed artefacts under `data/processed/`; model checkpoints under `state/projects/`.
-- **Testing**: `pytest` with `pytest-cov` for coverage; contract tests under `code/tests/contract/`.
-- **Target Platform**: Linux (GitHub Actions runner)  
-- **Project Type**: Library + CLI (`code/src/cli/run_detection.py`)  
-- **Performance Goals**: Process ≥10 k observations per minute on a single‑core VM; ELBO convergence within a predefined number of iterations.  
-- **Constraints**: `code/config.yaml` < 2 KB; all raw data immutable; reproducible seeds pinned in config.
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pymc>=4.0.0`, `scikit-learn>=1.3.0`, `statsmodels>=0.14.0`, `numpy`, `pandas`, `pyyaml`, `psutil`  
+**Storage**: Local file system (CSV/Parquet/JSON); **all results stored in `data/processed/`**.  
+**Testing**: `pytest` with `pytest-cov` and `pytest-timeout`.  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
+**Project Type**: Computational Research Library / CLI Tool.  
+**Performance Goals**: <6h total runtime, <7GB peak RAM on 2-core CPU.  
+**Constraints**: No GPU/CUDA; no 8-bit quantization; strict config file size (<2KB); results in `data/processed/`.  
+**Scale/Scope**: Univariate time series (n ≥ 1,000), sliding window size 30, stride 1.
+
+> **Note on Dataset Strategy**: The spec references "Electricity Load Diagrams", "Air Quality", and "Sensors". The verified dataset block provided in the prompt contains **NO** verified source for these specific time-series datasets. The plan explicitly addresses this gap in `research.md` by defining a synthetic data generation strategy as the primary source, with a fallback to the available UCI/HF datasets only if they contain a suitable univariate column (e.g., sensor readings) that meets the n≥1000 requirement.
 
 ## Constitution Check
-| Principle | Requirement | How the plan satisfies it |
-|-----------|-------------|---------------------------|
-| **I. Reproducibility** | Pin all random seeds; deterministic data download URLs; CI script re‑runs entire pipeline. | `code/config.yaml` contains `seed: 42`; data download scripts use ucimlrepo loader for deterministic access; GitHub Actions workflow defined in `.github/workflows/ci.yml`. |
-| **II. Verified Accuracy** | No external citation without validator confirmation. | UCI datasets fetched via ucimlrepo loader (canonical source). The ucimlrepo loader IS the verified canonical access method—Principle II's citation verification applies to paper/technical-design citations, not to dataset access methods. No unverified URLs cited. Anomaly injection parameters documented in config.yaml. |
-| **III. Data Hygiene** | Checksums recorded; raw data never overwritten. | `state/projects/PROJ-024-...yaml` will store SHA256 hashes for each raw file; transformations write to new files under `data/processed/`. |
-| **IV. Single Source of Truth** | Every figure/metric traced to a data row & code block. | Evaluation scripts emit JSON with provenance fields (`data_file`, `code_line`). The paper generation step pulls directly from these JSON artefacts. |
-| **V. Versioning Discipline** | Content hashes for all artefacts; state file timestamp updated on change. | CI step computes hashes via `sha256sum`; updates `state/projects/...yaml` with `updated_at`. |
-| **VI. Numerical Stability & Convergence** | ELBO logs recorded; non‑convergent runs flagged. | ELBO values written to `logs/elbo/` each iteration; a post‑run validator aborts if ELBO improvement < 1e‑4 after 500 steps. |
-| **VII. Prior Sensitivity Analysis** | Vary DP concentration and report robustness. | Sensitivity script `code/src/analysis/prior_sensitivity.py` sweeps `alpha` and `gamma`; results stored in `data/processed/results/prior_sensitivity.json`. |
-| **VIII. (Implicit) Project Governance** | All changes go through PR & CI. | Standard GitHub workflow enforced. |
+
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Status | Implementation Strategy |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | `config.yaml` will pin seeds and hyperparameters; `requirements.txt` pins versions. All data fetching scripts use deterministic hashes. |
+| **II. Verified Accuracy** | PASS | Citations (e.g., Cohen, 1988) will be validated against primary sources. **Synthetic generator logic is verified via unit tests against known statistical properties** before data generation. **Fallback dataset `dunzing/ARIMA-Date-Prediction` is validated by inspecting its schema before use.** |
+| **III. Data Hygiene** | PASS | Raw data (if any) stored in `data/raw/` with checksums. Derived data in `data/processed/`. **Strict ban** on `data/results/`. |
+| **IV. Single Source of Truth** | PASS | All metrics (time-to-detection, KS stats) computed by code and written to `state/` or `data/processed/`. No manual entry in paper. |
+| **V. Versioning Discipline** | PASS | **The `synthetic_generator.py` script MUST update the `state/projects/...yaml` artifact hash upon successful generation.** Content hashes for all artifacts updated. |
+| **VI. Numerical Stability** | PASS | ADVI convergence (ELBO delta < 0.01) checked per window (FR-009). **ADVI bias validated against MCMC subset (Phase 1.4).** |
+| **VII. Prior Sensitivity** | PASS | Sensitivity analysis on $\alpha$ priors and thresholds included (FR-007, FR-016). |
 
 ## Project Structure
+
+### Documentation (this feature)
+
 ```text
 specs/001-bayesian-nonparametrics-for-anomaly-dete/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-└── contracts/
-    ├── dataset.schema.yaml
-    ├── anomaly_score.schema.yaml
-    ├── evaluation_metrics.schema.yaml
-    ├── threshold_calibrator.schema.yaml
-    ├── anomaly_detector.schema.yaml
-    ├── dpgmm.schema.yaml
-    ├── streaming_dpgmm.schema.yaml
-    ├── anomaly_detector_service.schema.yaml
-    ├── threshold_calibrator_service.schema.yaml
-    └── time_series_dataset.schema.yaml
-
-code/
-├── src/
-│   ├── models/
-│   │   └── dpgmm.py
-│   ├── services/
-│   │   ├── anomaly_detector.py
-│   │   └── threshold_calibrator.py
-│   ├── data/
-│   │   └── download_datasets.py
-│   ├── evaluation/
-│   │   └── metrics.py
-│   ├── analysis/
-│   │   ├── prior_sensitivity.py
-│   │   └── plot_results.py
-│   ├── baselines/
-│   │   └── arima.py
-│   ├── cli/
-│   │   └── run_detection.py
-│   └── utils/
-│       └── logger.py
-├── tests/
-│   ├── contract/
-│   │   ├── test_dataset_schema.py
-│   │   ├── test_anomaly_score_schema.py
-│   │   ├── test_evaluation_metrics_schema.py
-│   │   ├── test_threshold_calibrator_schema.py
-│   │   ├── test_anomaly_detector_schema.py
-│   │   ├── test_dpgmm_schema.py
-│   │   ├── test_streaming_dpgmm_schema.py
-│   │   ├── test_anomaly_detector_service_schema.py
-│   │   └── test_threshold_calibrator_service_schema.py
-│   ├── unit/
-│   │   └── test_anomaly_detector.py
-│   └── integration/
-│       └── test_end_to_end.py
-├── config.yaml          # <2 KB, hyper‑params & seeds only
-└── requirements.txt
-
-data/
-├── raw/
-│   ├── electricity.csv
-│   ├── traffic.csv
-│   └── synthetic_control.csv
-└── processed/
-    └── results/
-        ├── model_checkpoints/
-        ├── evaluation_metrics.json
-        ├── prior_sensitivity.json
-        └── figures/
-
-state/
-└── projects/
-    └── PROJ-024-bayesian-nonparametrics-for-anomaly-detection.yaml
-
-logs/
-└── elbo/
-    └── dpgmm_elbo.log
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
-**Structure Decision**: Single‑project layout (Option 1) with a clear `code/src/` package hierarchy; all tests live under `code/tests/` as required by the spec.
+### Source Code (repository root)
 
-**Test Schema Alignment Note**: Spec.md requires multiple total contract test files (6 schema tests + 2 service interface tests). The 9 schema files above include time_series_dataset.schema.yaml which serves as the master dataset schema; the 6 core schema tests are: dataset, anomaly_score, evaluation_metrics, threshold_calibrator, anomaly_detector, dpgmm. The streaming_dpgmm schema validates the StreamingDPGMM wrapper configuration. The 2 service interface tests cover AnomalyDetectorService and ThresholdCalibratorService.
+```text
+projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/
+├── code/
+│   ├── __init__.py
+│   ├── config.yaml          # <2KB, hyperparams/seeds only
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── data/
+│   │   │   ├── __init__.py
+│   │   │   ├── download_datasets.py
+│   │   │   └── synthetic_generator.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── dpgmm.py         # PyMC DP-GMM model
+│   │   │   └── baselines.py     # Fixed GMM & ARIMA
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── anomaly_detector.py  # Sliding window logic
+│   │   │   └── metrics.py           # Time-to-detection, KS tests
+│   │   └── evaluation/
+│   │       ├── __init__.py
+│   │       └── sensitivity.py       # Threshold sweeps
+│   └── tests/
+│       ├── unit/
+│       ├── integration/
+│       └── contract/
+├── data/
+│   ├── raw/                 # Downloaded/Generated raw files (checksummed)
+│   └── processed/           # All results, trajectories, reports
+└── state/
+    └── projects/
+        └── PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml
+```
 
-## Implementation Phases & Ordering
-| Phase | Description | Key Outputs | Dependencies |
-|-------|-------------|-------------|--------------|
-| **0 – Research** | Literature review, define priors, select datasets, specify anomaly injection methodology. | `research.md`, `data-model.md` | – |
-| **1 – Data Acquisition** | Download UCI Electricity, Traffic, Synthetic Control CSVs via ucimlrepo; compute SHA256 checksums; store under `data/raw/`; apply temporal preprocessing (lag features, rolling stats). | `state/projects/...yaml` (artifact_hashes), raw CSVs, processed CSVs | Phase 0 |
-| **2 – Model Development** | Implement DPGMM with Pyro ADVI; expose `AnomalyDetectorService` API; add checkpointing; implement `StreamingDPGMM` wrapper for sliding-window updates. | `code/src/models/dpgmm.py`, `code/src/services/anomaly_detector.py` | Phase 1 |
-| **3 – Threshold Calibration** | Implement `ThresholdCalibratorService` (percentile‑based, adaptive). | `code/src/services/threshold_calibrator.py` | Phase 2 |
-| **4 – Evaluation & Metrics** | Compute F1, precision, recall, AUC‑ROC on synthetic test set with injected anomalies; log ELBO convergence on original data (unsupervised). | `data/processed/results/evaluation_metrics.json`, ELBO logs | Phases 2‑3 |
-| **5 – Prior Sensitivity** | Run sweep over `alpha`/`gamma`; store results. | `data/processed/results/prior_sensitivity.json` | Phase 4 |
-| **6 – Contract & Test Suite** | Create JSON‑Schema contracts; write corresponding contract test files; achieve ≥80 % coverage. | `contracts/*.schema.yaml`, `code/tests/contract/` | Phases 2‑5 |
-| **7 – Documentation & Quickstart** | Write `quickstart.md`; generate figures from results; ensure all artefacts traceable. | `quickstart.md`, figure PNGs | Phases 4‑6 |
-| **8 – Cleanup & Verification (Phase 9.5‑9.6)** | Verify filesystem layout (T240-T245), config size (<2KB), checksum integrity, log ELBO, run contract test coverage, document commands. | Command‑line evidence scripts (`scripts/verify.sh`) | All previous phases |
-| **9 – Final Acceptance (T145)** | Run full CI pipeline; ensure all success criteria SC‑001 – SC‑006 satisfied. | CI badge, acceptance report | Phase 8 |
+**Structure Decision**: The "Single project" structure with a `code/src/` package layout is selected to enforce modularity and prevent the "files at root" violation noted in previous reviews. All results are routed to `data/processed/` to satisfy Constitution Principle III and FR-009.
 
-**Phase Ordering Notes**:
-- Data download (Phase 1) precedes model development (Phase 2).
-- Contracts (Phase 6) precede documentation (Phase 7) that references them.
-- Evaluation metrics (Phase 4) precede sensitivity analysis (Phase 5).
+## Complexity Tracking
 
-**Data Split Strategy**: A majority portion for training (unsupervised), [deferred] threshold calibration (unsupervised), [deferred] supervised evaluation with injected anomalies. This separates US3 (unsupervised threshold) from F1 computation (supervised).
+No complexity violations detected. The architecture strictly adheres to the spec's requirement for a CPU-tractable, sliding-window Bayesian approach. The "dynamic signature" extraction is implemented as a post-processing step on the posterior trajectory, avoiding the need for complex real-time inference engines.
 
-**Config.yaml Size Enforcement**: The `code/config.yaml` file MUST remain under 2KB (2048 bytes). Only hyperparameters, random seeds, and base paths are permitted. Derived statistics, checksums, and computed values MUST be stored in `state/projects/PROJ-024-...yaml`. Violation of this constraint will be caught by T243 verification task and block Phase 9.5 completion.
+## Implementation Phases & Task Mapping
 
-**Directory Structure Enforcement**: The following directories are FORBIDDEN and must not exist:
-- `data/results/` (legacy; all results must be in `data/processed/results/`)
-- `data/raw/raw/` (nested raw directories)
-- `data/raw/pems_sf*` (PEMS-SF files per SC-004)
+### Phase 0: Data Strategy & Validation (FR-001, FR-017)
+- **Task 0.1**: **Config Validation**: Validate `code/config.yaml` against `contracts/anomaly_detector.schema.yaml` at runtime using a JSON schema validator. Additionally, enforce the 2KB file size constraint as a pre-check in the CI pipeline.
+- **Task 0.2**: **Synthetic Data Generation**: Implement `synthetic_generator.py` to create univariate time series with:
+  - Known ground-truth injection points (point anomalies, abrupt shifts, gradual drift).
+  - **Pre-anomaly dynamics**: Explicit modeling of increasing variance or changing autocorrelation prior to injection to test the "early-warning" hypothesis.
+  - Adjustable noise levels and regime parameters.
+  - Compliance with the n ≥ 1,000 requirement.
+  - **Verification**: Unit tests verify generator logic against known statistical properties (Constitution Principle II).
+  - **Versioning**: The script MUST update the `state/projects/...yaml` artifact hash upon successful generation (Constitution Principle V).
+- **Task 0.3**: **FR-017 Waiver Protocol**: Inspect `dunzing/ARIMA-Date-Prediction` for univariate numeric columns. If no suitable real-world data is found (i.e., no regime shifts), generate a formal waiver report documenting the search and marking FR-017 as "Waived".
+- **Task 0.4**: **Null Hypothesis Simulation**: Run DP-GMM on pure noise data to establish the baseline distribution of $\dot{\alpha}$. **The threshold for 'spike' detection (e.g., >3 std devs) MUST be derived empirically from this simulation (e.g., 95th percentile)** rather than hardcoded, to ensure the threshold is not arbitrary.
 
-All violations will be caught by T240-T242 verification tasks.
+### Phase 1: Model Implementation & Inference (FR-002, FR-003, FR-009)
+- **Task 1.1**: Implement Stick-Breaking DP-GMM in PyMC 4 with ADVI.
+- **Task 1.2**: Implement sliding window inference (length=30, stride=1).
+- **Task 1.3**: Implement ADVI convergence check (ELBO delta < 0.01). Exclude non-convergent windows.
+- **Task 1.4**: **ADVI Bias Validation**: Run small-scale MCMC (NUTS) on a subset of 100 random windows. Compare ADVI posterior mean/variance against MCMC. If ADVI variance underestimates MCMC by >50% or mean differs by >2 SD, **exclude the $\dot{\alpha}$ metric for that window and default to using component weight variance ($\sigma^2_{\pi}$) as the primary signature**. This ensures the detection pipeline never halts.
+
+### Phase 2: Baseline & Metric Calculation (FR-004, FR-005, FR-015)
+- **Task 2.1**: Implement fixed-component GMMs (k=3, 5, 10) and ARIMA for reconstruction error.
+- **Task 2.2**: Calculate "time-to-detection" for all methods (FR-005).
+- **Task 2.3**: **FR-015**: Perform a **Kolmogorov-Smirnov (KS) test** on the *distributions* of baseline reconstruction errors (normal vs. anomaly windows) to confirm distributional differences, not just mean differences.
+- **Task 2.4**: Calculate $\dot{\alpha}$ and $\pi$ variance for DP-GMM.
+
+### Phase 3: Statistical Testing & Sensitivity (FR-006, FR-007, FR-010, FR-011, FR-012, FR-014)
+- **Task 3.1**: **Power Analysis & Bootstrap Switch**: Calculate expected anomaly count *before* inference. If <10, flag warning and **automatically switch to non-parametric bootstrap resampling** (FR-011, FR-012) for significance estimation.
+- **Task 3.2**: Perform **Wilcoxon signed-rank test** (primary) on time-to-detection values across datasets (FR-006). T-test is secondary only.
+- **Task 3.3**: Perform KS test on $\dot{\alpha}$ distributions (anomaly vs. normal) (FR-010).
+- **Task 3.4**: Perform KS test on $\dot{\alpha}$ distributions (anomaly vs. gradual drift) (FR-014).
+- **Task 3.5**: Implement threshold sensitivity sweep (0.01, 0.05, 0.1) (FR-007).
+- **Task 3.6**: Apply **Holm-Bonferroni correction** to p-values from threshold sweep and subsequent tests to control family-wise error rate, addressing the dependency introduced by threshold optimization.
+
+### Phase 4: Resource Validation & Reporting (FR-008, FR-016, FR-017)
+- **Task 4.1**: **FR-008 Resource Validation**: Log peak RAM and total runtime using `psutil`. **Fail the job if RAM >7GB or runtime >6h**.
+- **Task 4.2**: Implement sensitivity analysis on window size and derivative method (FR-016).
+- **Task 4.3**: Generate final report, including "Waiver" status for FR-017 if applicable.
+
+## FR/SC Coverage Map
+
+| ID | Requirement | Implementation Phase/Task |
+| :--- | :--- | :--- |
+| FR-001 | Load & Normalize | Phase 0, Task 0.2 |
+| FR-002 | DP-GMM + ADVI | Phase 1, Task 1.1 |
+| FR-003 | Derivative & Variance | Phase 2, Task 2.4 |
+| FR-004 | Baselines (GMM/ARIMA) | Phase 2, Task 2.1 |
+| FR-005 | Time-to-Detection | Phase 2, Task 2.2 |
+| FR-006 | Paired t-test | Phase 3, Task 3.2 (Wilcoxon primary) |
+| FR-007 | Threshold Sensitivity | Phase 3, Task 3.5 |
+| FR-008 | Resource Validation | Phase 4, Task 4.1 |
+| FR-009 | ADVI Convergence | Phase 1, Task 1.3 |
+| FR-010 | KS Test (Anomaly vs Normal) | Phase 3, Task 3.3 |
+| FR-011 | Power Analysis Check | Phase 3, Task 3.1 |
+| FR-012 | Bootstrap Fallback | Phase 3, Task 3.1 |
+| FR-013 | Independent Ground Truth | Phase 0, Task 0.2 |
+| FR-014 | KS Test (Anomaly vs Drift) | Phase 3, Task 3.4 |
+| FR-015 | KS Test (Baseline Distributions) | Phase 2, Task 2.3 |
+| FR-016 | Window/Derivative Sensitivity | Phase 4, Task 4.2 |
+| FR-017 | Real-World Validation | Phase 0, Task 0.3 (Waiver if unavailable) |
+| SC-001 | Distinctness of Signatures | Phase 3, Task 3.3, 3.4 |
+| SC-002 | Time-to-Detection Advantage | Phase 3, Task 3.2 |
+| SC-003 | Threshold Stability | Phase 3, Task 3.5 |
+| SC-004 | Compute Feasibility | Phase 4, Task 4.1 |
+| SC-005 | Power Analysis Target | Phase 3, Task 3.1 |
+| SC-006 | Bootstrap Fallback | Phase 3, Task 3.1 |
+| SC-007 | Distributional Difference | Phase 3, Task 3.3, 3.4 |

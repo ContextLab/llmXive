@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SensitivityReport
+description: Schema for the threshold sensitivity analysis report
+type: object
+properties:
+  threshold:
+    type: number
+    description: "The cutoff value tested"
+    minimum: 0.0
+    maximum: 1.0
+  false_positive_rate:
+    type: number
+    description: "Proportion of normal windows flagged as anomalies"
+    minimum: 0.0
+    maximum: 1.0
+  false_negative_rate:
+    type: number
+    description: "Proportion of anomaly windows missed"
+    minimum: 0.0
+    maximum: 1.0
+  f1_score:
+    type: number
+    description: "Harmonic mean of precision and recall"
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - threshold
+  - false_positive_rate
+  - false_negative_rate
+  - f1_score
+additionalProperties: false

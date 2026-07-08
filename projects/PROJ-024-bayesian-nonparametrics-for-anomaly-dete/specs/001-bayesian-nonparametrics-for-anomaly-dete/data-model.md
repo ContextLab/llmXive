@@ -1,34 +1,79 @@
 # Data Model: Bayesian Nonparametrics for Anomaly Detection in Time Series
 
-## Core Entities
-| Entity | Description | Primary Attributes |
-|--------|-------------|--------------------|
-| **Dataset** | Raw univariate time‑series used for training/evaluation. | `series_id` (string), `values` (list float, ≥ 1000), optional `timestamp` (list datetime) |
-| **AnomalyScore** | Score produced for a single observation. | `score` (float), `timestamp` (datetime), optional `uncertainty` (float) |
-| **EvaluationMetrics** | Quantitative performance indicators. | `f1_score`, `precision`, `recall` (float, required), `auc_roc` (float, optional) |
-| **ThresholdCalibrator** | Calibration artefact linking score distribution to decision boundary. | `threshold` (float), `percentile` (float), `adaptive` (bool) |
-| **AnomalyDetector** | Configuration of the DPGMM model. | `model_type` (e.g., `"DPGMM"`), optional `n_components` (int), `convergence_threshold` (float) |
-| **DPGMM** | Hyper‑parameters of the Dirichlet Process mixture. | `alpha` (float), `gamma` (float), `concentration_prior` (float) |
-| **StreamingDPGMM** | Wrapper for sliding-window updates (addresses temporal autocorrelation). | `window_size` (int, default 1000), `update_frequency` (int, default 100), `lag_features` (list int), `alpha` (float), `gamma` (float) |
-| **AnomalyDetectorService** | Service interface exposing detection API. | `service_name` (string), `method_count` = 7, `type_hints_compliant` (bool) |
-| **ThresholdCalibratorService** | Service interface for threshold management. | `service_name` (string), `method_count` = 6, `type_hints_compliant` (bool) |
+## Overview
 
-## Relationships
-- A **Dataset** feeds many **AnomalyScore** records via `AnomalyDetectorService.process_stream`.
-- **AnomalyDetectorService** holds a **DPGMM** model configured by **AnomalyDetector** or **StreamingDPGMM** wrapper.
-- **ThresholdCalibratorService** consumes a list of **AnomalyScore** to produce a **ThresholdCalibrator**.
-- **EvaluationMetrics** are computed by comparing **AnomalyScore** (after thresholding) against ground‑truth labels (synthetic anomalies injected for supervised eval).
+This document defines the data structures, schemas, and file formats for the project. All data flows from `data/raw/` (generated or downloaded) to `data/processed/` (results).
 
-## Temporal Preprocessing
-- Lag features: lag-1, lag-7 applied to raw observations.
-- Rolling statistics: mean and std over 50-observation window.
-- These features address autocorrelation and non-stationarity concerns (Principle VI).
+## Entity Definitions
 
-## Persistence
-- Raw CSVs remain immutable under `data/raw/`.  
-- Processed artefacts (model checkpoints, metrics, figures) live under `data/processed/`.  
-- Checksums and derived statistics are stored in `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-detection.yaml`.  
+### TimeSeriesWindow
+A slice of the time series used for local inference.
+-   **Fields**:
+    -   `window_id`: Integer (unique identifier).
+    -   `start_idx`: Integer (start index in original series).
+    -   `end_idx`: Integer (end index).
+    -   `values`: Array[float] (normalized values, length=30).
+    -   `has_anomaly`: Boolean (true if window overlaps with injected anomaly).
 
-All entities are validated against the JSON‑Schema contracts located in `specs/contracts/`.
+### PosteriorTrajectory
+The time-series record of posterior means extracted from the DP-GMM.
+-   **Fields**:
+    -   `window_id`: Integer.
+    -   `alpha_mean`: Float (posterior mean of concentration parameter).
+    -   `alpha_deriv`: Float (first derivative of alpha).
+    -   `pi_variance`: Float (variance of component weights).
+    -   `converged`: Boolean (ADVI convergence status).
+    -   `elbo_final`: Float (final Evidence Lower Bound).
 
----
+### DetectionEvent
+A record of a detected anomaly event.
+-   **Fields**:
+    -   `method`: String (e.g., "DPGMM", "GMM_3", "ARIMA").
+    -   `injection_time`: Integer (ground truth).
+    -   `detection_time`: Integer (first threshold crossing).
+    -   `time_to_detection`: Integer (steps).
+    -   `score`: Float (anomaly score at detection).
+
+### SensitivityReport
+A structured output of the threshold sensitivity analysis.
+-   **Fields**:
+    -   `threshold`: Float.
+    -   `false_positive_rate`: Float.
+    -   `false_negative_rate`: Float.
+    -   `f1_score`: Float.
+
+## File Formats
+
+### Input: `data/raw/synthetic_timeseries.csv`
+-   **Format**: CSV.
+-   **Columns**: `timestamp`, `value`, `is_anomaly` (0/1).
+-   **Encoding**: UTF-8.
+-   **Constraints**: `value` normalized to mean=0, std=1. `is_anomaly` is ground truth.
+
+### Output: `data/processed/posterior_trajectory.parquet`
+-   **Format**: Parquet.
+-   **Schema**: Matches `PosteriorTrajectory`.
+-   **Partitioning**: By `dataset_id` (if multiple datasets used).
+
+### Output: `data/processed/detection_events.json`
+-   **Format**: JSON Lines (one event per line).
+-   **Schema**: Matches `DetectionEvent`.
+
+### Output: `data/processed/sensitivity_report.yaml`
+-   **Format**: YAML.
+-   **Schema**: List of `SensitivityReport` entries.
+
+## Data Flow Diagram
+
+1.  **Generator** -> `data/raw/synthetic_timeseries.csv`
+2.  **Sliding Window** -> `TimeSeriesWindow` objects (in memory)
+3.  **Inference (DPGMM/Baselines)** -> `PosteriorTrajectory` -> `data/processed/posterior_trajectory.parquet`
+4.  **Detection Logic** -> `DetectionEvent` -> `data/processed/detection_events.json`
+5.  **Analysis** -> `SensitivityReport` -> `data/processed/sensitivity_report.yaml`
+
+## Constraints & Validation
+
+-   **Normalization**: All input values MUST be normalized (mean=0, std=1) before inference (FR-001).
+-   **Convergence**: Rows with `converged=False` are excluded from trajectory analysis (FR-009).
+-   **Size**: Input datasets MUST have ≥1,000 observations (FR-001).
+-   **Checksum**: All files in `data/raw/` must have a corresponding `.sha256` checksum file.

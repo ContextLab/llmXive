@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PosteriorTrajectory
+description: Schema for the dynamic signature trajectory of the DP-GMM model
+type: object
+properties:
+  window_id:
+    type: integer
+    description: "Unique identifier for the sliding window"
+    minimum: 0
+  alpha_mean:
+    type: number
+    description: "Posterior mean of the concentration parameter alpha"
+  alpha_deriv:
+    type: number
+    description: "First derivative (rate of change) of alpha"
+  pi_variance:
+    type: number
+    description: "Variance of component weights"
+  converged:
+    type: boolean
+    description: "Whether the ADVI inference converged for this window"
+  elbo_final:
+    type: number
+    description: "Final Evidence Lower Bound value"
+required:
+  - window_id
+  - alpha_mean
+  - alpha_deriv
+  - pi_variance
+  - converged
+  - elbo_final
+additionalProperties: false
