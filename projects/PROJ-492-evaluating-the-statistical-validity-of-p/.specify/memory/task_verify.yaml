@@ -272,12 +272,6 @@
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-  \ summaries. (binary AND continuous outcomes) **and verify both outcome types are\
-  \ present** (constraint\u2011preservation\u20112958f04c) (verify files are created\
-  \ and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
-: 2
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_0f3274c0 \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
@@ -297,6 +291,13 @@
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
 : 2
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries. [UNRESOLVED-CLAIM: c_268da5ca \u2014 status=not_enough_info] (binary\
+  \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
+  preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
+  000 records). **DEPENDS ON:** T006\u2011T012."
+: 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_3c47fb2d \u2014 status=not_enough_info] (binary\
@@ -328,6 +329,13 @@
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_c61adc99 \u2014 status=not_enough_info] (binary\
+  \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
+  preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
+  000 records). **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries. [UNRESOLVED-CLAIM: c_f850ed8b \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
@@ -427,7 +435,7 @@
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
-: 1
+: 2
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_5f9692d7 \u2014 status=not_enough_info]\

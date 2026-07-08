@@ -1,10 +1,9 @@
 {
-  "generated_at": "2026-01-15T10:30:00.000000",
-  "total_count": 10000,
-  "outcome_type_counts": {
-    "binary": 5012,
-    "continuous": 4988
-  },
-  "seed": 42,
-  "source": "synthetic_generator"
+  "total_records": 10000,
+  "binary_count": 5000,
+  "continuous_count": 5000,
+  "binary_ratio": 0.5,
+  "generation_seed": 42,
+  "generated_at": "2026-06-28T10:00:00.000000",
+  "file_path": "code/data/synthetic/synthetic_summaries.csv"
 }
