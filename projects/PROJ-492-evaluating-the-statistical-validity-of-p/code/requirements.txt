@@ -8,12 +8,7 @@ tqdm
 pyyaml
 jsonschema
 psutil
+pytest
 ruff
 black
 pre-commit
-pytest
-pytest-cov
-mypy
-pydantic
-jupyter
-nbconvert
