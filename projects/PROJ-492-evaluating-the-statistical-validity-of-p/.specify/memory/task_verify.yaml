@@ -403,11 +403,6 @@
 : 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
-  \ 90\u202F%, recall \u2265 80\u202F% (depends on T026) (verify test passes, otherwise\
-  \ raise `ERR-800`) [DEPENDS ON: T026]."
-: 1
-? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
-  \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_5f9692d7 \u2014 status=not_enough_info]\
   \ (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON:\
   \ T026]."
