@@ -1,0 +1,318 @@
+resolved_at: '2026-07-08T00:20:22.968168+00:00'
+datasets:
+- intent: ROIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3724
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33951
+      parsed: true
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ROI-su7/eval_act_koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_test01/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/koch_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/smolvla_classfication/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROI-su7/eval_smolvla_classification/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Kogi_State_University_Kabba_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09036/32928662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Emmanuel_Alayande_University_of_Education_Oyo_Oyo_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32928656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_09036153255_University_of_Ilesa_Osun_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09/32928650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Call_09036153255_Enugu_State_University_of_Medical_and_Applied_Sciences_Igbo-Eno_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_pr/32928647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/dataset/Deep_Time_Detectives_Data_Analysis_Form/28830653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7870529
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3971660
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6415420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/4462429/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13140203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.kulib.kyoto-u.ac.jp/handle/2433/301268
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19223581
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19223581
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NRC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nrc.gov/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.nrc.gov/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chuuhtetnaing/myanmar-nrc-format-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 18410
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nrc.gov/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nrcs.usda.gov/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.nrc.gov/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.nrcs.usda.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chuuhtetnaing/myanmar-nrc-format-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_AbdulKadir_Kure_University_Minna_Niger_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_c/32928665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Kogi_State_University_Kabba_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09036/32928662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Emmanuel_Alayande_University_of_Education_Oyo_Oyo_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32928656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_09036153255_University_of_Ilesa_Osun_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09/32928650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Call_09036153255_Enugu_State_University_of_Medical_and_Applied_Sciences_Igbo-Eno_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_pr/32928647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7058331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3827738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10883403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8146518
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3765763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/eb85a/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2506.09744
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4qusp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.95x69p918
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/43436b47-743d-4189-8dc3-d26c2e15b950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VADER
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/samdotme/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7792
+      parsed: true
+  - url: https://huggingface.co/datasets/samdotme/vader-speak-video/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7712
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samdotme/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samdotme/vader-speak-video/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bacmen/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mtobbias/vader-test/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_AbdulKadir_Kure_University_Minna_Niger_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_c/32928665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Kogi_State_University_Kabba_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09036/32928662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Call_09036153255_Emmanuel_Alayande_University_of_Education_Oyo_Oyo_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_b/32928656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_09036153255_University_of_Ilesa_Osun_State_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_09/32928650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Call_09036153255_Enugu_State_University_of_Medical_and_Applied_Sciences_Igbo-Eno_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_09036153255_09036153255_09036153255_DR_David_for_Guideline_on_how_to_apply_and_register_pr/32928647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5239808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3857550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7187333
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7402505
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5239816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.checklistbank.org/dataset/1202?__goaway_challenge=cookie&__goaway_id=a4eaeb24f1832222cf733416a27652dc
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.24406/publica-3022
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/21178312
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

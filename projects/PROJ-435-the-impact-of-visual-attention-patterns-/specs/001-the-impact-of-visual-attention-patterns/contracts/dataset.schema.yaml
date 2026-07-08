@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Dataset Schema"
+description: "Schema for the merged dataset used in the regression analysis."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  stimulus_id:
+    type: string
+    description: "Unique identifier for the headline stimulus."
+  cognitive_reflection_score:
+    type: number
+    description: "CRT score, capped at 1st and 99th percentiles."
+    minimum: 0
+  valence_score:
+    type: number
+    description: "Emotional valence of the headline (-1.0 to 1.0)."
+    minimum: -1.0
+    maximum: 1.0
+  fixation_duration_ms:
+    type: number
+    description: "Duration of fixation on the source attribution ROI in milliseconds."
+    minimum: 0
+  roi_type:
+    type: string
+    description: "Type of ROI (e.g., 'source_attribution')."
+    enum:
+      - "source_attribution"
+      - "headline_body"
+  lexicon_source:
+    type: string
+    description: "Lexicon used for valence calculation."
+    enum:
+      - "NRC"
+      - "VADER"
+required:
+  - participant_id
+  - stimulus_id
+  - cognitive_reflection_score
+  - valence_score
+  - fixation_duration_ms
+  - roi_type
+  - lexicon_source
+additionalProperties: false

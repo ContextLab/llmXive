@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Result Schema
+description: Schema for the output of the mixed-effects regression model.
+type: object
+properties:
+  fixed_effects:
+    type: object
+    description: "Coefficients for fixed effects."
+    properties:
+      intercept:
+        type: number
+      fixation_duration:
+        type: number
+      valence:
+        type: number
+      crt_score:
+        type: number
+      fixation_x_valence:
+        type: number
+      fixation_x_crt:
+        type: number
+      valence_x_crt:
+        type: number
+      fixation_x_valence_x_crt:
+        type: number
+    required:
+      - intercept
+      - fixation_duration
+      - valence
+      - crt_score
+      - fixation_x_valence
+      - fixation_x_crt
+      - valence_x_crt
+      - fixation_x_valence_x_crt
+  p_values:
+    type: object
+    description: "P-values for fixed effects."
+    properties:
+      fixation_x_valence_x_crt:
+        type: number
+        description: "P-value for the three-way interaction term."
+    required:
+      - fixation_x_valence_x_crt
+  confidence_intervals:
+    type: object
+    description: "95% Confidence intervals for the three-way interaction."
+    properties:
+      lower_bound:
+        type: number
+      upper_bound:
+        type: number
+    required:
+      - lower_bound
+      - upper_bound
+  model_summary:
+    type: object
+    description: "Model fit statistics."
+    properties:
+      AIC:
+        type: number
+      BIC:
+        type: number
+      log_likelihood:
+        type: number
+    required:
+      - AIC
+      - BIC
+      - log_likelihood
+required:
+  - fixed_effects
+  - p_values
+  - confidence_intervals
+  - model_summary
+additionalProperties: false

@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Raw Gaze Data Schema
+description: Schema for raw eye-tracking data ingested from HuggingFace datasets.
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial."
+  timestamp:
+    type: integer
+    description: "Timestamp in milliseconds."
+  x:
+    type: number
+    description: "Horizontal gaze coordinate."
+  y:
+    type: number
+    description: "Vertical gaze coordinate."
+  roi_name:
+    type: string
+    description: "Name of the Region of Interest (e.g., 'source', 'headline')."
+  headline_text:
+    type: string
+    description: "Text content of the headline stimulus."
+required:
+  - participant_id
+  - trial_id
+  - timestamp
+  - x
+  - y
+  - roi_name
+  - headline_text
+additionalProperties: false

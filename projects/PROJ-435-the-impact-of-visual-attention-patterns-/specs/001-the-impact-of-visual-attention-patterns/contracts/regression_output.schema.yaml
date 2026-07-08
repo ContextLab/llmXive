@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for the output of the mixed-effects regression model."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run."
+  coefficient_fixation:
+    type: number
+    description: "Coefficient for fixation duration."
+  coefficient_valence:
+    type: number
+    description: "Coefficient for valence score."
+  coefficient_crt:
+    type: number
+    description: "Coefficient for cognitive reflection score."
+  coefficient_interaction_3way:
+    type: number
+    description: "Coefficient for the three-way interaction (fixation * valence * CRT)."
+  p_value_interaction_3way:
+    type: number
+    description: "P-value for the three-way interaction term."
+    minimum: 0
+    maximum: 1
+  ci_lower_3way:
+    type: number
+    description: "Lower bound of the 95% confidence interval for the interaction."
+  ci_upper_3way:
+    type: number
+    description: "Upper bound of the 95% confidence interval for the interaction."
+  significance_flag:
+    type: boolean
+    description: "True if p_value < 0.05 after multiple-comparison correction."
+  robustness_check_passed:
+    type: boolean
+    description: "True if results are stable across 50/100/150ms thresholds."
+  causal_framing_statement:
+    type: string
+    description: "Statement framing the findings as causal (for real data) or as a pipeline artifact (for synthetic data)."
+required:
+  - model_id
+  - coefficient_interaction_3way
+  - p_value_interaction_3way
+  - significance_flag
+  - causal_framing_statement
+additionalProperties: false
