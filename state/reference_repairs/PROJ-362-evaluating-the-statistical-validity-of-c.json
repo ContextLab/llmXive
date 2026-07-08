@@ -244,5 +244,17 @@
         "intent": "robust 04 TREC 2004 Relevance judgments for 249 topics queries with 50 documents per topic. Official Download via requests from verified URL or datasets.load_dataset"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-08T00:17:38.744652+00:00",
+    "project": "PROJ-362-evaluating-the-statistical-validity-of-c",
+    "repairs": [
+      {
+        "dead_url": "https://trec.nist.gov/data/robust/robust04.qrels.txt",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SetFit/TREC-QC/resolve/main/test.jsonl",
+        "intent": "robust The project relies on TREC qrels files. specific datasets and their verified sources are listed below. Note : previous reference to was unreachable"
+      }
+    ]
   }
 ]
