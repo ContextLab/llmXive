@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the merged subject-level dataset including RSFC variability metrics."
+type: object
+properties:
+  Subject_ID:
+    type: string
+    description: "Unique identifier for the subject."
+  Age:
+    type: integer
+    description: "Age of the subject in years."
+  Sex:
+    type: string
+    description: "Sex of the subject (M/F)."
+  Mean_FD:
+    type: number
+    description: "Mean Framewise Displacement in mm."
+  Total_Scan_Time:
+    type: number
+    description: "Total scan time in seconds."
+  Flexibility_Score:
+    type: number
+    description: "NIH Toolbox Dimensional Change Card Sort score."
+  PCA_Component_1:
+    type: number
+    description: "First principal component of edge-wise variability."
+  PCA_Component_2:
+    type: number
+    description: "Second principal component of edge-wise variability."
+  PCA_Component_3:
+    type: number
+    description: "Third principal component of edge-wise variability."
+  PCA_Component_4:
+    type: number
+    description: "Fourth principal component of edge-wise variability."
+  PCA_Component_5:
+    type: number
+    description: "Fifth principal component of edge-wise variability."
+  PCA_Component_6:
+    type: number
+    description: "Sixth principal component of edge-wise variability."
+  PCA_Component_7:
+    type: number
+    description: "Seventh principal component of edge-wise variability."
+  PCA_Component_8:
+    type: number
+    description: "Eighth principal component of edge-wise variability."
+  PCA_Component_9:
+    type: number
+    description: "Ninth principal component of edge-wise variability."
+  PCA_Component_10:
+    type: number
+    description: "Tenth principal component of edge-wise variability."
+  Null_Model_P:
+    type: number
+    description: "P-value from AR surrogate validation."
+  Motion_Noise_Residual:
+    type: number
+    description: "Residual variability after motion-noise orthogonalization."
+  Status:
+    type: string
+    description: "Inclusion status (Included, Excluded_Motion, Excluded_Missing_Behav, Excluded_Low_SNR)."
+    enum:
+      - "Included"
+      - "Excluded_Motion"
+      - "Excluded_Missing_Behav"
+      - "Excluded_Low_SNR"
+required:
+  - Subject_ID
+  - Age
+  - Sex
+  - Mean_FD
+  - Total_Scan_Time
+  - Flexibility_Score
+  - PCA_Component_1
+  - Status
+additionalProperties: false

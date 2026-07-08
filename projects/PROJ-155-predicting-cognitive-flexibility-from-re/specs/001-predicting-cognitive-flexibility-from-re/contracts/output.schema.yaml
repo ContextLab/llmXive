@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for the regression results and permutation test output."
+type: object
+properties:
+  Model_ID:
+    type: string
+    description: "Unique identifier for the model run."
+  Beta_Variability:
+    type: number
+    description: "Regression coefficient for the primary variability component."
+  SE_Variability:
+    type: number
+    description: "Standard error of the regression coefficient."
+  Pearson_R:
+    type: number
+    description: "Pearson correlation coefficient between predicted and observed flexibility scores."
+  P_Value:
+    type: number
+    description: "Empirical p-value from the permutation test."
+  R_Squared:
+    type: number
+    description: "R-squared value of the regression model."
+  N_Subjects:
+    type: integer
+    description: "Number of subjects included in the analysis."
+  Covariates:
+    type: array
+    description: "List of covariates included in the model."
+    items:
+      type: string
+  Permutations:
+    type: integer
+    description: "Number of permutations performed."
+  Timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of the analysis run."
+  Significance_Status:
+    type: string
+    description: "Explicit comparison result against 0.05 threshold."
+    enum:
+      - "Significant"
+      - "Not Significant"
+  FDR_Q_Value:
+    type: number
+    description: "FDR-adjusted p-value (q-value) for post-hoc tests."
+  FDR_Appplied:
+    type: boolean
+    description: "Whether FDR correction was applied."
+  Subject_Results:
+    type: array
+    description: "Row-per-subject results for FR-007 compliance."
+    items:
+      type: object
+      properties:
+        Subject_ID:
+          type: string
+        Flexibility_Score:
+          type: number
+        Predicted_Score:
+          type: number
+        Residual:
+          type: number
+      required:
+        - Subject_ID
+        - Flexibility_Score
+        - Predicted_Score
+        - Residual
+required:
+  - Model_ID
+  - Beta_Variability
+  - SE_Variability
+  - Pearson_R
+  - P_Value
+  - R_Squared
+  - N_Subjects
+  - Covariates
+  - Permutations
+  - Timestamp
+  - Significance_Status
+  - FDR_Appplied
+additionalProperties: false

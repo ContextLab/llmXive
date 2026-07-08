@@ -1,0 +1,283 @@
+resolved_at: '2026-07-08T00:38:10.332766+00:00'
+datasets:
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Turning_3D_Molecular_Crystals_into_2D_Moire_Superlattices_with_Properties_Born_Out_of_Bonding_at_the_Angularly_Stacked_Interfaces/32928704
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/A_distributed_primal-dual_algorithm_for_dynamic_power_dispatch_problem_in_smart_grids_with_transmission_line_flow_constraints/32918948
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/NLMC_10__NLM_Classification_A_Survey_of_Changes_in_the_Decade_Since_Its_Japanese_Translation_/32908997
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6rk3v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21237999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kzs3m/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hsvtd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RSFC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Sai452/RSF_CoxPH_Data/resolve/main/MILD_final_dataset_clean.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Sai452/RSF_CoxPH_Data/resolve/main/MILD_final_dataset_clean.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Turning_3D_Molecular_Crystals_into_2D_Moire_Superlattices_with_Properties_Born_Out_of_Bonding_at_the_Angularly_Stacked_Interfaces/32928704
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/A_distributed_primal-dual_algorithm_for_dynamic_power_dispatch_problem_in_smart_grids_with_transmission_line_flow_constraints/32918948
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/NLMC_10__NLM_Classification_A_Survey_of_Changes_in_the_Decade_Since_Its_Japanese_Translation_/32908997
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jneurosci.org/lookup/doi/10.1523/JNEUROSCI.1916-22.2023
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://riojournal.com/articles.php?id=12641
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jdfn2z371
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14258520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6207075
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/sxgj8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xjqf3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/315235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7zv4b/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u387b/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIH
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/alkzar90/NIH-Chest-X-ray-dataset/resolve/main/data/BBox_List_2017.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 92416
+      parsed: true
+  - url: https://huggingface.co/datasets/suolyer/pile_nih-exporter/resolve/main/test.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nihalbaig/alpaca-bangla/resolve/main/data/train-00000-of-00001-1c69cf7ef540b18f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/alkzar90/NIH-Chest-X-ray-dataset/resolve/main/data/BBox_List_2017.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suolyer/pile_nih-exporter/resolve/main/test.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64343271d12a239d72e46fd5/c79b95d3ffb4975127c29c11d96877e327889bce99bfdb836ebe314789bad625?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27translated_18k.json%3B+filename%3D%22translated_18k.json%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783474671&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQzNDMyNzFkMTJhMjM5ZDcyZTQ2ZmQ1L2M3OWI5NWQzZmZiNDk3NTEyN2MyOWMxMWQ5Njg3N2UzMjc4ODliY2U5OWJmZGI4MzZlYmUzMTQ3ODliYWQ2MjVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0cmFuc2xhdGVkXzE4ay5qc29uJTNCK2ZpbGVuYW1lJTNEJTIydHJhbnNsYXRlZF8xOGsuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDc0NjcxfX19XX0_&Signature=MEUCIH~Sz9sPdD2yxSiLu60b7sFU33uaRRzJxl5S760Q-O34AiEA1gt4p8tK0eGW77XqsoT-SzwAN5~aAtskVKOHKYPkNLU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nihalbaig/alpaca-bangla/resolve/main/data/train-00000-of-00001-1c69cf7ef540b18f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Turning_3D_Molecular_Crystals_into_2D_Moire_Superlattices_with_Properties_Born_Out_of_Bonding_at_the_Angularly_Stacked_Interfaces/32928704
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/A_distributed_primal-dual_algorithm_for_dynamic_power_dispatch_problem_in_smart_grids_with_transmission_line_flow_constraints/32918948
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/NLMC_10__NLM_Classification_A_Survey_of_Changes_in_the_Decade_Since_Its_Japanese_Translation_/32908997
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/UV-Induced_Degradation_of_Microcystin-LR_Mediated_by_a_Ratiometric_Fluorescence_Probe_for_the_Visual_Detection_of_Microcystin-LR/32928698
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19372585
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14927397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4304786
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15855693
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13737336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/049d4f35-8971-4945-97c9-a03c1b4d50bd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/c217b916-d1e7-4d65-ba19-72d04cd5a730
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/twu4e/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uefn8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://search.vivli.org/doiLanding/studies/PR00009027/isLanding
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
