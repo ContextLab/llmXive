@@ -1,26 +1,26 @@
-resolved_at: '2026-07-07T16:16:31.054620+00:00'
+resolved_at: '2026-07-08T06:30:05.789707+00:00'
 datasets:
 - intent: DR25
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Constructing_characteristic_signals_of_head_acceleration_events_in_stock_car_racing/32925302
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Acalabrutinib_monotherapy_as_a_first-line_treatment_for_CLL_3_years_follow-up_of_the_real-world_EPIC_study_/32877140
+  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -149,23 +149,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1197324
+  - url: https://figshare.com/articles/dataset/Data_set/32930585/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.indores.fr/dataset.xhtml?persistentId=doi:10.48579/PRO/YMNL2O
+  - url: https://figshare.com/articles/dataset/Data_set/32930585
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.indores.fr/dataset.xhtml?persistentId=doi:10.48579/PRO/0UUSE1
+  - url: https://infoscience.epfl.ch/entities/publication/6ebfef2f-8b55-4f89-a462-4319d6dc632a
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.25431/11380_709055
+  - url: https://arxiv.org/abs/2607.05860
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://osf.io/657ew/
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21251278
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,35 +184,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.le.ac.uk/articles/journal_contribution/Acalabrutinib_monotherapy_as_a_first-line_treatment_for_CLL_3_years_follow-up_of_the_real-world_EPIC_study_/32877140
+  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Religious_conservatism_versus_elite_professionalism_Contradictory_socialisation_at_an_elite_Islamic_school/30821549
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Complete_genome_dataset_of_i_Streptomyces_anulatus_i_strain_DEF39/32012037
+  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Developing_a_esprit_de_corps_the_British_legacy_of_H_G_Junker_s_College_for_Physical_Education_Silkeborg_/30802673
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_GW-GAT_flood_susceptibility_mapping_in_the_Bangladesh_delta/32411583
+  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -220,30 +212,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.15167/tigano-danilo_phd2018-04-20
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''iris.unige.it'',
-      port=443): Max retries exceeded with url: /handle/11567/929442 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''iris.unige.it'',
-      port=443) at 0x7ff8eea9f050>, ''Connection to iris.unige.it timed out. (connect
-      timeout=20.0)''))'
-  - url: https://napier-repository.worktribe.com/output/280470
-    source: datacite
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
     status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/21232806
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20878734
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21232806
+  - url: https://zenodo.org/records/20878734
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2511.09072
+  - url: https://zenodo.org/records/21250896
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21250896
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.04415
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
