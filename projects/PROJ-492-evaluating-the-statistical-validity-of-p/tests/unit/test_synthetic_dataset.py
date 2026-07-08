@@ -1,163 +1,202 @@
 """
-Unit tests for synthetic dataset generator (T026).
-Verifies FR-030 requirements: >= 10,000 records, both outcome types present.
+Unit tests for the synthetic dataset generator (T026).
+
+Verifies:
+1. Generation of at least 10,000 records
+2. Presence of both binary and continuous outcomes
+3. Data integrity and schema compliance
+4. Reproducibility via seeding
 """
+import csv
+import json
+import sys
+from pathlib import Path
+from typing import Dict, Any, List
 
 import pytest
-import json
-import csv
-from pathlib import Path
-import sys
+import numpy as np
 
-# Add code root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.src.audit.synthetic import (
+    set_all_seeds,
     generate_synthetic_dataset,
     verify_outcome_types,
-    set_all_seeds,
-    generate_binary_outcome,
-    generate_continuous_outcome
+    write_summaries,
+    write_metadata,
+    DEFAULT_COUNT,
+    BINARY_RATIO
 )
+from code.src.config import SEED
 
-@pytest.fixture
-def temp_output_dir(tmp_path):
-    """Create a temporary output directory."""
-    return tmp_path / "synthetic_output"
+class TestSyntheticDatasetGeneration:
+    """Test suite for synthetic dataset generation."""
 
-def test_minimum_record_count():
-    """Test that at least 10,000 records are generated."""
-    records = generate_synthetic_dataset(total_records=10000, output_dir=None)
-    assert len(records) >= 10000, f"Expected >= 10000 records, got {len(records)}"
+    def test_minimum_record_count(self):
+        """Verify that the generator produces at least 10,000 records (FR-030)."""
+        summaries = generate_synthetic_dataset(count=10000, seed=SEED)
+        assert len(summaries) >= 10000, f"Expected at least 10,000 records, got {len(summaries)}"
 
-def test_both_outcome_types_present():
-    """Test that both binary and continuous outcomes are generated."""
-    records = generate_synthetic_dataset(total_records=10000, output_dir=None)
-    binary_count, continuous_count, both_present = verify_outcome_types(records)
-    
-    assert binary_count > 0, "No binary outcomes generated"
-    assert continuous_count > 0, "No continuous outcomes generated"
-    assert both_present, "Both outcome types not present"
+    def test_both_outcome_types_present(self):
+        """Verify that both binary and continuous outcomes are generated."""
+        summaries = generate_synthetic_dataset(count=10000, seed=SEED)
+        counts = verify_outcome_types(summaries)
 
-def test_binary_outcome_structure():
-    """Test binary outcome record structure."""
-    set_all_seeds()
-    record = generate_binary_outcome(
-        n_control=1000,
-        n_treatment=1000,
-        baseline_rate=0.2,
-        effect_size=0.1,
-        inject_inconsistency=False
-    )
-    
-    required_fields = [
-        "n_control", "n_treatment", "x_control", "x_treatment",
-        "rate_control", "rate_treatment", "true_p_value", 
-        "reported_p_value", "outcome_type", "is_inconsistent"
-    ]
-    
-    for field in required_fields:
-        assert field in record, f"Missing field: {field}"
-    
-    assert record["outcome_type"] == "binary"
-    assert isinstance(record["n_control"], int)
-    assert 0 <= record["rate_control"] <= 1
+        assert counts["binary"] > 0, "No binary outcomes generated"
+        assert counts["continuous"] > 0, "No continuous outcomes generated"
 
-def test_continuous_outcome_structure():
-    """Test continuous outcome record structure."""
-    set_all_seeds()
-    record = generate_continuous_outcome(
-        n_control=1000,
-        n_treatment=1000,
-        baseline_mean=50.0,
-        baseline_std=10.0,
-        effect_size=0.1,
-        inject_inconsistency=False
-    )
-    
-    required_fields = [
-        "n_control", "n_treatment", "mean_control", "mean_treatment",
-        "std_control", "std_treatment", "true_p_value",
-        "reported_p_value", "outcome_type", "is_inconsistent"
-    ]
-    
-    for field in required_fields:
-        assert field in record, f"Missing field: {field}"
-    
-    assert record["outcome_type"] == "continuous"
+    def test_outcome_type_ratio(self):
+        """Verify that the ratio of outcome types is approximately 50/50."""
+        summaries = generate_synthetic_dataset(count=10000, seed=SEED)
+        counts = verify_outcome_types(summaries)
+        total = counts["binary"] + counts["continuous"]
 
-def test_csv_output_creation(temp_output_dir):
-    """Test that CSV output file is created correctly."""
-    records = generate_synthetic_dataset(
-        total_records=100, 
-        output_dir=temp_output_dir
-    )
-    
-    csv_path = temp_output_dir / "synthetic_summaries.csv"
-    assert csv_path.exists(), "CSV file not created"
-    
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-    
-    assert len(rows) == 100, f"Expected 100 rows, got {len(rows)}"
+        binary_ratio = counts["binary"] / total
+        # Allow 20% tolerance around 0.5
+        assert 0.3 <= binary_ratio <= 0.7, f"Binary ratio {binary_ratio} outside expected range"
 
-def test_json_output_creation(temp_output_dir):
-    """Test that JSON output file is created correctly."""
-    records = generate_synthetic_dataset(
-        total_records=100, 
-        output_dir=temp_output_dir
-    )
-    
-    json_path = temp_output_dir / "synthetic_summaries.json"
-    assert json_path.exists(), "JSON file not created"
-    
-    with open(json_path, 'r') as f:
-        data = json.load(f)
-    
-    assert isinstance(data, list)
-    assert len(data) == 100
+    def test_required_fields_present(self):
+        """Verify that all required fields are present in generated summaries."""
+        required_fields = [
+            "url", "domain", "year", "outcome_type",
+            "control_sample_size", "treatment_sample_size",
+            "reported_p_value", "is_significant"
+        ]
 
-def test_metadata_creation(temp_output_dir):
-    """Test that metadata file is created with correct content."""
-    records = generate_synthetic_dataset(
-        total_records=100, 
-        output_dir=temp_output_dir
-    )
-    
-    meta_path = temp_output_dir / "synthetic_metadata.json"
-    assert meta_path.exists(), "Metadata file not created"
-    
-    with open(meta_path, 'r') as f:
-        meta = json.load(f)
-    
-    assert "total_records" in meta
-    assert "binary_count" in meta
-    assert "continuous_count" in meta
-    assert meta["total_records"] == 100
-    assert meta["both_types_present"] is True
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+        for summary in summaries:
+            for field in required_fields:
+                assert field in summary, f"Missing required field: {field}"
 
-def test_inconsistency_injection():
-    """Test that inconsistency injection works."""
-    set_all_seeds()
-    consistent_records = [
-        generate_binary_outcome(1000, 1000, 0.2, 0.1, False) 
-        for _ in range(20)
-    ]
-    inconsistent_records = [
-        generate_binary_outcome(1000, 1000, 0.2, 0.1, True) 
-        for _ in range(20)
-    ]
-    
-    # Consistent should have matching true/reported p-values (approx)
-    for rec in consistent_records:
-        assert abs(rec["true_p_value"] - rec["reported_p_value"]) < 0.01
-    
-    # Inconsistent should often have mismatches
-    mismatch_count = 0
-    for rec in inconsistent_records:
-        if abs(rec["true_p_value"] - rec["reported_p_value"]) > 0.01:
-            mismatch_count += 1
-    
-    # At least 50% should show inconsistency
-    assert mismatch_count >= 10, f"Expected >= 10 inconsistent records, got {mismatch_count}"
+    def test_sample_size_ranges(self):
+        """Verify that sample sizes are within expected ranges."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            c_size = summary["control_sample_size"]
+            t_size = summary["treatment_sample_size"]
+
+            assert 100 <= c_size <= 50000, f"Control size {c_size} out of range"
+            assert 100 <= t_size <= 50000, f"Treatment size {t_size} out of range"
+
+    def test_p_value_range(self):
+        """Verify that p-values are within valid probability range [0, 1]."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            p_val = summary["reported_p_value"]
+            assert 0.0 <= p_val <= 1.0, f"P-value {p_val} out of range [0, 1]"
+
+    def test_reproducibility(self):
+        """Verify that generation is reproducible with the same seed."""
+        summaries1 = generate_synthetic_dataset(count=100, seed=42)
+        summaries2 = generate_synthetic_dataset(count=100, seed=42)
+
+        # Compare first few fields to ensure reproducibility
+        for s1, s2 in zip(summaries1, summaries2):
+            assert s1["outcome_type"] == s2["outcome_type"]
+            assert s1["control_sample_size"] == s2["control_sample_size"]
+            assert s1["treatment_sample_size"] == s2["treatment_sample_size"]
+
+    def test_binary_specific_fields(self):
+        """Verify that binary outcomes have correct specific fields."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            if summary["outcome_type"] == "binary":
+                assert "baseline_conversion_rate" in summary
+                assert "treatment_conversion_rate" in summary
+                assert 0.0 <= summary["baseline_conversion_rate"] <= 1.0
+                assert 0.0 <= summary["treatment_conversion_rate"] <= 1.0
+
+    def test_continuous_specific_fields(self):
+        """Verify that continuous outcomes have correct specific fields."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            if summary["outcome_type"] == "continuous":
+                assert "baseline_mean" in summary
+                assert "treatment_mean" in summary
+                assert "control_std" in summary
+                assert "treatment_std" in summary
+
+    def test_domain_distribution(self):
+        """Verify that domains are drawn from the expected list."""
+        valid_domains = {
+            "tech", "marketing", "finance", "healthcare", "education",
+            "e-commerce", "gaming", "social-media", "retail", "logistics"
+        }
+
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            assert summary["domain"] in valid_domains, f"Invalid domain: {summary['domain']}"
+
+    def test_year_range(self):
+        """Verify that years are within expected range."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            year = summary["year"]
+            assert 2018 <= year <= 2024, f"Year {year} out of range [2018, 2024]"
+
+    def test_significance_flag_consistency(self):
+        """Verify that is_significant flag matches p-value threshold."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+
+        for summary in summaries:
+            p_val = summary["reported_p_value"]
+            is_sig = summary["is_significant"]
+
+            expected_sig = p_val < 0.05
+            assert is_sig == expected_sig, f"Significance flag mismatch for p={p_val}"
+
+class TestSyntheticDatasetIO:
+    """Test suite for synthetic dataset I/O operations."""
+
+    def test_write_summaries_to_csv(self, tmp_path):
+        """Verify that summaries can be written to and read from CSV."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+        output_path = tmp_path / "test_summaries.csv"
+
+        write_summaries(summaries, output_path)
+
+        assert output_path.exists(), "CSV file was not created"
+
+        # Read back and verify count
+        with open(output_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == len(summaries), f"Expected {len(summaries)} rows, got {len(rows)}"
+
+    def test_write_metadata_json(self, tmp_path):
+        """Verify that metadata can be written to JSON."""
+        summaries = generate_synthetic_dataset(count=100, seed=SEED)
+        output_path = tmp_path / "test_metadata.json"
+
+        write_metadata(summaries, output_path)
+
+        assert output_path.exists(), "Metadata file was not created"
+
+        with open(output_path, 'r', encoding='utf-8') as f:
+            metadata = json.load(f)
+
+        assert metadata["total_count"] == len(summaries)
+        assert "outcome_type_counts" in metadata
+        assert "generated_at" in metadata
+        assert "seed" in metadata
+
+    def test_large_dataset_generation(self):
+        """Verify that the generator can handle the full 10,000+ record requirement."""
+        # Generate the full required dataset
+        summaries = generate_synthetic_dataset(count=10000, seed=SEED)
+
+        assert len(summaries) >= 10000
+        counts = verify_outcome_types(summaries)
+        assert counts["binary"] > 0
+        assert counts["continuous"] > 0
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

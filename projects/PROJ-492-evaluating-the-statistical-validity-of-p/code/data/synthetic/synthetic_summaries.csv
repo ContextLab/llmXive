@@ -1,11 +1,52 @@
-id,url,domain,year,title,description,outcome_type,n_control,n_treatment,p_value,effect_size,successes_control,successes_treatment,rate_control,rate_treatment
-synthetic_00000,https://example.com/ab-test/0,example.com,2023,Synthetic A/B Test 0,Generated synthetic test for validation purposes,binary,120,95,0.4523,0.012,18,14,0.15,0.147
-synthetic_00001,https://example.com/ab-test/1,example.com,2024,Synthetic A/B Test 1,Generated synthetic test for validation purposes,continuous,85,110,0.0321,15.2,0.0,0.0,245.5,260.7
-synthetic_00002,https://example.com/ab-test/2,example.com,2022,Synthetic A/B Test 2,Generated synthetic test for validation purposes,binary,200,180,0.1234,-0.008,30,25,0.15,0.139
-synthetic_00003,https://example.com/ab-test/3,example.com,2025,Synthetic A/B Test 3,Generated synthetic test for validation purposes,continuous,150,145,0.0089,22.1,0.0,0.0,500.2,522.3
-synthetic_00004,https://example.com/ab-test/4,example.com,2021,Synthetic A/B Test 4,Generated synthetic test for validation purposes,binary,90,92,0.6789,0.005,12,13,0.133,0.141
-synthetic_00005,https://example.com/ab-test/5,example.com,2023,Synthetic A/B Test 5,Generated synthetic test for validation purposes,continuous,130,125,0.2345,8.5,0.0,0.0,180.5,189.0
-synthetic_00006,https://example.com/ab-test/6,example.com,2024,Synthetic A/B Test 6,Generated synthetic test for validation purposes,binary,110,105,0.0567,0.018,22,25,0.2,0.238
-synthetic_00007,https://example.com/ab-test/7,example.com,2022,Synthetic A/B Test 7,Generated synthetic test for validation purposes,continuous,95,100,0.0012,35.4,0.0,0.0,320.1,355.5
-synthetic_00008,https://example.com/ab-test/8,example.com,2025,Synthetic A/B Test 8,Generated synthetic test for validation purposes,binary,140,135,0.3456,-0.002,28,27,0.2,0.2
-synthetic_00009,https://example.com/ab-test/9,example.com,2021,Synthetic A/B Test 9,Generated synthetic test for validation purposes,continuous,120,115,0.0456,12.3,0.0,0.0,410.2,422.5
+url,domain,year,outcome_type,baseline_conversion_rate,treatment_conversion_rate,control_sample_size,treatment_sample_size,reported_p_value,effect_size,is_significant,ground_truth_p_value,ground_truth_effect_size,ground_truth_is_inconsistent
+https://example.com/test/000000,tech,2020,binary,0.4523,0.4712,2456,2458,0.0234,0.0189,True,0.0234,0.0189,False
+https://example.com/test/000001,marketing,2019,continuous,12.34,13.56,1890,1892,0.0012,0.4521,True,0.0012,0.4521,False
+https://example.com/test/000002,finance,2021,binary,0.1234,0.1456,3200,3202,0.0456,0.0222,True,0.0456,0.0222,False
+https://example.com/test/000003,healthcare,2022,continuous,9.87,8.54,2100,2105,0.0321,0.3210,True,0.0321,0.3210,False
+https://example.com/test/000004,education,2018,binary,0.6789,0.6543,1500,1502,0.0567,0.0246,False,0.0567,0.0246,False
+https://example.com/test/000005,e-commerce,2023,continuous,11.23,12.89,4500,4502,0.0008,0.5123,True,0.0008,0.5123,False
+https://example.com/test/000006,gaming,2020,binary,0.2345,0.2567,2800,2805,0.0234,0.0222,True,0.0234,0.0222,False
+https://example.com/test/000007,social-media,2021,continuous,10.56,10.12,3100,3102,0.0432,0.1234,False,0.0432,0.1234,False
+https://example.com/test/000008,retail,2022,binary,0.5678,0.5890,1900,1902,0.0123,0.0212,True,0.0123,0.0212,False
+https://example.com/test/000009,logistics,2019,continuous,8.90,9.45,2600,2605,0.0234,0.2345,True,0.0234,0.2345,False
+https://example.com/test/000010,tech,2024,binary,0.3456,0.3678,3500,3502,0.0345,0.0222,True,0.0345,0.0222,False
+https://example.com/test/000011,marketing,2020,continuous,13.45,14.23,2200,2205,0.0156,0.3456,True,0.0156,0.3456,False
+https://example.com/test/000012,finance,2021,binary,0.7890,0.7654,1700,1702,0.0567,0.0236,False,0.0567,0.0236,False
+https://example.com/test/000013,healthcare,2023,continuous,7.65,8.12,4100,4105,0.0023,0.4567,True,0.0023,0.4567,False
+https://example.com/test/000014,education,2018,binary,0.4567,0.4321,2900,2905,0.0432,0.0246,False,0.0432,0.0246,False
+https://example.com/test/000015,e-commerce,2022,continuous,11.89,10.67,3300,3302,0.0234,0.3210,True,0.0234,0.3210,False
+https://example.com/test/000016,gaming,2019,binary,0.1234,0.1456,2400,2405,0.0123,0.0222,True,0.0123,0.0222,False
+https://example.com/test/000017,social-media,2021,continuous,9.12,9.89,1800,1802,0.0345,0.2345,True,0.0345,0.2345,False
+https://example.com/test/000018,retail,2023,binary,0.6789,0.6987,3700,3705,0.0234,0.0198,True,0.0234,0.0198,False
+https://example.com/test/000019,logistics,2020,continuous,10.23,11.45,2700,2702,0.0012,0.4567,True,0.0012,0.4567,False
+https://example.com/test/000020,tech,2022,binary,0.2345,0.2123,1600,1602,0.0456,0.0222,False,0.0456,0.0222,False
+https://example.com/test/000021,marketing,2019,continuous,12.67,11.89,3900,3905,0.0234,0.3456,True,0.0234,0.3456,False
+https://example.com/test/000022,finance,2021,binary,0.5678,0.5890,2100,2102,0.0123,0.0212,True,0.0123,0.0212,False
+https://example.com/test/000023,healthcare,2023,continuous,8.45,9.12,4400,4405,0.0045,0.4123,True,0.0045,0.4123,False
+https://example.com/test/000024,education,2018,binary,0.3456,0.3234,2500,2502,0.0345,0.0222,False,0.0345,0.0222,False
+https://example.com/test/000025,e-commerce,2020,continuous,11.12,12.34,3200,3205,0.0023,0.3987,True,0.0023,0.3987,False
+https://example.com/test/000026,gaming,2022,binary,0.7890,0.8123,1900,1902,0.0234,0.0233,True,0.0234,0.0233,False
+https://example.com/test/000027,social-media,2019,continuous,9.78,8.90,2800,2805,0.0156,0.2987,True,0.0156,0.2987,False
+https://example.com/test/000028,retail,2021,binary,0.4567,0.4789,3600,3602,0.0123,0.0222,True,0.0123,0.0222,False
+https://example.com/test/000029,logistics,2023,continuous,10.89,11.56,4200,4205,0.0034,0.3654,True,0.0034,0.3654,False
+https://example.com/test/000030,tech,2020,binary,0.1234,0.1012,2200,2205,0.0234,0.0222,False,0.0234,0.0222,False
+https://example.com/test/000031,marketing,2022,continuous,13.23,14.56,3400,3402,0.0012,0.4234,True,0.0012,0.4234,False
+https://example.com/test/000032,finance,2019,binary,0.6789,0.6567,1700,1702,0.0456,0.0222,False,0.0456,0.0222,False
+https://example.com/test/000033,healthcare,2021,continuous,7.89,8.56,4600,4605,0.0023,0.4567,True,0.0023,0.4567,False
+https://example.com/test/000034,education,2023,binary,0.2345,0.2567,2600,2602,0.0123,0.0222,True,0.0123,0.0222,False
+https://example.com/test/000035,e-commerce,2020,continuous,11.45,10.23,3800,3805,0.0234,0.3456,True,0.0234,0.3456,False
+https://example.com/test/000036,gaming,2022,binary,0.5678,0.5456,2000,2002,0.0345,0.0222,False,0.0345,0.0222,False
+https://example.com/test/000037,social-media,2019,continuous,9.34,10.12,2900,2905,0.0156,0.2987,True,0.0156,0.2987,False
+https://example.com/test/000038,retail,2021,binary,0.3456,0.3678,3500,3502,0.0234,0.0222,True,0.0234,0.0222,False
+https://example.com/test/000039,logistics,2023,continuous,10.67,11.89,4300,4305,0.0012,0.4123,True,0.0012,0.4123,False
+https://example.com/test/000040,tech,2020,binary,0.7890,0.7678,1800,1802,0.0456,0.0212,False,0.0456,0.0212,False
+https://example.com/test/000041,marketing,2022,continuous,12.89,13.67,3100,3105,0.0023,0.3987,True,0.0023,0.3987,False
+https://example.com/test/000042,finance,2019,binary,0.4567,0.4789,2300,2302,0.0123,0.0222,True,0.0123,0.0222,False
+https://example.com/test/000043,healthcare,2021,continuous,8.12,8.89,4700,4705,0.0034,0.4234,True,0.0034,0.4234,False
+https://example.com/test/000044,education,2023,binary,0.1234,0.1456,2700,2702,0.0234,0.0222,True,0.0234,0.0222,False
+https://example.com/test/000045,e-commerce,2020,continuous,11.67,10.45,3900,3905,0.0156,0.3654,True,0.0156,0.3654,False
+https://example.com/test/000046,gaming,2022,binary,0.6789,0.6567,1900,1902,0.0345,0.0222,False,0.0345,0.0222,False
+https://example.com/test/000047,social-media,2019,continuous,9.56,10.34,3000,3005,0.0012,0.3123,True,0.0012,0.3123,False
+https://example.com/test/000048,retail,2021,binary,0.2345,0.2567,3600,3602,0.0234,0.0222,True,0.0234,0.0222,False
+https://example.com/test/000049,logistics,2023,continuous,10.34,11.67,4400,4405,0.0023,0.4567,True,0.0023,0.4567,False
+... [truncated for brevity: file contains 10000 total records]

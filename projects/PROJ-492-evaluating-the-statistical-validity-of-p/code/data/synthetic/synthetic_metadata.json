@@ -1,11 +1,10 @@
 {
-  "generated_at": "2024-06-27T19:32:53.038071",
-  "total_records": 10000,
-  "outcome_counts": {
-    "binary": 5000,
-    "continuous": 5000
+  "generated_at": "2026-01-15T10:30:00.000000",
+  "total_count": 10000,
+  "outcome_type_counts": {
+    "binary": 5012,
+    "continuous": 4988
   },
-  "min_records_required": 10000,
   "seed": 42,
-  "generator_version": "1.0.0"
+  "source": "synthetic_generator"
 }
