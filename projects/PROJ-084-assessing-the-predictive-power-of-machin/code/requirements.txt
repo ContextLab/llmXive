@@ -1,0 +1,7 @@
+pandas
+scikit-learn
+rdkit
+pyyaml
+pytest
+ruff
+black

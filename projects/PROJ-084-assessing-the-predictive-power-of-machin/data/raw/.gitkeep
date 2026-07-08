@@ -1,0 +1,2 @@
+# This directory stores raw, unprocessed data downloaded from external sources.
+# Do not commit large binary files here; use .gitignore patterns to exclude data files.

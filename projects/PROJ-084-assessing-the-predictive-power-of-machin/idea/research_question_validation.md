@@ -1,34 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
-**Verdict**: fail
-
-The question is framed around whether specific ML architectures (Random Forests, SVMs) can perform a prediction task without GPU infrastructure, rather than asking about the underlying chemical relationship. The phenomenon buried here is "what structural features of reactants and reaction conditions determine yield and selectivity?" but this is obscured by implementation concerns about deep learning infrastructure.
-
-### Circularity check
-
 **Verdict**: pass
 
-The predictor (molecular fingerprints derived from reactant SMILES) and the predicted variable (experimental reaction yields and selectivity from the USPTO dataset) come from independent data sources. Fingerprints are structural descriptors; yields are measured experimental outcomes.
+The question explicitly asks about the relationship between specific molecular structural features (substructures, reaction conditions) and reaction outcomes (yield, selectivity), rather than asking whether a specific algorithm can achieve a certain metric. While the methodology sketch specifies Random Forest and SVM, the core research question is about the *predictive signal* inherent in the chemical data itself, independent of the model chosen to extract it.
+
+### Circularity check
+**Verdict**: pass
+
+The predictor variables are molecular fingerprints (ECFP4, MACCS) derived from the reactant SMILES strings, representing the chemical structure of the starting materials. The predicted variable is the reaction yield, an experimental outcome value associated with that reaction instance in the USPTO dataset. These are distinct data sources (structural representation vs. experimental measurement), and the yield is not mechanically derived from the fingerprint calculation itself.
 
 ### Triviality check
+**Verdict**: pass
 
-**Verdict**: concern
-
-While not completely predetermined, the question risks being a benchmark exercise rather than a scientific inquiry. Domain knowledge already suggests fingerprints contain predictive signal for chemical properties, and both positive ("classical ML achieves R² > 0.6") and null ("classical ML fails, deep learning needed") outcomes are somewhat expected. The real scientific value lies in understanding *which* features matter, not just *whether* prediction is possible.
+Both positive and null results are scientifically informative. A positive result (strong correlation) identifies which specific substructures drive high yields, providing actionable chemical insight for optimization. A null result (weak correlation) would be equally valuable by demonstrating that simple structural fingerprints lack the necessary information to predict yield, thereby justifying the need for more complex descriptors (e.g., transition state features) or deep learning architectures.
 
 ### Question-narrowing check
+**Verdict**: pass
 
-**Verdict**: fail
-
-The question explicitly names implementation constraints ("without requiring deep learning infrastructure") and specific algorithm choices (Random Forests, SVMs) rather than a domain relationship. This is an engineering/benchmark question masquerading as a chemical science question.
+The question names a domain relationship ("which structural features... determine... yield and selectivity") rather than a constraint on implementation (e.g., "Can a Random Forest run in under 1 hour?"). The mention of generalization across reaction classes further grounds the question in chemical space rather than computational performance metrics.
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-[REVISED]
-Which structural features of reactants and reaction conditions (captured via molecular fingerprints) most strongly determine organic reaction yield and selectivity, and how well do these features generalize across reaction classes?
-[/REVISED]
-Reframing shifts the question from "can classical ML predict yields" (a benchmark question) to "what chemical features predict yields" (a domain question), while still allowing classical ML methods to be used as the tool for feature importance analysis rather than making the method itself the subject of inquiry.
+All checks pass; the research question targets a substantive chemical relationship between molecular structure and reaction outcome without falling into implementation narrowing or circular construction. The proposed study addresses a clear gap in understanding the baseline predictive power of classical features for yield, making the project ready for initialization.

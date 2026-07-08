@@ -1,0 +1,65 @@
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint dimensionality is 2048
+  claim_id: c_98a1d725
+  context: Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in tests/unit/test_fingerprints.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate ECFP and MACCS vectors for all reactants/reagents
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:47:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint dimensionality is 167
+  claim_id: c_239320fb
+  context: Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in tests/unit/test_fingerprints.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate ECFP and MACCS vectors for all reactants/reagents
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:47:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Training operations must respect 7GB RAM limit
+  claim_id: c_4f1edf91
+  context: "Ensure all training operations are CPU-only and batched to respect \u2264\
+    \ 7GB RAM limit (FR-009, FR-010)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_operations_must_respect_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: "Ensure all training operations are CPU-only and batched to respect \u2264\
+    \ 7GB RAM limit"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:48:06Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Full pipeline runs within 6 hours on 2-CPU runner
+  claim_id: c_7dbfc352
+  context: 'Performance optimization: Ensure full pipeline runs within 6 hours on
+    2-CPU runner'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline runs within 6 hours on 2-CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T18:48:23Z'
