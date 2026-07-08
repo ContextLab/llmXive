@@ -159,10 +159,6 @@
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
-? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
-  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
-  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
-: 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
@@ -438,6 +434,13 @@
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010."
 : 2
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
+  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
+  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
+: 1
 ? "T029 Evaluate inconsistency\u2011detection component on synthetic validation dataset\
   \ (FR\u2011031) \u2013 compute precision, recall, F1 and assert precision \u2265\
   \ 90\u202F%, recall \u2265 80\u202F% [UNRESOLVED-CLAIM: c_5f9692d7 \u2014 status=not_enough_info]\
