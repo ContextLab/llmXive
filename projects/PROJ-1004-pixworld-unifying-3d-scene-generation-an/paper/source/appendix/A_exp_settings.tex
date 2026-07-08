@@ -1,0 +1,52 @@
+\section{Implementation Details}
+\label{sec:appendix_settings}
+
+\paragraph{Architecture.}
+PixWorld's denoiser $f_\theta$ is a 24-layer DiT~\citep{peebles2023scalable} with hidden width $d{=}1024$, $16$ attention heads (head dim $64$), SwiGLU~\citep{shazeer2020glu} feed-forward layers, RMSNorm on $Q,K$, and adaLN-Zero modulation conditioned on the diffusion timestep. Following the SD3-style MMDiT~\citep{esser2024scaling} design, each block hosts two parallel streams that share topology but maintain independent pre-LayerNorm, QKV / output projections, MLP, and adaLN-Zero weights: a clean stream processes the conditioning views in $\Omega_{\mathrm c}$, and a noise stream processes the noisy views in $\Omega_{\mathrm n}$. Inside the attention operator, the per-stream $Q$, $K$, $V$ tensors are concatenated along the token axis (with shared $q,k$-RMSNorm) and a single full attention is computed jointly over $[\,\Omega_{\mathrm c};\,\Omega_{\mathrm n}\,]$, so conditioning and noisy tokens cross-talk in every layer; the joint output is then split back and routed through stream-specific output projections. The two streams share a single cross-attention to text tokens and a single timestep embedder, the latter evaluated at $t{=}1$ for the clean stream and at the sampled $t$ for the noise stream, allowing one model to serve both pose-only and text-conditioned generation. Camera parameters are injected via PRoPE~\citep{li2025cameras}. Inputs use a $16{\times}16$ patchify with learnable positional embeddings, and the final layer emits per-pixel depth and 3D-Gaussian attributes through stream-specific multi-task heads, with Gaussian centers obtained by unprojecting each pixel using its predicted depth (Sec.~\ref{sec:pixworld}). The total trainable parameter count is $1.044$\,B; Table~\ref{tab:arch} reports the per-component budget.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Architecture of the two-stream DiT denoiser $f_\theta$.} Each block follows an MMDiT-style design: the clean and noise streams maintain independent pre-LayerNorm, QKV / output projections, SwiGLU MLP, and adaLN-Zero weights, while a single full attention is computed jointly over the concatenated $[\,\Omega_{\mathrm c};\,\Omega_{\mathrm n}\,]$ tokens with shared $q,k$-RMSNorm. The cross-attention to text and the timestep embedder are also shared across streams, and output heads are duplicated per stream so that both clean and noisy tokens are decoded into depth and 3D-Gaussian attributes at every patch.}
+\label{tab:arch}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{@{}l l r@{}}
+\toprule
+Module & Configuration & \#Params \\
+\midrule
+\multicolumn{3}{@{}l}{(a) Tokenization \& conditioning} \\
+Clean-view patch embed     & $16{\times}16$ patchify, $3 {\rightarrow} 1024$            & 0.79\,M \\
+Noisy-view patch embed     & $16{\times}16$ patchify, $3 {\rightarrow} 1024$            & 0.79\,M \\
+Positional embedding       & learnable, $588 {\times} 1024$                              & 0.60\,M \\
+Timestep embedder          & sinusoidal $256$ + MLP $1024 {\rightarrow} 1024$            & 1.31\,M \\
+Text projection            & MLP $4096 {\rightarrow} 1024 {\rightarrow} 1024$            & 5.24\,M \\
+\midrule
+\multicolumn{3}{@{}l}{(b) Two-stream MMDiT block ($\times\,24$;\, $d{=}1024$, $h{=}16$, $d_h{=}64$)} \\
+QKV projection (clean)         & pre-LN + $1024 {\rightarrow} 3{\times}1024$                  & 3.15\,M \\
+Output projection (clean)      & $1024 {\rightarrow} 1024$                                    & 1.05\,M \\
+SwiGLU MLP (clean)             & $1024 {\rightarrow} 2{\times}2730 {\rightarrow} 1024$        & 8.39\,M \\
+adaLN-Zero (clean)             & $t$-cond.\ $\gamma,\beta,\alpha$ ($\times 6$)                & 6.30\,M \\
+QKV projection (noise)         & pre-LN + $1024 {\rightarrow} 3{\times}1024$                  & 3.15\,M \\
+Output projection (noise)      & $1024 {\rightarrow} 1024$                                    & 1.05\,M \\
+SwiGLU MLP (noise)             & $1024 {\rightarrow} 2{\times}2730 {\rightarrow} 1024$        & 8.39\,M \\
+adaLN-Zero (noise)             & $t$-cond.\ $\gamma,\beta,\alpha$ ($\times 6$)                & 6.30\,M \\
+Joint full attention           & SDPA over $[\Omega_{\mathrm c};\Omega_{\mathrm n}]$ with shared $q,k$-RMSNorm & $\sim 0$ \\
+Cross-attention to text        & shared by both streams                                       & 4.20\,M \\
+\multicolumn{2}{r}{per-block subtotal}                                                & 41.98\,M \\
+\multicolumn{2}{r}{trunk total ($\times 24$ blocks)}                                  & 1007.6\,M \\
+\midrule
+\multicolumn{3}{@{}l}{(c) Multi-task output heads (duplicated per stream)} \\
+Depth head       & adaLN + linear $1024 {\rightarrow} 16{\times}16{\times}1$  & $2{\times}2.36$\,M \\
+3D-Gaussian head & adaLN + linear $1024 {\rightarrow} 16{\times}16{\times}35$ & $2{\times}11.28$\,M \\
+\midrule
+Total trainable parameters & & 1.044\,B \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Data and batching.}
+The RealEstate10K~\citep{zhou2018stereo} and DL3DV-10K~\citep{ling2024dl3dv} datasets together provide $\sim\!67$K posed multi-view scenes. From each scene we sample $N\!\in\!\{4,\ldots,8\}$ views and partition them into $\Omega_{\mathrm c}/\Omega_{\mathrm n}$, biasing the sampler toward small $|\Omega_{\mathrm c}|$ so capacity is spent on conditioned generation. We additionally mix in a single-image branch of 10M images drawn from the BLIP-3o~\citep{chen2025blip3} corpus, which shares the diffusion backbone and strengthens the 2D appearance prior. On each GPU, every optimization step alternates a 32-image single-view batch with a multi-view batch of up to 32 images (\textit{e.g.}, $4$--$8$ views $\times$ $4$--$8$ scenes).
+
+\paragraph{Optimization.}
+We optimize $\mathcal{L} = \mathcal{L}_{\mathrm{render}} + \lambda_{\mathrm{depth}}\,\mathcal{L}_{\mathrm{depth}} + \lambda_{\mathrm{geo}}\,\mathcal{L}_{\mathrm{geo}}$ with $\lambda_{\mathrm{depth}}{=}1.0$ and $\lambda_{\mathrm{lpips}}{=}\lambda_{\mathrm{geo}}{=}0.1$, gating $\mathcal{L}_{\mathrm{lpips}}$ and $\mathcal{L}_{\mathrm{geo}}$ at $t{>}t_{\mathrm{th}}{=}0.3$ since perceptual and geometric supervision is unreliable when the noisy input is close to pure noise. The frozen geometry critic $\Psi$ is instantiated as $\pi^3$~\citep{wang2025pi}, with gradients stopped on the reference branch. Training is run from scratch (no image- or video-model pretraining) using AdamW~\citep{loshchilov2017decoupled} with a linearly decayed learning rate from $1\!\times\!10^{-4}$ to $1\!\times\!10^{-5}$, EMA decay $0.9995$, gradient clipping at $1.0$, and classifier-free text dropping at rate $0.2$. Training runs for $\sim\!200$K steps on $32$ NVIDIA A800-SXM4-80G GPUs.

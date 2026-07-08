@@ -1,0 +1,54 @@
+\begin{table*}[!t]
+  \centering
+  \caption{Relation to large-language-model optimizer benchmarks and mechanistic empirical
+  studies.}
+  \label{tab:related_benchmarks}
+  \scriptsize
+  \setlength{\tabcolsep}{0.4mm}
+  \renewcommand{\arraystretch}{1.14}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}m{0.230\textwidth}>{\raggedright\arraybackslash}m{0.100\textwidth}|*{5}{>{\centering\arraybackslash}m{0.070\textwidth}}|*{5}{>{\centering\arraybackslash}m{0.047\textwidth}}@{}}
+    \toprule
+    \multirow[c]{2}{0.230\textwidth}[-1.5ex]{\centering\arraybackslash\textbf{Work}} &
+    \multicolumn{1}{>{\centering\arraybackslash}m{0.100\textwidth}}{\multirow[c]{2}{0.100\textwidth}[-1.5ex]{\centering\arraybackslash\shortstack{\textbf{Training}\\\textbf{setting}}}} &
+    \multicolumn{5}{c}{\textbf{Method coverage}} &
+    \multicolumn{5}{c}{\textbf{Evaluation focus}} \\
+    \cmidrule(lr){3-7}\cmidrule(l){8-12}
+    & \multicolumn{1}{>{\raggedright\arraybackslash}m{0.100\textwidth}}{} & \shortstack{\textbf{Adaptive}\\\textbf{moment}} & \shortstack{\textbf{Matrix}\\\textbf{methods}} & \shortstack{\textbf{Direction}\\\textbf{discre-}\\\textbf{tization}} & \shortstack{\textbf{State}\\\textbf{compres-}\\\textbf{sion}} & \multicolumn{1}{>{\centering\arraybackslash}m{0.070\textwidth}}{\shortstack{\textbf{Geometry}\\\textbf{regular-}\\\textbf{ization}}} & \textbf{Tune} & \shortstack{\textbf{Proto-}\\\textbf{col}} & \textbf{Cost} & \shortstack{\textbf{Down-}\\\textbf{stream}} & \shortstack{\textbf{Mech-}\\\textbf{anism}} \\
+    \midrule
+    \mbox{Deconstructing Optimizers~\citep{zhao2025deconstructing}}
+    & \mbox{PT} & \cmark & \xmark & \cmark & \cmark & \cmark
+    & \cmark & \cmark & \pmark & \xmark & \cmark \\
+    \mbox{Benchmarking LLM Opt.~\citep{semenov2025benchmarking}}
+    & \mbox{PT} & \cmark & \cmark & \cmark & \xmark & \cmark
+    & \cmark & \cmark & \pmark & \xmark & \cmark \\
+    \mbox{Fantastic PT Opt.~\citep{wen2025fantastic}}
+    & \mbox{PT} & \cmark & \cmark & \cmark & \cmark & \cmark
+    & \cmark & \cmark & \cmark & \xmark & \pmark \\
+    \mbox{Budgeted LLM PT~\citep{schlotthauer2025budget}}
+    & \mbox{Budget PT} & \cmark & \xmark & \cmark & \xmark & \cmark
+    & \pmark & \pmark & \cmark & \cmark & \pmark \\
+    \mbox{ZO FT Benchmark~\citep{zhang2024zerothorder}}
+    & \mbox{ZO FT} & \pmark & \xmark & \pmark & \xmark & \xmark
+    & \pmark & \pmark & \cmark & \cmark & \pmark \\
+    \mbox{Muon Fine-tuning Study~\citep{qu2026muonfinetune}}
+    & \mbox{FT} & \cmark & \cmark & \xmark & \xmark & \xmark
+    & \pmark & \pmark & \xmark & \cmark & \cmark \\
+    \mbox{Muon Spectral Study~\citep{shumaylov2026muonnot}}
+    & \mbox{Mech.} & \pmark & \cmark & \xmark & \xmark & \xmark
+    & \xmark & \xmark & \xmark & \xmark & \cmark \\
+    \rowcolor{oursbg}
+    \textbf{Ours}
+    & \mbox{PT} & \cmark & \cmark & \cmark & \cmark & \cmark
+    & \cmark & \cmark & \cmark & \cmark & \cmark \\
+    \bottomrule
+  \end{tabular}
+  \vspace{2pt}
+  \begin{minipage}{0.98\textwidth}
+    \footnotesize \emph{Note.} \cmark indicates explicit coverage of the
+    family; \pmark indicates analogue, boundary, or baseline-only coverage;
+    \xmark indicates no coverage under these labels.  Opt., PT, ZO, FT, and
+    Mech. abbreviate optimizers, pretraining, zeroth-order, fine-tuning, and
+    mechanistic, respectively; Budget PT denotes budgeted pretraining.
+  \end{minipage}
+\end{table*}
+\FloatBarrier

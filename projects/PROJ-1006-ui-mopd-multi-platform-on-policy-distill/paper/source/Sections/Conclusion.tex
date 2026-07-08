@@ -1,0 +1,9 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This work studies continual learning for cross-platform graphical user interface (GUI) agents in heterogeneous desktop and mobile environments. To address the behavioral pattern mixing, platform-specific capability degradation, and catastrophic forgetting that often arise in multi-platform training, we construct a unified cross-platform data-collection harness and use it to build \BENCH, a high-quality cross-platform graphical user interface interaction dataset. This provides a data foundation for learning executable trajectories across desktop and mobile environments.
+Methodologically, we propose \METHODNAME, which introduces multi-teacher on-policy distillation (MOPD) into cross-platform continual learning for GUI agents. The shared student policy samples rollouts from its current policy during reinforcement learning, and rollouts from different platforms are routed to their corresponding platform-specific teachers according to the source platform.
+Experimental results show that \METHODNAME achieves task success rates of 38.2\% and 12.0\% on OSWorld and MobileWorld, respectively, substantially outperforming conventional approaches such as model merging or distilling from static offline trajectories. These results demonstrate the ability of \METHODNAME to balance cross-platform capability retention with adaptation to new platforms. Overall, our findings suggest that introducing MOPD into multi-platform GUI agent training is effective in mitigating interference among heterogeneous interaction patterns and provides a feasible path toward unified GUI agents that can continually adapt to diverse digital environments.
+
+
+

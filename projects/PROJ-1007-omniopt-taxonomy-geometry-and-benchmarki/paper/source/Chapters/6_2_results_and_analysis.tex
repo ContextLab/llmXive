@@ -1,0 +1,688 @@
+\subsection{Results and Analysis}
+\label{sec:benchmark-main-results}
+
+\subsubsection{Stage~1: Broad Screening on C4}
+\label{sec:benchmark-stage1}
+
+We first conduct a broad screening of all 24 optimizers on C4 under the
+LLaMA architecture. This stage is designed as a controlled short-context
+comparison, where the goal is to evaluate three directly measured quantities:
+validation perplexity (PPL), optimizer-state memory (Mem), and per-step
+optimizer runtime (T). These three metrics correspond to optimization quality
+(O1), per-step compute (O2), and memory efficiency (O3). 
+
+Table~\ref{tab:c4_llama_full_screening} reports the results at 60M, 130M,
+350M, and 1B. Optimizers are grouped by methodological family (T1--T5) and
+sorted by 1B PPL within each family. This layout allows us to compare both
+individual optimizers and family-level tendencies without turning the table
+into a flat leaderboard.
+
+\input{tables/tab_c4_llama3_full_screening}
+
+\paragraph{Quality.}
+At the 1B scale, the best PPL is achieved by APOLLO (13.53), followed by a
+group of matrix-structured methods, including MARS-Shampoo (13.72), Muon
+(13.72), and RMNP (13.87). This shows that the strongest short-context
+optimization quality is distributed across multiple families, because state-compressed
+optimization and matrix-structured optimization both produce highly competitive
+points. At smaller scales, however, the ranking is less stable. Muon leads at
+60M and 130M, whereas APOLLO becomes strongest only at 350M and 1B. Therefore,
+Stage~1 already suggests that optimizer quality is scale-dependent and should be
+evaluated across multiple scales.
+
+\paragraph{Runtime.}
+The runtime column shows a different pattern. Lion is the fastest method at
+350M and 1B, while AdamW remains one of the cheapest practical baselines.
+Several quality-oriented matrix methods are much more expensive: SOAP, Muon,
+MARS-Shampoo, and Shampoo\footnote{Our Shampoo implementation follows Meta's
+\href{https://github.com/facebookresearch/optimizers}{\texttt{optimizers}}
+library, incorporating the fix discussed in
+\href{https://github.com/facebookresearch/optimizers/issues/265\#issuecomment-4668270192}{this issue}.}
+incur substantial per-step overhead due to
+matrix-level transformations or preconditioning. RMNP is the main exception
+among matrix-structured optimizers, achieving strong PPL while keeping
+runtime close to lightweight methods. Thus, Stage~1 reveals a clear separation
+between heavy matrix-structured optimizers and lightweight approximations.
+
+\paragraph{Optimizer-state memory.}
+The lowest-memory region is mostly occupied by state-compressed or
+subspace-based methods. AdaFactor has the
+lowest optimizer-state memory at all scales, while APOLLO and GaLore also use
+far less memory than AdamW at the 1B scale. However, the lowest memory does not
+necessarily imply the best quality. AdaFactor is extremely memory-efficient
+but only moderate in PPL. APOLLO is the most attractive Stage~1 memory point
+because it combines low memory with the best 1B PPL, but whether this advantage
+transfers beyond short-context C4 training must be tested separately.
+
+\begin{takeaway}
+\noindent\textbf{Stage~1 takeaway.}
+\emph{Short-context screening reveals different objective frontiers across
+T-families, and a universal winner does not exist.} T4 shows the strongest advantage
+when memory efficiency is prioritized, T2 contributes the main high-quality
+and structured-update candidates, and T1 remains the most reliable balanced
+reference. Even in the same C4 short-context setting, different families
+therefore occupy different favorable regions in quality, runtime, and memory.
+Optimizer choice is consequently objective-dependent.
+\end{takeaway}
+
+
+\subsubsection{Stage~1 Pareto Analysis over PPL, Runtime, and Memory}
+\label{sec:benchmark-pareto}
+
+The Stage~1 results are inherently multi-objective. A method with lower PPL
+may become unattractive if it requires substantially higher runtime or
+optimizer-state memory, whereas a highly efficient method may be unusable if
+its quality degradation is too large. We therefore analyze the short-context
+C4 results through Pareto frontiers over the three directly measured
+objectives, namely optimization quality (O1), per-step compute (O2), and
+optimizer-state memory (O3).
+
+
+\paragraph{PPL--runtime and PPL--memory frontiers.}
+We plot two Pareto views at the 1B scale: PPL versus per-step optimizer
+runtime, and PPL versus optimizer-state memory. An optimizer is Pareto-optimal
+if no other optimizer achieves both lower PPL and lower cost along the
+corresponding efficiency axis.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/pareto_1B_advance.pdf}
+  \caption{\textbf{Stage-1 Pareto frontiers (1B).} PPL vs.\ per-step runtime (left) and
+vs.\ optimizer-state memory (right); lower-left is better. Colors denote families,
+stars mark frontier members.}
+  \label{fig:pareto_1b}
+\end{figure*}
+
+Figure~\ref{fig:pareto_1b} shows that the runtime frontier is not occupied by
+the heaviest quality-oriented methods. Lion is the fastest point, but its PPL
+is too high to make it a strong overall choice. GaLore is also efficient in
+runtime, but its quality remains behind the best optimizers. RMNP occupies the
+most important middle region, where it is much faster than heavy matrix-structured
+methods while still achieving strong PPL. APOLLO appears as the best
+short-context quality point and remains non-dominated in runtime.
+
+This pattern separates matrix-structured methods into two regimes. SOAP, Muon,
+MARS-Shampoo, and Shampoo improve quality through matrix-level operations or
+preconditioning, but they pay substantial runtime overhead. RMNP, in contrast,
+retains a large part of the matrix-structured quality benefit while staying
+close to the efficient frontier. It therefore represents the clearest
+quality--runtime compromise among matrix-structured methods in Stage~1.
+
+The memory frontier is more concentrated. AdaFactor achieves the smallest
+optimizer-state memory, but its PPL is only moderate. APOLLO is the strongest
+memory-frontier point in Stage~1, achieving the best 1B PPL while using much
+less optimizer-state memory than AdamW. This result demonstrates the potential
+of state-compressed optimization under short-context training. However, it
+should be read as a local Stage~1 optimum.
+
+\paragraph{Optimizer-level heatmap.}
+To complement the Pareto plots, Fig.~\ref{fig:optimizer_heatmap} summarizes
+the three Stage~1 metrics at the 1B scale for all 24 optimizers. This figure
+keeps the analysis at the optimizer level and shows that even within the same
+family, methods can occupy very different quality--efficiency regimes.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=1.0\textwidth]{figures/heatmap_24opt.pdf}
+  \caption{\textbf{Optimizer-level heatmap of the three Stage-1 metrics (1B).} Rows are grouped
+by family, and columns are C4 PPL, runtime, and optimizer-state memory. Green is favorable,
+red unfavorable.}
+  \label{fig:optimizer_heatmap}
+\end{figure*}
+
+The heatmap highlights substantial within-family variation. RMNP and SOAP both
+belong to the matrix-structured family, but RMNP is a balanced method whereas
+SOAP is a quality-oriented but expensive outlier. APOLLO and AdaFactor both
+belong to state-compressed optimization, but APOLLO achieves much better PPL
+whereas AdaFactor is more extreme in memory reduction. Similarly, AdamW and
+MARS-AdamW belong to the same element-wise family, yet they differ in the
+quality--runtime balance. Therefore, family labels are useful for organizing
+the benchmark, but optimizer selection still requires metric-level analysis.
+
+\begin{takeaway}
+\noindent\textbf{Stage~1 Pareto takeaway.}
+The Pareto frontier should be read as each T-family's best attainable
+trade-off. T4 is most competitive when
+optimizer-state memory is the main constraint, lightweight T2 variants are
+more attractive when runtime matters, and T1 provides the stable reference
+region when neither cost dimension dominates. Heavier T2 methods can improve
+quality, but their benefit must be evaluated together with the runtime and
+memory cost needed to obtain it.
+\end{takeaway}
+
+
+\subsubsection{Stage~2: Generalization across Data, Context Length, and Architectures}
+\label{sec:benchmark-stage2}
+
+We migrate the stronger optimizers from Stage~1 to a substantially more
+demanding regime: the higher-quality FineWeb-Edu corpus, a 32k context length,
+two model scales (340M and 1B), and four architectures---Transformer++
+(standard attention) together with three linear-attention variants (Gated
+DeltaNet, DeltaNet, GLA). This setting changes three factors at once relative
+to Stage~1: the data distribution, the sequence length, and the parameter
+topology induced by the token-mixing architecture.
+
+Because different architectures have different modeling capacity, absolute
+perplexity is incomparable across them. Comparing raw PPL between, say,
+Transformer++ and GLA would conflate the optimizer with the architecture. We
+therefore analyze \emph{within-architecture ranking} and its stability across
+architectures. For each architecture-scale pair, optimizers are ranked by
+WikiText test PPL, and an optimizer that holds a similar position everywhere is
+broadly generalizable, whereas one whose position swings sharply is
+architecture-sensitive. This rank-based view is the direct empirical proxy for
+the generalization objective (O6). To check whether the PPL-based picture is
+consistent with downstream behavior, we additionally report the average
+Commonsense Reasoning score (CS Avg.) over lm-eval-harness tasks for every
+scenario. Table~\ref{tab:stage2_cross_arch} gives both PPL and CS Avg. across
+the eight scenarios. Figure~\ref{fig:rank_stability} visualizes the resulting
+within-architecture PPL ranks.
+
+\input{tables/tab_fwe_linear_attn_arch_results}
+
+\paragraph{Rank-stability visualization.}
+Figure~\ref{fig:rank_stability} complements Table~\ref{tab:stage2_cross_arch}
+by visualizing how optimizer ranks change across the eight architecture-scale
+scenarios. Panel~(a) compares AdamW with other element-wise adaptive methods,
+showing whether improvements within the AdamW family are stable. Panel~(b)
+aggregates optimizers by family to reveal the broader ranking bands across
+architectures. Panel~(c) returns to the optimizer level and summarizes each
+method's per-architecture mean rank, making architecture sensitivity visible
+within a single optimizer. Together, the table and figure separate three
+phenomena: consistently transferable methods, methods that are strong only on
+specific architectures, and methods that systematically fail to transfer.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/rank_stability_v2.pdf}
+\caption{\textbf{Cross-scenario rank stability (FineWeb-Edu, 32k).} Absolute ranks among
+all twelve optimizers per scenario. (a) AdamW vs.\ its T1 family; (b) AdamW vs.\ other
+families' mean rank; (c) per-architecture mean rank per optimizer (color = family,
+hatch = architecture).}
+\label{fig:rank_stability}
+\end{figure*}
+
+\paragraph{SOAP is the most stable cross-scenario optimizer.}
+SOAP (T2) holds the top PPL position in seven of the eight scenarios and never
+leaves the top two, giving it an almost flat top line in
+Figure~\ref{fig:rank_stability}(b). Its advantage is therefore highly stable
+across both architecture and scale, which suggests that, in this benchmark,
+SOAP's Kronecker or Fisher basis preconditioning transfers across both
+standard-attention and linear-attention architectures. We treat SOAP as the
+strongest quality-oriented generalization baseline on perplexity, while noting
+that its lead becomes less exclusive under CS Avg. and that its runtime and
+memory costs remain substantial in Stage~1.
+
+\paragraph{MARS-AdamW is the most stable AdamW-style enhancement.}
+Within the element-wise family, MARS-AdamW is consistently ahead of plain AdamW
+and far ahead of Adan, as panel~(a) shows. It also attains the best CS Avg. on
+both Gated DeltaNet columns of Table~\ref{tab:stage2_cross_arch}. This pattern
+is consistent with the framework interpretation that the STORM-style
+variance-reduced estimator (Axis~II) can improve the gradient signal while
+largely preserving the AdamW update geometry. This improvement has a cost.
+MARS-AdamW introduces additional state and computation, so its runtime and
+optimizer-state memory exceed AdamW's in Stage~1. We therefore read it as a
+stable quality-oriented AdamW extension.
+
+\paragraph{Muon shows architecture-dependent behavior.}
+Muon sits in the middle of the field on standard attention but moves toward the
+top on GLA, where it also attains the best CS Avg. at 340M. Panel~(c) makes the
+pattern explicit. Among its four architecture-level bars, the GLA bar is the
+best while the Transformer++ and DeltaNet bars are worse. This trajectory
+suggests that Muon's spectral/polar direction geometry (Axis~III) interacts
+with the parameter topology of the target architecture. It also motivates the
+cross-architecture ablation below, where we test whether Muon's component-wise
+gains remain stackable outside the standard Transformer setting.
+
+\paragraph{State-compressed methods generalize worst.}
+The two T4 members sit at the bottom of the table. APOLLO is last or near-last
+in every one of the eight scenarios under both PPL and CS Avg., despite having
+been the single best optimizer in the Stage-1 short-context screening. This
+reversal---from short-context champion to long-context worst---is the sharpest
+generalization failure in the benchmark, and we isolate its cause next.
+
+\paragraph{CS Avg. corroborates the PPL ranking, with informative exceptions.}
+The CS Avg. results in Table~\ref{tab:stage2_cross_arch} largely track the PPL
+ordering, but the two views are not identical, and the mismatches are
+informative. Agreement is strongest at the extremes. APOLLO is last or
+near-last under CS Avg. in every scenario, confirming that its long-context
+collapse is not a PPL-only artifact, while SOAP remains in the top tier. The
+divergences are equally telling. SOAP's near-exclusive lead on PPL does not
+fully carry over to CS Avg., where MARS-AdamW tops both Gated DeltaNet columns, RMNP
+tops both DeltaNet columns, and on Gated-DeltaNet-340M the best PPL and the
+best CS Avg. belong to different optimizers. In short, even when downstream
+average accuracy is considered alongside perplexity, the best optimizer remains
+scenario-dependent.
+
+\begin{takeaway}
+\noindent\textbf{Stage~2 takeaway.}
+\emph{Long-context generalization is a stress test for T-families, and whether
+an optimizer generalizes is ultimately determined by the specific optimizer
+mechanism.} T1 and T2 form the strongest
+quality bands in the long-context setting, while T4 exposes the clearest
+transfer boundary from short to long context. At the same time, variation
+within the same family remains substantial. One representative may transfer
+well, whereas another can be sensitive to architecture. Generalization should
+therefore be understood as an interaction between optimizer mechanism and
+target model topology.
+\end{takeaway}
+
+
+\subsubsection{Scenario Sensitivity of Memory-Efficient Optimizers}
+\label{sec:benchmark-mem-eff-sensitivity}
+
+The Stage-1 screening showed that an aggressive state-compression method,
+APOLLO, can be the single best optimizer under short-context training, yet
+Stage~2 showed it generalizing worst under long context. Short-context
+performance alone therefore overestimates the practical value of such methods.
+To isolate this effect as much as possible, we conduct a controlled
+sequence-length ablation that changes exactly one variable: we fix the
+dataset (C4) and the LLaMA architecture, and vary only the context length
+from 256 to 32k (Table~\ref{tab:seqlen_numbers}). The short-context points
+come from the Stage-1 LLaMA setting at sequence length 256, and the
+long-context points from the same LLaMA architecture on C4 extended to a
+32k context length. We compare AdamW (the element-wise baseline),
+Lion (a sign-based efficient method, T3), and APOLLO (state compression, T4).
+The question is whether an optimizer's degradation from short to long context
+tracks the AdamW baseline or grows disproportionately.
+
+\paragraph{Finding and framework attribution.}
+The result is unambiguous from Table~\ref{tab:seqlen_numbers}. At 256 tokens, APOLLO is the best optimizer in the table (13.53). At 32k, it collapses to 35.40, a degradation of $+21.87$ PPL, roughly three times the AdamW baseline increase of $+7.39$. It is the only clear outlier. Lion, by contrast, degrades by $+6.29$, slightly \emph{less} than AdamW.
+
+The framework explains the contrast through Axis~II. APOLLO compresses its optimizer state by random projection into a low-dimensional subspace.
+
+\input{tables/tab_seqlen_number_effective}
+
+Under long context, the gradient's effective rank rises and its structure becomes
+more complex, so a fixed low-dimensional projection discards proportionally
+more information, and the compression that was nearly lossless at short context
+becomes lossy at long context. Lion (T3) does not compress state and only
+discretizes the direction (Axis~III), so its degradation tracks AdamW. This turns an isolated
+empirical surprise into a mechanistic statement, namely that the benefit of aggressive
+state compression (Axis~II) is bounded by the rank and structure of the
+gradient statistics, and that boundary becomes visible when the context length
+grows.
+
+\paragraph{A note on matched conditions.}
+The short-context points are taken from the Stage-1 C4 configuration
+(LLaMA, sequence length 256), and the long-context points from the same
+LLaMA architecture on C4 extended to a 32k context length. The architecture
+and dataset are therefore held fixed and context length is the only varied
+factor. Where training budget
+or token count differs between the two configurations, the comparison should
+be read as a qualitative indication of the degradation \emph{trend}, and the
+reported ranking of degradations (APOLLO $\gg$ Muon
+$\approx$ SOAP $\approx$ AdamW $>$ Lion) is robust to these differences.
+
+\begin{takeaway}
+\noindent\textbf{Sequence-length takeaway.}
+\emph{T4 is constrained by the structure and effective rank of long-context
+gradients.} A T4 optimizer can look highly competitive under short-context
+training, where compressed states may still preserve the dominant gradient
+information. As the context length increases, however, the gradient statistics
+become more complex and the same compression can become lossy. In contrast,
+T3 methods reduce update complexity without directly compressing optimizer
+state, making them less exposed to this particular sequence-length failure
+mode. Short-context quality alone therefore cannot certify the long-context
+reliability of T4.
+\end{takeaway}
+
+
+%%%%%%%%%% CV experiments version 1: CIFAR100, IN1k (maybe)
+%%% Backbones --> optimizers differ, conclusion
+\subsubsection{Optimizer Robustness Across Vision Backbones}
+Unlike the language-model experiments where context length is the primary
+source of variation, the CIFAR100 benchmark fixes the dataset and training
+protocol while varying the backbone from a CNN (ResNet50~\cite{he2016deep}) to a Vision
+Transformer (DeiT-S~\cite{touvron2021training}) and a MetaFormer
+architecture~\cite{yu2022metaformer} (CAFormer-S12~\cite{yu2023metaformer}). This
+setting allows us to isolate whether optimizer improvements transfer across
+architectural families or are tied to specific gradient structures. The image classification experiments on CIFAR100 follow the settings of BOCB~\cite{li2024unveiling}.
+
+\paragraph{No optimizer dominates all vision backbones.}
+
+Table~\ref{tab:cifar100_results} shows that the best optimizer changes across
+architectures. AdaBelief achieves the highest accuracy of 80.53\% on ResNet50,
+Muon is the strongest optimizer on DeiT-S, achieving 77.38\%, and Adan obtains the best
+result of 84.89\% on CAFormer-S12. The identity of the top-performing optimizer
+therefore depends on the backbone, suggesting that optimizer quality is closely
+coupled to the specific architecture.
+
+\paragraph{Matrix-structured optimizers favor Transformer architectures.}
+
+The most notable trend is the performance of Muon. Compared with AdamW, Muon
+improves DeiT-S by more than five percentage points (77.38\% \textit{vs.} 72.15\%) while
+providing only modest gains on ResNet50. Within the four-axis framework, Muon
+modifies both the update domain (Axis~I) and direction construction
+(Axis~III), preserving matrix-level gradient structure and treating
+parameters as correlated wholes. This design appears particularly well aligned with
+the correlated gradients of attention layers, explaining its clear advantage on
+Transformer-style backbones.
+
+\paragraph{Adaptive moment methods remain the most robust family.}
+Although methods such as Muon achieve the highest peak performance, AdamW,
+Adan, and AdaBelief consistently remain competitive across all three
+architectures. In contrast, some efficiency-oriented methods exhibit much
+stronger backbone sensitivity. The most extreme example is MARS-Lion, whose
+accuracy drops to 33.70 on DeiT-S despite achieving reasonable results on
+ResNet50 and CAFormer-S12. This suggests that aggressive approximations in
+state estimation or direction construction can interact poorly with the more
+complex gradient geometry of Transformer architectures.
+
+\begin{takeaway}
+\noindent\textbf{Vision-backbone takeaway.}
+Optimizer performance is strongly architecture-dependent. Matrix-structured
+methods such as Muon achieve substantial gains on Transformer-style models,
+while adaptive-moment methods remain the most robust across CNNs,
+Transformers, and MetaFormers. The large performance variance observed for
+methods such as MARS-Lion further indicates that single-backbone evaluations
+can substantially overestimate optimizer generality.
+\end{takeaway}
+\input{tables/tab_cifar100_results}
+
+%%%% version 2: coupling bias, muon ablation, experiments (img cls, coco, pt-ft), add more backbones on CIFAR100
+\subsubsection{Auxiliary Stability Analysis from Gradient-Norm Dynamics}
+\label{sec:benchmark-o4-stability}
+
+The preceding analyses cover optimization quality (O1), runtime (O2), memory
+(O3), and cross-scenario transfer (O6). To evaluate training stability (O4),
+we analyze the gradient-norm trajectories logged during the FineWeb-Edu
+long-context runs. Gradient-norm spikes and large gradient-scale fluctuations
+are increasingly used as direct indicators of training instability in modern
+LLM pretraining, including gradient-norm statistics, spike diagnostics, and the
+coefficient of variation (CV) of raw gradient norms
+\cite{huanggradientstabilizer,bae2026affine,wang2025adagc,kumar2025zclip}.
+
+For each run, we compute the coefficient of variation of the gradient norm,
+\begin{equation}
+\mathrm{GNormCV}=\frac{\mathrm{std}(\|g_t\|)}{\mathrm{mean}(\|g_t\|)} ,
+\end{equation}
+together with auxiliary diagnostics: clipping rate, spike rate, maximum
+consecutive spike length, tail trend, and NaN/Inf count. We adopt GNormCV as
+the primary O4 statistic for three reasons. First, it is scale-free and thus
+comparable across optimizers whose absolute gradient norms differ by orders of
+magnitude. Second, it captures \emph{relative} volatility while remaining decoupled from absolute
+magnitude, which suits cross-architecture and cross-scale comparison. Third, it
+exposes \emph{soft instability}, meaning that a run may complete without any NaN/Inf event
+yet still exhibit highly volatile gradient dynamics. The remaining diagnostics
+serve to localize the source and persistence of that instability.
+
+\begin{figure*}[!t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_o4_heatmap.pdf}
+  \caption{\textbf{Auxiliary O4 stability analysis from gradient-norm dynamics across architectures.}
+  Each cell shows the coefficient of variation of the gradient norm (GNormCV)
+  for one optimizer in one architecture-scale scenario of the FineWeb-Edu
+  long-context benchmark. Lower GNormCV indicates smoother relative
+  gradient-norm dynamics and thus better auxiliary stability. The bar chart on
+  the right reports the mean stability rank across the eight scenarios (lower
+  is better).}
+  \label{fig:o4_gnorm_cross_arch}
+\end{figure*}
+
+Figure~\ref{fig:o4_gnorm_cross_arch} shows that O4 gives a different view from
+final PPL. All statistics are computed on \emph{pre-clip} gradient norms, so
+that GNormCV reflects each optimizer's own raw dynamics. Muon attains the best aggregate stability rank, placing first or
+second in every one of the eight scenarios. This is consistent with its
+spectral orthogonalization, which decouples the update scale from gradient
+magnitude and so damps relative gradient-norm fluctuation. RMNP, AdamP, and
+MARS-AdamW form a moderate band, and AdamW is a reliable reference on the
+standard- and DeltaNet-style architectures---though, as shown below, no
+optimizer is immune to architecture-induced volatility.
+
+\paragraph{Completion status does not certify stability.}
+Every summarized run finishes with zero NaN/Inf events, yet GNormCV spans more
+than two orders of magnitude, from $\sim$0.32 to $>$160. The conventional
+``did it diverge?'' criterion would rate all of these runs equally stable, whereas
+GNormCV instead exposes the soft instability they hide. The auxiliary
+diagnostics pinpoint its source. For SOAP and Conda---and, on two
+architectures, MARS-Shampoo---the large GNormCV is driven by \emph{rare
+single-step bursts}. In the affected scenarios the
+gradient-norm std is large (e.g.\ SOAP on Transformer++/1B reaches
+std~$\approx$~52 at mean~$\approx$~0.76) while the spike rate stays below
+$10^{-3}$, the maximum consecutive spike length is~1, and the tail trend is
+near zero ($|$slope$|\!\sim\!10^{-6}$). These are isolated outlier steps that a
+NaN/Inf check misses but GNormCV makes visible.
+
+\paragraph{Volatility is architecture-driven, and its form matters.}
+Stability is strongly architecture-dependent. On Transformer++, DeltaNet, and
+Gated DeltaNet, most optimizers keep GNormCV in the $0.3$--$2$ range, and the
+matrix methods Muon and MARS-Shampoo are often the smoothest. GLA is the clear
+exception: nearly every optimizer jumps to GNormCV of $10$--$160$, including
+AdamW ($113.7$ at 1B) and RMNP ($121.8$ at 340M). Crucially, these GLA blow-ups
+again share the single-step-spike signature---spike rate $\sim\!10^{-4}$ and
+maximum consecutive spike~$=$~1---with the tail trend staying flat, so the
+linear-attention topology amplifies \emph{occasional extreme steps} while the
+overall training trajectory still converges stably. This mirrors the Stage-2 rank-stability
+finding, namely that both generalization and stability are shaped by the interaction
+between optimizer geometry and model architecture.
+
+\begin{takeaway}
+\noindent\textbf{O4 takeaway.}
+\emph{Training stability must be measured from gradient dynamics, not inferred
+from whether a run finishes.} T2 can improve gradient-norm smoothness when its
+matrix-level direction construction regularizes the update geometry, but the
+same family can also contain methods that produce rare burst-like spikes under
+certain architectures. Since all tuned runs may finish without NaN/Inf while
+showing very different GNormCV profiles, stability is a mechanism-level
+property that must be evaluated directly and cannot be inferred from final PPL
+or T-family membership.
+\end{takeaway}
+
+
+\subsubsection{Auxiliary Learning-Rate Perturbation Robustness}
+\label{sec:benchmark-o5-lr-robustness}
+
+We next probe hyperparameter robustness (O5) through a local learning-rate
+perturbation test. While O1--O3 are measurable from a single tuned run, O5 asks
+whether an optimizer remains usable when the learning rate departs from its
+tuned value---a practical concern in LLM pretraining, where exhaustive retuning
+is often too expensive when scaling the model, changing the dataset, or
+transferring to a new architecture.
+
+The test is conducted on the FineWeb-Edu Gated~DeltaNet/340M setting. For each
+optimizer $o$, let $\eta_o^\star$ denote its tuned learning rate, and evaluate
+three points, $0.2\eta_o^\star$, $\eta_o^\star$, and $5\eta_o^\star$. The
+sensitivity score $s_{\mathrm{LR}}$ is the larger relative WikiText-PPL increase
+of the two perturbed runs over the tuned run, reported as a percentage. A
+smaller $s_{\mathrm{LR}}$ means a flatter local response and stronger
+robustness. A perturbed run that diverges or produces an invalid loss is
+assigned the maximal sensitivity (treated as the most sensitive case), so that
+instability is penalized and made explicit. We stress
+that this is a deliberately \emph{local} diagnostic over three points around the
+tuned value. The $5\times$ point is merely an aggressive local stress test.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/fig_o5.pdf}
+\caption{\textbf{Auxiliary learning-rate perturbation robustness.}
+Each panel shows WikiText PPL under $0.2\times$, $1\times$, and $5\times$
+the tuned learning rate. The star marks the tuned learning rate. The
+sensitivity score $s_{\mathrm{LR}}$ is shown as $s$ in each panel title and
+measures the worst relative PPL degradation from the tuned point, where lower is
+more robust. Green, orange, and red titles indicate robust, moderate, and
+sensitive learning-rate response regimes.}
+\label{fig:o5_lr_robustness}
+\end{figure*}
+
+Figure~\ref{fig:o5_lr_robustness} shows that tuned quality and learning-rate
+robustness are distinct. Lion and MARS-Lion have the flattest local response
+curves ($s_{\mathrm{LR}}=0.7\%$ and $7.7\%$), consistent with sign-direction
+methods bounding the per-coordinate step by the learning rate and so absorbing
+moderate LR misspecification. We read this as local tolerance. The response is flat in part because the fixed-magnitude update keeps
+quality weak across a wide LR range (cf.\ Lion's Stage-1/Stage-2 PPL), so a flat
+curve here should not be equated with a strong optimizer. Adan, SOAP, AdamP,
+RMNP, Conda, MARS-AdamW, and Muon form a moderate-sensitivity band, where their
+degradation stays bounded but shows visible, direction-dependent dependence on
+the perturbation.
+
+The sensitive group exposes a different failure mode. AdamW, MARS-Shampoo, and
+APOLLO reach reasonable tuned quality, but their PPL rises sharply under at
+least one perturbed LR. For AdamW the sensitivity is concentrated on the
+\emph{over-large} ($5\times$) side, i.e.\ it
+remains well-behaved when the LR is reduced but degrades when pushed past its
+tuned value---so its placement here reflects the aggressive upper stress point.
+APOLLO is the extreme case, with its
+response rising steeply at $5\times$, yielding the largest $s_{\mathrm{LR}}$.
+This is consistent with APOLLO's broader profile in the benchmark---strong
+short-context quality and low memory, yet poor long-context transfer and high
+sensitivity---reinforcing that favorable tuned quality or memory says nothing
+about behavior under imperfect hyperparameter transfer.
+
+\begin{takeaway}
+\noindent\textbf{O5 takeaway.}
+\emph{Learning-rate robustness is not implied by tuned quality.} T3 tends to
+be locally tolerant to learning-rate perturbation because its direction-bounded
+updates limit the effect of moderate LR misspecification, but this tolerance
+can coexist with weaker tuned quality. T1 and T2 usually show a more moderate
+sensitivity profile, while T4 can be fragile when the tuned learning rate is
+transferred imperfectly. Thus, a T-family's best quality or memory profile
+does not necessarily imply robustness under hyperparameter mismatch.
+\end{takeaway}
+
+
+
+\subsubsection{Family-Level Objective Summary}
+\label{sec:benchmark-family-summary}
+
+After Stage~1 analyzes the directly measured quality--efficiency trade-offs,
+Stage~2 evaluates cross-scenario transfer, and the auxiliary analyses cover
+training stability and learning-rate perturbation robustness, we summarize the
+results at the optimizer-family level. This summary connects the empirical
+benchmark back to the objective-oriented taxonomy. Unlike the Stage~1 Pareto
+plots, which only cover $O1$--$O3$, the family-level view in
+Figure~\ref{fig:family_heatmap} summarizes the broader objective profile, namely
+quality, runtime, memory, training stability, hyperparameter robustness, and
+generalization.
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/heatmap_family.pdf}
+\caption{\textbf{Family-level objective summary.}
+Per-family profile over $O1$--$O6$. $O1$--$O3$ are directly measured from
+Stage~1; $O4$ is measured from gradient-norm stability; $O5$ is probed by an
+auxiliary learning-rate perturbation test; $O6$ is measured through Stage~2
+rank stability and sequence-length sensitivity. Green indicates a more
+favorable profile and red indicates a less favorable profile.}
+\label{fig:family_heatmap}
+\end{figure}
+
+Figure~\ref{fig:family_heatmap} consolidates the preceding evidence. $T1$
+methods form the stable baseline. They are not the strongest in raw PPL, but
+they remain moderate in runtime and memory, transfer reasonably across
+architectures, and provide a reliable reference for stability and robustness
+comparisons. $T2$ methods provide strong matrix-structured quality and
+generalization potential, but they are internally heterogeneous, where SOAP gives
+the strongest long-context quality at high cost, RMNP provides the most
+balanced quality--efficiency trade-off, and Muon shows the strongest observed
+gradient-norm stability profile while remaining architecture-sensitive. $T3$
+methods are efficient and locally robust to learning-rate perturbation, but
+their tuned PPL is generally weaker. $T4$ methods achieve attractive
+short-context memory efficiency, but their Stage~2 behavior reveals a clear
+generalization boundary. APOLLO is the most representative case, where a
+favorable short-context quality--memory trade-off does not transfer reliably
+to long-context training. $T5$ methods remain competitive only in limited
+regimes and do not provide a consistent advantage under the current benchmark.
+
+The family-level summary reinforces the main message of the benchmark, namely that
+optimizer selection is not a single-axis ranking problem. Different families
+occupy different regions of the $O1$--$O6$ objective space, and an optimizer
+that is strong in one objective can be weak in another. Quality, cost,
+stability, robustness, and transfer must therefore be evaluated jointly. In
+particular, $O5$ should be interpreted as a local learning-rate robustness
+diagnostic whose scope is limited to local perturbations of the learning rate.
+
+
+\input{tables/tab_opt_tier}
+\subsubsection{Tiered Optimizer Summary}
+\label{sec:benchmark-tiered-summary}
+
+Combining the Stage~1 short-context screening, the Stage~2 long-context
+generalization study, and the sequence-length sensitivity analysis, we organize
+the evaluated optimizers into three tiers. These three tiers are a grouping
+from three perspectives that summarizes the overall empirical evidence, namely
+short-context quality--efficiency behavior, cross-scenario transfer, and
+mechanistic value for further analysis. Interpreting them as a strict global
+leaderboard would be misleading.
+
+\paragraph{Tier~I: primary candidates.}
+Tier~I contains the optimizers that are most important for practical baselines
+and subsequent mechanistic analysis. AdamW is retained as the default reference
+because it is stable, efficient, and widely used, even though other methods surpass it in some settings. RMNP is selected as the most balanced
+matrix-structured optimizer, because it achieves strong quality while avoiding the
+prohibitive runtime and memory cost of heavier matrix methods. Muon is included
+because it combines strong Stage~1 performance with a clean matrix-structured
+mechanism that can be decomposed into orthogonalization, learning-rate scaling,
+momentum placement, and operator-order choices. Although Muon shows
+architecture-dependent behavior in Stage~2, this sensitivity is itself
+mechanistically informative and motivates the ablation study below.
+
+\paragraph{Tier~II: scenario-dependent methods.}
+Tier~II contains optimizers with clear strengths but stronger dependence on
+the training regime, context length, architecture, or efficiency budget. SOAP
+achieves the strongest long-context cross-scenario quality, but its runtime and
+optimizer-state memory costs make it less attractive as a default choice.
+APOLLO is the best short-context quality--memory point in Stage~1, but its
+long-context collapse shows that aggressive state compression does not transfer
+automatically. MARS-AdamW and AdamP are stable in Stage~2, yet they do not
+dominate the Stage~1 quality--efficiency frontier. MARS-Shampoo, Conda, Adan,
+Lion, and MARS-Lion similarly provide useful comparison points, but their
+advantages are limited by cost, transferability, or final quality. We therefore
+treat this tier as a set of important conditional baselines whose applicability
+depends on the specific training scenario.
+
+\paragraph{Tier~III: diagnostic failure cases.}
+Tier~III contains methods that are weak, dominated, or insufficiently robust
+under the current benchmark protocol. Some methods retain isolated advantages, where
+AdaFactor has extremely low optimizer-state memory, GaLore has low runtime and
+subspace compression, and 8-bit Adam reduces state precision. However, these
+advantages do not yield a consistently favorable trade-off across quality,
+efficiency, and transfer. Other methods, such as Sophia, LAMB, Prodigy, RAdam,
+NAdam, and AdaBelief, do not improve sufficiently over stronger baselines in
+the evaluated regimes. Their value is mainly diagnostic, because they help identify
+failure modes associated with direction discretization, noisy curvature
+estimation, aggressive state compression, or insufficient scaling behavior.
+
+
+\paragraph{Selection guidance.}
+The tiered summary leads to a constraint-driven view of optimizer selection.
+For general-purpose LLM pretraining, AdamW should remain the default reference, because although it is not the
+strongest method in every metric, it is stable, inexpensive,
+and consistently interpretable across settings. When a better balance between
+quality and efficiency is required, RMNP is the most attractive alternative in
+this benchmark. It preserves much of the benefit of matrix-structured
+optimization while avoiding the extreme runtime and memory overhead of heavier
+matrix methods.
+
+When final quality is the dominant objective and compute or optimizer-state
+memory is not the bottleneck, SOAP provides the strongest long-context quality
+reference. Its Stage~2 rank stability suggests that it transfers well across
+the tested architectures, but its high cost makes it better suited as a
+quality ceiling. Muon occupies a different
+role, namely that it is a strong and interpretable matrix-structured optimizer, but its
+architecture-dependent behavior suggests that it should be used with awareness
+of the target model topology.
+
+For memory-constrained short-context training, APOLLO and AdaFactor are useful
+candidates, but they should be separated carefully. AdaFactor is the safer
+low-memory baseline with moderate quality, whereas APOLLO is a high-reward but
+high-risk compressed-state method. It is excellent in the Stage~1
+quality--memory trade-off, yet its advantage does not survive the long-context
+setting. For low-cost exploratory runs, Lion can reduce per-step overhead, but
+the quality gap should be expected. Overall, the benchmark does not identify a
+universal best optimizer. It shows that optimizer choice should be made by
+matching the method's dominant strength to the binding constraint of the
+training regime: stability, quality, runtime, memory, or cross-scenario
+transfer.
+
+
+\begin{takeaway}
+\noindent\textbf{Tiered-summary takeaway.}
+Optimizer selection should be matched to the dominant constraint of the
+training regime. T1 is the safest reference family. T2 provides the strongest
+quality or stability ceiling when matrix-level cost is acceptable, while lightweight
+T2 variants offer a more practical balance between quality and efficiency.
+T3 is useful when runtime or local LR tolerance matters more than peak quality.
+T4 is attractive mainly under short-context memory pressure, but requires
+additional long-context validation. Overall, the benchmark supports
+mechanism-aware optimizer selection.
+\end{takeaway}

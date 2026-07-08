@@ -1,0 +1,283 @@
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Overview}
+\label{sec:exp_overview}
+
+We evaluate whether \METHODNAME can train a single native GUI agent that
+performs well across both desktop and mobile environments while preserving
+general GUI understanding ability. The experiments are organized around
+three questions: (i) whether \METHODNAME improves interactive task success
+on OSWorld~\citep{osworld} and MobileWorld~\citep{mobileworld}, (ii) whether platform-conditioned distillation is
+more effective than direct mixed supervised fine-tuning or static model
+merging, and (iii) whether the resulting student maintains general GUI
+grounding, visual understanding, and static GUI agent evaluation capability.
+
+\subsection{Experimental Setup}
+\label{sec:exp_setup}
+
+
+\paragraph{Evaluation benchmarks.}
+We evaluate the cross-platform navigation and task-execution capability of
+GUI agents on two interactive benchmarks. OSWorld~\citep{osworld} is used to evaluate desktop GUI task execution
+with 361 tasks, while MobileWorld~\citep{mobileworld} is used to evaluate mobile GUI task execution
+with 117 tasks. We additionally evaluate static GUI agent capability on
+AndroidControl\textsuperscript{$\star$}~\cite{androidcontrol}, where
+\textsuperscript{$\star$} denotes the evaluated subset and its construction
+details are provided in Appendix~\ref{app:dataset_construction}. We assess GUI
+grounding ability on three grounding benchmarks: ScreenSpot-Pro~\cite{Screenspot-pro}, ScreenSpotV2~\citep{screenspotv2}, and OSWorld-G~\citep{osworld-g}. We
+report task success rate as the main metric, together with the number of
+successful tasks over the total number of evaluated tasks.
+
+
+\paragraph{Training procedure and models.}
+The training procedure consists of two stages. In Stage 1, we perform
+supervised fine-tuning (SFT) of Qwen3-VL-32B-Thinking on
+\BENCH to obtain platform-specific expert teachers for desktop and mobile
+environments. In Stage 2, we train the student with reinforcement learning
+and multi-teacher on-policy distillation (MOPD). The student policy is
+initialized from Qwen3-VL-8B-Thinking and trained as a single shared
+policy with platform-conditioned teacher routing.
+
+\paragraph{Implementation details.}
+All training is implemented with verl~\cite{verl}, with Megatron-Core~\citep{megatron} as the training backend and SGLang~\citep{sglang} as the rollout engine. All experiments are conducted on 64 NVIDIA H100 GPUs, organized as 8 nodes
+with 8 GPUs per node.
+During data construction, desktop trajectories are collected with
+Kimi-K2.6~\cite{kimi}, while mobile trajectories are collected with
+Gemini-3.1-Pro~\citep{Gemini3.1}. We further use Gemini-3.1-Pro to clean the
+collected trajectories under a unified filtering pipeline. For evaluation,
+models are deployed and served with the vLLM~\citep{vllm} inference framework.
+
+
+
+
+
+
+
+\subsection{Main Results}
+\label{sec:exp_main_results}
+
+\begin{table}[!t]
+\centering
+\caption{Baselines and integration strategies on OSWorld and MobileWorld. Missing evaluations are marked as ``--''.}
+\label{tab:main_results}
+\normalsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.90}
+\setlength{\aboverulesep}{0.4ex}
+\setlength{\belowrulesep}{0.45ex}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lcc}
+\toprule
+\raisebox{-0.40ex}{\textbf{Method}} & \raisebox{-0.40ex}{\textbf{OSWorld}} & \raisebox{-0.40ex}{\textbf{MobileWorld}} \\
+\midrule
+\rowcolor{black!8}
+\multicolumn{3}{l}{\textit{General Models}} \\
+SeedVL-1.5~\citep{seed1.5} & 34.1\% & -- \\
+Qwen3-VL-8B-Instruct~\citep{qwen3-vl} & 33.9\% & 9.4\% \\
+Qwen3-VL-8B-Thinking~\citep{qwen3-vl} & 33.9\% & 7.7\% \\
+Qwen3-VL-32B-Instruct~\citep{qwen3-vl} & 32.6\% & 9.0\% \\
+Qwen3-VL-235B-A22B-Instruct~\citep{qwen3-vl} & 31.6\% & 9.5\% \\
+Qwen3-VL-235B-A22B-Thinking~\citep{qwen3-vl} & 38.1\% & -- \\
+\midrule
+\rowcolor{black!8}
+\multicolumn{3}{l}{\textit{GUI Models (Single-Platform)}} \\
+OpenCUA-7B~\citep{Opencua} & 28.2\% & -- \\
+OpenAI CUA o3~\citep{openai-cua} & 31.3\% & -- \\
+OpenCUA-32B~\citep{Opencua} & 34.8\% & -- \\
+\midrule
+\rowcolor{black!8}
+\multicolumn{3}{l}{\textit{GUI Models (Multi-Platform)}} \\
+UI-TARS-72B-DPO~\citep{UI-TARS} & 27.1\% & -- \\
+UI-TARS-1.5-7B~\citep{UI-TARS} & 27.4\% & -- \\
+GELab-Zero-4B~\citep{Step-gui} & 31.9\% & 10.9\% \\
+GUI-Owl-7B~\citep{Mobile-agent-v3} & 34.9\% & 4.5\% \\
+GUI-Owl-32B~\citep{Mobile-agent-v3} & -- & 5.5\% \\
+\midrule
+\rowcolor{black!8}
+\multicolumn{3}{l}{\textit{Integration Strategies}} \\
+Mixed-SFT & 35.0\% & 6.4\% \\
+Model Merge (Weight Averaging)~\citep{Model-soups} & 36.5\% & 6.8\% \\
+Model Merge (TIES Merging)~\citep{Ties-merging} & 36.8\% & 0\% \\
+\midrule
+\rowcolor{xiaomiorange!18}
+\rule[-0.45ex]{0pt}{2.2ex}\raisebox{-0.20ex}{\textcolor{xiaomiorange}{\METHODNAME}} & \raisebox{-0.20ex}{\textbf{\textcolor{xiaomiorange}{38.2\%}}} & \raisebox{-0.20ex}{\textbf{\textcolor{xiaomiorange}{12.0\%}}} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\paragraph{Baselines.}
+
+Table~\ref{tab:main_results} compares \METHODNAME with representative
+baselines across four groups. \textbf{General Models} include general
+vision-language models evaluated directly on OSWorld and
+MobileWorld. \textbf{GUI Models (Single-Platform)} include GUI agents mainly
+specialized for a single platform, while \textbf{GUI Models
+(Multi-Platform)} include agents designed to operate across multiple GUI
+environments. We further include \textbf{Integration Strategies} that build a
+single cross-platform policy from desktop and mobile supervision: Mixed-SFT
+jointly fine-tunes Qwen3-VL-8b-Thinking on mixed desktop and mobile data, while Model
+Merge combines platform-specific models through weight averaging or TIES
+merging.
+
+\paragraph{Main analysis.}
+Table~\ref{tab:main_results} shows that \METHODNAME achieves the best
+balanced cross-platform performance among the compared methods, reaching
+38.2\% on OSWorld and 12.0\% on MobileWorld. Compared with general models,
+\METHODNAME improves MobileWorld performance substantially over
+Qwen3-VL-8B-Thinking and Qwen3-VL-32B-Instruct, while also remaining
+competitive on OSWorld. Existing GUI-agent baselines are often strong on one
+side of the evaluation but incomplete or weaker on the other; for example,
+GELab-Zero-4B obtains 10.9\% on MobileWorld but only 31.9\% on OSWorld,
+whereas GUI-Owl-7B reaches 34.9\% on OSWorld but drops to 4.5\% on
+MobileWorld. The integration baselines further indicate that directly mixing
+heterogeneous supervision or statically merging platform-specific models is
+insufficient: Mixed-SFT improves neither platform consistently, and both
+model-merging variants underperform \METHODNAME, especially on MobileWorld.
+These results suggest that platform-conditioned on-policy distillation is
+more effective for transferring desktop and mobile expertise into a single
+shared GUI-agent policy.
+
+
+\subsection{Analysis of Cross-Platform Capability Transfer}
+\label{sec:exp_retention}
+
+\begin{wraptable}[13]{r}{0.43\linewidth}
+\vspace{-10pt}
+\centering
+\caption{Teacher-student analysis on OSWorld and MobileWorld.}
+\label{tab:core_model_results}
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.88}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Method} & \textbf{OSWorld} & \textbf{MobileWorld} \\
+\midrule
+Qwen3-VL-8B-Thinking & 33.9\% & 7.7\% \\
+Qwen3-VL-32B-Thinking & 41.0\% & 9.4\% \\
+\midrule
+8B SFT on OSWorld & 35.8\% & 0\% \\
+8B SFT on MobileWorld & 35.8\% & 12.8\% \\
+\midrule
+Desktop Teacher, 32B & 46.3\% & -- \\
+Mobile Teacher, 32B & -- & 16.2\% \\
+\midrule
+\METHODNAME & \textbf{38.2\%} & \textbf{12.0\%} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\vspace{-10pt}
+\end{wraptable}
+
+Table~\ref{tab:core_model_results} further examines whether a single student
+can retain capability across desktop and mobile environments. The
+platform-specific 32B teachers provide strong single-platform references,
+reaching 46.3\% on OSWorld and 16.2\% on MobileWorld. The goal of
+\METHODNAME is not to deploy multiple teacher models at inference time, but
+to transfer part of their platform-specific behavioral knowledge into a
+single 8B student.
+
+The comparison highlights three findings. First, platform-specific SFT leads
+to unbalanced transfer. Fine-tuning the 8B model on OSWorld improves desktop
+performance from 33.9\% to 35.8\%, but its MobileWorld performance drops to
+0\%. Fine-tuning on MobileWorld improves mobile performance to 12.8\%, but
+does not provide the same level of desktop improvement as \METHODNAME. This
+suggests that single-platform supervision can specialize the model toward
+one interaction style while weakening cross-platform robustness.
+
+Second, \METHODNAME improves the 8B student on both platforms at the same
+time, reaching 38.2\% on OSWorld and 12.0\% on MobileWorld. Compared with
+the original 8B model, this corresponds to a gain of 4.3 points on OSWorld
+and 4.3 points on MobileWorld. It also outperforms the 32B base model on
+MobileWorld while using a smaller 8B student, indicating that the improvement
+does not simply come from model scale.
+
+Third, \METHODNAME introduces platform-conditioned behavioral anchors during
+online policy optimization. Desktop rollouts are aligned with the desktop
+teacher, and mobile rollouts are aligned with the mobile teacher. This
+conditional distillation prevents heterogeneous interaction signals from
+being collapsed into a single averaged constraint, enabling the shared
+student to improve task success while maintaining platform-specific
+interaction patterns.   
+
+
+
+
+\subsection{General GUI Static Understanding and Grounding Evaluation}
+\label{sec:exp_grounding}
+
+We further evaluate whether cross-platform policy optimization preserves
+static GUI ability and GUI grounding capability. Table~\ref{tab:grounding}
+reports results on AndroidControl\textsuperscript{$\star$}, ScreenSpot-Pro,
+ScreenSpotV2, and OSWorld-G.
+
+\begin{table}[t]
+\centering
+\caption{General GUI grounding, visual understanding, and AndroidControl\textsuperscript{$\star$}
+results. The star denotes the evaluated subset. The Model Merge row corresponds to the TIES-merging
+checkpoint.}
+\label{tab:grounding}
+\normalsize
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{AndroidControl\textsuperscript{$\star$}} & \textbf{ScreenSpot-Pro} & \textbf{ScreenSpotV2} & \textbf{OSWorld-G} \\
+\midrule
+Qwen3-VL-8B-Thinking & 78.73\% & 43.71\% & 91.27\% & 52.13\% \\
+Model Merge (TIES Merging) & 74.01\% & 37.13\% & 88.60\% & 47.16\% \\
+\METHODNAME & \textbf{80.05\%} & 43.14\% & 90.88\% & \textbf{52.84\%} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\vspace{-3em}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[height=0.80\textheight]{fig/mobilecase.pdf}
+  \caption{Mobile task execution example of \METHODNAME.}
+  \label{fig:mobilecase}
+\end{figure}
+
+On AndroidControl\textsuperscript{$\star$}, which is an evaluation subset
+sampled from AndroidControl, \METHODNAME achieves the best static mobile GUI
+performance among the three checkpoints. It improves overall accuracy from
+78.73\% for Qwen3-VL-8B-Thinking to 80.05\%, while Model Merge drops to
+74.01\%. This indicates that MOPD better preserves mobile GUI understanding
+than static parameter merging when transferring cross-platform behavior into
+a shared student.
+
+On the grounding benchmarks, \METHODNAME largely preserves the grounding
+ability of the base model. It obtains 43.14\% on ScreenSpot-Pro and 90.88\%
+on ScreenSpotV2, close to the base scores of 43.71\% and 91.27\%. It also
+slightly improves OSWorld-G from 52.13\% to 52.84\%. In contrast, Model Merge
+shows a clear decline across all three grounding datasets, dropping to
+37.13\% on ScreenSpot-Pro, 88.60\% on ScreenSpotV2, and 47.16\% on
+OSWorld-G. These results suggest that \METHODNAME is less destructive to GUI
+grounding than static parameter merging, while still improving interactive
+task performance on OSWorld and MobileWorld.
+
+
+
+
+
+
+
+\subsection{Case Study}
+\label{sec:exp_case_study}
+
+Figure~\ref{fig:mobilecase} presents a representative mobile GUI task
+executed by \METHODNAME. The example shows that the model can interpret the
+user instruction, identify the relevant UI elements on the screen, and produce
+a sequence of executable actions to complete the task. This qualitative result
+illustrates that \METHODNAME not only improves aggregate success rates, but
+also learns practical mobile interaction behaviors such as locating target
+widgets, navigating between screens, and grounding actions to appropriate
+screen regions. Additional desktop case studies are provided in
+Appendix~\ref{sec:exp_case_study2}.
+
+\FloatBarrier

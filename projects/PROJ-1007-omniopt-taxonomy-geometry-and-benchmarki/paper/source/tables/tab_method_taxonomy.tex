@@ -1,0 +1,100 @@
+\begin{table*}[htbp]
+  \centering
+  \caption{Dimension-A methodological taxonomy of the surveyed optimizer set.
+  SF-AdamW denotes Schedule-Free AdamW.}
+  \label{tab:method_taxonomy}
+  % \scriptsize
+  \fontsize{8pt}{9pt}\selectfont
+  \setlength{\tabcolsep}{1.5pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{@{}p{0.32\textwidth}p{0.11\textwidth}p{0.34\textwidth}p{0.025\textwidth}p{0.08\textwidth}@{}}
+    \toprule
+    Core mechanism & Pipeline site & Four-axis summary & N & Example \\
+    \midrule
+    \rowcolor{famT1!18}\multicolumn{5}{c}{\textbf{\textcolor{famT1!62!black}{T1: Element-wise adaptive moment and scalar control}}} \\
+    \rowcolor{famT1!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.1 Scalar bases and direct Adam variants}}} \\
+      Adam-style moments, bias correction, decoupled decay, Nesterov, rectified, belief, and cross-moment variants
+      & S3 + local S5
+      & Full domain, moment state, diagonal adaptive geometry, LR/WD finalize
+      & 25 & AdamW \\
+    \rowcolor{famT1!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.2 Multi-timescale, momentum correction, and variance reduction}}} \\
+      Fast/slow EMA fusion, alignment-aware momentum correction, or STORM-style recursive gradient correction
+      & S3; partly Axis~II
+      & Full domain, temporal or VR state, diagonal geometry, LR/WD finalize
+      & 10 & AdEMA\-Mix \\
+    \rowcolor{famT1!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.3 Iterate averaging and automatic tuning}}} \\
+      Schedule-free averaging, distance-based learning-rate inference, optimizer switching, initialization-time LR scaling
+      & S3 + S5
+      & Full domain, scalar or iterate state, base geometry, global-step finalize
+      & 10 & SF-AdamW \\
+    \midrule
+    \rowcolor{famT2!18}\multicolumn{5}{c}{\textbf{\textcolor{famT2!62!black}{T2: Matrix-level structural methods}}} \\
+    \rowcolor{famT2!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.1 Spectral orthogonalization}}} \\
+      Orthogonalization of two-dimensional gradients or momentum
+      & S1 + S2
+      & Matrix domain, momentum state, polar operator, routed writeback
+      & 8 & Muon \\
+    \rowcolor{famT2!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.2 Kronecker-factored preconditioning}}} \\
+      Row/column covariance, Fisher, or structured Fisher factors for matrix gradients
+      & S1 + S2 + S3
+      & Kronecker/eigen domain, factor state, metric geometry, damped writeback
+      & 8 & SOAP \\
+    \rowcolor{famT2!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.3 Low-rank subspace projection}}} \\
+      Project gradients and states into a low-rank subspace, then reconstruct
+      & S2 + S3 + S4
+      & Projected subspace, projected state, adaptive geometry, projection-back
+      & 3 & GaLore \\
+    \midrule
+    \rowcolor{famT3!18}\multicolumn{5}{c}{\textbf{\textcolor{famT3!62!black}{T3: Discretization and directional quantization}}} \\
+    \rowcolor{famT3!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT3!62!black}{T3 Direction quantization}}} \\
+      Sign or related maps that preserve direction and coarsen magnitude
+      & S2 + simplified S3
+      & Full domain, raw or momentum state, sign geometry, LR/WD radius
+      & 7 & Lion \\
+    \midrule
+    \rowcolor{famT4!18}\multicolumn{5}{c}{\textbf{\textcolor{famT4!62!black}{T4: State compression and structural aggregation}}} \\
+    \rowcolor{famT4!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.1 Row-column factorization}}} \\
+      Approximate matrix second moments with row/column statistics
+      & S3 + S4
+      & Full domain, row/column state, adaptive geometry, broadcast denominator
+      & 2 & CAME \\
+    \rowcolor{famT4!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.2 Low-bit quantization and error compensation}}} \\
+      Quantize optimizer state with dynamic scaling, stochastic rounding, or error control
+      & S3 + S4
+      & Full domain, low-bit state, base geometry, dequantized finalize
+      & 2 & 8-bit Adam \\
+    \rowcolor{famT4!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.3 Block/layer-level state sharing}}} \\
+      Share moment or curvature statistics over heads, blocks, or layers
+      & S1 + S3 + S4
+      & Block support, shared state, block-adaptive geometry, broadcast writeback
+      & 5 & Adam-mini \\
+    \rowcolor{famT4!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.4 Fused backprop-update}}} \\
+      Update parameters during backpropagation and release gradients early
+      & S3 + S5
+      & Full support, streaming state, base geometry, immediate writeback
+      & 2 & LOMO \\
+    \midrule
+    \rowcolor{famT5!18}\multicolumn{5}{c}{\textbf{\textcolor{famT5!62!black}{T5: Curvature-aware and geometric regularization}}} \\
+    \rowcolor{famT5!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.1 Adversarial perturbation (SAM family)}}} \\
+      Re-evaluate gradients at a local perturbation point
+      & S5 + extra gradient
+      & Base domain, perturbed-gradient state, base geometry, sharpness wrapper
+      & 8 & SAM \\
+    \rowcolor{famT5!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.2 Diagonal Hessian estimation}}} \\
+      Estimate Hessian/Gauss--Newton diagonals and apply clipped updates
+      & S3 + S5
+      & Full domain, HVP/Hessian state, clipped curvature geometry, LR/WD finalize
+      & 2 & Sophia \\
+    \rowcolor{famT5!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.3 Update post-processing and selective filtering}}} \\
+      Centralize, project, normalize, mask, or sparsify computed updates
+      & S2 or S5
+      & Base domain, base state, base geometry, final filter or mask
+      & 13 & GC \\
+    \rowcolor{famT5!8}\multicolumn{5}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.4 Layer-wise trust-region scaling}}} \\
+      Rescale layer-wise updates by parameter/update norm ratios
+      & S1 + S5
+      & Layer support, base state, base geometry, trust-ratio finalize
+      & 2 & LAMB \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

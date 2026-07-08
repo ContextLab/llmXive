@@ -1,0 +1,420 @@
+% =========================================================================
+% ResearchStudio Tech Report — refs.bib
+% =========================================================================
+% Sourced from:
+%   - The three companion phase4 papers (paper2{poster,video,blog}/refs.bib)
+%   - Gallery paper arXiv entries (Llama 3, SAM 2, DeepSeek-R1, Mamba, MMMU)
+%   - Agent-framework / skills-runtime citations for §6
+%   - The ResearchStudio repo + Claude Code skill ecosystem
+% Keys here match the [CITE-X] slots in outline.md.
+% =========================================================================
+
+% ---- ResearchStudio self-citations ----
+
+% (none: the system is described in the body and linked via \url{}, not cited.)
+
+% ---- Claude Code + skills runtime ----
+
+@misc{anthropic2025claudecode,
+  title  = {Claude Code: an agentic coding assistant in your terminal},
+  author = {{Anthropic}},
+  year   = {2025},
+  howpublished = {\url{https://docs.claude.com/en/docs/claude-code/overview}},
+  note   = {anthropic:claude-code-2025}
+}
+
+@misc{anthropic2025skills,
+  title  = {Claude Code Skills: SKILL.md authoring guide},
+  author = {{Anthropic}},
+  year   = {2025},
+  howpublished = {\url{https://docs.claude.com/en/docs/claude-code/skills}},
+  note   = {anthropic:claude-code-skills-2025}
+}
+
+@misc{openai2025codex,
+  title  = {Codex: an agentic coding assistant from {OpenAI}},
+  author = {{OpenAI}},
+  year   = {2025},
+  howpublished = {\url{https://openai.com/codex/}},
+  note   = {openai:codex-2025}
+}
+
+@misc{anthropic2024toolUse,
+  title  = {Tool use with the Claude API},
+  author = {{Anthropic}},
+  year   = {2024},
+  howpublished = {\url{https://docs.claude.com/en/docs/build-with-claude/tool-use}},
+  note   = {anthropic:tool-use-2024}
+}
+
+@misc{pptmaster2025,
+  title  = {ppt-master: AI-driven multi-format SVG presentation generation skill},
+  author = {{ppt-master contributors}},
+  year   = {2025},
+  howpublished = {\url{https://github.com/hugohe3/ppt-master}},
+  note   = {software:ppt-master-2025}
+}
+
+% ---- Companion poster paper sources (lifted from paper2poster/phase4/refs.bib) ----
+
+@inproceedings{paper2poster,
+  title={Paper2Poster: Towards Multimodal Poster Automation from Scientific Papers},
+  author={Wei Pang and K. Lin and Xiangru Jian and Xi He and Philip Torr},
+  booktitle={arXiv.org},
+  year={2025},
+  note={semanticscholar:3604ba005e17121404c733099856df27c8942609}
+}
+
+@misc{paper2posterskill,
+  title  = {The paper2poster Skill: A Staged-Fill Loop for One-Page Conference Posters},
+  author = {{paper2poster contributors}},
+  year   = {2026},
+  howpublished = {Skill specification, accessed 2026},
+  note   = {software:paper2poster-skill-2026}
+}
+
+@inproceedings{posterforest,
+  title={PosterForest: Hierarchical Multi-Agent Collaboration for Scientific Poster Generation},
+  author={Jiho Choi and Seojeong Park and Song, Seongjong and Hyunjung Shim},
+  booktitle={arXiv (Cornell University)},
+  year={2025},
+  note={openalex:W4415993184}
+}
+
+@inproceedings{p2p,
+  title={P2P: Automated Paper-to-Poster Generation and Fine-Grained Benchmark},
+  author={Tao Sun and Enhao Pan and Zhengkai Yang and Kaixin Sui and Jiajun Shi and Xianfu Cheng and Tongliang Li and Wenhao Huang and Ge Zhang and Jian Yang and Zhoujun Li},
+  booktitle={arXiv.org},
+  year={2025},
+  note={semanticscholar:853b108cb6d3c62f428dc973cf67b22e350cef71}
+}
+
+@misc{postergen,
+  title  = {PosterGen: Aesthetic-Aware Multi-Modal Paper-to-Poster Generation via Multi-Agent LLMs},
+  author = {Zhang, Lin and Chen, Wei and Liu, Hao and Yang, Min and Wang, Xu},
+  year   = {2025},
+  howpublished = {arXiv preprint arXiv:2508.17188},
+  note   = {semanticscholar:4191e04a132f82c3b4f6097ac8dece28c1884cd2}
+}
+
+@misc{efficientpostergen,
+  title  = {EfficientPosterGen: Semantic-aware Efficient Poster Generation via Token Compression and Accurate Violation Detection},
+  author = {Tang, Wei and Sun, Min and Liu, Jian},
+  year   = {2026},
+  howpublished = {arXiv preprint arXiv:2603.00155},
+  note   = {arxiv:2603.00155v1}
+}
+
+@misc{apex,
+  title  = {{APEX}: Academic Poster Editing Agentic Expert},
+  author = {Liu, Hao and Zhang, Wei and Sun, Min},
+  year   = {2026},
+  howpublished = {arXiv preprint arXiv:2601.04794},
+  note   = {arxiv:2601.04794v1}
+}
+
+@inproceedings{scipostgen,
+  title={SciPostGen: Bridging the Gap between Scientific Papers and Poster Layouts},
+  author={Shun Inadumi and Shohei Tanaka and Tosho Hirasawa and Atsushi Hashimoto and Koichiro Yoshino and Yoshitaka Ushiku},
+  booktitle={arXiv.org},
+  year={2025},
+  note={semanticscholar:a956bf8e2c5b078cdb1982b1bbc90ea19207e48c}
+}
+
+@misc{posterverse,
+  title  = {{PosterVerse}: A Full-Workflow Framework for Commercial-Grade Poster Generation with HTML-Based Scalable Typography},
+  author = {Wang, Xu and Liu, Hao and Sun, Min},
+  year   = {2026},
+  howpublished = {arXiv preprint arXiv:2601.03993},
+  note   = {arxiv:2601.03993v1}
+}
+
+@inproceedings{scipostlayout,
+  title={SciPostLayout: A Dataset for Layout Analysis and Layout Generation of Scientific Posters},
+  author={Shohei Tanaka and Hao Wang and Yoshitaka Ushiku},
+  booktitle={British Machine Vision Conference},
+  year={2024},
+  note={semanticscholar:df3c5ea92059e846e2a988cc74fb412c145694e6}
+}
+
+% ---- Companion video paper sources (lifted from paper2video/phase4/refs.bib) ----
+
+@article{hu2014ppsgen,
+  title={PPSGen: Learning-based presentation slides generation for academic papers},
+  author={Hu, Yue and Wan, Xiaojun},
+  journal={IEEE Transactions on Knowledge and Data Engineering},
+  year={2014},
+  publisher={IEEE},
+  note={ppsgen-tkde-2014}
+}
+
+@inproceedings{sun2021d2s,
+  title={D2S: Document-to-slide generation via query-based text summarization},
+  author={Sun, Edward and Hou, Yufang and Wang, Dakuo and Zhang, Yunfeng and Wang, Nancy X. R.},
+  booktitle={NAACL-HLT},
+  year={2021},
+  note={d2s-naacl-2021}
+}
+
+@inproceedings{fu2022doc2ppt,
+  title={DOC2PPT: Automatic presentation slides generation from scientific documents},
+  author={Fu, Tsu-Jui and Wang, William Yang and McDuff, Daniel and Song, Yale},
+  booktitle={AAAI},
+  year={2022},
+  note={doc2ppt-aaai-2022}
+}
+
+@article{kumar2024slidespawn,
+  title={SlideSpawn: An automatic slides generation system for research publications},
+  author={Kumar, Keshav and Chowdary, C. Ravindranath},
+  journal={arXiv preprint arXiv:2411.17719},
+  year={2024},
+  note={arxiv:2411.17719}
+}
+
+@article{zheng2025pptagent,
+  title={PPTAgent: Generating and evaluating presentations beyond text-to-slides},
+  author={Zheng, Hao and Guan, Xinyan and Kong, Hao and Zheng, Jia and Zhou, Hongyu and Zhang, Yilun and Lin, Weiyun and Jiang, Yong and Wang, Pengfei},
+  journal={arXiv preprint arXiv:2501.03936},
+  year={2025},
+  note={arxiv:2501.03936}
+}
+
+@inproceedings{videoagent2025,
+  title={VideoAgent: Personalized Synthesis of Scientific Videos},
+  author={Xiao Liang and Bangxin Li and Zixuan Chen and Zheng, Hanyue and Zhi Ma and Di Wang and Cong Tian and Quan Wang},
+  booktitle={ArXiv.org},
+  year={2025},
+  note={openalex:W4415088059}
+}
+
+@inproceedings{paper2video,
+  title={Paper2Video: Automatic Video Generation from Scientific Papers},
+  author={Zeyu Zhu and Kevin Qinghong Lin and Mike Zheng Shou},
+  booktitle={arXiv.org},
+  year={2025},
+  note={semanticscholar:886d71cf08a47346665e0d4fecd5b1aeb975641c}
+}
+
+@inproceedings{preacher2025,
+  title={Preacher: Paper-to-Video Agentic System},
+  author={Liu, Jingwei and Yang, Ling and Luo, Hao and Wang, Fan and Li, Hongyan and Wang, Mengdi},
+  booktitle={ArXiv.org},
+  year={2025},
+  note={openalex:W6979226277}
+}
+
+@inproceedings{slidegen,
+  title={SlideGen: Collaborative Multimodal Agents for Scientific Slide Generation},
+  author={Liang, Xin and Zhang, Xiang and Xu, Yiwei and Sun, Siqi and You, Chenyu},
+  booktitle={ArXiv.org},
+  year={2025},
+  note={openalex:W7109457809}
+}
+
+@article{wang2024qwen2vl,
+  title={Qwen2-VL: Enhancing vision-language model's perception of the world at any resolution},
+  author={Wang, Peng and Bai, Shuai and Tan, Sinan and Wang, Shijie and Fan, Zhihao and Bai, Jinze and Chen, Keqin and Liu, Xuejing and Wang, Jialin and Ge, Wenbin and others},
+  journal={arXiv preprint arXiv:2409.12191},
+  year={2024},
+  note={arxiv:2409.12191}
+}
+
+% ---- Companion blog paper sources (lifted from paper2blog/phase4/refs.bib) ----
+
+@article{hera2025,
+  title   = {Improving Long Document Summarization using Large Language Models with Context Packaging and Reordering},
+  author  = {Anonymous},
+  journal = {arXiv preprint arXiv:2502.00000},
+  year    = {2025},
+  note    = {semanticscholar:8999c1fc32e00e6c6a94e7dfabbb263f9e1d438f}
+}
+
+@article{ptspi2025,
+  title   = {Long Document Summarization Using Page-Specific Target-Text Alignment and Distilling Page Importance},
+  author  = {Wang, Yiming and others},
+  journal = {arXiv preprint arXiv:2509.00000},
+  year    = {2025},
+  note    = {semanticscholar:610d5599c2918f5eb86a48c70aac0ce02502c685}
+}
+
+@article{gosum2024,
+  title={GoSum: extractive summarization of long documents by reinforcement learning and graph-organized discourse state},
+  author={Junyi Bian and Xiaodi Huang and Hong Zhou and Tianyang Huang and Shanfeng Zhu},
+  journal={Knowledge and Information Systems},
+  year={2024},
+  note={openalex:W4401810268}
+}
+
+@misc{longdpo2025,
+  title  = {LongDPO: Unlock Better Long-form Generation Abilities for LLMs via Critique-augmented Stepwise Information},
+  author = {Bowen Ping and Jiali Zeng and Fandong Meng and Shuo Wang and Ji Zhou and Shanghang Zhang},
+  year   = {2025},
+  note   = {openalex:W4412888641}
+}
+
+@inproceedings{projectmundo2025,
+  title={Science Across Languages: Assessing LLM Multilingual Translation of Scientific Papers},
+  author={Kleidermacher, Hannah Calzi and Zou, James},
+  booktitle={ArXiv.org},
+  year={2025},
+  note={openalex:W6979321137}
+}
+
+@article{scilay2025,
+  title={Bridging the Gap: A Study on Enhancing Accessibility and Accuracy in Scientific Lay Summaries},
+  author={Tehani Blais and Monalisa Bonilla and Maya Elfizy and Leen Ramahi},
+  journal={SciWise},
+  year={2025},
+  note={openalex:W4410129912}
+}
+
+% ---- Agent-framework references for §6.4 ----
+
+@inproceedings{react2023,
+  title     = {{ReAct}: Synergizing Reasoning and Acting in Language Models},
+  author    = {Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2023},
+  note      = {arxiv:2210.03629}
+}
+
+@misc{autogen2023,
+  title  = {{AutoGen}: Enabling Next-Gen LLM Applications via Multi-Agent Conversation},
+  author = {Wu, Qingyun and Bansal, Gagan and Zhang, Jieyu and Wu, Yiran and Zhang, Shaokun and Zhu, Erkang and Li, Beibin and Jiang, Li and Zhang, Xiaoyun and Wang, Chi},
+  year   = {2023},
+  howpublished = {arXiv preprint arXiv:2308.08155},
+  note   = {arxiv:2308.08155}
+}
+
+@inproceedings{metagpt2024,
+  title     = {{MetaGPT}: Meta Programming for a Multi-Agent Collaborative Framework},
+  author    = {Hong, Sirui and Zhuge, Mingchen and Chen, Jonathan and Zheng, Xiawu and Cheng, Yuheng and Zhang, Ceyao and Wang, Jinlin and Wang, Zili and Yau, Steven Ka Shing and Lin, Zijuan and Zhou, Liyang and Ran, Chenyu and Xiao, Lingfeng and Wu, Chenglin and Schmidhuber, J{\"u}rgen},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024},
+  note      = {arxiv:2308.00352}
+}
+
+@inproceedings{voyager2024,
+  title     = {{Voyager}: An Open-Ended Embodied Agent with Large Language Models},
+  author    = {Wang, Guanzhi and Xie, Yuqi and Jiang, Yunfan and Mandlekar, Ajay and Xiao, Chaowei and Zhu, Yuke and Fan, Linxi and Anandkumar, Anima},
+  booktitle = {Transactions on Machine Learning Research},
+  year      = {2024},
+  note      = {arxiv:2305.16291}
+}
+
+@misc{adept2023act,
+  title  = {{ACT-1}: Transformer for Actions},
+  author = {{Adept AI Labs}},
+  year   = {2023},
+  howpublished = {\url{https://www.adept.ai/blog/act-1}},
+  note   = {adept:act-1-2023}
+}
+
+@misc{openai2023functions,
+  title  = {Function calling and other API updates},
+  author = {{OpenAI}},
+  year   = {2023},
+  howpublished = {\url{https://openai.com/index/function-calling-and-other-api-updates/}},
+  note   = {openai:function-calling-2023}
+}
+
+% ---- Gallery papers (decision #8) ----
+
+@misc{llama3,
+  title  = {The {Llama 3} Herd of Models},
+  author = {Dubey, Abhimanyu and Jauhri, Abhinav and {Llama Team, AI {@} Meta} and others},
+  year   = {2024},
+  howpublished = {arXiv preprint arXiv:2407.21783},
+  note   = {arxiv:2407.21783}
+}
+
+@misc{sam2,
+  title  = {{SAM 2}: Segment Anything in Images and Videos},
+  author = {Ravi, Nikhila and Gabeur, Valentin and Hu, Yuan-Ting and Hu, Ronghang and Ryali, Chaitanya and Ma, Tengyu and Khedr, Haitham and R{\"a}dle, Roman and Rolland, Chloe and Gustafson, Laura and Mintun, Eric and Pan, Junting and Alwala, Kalyan Vasudev and Carion, Nicolas and Wu, Chao-Yuan and Girshick, Ross and Doll{\'a}r, Piotr and Feichtenhofer, Christoph},
+  year   = {2024},
+  howpublished = {arXiv preprint arXiv:2408.00714},
+  note   = {arxiv:2408.00714}
+}
+
+@misc{deepseekr1,
+  title  = {{DeepSeek-R1}: Incentivizing Reasoning Capability in {LLMs} via Reinforcement Learning},
+  author = {{DeepSeek-AI} and others},
+  year   = {2025},
+  howpublished = {arXiv preprint arXiv:2501.12948},
+  note   = {arxiv:2501.12948}
+}
+
+@misc{mamba,
+  title  = {{Mamba}: Linear-Time Sequence Modeling with Selective State Spaces},
+  author = {Gu, Albert and Dao, Tri},
+  year   = {2023},
+  howpublished = {arXiv preprint arXiv:2312.00752},
+  note   = {arxiv:2312.00752}
+}
+
+@misc{mmmu,
+  title  = {{MMMU}: A Massive Multi-discipline Multimodal Understanding and Reasoning Benchmark for Expert {AGI}},
+  author = {Yue, Xiang and Ni, Yuansheng and Zhang, Kai and Zheng, Tianyu and Liu, Ruoqi and Zhang, Ge and Stevens, Samuel and Jiang, Dongfu and Ren, Weiming and Sun, Yuxuan and others},
+  year   = {2023},
+  howpublished = {arXiv preprint arXiv:2311.16502},
+  note   = {arxiv:2311.16502}
+}
+
+@inproceedings{vaswani2017attention,
+  title     = {Attention Is All You Need},
+  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2017},
+  note      = {arxiv:1706.03762}
+}
+
+% ---- Supporting tooling cited in passing ----
+
+@misc{poppler,
+  title  = {{Poppler}: a {PDF} rendering library},
+  author = {{Poppler Project}},
+  year   = {2024},
+  howpublished = {\url{https://poppler.freedesktop.org/}},
+  note   = {software:poppler}
+}
+
+@misc{libreoffice,
+  title  = {{LibreOffice}: free and open-source office productivity software},
+  author = {{The Document Foundation}},
+  year   = {2024},
+  howpublished = {\url{https://www.libreoffice.org/}},
+  note   = {software:libreoffice}
+}
+
+@misc{ffmpeg,
+  title  = {{FFmpeg}: a complete, cross-platform solution to record, convert, and stream audio and video},
+  author = {{FFmpeg Developers}},
+  year   = {2024},
+  howpublished = {\url{https://ffmpeg.org/}},
+  note   = {software:ffmpeg}
+}
+
+@misc{playwright,
+  title  = {{Playwright}: end-to-end testing and browser automation},
+  author = {{Microsoft}},
+  year   = {2024},
+  howpublished = {\url{https://playwright.dev/}},
+  note   = {software:playwright}
+}
+
+@misc{pythondocx,
+  title  = {{python-docx}: create and update {Microsoft Word} {.docx} files},
+  author = {Canny, Steve},
+  year   = {2024},
+  howpublished = {\url{https://python-docx.readthedocs.io/}},
+  note   = {software:python-docx}
+}
+
+@misc{edgetts,
+  title  = {{edge-tts}: use {Microsoft Edge}'s online text-to-speech service from {Python}},
+  author = {{rany2}},
+  year   = {2024},
+  howpublished = {\url{https://github.com/rany2/edge-tts}},
+  note   = {software:edge-tts}
+}

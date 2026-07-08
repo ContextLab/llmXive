@@ -1,0 +1,33 @@
+\begin{table*}[b]
+  \centering
+  \caption{Mechanism-informed effect assessment for T4 subclasses.  The
+  entries are design priors for benchmark planning, not empirical
+  conclusions.}
+  \label{tab:t4_effect_assessment}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\textwidth}{@{}Y Y Y@{}}
+    \toprule
+    Primary target & Likely cost or failure mode & Benchmark focus \\
+    \midrule
+    \rowcolor{famT4!18}\multicolumn{3}{c}{\textbf{\textcolor{famT4!62!black}{T4: State compression and structural aggregation}}} \\
+    \rowcolor{famT4!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.1 Row-column factorization}}} \\
+      O3 second-moment memory reduction
+      & Factorization error, possible O4 instability
+      & AdamW vs.\ AdaFactor vs.\ CAME at matched clipping and memory \\
+    \rowcolor{famT4!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.2 Low-bit quantization and error compensation}}} \\
+      O3 state memory, sometimes O2 bandwidth
+      & Quantization noise, block-size sensitivity, sensitive embeddings
+      & Precision, block size, rounding, convergence at matched memory \\
+    \rowcolor{famT4!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.3 Block/layer-level state sharing}}} \\
+      O3 fewer adaptive statistics
+      & Bad grouping underfits curvature, hurting O1/O4
+      & Grouping granularity, partition choice, LR/WD robustness \\
+    \rowcolor{famT4!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT4!62!black}{T4.4 Fused backprop-update}}} \\
+      O3 peak memory via shorter gradient lifetime
+      & Incompatible with global-gradient operations, possible convergence gap
+      & Peak memory, buffer lifetime, clipping and sharding compatibility \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}

@@ -1,0 +1,36 @@
+\begin{table}[!t]
+  \centering
+  \caption{Compact cross-matrix between method families and effect
+  objectives.}
+  \label{tab:taxonomy_cross_matrix}
+  \small
+  \newcommand{\ppos}{\textcolor{green!35!black}{\ensuremath{\boldsymbol{\Uparrow}}}}
+  \newcommand{\pos}{\textcolor{green!35!black}{\ensuremath{\boldsymbol{\Uparrow}}}}
+  \newcommand{\neu}{\tikz[baseline=-0.55ex]\draw[gray,line width=0.45pt] (0,0) circle (0.62ex);}
+  \newcommand{\negv}{\textcolor{red!70!black}{\ensuremath{\boldsymbol{\Downarrow}}}}
+  \newcommand{\posneu}{\textcolor{green!65!black}{\ensuremath{\uparrow}}}
+  \newcommand{\neupos}{\textcolor{green!65!black}{\ensuremath{\uparrow}}}
+  \newcommand{\neuneg}{\textcolor{red!55}{\ensuremath{\downarrow}}}
+  \newcommand{\negneu}{\textcolor{red!55}{\ensuremath{\downarrow}}}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X*{6}{>{\centering\arraybackslash}m{0.065\linewidth}}@{}}
+    \toprule
+    Family & O1 & O2 & O3 & O4 & O5 & O6 \\
+    \midrule
+    T1 Element-wise adaptive moment and scalar control & \ppos & \neu & \negv & \pos & \pos & \neupos \\
+    T2 Matrix-level structural methods & \ppos & \negv & \negneu & \pos & \neupos & \neupos \\
+    T3 Discretized directions & \posneu & \pos & \pos & \posneu & \neu & \neu \\
+    T4 State compression & \neuneg & \neupos & \ppos & \neuneg & \neu & \neuneg \\
+    T5 Geometry regularization & \posneu & \negv & \neuneg & \ppos & \pos & \ppos \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{2pt}
+  \begin{minipage}{0.98\linewidth}
+    \footnotesize \emph{Note.} Dark double-line arrows denote strong priors:
+    \ppos{} indicates a favorable target and \negv{} a likely cost. Pale
+    single-line arrows denote conditional or protocol-sensitive favorable/cost
+    effects. The hollow gray circle \neu{} denotes protocol-dependent
+    neutrality. Arrows indicate objective favorability rather than raw metric
+    direction.
+  \end{minipage}
+\end{table}

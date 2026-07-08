@@ -1,0 +1,44 @@
+\begin{table}[t]
+\centering
+\vspace{-0.25em}
+\caption{\textbf{Cross-scale and Cross-Architecture Validation for Gain Operations in Muon.} Standard Muon, symmetric two-way LR scaling, post-NS Nesterov, and their combination; lower PPL is better. Gains stack on the standard Transformer but not on Gated DeltaNet.}
+\label{tab:muon_cross_validation}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.14}
+\resizebox{0.95\linewidth}{!}{
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Scenario}
+& \makecell{\textbf{Standard}\\\textbf{Muon}}
+& \makecell{\textbf{Symmetric}\\\textbf{LR Scaling}}
+& \makecell{\textbf{Post-NS}\\\textbf{Nesterov}}
+& \makecell{\textbf{Both}\\\textbf{combined}}
+& \textbf{Best config.} \\
+\midrule
+\multicolumn{6}{l}{\textit{Standard Transformer: gains are stackable}} \\
+C4-LLaMA, 350M
+& 16.60
+& 16.52
+& 16.57
+& \bestnum{16.51}
+& Both combined \\
+C4-LLaMA, 1B
+& 13.72
+& 13.64
+& 13.64
+& \bestnum{13.58}
+& Both combined \\
+\midrule
+\multicolumn{6}{l}{\textit{Linear attention: stacking effect disappears}} \\
+\rowcolor{warnbg!35}
+FineWeb-Edu 32k, GDN-340M
+& 24.26
+& \bestnum{24.02}
+& 24.12
+& 24.12
+& Symmetric LR Scaling \\
+\bottomrule
+\end{tabular}}
+
+\end{table}

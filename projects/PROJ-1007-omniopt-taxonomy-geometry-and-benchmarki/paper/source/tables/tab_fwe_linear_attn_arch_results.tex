@@ -1,0 +1,71 @@
+\begin{table*}[!t]
+\centering
+\caption{\textbf{Stage-2 cross-architecture generalization (FineWeb-Edu, 32k).} Left block: WikiText test PPL (lower is better). Right block: downstream commonsense-reasoning accuracy (CS Avg, \%, average over ten lm-eval-harness tasks; higher is better). Both at 340M and 1B across four architectures. Per-scenario best in green. Absolute PPL is not comparable across architectures; rows are ordered by PPL-based cross-scenario stability. Gray row = AdamW. Note that the best PPL is almost always SOAP, whereas the best CS is spread across SOAP, MARS-AdamW, RMNP, and Muon.}
+\label{tab:stage2_cross_arch}
+\scriptsize
+% \setlength{\tabcolsep}{2.5pt}
+\setlength{\tabcolsep}{0.6mm}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{1.\linewidth}{!}{
+\begin{tabular}{l|cccccccc|cccccccc}
+\toprule
+\multirow{4}{*}{\textbf{Optimizer}}
+ & \multicolumn{8}{c|}{\textbf{WikiText PPL} ($\downarrow$)}
+ & \multicolumn{8}{c}{\textbf{Commonsense Reasoning Avg} ($\uparrow$)} \\
+\cmidrule(lr){2-9}\cmidrule(lr){10-17}
+ & \multicolumn{2}{c}{Tr++} & \multicolumn{2}{c}{GDN} & \multicolumn{2}{c}{Delta} & \multicolumn{2}{c|}{GLA}
+ & \multicolumn{2}{c}{Tr++} & \multicolumn{2}{c}{GDN} & \multicolumn{2}{c}{Delta} & \multicolumn{2}{c}{GLA} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\cmidrule(lr){10-11}\cmidrule(lr){12-13}\cmidrule(lr){14-15}\cmidrule(lr){16-17}
+ & 340M & 1B & 340M & 1B & 340M & 1B & 340M & 1B
+ & 340M & 1B & 340M & 1B & 340M & 1B & 340M & 1B \\
+\midrule
+\rowcolor{famT1!18}\multicolumn{17}{c}{\textbf{\textcolor{famT1!62!black}{\textit{T1: Element-wise adaptive moment and scalar control}}}} \\
+MARS-AdamW
+ & 24.57 & 18.94 & 24.17 & 20.04 & 26.79 & 20.67 & 28.28 & 21.89
+ & 52.50 & 57.46 & \cellcolor{bestbg}\textbf{54.91} & \cellcolor{bestbg}\textbf{58.18} & 51.69 & 56.80 & 51.24 & 55.71 \\
+\rowcolor{basebg}
+AdamW
+ & 24.62 & 18.90 & 24.47 & 20.33 & 27.16 & 20.66 & 28.67 & 22.06
+ & 52.28 & 56.55 & 53.67 & 57.01 & 51.74 & 55.56 & 51.06 & 56.69 \\
+Adan
+ & 25.55 & 19.41 & 24.78 & 20.55 & 27.28 & 20.88 & 29.00 & 22.51
+ & 52.48 & 57.21 & 52.83 & 57.93 & 51.78 & 56.50 & 51.01 & 55.07 \\
+\midrule
+\rowcolor{famT2!18}\multicolumn{17}{c}{\textbf{\textcolor{famT2!62!black}{\textit{T2: Matrix-level structural methods}}}} \\
+SOAP
+ & \cellcolor{bestbg}\textbf{23.90} & \cellcolor{bestbg}\textbf{18.72} & 23.85 & \cellcolor{bestbg}\textbf{19.86} & \cellcolor{bestbg}\textbf{26.02} & \cellcolor{bestbg}\textbf{20.38} & \cellcolor{bestbg}\textbf{27.04} & \cellcolor{bestbg}\textbf{20.62}
+ & \cellcolor{bestbg}\textbf{53.75} & \cellcolor{bestbg}\textbf{57.71} & 54.77 & 57.22 & 52.60 & 56.49 & 52.21 & \cellcolor{bestbg}\textbf{57.57} \\
+RMNP
+ & 24.37 & 19.40 & \cellcolor{bestbg}\textbf{23.65} & 20.26 & 26.80 & 21.06 & 28.60 & 22.23
+ & 53.35 & 57.12 & 54.45 & 57.30 & \cellcolor{bestbg}\textbf{53.25} & \cellcolor{bestbg}\textbf{57.32} & 50.72 & 55.79 \\
+Muon
+ & 25.05 & 19.86 & 24.34 & 20.32 & 27.18 & 21.18 & 27.47 & 21.54
+ & 53.25 & 56.36 & 54.45 & 57.20 & 52.00 & 56.65 & \cellcolor{bestbg}\textbf{52.50} & 56.85 \\
+MARS-Shampoo
+ & 26.43 & 19.74 & 25.99 & 24.87 & 28.26 & 21.25 & 29.20 & 21.53
+ & 51.96 & 57.30 & 53.37 & 57.58 & 51.43 & 56.74 & 52.01 & 57.33 \\
+\midrule
+\rowcolor{famT3!18}\multicolumn{17}{c}{\textbf{\textcolor{famT3!62!black}{\textit{T3: Discretization and directional quantization}}}} \\
+Lion
+ & 26.02 & 20.26 & 24.76 & 20.38 & 28.20 & 21.44 & 29.47 & 22.40
+ & 51.07 & 55.22 & 53.24 & 55.74 & 49.96 & 54.22 & 50.14 & 53.96 \\
+MARS-Lion
+ & 26.20 & 21.17 & 25.24 & 22.20 & 28.25 & 22.72 & 29.67 & 23.79
+ & 51.61 & 54.51 & 52.96 & 55.50 & 50.94 & 53.65 & 50.69 & 53.91 \\
+\midrule
+\rowcolor{famT4!18}\multicolumn{17}{c}{\textbf{\textcolor{famT4!62!black}{\textit{T4: State compression and structural aggregation}}}} \\
+Conda
+ & 28.30 & 19.86 & 26.11 & 21.07 & 29.09 & 21.75 & 37.38 & 22.89
+ & 51.61 & 57.24 & 53.45 & 57.18 & 51.46 & 56.10 & 48.28 & 54.95 \\
+APOLLO
+ & 34.08 & 25.29 & 30.36 & 29.29 & 34.73 & 25.58 & 37.75 & 27.78
+ & 48.19 & 53.61 & 50.92 & 53.73 & 49.04 & 53.88 & 48.38 & 52.33 \\
+\midrule
+\rowcolor{famT5!18}\multicolumn{17}{c}{\textbf{\textcolor{famT5!62!black}{\textit{T5: Curvature-aware and geometric regularization}}}} \\
+AdamP
+ & 24.68 & 19.04 & 24.32 & 20.29 & 26.77 & 20.68 & 28.66 & 21.86
+ & 51.69 & 56.82 & 53.82 & 57.07 & 51.53 & 56.73 & 51.14 & 55.31 \\
+\bottomrule
+\end{tabular}}
+\end{table*}

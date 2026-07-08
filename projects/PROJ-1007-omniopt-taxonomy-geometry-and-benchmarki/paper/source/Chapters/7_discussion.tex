@@ -1,0 +1,261 @@
+\section{Discussion}
+\label{sec:discussion}
+
+This paper was organized around three questions about where an optimizer acts,
+why its update takes a particular geometric form, and what training objective it
+is meant to improve. We answered them through three layers. The first is the
+meta-pipeline of Section~\ref{sec:meta-pipeline}, the second is the four-axis
+decomposition of Section~\ref{sec:four-axis-decomposition}, and the third is
+the dual-dimension taxonomy of Section~\ref{sec:taxonomy}. All three are
+grounded in the benchmark of Section~\ref{sec:benchmark}. This section steps back from those instruments and asks what they collectively do and
+do not establish. We first delimit the scope
+of the present study (Section~\ref{sec:discussion-limitations}), then use the
+framework to extract technique-level lessons about benefit, composition, and
+conflict (Section~\ref{sec:discussion-compositions}), and finally
+distill the open directions that follow (Section~\ref{sec:discussion-open-problems}).
+
+% =====================================================================
+\subsection{Limitations}
+\label{sec:discussion-limitations}
+
+The introduction framed optimizer selection as a jointly empirical,
+mathematical, and engineering problem. A modern training run is constrained by more than whether an update reduces the
+loss. Compute, optimizer-state memory, tuning budget, and task diversity all
+bound it. The literature is also hard to navigate because mechanisms are named
+locally, empirical claims are protocol-sensitive, and mathematical accounts are
+fragmented
+(Section~\ref{sec:intro-background}). Our framework targets exactly these gaps,
+and the benchmark supplies controlled evidence for them. The same framing,
+however, makes the boundaries of the current study explicit.
+
+\paragraph{Empirical scope.}
+The empirical study substantiates the framework primarily on language-model
+pretraining, covering four model scales from 60M to 1B parameters, four
+architectures spanning standard and linear attention, and context lengths from
+256 to 32k tokens. In addition, the benchmark includes a CIFAR100 vision-backbone study across
+ResNet50, DeiT-S, and CAFormer-S12. This study tests whether optimizer behavior
+transfers across architecture families within image classification.
+Thus, claims about \emph{domain-dependent crossings} are supported by the
+language-modeling regime and by a targeted CIFAR100 cross-architecture check.
+In future work we will add validation on ImageNet-scale vision and additional
+modalities, extending these into a full cross-modality conclusion.
+
+\paragraph{Mechanism attribution.}
+Every effect-target assessment in Section~\ref{sec:benchmark} is deliberately a
+mechanism-informed prior. The mechanistic explanations we give are also \emph{qualitative}. They cover
+APOLLO's rank-bounded compression, Muon's interaction with architecture topology,
+and MARS's variance reduction on the state estimator while preserving base
+geometry. We can say \emph{why} an optimizer plausibly behaves as observed. In future work
+we will develop metrics that quantify these explanations, measuring quantities
+such as the effective
+rank of the gradient as context grows, the staleness of a preconditioning basis,
+and the fraction of a technique's benefit that is intrinsic to the algorithm
+versus
+induced by the tuning protocol. Such interpretability metrics must be designed
+and validated carefully, and we will provide a quantitative interpretability
+evaluation in a subsequent version of this work. For future work, we plan to add
+heavy-tailed self-regularization indices as training-quality metrics and to
+evaluate optimizers on downstream commonsense reasoning benchmarks.
+
+\paragraph{Protocol dependence.}
+Our conclusions are tied to a strict controlled-variable protocol, in which only
+optimizer-related hyperparameters are tuned while architecture, data, and
+schedule are held fixed. This isolates optimizer mechanism, but it also makes
+several findings protocol-relative. Many apparent
+improvements over AdamW shrink or disappear once the baseline is retuned. The
+learning-rate robustness objective (O5) is reported as a \emph{local} diagnostic.
+The long-context comparison is
+matched on dataset and architecture family but not on token budget, so it
+certifies a degradation \emph{trend}.
+A few memory-efficient methods are drawn from recent preprints whose broader
+LLM-scale behavior is still being established. Their results should therefore
+be interpreted under the present protocol and remain preliminary for the
+method class.
+
+\paragraph{Method coverage.}
+We instantiate 24 representative optimizers chosen to cover the major regions of
+the four-axis space (Table~\ref{tab:four-axis-instantiation}), but the surveyed literature
+exceeds one hundred methods, and not every axis combination is realized by an
+existing optimizer or exercised by our benchmark. Consequently, family-level statements should be read as conclusions about the
+\emph{tested} instances and protocol. This caution is especially important for the claim that
+curvature-aware and geometry-regularized methods (T5) are competitive only in
+limited regimes under the current benchmark. These boundaries motivate the
+technique-level reading and the open directions that follow.
+
+% =====================================================================
+\subsection{Technique-Level Lessons}
+\label{sec:discussion-compositions}
+
+A central payoff of the framework is that it shifts attention from
+\emph{which optimizer is the best} to a more tractable set of technique-level
+questions. Which mechanisms carry the gains? Which ones can be stacked? Which
+ones interfere?
+The governing principle, established by the meta-pipeline and the cross-dimension
+analysis (Section~\ref{sec:taxonomy-cross}), is one of \emph{locality}.
+Mechanisms that act on different pipeline stages or different axes tend to
+compose, whereas mechanisms that contend for the same slot require an explicit
+ordering and may conflict.
+
+\paragraph{Benefit carriers.}
+Under the tested protocol, the strongest gains are associated with
+\emph{geometry-sensitive direction maps} (Axis~III) and with the
+\emph{structured state} that feeds them (Axis~II). Scalar control tweaks alone
+contribute little. The Muon ablation makes this concrete. Removing the
+diagonal second moment alone collapses quality (PPL $17.78\!\rightarrow\!70.74$),
+whereas replacing it with Newton--Schulz orthogonalization recovers and then
+surpasses the AdamW baseline ($\rightarrow\!16.86$). This identifies spectral
+orthogonalization as the indispensable core.
+Kronecker-factored preconditioning is another strong carrier. SOAP attains
+the strongest transferable quality profile in Stage~2, with a mean rank near the
+top across architectures. This comes at the cost of the highest per-step runtime
+and the highest memory use.
+Variance reduction in the style of MARS is a genuine, reusable improvement to the
+state estimator. It improves the gradient signal while preserving the base update
+geometry, which makes MARS-AdamW the most stable AdamW-style enhancement in
+Stage~2. The gain comes with extra state and computation, so MARS is better read
+as a quality-oriented extension. Finally, simple
+memory techniques that \emph{preserve} geometry, such as row/column
+factorization (AdaFactor) and low-bit state (8-bit Adam), deliver
+reliable memory savings without changing the descent direction, which is why they
+are safe defaults when memory is the binding constraint.
+
+\paragraph{Limited returns.}
+Conversely, several techniques are marginal in the tested regime. Small
+element-wise refinements of the AdamW template land in the weakest tier for
+tuned perplexity. These include early-variance rectification (RAdam),
+Nesterov lookahead (NAdam), and prediction-error variance (AdaBelief). Automatic
+step-size tuning (Prodigy) lands in the same tier. This is consistent with
+their stated targets of robustness or convenience.
+Diagonal curvature proxies and geometric wrappers (Sophia, LAMB) are likewise
+weak or only situationally competitive here. They add cost through an extra
+Hessian-vector product, clipping or trust-ratio parameters, or a second gradient
+evaluation, yet they do not deliver a consistent quality return under matched
+tuning. These mechanisms still have value. Their advantage is simply
+conditional, and the benchmark is meant to expose that condition.
+
+\paragraph{Compatible compositions.}
+Locality predicts, and the survey confirms, several orthogonal compositions.
+(i)~A variance-reduced signal (Axis~II) can feed essentially any base direction,
+because it is largely independent of basis and curvature choice. This is exactly
+the pattern behind the MARS-AdamW, MARS-Lion, and MARS-Shampoo constructions.
+(ii)~Low-rank projection (T2.3, acting on the signal subspace across S2 and
+S4) and state quantization (T4.2, acting on the state representation across S3
+and S4) modify disjoint objects and combine cleanly, as in Q-GaLore.
+(iii)~Post-update filters (T5.3) wrap a base optimizer because they act
+\emph{after} the core direction is chosen. This yields the cautious variants of
+AdamW and Lion from a single mechanism. (iv)~Layer-wise trust ratios (T5.4)
+act at finalization (S5) and can therefore wrap an element-wise adaptive update
+without touching its direction. (v)~Even within a single method, the Muon
+ablation shows that smaller gain operations can act through partially separable
+mechanisms. In Muon, symmetric
+two-way learning-rate scaling and post-orthogonalization Nesterov momentum stack
+across model scales on the standard Transformer.
+
+\paragraph{Conflicts and limits.}
+The same locality principle predicts where stacking fails. (i)~Two strong S2
+matrix constraints, spectral orthogonalization and low-rank projection, contend
+for the same slot. Combining them is therefore not free. The
+result depends on whether projection precedes orthogonalization or vice versa,
+and the two orders yield different directions and state footprints.
+(ii)~Fused backprop-update streaming (LOMO-style, T4.4) shortens the gradient's
+lifetime and thereby conflicts with
+any mechanism that needs complete gradient statistics, including global
+clipping, delayed low-rank basis refresh, SAM-style second gradients, or matrix
+preconditioners.
+(iii)~Some compositions are valid but impractical. Stacking SAM's double
+forward-backward on top of expensive Kronecker-factored preconditioning multiplies cost
+for little expected return. (iv)~Most importantly, two conflicts are
+\emph{empirical and quantitative}. Aggressive state compression is
+\emph{rank-bounded}. APOLLO is the single best optimizer at 256 tokens but the
+worst at 32k. Its degradation is
+$+21.87$ PPL, which is roughly three times the AdamW baseline degradation. The
+reason is that a fixed low-dimensional projection discards proportionally more
+information as the gradient's effective rank rises
+with context (Section~\ref{sec:benchmark-mem-eff-sensitivity},
+Table~\ref{tab:seqlen_numbers}). Muon's spectral geometry is also
+\emph{architecture-conditional}. The gain
+operations that stack on the standard Transformer no longer improve beyond the best single gain on Gated DeltaNet.
+The operator order matters as well. Accumulating momentum in the
+orthogonalized space hurts, and so does scaling the
+learning rate before orthogonalization
+(Section~\ref{sec:benchmark-muon-ablation},
+Table~\ref{tab:muon_cross_validation}).
+
+\paragraph{Design takeaway.}
+Read together, these results recommend treating the four-axis coordinate of a
+method as a practical compatibility test. Techniques that occupy different axes
+or pipeline stages are good candidates for composition. Techniques that share a
+slot demand an explicit ordering. Benefits that depend on gradient rank or
+architecture topology, especially compression and spectral geometry, must be
+validated in the target regime, and their transfer must be confirmed.
+The implication is that optimizer geometry must be matched to model structure
+and training dynamics. This is the sense in which no single optimizer dominates
+the multi-objective frontier. The unit of design is a \emph{composition} chosen
+against a specific budget, context length, and architecture.
+
+% =====================================================================
+\subsection{Open Problems and Future Directions}
+\label{sec:discussion-open-problems}
+
+The limitations and the technique-level reading point to a coherent agenda for
+LLM optimizer design and evaluation.
+
+\paragraph{Diagnostics and adaptive compression.}
+The most direct gap is the absence of measures that turn our qualitative
+mechanism attributions into testable quantities. Useful examples include an
+effective-rank estimate that predicts when compression will become lossy, a
+basis-staleness measure that predicts when a Kronecker or low-rank preconditioner
+should refresh, and an intrinsic-versus-protocol decomposition that separates
+genuine algorithmic gains from tuning artifacts. Such metrics would convert the
+present coordinate system into a predictive diagnostic, and they point to a
+concrete algorithmic target. The APOLLO collapse shows the payoff of an
+effective-rank estimate, namely compression schemes whose retained rank or projection
+adapts to the rising effective rank of the gradient as context length grows, so
+that short-context memory wins do not become long-context quality failures.
+
+\paragraph{Architecture-aware geometry and transfer.}
+Rankings cross across dataset, context length, and architecture in ways that no
+single-setting comparison anticipates, and the two clearest mechanisms behind
+those crossings, compression versus gradient rank and spectral geometry versus
+attention topology, are understood only post hoc. This motivates a predictive
+account of \emph{when} a given geometry transfers, tied to measurable properties
+of the model and data, which would let practitioners select an optimizer without
+an exhaustive sweep. The same handle suggests a design principle, namely to choose
+optimizer geometry from measurable properties of the architecture and the
+evolving training dynamics. RMNP~\citep{deng2026rmnp} is one example. Under row-wise
+block-diagonal dominance in the layer-wise Hessian and diagonal dominance in the
+momentum Gram matrix, its row normalization is a structure-aware specialization
+of Muon-style preconditioning,
+and future optimizers should co-design the preconditioner with the architecture
+and the statistics that emerge during training.
+
+\paragraph{Multi-objective selection.}
+Because the O1--O6 objectives genuinely trade off and no method is uniformly
+best, optimizer choice is a multi-objective problem that the field still treats
+as a single-number leaderboard. Cost-aware comparison (token efficiency versus
+wall-clock and memory), Pareto-aware selection, and optimizer designs that target
+a specified region of the frontier are all open.
+
+\paragraph{Compositional search.}
+The framework identifies compatible and conflicting compositions by hand.
+Automating this would mean searching axis-compatible combinations, resolving
+same-slot ordering, and co-designing variance reduction, direction geometry, and
+state compression. It also includes the under-explored question of how to combine
+two S2 constraints without sacrificing either.
+
+\paragraph{Cost-effective curvature.}
+Methods that use curvature across T2 and T5 show the same cost tension.
+Sophia follows a T5 diagonal-curvature route, while Shampoo and SOAP follow T2
+Kronecker-basis routes. They deliver either inconsistent gains or strong gains
+at prohibitive cost. Cheaper and more stable curvature estimation would help
+determine when these mechanisms become default tools and when they remain
+specialist choices. The same is true for a clear characterization of the regimes
+in which curvature information is worth its overhead.
+
+\paragraph{Matched protocols.}
+Finally, the protocol sensitivity documented throughout argues for standardized,
+matched-budget evaluation. Useful examples include full learning-rate-transfer
+studies, matched-token long-context
+comparisons, and reporting conventions that make the controlled-variable
+assumptions explicit. This would make it easier to separate intrinsic
+algorithmic progress from tuning and protocol effects.

@@ -1,0 +1,171 @@
+\begin{table*}[htbp]
+  \centering
+  \caption{Optimizer instantiations under the four-axis decomposition
+  (Axes~I--IV of Section~\ref{sec:four-axis-decomposition}), spanning all five
+  families (T1--T5). Axis~III shows two faces of the same direction operator
+  $\Phi_t$, the LMO constraint ball and the preconditioner $H_t$. The LMO
+  direction is the steepest descent inside that ball, which is the $\ell_2$ ball,
+  the $\ell_\infty$ box, or the metric ball
+  $\|\delta\|_{H_t}=\sqrt{\delta^\top H_t\delta}\le 1$ induced by $H_t$. In the Domain
+  column, $\mathbb{R}^d$ means all parameters are flattened into $d$ independent
+  scalar coordinates and updated element-wise, while
+  $\mathbb{R}^{m\times n}$ means the update operates on a whole weight matrix
+  and couples its entries, with short tags for factored, INT8, block, row, or
+  column variants. Here $g_t$ is the gradient, $m_t,v_t$ the first and second moments,
+  $c_t$ the MARS variance-reduced estimate, $s_t$ the AdaBelief variance, $h_t$ a
+  diagonal Hessian estimate, $M_t$ the matrix-form momentum, $L_t,R_t$ the
+  Shampoo row and column Kronecker factors, $Q_L,Q_R$ their eigenvector matrices,
+  $P_t$ the low-rank projection onto the current subspace (learned for GaLore and
+  Fira, random for APOLLO, column-orthogonal for Conda) with back-projection
+  $P_t^\top$, and $\bar{m}_t,\bar{v}_t,\bar{H}_t$ the quantities formed inside
+  $P_t$. The tag +res marks Fira's residual correction in the orthogonal
+  complement of $P_t$, VR marks a variance-reduced (MARS) estimate, and matrix
+  routing means only matrix parameters receive the matrix update while
+  vector-like parameters follow an AdamW-style branch.}
+  \label{tab:four-axis-instantiation}
+  \scriptsize
+  \setlength{\tabcolsep}{1.mm}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabularx}{\textwidth}{
+  @{}
+  p{0.105\textwidth}
+  p{0.105\textwidth}
+  Y 
+  Y 
+  Y 
+  Y
+  @{}}
+  % \begin{tabularx}{\textwidth}{llllll}
+    \toprule
+    Optimizer & Axis~I: Domain & Axis~II: State estimator
+      & Axis~III (LMO) & Axis~III (Precondition) & Axis~IV: Finalization \\
+    \midrule
+    \rowcolor{famT1!18}\multicolumn{6}{c}{\textbf{\textcolor{famT1!62!black}{T1: Element-wise adaptive moment and scalar control}}} \\
+    SGDM
+      & $\mathbb{R}^d$ & $m_t$
+      & $\ell_2$ ball & $H_t=I$ & LR \\
+    Adam, AdamW
+      & $\mathbb{R}^d$ & $m_t,v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & LR + decoupled WD \\
+    NAdam
+      & $\mathbb{R}^d$ & Nesterov $m_t$, $v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & Nesterov + LR + WD \\
+    AdaBelief
+      & $\mathbb{R}^d$ & $m_t,s_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(s_t)$
+      & LR + WD \\
+    ADOPT
+      & $\mathbb{R}^d$ & ordered, delayed $m_t,v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & LR + WD \\
+    Adan
+      & $\mathbb{R}^d$ & $m_t$ + grad-diff state
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & LR + WD \\
+    AdEMAMix
+      & $\mathbb{R}^d$ & short/long EMA
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & LR + WD \\
+    MARS-AdamW
+      & $\mathbb{R}^d$ & $c_t,m_t,v_t$
+      & adaptive $\ell_\infty$ (VR)
+      & $H_t=\operatorname{diag}(v_t)$, $v_t=\operatorname{EMA}(c_t^2)$
+      & LR + decoupled WD \\
+    RAdam
+      & $\mathbb{R}^d$ & rectified $m_t,v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & LR + WD \\
+    Prodigy
+      & $\mathbb{R}^d$ & $m_t,v_t$ + LR est.\ $d_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & automatic LR + WD \\
+    \midrule
+    \rowcolor{famT2!18}\multicolumn{6}{c}{\textbf{\textcolor{famT2!62!black}{T2: Matrix-level structural methods}}} \\
+    Muon
+      & $\mathbb{R}^{m\times n}$ & $M_t$
+      & spectral (polar) & $H_t=M_t M_t^\top$
+      & LR + matrix routing \\
+    MARS-Shampoo
+      & $\mathbb{R}^{m\times n}$ ($L_t,R_t$) & $c_t,m_t,L_t,R_t$
+      & metric ball (VR) & $H_t=L_t^{1/4}\!\otimes\!R_t^{1/4}$
+      & LR + damping \\
+    Shampoo
+      & $\mathbb{R}^{m\times n}$ ($L_t,R_t$) & $m_t,L_t,R_t$
+      & metric ball & $H_t=L_t^{1/4}\!\otimes\!R_t^{1/4}$
+      & LR + damping \\
+    SOAP
+      & $Q_L,Q_R$ & $m_t,v_t,Q_L,Q_R$
+      & adaptive $\ell_\infty$ in $Q_L,Q_R$
+      & $\operatorname{diag}(v_t)$ in $Q_L,Q_R$ & LR + WD \\
+    GaLore
+      & $P_t$ & $\bar{m}_t,\bar{v}_t$ on $P_t g_t$
+      & projected $\ell_\infty$ & $\bar{H}_t=\operatorname{diag}(\bar{v}_t)$
+      & $P_t^\top$ back + LR + WD \\
+    Fira
+      & $P_t$ (+res) & $\bar{m}_t,\bar{v}_t$ + residual
+      & projected $\ell_\infty$ (+res)
+      & $\bar{H}_t=\operatorname{diag}(\bar{v}_t)$ & $P_t^\top$ back + res + LR \\
+    RMNP
+      & $\mathbb{R}^{m\times n}$ (row) & $M_t$
+      & row-normalized & $H_t=\operatorname{diag}(M_t M_t^\top)$
+      & LR + matrix routing \\
+    \midrule
+    \rowcolor{famT3!18}\multicolumn{6}{c}{\textbf{\textcolor{famT3!62!black}{T3: Discretization and directional quantization}}} \\
+    SignSGD
+      & $\mathbb{R}^d$ & $g_t$
+      & fixed $\ell_\infty$ & $H_t=\operatorname{diag}(|g_t|)$ & LR \\
+    Lion
+      & $\mathbb{R}^d$ & $m_t$
+      & fixed $\ell_\infty$ & $H_t=\operatorname{diag}(|m_t|)$ & LR + WD \\
+    MARS-Lion
+      & $\mathbb{R}^d$ & $c_t,m_t$
+      & fixed $\ell_\infty$ (VR) & $H_t=\operatorname{diag}(|m_t|)$
+      & LR + WD \\
+    \midrule
+    \rowcolor{famT4!18}\multicolumn{6}{c}{\textbf{\textcolor{famT4!62!black}{T4: State compression and structural aggregation}}} \\
+    AdaFactor
+      & $\mathbb{R}^d$ (factored) & row/col $v_t$ factors
+      & adaptive $\ell_\infty$ & factored $\operatorname{diag}(v_t)$
+      & LR + factored update \\
+    CAME
+      & $\mathbb{R}^d$ (factored) & factors + confidence
+      & adaptive $\ell_\infty$ & factored $\operatorname{diag}(v_t)$ (+conf.)
+      & LR + factored update \\
+    Adam-mini
+      & $\mathbb{R}^d$ (block) & $m_t,v_t$ (block)
+      & block $\ell_\infty$ & block-mean $\operatorname{diag}(v_t)$ & LR + WD \\
+    APOLLO
+      & $P_t$ (rand.) & $\bar{m}_t,\bar{v}_t$
+      & projected $\ell_\infty$ & $\bar{H}_t=\operatorname{diag}(\bar{v}_t)$
+      & $P_t^\top$ back + LR \\
+    8-bit Adam
+      & $\mathbb{R}^d$ (INT8) & $m_t,v_t$ (INT8)
+      & adaptive $\ell_\infty$
+      & $H_t=\operatorname{diag}(v_t)$ in INT8
+      & dequant + LR + WD \\
+    Conda
+      & $P_t$ (col) & $v_t$ (col)
+      & projected $\ell_\infty$ & col-wise $\operatorname{diag}(v_t)$
+      & $P_t^\top$ back + LR + WD \\
+    \midrule
+    \rowcolor{famT5!18}\multicolumn{6}{c}{\textbf{\textcolor{famT5!62!black}{T5: Curvature-aware and geometric regularization}}} \\
+    Sophia
+      & $\mathbb{R}^d$ & $m_t,h_t$
+      & clipped local & $H_t=h_t$ & LR + WD \\
+    AdaHessian
+      & $\mathbb{R}^d$ & $m_t,h_t$ (Hutch.)
+      & metric ball & $H_t=h_t$ & LR + WD \\
+    AdamP
+      & $\mathbb{R}^d$ & $m_t,v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & radial projection + LR + WD \\
+    LAMB
+      & $\mathbb{R}^d$ & $m_t,v_t$
+      & adaptive $\ell_\infty$ & $H_t=\operatorname{diag}(v_t)$
+      & trust ratio + LR + WD \\
+    \bottomrule
+  \end{tabularx}
+  % }
+\end{table*}

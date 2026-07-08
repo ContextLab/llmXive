@@ -1,0 +1,54 @@
+\begin{table*}[!t]
+\centering
+\caption{\textbf{Stage-1 screening on C4 (LLaMA, seq.\ 256).} C4 validation PPL,
+optimizer-state memory (Mem), and per-step runtime (T) at four scales; lower is better.
+Grouped by family, sorted by 1B PPL.}
+\label{tab:c4_llama_full_screening}
+\scriptsize
+\setlength{\tabcolsep}{0.8mm}
+% \renewcommand{\arraystretch}{1.05}
+\resizebox{1.\linewidth}{!}{
+\begin{tabular}{ll|ccc|ccc|ccc|ccc}
+\toprule
+\multirow{3}{*}{\textbf{Optimizer}} & \multirow{3}{*}{\textbf{Venue}}
+& \multicolumn{3}{c|}{\textbf{60M}} & \multicolumn{3}{c|}{\textbf{130M}}& \multicolumn{3}{c|}{\textbf{350M}} & \multicolumn{3}{c}{\textbf{1B}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}\cmidrule(lr){9-11}\cmidrule(lr){12-14}
+ & & \makecell{\textbf{PPL}\\$\downarrow$} & \makecell{\textbf{Mem}\\GB$\downarrow$} & \makecell{\textbf{T}\\ms$\downarrow$} & \makecell{\textbf{PPL}\\$\downarrow$} & \makecell{\textbf{Mem}\\GB$\downarrow$} & \makecell{\textbf{T}\\ms$\downarrow$} & \makecell{\textbf{PPL}\\$\downarrow$} & \makecell{\textbf{Mem}\\GB$\downarrow$} & \makecell{\textbf{T}\\ms$\downarrow$} & \makecell{\textbf{PPL}\\$\downarrow$} & \makecell{\textbf{Mem}\\GB$\downarrow$} & \makecell{\textbf{T}\\ms$\downarrow$} \\
+\midrule
+\rowcolor{famT1!18}\multicolumn{14}{c}{\textbf{\textcolor{famT1!62!black}{\textit{T1: Element-wise adaptive moment and scalar control}}}} \\
+Adan & TPAMI'24 & 30.25 & 0.433 & 2.32 & 22.84 & 1.000 & 4.72 & 17.29 & 2.742 & 12.06 & 14.35 & 9.977 & 39.67 \\
+RAdam & ICLR'20 & 30.12 & 0.217 & 1.53 & 23.22 & 0.500 & 3.07 & 17.34 & 1.371 & 7.64 & 14.47 & 4.989 & 23.79 \\
+\rowcolor{basebg}
+AdamW & ICLR'19 & 30.08 & 0.217 & \cellcolor{bestbg}\textbf{1.14} & 23.18 & 0.500 & \cellcolor{bestbg}\textbf{2.31} & 17.78 & 1.371 & 5.97 & 14.48 & 4.989 & 18.62 \\
+NAdam & ICLR'16 & 33.72 & 0.217 & 3.45 & 24.51 & 0.500 & 4.93 & 17.90 & 1.371 & 9.96 & 14.67 & 4.989 & 20.91 \\
+MARS-AdamW & ICML'25 & 30.01 & 0.325 & 7.62 & 22.86 & 0.750 & 11.05 & 16.95 & 2.057 & 22.12 & 14.90 & 7.483 & 34.70 \\
+Prodigy & ICML'24 & 33.44 & 0.433 & 8.36 & 24.13 & 1.000 & 12.29 & 18.27 & 2.742 & 24.30 & 15.61 & 9.977 & 36.78 \\
+AdaBelief & NeurIPS'20 & 30.08 & 0.433 & 5.76 & 23.45 & 1.000 & 8.55 & 17.61 & 2.742 & 19.10 & 16.79 & 9.977 & 55.48 \\
+\midrule
+\rowcolor{famT2!18}\multicolumn{14}{c}{\textbf{\textcolor{famT2!62!black}{\textit{T2: Matrix-level structural methods}}}} \\
+MARS-Shampoo & ICML'25 & 30.03 & 0.325 & 26.27 & 22.56 & 0.750 & 37.94 & 16.82 & 2.057 & 78.71 & \cellcolor{bestbg}13.72 & 7.483 & 513.7 \\
+Muon & arXiv'25 & \cellcolor{bestbg}\textbf{28.26} & 0.109 & 21.01 & \cellcolor{bestbg}\textbf{21.81} & 0.250 & 30.48 & \cellcolor{bestbg}16.60 & 0.686 & 61.66 & \cellcolor{bestbg}13.72 & 2.495 & 379.0 \\
+RMNP & ICML'26 & 29.88 & 0.109 & 3.26 & \cellcolor{bestbg}22.54 & 0.250 & 4.63 & 16.85 & 0.686 & 9.32 & 13.87 & 2.495 & 16.94 \\
+SOAP & ICLR'25 & \cellcolor{bestbg}29.47 & \cellcolor{worstbg}0.731 & \cellcolor{worstbg}50.58 & 22.67 & \cellcolor{worstbg}2.214 & \cellcolor{worstbg}110.4 & 17.14 & \cellcolor{worstbg}7.465 & \cellcolor{worstbg}302.5 & 14.04 & \cellcolor{worstbg}29.299 & \cellcolor{worstbg}1371.5 \\
+GaLore & ICML'24 & 34.56 & 0.062 & 4.21 & 25.32 & 0.199 & 5.88 & 19.18 & 0.426 & 11.85 & 14.29 & 0.790 & 15.29 \\
+Shampoo & ICML'18 & 30.22 & 0.217 & 22.36 & 22.56 & 0.500 & 33.27 & 17.03 & 1.371 & 66.05 & 14.29 & 4.989 & 389.4 \\
+\midrule
+\rowcolor{famT3!18}\multicolumn{14}{c}{\textbf{\textcolor{famT3!62!black}{\textit{T3: Discretization and directional quantization}}}} \\
+MARS-Lion & ICML'25 & 32.41 & 0.325 & 5.72 & 25.68 & 0.750 & 8.49 & 18.78 & 2.057 & 17.11 & 15.73 & 7.483 & 24.77 \\
+Lion & NeurIPS'23 & 35.94 & 0.109 & 2.07 & 25.56 & 0.250 & 3.01 & \cellcolor{worstbg}19.30 & 0.686 & \cellcolor{bestbg}\textbf{5.80} & \cellcolor{worstbg}17.02 & 2.494 & \cellcolor{bestbg}\textbf{12.48} \\
+\midrule
+\rowcolor{famT4!18}\multicolumn{14}{c}{\textbf{\textcolor{famT4!62!black}{\textit{T4: State compression and structural aggregation}}}} \\
+APOLLO & MLSys'25 & 30.86 & 0.062 & 8.62 & 22.74 & 0.149 & 12.65 & \cellcolor{bestbg}\textbf{16.43} & 0.426 & 26.21 & \cellcolor{bestbg}\textbf{13.53} & 0.790 & 28.65 \\
+Conda & arXiv'25 & \cellcolor{bestbg}28.65 & 0.245 & 4.88 & \cellcolor{bestbg}21.91 & 0.595 & 7.11 & \cellcolor{bestbg}16.45 & 1.703 & 13.90 & 14.25 & 6.317 & 62.33 \\
+8-bit Adam & ICLR'22 & 30.46 & 0.110 & 4.11 & 23.30 & 0.254 & 7.27 & 17.67 & 0.697 & 16.89 & 14.53 & 2.534 & 42.38 \\
+CAME & ACL'23 & 31.40 & 0.218 & 14.99 & 23.79 & 0.502 & 21.76 & 17.60 & 1.376 & 44.89 & 14.53 & 4.997 & 87.46 \\
+AdaFactor & ICML'18 & 30.00 & \cellcolor{bestbg}\textbf{0.001} & 9.90 & 22.94 & \cellcolor{bestbg}\textbf{0.002} & 14.63 & 17.85 & \cellcolor{bestbg}\textbf{0.003} & 29.70 & 14.92 & \cellcolor{bestbg}\textbf{0.004} & 56.46 \\
+Adam-mini & ICLR'25 & 30.50 & 0.109 & 5.68 & 23.62 & 0.251 & 8.31 & 18.12 & 0.686 & 16.68 & 15.51 & 2.495 & 20.81 \\
+\midrule
+\rowcolor{famT5!18}\multicolumn{14}{c}{\textbf{\textcolor{famT5!62!black}{\textit{T5: Curvature-aware and geometric regularization}}}} \\
+AdamP & ICLR'21 & 30.21 & 0.217 & 12.82 & 23.07 & 0.500 & 19.13 & 17.39 & 1.371 & 39.98 & 14.57 & 4.989 & 64.69 \\
+LAMB & ICLR'20 & 30.03 & 0.217 & 9.14 & 23.40 & 0.500 & 13.17 & 17.25 & 1.371 & 26.62 & 16.09 & 4.989 & 44.18 \\
+Sophia & ICLR'24 & \cellcolor{worstbg}36.27 & 0.217 & 3.92 & \cellcolor{worstbg}25.76 & 0.500 & 5.66 & 18.86 & 1.371 & 11.06 & 16.45 & 4.989 & 20.05 \\
+\bottomrule
+\end{tabular}}
+\end{table*}

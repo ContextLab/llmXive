@@ -1,0 +1,33 @@
+\begin{table*}[b]
+  \centering
+  \caption{Mechanism-informed effect assessment for T5 subclasses.  The
+  entries are design priors for benchmark planning, not empirical
+  conclusions.}
+  \label{tab:t5_effect_assessment}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\textwidth}{@{}Y Y Y@{}}
+    \toprule
+    Primary target & Likely cost or failure mode & Benchmark focus \\
+    \midrule
+    \rowcolor{famT5!18}\multicolumn{3}{c}{\textbf{\textcolor{famT5!62!black}{T5: Curvature-aware and geometric regularization}}} \\
+    \rowcolor{famT5!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.1 Adversarial perturbation (SAM family)}}} \\
+      O6 generalization, O4 flatness
+      & Extra forward-backward pass, radius sensitivity, wall-clock loss
+      & Matched-token vs.\ matched-compute curves, radius and frequency, downstream evaluation \\
+    \rowcolor{famT5!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.2 Diagonal Hessian estimation}}} \\
+      O1 convergence, O4 stability via clipped curvature
+      & HVP overhead, clipping sensitivity, stale curvature
+      & Estimation cadence, Sophia-H vs.\ Sophia-G, clipping rule \\
+    \rowcolor{famT5!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.3 Update post-processing and selective filtering}}} \\
+      O4 stability, O5 tuning width
+      & May drop useful descent components, extra hyperparameters
+      & Same base with/without filter, kept-coordinate ratio, spike rate \\
+    \rowcolor{famT5!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT5!62!black}{T5.4 Layer-wise trust-region scaling}}} \\
+      O4/O5 under large batch and heterogeneous layers
+      & Trust-ratio instability at small norms, exclusion sensitivity
+      & Layer-wise norms, excluded tensors, clipping order, large-batch scaling \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}

@@ -1,0 +1,53 @@
+\section{Experiments}
+
+\input{tables/recon}
+
+\input{tables/1view_gen}
+\input{tables/2view_gen}
+
+\input{tables/worldscore}
+
+
+\subsection{Training Details}
+PixWorld has $\sim\!1.04$B parameters and is trained from scratch on the Re10K~\citep{zhou2018stereo} + DL3DV-10K~\citep{ling2024dl3dv} mixture ($\sim\!67$K scenes in total), augmented with 10M single images from the BLIP-3o~\citep{chen2025blip3} corpus that share the diffusion backbone as a 2D appearance prior. For each multi-view scene we sample $N\!\in\!\{4,\ldots,8\}$ posed views and randomly partition them into $\Omega_{\mathrm c}$ and $\Omega_{\mathrm n}$, biased toward small $|\Omega_{\mathrm c}|$ so that capacity is spent on conditioned generation while the all-clean case ($\Omega_{\mathrm n}\!=\!\varnothing$) grounds the geometry head. We use $\Psi{=}\text{$\pi^3$}$~\citep{wang2025pi} as the frozen 3D critic for $\mathcal{L}_{\mathrm{geo}}$, and set $\lambda_{\mathrm{depth}}{=}1.0$ and $\lambda_{\mathrm{lpips}}{=}\lambda_{\mathrm{geo}}{=}0.1$, with the perceptual and geometric terms gated by $t{>}t_{\mathrm{th}}{=}0.3$. The model is optimized with AdamW~\citep{loshchilov2017decoupled} for $\sim\!200$K steps at a training resolution of $336\!\times\!448$ on $32$ NVIDIA A800-SXM4-80G GPUs. Full architectural specifications, batching, and optimizer schedules are deferred to the Appendix~\ref{sec:appendix_settings}.
+
+
+\subsection{Evaluation Protocols}
+\label{sec:eval_protocol}
+We evaluate PixWorld on four protocols covering 3D reconstruction and 3D scene generation (see Fig.~\ref{fig:pose_traj_vis}). For RealEstate10K~\citep{zhou2018stereo} and DL3DV-10K~\citep{ling2024dl3dv}, we randomly sample 200 test scenes per dataset, restricted to clips with a large camera pose range so the protocols stress wide-baseline reasoning; for WorldScore~\citep{duan2025worldscore} we follow the official static split (2000 scenes). For all scene-generation protocols, every baseline is conditioned on camera poses, and all baselines except LVSM~\citep{jinlvsm} additionally receive a text condition. For reconstruction (Tab.~\ref{tab:nvs_comparison}), the model is given 4 or 8 posed views and renders held-out targets under ground-truth poses, evaluated by PSNR, SSIM~\citep{wang2004image}, and LPIPS~\citep{zhang2018unreasonable}. For 1-view generation (Tab.~\ref{tab:single_view_gen_avg}), the 200 scenes per dataset are split into 100 First-Frame scenes (forward trajectory generated from the first frame) and 100 Bidirectional scenes (a randomly chosen middle frame conditions generation toward both ends); 2-view generation (Tab.~\ref{tab:two_view_gen_avg}) similarly combines 100 Interpolation scenes (endpoint anchors, intermediate views generated) and 100 Extrapolation scenes (anchors at one end, views generated beyond their span). For both generation settings we report three groups of metrics, each targeting one capability of a 3D world model: Novel View Synthesis (NVS) fidelity against ground-truth target views (PSNR, SSIM, LPIPS); Generation Quality from VBench~\citep{huang2024vbench} (I2V Subject, I2V Background, Image Quality, Aesthetic Quality), assessing perceptual realism without paired references; and Camera Control precision via $\pi^3$~\citep{wang2025pi}-estimated AUC@$\{30^\circ, 15^\circ, 5^\circ\}$ ~\citep{wang2025taming} between the poses recovered from generated frames and the conditioning trajectory. On WorldScore (Tab.~\ref{tab:worldscore}) we report all seven official metrics and their average: Camera Control and Object Control measure trajectory control fidelity, Content Alignment measures faithfulness to the text prompt, 3D and Photometric Consistency assess geometric and appearance stability across views, Style Consistency captures visual style coherence, and Subjective Quality reflects overall perceptual quality, with baseline numbers taken from the WorldScore release.
+
+
+
+\subsection{3D Scene Reconstruction}
+\label{sec:reconstruction}
+\begin{figure}[t]
+    \centering
+    \vspace{-2mm}
+    \includegraphics[width=\linewidth]{figs/pose_traj.png}
+    \caption{\textbf{Visualization of PixWorld under different settings.} PixWorld flexibly handles both 3D reconstruction and generation: when all input views are clean, it performs reconstruction; when clean and noisy views are arbitrarily mixed, it performs generation. We visualize the camera trajectory, where blue and red frustums denote clean input views and generated views, respectively.}
+    \label{fig:pose_traj_vis}
+    \vspace{-4mm}
+\end{figure}
+
+Tab.~\ref{tab:nvs_comparison} reports novel-view synthesis results on RealEstate10K and DL3DV-10K under 4-view and 8-view inputs. Note that Gen3R~\citep{huang2026gen3r}, although a unified generation-and-reconstruction model, only supports point-cloud reconstruction and is therefore not directly comparable on NVS, so it is omitted here. We further note that YoNoSplat supports both a pose-free and a pose-conditioned (\textit{with-pose}) mode; for a stronger comparison we adopt its with-pose results, which leverage ground-truth camera poses as additional input. Even against this stronger baseline, PixWorld attains the best PSNR and LPIPS across all settings, as well as the best SSIM on RealEstate10K, trailing only DepthSplat on SSIM for DL3DV-10K. Concretely, PixWorld consistently improves PSNR over YoNoSplat on both RealEstate10K and DL3DV-10K (4/8 views), and lowers LPIPS in every case (\textit{e.g.},\ $0.138$ vs.\ $0.143$ at 4-view RealEstate10K). These results show that our pixel-space formulation and geometry-aware supervision yield stronger cross-view consistency and more accurate 3D reconstruction.
+
+
+\subsection{3D Scene Generation}
+\label{subsec:scene_gen}
+\input{tables/ablation_study}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figs/vis_compare_baselines.pdf}
+    \caption{\textbf{Visualization of comparisons with baselines.} The large view on top denotes the input view, while the two smaller views below show novel views generated by each method.}
+    \vspace{-4mm}
+    \label{fig:vis_compare_baselines}
+\end{figure}
+
+We benchmark PixWorld against five representative baselines, LVSM~\citep{jinlvsm}, GF~\citep{wu2025geometry}, Gen3C~\citep{ren2025gen3c}, FlashWorld~\citep{li2025flashworld} and Gen3R~\citep{huang2026gen3r}, on RealEstate10K~\citep{zhou2018stereo} and DL3DV-10K~\citep{ling2024dl3dv} under single and two-image conditioning. We report novel-view synthesis quality (PSNR, SSIM, LPIPS), VBench-style generation quality, and pose accuracy via $\pi^3$-estimated AUC at multiple thresholds. In the single-image setting (Tab.~\ref{tab:single_view_gen_avg}), averaged across First-Frame and Bidirectional trajectories, PixWorld tops every metric on both datasets, lifting PSNR by $+1.06$\,dB on RealEstate10K (18.88 vs.\ 17.82) and $+0.75$\,dB on DL3DV-10K (16.50 vs.\ 15.75); the gain is sharpest at strict pose thresholds, with AUC@5 rising from 0.546 to 0.614 and from 0.420 to 0.485, indicating that diffusing in pixel space and supervising through differentiable rendering yields geometrically faithful trajectories. Under two-image conditioning (Tab.~\ref{tab:two_view_gen_avg}), PixWorld again leads on perceptual, generation, and pose metrics, attaining the best LPIPS (0.210/0.340) and AUC@5 (0.649/0.534); LVSM is competitive only on raw PSNR/SSIM (gap $<0.07$\,dB on RealEstate10K), reflecting its deterministic regression objective. In WorldScore~\citep{duan2025worldscore} (Tab.~\ref{tab:worldscore}), PixWorld achieves the best overall average (71.04) and ranks first in camera controllability (91.08), 3D consistency (91.39) and photometric consistency (93.84); see Fig.~\ref{fig:vis_compare_baselines}.
+
+
+\subsection{Ablation Study}
+\label{subsec:ablation}
+
+
+We ablate the geometry perception loss on RealEstate10K~\citep{zhou2018stereo} under the 1-view setting (Tab.~\ref{tab:ablation_geometry_perception}). For a controlled comparison, we sample a 10K-sequence subset and train both variants for 30K steps under identical settings, toggling only the geometry perception loss. Removing it consistently degrades all three metric groups: PSNR drops by $1.13$\,dB ($19.12 \!\to\! 17.99$), SSIM by $0.105$ ($0.717 \!\to\! 0.612$) and AUC@5 by $0.080$ ($0.642 \!\to\! 0.562$, $\sim$$12.5\%$ relative), while VBench-style scores barely shift. This pattern matches our motivation: 2D photometric and perceptual losses keep individual frames visually plausible but leave the underlying 3D geometry unsupervised, so cross-view consistency and pose fidelity suffer (see Fig.~\ref{fig:vis_ablation_study} in Appendix~\ref{sec:appendix_vis}). By aligning rendered and ground-truth views in the geometry-aware feature space of a pretrained 3D foundation model, our loss supplies the 3D structural signal that 2D objectives cannot, validating it as a key component of PixWorld.

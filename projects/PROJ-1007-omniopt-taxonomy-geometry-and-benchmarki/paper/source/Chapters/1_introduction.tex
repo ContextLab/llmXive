@@ -1,0 +1,227 @@
+\section{Introduction}
+\label{sec:intro}
+
+
+\subsection{Background and Motivation}
+\label{sec:intro-background}
+
+Optimizers have become a system-level design choice in model training.  Whether a modern training run succeeds depends on whether a stochastic update can reduce the empirical loss, and equally on a fixed budget of accelerators, optimizer-state memory, communication bandwidth, batch size, data scale, tuning effort, and downstream evaluation cost.  
+Adam and AdamW established the dominant element-wise adaptive-moment template for deep learning~\cite{kingma2015adam,loshchilov2019decoupled}. Recent LLM-oriented optimizers, however, no longer fit cleanly into this single template.  Sign-based methods change the direction map~\cite{chen2023symbolic}, matrix-level methods exploit structured curvature or orthogonalized directions~\cite{gupta2018shampoo}, low-rank methods reduce state in projected subspaces~\cite{zhao2024galore}, and sharpness-aware methods regularize the geometry of the final update~\cite{foret2021sharpness}.  
+Optimizer selection has therefore become an empirical, mathematical, and engineering problem at the same time.
+
+This rapidly expanding literature is difficult to navigate for three reasons. First, optimizer papers are usually organized around a local mechanism, such as a new moment estimator, preconditioner, projection, quantizer, or post-update correction. Such naming is useful for implementation, but it does not reveal whether two optimizers intervene at the same stage of the update process, whether their components are orthogonal, or whether they are compositionally compatible.  Second, empirical claims are highly protocol-sensitive.  Recent LLM optimizer studies show that conclusions can change with model scale, batch size, training duration, data-to-model ratio, learning-rate schedule, warmup, weight decay, and hyperparameter tuning budget~\cite{zhao2025deconstructing,semenov2025benchmarking,wen2025fantastic}.
+A method that improves pretraining loss may increase memory, wall-clock time, or tuning burden.  Conversely, a memory-saving method may change both the update direction and the state representation. 
+Third, the mathematical accounts of modern optimizers remain fragmented.  Element-wise adaptive methods, matrix preconditioners, sign optimizers, low-rank projections, and geometry-aware regularizers are often analyzed with different notation and different assumptions.
+
+\begin{figure}[ht]
+  \centering
+  % \vspace{-0.5em}
+  \includegraphics[width=1.0\linewidth]{figures/timeline.pdf}
+  \caption{Evolution of optimizer design for deep learning and LLM training. The expanding coverage of T1--T5 mechanism lanes and the diagonal trend arrow indicate increasing method count and mechanism diversity, not a performance ranking or exact method counts.}
+  % \vspace{-0.5em}
+  \label{fig:timeline}
+\end{figure}
+
+This paper addresses these gaps by treating an optimizer as a structured transformation from a stochastic training signal to a parameter update. The central premise is that most modern optimizers are sparse modifications of a shared meta-pipeline: they route parameters, transform the gradient signal, evolve internal state, reconstruct an update, and finally apply scaling or regularization. This operational view induces a process-aligned methodological taxonomy in which each optimizer family is grouped by the stage where its primary non-identity operation occurs.  On top of this view, we use linear minimization oracles (LMOs) as a geometric primitive for explaining norm-induced update directions, including sign directions, orthogonal matrix directions, and preconditioned directions~\cite{bernstein2024oldoptimizer,pethick2025normlmo}.  The resulting four-axis decomposition extends idealized LMO direction selection to practical optimizer updates by adding curvature estimation, gradient-estimation quality, and state-compression choices. 
+A second, effect-oriented taxonomy then records which training objectives each method is designed or expected to improve, such as convergence efficiency, per-step cost, memory consumption, stability, hyperparameter robustness, and generalization. Together, these views form a mechanism-aware framework for answering three linked questions: where an optimizer acts, why its update has a particular mathematical form, and what practical training objective it is meant to improve.
+
+\subsection{Contributions and Paper Organization}
+\label{sec:intro-contributions}
+
+This paper is a survey and benchmark study of optimizers for LLM training that aims to provide a mechanism-aware map for comparing, combining, and evaluating optimizers under explicit assumptions.  Which optimizer is best depends on the specific training constraints.  The four components below are intentionally coupled: the meta-pipeline defines non-overlapping operation sites, the methodological taxonomy is derived from those sites, the LMO-driven analysis explains the mathematical direction selected by each family, and the objective taxonomy turns optimizer claims into measurable evaluation axes.  The main contributions are as follows.
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{A universal meta-pipeline for optimizers.}  We
+  formulate a five-step operational pipeline that aligns modern optimizers
+  under a common update process, namely parameter scoping and routing, gradient
+  transformation, state evolution, update reconstruction, and update
+  finalization.  This view exposes an identity-mapping principle, that most
+  optimizers perform nontrivial work in only one or two stages while leaving
+  the remaining stages as defaults.
+  \item \textbf{An LMO-driven four-axis decomposition.}  We use
+  norm-constrained LMOs to unify direction selection and extend this view to a
+  four-axis description of practical optimizer updates, whose axes specify the
+  update domain, the state estimator, the geometry-and-precondition operator,
+  and the finalization wrapper.  Under this view, the update directions selected
+  by different optimizers are unified by a single geometric language.
+  % Condensed out (kept for reference): state-estimator examples "(effective
+  % signal, curvature, variance reduction, and compression state)"; direction
+  % examples "sign updates, orthogonalized updates, and Kronecker-factored
+  % preconditioned updates all become related LMO-induced direction families".
+  \item \textbf{A dual-dimension taxonomy for more than one hundred
+  optimizers.}  We organize optimizer methods along two complementary
+  dimensions.  The methodological dimension assigns each optimizer to a
+  non-overlapping primary mechanism family, and the objective-oriented dimension
+  records the measurable training objectives each method is intended to improve.
+  % Condensed out (kept for reference): family examples "element-wise adaptive
+  % moments, matrix-level structural methods, discretized directions,
+  % state-compressed optimization, and curvature-aware or geometry-regularized
+  % optimization"; objective examples "convergence efficiency, per-step
+  % computation, memory consumption, stability, hyperparameter robustness, and
+  % generalization".
+  \item \textbf{A mechanism-aligned benchmark study.}  This is the core of the
+  paper.  The empirical part instantiates the full taxonomy in a unified
+  cross-domain benchmark, spanning language model pretraining from 60M to 1B
+  parameters, across four architectures, and at context lengths from 256 to 32k
+  tokens, together with image classification on CIFAR100~\cite{krizhevsky2009learning}.  The evaluation is carried
+  out at the family and axis level, systematically comparing representative
+  optimizers across six effect objectives (convergence, cost, memory, stability,
+  hyperparameter robustness, and generalization) and laying out their trade-offs
+  one by one.  We further perform a mechanistic ablation of the matrix-structured
+  optimizer Muon~\cite{jordan2024muon} to examine how its sub-operations compose across scale and
+  architecture.  The benchmark yields several findings that recur throughout the
+  paper.  No single optimizer dominates this multi-objective frontier.  Aggressive
+  state compression excels under short context but degrades sharply as input
+  complexity grows.  Structured-matrix methods transfer most stably across
+  architectures and tasks but at substantial per-step cost.  Optimizer rankings
+  exhibit systematic crossings with scale, context length, and domain.
+\end{enumerate}
+
+Figure~\ref{fig:overview_abstract} summarizes the planned organization of
+the paper. The key design is that the meta-pipeline, LMO-driven
+decomposition, methodological taxonomy, objective taxonomy, and benchmark
+study are mutually aligned and reinforce one another as an integrated whole.
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=1.0\linewidth]{figures/overall.pdf}
+%   \caption{Overview of the proposed survey and benchmark framework. The paper first introduces a universal meta-pipeline, then develops an LMO-driven four-axis decomposition, builds a process-aligned methodological taxonomy and an effect-objective taxonomy, and finally connects both taxonomies to a large-scale benchmark study.}
+%   \label{fig:contribution_overview}
+% \end{figure}
+
+\subsection{Positioning Against Existing Surveys and Benchmarks}
+\label{sec:intro-positioning}
+
+\input{tables/tab_related_survey_theory}
+\subsubsection{Prior Literature Strands and Survey-Theory Baselines}
+
+The closest prior work falls into three interlocking lines: optimizer surveys,
+unifying mathematical theory, and large-language-model optimizer benchmarks.
+General optimizer surveys describe the historical progression from stochastic
+gradient descent and momentum to adaptive, second-order, memory-efficient, and
+matrix-aware methods.  Theoretical work supplies a complementary explanation of
+why some updates can be viewed as norm-induced steepest descent, stochastic
+Frank--Wolfe steps, or directions produced by a linear minimization oracle.
+Empirical benchmarks then show how these mechanisms behave under realistic
+pretraining or fine-tuning protocols.  Taken separately, however, these lines do
+not identify where a method intervenes in the optimizer update pipeline, which
+mechanisms are compatible with one another, or how a taxonomy should determine
+the axes of a benchmark.
+
+Table~\ref{tab:related_survey_theory} places representative surveys and
+unifying-theory papers along three groups of criteria.  The scope columns ask
+what object each work primarily studies and whether large-language-model
+optimizers are central to its scope.  The mathematical-lens columns distinguish
+formula-level treatment of optimizer updates from geometric interpretations
+through norms, linear minimization oracles, or Frank--Wolfe geometry.  The final
+columns record whether a work includes benchmark evidence and whether it
+organizes optimizers by the stage at which they intervene in an update.  In
+Tables~\ref{tab:related_survey_theory} and~\ref{tab:related_benchmarks},
+\cmark, \pmark, and \xmark indicate primary coverage, partial or secondary
+coverage, and a non-central topic, respectively.
+
+The broad surveys by Zhang et al.~\citep{zhang2026evolution} and Altinel and
+Ozcan~\citep{altinel2025development} are useful references for update rules,
+optimizer families, and the historical development of deep-learning
+optimization, but their organization is mainly driven by gradient-information
+order, chronology, or application setting.  Ranganath et
+al.~\citep{ranganath2026navigating} move closer to the setting of this paper by
+covering adaptive, sign-based, memory-efficient, low-rank, and matrix-based
+optimizers for large language models.  Glentis et
+al.~\citep{glentis2025scalable} focus more narrowly on parameter- and
+memory-efficient pretraining, which is especially relevant to optimizer-state
+memory and low-rank training.  The unifying-theory papers play a different
+role.  Bernstein et al.~\citep{bernstein2024oldoptimizer} connect several
+optimizers to architecture-dependent norms, Pethick et
+al.~\citep{pethick2025normlmo} develop training algorithms based on
+norm-constrained linear minimization oracles, and Sfyraki et
+al.~\citep{sfyraki2025lions} relate Lion and Muon to stochastic Frank--Wolfe.
+These works supply the geometric language used later in this paper, but they do
+not provide a survey-scale taxonomy that maps optimizer mechanisms to update
+stages and then connects those stages to benchmark objectives.
+
+\subsubsection{Benchmark Evidence and Taxonomy Mapping}
+
+The second group consists of large-language-model optimizer benchmarks and
+mechanistic empirical studies.  Their common message is that optimizer
+comparison is not a stable global ranking problem.  Adam-like methods, sign
+methods, matrix-aware methods, curvature-aware methods, and memory-efficient
+variants can exchange relative positions when the tuning budget, model size,
+batch size, training duration, data regime, or evaluation endpoint changes.
+This makes it necessary to report effect-specific trade-offs, including
+convergence, wall-clock cost, optimizer-state memory, robustness to
+hyperparameters, and downstream generalization.
+
+Table~\ref{tab:related_benchmarks} summarizes this empirical literature by
+training setting, method coverage, and evaluation focus.  The method-coverage
+columns use the Dimension-A families introduced in
+Section~\ref{sec:taxonomy}: T1 element-wise adaptive moment and scalar control,
+T2 matrix-level structural methods, T3 discretization and directional
+quantization, T4 state compression and structural aggregation, and T5
+curvature-aware and geometric regularization.  Coverage is assigned by mapping the
+optimizers actually benchmarked in each work to their primary mechanism labels
+according to what each optimizer actually does.  Thus Lion and Signum
+count as T3 rather than T4 even when discussed as memory-saving methods, whereas
+AdaFactor and Adam-mini count as T4 because they change optimizer-state
+representation.  Zeroth-order fine-tuning is treated as a boundary case: the
+signal-acquisition mechanism is outside the main T1--T5 taxonomy, but ZO-Adam
+and ZO-SGD-Sign can still be recorded as T1-like and T3-like update analogues.
+The evaluation columns distinguish hyperparameter tuning, protocol variation,
+cost accounting, downstream evaluation, and mechanistic analysis.  Here
+\emph{protocol variation} includes model size, batch size, training length,
+data-to-model ratio, architecture, training stage, and task setting, while
+\emph{cost accounting} includes compute, memory, runtime, and query cost.  The
+row for this paper describes its benchmark design, and the actual experimental
+results appear in the main text.
+\input{tables/tab_related_benchmarks}
+
+\subsubsection{Position of This Paper and Roadmap}
+
+Zhao et al.~\citep{zhao2025deconstructing} and Semenov et
+al.~\citep{semenov2025benchmarking} are the closest pretraining benchmarks to
+our setting.  Both compare Adam-like baselines with sign, curvature-aware, or
+memory-efficient variants, and both show that conclusions depend on
+hyperparameter sweeps and protocol choices.  Wen et
+al.~\citep{wen2025fantastic} sharpen this point by revisiting claimed optimizer
+speedups under stricter hyperparameter search, end-of-training evaluation,
+hyperparameter transfer, and scaling conditions.  Schlotthauer et
+al.~\citep{schlotthauer2025budget} focus on resource-limited pretraining, where
+the optimizer affects not only loss but also graphics-processing-unit hours and
+downstream quality.  Zhang et al.~\citep{zhang2024zerothorder} study
+zeroth-order fine-tuning, which marks a boundary case for our taxonomy, since
+its central innovation is how the training signal is acquired, whereas our main
+taxonomy begins after a signal enters the optimizer update.  The Muon
+studies~\citep{qu2026muonfinetune,shumaylov2026muonnot} expose a different
+boundary by showing that matrix-structured directions interact with
+pretraining-versus-fine-tuning stage, low-rank adaptation subspaces, spectral
+exponents, and local descent geometry.  Together, these studies motivate
+benchmark reporting by method family and by objective rather than by a single
+aggregate rank.
+
+This paper connects these three lines through a mechanism-aware organization.
+The universal meta-pipeline specifies where an optimizer changes a training
+update.  The LMO-driven four-axis decomposition specifies how the update
+direction, curvature estimate, gradient signal, and state representation are
+formed.  The dual-dimension taxonomy specifies how optimizers should be grouped
+and which training effects should be measured.  The benchmark component is
+therefore not an isolated leaderboard but an empirical test of whether the
+taxonomy separates mechanisms that lead to distinct convergence, cost, memory,
+stability, tuning, and generalization behavior.
+
+The remainder of the paper follows the same progression from foundations to
+evaluation.  Section~\ref{sec:prelim} introduces the LLM training problem,
+classical adaptive optimization, and notation.
+Section~\ref{sec:unified-theoretical-framework} presents the unified
+theoretical framework of this work.  Subsection~\ref{sec:meta-pipeline} introduces the
+universal meta-pipeline, its five operational stages, and representative
+instantiations organized around the identity-mapping principle, while
+Subsection~\ref{sec:lmo-four-axis} develops the LMO-driven four-axis
+decomposition as a mathematical explanation of practical optimizer updates.
+Section~\ref{sec:taxonomy} introduces the dual-dimension taxonomy and explains
+how the method dimension is aligned with pipeline operations while the
+objective dimension captures effect targets.
+Section~\ref{sec:optimizer-families} consolidates the major optimizer families,
+with Subsections~\ref{sec:t1}--\ref{sec:t5} surveying T1--T5 through the
+meta-pipeline, LMO-driven coordinates, and objective-oriented assessments.
+Section~\ref{sec:benchmark} reports the benchmark study.  Sections~\ref{sec:discussion} and~\ref{sec:conclusion}
+discuss limitations, open problems, and conclusions.

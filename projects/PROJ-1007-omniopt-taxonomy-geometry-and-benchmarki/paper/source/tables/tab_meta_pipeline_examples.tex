@@ -1,0 +1,33 @@
+\begin{table*}[t]
+  \centering
+  \caption{Representative optimizer families viewed through the universal
+  meta-pipeline. Only active stages and defining mechanisms are shown; inactive
+  stages follow identity maps or standard defaults.}
+  \label{tab:meta_pipeline_examples}
+  \footnotesize
+  \setlength{\tabcolsep}{6pt}
+  \renewcommand{\arraystretch}{1.10}
+  \begin{tabular}{@{}lcl@{}}
+    \toprule
+    Method (family) &
+    \multicolumn{1}{c}{Active stages} &
+    \multicolumn{1}{c}{Core mechanism} \\
+    \midrule
+    AdamW (T1.1)
+      & S3, S5
+      & Moment EMAs (S3) with decoupled weight decay (S5) \\
+    Muon (T2.1)
+      & S1, S2
+      & Matrix routing (S1) with Newton--Schulz spectral orthogonalization (S2) \\
+    GaLore (T2.3)
+      & S1--S4
+      & Low-rank projection (S1/S2), subspace Adam state (S3), and inverse projection (S4) \\
+    Lion (T3)
+      & S2, S3
+      & Momentum interpolation (S3) followed by sign discretization (S2) \\
+    SAM (T5.1)
+      & S0, S5
+      & Perturbation-induced gradient (S0) with neighborhood-regularized writeback (S5) \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

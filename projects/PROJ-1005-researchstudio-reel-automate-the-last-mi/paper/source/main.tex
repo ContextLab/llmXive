@@ -1,0 +1,795 @@
+\documentclass{article}
+
+% ---------- arXiv preprint style ----------
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{amsmath,amssymb}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{lscape}
+\usepackage{xcolor}
+\definecolor{barcol}{HTML}{4C78A8}       % cost-share bar in the pipeline breakdown table
+\usepackage{colortbl}                    % column-colour highlight for the results table
+\usepackage{eso-pic}     % for top-left logo + top-right date on page 1
+\usepackage{calc}        % for \widthof in the top-right date placement
+\usepackage[framemethod=tikz]{mdframed}  % tinted abstract box
+\usepackage{float}                       % [H] placement for fig:hero
+\usepackage{subcaption}                  % side-by-side subfigures
+\usepackage{listings}                    % verbatim prompt listing (App: LLM baseline prompt)
+\lstset{basicstyle=\footnotesize\ttfamily,breaklines=true,columns=fullflexible,keepspaces=true,frame=single,framesep=4pt,xleftmargin=3pt,xrightmargin=3pt,aboveskip=6pt,belowskip=2pt}
+
+% Pure tint with alpha for abstract background. We define an alpha-blended
+% colour (blue at 12% over white) so the abstract reads as a soft tinted
+% panel rather than a hard solid block.
+\definecolor{abstractbg}{RGB}{232, 240, 253}  % ~blue!12 over white
+\definecolor{abstractcode}{RGB}{180, 50, 70}  % muted crimson for \texttt in the abstract
+\definecolor{abstractlink}{RGB}{20, 90, 170}  % deep azure for the URL in the abstract
+\definecolor{msblue}{HTML}{0078D4}
+\definecolor{msred}{HTML}{F25022}
+\definecolor{msgreen}{HTML}{7FBA00}
+\definecolor{msyellow}{HTML}{FFB900}
+\newcommand{\reelword}{\textcolor{msred}{R}\textcolor{msgreen}{e}\textcolor{msblue}{e}\textcolor{msyellow}{l}}
+
+% Strip the centered "ABSTRACT" heading that arxiv.sty's abstract
+% environment inserts above the body. Drop the quote-style indentation
+% too so the tinted panel spans the full text width (same width as the
+% body of §1 Introduction below).
+\renewenvironment{abstract}{}{}
+
+% Hide keywords from rendered output (kept in source for metadata/indexing)
+\providecommand{\keywords}[1]{}
+\renewcommand{\keywords}[1]{}
+
+% Visible "to-be-populated" marker for cells that depend on the gallery /
+% ablation runs.
+\providecommand{\Pending}{\textit{TBD}}
+
+% Capability check / cross marks for the Experiments comparison table
+% (\checkmark from amssymb; teal / dark-red from xcolor's base palette).
+\providecommand{\cmark}{\textcolor{teal}{\checkmark}}
+\providecommand{\xmark}{\textcolor{red!65!black}{\ensuremath{\times}}}
+% "Did not do" (not "cannot"): a grey horizontal bar for the author-ground-truth
+% row, which simply never produced that artifact, unlike a tool that lacks the capability.
+\providecommand{\dnmark}{\textcolor{gray}{\rule[0.45ex]{1.3ex}{0.13ex}}}
+
+% Load order matters: the aggregator scripts emit \providecommand{}, which
+% is a no-op if a macro is already defined. So real-value cell files
+% (written by aggregate_gallery.py and aggregate_ablation.py) must be
+% \input{}'d BEFORE the gen_table1_cells.py defaults, not after. That way
+% the aggregator's real numbers win and the defaults file only fills in
+% the still-missing cells with \Pending.
+\InputIfFileExists{gallery_runs/table1_cells.real.tex}{}{}
+\InputIfFileExists{ablation_runs/abl_cells.tex}{}{}
+% Default \Pending fallbacks for every cell paper.tex references; these
+% only take effect for cells the real-value files above did not define.
+\input{gallery_runs/table1_cells.tex}
+
+\title{\LARGE ResearchStudio-\reelword: Automate the Last Mile of Research\\ from Paper to Poster, Video, and Blog}
+
+% Override arxiv.sty's small-caps title rendering with a bold sans-serif
+% face. The original used {\LARGE\sc \@title\par} which forces small-caps
+% (everything renders as uppercase). We swap \sc -> \sffamily\bfseries so
+% the title reads in normal mixed case at the LaTeX level.
+\makeatletter
+% Override arxiv.sty's top title rule so it extends beyond the text width
+% (sticks out 30pt on each side of the body column for a more banner-like
+% feel).
+\renewcommand{\@toptitlebar}{%
+  \noindent\hspace*{-0pt}\rule{\dimexpr\textwidth+0pt\relax}{2pt}%
+  \vskip 0.3in
+  \vskip -\parskip
+}
+\renewcommand{\@maketitle}{%
+  \vbox{%
+    \hsize\textwidth
+    \linewidth\hsize
+    \vskip 0.1in
+    \@toptitlebar
+    \centering
+    {\LARGE\sffamily\bfseries \@title\par}%
+    % \@bottomtitlebar removed -- no horizontal rule under the title.
+    \vskip 0.15in
+    \textsc{\undertitle}%
+    \def\And{%
+      \end{tabular}\hfil\linebreak[0]\hfil%
+      \begin{tabular}[t]{c}\ignorespaces%
+    }
+    \def\AND{%
+      \end{tabular}\hfil\linebreak[4]\hfil%
+      \begin{tabular}[t]{c}\ignorespaces%
+    }
+    \begin{tabular}[t]{c}\ignorespaces\@author\end{tabular}%
+    \vskip 0.25in \@minus 0.05in \center{\@date}\vskip 0.15in
+  }
+}
+\makeatother
+
+\author{%
+Lingao Xiao\textsuperscript{1,2*} \quad Yalun Dai\textsuperscript{1,3*} \quad Yangyu Huang\textsuperscript{1*\ddag} \quad Qihao Zhao\textsuperscript{3} \quad Wenshan Wu\textsuperscript{1} \quad Hugo He\textsuperscript{$\flat$} \\
+Ruishuo Chen\textsuperscript{4} \quad Jin Jiang\textsuperscript{5} \quad Qianli Ma\textsuperscript{6} \quad Jiahuan Zhang\textsuperscript{7} \quad Xin Zhang\textsuperscript{1} \quad Ying Xin\textsuperscript{1} \quad Yang Ou\textsuperscript{1} \\
+Yan Xia\textsuperscript{1} \quad Scarlett Li\textsuperscript{1} \quad Longbo Huang\textsuperscript{4} \quad Zhipeng Zhang\textsuperscript{6} \quad Yang He\textsuperscript{2,8\ddag} \quad Yap Kim Hui\textsuperscript{3\ddag} \quad Yan Lu\textsuperscript{1} \\[2pt]
+{\small\color{black!55}\textsuperscript{1}Microsoft Research \quad \textsuperscript{2}National University of Singapore \quad \textsuperscript{3}Nanyang Technological University} \\
+{\small\color{black!55}\textsuperscript{4}Tsinghua University \quad \textsuperscript{5}Peking University \quad \textsuperscript{6}Shanghai Jiao Tong University \quad \textsuperscript{7}Westlake University \quad \textsuperscript{8}CFAR, A*STAR}%
+}
+
+\renewcommand{\headeright}{}
+\providecommand{\undertitle}{}
+\renewcommand{\undertitle}{}
+
+\begin{document}
+% --- Microsoft logo top-left + date top-right of page 1 ----------------
+% Logo occupies vertical band y=-32pt..-128pt (height 96pt). Date sits on
+% the logo's vertical midpoint (~-80pt) with a small text-baseline offset
+% so the cap-line matches the logo's centre.
+% Date shows month + year only (no day).
+\newcommand{\monthyear}{\ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\year}
+\newlength{\dateboxwidth}
+\settowidth{\dateboxwidth}{\normalsize\monthyear}
+\AddToShipoutPictureBG*{%
+  \AtPageUpperLeft{%
+    \put(64pt,-108pt){\includegraphics[height=96pt]{figures/microsoft_logo.png}}%
+    \put(\dimexpr\paperwidth-72pt-\dateboxwidth\relax,-72pt){\normalsize\monthyear}%
+  }%
+}
+\date{}% hide centered date from title block; we render it top-right above
+\maketitle
+% Legend for author markers, rendered as an unnumbered page-bottom footnote
+% on the title page. \footnotetext with a blank mark ([]) avoids adding a
+% numeric superscript in the author block itself; the * and \dagger inline
+% marks on the author names carry the reference.
+
+\renewcommand{\thefootnote}{}
+\makeatletter
+% Suppress the empty footnote-mark box so the body starts flush-left
+% (default \@makefntext indents past the mark's reserved width).
+\long\def\@makefntext#1{\noindent #1}
+\makeatother
+\hypersetup{hidelinks}
+\footnotetext{\textsuperscript{*}Equal contribution. \\ \textsuperscript{$\flat$}The author and maintainer of \href{https://github.com/hugohe3/ppt-master}{ppt-master}. \\ \textsuperscript{\ddag}Corresponding author: \href{mailto:yanghuan@microsoft.com}{yanghuan@microsoft.com}, \href{mailto:he_yang@a-star.edu.sg}{he\_yang@a-star.edu.sg}, \href{mailto:EKHYap@ntu.edu.sg}{EKHYap@ntu.edu.sg}}
+\addtocounter{footnote}{-1}% keep the regular footnote counter untouched
+
+\begin{abstract}
+\begin{mdframed}[backgroundcolor=abstractbg,
+                 linewidth=0pt,
+                 roundcorner=12pt,
+                 leftmargin=12pt,
+                 rightmargin=12pt,
+                 innerleftmargin=16pt,
+                 innerrightmargin=16pt,
+                 innertopmargin=16pt,
+                 innerbottommargin=16pt,
+                 skipabove=8pt,
+                 skipbelow=8pt]
+% Scope: recolor inline code (\texttt) and links (\url) inside the abstract only.
+\begingroup
+\let\origtexttt\texttt
+\renewcommand{\texttt}[1]{{\color{abstractcode}\origtexttt{#1}}}
+\hypersetup{urlcolor=abstractlink}
+\hypersetup{hidelinks}
+Research dissemination, turning a paper into a poster, a talk video, and a blog post, is still a manual last mile.
+Prior automation treats each artifact in isolation that each re-extract the paper from scratch, usually ship one-way renders the author cannot reopen in PowerPoint or Word, and gate quality on soft VLM-preference scores that plateau while load-bearing sections still read as empty.
+We argue this last mile is best built as a composition of \emph{skills}: thin agent-readable contracts that share one upstream extractor and wrap deterministic primitives in a measured-fill loop whose exits are hard pass/fail render gates.
+We instantiate this as \textbf{ResearchStudio-Reel}, five Claude Code and Codex skills organized into one \textbf{shared} extractor (Paper2Assets), three \textbf{editable} generators (Paper2Poster, Paper2Video, Paper2Blog), and one \textbf{interactive} convergence layer (Paper2Reel).
+Paper2Assets extracts each paper once into a shared bundle that can be reused by every downstream skill; the three generators produce a print-ready poster, a synchronized talk video, and a bilingual blog that stay factually consistent and round-trip through PowerPoint or Word; Paper2Reel then binds all three into a self-contained HTML viewer whose section-level clicks jump the video, slides, captions, and blog to matching content.
+On the Paper2Poster benchmark, our posters lead every aesthetic and information sub-criterion against both prior automated systems and single-shot frontier LLMs, \emph{surpassing the authors' own} on aesthetics under two held-out VLM judges and winning overall on 84\% to 93\% of papers; capability audits further show that, by uniquely pairing narration-aligned on-slide highlights with a bilingual blog gated by layout-aware DOCX repair, ResearchStudio-Reel is the only pipeline to ship all three editable artifacts.
+
+\vspace{4pt}\noindent\textbf{Project:}~\href{https://aka.ms/ResearchStudio}{\color{abstractlink}https://aka.ms/ResearchStudio}
+%\vspace{4pt}\noindent\textbf{Project:}~\url{https://aka.ms/ResearchStudio}
+\endgroup
+\end{mdframed}
+\end{abstract}
+
+\keywords{research dissemination, paper-to-poster, paper-to-video, paper-to-blog, agent skills, Claude Code, Codex, measured-fill loop, shared extraction, multi-artifact generation}
+
+\begin{figure}[H]
+\centering
+\vspace{-10pt}
+\begin{subfigure}[b]{0.33\linewidth}
+  \centering
+  \includegraphics[height=3.3cm]{figures/researchstudio-reel-teaser.pdf}
+  \caption{Poster (\textsc{Paper2Poster})}\label{fig:hero-poster}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.33\linewidth}
+  \centering
+  \includegraphics[height=3.3cm]{figures/researchstudio-reel-video-teaser.pdf}
+  \caption{Talk video (\textsc{Paper2Video})}\label{fig:hero-video}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.33\linewidth}
+  \centering
+  \includegraphics[height=3.3cm]{figures/researchstudio-reel-blog-teaser.pdf}
+  \caption{Bilingual blog (\textsc{Paper2Blog})}\label{fig:hero-blog}
+\end{subfigure}
+\caption{\textbf{Three editor-ready artifacts from one paper.} From a single accepted PDF, ResearchStudio-Reel produces a print-ready conference poster, a narration-aligned talk video, and a bilingual blog spread, shown here across example papers. Every deliverable stays editable in its native tool (PowerPoint for the poster and the video deck, Word for the blog), and the three are cross-linked into one navigable surface. A single shared \texttt{paper2assets} extraction (Figure~\ref{fig:pipeline}) keeps the artifacts factually consistent rather than re-deriving the paper three times.}
+\label{fig:hero}
+\end{figure}
+
+% =========================================================================
+\section{Introduction}\label{sec:introduction}
+% =========================================================================
+
+The dissemination layer of research is structurally separate from the paper itself and consumes time at exactly the moment authors have the least to spare. This layer covers three artifacts: the poster you stand next to at a conference session, the talk video that lives on the venue's virtual track or on the lab's YouTube channel, and the blog post that announces the paper to a non-expert audience. Each is its own production pipeline involving figure cropping, layout, narration, and audience-appropriate prose, and each is conventionally produced by hand in the days immediately after acceptance, by the same authors who just finished the camera-ready. The stakes extend past the original author: the same three artifacts are what an industrial research lab needs for its public-facing communications channel, what a graduate course needs for a paper-of-the-week briefing pack, and what a multilingual research org needs for cross-region outreach. A workable last-mile pipeline therefore pays off well beyond a single author's afternoon.
+
+A fast-growing automation literature targets exactly this layer: paper-to-poster systems \citep{paper2poster, posterforest, p2p, postergen}, paper-to-video pipelines \citep{paper2video, videoagent2025, preacher2025}, and long-form summarization systems that could in principle produce blog-style outputs \citep{hera2025, ptspi2025, gosum2024}; we survey four buckets in \S\ref{sec:related}. Across this literature, three gaps recur. \textbf{(G1) Isolated extraction.} Each artifact is solved by a separate monolithic system that extracts the paper's figures, computes captions, and pulls metadata from scratch, so cross-artifact factual consistency, by which we mean the same figure number on the poster matching the figure referenced in the blog, is left to the user. \textbf{(G2) One-way renders.} Most prior artifacts ship as a PDF poster, an MP4 video, or an HTML/markdown blog that the author cannot reopen and tweak in PowerPoint or Word; any post-hoc correction means re-running the generator rather than editing in place. \textbf{(G3) Soft quality gates.} Each artifact's quality is judged by a continuous VLM-as-judge or aesthetic score, so a layout that scores 7.8/10 on a learned preference scale is accepted even when a load-bearing section reads as empty; the agent-versus-deterministic-primitive boundary is also drawn inconsistently across systems, so cost and reproducibility numbers are not comparable.
+
+We treat the last mile as an architectural problem and respond to G1--G3 with one composition. Five \emph{skills} \citep{anthropic2025claudecode, anthropic2025skills}, namely the shared extractor \textbf{Paper2Assets}, the three generators \textbf{Paper2Poster}, \textbf{Paper2Video}, and \textbf{Paper2Blog}, and the convergence layer \textbf{Paper2Reel}, sit on one substrate: the generators consume Paper2Assets's bundle, and Paper2Reel consumes the three generator outputs. Each skill wraps deterministic primitives in a \emph{measured-fill loop} whose exit gates are hard pass/fail rather than soft scores. Paper2Assets addresses \textbf{G1}: extraction runs once, and because the three generators consume the same section IDs, figure handles, and claim anchors, the artifacts cross-reference one another automatically. Native-tool authoring addresses \textbf{G2}: the poster ships as an editable PowerPoint file, the video is built from an editable PowerPoint deck so re-narration and re-export run from the same slides, and the blog ships as a Word file. The measured-fill loop addresses \textbf{G3}: each loop iterates a categorical quality verdict and exits only on a hard render gate, never on a learned-preference plateau. On top of these three responses, Paper2Reel unlocks a fourth payoff that none of the prior systems delivers, namely a \emph{unified interactive presentation format} that connects the poster, video, and blog into one navigable deliverable, so a reader moves from the poster's section blocks to the matching video segment to the matching blog passage without leaving the bundle.
+
+Three convergences make this composition tractable now: (i) Claude Code \citep{anthropic2025claudecode} and Codex \citep{openai2025codex} give a stable skill runtime for agent-driven workflows \citep{anthropic2025skills, anthropic2024toolUse}; (ii) deterministic primitives are now mature enough to be safely delegated, including headless Chromium for HTML$\to$PDF \citep{playwright}, LibreOffice plus ffmpeg for slides$\to$video \citep{libreoffice, ffmpeg}, and python-docx for editorial \texttt{.docx} \citep{pythondocx}; (iii) Edge TTS \citep{edgetts} has closed the gap on narration, so voice quality is no longer the bottleneck.
+Figure~\ref{fig:hero} shows what the system produces, three editor-ready artifacts from one paper PDF, and Figure~\ref{fig:pipeline} sketches the pipeline behind them. 
+
+Our contributions are as follows:
+\begingroup
+\setlength{\leftmargini}{1.2em}
+\setlength{\topsep}{1.2pt}
+\setlength{\partopsep}{0pt}
+\setlength{\parskip}{0pt}
+\begin{itemize}\itemsep=1.2pt\parsep=0pt
+  \item We implement \textbf{ResearchStudio-Reel}, a five-skill composition that turns one paper PDF into a print-ready conference poster, a narrated talk video, and a bilingual blog, covering the three artifacts most commonly required for camera-ready submission, on-site presentation, and public-facing announcement.
+  \item Every deliverable ships in the authoring tool its producer already uses (PowerPoint for the poster and video deck, Word for the two-language blog), so nothing is a one-way render, and the shared Paper2Assets bundle keeps the artifacts factually consistent rather than re-derived three times.
+  \item We introduce Paper2Reel, a \emph{unified interactive presentation format} that binds the poster, video, and blog into one navigable HTML surface: section-level clicks jump the video, slide thumbnails, captions, and blog to matching content, rather than treating the three as disconnected files.
+  \item The generated posters lead every aesthetic and information sub-criterion on the Paper2Poster benchmark against both prior automated systems and single-shot frontier LLMs, \emph{exceeding the authors' own} by ${\sim}0.6/5$ on aesthetics under two held-out VLM judges and winning the overall score on 84--93\% of papers; the generated video ships with narration-aligned highlight transitions, burned-in and sidecar subtitles, and target-duration control; and the generated blog ships in two languages with layout-aware DOCX repair.
+\end{itemize}
+\endgroup
+
+% =========================================================================
+\section{Related Work}\label{sec:related}
+% =========================================================================
+
+Prior work on automating research dissemination splits into four threads, each targeting one artifact in isolation: paper-to-poster, paper-to-video-and-slides, paper-to-blog and long-form summarization, and the general agent-and-skill frameworks the first three are built on. We survey each thread, then in \S\ref{sec:rw-positioning} position ResearchStudio-Reel against all four along the three gaps that organize \S\ref{sec:introduction} (duplicated extraction, \textbf{G1}; one-way renders, \textbf{G2}; and soft VLM-preference quality gates, \textbf{G3}), plus the fourth payoff Paper2Reel unlocks: a unified interactive presentation surface that ties the three artifacts into one navigable deliverable.
+
+% -------------------------------------------------------------------------
+\subsection{Paper-to-poster Systems}\label{sec:rw-poster}
+% -------------------------------------------------------------------------
+
+The paper-to-poster lineage runs from PaperAgent, the upstream Paper2Poster research system \citep{paper2poster}, through PosterForest's Poster Tree intermediate \citep{posterforest}, P2P's three-agent visual/content/assembly split \citep{p2p}, PosterGen's aesthetic-rule prompts \citep{postergen}, EfficientPosterGen's retrieval plus Agentless Layout Violation Detector \citep{efficientpostergen}, APEX's editing-agent reformulation \citep{apex}, SciPostGen's nearest-neighbor layout retrieval \citep{scipostgen}, and PosterVerse's HTML-typography workflow \citep{posterverse}; the dataset anchor is SciPostLayout \citep{scipostlayout}. Each contributes a different agent topology and supervises layout with intrinsic-page signals or a continuous VLM-as-judge aesthetic score (a G3 shape), and each ships a render-only PDF or PNG that the author cannot reopen in PowerPoint (a G2 shape). Our poster skill answers both: it emits HTML, PDF, PNG, and an editable PowerPoint from the shared Paper2Assets bundle, and swaps the aesthetic-score plateau for a categorical fill verdict against a hard render gate.
+
+% -------------------------------------------------------------------------
+\subsection{Paper-to-video and Slide-generation Systems}\label{sec:rw-video}
+% -------------------------------------------------------------------------
+
+The closest lineage runs PPSGen \citep{hu2014ppsgen} $\to$ D2S \citep{sun2021d2s} $\to$ DOC2PPT \citep{fu2022doc2ppt} $\to$ SlideSpawn \citep{kumar2024slidespawn} for slides, and PPTAgent \citep{zheng2025pptagent} / VideoAgent \citep{videoagent2025} / Paper2Video \citep{paper2video} / Preacher \citep{preacher2025} for video; SlideGen \citep{slidegen} sits at the boundary. The video systems are typically multi-channel agentic planners over slide, script, narration, and visuals, and they optimize the final MP4, so once the movie is rendered, the deck, narration, subtitles, highlights, and seek points are no longer addressable (G2). Our video skill instead ships an \emph{alignment-preserving media contract}: an editable deck, a narration-aligned MP4, and a subtitle-free copy, all bound by a shared timeline that Paper2Reel can navigate by section without scraping the MP4.
+
+% -------------------------------------------------------------------------
+\subsection{Paper-to-blog and Long-form Summarization}\label{sec:rw-blog}
+% -------------------------------------------------------------------------
+
+Long-document summarization frames the problem as same-register source compression, with representatives including HERA \citep{hera2025}, PTSPI \citep{ptspi2025}, GoSum \citep{gosum2024}, and LongDPO \citep{longdpo2025}, while audience adaptation is handled separately by ProjectMundo \citep{projectmundo2025} and the SciLay line \citep{scilay2025}. None ships an author-editable artifact in a writer's authoring tool (G2), and none treats bilingual, cross-register dissemination as one grounded deliverable. Our blog skill produces two Word \texttt{.docx} files (a WeChat register and an English research-blog register) from one shared evidence map and figure set, gated by a layout-aware DOCX check that flags near-blank pages, orphan tails, and under-filled images.
+
+% -------------------------------------------------------------------------
+\subsection{Agent Frameworks and Skills}\label{sec:rw-agents}
+% -------------------------------------------------------------------------
+
+General agentic frameworks such as ReAct \citep{react2023}, AutoGen \citep{autogen2023}, MetaGPT \citep{metagpt2024}, OpenAI Function-Calling \citep{openai2023functions}, and the Anthropic tool-use API \citep{anthropic2024toolUse} focus on the agent's reasoning loop and tool catalogue. Skill libraries and reusable contracts such as Voyager-style libraries \citep{voyager2024}, Adept's ACT line \citep{adept2023act}, and the Claude Code \citep{anthropic2025claudecode} / Codex \citep{openai2025codex} skills runtime \citep{anthropic2025skills} focus on the contract under which a skill is invoked. We build on this runtime; the novelty is not the runtime itself but applying it to multi-artifact dissemination, so five skills share one upstream extractor (G1) and converge in one interactive surface.
+
+% -------------------------------------------------------------------------
+\subsection{Positioning}\label{sec:rw-positioning}
+% -------------------------------------------------------------------------
+
+Against the three gaps and the fourth payoff: prior poster systems \citep{paper2poster, posterforest, p2p, postergen, efficientpostergen, apex, scipostgen, posterverse} ship a render-only poster with no video, no blog, and no author-editability; prior video systems \citep{videoagent2025, paper2video, preacher2025, zheng2025pptagent} ship a render-only MP4 from a non-editable deck; long-form summarizers \citep{hera2025, longdpo2025, ptspi2025, gosum2024, projectmundo2025, scilay2025} ship text only. None shares a single upstream extractor across artifacts (G1), none ships in the author's native tool (G2), none replaces soft VLM-preference gates with hard categorical render gates (G3), and none introduces a unified interactive presentation surface that binds poster $\leftrightarrow$ video $\leftrightarrow$ blog. ResearchStudio-Reel's contribution is the composition along all four axes, rather than a better single artifact, and the per-skill augmentations of \S\ref{sec:p2p}, \S\ref{sec:p2v}, and \S\ref{sec:p2b} make the depth case one by one.
+
+% =========================================================================
+\section{Skills}\label{sec:instantiations}
+% =========================================================================
+
+This section instantiates the pattern. Five skills compose the system: \textbf{Paper2Assets} is the shared upstream extraction layer the three generators consume; \textbf{Paper2Poster}, \textbf{Paper2Video}, and \textbf{Paper2Blog} are the three artifact generators; and \textbf{Paper2Reel} is the interactive convergence layer that turns the three deliverables into a single navigable presentation surface. The generator subsections describe each artifact package and its quality gate. The two infrastructural skills, Paper2Assets and Paper2Reel, describe the shared data layer and the final interaction layer.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/researchstudio-reel-pipeline.pdf}
+\caption{\textbf{The ResearchStudio-Reel pipeline.} One PDF in, three editor-ready artifacts out, with one shared extraction stage in the middle. A single \texttt{Paper2Assets} pass produces the bundle that Paper2Poster, Paper2Video, and Paper2Blog each consume verbatim, and Paper2Reel binds the three into one navigable surface. Sharing the same section identifiers, figure handles, and claim anchors keeps the artifacts mutually cross-referenced rather than disjoint.}
+\label{fig:pipeline}
+\end{figure}
+
+% -------------------------------------------------------------------------
+\subsection{Paper2Assets}\label{sec:p2a}
+% -------------------------------------------------------------------------
+
+Paper2Assets reads a paper PDF once and produces a single bundle, the shared stage in Figure~\ref{fig:pipeline}, that every downstream generator consumes verbatim: the full body text with page breaks preserved, the detected figure captions, a per-figure manifest, the cleaned figure images, the paper's metadata (title, authors, institutes, venue, and the paper and code links), a structured nine-section summary of the paper, and best-effort institution logos and QR codes for those links. A second pass adds an inventory manifest with the source PDF's checksum, the summary parsed into per-section records with stable identifiers, and a narration clip list in reading order, so the non-poster generators never have to re-parse anything.
+
+\textbf{Pipeline.} Extraction runs as a short sequence of steps: pull the text and captions and crop each figure with a column-aware margin; synthesize the metadata from the first page and, for arXiv papers, the abstract page; write the nine-section summary (Problem, Motivation, Contribution, Method, Dataset/Benchmark, Key Result, Ablation, Headline Numbers, Takeaway), where each section carries a short essential entry, a supplementary entry held in reserve, and a spoken audio script; fetch the institution logos best-effort from Wikimedia Commons (the official mark linked in each institute's English Wikipedia infobox, filtered to \texttt{logo}/\texttt{seal}/\texttt{wordmark}-type files and resolved to the full-resolution upload) and the venue logo from Wikidata, verifying the downloaded bytes and, when an institute or venue does not resolve, hiding that titlebar slot rather than showing a placeholder; render the QR codes; and finally emit the canonical record files the downstream skills read. Each step is a separate idempotent script writing its own output, so an improved or failed stage re-runs in isolation without re-extracting the whole paper, and the reading-order narration list is fixed once here so the poster, video, and blog all narrate the paper in the same sequence.
+
+\textbf{Figure cleanup.} The load-bearing and most time-consuming stage is the figure-cleanup chain, and it runs once on every extracted figure rather than being redone, generator by generator, each time a downstream picks a figure to render. A deterministic prefix strips chrome residue, baked-in caption strips, and uniform white margins to handle the easy cases; a visual-AI step then judges a tight bounding box, a fresh-context sub-agent verifier independently re-reads the original against the proposed crop, and only a clean pass commits, splitting the image when one raster packs two independent figures. Every mode is idempotent and the raw extract is backed up once before any crop, so re-runs are always safe.
+
+The bundle is the only interface between Paper2Assets and the rest of the system: downstream skills read it and never re-open the PDF, and a stable figure-naming invariant keeps the three artifacts factually consistent without any cross-skill coordination, so the figure the poster's method card embeds is the one the video's matching slide cites and the blog's evidence map references. This single-owner extraction is the skill's distinctive contribution. Prior paper-to-X systems (\S\ref{sec:related}) each re-derive figure crops, caption alignment, and metadata inside their own renderer (the duplicated-extraction problem labeled G1 in \S\ref{sec:introduction}), whereas folding that work, and especially the expensive figure cleanup, into one shared owner lets the downstream artifacts inherit cross-reference consistency for free and avoids each renderer either repeating the verifier loop or shipping visible defects such as body text leaking into a crop or a caption baked into the image. It also makes the pipeline debuggable: a wrong crop or a mis-tagged claim is corrected once at the source and propagates to the poster, video, and blog together, rather than noticed and patched three separate times.
+
+% -------------------------------------------------------------------------
+\subsection{Paper2Poster}\label{sec:p2p}
+% -------------------------------------------------------------------------
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=\linewidth]{figures/researchstudio-reel-paper2poster.pdf}
+  \caption{\textbf{The Paper2Poster pipeline.} A Paper2Assets bundle (paper spec, cleaned figures, logos, QR) drives an agent that picks the Method plus secondary figures and composes a self-contained \texttt{poster.html} along four axes: column layout, visual style, title-band header, and the Scan-to-Read block. A staged-fill loop then measures each section (slack~+~polish) and edits one section per round until every panel reads \texttt{FULL} (90--98\%) and every figure is large enough on one axis. Narration audio and header logos are packed in, and the converged page is rendered to PDF and PNG and to an editable, native-shape PowerPoint, released only through a mandatory deliverables gate.}
+
+\label{fig:p2p-pipeline}
+\end{figure}
+
+Paper2Poster turns the shared asset bundle from Paper2Assets into a print-ready conference poster, without re-reading the source PDF. A single run yields the poster in four coupled formats (a self-contained web page, a print-resolution PDF at the exact canvas size, a thumbnail image, and a natively-editable PowerPoint file), together with optional per-section narration audio.
+
+\subsubsection{Design Requirements}
+
+A conference poster is not a summary that can be stretched or trimmed at will; it is a single fixed-size page that must stay readable, look deliberately designed, and remain editable. The engineering that took the most iteration was not the visual design but five recurring requirements, and the rest of this section answers them in order. \textbf{(A1) Composition without a template explosion.} Covering the real variety of posters with a bank of fixed templates means a combinatorial blow-up across column layout, visual style, header arrangement, and the bottom QR block, which is brittle to extend and still tends to make every poster look alike. \textbf{(A2) A fill loop that converges.} The band in which a section reads full is narrow, yet a single discrete text edit moves a section well past it, so the natural refine loop oscillates between too-empty and over-full for dozens of rounds unless its step size and stopping rule are engineered deliberately. \textbf{(A3) A page too large to re-read.} The working poster is one HTML file of around a hundred kilobytes; re-reading it on every refinement round floods the agent's context window and triggers a compaction that erases the loop's own progress, and emitting it through the model's output channel overflows the per-turn token cap and kills the run outright. \textbf{(A4) Figures that fill their cards.} In any column that holds a figure, the figure absorbs whatever vertical room the text leaves, so ordinary text edits do not move it and a figure stranded as a small stamp has to be resized through the one lever that actually changes its box. \textbf{(A5) A faithful editable export.} A poster the author can reopen requires converting the rendered page into native PowerPoint shapes, including native equation objects, rather than pasting in a flat image.
+
+\subsubsection{Our Solution}
+
+\textbf{Composition over fixed templates~(A1).} Rather than maintain a combinatorial set of fixed templates, the poster is assembled at build time from four orthogonal axes: the column \emph{layout} (full, half, or three-column), the visual \emph{style} (one of a family of interchangeable themes, each a self-contained CSS file that adds a new look with no other code change), the title-band \emph{header} (one of five arrangements of the venue logo, institution logos, and QR codes), and the internal layout of the bottom \emph{Scan-to-Read} block. Only the layout is fixed by a hard rule (the Method figure's shape routes a wide or full-column figure to a merged-column grid and everything else to a half-width default), while the remaining axes are sampled reproducibly, so a batch of posters gets a stable spread without a brittle ``pick a random style'' step and the agent never debates layout family or theme but only layout \emph{fill}, where its budget is best spent. A companion rule that every section carry a distinct visual widget keeps adjacent sections from collapsing into an undifferentiated wall of text.
+
+\textbf{A staged fill loop~(A2).} The poster starts as a lean draft holding only each section's essential text and a small set of selected figures (always the Method diagram and at least one key-result or teaser visual), and a measured-fill loop grows it to a full page. The loop is deliberately discrete rather than a continuous optimization. On each pass the page is rendered in a headless browser and every section is assigned a scalar $\mathrm{fullRatio} = h_{\mathrm{content}}/h_{\mathrm{card}}$, the painted content height (the bottom edge of the section's lowest rendered element, read from \texttt{getBoundingClientRect}) divided by the inner height of its card; this ratio is quantized into one of five categorical verdicts, and the verdict alone selects the remediation. The five bands and their moves are: \textbf{(1)}~\texttt{EMPTY} ($\mathrm{fullRatio} < 0.70$), a load-bearing underfill, remediated by appending a withheld supplementary paragraph or promoting an optional section into the column; \textbf{(2)}~\texttt{SPARSE} ($0.70$ to $0.90$), a visible underfill, remediated by \emph{polishing up}: padding the existing prose or enlarging a widget until the content reaches the card floor; \textbf{(3)}~\texttt{FULL} ($0.90$ to $1.00$), the target band, left untouched; \textbf{(4)}~\texttt{SPILLAGE} ($1.00$ to $1.10$), content just past the card border, remediated by \emph{polishing down}: tightening prose until it re-enters the band; and \textbf{(5)}~\texttt{OVERFLOW} ($> 1.10$), content visibly past the border, remediated by dropping a supplementary paragraph or an entire optional section. The Method figure is retuned on the same pass under a separate figure-fill gate that requires it to paint at least $70\%$ of its card on one axis, and the loop terminates only when every section reads \texttt{FULL} \emph{and} no figure trips that gate. Because termination is a categorical fixed point rather than a learned-score plateau, and each iteration logs which move was applied to which section, a poster that fails to converge is diagnosable rather than a ``the agent did something'' mystery. Three mechanisms damp oscillation across the narrow \texttt{FULL} band: each move is sized by the signed pixel delta the measurement reports rather than guessed at, the loop refuses to re-apply a move that already overshot the band on a given section, and an on-disk round counter trips a circuit breaker that ships the best-measured state rather than grinding indefinitely.
+
+\textbf{A loose gate, then a render-time expand.} The fill gate is deliberately loose: a section counts as full at 90\% of its card rather than 98\%, because the last few percent are exactly where a discrete-edit loop oscillates, and tightening the gate toward 98\% markedly increases the number of refinement rounds, sharply so past $0.94$, for little visual gain. To recover those percent without paying that cost, a single render-time pass then stretches every under-filled card toward 98\% by growing the whitespace between its rows, so the shipped poster reads visually full while the loop still converges against the cheap 90\% gate. The expand is safe by construction: figures are never resized, and any card whose growth would push the fixed-canvas layout taller is reverted, so no column bottom ever moves. It is baked into the poster once, so the web page, the PDF, the PNG, and the editable PowerPoint all show the same filled layout.
+
+\begin{figure}[!b]
+\centering
+\vspace{-1.0cm}
+\includegraphics[width=1.0\linewidth]{figures/researchstudio-reel-fill-loop.pdf}
+\caption{\textbf{The staged-fill loop, visualized on the Latent Diffusion Models poster.} A debug overlay boxes every section and colors it by fill verdict (red / amber for \texttt{EMPTY} / \texttt{SPARSE}, green for \texttt{FULL}, orange / magenta for \texttt{SPILLAGE} / \texttt{OVERFLOW}), annotated with its fill percentage. \emph{(a) Initial explorations:} the freshly composed draft is uneven, with several underfilled sections and small figures. \emph{(b) Fill-loop in progress:} the loop measures each section and edits one per round, so cards pass through \texttt{OVERFLOW} and \texttt{SPARSE} as content is added or trimmed. \emph{(c) Poster completed:} the loop stops once every section reads \texttt{FULL} (90--98\%) and every figure is large enough, yielding the shipped poster.}
+\label{fig:fill-loop}
+\vspace{-0.5cm}
+\end{figure}
+
+\textbf{Editing the page without re-reading it~(A3).} The refinement loop never pulls the whole poster into context. Each measurement returns, next to the per-section verdict, the verbatim source of exactly the sections that are off-target, so the agent edits those snippets in place and the hundred-kilobyte file never enters its window or forces a compaction that would erase what the loop has already tried. The file is likewise generated indirectly and never printed back through the output channel, so neither the input nor the output token budget is spent on the bulk of the page.
+
+\textbf{Sizing figures by their one real lever~(A4).} Because a figure column's height does not respond to its text, the loop sizes each figure through its height cap rather than through the surrounding prose, and holds every figure to a hard floor on its card so that ordinary text edits can never leave it stranded as a small stamp. The floor itself is enforced as one of the release gates described below.
+
+\textbf{The editable PowerPoint bridge~(A5).} A headless browser renders the converged page to PDF and a PNG thumbnail, and the same run emits an editable PowerPoint, giving both poster traditions at once: the web page as the visual ground truth that reaches publication quality first, PowerPoint as what conference attendees and lab editors actually revise. Rather than rasterize the finished page and reverse-engineer shapes from pixels the way a generic PDF-to-PowerPoint converter does, the bridge reconstructs the slide directly from the live DOM: it walks the document node by node, reads each node's box geometry from \texttt{getBoundingClientRect} and appearance from \texttt{getComputedStyle}, converts CSS pixels to PowerPoint EMU units at the poster's fixed canvas scale so every object lands at its on-screen position and size, and classifies the node into the native PowerPoint primitive its role calls for. A block-level text container (\texttt{p}, \texttt{h1} to \texttt{h6}, \texttt{li}, \texttt{td}) becomes an editable text frame in which inline \texttt{strong} and \texttt{em} spans survive as mixed-style runs and the CSS line height maps to paragraph spacing; a list becomes native hanging-indent bullets; an \texttt{img} becomes a replaceable picture at print resolution with \texttt{object-fit: contain} honored; an \texttt{svg} is rasterized in the same box; a MathJax equation, stamped during rendering with its source markup in a \texttt{data-tex} attribute, becomes a native PowerPoint (OMML) equation rather than a flat image, so the mathematics stays selectable and editable; and a decorative \texttt{div} or section card becomes a rounded rectangle carrying its real fill, border, gradient, and drop shadow. CSS colors in any modern syntax (\texttt{color-mix}, \texttt{oklab}, \texttt{color()}) are normalized to RGBA through a one-pixel canvas so they reproduce exactly, and \texttt{hyphens: auto} becomes OOXML soft hyphens. Because both geometry and semantics are read from the DOM rather than inferred from pixels, the author fixes a typo, swaps a figure, or recolors a card in PowerPoint and re-exports without re-running the fill loop, turning ``a poster the system designed'' into ``a poster the author owns.''
+
+Figure~\ref{fig:p2p-pipeline} summarizes the pipeline, and Figure~\ref{fig:fill-loop} shows the staged-fill loop bringing an example poster to convergence.
+
+\subsubsection{Author Preference Alignment}
+
+Several of the poster's defaults are not technical necessities but choices matched to what real posters and venues do, so the output reads like something an author would have made rather than a generic render. Author ground-truth posters tend to blow up their institution logos, so the header packs every logo to one shared, generous height instead of a timid uniform small mark, and caps that shared height when a paper lists many institutions so the title band absorbs the rest rather than overflow. Most author posters for figure-heavy papers use a wide three-column grid, so once a paper contributes more than three high-signal figures the layout switches to three equal columns whose wider tracks hold bigger figures. The page is sized to the format each venue expects, a wide sixty by thirty-six inch landscape for ICML, NeurIPS, and CVPR and an A0 portrait for the ACL family, rather than one fixed shape. Academic posters are overwhelmingly light, so the default is a pale title band over white section cards with the accent colour used sparingly, while deep saturated backgrounds are held back. Finally, the Scan-to-Read QR is treated as furniture: it is rendered only for the paper and code links that exist, and dropped when the header is already crowded or the section would render too wide and flat for a lone QR, rather than shipped adrift in empty space.
+
+\subsubsection{Quality Gates}
+
+Like the other generators, a poster ships only through a mandatory deliverables gate that refuses to release it until several conditions hold together. Because the fill loop terminates on its categorical verdict rather than on a learned score, the gate passes only once every section lands in the full band, between ninety and ninety-eight percent of its card, with no panel left visibly empty or overflowing, and it fails if any figure paints below seventy percent of its card on both of its axes, so no figure can ship as a small stamp in an empty card. An optional reading-comprehension gate, Reader-Reconstruction Preference (RRP), adds a second axis: it accepts an edit only if a held-out reader model can still answer questions about the paper from the poster alone, so a page never grows prettier at the cost of growing less readable. A final deterministic check confirms that the rendered PDF matches the intended fixed-size canvas before any file reaches the user, a non-advisory gate, since a model will otherwise sometimes skip the render on the rationalization that the other gates passed. Only when these conditions hold together are the web page, the PDF, the PNG, and the editable PowerPoint released as one bundle.
+
+% -------------------------------------------------------------------------
+\subsection{Paper2Video}\label{sec:p2v}
+% -------------------------------------------------------------------------
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=\linewidth]{figures/researchstudio-reel-paper2video.pdf}
+\caption{\textbf{Paper2Video overview.} The skill reuses the Paper2Assets bundle, plans narration and duration, delegates deck authoring to the full \texttt{ppt-master} workflow, synthesizes aligned audio and captions, renders visual attention cues, and packages the editable deck with captioned and no-subtitle videos. The root deliverables are \texttt{video.pptx}, \texttt{video.mp4}, and \texttt{video\_no\_subtitles.mp4}, while timelines, captions, audio clips, and visual cues stay under \texttt{assets/}, the auditable intermediates directory.}
+\label{fig:p2v-overview}
+\end{figure}
+
+Paper2Video turns the shared Paper2Assets bundle into a synchronized video package. It uses the full \texttt{ppt-master} workflow \citep{pptmaster2025} for deck authoring, so slide design is treated as a dependency rather than a separate claim. The skill's role is to turn that deck and the shared paper assets into an auditable media bundle: a planned narration script, section-level audio, captions, visual attention cues, two MP4 variants, and a timeline that Paper2Reel can navigate. A completed run writes three user-facing deliverables at the bundle root: \texttt{video.pptx}, \texttt{video.mp4}, and \texttt{video\_no\_subtitles.mp4}. Intermediate files stay under \texttt{assets/}, including narration audio, subtitle sidecars, rendered slide frames, duration reports, visual-cue plans, timelines, and QA reports.
+
+Table~\ref{tbl:p2v-capabilities} compares this media contract against representative presentation, video, and paper-to-video systems. The comparison is capability-based, not score-based: it asks which objects the workflow produces and checks.
+
+\subsubsection{Design Requirements}
+
+A good slide deck does not by itself make a reliable paper video. Once the deck leaves the slide authoring workflow, the system still has to synchronize time, sound, captions, highlights, and downstream navigation. We therefore focus on five media-level requirements. \textbf{(B1) Duration must be planned before rendering.} A target-length video cannot be made safely by cutting the final MP4, clipping audio, or applying a large global speed-up after rendering. The narration has to be shaped before TTS, then checked again after the measured render. \textbf{(B2) The viewer needs attention guidance, not only slide playback.} Research slides often contain multiple figures, tables, and formula blocks. If the narration discusses one region while the whole slide remains static, the viewer has to guess where to look. \textbf{(B3) Captions have two delivery contexts.} A shareable MP4 should carry readable burned-in subtitles, while the interactive reel needs a clean video source so its own caption toggle does not create double subtitles. \textbf{(B4) The video has to remain addressable after export.} Downstream tools should not recover section boundaries by scraping pixels from the MP4 or guessing from slide order. The exported video needs a sidecar contract that keeps sections, audio windows, captions, slides, and visual cues aligned. \textbf{(B5) Media failures need deterministic checks.} Missing audio, empty subtitles, malformed highlight boxes, timeline drift, blank frames, and unsafe duration fixes are easy to miss by eye during a long generation run, so they need hard package gates.
+
+\subsubsection{Our Solution}
+
+\textbf{Narration and duration planning~(B1).} Paper2Video first converts the shared section narration into a video script with stable section ids. When the user requests a target length, the planner estimates the script before TTS and asks for semantic rewrites when the text is too long or too short. After rendering, a duration report compares the measured MP4 length with the plan. Small residual errors can be repaired by a bounded speech-rate plan. Large errors return to narration rewriting, so the target length is reached through content planning rather than by truncating the final video.
+
+\textbf{Deck authoring through \texttt{ppt-master}.} The editable deck is produced by the full \texttt{ppt-master} route. Paper2Video passes the shared paper assets, the section script, and optional visual-anchor requirements into that workflow, then uses the exported PPTX as the render source. The top-level \texttt{video.pptx} is therefore not a disposable intermediate. It is a user-facing artifact that an author can reopen and edit.
+
+\textbf{Narration-aligned visual highlights~(B2).} Before final rendering, Paper2Video can turn the script into a visual-cue requirement file. The deck workflow attaches semantic anchors to the visible objects named by the narration, such as a figure panel, equation block, table row, or method card. A cue resolver then combines the script, word timings, slide geometry, and authored anchors to produce \texttt{visual\_cues.json}. The production renderer uses normalized geometry, so the same cue plan survives different video resolutions. Its default delivery style is \texttt{spotlight\_laser}, which softly emphasizes the target region and marks the current focus point.
+
+\textbf{Audio, captions, and MP4 variants~(B3).} The renderer synthesizes one narration clip per script section and writes subtitle sidecars from the same timing model. It first renders \texttt{video\_no\_subtitles.mp4}, which preserves the slide frames, narration audio, and visual highlights without burned-in text. It then burns the subtitle layer into \texttt{video.mp4}. The two MP4 files share the same slide frames, audio alignment, and highlight timing, and the only difference is whether subtitles are burned in.
+
+\textbf{Timeline and bundle contract~(B4).} Paper2Video writes \texttt{timeline.json} as the canonical sidecar for downstream navigation. Each timeline entry maps a paper section or narration chunk to its audio window, subtitle cues, slide frame, and accepted visual cue. Paper2Reel reads this sidecar directly when it connects poster sections, slide thumbnails, captions, and video seek points. The final package is therefore not only a compressed video. It is an editable and navigable media bundle.
+
+\textbf{Deterministic media checks~(B5).} The media-level failure modes that are easy to miss during a long generation run are not left to visual inspection: missing audio, empty or doubled subtitles, malformed or word-sized highlight boxes, timeline drift, blank or overflowing frames, and unsafe post-hoc duration fixes are each caught by a single mandatory package gate rather than trusted to the eye. That gate is the release contract for the bundle, and its checks are detailed in the Quality Gates below.
+
+\subsubsection{Quality Gates}
+
+\begin{figure}[!b]
+\centering
+\vspace{-0.2cm}
+\includegraphics[width=0.9\linewidth]{figures/paper2video_showcase.png}
+\caption{
+\textbf{Paper2Video deliverable showcase.} The figure pairs the editable \texttt{video.pptx} with the captioned \texttt{video.mp4} and summarizes the user-facing controls checked by the package gate: target duration, highlight style, caption mode, and video specification.
+}
+\label{fig:p2v-showcase}
+\vspace{-0.5cm}
+\end{figure}
+
+The final package gate is \texttt{check\_video\_package.py}. It checks the acceptance questions that matter to a user and to downstream skills. The gate verifies that \texttt{video.pptx}, \texttt{video.mp4}, and \texttt{video\_no\_subtitles.mp4} exist in the expected locations, that the MP4 files are playable, that the final video has an audio stream, and that the measured duration is inside the requested tolerance when duration control is enabled. For subtitle delivery, it requires a non-empty subtitle sidecar, requires both the raw no-subtitle MP4 and the final subtitled MP4, checks that the final MP4 is not byte-identical to the raw render, and warns if subtitle burn-in changes the duration too much.
+
+For visual attention, the gate requires \texttt{visual\_cues.json}, the cue plan, and the timeline when highlighted delivery is requested. It checks cue coverage, normalized geometry, semantic target ids, timing within the matching audio segment, and consistency with the accepted cue plan. It also rejects word-sized highlight boxes for final presentation use, because the highlight should point to a meaningful module, card, row, figure part, or bullet group rather than a tiny phrase. The same gate parses the PPTX and rendered frames to catch blank frames, severe text overflow, text-image overlap, over-shrunk visual content, and cropped slide content. For duration control, it requires a TTS rate plan and rejects unsafe rate changes, so target length cannot be achieved by an uncontrolled speed change.
+
+These checks make the video package testable rather than merely generated. A passing package answers the concrete questions raised by the workflow: the video has sound, subtitles are delivered in the correct variant, highlights are present and timed when requested, duration control stays within tolerance, and \texttt{timeline.json} keeps audio, captions, slides, and highlights aligned for Paper2Reel. Figure~\ref{fig:p2v-showcase} visualizes the deliverables and options these checks cover.
+
+\subsection{Paper2Blog}\label{sec:p2b}
+% -------------------------------------------------------------------------
+
+Paper2Blog turns the shared Paper2Assets bundle into a bilingual editorial package for human editors. A completed run writes two root deliverables: the Chinese article, cast as a WeChat public-account piece, and the English article, cast as a research-blog piece. The two documents share the same facts, figures, numbers, claims, and source links, but they are written for different reading habits. Their outlines, previews, reports, and figure dependencies stay in the intermediates directory, so the bundle root remains limited to the deliverables and the manifest.
+
+Table~\ref{tbl:p2b-capabilities} positions this article contract against representative scientific summarizers and research assistants. The comparison focuses on whether the tool produces an editable, grounded blog artifact rather than only an answer or note.
+
+\subsubsection{Design Requirements}
+
+Paper2Blog is not just a bilingual summarizer. It has to produce two editable articles that agree on the science while reading naturally in different editorial contexts. We found five requirements to be central. \textbf{(C1) One evidence base for two languages.} The Chinese and English articles may use different openings, pacing, and examples, but they cannot drift on results, method names, figure references, or source links. \textbf{(C2) Register must be controlled during writing.} The Chinese version should read like a restrained WeChat public-account article, while the English version should read like a neutral research blog for technical readers. This cannot be checked reliably after the fact by a deterministic script, so it has to be specified before drafting. \textbf{(C3) Figures need article-level selection and placement.} Paper2Assets provides reusable figures, but a blog should not embed every available figure. It needs a small shared figure set, placed near the paragraph that explains it, with article-specific captions in each language. \textbf{(C4) The deliverable is a Word article, not plain text.} Editors need Word files with embedded images, stable fonts, and fixed filenames, so the article opens ready to revise rather than as plain text to reformat. \textbf{(C5) Word layout has to be editor-ready.} Correct prose is not enough if the rendered document leaves large blank pages, images shrunk to thumbnails, or an orphan word or two stranded on a paragraph's final line; pagination and image fit have to be checked on the document as a rendered visual artifact, not only as text.
+
+\subsubsection{Our Solution}
+
+\begin{figure}[!b]
+\centering
+  \includegraphics[width=\linewidth]{figures/researchstudio-reel-paper2blog.pdf}%
+\caption{\textbf{Paper2Blog pipeline.} The skill reuses the Paper2Assets bundle, builds one shared evidence map, selects a shared article figure set, writes two language-specific outlines and DOCX files, and runs a strict package gate. The root deliverables are the Chinese article and the English article. Outlines, previews, and QA reports stay in the skill's auditable intermediates directory.}
+\label{fig:p2b-pipeline}
+\end{figure}
+
+\textbf{Shared evidence map~(C1).} Paper2Blog first builds one evidence map from the shared bundle. The map records the paper's hook, problem, method components, main claims, quantitative results, limitations, source links, and figure roles. Both language drafts read from this map. If a hard fact such as a code link, DOI, venue, affiliation, or acceptance status is missing from the inputs, the draft omits it instead of guessing.
+
+\textbf{Language-specific outlines and voice~(C2).} The two articles are written separately rather than translated sentence by sentence. Before drafting, the skill reads a language-specific editorial style guide. The Chinese outline targets a restrained public-account register, with necessary English technical terms kept and explained when useful. The English outline targets a neutral research-blog register. The gate later checks hard consistency, but the register itself is controlled at generation time through the style guide and the separate outlines.
+
+\textbf{Shared figure set for article evidence~(C3).} Paper2Blog selects only the figures that help the article explain the paper. The same selected set is used in both languages, and each figure is placed next to the section that prepares the reader to understand it. This is not a second figure-extraction stage. It is a selected-figure review for article use: the skill checks that chosen figures are readable after DOCX resizing, that article captions do not fight with leftover source captions, and that image placement does not create obvious layout imbalance.
+
+\textbf{DOCX assembly and bundle contract~(C4).} The assembler writes the Chinese article and the English article with fixed filenames, embedded media, captions in the matching language, source links, and editor-friendly fonts. The fixed root names are part of the contract, since downstream upload, zip, CMS, and Paper2Reel tooling can find the documents without parsing paper titles or non-ASCII filenames. The outlines, rendered previews, crop records, and QA report stay in the intermediates directory. Figure~\ref{fig:p2b-pipeline} summarizes the package flow.
+
+\textbf{Layout treated as a rendered artifact~(C5).} Beyond writing the prose, the assembler and its gate inspect the DOCX the way an editor sees it on the page. Image fit after resizing, pagination, and orphan tails are read from the document's internal structure and, in strict mode, from rendered page images, so a near-blank page, a stranded thumbnail, or a lone trailing word is caught before delivery rather than left for the editor to find. The specific layout checks are detailed in the Quality Gates below.
+
+\subsubsection{Quality Gates}
+
+\begin{figure}[!b]
+\vspace{-0.2cm}
+\centering
+\includegraphics[width=0.9\linewidth]{figures/paper2blog_showcase.png}
+\caption{\textbf{Paper2Blog DOCX showcase.} The figure shows the two required Word deliverables, the English article and the Chinese article, together with the layout checks discussed in the text: typography balance, figure fit, caption placement, and pagination risk.}
+\label{fig:p2b-showcase}
+\end{figure}
+
+The final gate is the package gate. It first reads both Word packages directly. The gate checks that the Chinese article and the English article exist, that they are readable Word files, that they contain enough article text, that images are embedded rather than linked, and that placeholder text such as leftover editing markers or Chinese placeholder phrases is absent. It also checks font declarations, covering a Latin body font and a Chinese fallback font.
+
+The bilingual checks focus on facts that can be tested deterministically. The gate compares the number of embedded images, their identity and order when available, figures are recorded in the outlines, extracted numeric claims, and technical-looking terms. These checks are not to judge writing style. Instead, they catch the concrete failures that diverges two native articles, such as a figure appearing in only one language version but being dropped by the other.
+
+The layout checks treat DOCX as a visual artifact. From the document's internal structure, the gate flags underfilled images, images that move to the next page while a moderate resize could fit them, and likely orphan tails such as one English word or a few Chinese characters left alone on the final line of a paragraph. In strict mode, it renders both documents to page images, then inspects them for near-blank pages, sparse pages, and large bottom whitespace on non-final pages. A passing package is therefore not only bilingual and grounded. It is also close enough in Word layout for an editor to revise rather than rebuild.
+Figure~\ref{fig:p2b-showcase} illustrates these DOCX-level checks on the two deliverables.
+
+% -------------------------------------------------------------------------
+
+\subsection{Paper2Reel}\label{sec:connect}
+% -------------------------------------------------------------------------
+
+Paper2Reel is the convergence and presentation layer of ResearchStudio-Reel. It does not replace the poster, video, or blog generators. Instead, it reads their completed v2 deliverables and builds a self-contained interactive viewer around them. The root deliverable is the viewer page. A second root file, the alignment record, records how poster sections, slide thumbnails, video times, captions, and blog blocks line up. The native poster, slide, video, and document files remain downloadable, while the reel adds a section-level reading surface on top of them.
+
+\begin{figure}[!b]
+\vspace{-0.2cm}
+\centering
+\includegraphics[width=1.0\linewidth]{figures/paper2reel_showcase.png}
+\caption{\textbf{Paper2Reel interaction showcase.} (1) Hovering a poster section highlights the active block while neighboring sections fade. (2) Double-clicking the section opens the synchronized modal, with video playback, caption control, and slide thumbnail on the left, a language switch in the header, and the aligned blog passage on the right.}
+\label{fig:p2r-showcase}
+\end{figure}
+
+\subsubsection{Interaction Design}
+
+The viewer is poster-first because the poster is the most compact map of the paper. The first screen is therefore the generated poster, not a dashboard or a tabbed report. Moving over a poster section gives immediate hover feedback, and double-clicking a section opens the section modal. The title area opens a full-paper modal. The top menu, help panel, audio control, and downloads stay out of the way until called through the UI or keyboard shortcuts.
+
+The section modal is the main reading unit. It places video on the left and blog content on the right, with a draggable splitter between them. The video pane uses the subtitle-free video source for playback, while captions come from caption sidecars controlled by the viewer's subtitle toggle. This keeps the interactive caption switch useful and avoids double subtitles. Slide thumbnails sit below the video and seek to the corresponding time when clicked. Direct progress-bar seeking uses the same timing contract. The blog pane shows the matching article block and supports both English and Chinese content from Paper2Blog.
+
+This design makes the reel a presentation surface rather than a fourth generated summary. A reader can start from the poster, enter the section they care about, watch the matching video segment, read the matching blog passage, switch language, inspect slide context, and download the native artifacts without leaving the bundle.
+Figure~\ref{fig:p2r-showcase} illustrates the two interaction states that carry most of the reader workflow.
+
+\subsubsection{Content Alignment}
+
+The load-bearing object is the alignment sidecar. Each canonical section id maps to the corresponding poster block, one or more slide targets, video start and end times, subtitle tracks, slide thumbnails, and blog blocks. The viewer reads this sidecar instead of guessing from filenames, scraping the poster, or inferring times from the video. As a result, a poster block, a video segment, a slide thumbnail, and a blog passage become different views of the same paper section.
+
+Paper2Reel also uses the bundle contract to handle incomplete inputs. If the user invokes the skill on a PDF, an arXiv link, or a partial v2 bundle, it inspects which upstream deliverables are missing and completes those stages through the full Paper2Assets, Paper2Poster, Paper2Blog, and Paper2Video workflows before assembling the viewer. This preserves the same section ids and asset paths across the whole package, rather than allowing a reel-specific shortcut to drift away from the native deliverables.
+
+The final bundle keeps the original artifacts intact. Poster files are copied into a poster folder, video and caption assets into a media folder, slide frames into a slides folder, blog blocks and images into a blog folder, and download bundles into a downloads folder. The top level remains limited to the root deliverables, including the interactive viewer, the alignment record, and the package manifest.
+
+\subsubsection{Quality Gates}
+
+Paper2Reel is validated as an interactive browser artifact, not only as a set of files. The static part of the package gate checks that the interactive viewer, the alignment record, the package manifest, copied poster assets, media directories, slide frames, blog blocks, wordmark assets, and download bundles exist. It rejects stale tabbed-viewer markers, machine-local path leaks, backup files, missing poster resources, missing section slides, missing section clips, missing caption sidecars, missing English or Chinese blog blocks, and missing blog figures. It also verifies that the reel uses the raw pre-subtitle video as its playback source and caption sidecars as toggleable captions.
+
+The browser part of the gate serves the bundle with a range-capable local server, the preview server used by the skill. This is necessary because video seeking and slide-thumbnail jumps depend on partial-content responses. The gate confirms this support before it exercises the page. It then opens the viewer in a headless browser and checks poster-first loading, hover behavior, section modal opening, title modal opening, split-pane layout, subtitle toggling, slide-thumbnail seeking, direct video seeking, top-menu layout, downloads, shortcut-driven controls, and blog rendering. A separate file-browser gate checks that the same viewer page can also open directly from disk when the bundle folder stays intact.
+
+The result is section-level convergence. Paper2Poster, Paper2Video, and Paper2Blog remain independently editable deliverables, but Paper2Reel gives them one navigable surface in which poster sections, video moments, captions, slides, and bilingual blog passages stay aligned.
+
+% =========================================================================
+\section{Experiments}\label{sec:experiments}
+% =========================================================================
+
+ResearchStudio-Reel's contribution is a composition, so its evaluation has two halves: the quantitative quality of each generator against strong single-artifact baselines, and the capability coverage of the full pipeline against prior systems that each emit only one artifact. Because the poster is the only one of the three artifacts for which a public benchmark and a human ground-truth both exist, we anchor the quantitative comparison there, scoring our output head to head against prior automated poster systems, single-shot frontier LLMs, and the authors' own posters under identical conditions. The video and blog generators, for which no comparable graded benchmark yet exists, are instead compared on capability coverage against representative product categories and research systems, and their quantitative assessment is left to future work. We report poster quality and pipeline coverage together in Table~\ref{tbl:main}.
+
+\textbf{Experiment setup.} We compare three families of system on the Paper2Poster benchmark \citep{paper2poster}, all consuming the same source PDF per paper and scored under identical conditions. \emph{Single-shot} baselines prompt a frontier vision-language model once to emit an entire poster in one generation: Claude-4.8 Opus, GPT-5.5, and Gemini-3.1 Pro. \emph{Poster Pipeline} systems instead run a multi-step agentic procedure: the prior Paper2Poster tool, P2P, and PosterGen under their released configurations, and our ResearchStudio-\reelword{} in two settings that hold the skill fixed while swapping the agent harness and its generator model. The \textbf{Claude Code} setting runs the skills inside Claude Code \citep{anthropic2025claudecode} driven by \texttt{claude-opus-4.8}; the \textbf{Codex} setting runs the identical skills inside Codex driven by \texttt{gpt-5.5}. Reporting both lets us separate the contribution of the skill machinery from that of any single model or agent harness. The author ground-truth poster is the human reference.
+
+\textbf{Benchmark.} We evaluate on the 100 papers of the Paper2Poster benchmark \citep{paper2poster}. For each paper we generate a poster end-to-end from the PDF and score it with two held-out VLM judges, \texttt{claude-opus-4.8} and \texttt{gpt-5.5}, reusing Paper2Poster's own six-criterion aesthetic / information rubric and its PaperQuiz reading-comprehension probe verbatim; every poster is downscaled to $\leq$2560\,px so no source is advantaged by resolution. We compare against each paper's \emph{author ground-truth} poster and, where available, the baseline Paper2Poster tool. Aesthetic and Information are the means of their three sub-criteria on a 1 to 5 scale, reported separately for the Claude and GPT judges; PaperQuiz is answer accuracy, graded by exact match against the benchmark's own fixed question set. In every case the judges and the PaperQuiz reader see only the rendered poster image and never the source paper, so each system is credited solely for what its poster itself conveys rather than for prior knowledge of the work.
+
+\begin{table}[!t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{ResearchStudio-Reel vs.\ baselines and author ground-truth.} Poster quality tested on the Paper2Poster benchmark \citep{paper2poster}, broken into six aesthetic/information sub-criteria (1--5, higher is better) and PaperQuiz reading comprehension, alongside pipeline capability. Each quality cell is the mean of two held-out VLM judges (\texttt{claude-opus-4.8} and \texttt{gpt-5.5}); per-judge breakdowns are in Appendix~\ref{app:judges} (Table~\ref{tbl:judge-perjudge}). $^{\S}$~PaperQuiz answer accuracy (\%): an AI reader answers fixed questions from the poster image and is graded by exact match. For capability, \cmark~/~\xmark~= emits~/~does not emit that format; \dnmark{}~= not provided by the benchmark, which only provides PDF posters. Best quality value per column among the systems in \textbf{bold} and second best \underline{underlined}; the author ground-truth (last row) is the human reference. $^{\ast}$Poster Pipeline baseline systems are reproduced and scored by us under Claude Code with \texttt{claude-opus-4.8}.}
+\vspace{0.5em}
+\label{tbl:main}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l ccc ccc cc c cccc}
+\toprule
+& \multicolumn{3}{c}{\textbf{Aesthetic}} & \multicolumn{3}{c}{\textbf{Information}} & \multicolumn{2}{c}{\textbf{Quiz}} && \multicolumn{4}{c}{\textbf{Pipeline Artifacts}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-9}\cmidrule(lr){11-14}
+System & Elem. & Engag. & Layout & Low & Logic & Cont. & Detail$^{\S}$ & Underst.$^{\S}$ && HTML & PPTX & Video & Blog \\
+\midrule
+\rowcolor{black!10}\multicolumn{14}{@{}l}{\emph{Single-shot}}\\
+Claude-4.8 Opus & 2.97 & 2.48 & 2.83 & 3.95 & \textbf{4.00} & \underline{3.90} & \underline{66.67} & 93.37 && \cmark & \xmark & \xmark & \xmark \\
+GPT-5.5 & 2.98 & 2.88 & 3.22 & \underline{3.98} & \underline{3.98} & \textbf{3.92} & 65.63 & 93.20 && \cmark & \xmark & \xmark & \xmark \\
+Gemini-3.1 Pro & 2.98 & 2.92 & 3.17 & 3.95 & 3.95 & 3.67 & 61.43 & 92.43 && \cmark & \xmark & \xmark & \xmark \\
+\rowcolor{black!10}\multicolumn{14}{@{}l}{\emph{Poster Pipeline}}\\
+Paper2Poster Tool$^{\ast}$ \citep{paper2poster} & 1.82 & 1.20 & 1.52 & 2.62 & 2.92 & 2.87 & 63.00 & \textbf{95.65} && \xmark & \cmark & \xmark & \xmark \\
+P2P$^{\ast}$ \citep{p2p} & 2.68 & 2.34 & 3.15 & 3.92 & 3.78 & 3.70 & \textbf{75.40} & \underline{95.60} && \cmark & \xmark & \xmark & \xmark \\
+PosterGen$^{\ast}$ \citep{postergen} & 2.93 & 2.23 & 2.98 & 3.80 & 3.76 & 3.37 & 57.45 & 91.85 && \xmark & \cmark & \xmark & \xmark \\
+\textbf{ResearchStudio-\reelword{} (Codex)} & \underline{3.14} & \underline{3.11} & \underline{3.82} & 3.95 & \textbf{4.00} & 3.39 & 53.43 & 91.32 && \cmark & \cmark & \cmark & \cmark \\
+\textbf{ResearchStudio-\reelword{} (Claude Code)} & \textbf{3.33} & \textbf{3.26} & \textbf{3.97} & \textbf{4.00} & \textbf{4.00} & 3.71 & 55.43 & 90.88 && \cmark & \cmark & \cmark & \cmark \\
+\midrule
+Author ground-truth & 3.02 & 2.49 & 3.31 & 3.41 & 3.80 & 3.68 & 50.11 & 88.92 && \dnmark & \dnmark & \dnmark & \dnmark \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Results.} Averaged over the two judges (Table~\ref{tbl:main}), ResearchStudio-\reelword{} (Claude Code) attains the best score on every aesthetic and information sub-criterion among the automated systems, and it surpasses the authors' own posters on both group means: an aesthetic mean of $3.52$ against the ground truth's $2.94$, a margin of just over half a point on the five-point scale that is led by Engagement and Layout, and an information mean of $3.90$ against $3.63$. Both judges agree on this ordering, and on a per-paper basis our poster wins the overall score on $84$ to $93$ percent of the papers and loses outright on at most four. The three single-shot frontier LLMs form a distinctly stronger tier than the earlier poster systems, with overall scores around $3.4$ to $3.5$ against roughly $2.1$ to $3.3$ for the Paper2Poster tool, PosterGen, and P2P; they even edge the author baseline on aesthetics, yet none of them matches the measured fill loop, which still leads every aesthetic sub-criterion. On PaperQuiz the ranking inverts, with the most text-dense systems rising to the top, a tension between raw text coverage and visual legibility that we unpack in the analysis below.
+
+\textbf{Analysis.} The PaperQuiz ordering is close to the reverse of the aesthetic ordering, and the two are in genuine tension. PaperQuiz rewards a poster that reproduces the paper's text so that an AI reader can answer questions from it, which favors sheer density, whereas the aesthetic criteria reward selective, legible layout. This is why the strongest reading-comprehension systems are the weakest visually. P2P leads on Quiz Detail because its full-height portrait canvas is packed with prose lifted almost verbatim from the paper, giving the reader the most raw text to draw on, at the cost of the lowest aesthetic scores among the neural systems. The Paper2Poster tool tops Quiz Understanding for a related reason: its content is assembled directly from the benchmark's own question-and-answer extraction, so the high-level questions are answerable almost by construction, again while its visual scores sit near the bottom. The author posters occupy the opposite corner: a human designer prunes the paper down to a few headline results, which reads cleanly and scores well on aesthetics but discards the detail a comprehension probe rewards, so the ground truth places last on both Quiz splits. ResearchStudio-\reelword{} sits deliberately between these poles. Its measured fill loop packs each column to a target density rather than to exhaustion, so it stays competitive on PaperQuiz while its structured layout and figure placement win every aesthetic sub-criterion. The native LLMs fall in between, more verbose than a human but without the loop's control over how that text is laid out, which is why they trail on aesthetics despite respectable Quiz numbers.
+
+\textbf{Ablation.} Two comparisons already present in Table~\ref{tbl:main} isolate where ResearchStudio-\reelword{}'s quality comes from. \emph{(i) The skill machinery, model held fixed.} \texttt{claude-opus-4.8} prompted once for a full poster reaches an aesthetic mean of $2.76$ and a Layout score of $2.83$, whereas the same model wrapped in the composition step and the measured-fill loop, our Claude Code setting, reaches $3.52$ aesthetic and $3.97$ Layout; the gain of $0.76$ on aesthetics and over a full point on Layout is attributable to the loop and composition, not to a stronger generator. The same substitution under \texttt{gpt-5.5} lifts aesthetics from $3.03$ to $3.36$ and Layout from $3.22$ to $3.82$, so the machinery helps regardless of the base model. \emph{(ii) The harness and model, skill held fixed.} Swapping Claude Code with \texttt{claude-opus-4.8} for Codex with \texttt{gpt-5.5} retains most of the quality, an aesthetic mean of $3.36$ against $3.52$, and both settings still lead every prior poster pipeline and every single-shot baseline, which indicates the result is a property of the skill rather than of one proprietary model or agent runtime. The Codex cells are currently scored on a subset of the benchmark and will be refreshed to the full set; the ordering is already stable. Figure~\ref{fig:model-ablation} shows this qualitatively: the identical skill under six generators (the author ground-truth plus five model and reasoning-effort settings) each converges to a full, legible single page, differing mainly in figure choice, phrasing density, and accent rather than in structural soundness.
+
+\textbf{Gap to human posters.} Matching or exceeding the aggregate judge scores does not mean the output is on par with an author's own poster. A human designer routinely adds material the source paper does not contain (a purpose-drawn method or overview diagram, or explanatory icons) to carry the narrative, whereas our pipeline is grounded in the extracted asset bundle and reuses only the figures and content that actually appear in the paper, so it does not fabricate such bespoke visuals. Author taste also spans a wide and legitimate range: some authors favour large type with concise text, others a dense information layout, and we make no claim to match any individual author's preference. We instead analyse each paper's figure and content profile and choose the layout that best fits it, aiming for a sensible middle ground rather than any single house style.
+
+\begin{figure*}[t]
+\centering
+\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_gt.png}}\\[1.5pt]{\scriptsize Author ground-truth}\end{minipage}\hfill\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_d48.png}}\\[1.5pt]{\scriptsize Claude Code (\texttt{claude-opus-4.8})}\end{minipage}\hfill\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_d48max.png}}\\[1.5pt]{\scriptsize Claude Code (\texttt{claude-opus-4.8}), \emph{max reasoning}}\end{minipage}\par\vspace{6pt}
+\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_d47.png}}\\[1.5pt]{\scriptsize Claude Code (\texttt{claude-opus-4.7})}\end{minipage}\hfill\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_d46.png}}\\[1.5pt]{\scriptsize Claude Code (\texttt{claude-opus-4.6})}\end{minipage}\hfill\begin{minipage}[t]{0.32\linewidth}\centering\fbox{\includegraphics[width=\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax]{figures/compare_models/bfly_gpt.png}}\\[1.5pt]{\scriptsize Codex (\texttt{gpt-5.5})}\end{minipage}
+\caption{\textbf{Qualitative ablation study.} The author ground-truth (top left) is the human reference; the other five are all our method, holding the ResearchStudio-Reel skill, prompt, and pipeline fixed while varying only the harness and base model. Every variant converges to a full, legible single page; they differ in figure choice, phrasing density, and accent, not in structural soundness. All settings use high reasoning effort except the panel marked \emph{max reasoning} (top-right); the Codex panel runs \texttt{gpt-5.5} at its default effort.}
+\label{fig:model-ablation}
+\end{figure*}
+
+\begin{table}[t]
+\centering
+\begin{minipage}[t]{0.475\linewidth}
+\centering
+\footnotesize
+\caption{\textbf{Paper2Video capability audit.} We compare whether each system produces an editable PPTX deck, and delivers narration, subtitles, timed highlight cues, and duration control.}
+\label{tbl:p2v-capabilities}
+\vspace{0.5em}
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+System & Highlight & Duration & PPTX & Subtitles & Audio \\
+\midrule
+Deck Tools$^{1}$ & \xmark & \xmark & \cmark  & \xmark & \xmark \\
+Video Tools$^{2}$ & \xmark & \xmark & \xmark & \cmark & \cmark   \\
+NotebookLM Video$^{3}$  & \xmark & \xmark & \xmark & \xmark & \cmark  \\
+Paper-to-video Agents$^{4}$  & \xmark & \xmark & \xmark & \xmark & \cmark   \\
+\rowcolor{barcol!15}\textbf{ResearchStudio-\reelword}  & \cmark & \cmark & \cmark & \cmark & \cmark  \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.50\linewidth}
+\centering
+\footnotesize
+\caption{\textbf{Paper2Blog capability audit.} We compare whether each system accepts paper inputs and produces a blog-style summary with bilingual delivery, embedded figures, editable DOCX output, and layout checks.}
+\label{tbl:p2b-capabilities}
+\vspace{0.5em}
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+System & Layout & Figures & DOCX & Bilingual & Summary \\
+\midrule
+Semantic Scholar TLDR$^{5}$  & \xmark & \xmark & \xmark & \xmark & \cmark \\
+Research Assistants$^{6}$  & \xmark & \xmark & \xmark & \xmark & \cmark \\
+Scholarcy$^{7}$ & \xmark & \xmark & \cmark & \xmark & \cmark \\
+NotebookLM$^{8}$  & \xmark & \xmark & \xmark & \xmark & \cmark \\
+\rowcolor{barcol!15}\textbf{ResearchStudio-\reelword}  & \cmark & \cmark & \cmark & \cmark & \cmark \\
+\bottomrule
+\end{tabular}%
+}
+\end{minipage}
+\end{table}
+\begingroup
+\renewcommand{\thefootnote}{}
+\footnotetext{\textsuperscript{1} AI presentation generators, e.g., \href{https://gamma.app/}{Gamma} and \href{https://www.canva.com/create/ai-presentations/}{Canva}. \textsuperscript{2} AI avatar/video generators, e.g., \href{https://www.synthesia.io/}{Synthesia} and \href{https://www.heygen.com/}{HeyGen}. \textsuperscript{3} Google's source-grounded video overview. \textsuperscript{4} Scientific paper-to-video systems: VideoAgent, Paper2Video, and Preacher \citep{videoagent2025,paper2video,preacher2025}. \textsuperscript{5} Semantic Scholar's short paper-summary feature. \textsuperscript{6} Paper search and reading tools, e.g., \href{https://elicit.com/}{Elicit}, \href{https://scispace.com/}{SciSpace}, and \href{https://consensus.app/}{Consensus}. \textsuperscript{7} PDF summary and flashcard tool. \textsuperscript{8} Google's source-grounded notebook assistant.}
+\endgroup
+
+\textbf{Capability coverage.} The systems also differ in what they can \emph{emit}. Prior poster, video, and long-form systems each produce a single artifact, often as a one-way render; ResearchStudio-Reel is the only entry that emits all three dissemination artifacts, exposes the shared intermediate \emph{artifacts} bundle, keeps every deliverable editable in its native tool, and stitches the three into one navigable surface. Table~\ref{tbl:main} says the poster is good; this coverage says the quality does not come at the cost of breadth. The human-effort gap is stark too: the author ground-truth is a single artifact at very high manual cost, whereas ResearchStudio-Reel produces all three at low cost from one command.
+
+Table~\ref{tbl:main} is the main comparison. Tables~\ref{tbl:p2v-capabilities} and~\ref{tbl:p2b-capabilities} unpack the two non-poster generators as compact capability audits against representative product categories and research systems. These are not benchmark-score tables: \cmark{} means an explicit input, output, or documented capability, and \xmark{} means the capability is absent from the stated contract.
+
+\input{tables/pipeline_breakdown.tex}
+
+\textbf{Operational cost.} We instrument every stage of the full pipeline with timestamped API traces; Table~\ref{tbl:pipeline-breakdown} reports the per-stage wall-clock time and cost, averaged over sampled papers, with per-stage cost prorated from each session's billed total so that the per-skill subtotals and the pipeline total reconcile exactly to the provider's charge. The one-time Paper2Assets extraction is shared across every downstream skill. The poster and the narrated video are the two heaviest skills: Paper2Poster is dominated by its measured-fill loop (the single largest stage by cost), and Paper2Video by its ppt-master deck build and QA gate, while Paper2Blog is driven by its bilingual revision gate and the Paper2Reel binding is comparatively cheap. Producing all four artifacts from one PDF takes about an hour and a half of generator runtime per paper, with billed totals detailed in the caption. However, since the three generators can run in parallel, the overall processing time is significantly reduced in practice. Two further properties keep the effective cost below what the raw token totals suggest. First, most of the traffic is cached-context re-reads (the Cache column), billed at roughly a tenth of fresh input, so the dollar cost tracks the much smaller Input and Output columns rather than the totals. Second, the single heaviest one-time stage is the figure extraction inside Paper2Assets, which locates, crops, and cleans each figure from the rendered PDF. When the authors can supply the paper's LaTeX source, for example the arXiv source package, this stage is largely bypassed: the pipeline reads the original figure files and their captions directly instead of recovering them from a flattened PDF, so Paper2Assets runs substantially faster and its shared one-time cost drops with it. The PDF path remains the default unless the LaTeX source is available.
+
+% =========================================================================
+\section{Applications}\label{sec:applications}
+% =========================================================================
+
+Three application contexts drove the design of ResearchStudio-Reel and are the ones we expect it to serve first: the accepted-paper author working the camera-ready last mile, the lab or research organization wiring dissemination into its publication-intake pipeline, and the graduate course or reading group turning a paper list into weekly briefing packs. These three are not arbitrary: they deliberately span the dissemination spectrum, from a one-off, single-paper polish for the individual author, to a continuous per-submission feed for the organization, to a periodic many-paper batch for the classroom, so together they exercise the same pipeline at very different cadences and scales. All three rest on the same machinery: one shared Paper2Assets extraction (\S\ref{sec:p2a}), native-tool editable artifacts (PowerPoint for the poster and the video deck, Word for the blog), and one Paper2Reel viewer that binds them into a navigable surface (\S\ref{sec:connect}). The differences below are therefore about \emph{who} runs the pipeline, \emph{which artifacts of the bundle they lean on}, and \emph{what they revise afterwards}, not about a different system per use case.
+
+\subsection{The Author's Camera-ready Last Mile}\label{sec:app-camera}
+The canonical case is an accepted-paper author in the narrow window between camera-ready and the venue. Within days they need a print-ready conference poster, a talk video for the virtual track or the lab's YouTube channel, and a public-facing blog post to announce the work on social media. ResearchStudio-Reel collapses this into a single Claude Code session per paper: one extraction pass populates the Paper2Assets bundle, then the three generators run against it to emit an editable \texttt{.pptx}, a synchronized \texttt{video.pptx}$+$\texttt{.mp4} pair, and a bilingual Word \texttt{.docx} pair that the author can hand-revise rather than regenerate, all navigable through one Paper2Reel \texttt{reel.html} that doubles as a review surface the author can share with co-authors before shipping.
+
+\subsection{Lab- and Org-level Scientific Communication}\label{sec:app-org}
+A research lab or industrial-research group can wire ResearchStudio-Reel into its publication-intake pipeline so that every accepted paper auto-generates draft dissemination artifacts, which an editorial or communications team then polishes. The editable PowerPoint and Word outputs are load-bearing here: they turn the system into a draft-and-revise workflow rather than a black-box render, which is what makes hand-off to a non-author reviewer practical. The bilingual blog primitive (\S\ref{sec:p2b}) covers a Chinese-WeChat and an English-research-blog register from one shared evidence map, and the Paper2Reel viewer gives the comms team one interactive surface per paper to review before publication rather than three files to open in three tools.
+
+\subsection{Educational and Pedagogical Reuse}\label{sec:app-edu}
+A graduate course, a reading group, or a public-understanding-of-science outlet can feed a reading list through ResearchStudio-Reel to produce \emph{paper-of-the-week briefing packs}: an editable slide deck for lecture, a talk video for asynchronous students, and a Word blog post for the course site or newsletter, all cross-linked through one Paper2Reel viewer that students can scrub between poster, video, and blog while reviewing. Because the artifacts are editable, an instructor can adjust framing, drop a slide, or splice in a course-specific example without losing the rest of the auto-generated structure, and because the shared Paper2Assets bundle is versioned per paper, re-running against a corrected or updated PDF re-issues the whole pack without manual re-extraction.
+
+% =========================================================================
+\section{Conclusion}\label{sec:conclusion}
+% =========================================================================
+
+The last mile of research dissemination is best built as a small composition of \emph{skills}: thin agent-readable contracts that share one upstream extractor and gate their output on categorical fill verdicts rather than on soft preference scores. ResearchStudio-Reel instantiates this pattern as one Paper2Assets bundle, three editable generators, and the Paper2Reel viewer that binds them, turning a single paper PDF into a print-ready poster, a synchronized talk-video package, and a bilingual Word blog inside one Claude Code or Codex session.
+On the 100-paper Paper2Poster benchmark, our posters lead every aesthetic and information sub-criterion under two held-out VLM judges, exceed the authors' own on aesthetics ($3.52$ vs.\ $2.94$), and win the overall score on $84$ to $93\%$ of papers; the capability audits in \S\ref{sec:experiments} further show that no prior system ships all three editable dissemination artifacts from a single run.
+We see no reason the pattern should stop at these three artifacts: any dissemination target with a deterministic render and a categorical fill verdict fits the same composition, and the open problems that remain are evaluative and generative rather than architectural (\S\ref{sec:future}).
+Ultimately, if ResearchStudio-Reel can give an author back the days that disappear between camera-ready and the venue, and give every paper a poster, a talk, and a blog it might otherwise never have, the last mile stops being a tax on the people doing the science and becomes part of how the science reaches its readers.
+
+% =========================================================================
+\section{Future Work}\label{sec:future}
+% =========================================================================
+
+Two gaps matter more than broader coverage. First, our evaluation is proxy-bound: the aesthetic rubric and PaperQuiz pull in opposite directions, since a denser poster wins comprehension while a cleaner one wins aesthetics, and neither proxy measures whether a reader actually absorbs the work. The measured-fill loop optimizes a geometric density target, not understanding, so the honest next step is to close the loop on a controlled human reading-and-recall signal rather than on a proxy that a denser poster can always game. Second, the remaining gap to author posters is generative, not compositional: because the pipeline reuses only figures that already exist in the paper, it can match layout but never draw the bespoke method or overview diagram a human designer adds to carry the narrative. Closing that gap requires faithful figure synthesis, which reintroduces the very hallucination risk the categorical gates were built to suppress, and would push the gate discipline from layout onto the factual content of generated visuals.
+
+% =========================================================================
+\bibliographystyle{unsrtnat}
+\bibliography{refs}
+
+\clearpage
+% =========================================================================
+\appendix
+% =========================================================================
+
+% =========================================================================
+\section{Limitations}\label{app:limit}
+% =========================================================================
+
+\textbf{Recurring failure modes.} Five failure modes recur in end-to-end runs, each with a one-sentence mitigation. \textbf{(L1) Figure-cleanup residue:} a caption strip or body-text slice baked into a raster survives Paper2Assets's deterministic prefix; the visual-AI decaption pass plus fresh-context verifier (\S\ref{sec:p2a}) re-crops before any downstream skill embeds the figure. \textbf{(L2) Fill-loop non-convergence:} the poster's discrete loop can oscillate across the 90--98\% band when no move in the closed catalogue lands a section in-band; the on-disk round counter and circuit breaker (\S\ref{sec:p2p}) ship the best-measured state and let the render-time whitespace expand recover the rest. \textbf{(L3) Slide--narration referential drift:} the script says ``Figure 3'' while the slide shows Figure 2 after a panel reorder; the shared alignment timeline of \S\ref{sec:p2v} lets the final QA gate reject the render. \textbf{(L4) Bilingual blog drift:} the two language drafts disagree on a numeric result, benchmark name, or affiliation; the shared evidence map plus layout-aware DOCX gate (\S\ref{sec:p2b}) cross-check numeric claims, technical terms, and figure order across the pair. \textbf{(L5) Voice-mismatched narration:} the default Edge TTS \citep{edgetts} voice reads a keynote-style deck flat; re-run the narration step (\S\ref{sec:p2v}) with a different voice, e.g.\ \texttt{en-US-GuyNeural} or \texttt{en-US-AriaNeural}.
+
+\textbf{Domain scope.} The system is calibrated on ML, CV, and NLP venues, where paper layout, figure conventions, and the claim-evidence DAG are relatively uniform; transfer to biomedicine, physics, or design-heavy fields, where poster conventions and the typical evidence structure differ, is untested and each skill's move catalogue may need extending. Because the underlying primitives (PDF extraction, HTML layout, DOCX rendering, and Edge TTS) are domain-agnostic, we expect the skills-as-architecture pattern to generalize, but each new venue family should be validated end-to-end before deployment.
+
+\textbf{Evaluation coverage.} Quantitative evaluation in v1 is graded-benchmark only on the poster side: Table~\ref{tbl:main} reports the Paper2Poster benchmark under two held-out VLM judges, while the video and blog are compared on capability coverage (Tables~\ref{tbl:p2v-capabilities} and~\ref{tbl:p2b-capabilities}) because no comparable graded benchmark yet exists for either artifact. RRP (\S\ref{sec:p2p}) is currently an in-loop signal rather than a headline metric, and a third-party human-rater study across all three artifacts is left for future work.
+
+% =========================================================================
+\section{Ethics}\label{app:ethics}
+% =========================================================================
+
+\textbf{Provenance and disclosure.} AI-generated posters, videos, and blogs can amplify both correct understanding and confident misreadings of the underlying science, and a narrated talk video with burned-in subtitles is not obviously AI-produced at a glance. We therefore recommend that downstream deployments preserve provenance metadata---which skill and version was used, which Paper2Assets bundle checksum the artifact was rendered from, which poster theme and header arrangement or which TTS voice was picked, and which model backed the run---so readers can audit the generation chain and, where required, disclose AI involvement. Paper2Assets writes an inventory manifest with the source PDF's checksum and the per-step settings (\S\ref{sec:p2a}), and the Paper2Video QA record logs the deck, timeline, and narration configuration (\S\ref{sec:p2v}); together these form the attributable ancestry of any downstream artifact.
+
+\textbf{Licensing and redistribution.} Edge TTS \citep{edgetts} voices are Microsoft Neural TTS voices served through Microsoft Edge's Read-Aloud endpoint and are governed by Microsoft's terms of use; per-figure copyright on extracted paper figures follows the source paper's license, which is typically arXiv-friendly but should be confirmed before redistribution, and institution and venue logos fetched by Paper2Assets follow their respective source licenses (Wikimedia Commons and Wikidata where available). ResearchStudio-Reel itself does not redistribute paper figures or logos: the user runs the pipeline on their own paper, and the generated artifacts inherit the source paper's license.
+
+% =========================================================================
+\section{Reproducibility}\label{app:repro}
+% =========================================================================
+
+\textbf{Code and dependencies.} ResearchStudio-Reel is released open-source under the MIT license at \url{https://aka.ms/ResearchStudio}, with each skill's \texttt{SKILL.md} as the source of truth for its workflow. The five skills pin their Python dependencies in per-skill \texttt{requirements.txt} files, and the top-level \texttt{install.sh} symlinks each skill into the host's skills directory, so \texttt{git pull} updates them all in place. System-level dependencies (\texttt{poppler-utils}, \texttt{libreoffice}, \texttt{ffmpeg}, and a headless Chromium) are listed in the README.
+
+\textbf{Models and credentials.} Narration uses Edge TTS \citep{edgetts}, which needs no credentials; language-model access is picked up from the host runtime (\texttt{ANTHROPIC\_API\_KEY} for Claude Code, standard Codex configuration for Codex). Our own runs routed those credentials through a shared Copilot API proxy rather than the vendors' first-party endpoints, with jobs spread across several hosts; the model identifiers used throughout the paper (\texttt{claude-opus-4.8}, \texttt{gpt-5.5}, \texttt{gemini-3.1-pro}) name the underlying models as served by that proxy, and pointing the same skills at a first-party endpoint is a configuration change rather than a code change.
+
+\textbf{Benchmark protocol.} Poster scoring in \S\ref{sec:experiments} reuses the Paper2Poster benchmark \citep{paper2poster} verbatim: the same 100-paper list, the same six-criterion aesthetic and information rubric, and the same PaperQuiz probe. Every poster is downscaled to at most $2560$\,px on the long edge and scored by both \texttt{claude-opus-4.8} and \texttt{gpt-5.5}; each Table~\ref{tbl:main} cell reports the mean of the two judges, with the per-judge breakdown in Appendix~\ref{app:judges} (Table~\ref{tbl:judge-perjudge}). Author ground-truth posters and the reproduced baselines (Paper2Poster tool, PosterGen, P2P) all go through the same downscale-and-score pipeline, and the three single-shot LLM baselines share one fixed prompt reproduced verbatim in Appendix~\ref{app:llm-prompt}, so the comparison isolates raw model capability rather than prompt engineering. We do not report graded video and blog scores because, as noted in Appendix~\ref{app:limit}, no comparable graded benchmark yet exists for either artifact; capability coverage is reported instead in Tables~\ref{tbl:p2v-capabilities} and~\ref{tbl:p2b-capabilities}.
+
+% =========================================================================
+\section{Per-judge Benchmark Scores}\label{app:judges}
+% =========================================================================
+
+Table~\ref{tbl:main} in \S\ref{sec:experiments} reports each poster-quality cell as the mean of the two held-out judges, one Claude and one GPT vision-language model. We average two judges from different model families so that the reported score does not hinge on any single model's idiosyncratic preferences, and so that a system cannot win simply by matching the stylistic priors of one evaluator. Table~\ref{tbl:judge-perjudge} unfolds that mean side by side: it gives, for each judge, the same six aesthetic and information sub-criteria together with the two PaperQuiz comprehension splits, so the unaveraged view of either judge is available for inspection. The two judges track each other closely, agreeing on the overall system ranking and differing only marginally in absolute score, so their average cannot mask a latent disagreement about which system is stronger. Because their disagreement is confined to magnitude rather than order, taking the mean halves per-judge noise without discarding signal, and we nonetheless report both per-judge tables in full for transparency.
+
+\begin{table}[H]
+\centering
+\caption{\textbf{Per-criterion scores under each judge, side by side.} The two held-out judges whose mean forms Table~\ref{tbl:main}: Claude (\texttt{claude-opus-4.8}, left block) and GPT (\texttt{gpt-5.5}, right block). Aesthetic and Information sub-criteria on 1--5 (higher better); Quiz is $^{\S}$PaperQuiz answer accuracy (\%). Sub-criteria abbreviated El(ement), En(gagement), La(yout), Lo(w-level), L(o)g(ic), Co(ntent), Det(ail), Und(erstanding). Best value per column among the systems in \textbf{bold} and second best \underline{underlined}. $^{\ast}$Baseline systems are our own Claude Code + \texttt{claude-opus-4.8} measurements; the Codex row is our skill under Codex + \texttt{gpt-5.5} on a benchmark subset.}
+\label{tbl:judge-perjudge}
+\vspace{0.5em}
+\setlength{\tabcolsep}{3pt}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}l cccccc cc @{\hskip 5pt}|@{\hskip 5pt} cccccc cc@{}}
+\toprule
+& \multicolumn{8}{c}{\textbf{Claude judge} (\texttt{claude-opus-4.8})} & \multicolumn{8}{c}{\textbf{GPT judge} (\texttt{gpt-5.5})} \\
+\cmidrule(lr){2-9}\cmidrule(lr){10-17}
+& \multicolumn{3}{c}{Aesthetic} & \multicolumn{3}{c}{Information} & \multicolumn{2}{c}{Quiz\,(\%)} & \multicolumn{3}{c}{Aesthetic} & \multicolumn{3}{c}{Information} & \multicolumn{2}{c}{Quiz\,(\%)} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-9}\cmidrule(lr){10-12}\cmidrule(lr){13-15}\cmidrule(lr){16-17}
+System & El. & En. & La. & Lo. & Lg. & Co. & Det.$^{\S}$ & Und.$^{\S}$ & El. & En. & La. & Lo. & Lg. & Co. & Det.$^{\S}$ & Und.$^{\S}$ \\
+\midrule
+\rowcolor{black!10}\multicolumn{17}{@{}l}{\emph{Single-shot}}\\
+Claude-4.8 Opus & 2.97 & 2.57 & 2.77 & \underline{4.00} & \underline{4.00} & \textbf{3.97} & \underline{69.33} & 96.47 & 2.97 & 2.40 & 2.90 & 3.90 & \textbf{4.00} & \underline{3.83} & \underline{64.00} & 90.27 \\
+GPT-5.5 & 2.97 & 2.83 & 3.20 & \underline{4.00} & \underline{4.00} & \textbf{3.97} & 68.87 & 96.60 & 3.00 & 2.93 & 3.23 & \underline{3.97} & \underline{3.97} & \textbf{3.87} & 62.40 & 89.80 \\
+Gemini-3.1 Pro & 3.00 & 2.90 & 3.00 & 3.97 & 3.97 & 3.93 & 64.60 & 95.47 & 2.97 & 2.93 & 3.33 & 3.93 & 3.93 & 3.40 & 58.27 & 89.40 \\
+\rowcolor{black!10}\multicolumn{17}{@{}l}{\emph{Poster Pipeline}}\\
+Paper2Poster tool$^{\ast}$ \citep{paper2poster} & 2.00 & 1.25 & 1.38 & 2.50 & 3.00 & 2.62 & 65.50 & \textbf{98.75} & 1.62 & 1.38 & 1.50 & 2.25 & 3.00 & 3.00 & 60.50 & \underline{92.50} \\
+P2P$^{\ast}$ \citep{p2p} & 2.73 & 2.47 & 3.23 & 3.97 & 3.83 & 3.70 & \textbf{77.73} & \underline{97.93} & 2.63 & 2.20 & 3.07 & 3.87 & 3.73 & 3.70 & \textbf{73.13} & \textbf{93.27} \\
+PosterGen$^{\ast}$ \citep{postergen} & 2.93 & 2.26 & 2.96 & 3.96 & 3.85 & 3.63 & 62.15 & 97.11 & 2.93 & 2.19 & 3.00 & 3.63 & 3.67 & 3.11 & 52.81 & 86.59 \\
+\textbf{ResearchStudio-\reelword{} (Claude Code)} & \textbf{3.29} & \textbf{3.53} & \textbf{3.96} & \textbf{4.01} & \textbf{4.02} & \underline{3.94} & 60.43 & 95.80 & \textbf{3.36} & \underline{2.99} & \textbf{3.98} & \textbf{4.00} & \underline{3.97} & 3.48 & 50.43 & 85.96 \\
+\textbf{ResearchStudio-\reelword{} (Codex)} & \underline{3.04} & \underline{3.18} & \underline{3.82} & \underline{4.00} & \underline{4.00} & 3.61 & 58.71 & 95.79 & \underline{3.25} & \textbf{3.04} & \underline{3.82} & 3.89 & \textbf{4.00} & 3.18 & 48.14 & 86.86 \\
+\midrule
+Author ground-truth & 3.14 & 2.51 & 3.46 & 3.59 & 3.97 & 3.86 & 53.24 & 95.06 & 2.89 & 2.47 & 3.16 & 3.23 & 3.63 & 3.50 & 46.98 & 82.78 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{Poster Comparison Across Systems}\label{app:compare}
+On a single benchmark paper we place our poster beside the three baseline systems and the authors' ground-truth poster, all rendered from the same source PDF (Figure~\ref{fig:poster-compare}); the panel widths are uneven only so the columns bottom-align.
+
+\textbf{Observation.} The single-shot LLM baselines are not held back by content: Claude-4.8 Opus, GPT-5.5, and Gemini-3.1 Pro each recover the paper's title, contributions, and headline numbers and pick sensible figures, so their PaperQuiz accuracy in Table~\ref{tbl:main} is close to ours. The gap is almost entirely in layout: emitting a full A0 poster in one pass, they fall back on a rigid grid with unequal columns, long undifferentiated text, and figures placed without regard to whitespace, so the sheet reads flat at poster scale. Our compose-then-fill loop instead balances column density and promotes key results into typed widgets, which is where the Layout and aesthetic margins in Table~\ref{tbl:main} come from; the reproduced poster pipelines (Paper2Poster Tool, PosterGen, and the portrait P2P) sit in between.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[b]{0.35\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/gt.png}\\[1pt]{\scriptsize Human-made (from poster authors)}\\[5pt]
+\includegraphics[width=\linewidth]{figures/compare_auction/ours.png}\\[1pt]{\scriptsize \textbf{ResearchStudio-\reelword ~(Ours)}}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.28\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/paper2poster_tool.png}\\[1pt]{\scriptsize Paper2Poster Tool~\citep{paper2poster}}\\[5pt]
+\includegraphics[width=\linewidth]{figures/compare_auction/postergen.png}\\[1pt]{\scriptsize PosterGen~\citep{postergen}}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.33\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/p2p.png}\\[1pt]{\scriptsize P2P~\citep{p2p}}
+\end{minipage}
+
+\vspace{6pt}
+\begin{minipage}[b]{0.32\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/llm_claude.png}\\[1pt]{\scriptsize Claude-4.8 Opus (single-shot)}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.32\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/llm_gpt.png}\\[1pt]{\scriptsize GPT-5.5 (single-shot)}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.32\linewidth}\centering
+\includegraphics[width=\linewidth]{figures/compare_auction/llm_gemini.png}\\[1pt]{\scriptsize Gemini-3.1 Pro (single-shot)}
+\end{minipage}
+\caption{\textbf{Poster comparison on one benchmark paper} (``A Context-Integrated Transformer-Based Neural Network for Auction Design''). Every system renders from the same source PDF: our poster and the human-made (authors') poster (left, largest), the Paper2Poster Tool~\citep{paper2poster} and PosterGen~\citep{postergen} baselines (center), the portrait P2P~\citep{p2p} baseline (right), and three single-shot LLM baselines (Claude-4.8 Opus, GPT-5.5, Gemini-3.1 Pro; bottom row). The single-shot posters carry comparable information but a markedly weaker visual layout than ours.}
+\label{fig:poster-compare}
+\end{figure}
+
+\section{Poster Gallery Showcase}\label{app:gallery}
+Posters generated end-to-end by Paper2Poster from the paper PDF alone, for the 100-paper V2 benchmark; per-paper titles and the operational cost analysis appear in \S\ref{sec:experiments}. We show 10 posters sampled uniformly at random from the 100-paper set, two per row. Each poster is rendered in a distinct accent color to illustrate the template's theming range and to keep the thumbnails visually separable; the column layout, visual style, and header are sampled per paper by the composer.
+
+\input{figures/v2_gallery/gal_body}
+
+\clearpage
+
+\section{Single-Shot LLM Baseline Prompt}\label{app:llm-prompt}
+The three single-shot LLM baselines in Table~\ref{tbl:main} (Claude-4.8 Opus, GPT-5.5, Gemini-3.1 Pro) share the one fixed prompt reproduced below; only the model identifier changes between runs, so the comparison isolates raw model capability rather than prompt engineering. Each model receives the paper's structured summary (the \texttt{paper\_spec.md} emitted by Paper2Assets, with audio-narration lines removed), its metadata, and the list of available figure filenames with captions, and must return a single self-contained A0-landscape poster HTML in one call---no fill loop and no multi-agent pipeline. That HTML is then rendered to A0 by the same \texttt{render\_poster.py} the full pipeline uses.
+
+\paragraph{System prompt} (identical for all three models).
+\begin{lstlisting}
+You are an expert academic conference poster designer. Given a paper's structured summary and its figures, produce ONE complete, self-contained, print-ready HTML file for an A0 LANDSCAPE conference poster (1189mm wide by 841mm tall).
+
+Hard requirements:
+- Output ONLY the HTML, wrapped in a single ```html code block. No prose before or after.
+- A0 landscape canvas: include `@page { size: 1189mm 841mm; margin: 0; }` and make the root container exactly 1189mm wide by 841mm tall.
+- Clean multi-column academic layout (3 or 4 columns) with a prominent title bar (title, authors, institutes, venue), clearly separated titled sections, and large-format readable type (title very large; section headings roughly 30-40pt; body roughly 18-24pt at print scale).
+- Faithfully present the paper: Problem/Motivation, Method, Key Results (WITH the exact numbers provided), and a Takeaway. Do NOT invent numbers, results, or citations beyond what is provided.
+- Include the paper's figures using EXACTLY the provided filenames: `<img src="figures/FILENAME">`. Place each figure near the relevant section with a short caption. Never reference a figure filename that is not in the provided list.
+- All CSS inline in one `<style>` block. No external stylesheets, no web fonts, no JavaScript. System-safe fonts only (Helvetica, Arial, Georgia, Times).
+- Produce a polished, visually balanced poster suitable for a top-tier conference.
+\end{lstlisting}
+
+\paragraph{User prompt} (per paper; the \texttt{\{...\}} placeholders are filled from each paper's Paper2Assets bundle).
+\begin{lstlisting}
+TITLE: {title}
+AUTHORS: {authors}
+INSTITUTES: {institutes}
+VENUE: {venue}
+
+STRUCTURED SUMMARY (authoritative content; the numbers below are the real results to display):
+{spec}
+
+FIGURES AVAILABLE (use these exact filenames; place each with a short caption near the matching section):
+{figs}
+
+Produce the complete A0-landscape poster HTML now.
+\end{lstlisting}
+
+\end{document}

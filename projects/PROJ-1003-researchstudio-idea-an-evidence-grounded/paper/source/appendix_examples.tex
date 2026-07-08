@@ -1,0 +1,99 @@
+% ====================== Worked examples ======================
+One generated card and its JSON evidence trail, a reject-path run, and a pattern\,/\,sub-pattern card --- all real artifacts from \S\ref{sec:evaluation}, reproduced verbatim.
+
+\section{End-to-end Generated Idea Card}
+\label{app:example-card}
+IdeaSpark's verbatim \texttt{std}-register output for a held-out ICLR~2026 seed (\emph{RL for long-context reasoning}), the system's rank-1 card in \S\ref{sec:evaluation}; its JSON evidence trail (core claim, falsification, literature deltas) is in App.~\ref{app:killswitch}.
+
+\begin{center}
+\fbox{\includegraphics[page=1,width=0.76\linewidth]{figures/fig_example_card_std_en.pdf}}\\[5pt]
+\fbox{\includegraphics[page=2,width=0.76\linewidth]{figures/fig_example_card_std_en.pdf}}
+\end{center}
+
+\section{Kill-switch and Falsification Fields}
+\label{app:killswitch}
+These fields back the same card but are deliberately \emph{not} printed on it: they are the
+reviewer-defensible machinery of \S\ref{sec:methodology} (mechanism-aware falsification with a named
+load-bearing variable plus a non-tautological negative control, and byte-identical kill-switch
+preservation across phases). Excerpted verbatim from \texttt{phase4\_expansion.json}.
+
+\begin{lstlisting}[breaklines=true,basicstyle=\ttfamily\footnotesize,frame=single,framerule=0.4pt,xleftmargin=4pt,xrightmargin=4pt,aboveskip=4pt,belowskip=2pt]
+{
+  "core_claim": "Redistributing GRPO's single trajectory-level advantage onto a verifier-free, in-group-harvested per-phase credit-density -- with nothing added -- recovers the long-context learning signal that uniform broadcast dilutes as context grows to 128K.",
+  "compute_budget": "30 A100-day (within the 90 A100-day default; comfortable). Two GRPO training runs on a single 7-8B policy over 16K-token KeyChain data plus 128K evaluation are the cost; leg B adds no extra forward passes (it reuses the log-probs already produced during sampling), and there is no separately trained reward model or critic to fund.",
+  "falsification_prediction": "Minimal experiment: train two checkpoints from the same base LLM on identical 16K KeyChain data and equal compute -- (i) vanilla GRPO (LoongRL substrate) and (ii) phase-stratified GRPO -- and evaluate both at 16K/32K/64K/128K on RULER + extended multi-hop QA. If the candidate works, the accuracy gap (ii minus i) INCREASES with context length, i.e. stratified credit is roughly on par at 16K but its 128K answer accuracy is materially higher, because the pivotal phases stay a near-constant token budget while the distractor bulk grows. The single named load-bearing variable is the per-phase advantage concentration ratio C (fraction of total advantage magnitude placed on pivotal-phase tokens); the mechanism claim is that gains are caused by concentrating credit on the pivotal minority. Negative control: permute the phase labels so the density d lands on randomly chosen spans instead of the contrast/self-score-identified pivotal phases (C is held at the SAME numeric level, only its placement is randomized) -- the prediction is that downstream 128K answer accuracy collapses back to the vanilla-GRPO curve, NOT that C changes. This is the real Popper test: if accuracy survives random placement, the gain came from a generic variance-reduction or extra-compute effect rather than from localizing credit to the steps that determine correctness. Positive control: a stripped model that keeps ONLY the minimal-pair contrast term (drop self-score) should recover most of the 128K accuracy gain, identifying the in-group correct/incorrect ordering as the load-bearing source of the per-phase signal.",
+  "differentiation_from_lit[0]": {
+    "paper_id": "openalex:W4416246797",
+    "delta": "LoongRL leaves the GRPO advantage A_g untouched and broadcasts it uniformly across the whole 16K-128K rollout, concentrating its novelty in KeyChain data construction; we construct a per-phase stratified advantage A_{g,s} that redistributes that same A_g onto the pivotal-phase minority, an artifact their unmodified-optimizer design never produces."
+  }
+}
+\end{lstlisting}
+
+\section{Reject-path Output (Phase~3 Abandon)}
+\label{app:reject}
+Not every direction yields a card. When the Phase~3 audit hits an unaddressable hard floor, the run
+emits a \texttt{phase\_3\_failed.md} instead of an idea (one of the three one-shot outcomes of
+\S\ref{sec:methodology}). The example below is a real run on a seed whose direction was, essentially,
+the title of an existing 2025 paper; the corpus-anchored audit caught the exact-mechanism prior-art
+collision and abandoned rather than ship a scooped idea.\footnote{In the evaluation harness this run
+was subsequently re-routed onto a different Phase~2.1 gap to still produce a card for scoring; the
+abandon artifact reproduced here is the genuine output of the abandon branch.}
+
+\begingroup\small
+
+\textbf{Run:} run\_prompt85\_tns
+\textbf{Seed direction:} "A novel ML research idea about Non-Asymptotic analysis of (sticky) Track-and-Stop."
+\textbf{Candidate generated (Phase 2.2):} "A Non-Asymptotic Sample-Complexity Certificate for Sticky Track-and-Stop"
+\textbf{Verdict:} abandon
+\textbf{Verdict layer:} hard\_floor
+
+\subparagraph{\textbf{Triggering checks}}\
+
+\paragraph{1. paper\_pointed\_threat --- exact-mechanism collision (hard floor, unaddressable)}
+\begin{itemize}[leftmargin=*]
+\item \textbf{Threat paper:} \texttt{semanticscholar:63d8201fbe32063e2ac336b0708f589e05cc3759} --- "Non-Asymptotic Analysis of (Sticky) Track-and-Stop" (Poiani, Bernasconi \& Celli, arXiv:2505.22475, 2025-05). Surfaced via Phase 3.1 collision retrieval.
+\item \textbf{Subsumption:} The threat abstract states verbatim that Track-and-Stop and Sticky Track-and-Stop "are optimal in the asymptotic regime [but] their non-asymptotic guarantees remain unknown. In this work, we fill this gap and provide non-asymptotic guarantees for both algorithms." This is byte-for-byte the candidate's headline deliverable (a finite-confidence / all-delta guarantee for the genuine sticky-T\&S sampling-plus-stopping rule, algorithm held fixed).
+\item \textbf{Candidate's sole differentiator fails:} the named additive burn-in functional B(mu), built from the cumulative empirical-vs-oracle allocation deficit D\_t, is an INTERNAL proof quantity. Any non-asymptotic bound on sticky-T\&S must already control exactly this tracking-error/burn-in term, so the prior paper necessarily bounds it (named or not). Not a distinct external claim.
+\item \textbf{addressable\_via:} null (cannot be repaired by a field edit; the headline deliverable already exists in print).
+\end{itemize}
+
+\paragraph{2. gap\_closure\_reject\_check --- triggered}
+\begin{itemize}[leftmargin=*]
+\item \textbf{C19 lesson fires (candidate\_match=yes):} "A relaxation the field reads as a mechanical lift of a known argument will be judged incremental unless a genuinely novel obstacle is named and overcome." The obstacle (non-asymptotic guarantees for sticky T\&S) is already overcome in arXiv:2505.22475.
+\item \textbf{C29 lesson fires (candidate\_match=yes):} "Re-deriving a rate that merely matches the baseline with near-identical algorithmic changes is read as an incremental extension." The candidate holds the sticky-T\&S algorithm fixed and re-derives the same object the prior paper already certifies.
+\end{itemize}
+
+Recipe application check = applied (both legs perform their cited cluster's signature move) and anti\_pattern check = no match --- i.e. the failure axis is prior-work overlap, NOT recipe misuse or anti-pattern composition.
+
+\subparagraph{\textbf{Root cause}}\
+Two independent hard-floor / triggered findings point at the same root cause: the user's seed direction is, essentially, the literal title of an existing 2025 paper. The novelty residual the pipeline could find (a named B(mu) burn-in term) is an internal lemma object, not an externally differentiating claim.
+
+\subparagraph{\textbf{User-side options}}\
+\begin{itemize}[leftmargin=*]
+\item \textbf{Drop / replace the direction.} Non-asymptotic analysis of (sticky) Track-and-Stop as a headline is already occupied by the 2025 paper arXiv:2505.22475.
+\item \textbf{Re-frame to an unoccupied residual.} Possible pivots NOT covered by the threat paper, e.g.: (a) the forced-exploration / "sticky" schedule's finite-confidence tradeoff (a deferred gap in Phase 2.1) --- quantify how the forcing rate, set only for asymptotic consistency, governs the finite-delta overhead; (b) instance-dependent LOWER bounds on the burn-in (an impossibility result), rather than an upper bound that the prior paper already supplies; (c) a structured / non-exponential-family or contextual setting the prior non-asymptotic analysis does not reach. Each would require a fresh Phase 0 retrieval to confirm it is unoccupied.
+\item \textbf{Re-run Phase 2.1 + 2.2 on a different selected gap} from \texttt{phase1\_output.json} (4 gaps were found) with the threat paper now in scope, then re-critique.
+\end{itemize}
+
+\subparagraph{\textbf{Artifacts on disk}}\
+\begin{itemize}[leftmargin=*]
+\item phase0/ (lit\_table.md, lit\_results.json, fulltext\_cache.json)
+\item phase1/phase1\_output.json (state=proceed)
+\item phase2\_select/phase2\_select\_output.json
+\item phase2\_generate/phase2\_generate\_output.json (passed citation gate)
+\item phase3\_collision/collision\_hits.json (173 hits; critical: arXiv:2505.22475)
+\item phase3\_critique/phase3\_critique\_output.json (verdict=abandon, hard\_floor)
+\item phase\_3\_failed.md (this file)
+\end{itemize}
+
+No phase4/ produced. evaluation/opus4\_8/85 NOT created (abandon path).
+
+\endgroup
+
+\section{Exemplar Ideation Pattern and Sub-pattern Card}
+\label{app:example-cards}
+One of the 15 induced pattern cards (the high-coverage \emph{Audit and Pivot an Assumption} exemplar of
+\S\ref{sec:methodology}), paired with one of its sub-pattern cards (the tactical recipe a Phase~2.2
+candidate instantiates). Reproduced verbatim from the artifact deck; the full 15 patterns $\times$ 31
+sub-patterns are in the GitHub artifact release.
+\input{appendix_example_cards}

@@ -1,0 +1,172 @@
+% !TEX program = pdflatex
+\documentclass[]{xiaomiev}
+\normalem  % restore \emph to italic (ulem in the class redefines it as underline)
+
+\usepackage{iftex}
+\ifxetex
+  \setmainfont{lmroman10-regular.otf}[
+    BoldFont       = lmroman10-bold.otf ,
+    ItalicFont     = lmroman10-italic.otf ,
+    BoldItalicFont = lmroman10-bolditalic.otf ]
+\else
+  \usepackage[utf8]{inputenc}
+\fi
+
+% --- Math ---
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{nicefrac}
+
+% --- Tables ---
+\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{makecell}
+\usepackage{xltabular}
+\usepackage{longtable}
+
+% --- Graphics and figures ---
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{adjustbox}
+\usepackage{float}
+
+% --- Lists, text, code ---
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage{pifont}
+\usepackage{listings}
+\usepackage{fontawesome5}
+
+
+% --- Colors used across the sections ---
+\definecolor{abstractbar}{RGB}{210,140,50}
+\definecolor{abstractbg}{RGB}{255,248,235}
+\definecolor{BrickRed}{rgb}{.72,0,0}
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{LakeBlue}{RGB}{0,61,153}
+\definecolor{RoyalBlue}{RGB}{0,61,153}
+\definecolor{MiOrange}{RGB}{255,225,204}
+\definecolor{Hex}{RGB}{225,213,231}
+\definecolor{xiaomiorange}{RGB}{255,103,0}
+\definecolor{OliveGreen}{rgb}{0.33,0.42,0.18}
+
+% --- Macros ---
+\newcommand{\METHODNAME}{{UI-MOPD}\xspace}
+\newcommand{\BENCH}{{Uni-GUI}\xspace}
+
+% Colored+bold variants for the FIRST mention only (title and abstract).
+% Use \sffamily\bfseries (size-adaptive) rather than \textbf: the class
+% redefines \textbf to a fixed 8.8pt, which would shrink the name in large
+% contexts such as the title. \sffamily keeps the brand sans face in both
+% the title and the roman-bodied abstract.
+\newcommand{\METHODNAMEhl}{{\sffamily\bfseries\textcolor{xiaomiorange}{UI-MOPD}}\xspace}
+\newcommand{\BENCHhl}{{\sffamily\bfseries\textcolor{RoyalBlue}{Uni-GUI}}\xspace}
+
+% Visible TODO marker for unfinished sections
+\newcommand{\todo}[1]{{\color{BrickRed}\textbf{[TODO: #1]}}}
+% Lightweight inline placeholder for unfilled numbers/results.
+\newcommand{\tbd}[1]{{\color{BrickRed}[#1]}}
+% Figure placeholder box.
+\newcommand{\figplaceholder}[2]{%
+  \centering
+  \fbox{%
+    \begin{minipage}[c][#2\linewidth][c]{#1\linewidth}%
+      \centering\color{BrickRed}\textbf{[TODO: figure placeholder]}%
+    \end{minipage}%
+  }%
+}
+\newcommand{\eq}[1]{%
+  \begin{equation}
+  #1
+  \end{equation}%
+}
+
+% --- Paragraph headings ---
+% The class styles \paragraph as italic-only run-in text, which is nearly
+% invisible. Restyle it as a bold orange (brand-colored) run-in heading,
+% consistent with the section palette, and tighten the run-in spacing.
+\titleformat{\paragraph}[runin]
+  {\normalfont\normalsize\bfseries\color[HTML]{FF7E00}}
+  {}{0pt}{}
+\titlespacing*{\paragraph}{0pt}{6pt}{1em}
+
+% --- Title block (xiaomiev class macros) ---
+\title{\METHODNAMEhl: Multi-Platform On-Policy Distillation for Continual GUI Agent Learning}
+
+\renewcommand{\authorfont}{\fontsize{10}{12}\selectfont}
+\renewcommand{\affiliationfont}{\fontsize{8.5}{10}\selectfont}
+\author[1,3]{Niu Lian\textsuperscript{*}}
+\author[4]{Alan Chen\textsuperscript{*}}
+\author[3]{Zhehao Yu}
+\author[2]{Chengzhen Duan}
+\author[2]{Fazhan Liu}
+\author[2]{Hui Liu}
+\author[2]{Pei Fu}
+\author[2]{\\[-2pt]Jian Luan}
+\author[3,5]{Yaowei Wang}
+\author[1,5]{Shu-Tao Xia}
+\author[3]{Jinpeng Wang\textsuperscript{\ding{72}}}
+\contribution{\textsuperscript{*}Equal contribution.\quad \textsuperscript{\ding{72}}Corresponding author.\\[2pt] \href{mailto:220110904@stu.hit.edu.cn}{220110904@stu.hit.edu.cn} (Niu Lian), \href{mailto:wangjp26@gmail.com}{wangjp26@gmail.com} (Jinpeng Wang)}
+\affiliation[1]{Tsinghua Shenzhen International Graduate School, Tsinghua University}
+\affiliation[2]{Xiaomi\protect\\ $^{3}$Harbin Institute of Technology, Shenzhen}
+\affiliation[4]{Zhejiang University}
+\affiliation[5]{Peng Cheng Laboratory}
+% \contribution{See \hyperref[sec:contributions]{Contributions and Acknowledgments} section for a full author list.}
+
+\resourcelinks{%
+  \href{https://github.com/EliSpectre/UI-MOPD}{\faGithub~GitHub}%
+  \hspace{1.5em}%
+  \href{https://huggingface.co/EliSpctre/UI-MOPD}{\raisebox{-0.1em}{\includegraphics[height=0.95em]{logo/hf_logo.pdf}}~Hugging Face}%
+  \hspace{1.5em}%
+  \href{https://elispectre.github.io/UI-MOPD/}{\faGithub~Homepage}%
+}
+
+
+
+% The class adds a bold "label:" prefix to title-box metadata; suppress it
+% when the label is empty so the resource links appear without a tag.
+\renewcommand\checkdataformat[2][]{{\small \ifstrempty{#1}{}{{\checkdatafont\sffamily\bfseries #1:} }#2}}
+
+% Abstract body lives in Sections/Abstract.tex; \input it inside \abstract{}
+% so the class typesets it in the branded title box.
+
+\abstract{\input{Sections/Abstract}}
+
+\begin{document}
+\vspace*{-2cm}
+\maketitle
+
+\vspace{-10mm}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{fig/intro.pdf}
+  \caption{Motivation of UI-MOPD. Naively combining desktop and mobile signals, as in model merging or mixed SFT, can mix platform-specific behavioral conventions and produce an averaged policy. UI-MOPD uses platform-conditioned routing and multi-teacher on-policy distillation to integrate platform-specific expertise into a shared GUI agent.}
+  \label{fig:intro}
+\end{figure}
+\newpage
+\tableofcontents
+\newpage
+
+
+\input{Sections/Introduction}
+\input{Sections/Related_work}
+\input{Sections/Method}
+\input{Sections/Experiments}
+\input{Sections/Conclusion}
+\clearpage
+\bibliographystyle{plainnat}
+\bibliography{ref}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{Appendix}
+% Collapse the appendix in the table of contents to a single "Appendix" entry
+% (HarnessX style): suppress its own sections/subsections, then restore depth.
+\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
+\beginappendix
+\crefname{section}{Appendix}{Appendices}
+\Crefname{section}{Appendix}{Appendices}
+\input{Sections/Appendix}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+\end{document}

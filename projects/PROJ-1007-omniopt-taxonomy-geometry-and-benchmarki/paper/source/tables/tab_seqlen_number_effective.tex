@@ -1,0 +1,26 @@
+\begin{wraptable}{r}{0.35\linewidth}
+\centering
+\vspace{-2.0em}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.1}
+\caption{\textbf{Sequence-length effect.}
+PPL at 256 vs.\ 32k context, lower is better.}
+\label{tab:seqlen_numbers}
+\resizebox{1.\linewidth}{!}{
+\begin{tabular}{lccc}
+\toprule
+\textbf{Optimizer} & \textbf{256} & \textbf{32k} & \textbf{$\Delta$} \\
+\midrule
+\rowcolor{worstbg}
+APOLLO & 13.53 & 35.40 & $+21.87$ \\
+Muon   & 13.72 & 22.54 & $+8.81$  \\
+SOAP   & 14.04 & 21.62 & $+7.58$  \\
+\rowcolor{basebg}
+AdamW  & 14.48 & 21.87 & $+7.39$  \\
+Lion   & 17.02 & 23.31 & $+6.29$  \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-1.0em}
+\end{wraptable}

@@ -1,0 +1,289 @@
+\section{Method}
+\label{sec:method}
+
+\subsection{Overview}
+\label{sec:method_overview}
+
+
+\METHODNAME trains a unified native graphical user interface (GUI) agent that can adapt to two 
+heterogeneous environments, desktop and mobile, while preserving platform-specific interaction behaviors.
+The construction of the unified cross-platform data collection harness and \BENCH is detailed in the Appendix.
+The training procedure contains two stages. 
+In Stage 1, we perform \textbf{supervised fine-tuning (SFT)} of a vision-language foundation model on high-quality trajectories 
+from each platform, yielding two expert teachers: a desktop teacher $\pi_{\mathrm{ref}}^d$ and a mobile teacher $\pi_{\mathrm{ref}}^m$.
+In Stage 2, we employ \textbf{multi-teacher on-policy distillation (MOPD)} to integrate the two specialized capabilities into a 
+unified student model $\pi_\theta$.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\linewidth]{fig/method.pdf}
+  \caption{Overview of \METHODNAME training pipeline. In Stage 1, platform-specific desktop and mobile teachers are obtained by supervised fine-tuning on Uni-GUI trajectories collected from a unified cross-platform harness. In Stage 2, a shared student policy is trained with multi-teacher on-policy distillation, where platform-conditioned routing selects the corresponding teacher to provide reverse-KL guidance together with rule-based rollout rewards.}
+  \label{fig:intro}
+\end{figure}
+
+
+\subsection{Multi-Teacher On-Policy Distillation}
+\label{sec:mopd}
+
+The core principle underlying \METHODNAME is to formulate multi-teacher knowledge
+integration as a conditional behavioral constraint during online policy
+optimization. Unlike directly merging multiple expert models or distilling
+from static offline trajectories, we let the student policy $\pi_\theta$
+sample rollouts online from its current policy and introduce teacher
+supervision only on the states actually visited by the student. As a result,
+the distillation signal is concentrated on the state distribution where the
+current student policy truly makes decisions, rather than requiring the
+student to imitate all behavioral modes of the teacher policies.
+Specifically, teacher supervision is imposed in a platform-conditioned
+manner: rollouts from different platforms are aligned with their
+corresponding platform-specific teachers. In other words, teacher signals
+from different platforms are not simply aggregated into a single
+Kullback-Leibler (KL) penalty, but instead provide behavioral constraints
+according to the platform to which each rollout belongs.
+
+This design changes the role of the KL term from a conservative regularizer,
+as commonly used in standard reinforcement learning from human feedback
+(RLHF) to limit policy drift, into a more targeted mechanism for transferring
+platform-specific expert interaction behaviors to a shared student policy
+during online reinforcement learning. Since teacher supervision is applied to
+the state distribution currently visited by the student, the resulting
+distillation signal is better matched to the student policy's current errors.
+This enables the shared policy to improve task success through reinforcement
+learning while preserving the platform-specific behavioral anchors of both
+desktop and mobile environments.
+
+
+
+
+\paragraph{On-Policy Kullback--Leibler (KL).}
+For the $i$-th sampled response $y^{(i)}=(y_1,\ldots,y_T)$, let
+$h_t^{(i)}=(x^{(i)},y_{<t}^{(i)})$ denote the decoding state at token $t$.
+Given the platform routed teacher $\pi_{\mathrm{ref}}^{(i)}$, we use the
+student-to-teacher on-policy KL
+\begin{equation}
+D_{\mathrm{KL}}^{(t,i)}
+=
+D_{\mathrm{KL}}
+\left(
+\pi_\theta(\cdot \mid h_t^{(i)})
+\;\|\;
+\pi_{\mathrm{ref}}^{(i)}(\cdot \mid h_t^{(i)})
+\right).
+\label{eq:mopd_kl}
+\end{equation}
+Equivalently,
+\begin{equation}
+D_{\mathrm{KL}}^{(t,i)}
+=
+\mathbb{E}_{a \sim \pi_\theta(\cdot \mid h_t^{(i)})}
+\left[
+\log \pi_\theta(a \mid h_t^{(i)})
+-
+\log \pi_{\mathrm{ref}}^{(i)}(a \mid h_t^{(i)})
+\right].
+\label{eq:mopd_kl_expectation}
+\end{equation}
+The mini-batch MOPD loss is
+\begin{equation}
+\mathcal{L}_{\mathrm{MOPD}}(\theta)
+=
+\frac{
+  \sum_{i \in B}\sum_t m_t^{(i)}\mu^{(i)}
+  \hat{D}_{\mathrm{KL}}^{(t,i)}
+}{
+  \sum_{i \in B}\sum_t m_t^{(i)}\mu^{(i)}
+},
+\label{eq:mopd_loss}
+\end{equation}
+where $m_t^{(i)}$ masks out prompt and padding tokens, $\mu^{(i)}$ is an
+adaptive KL mask, and $\hat{D}_{\mathrm{KL}}^{(t,i)}$ is a token level KL
+estimate.
+
+\paragraph{K3 Estimator.}
+Computing the full KL over the vocabulary is expensive. We therefore use
+the K3 estimator, which requires only the student and teacher log
+probabilities of the sampled token. Define
+\begin{equation}
+\delta_t^{(i)}
+=
+\log \pi_{\mathrm{ref}}^{(i)}(y_t \mid h_t^{(i)})
+-
+\log \pi_\theta(y_t \mid h_t^{(i)}),
+\qquad
+\rho_t^{(i)}=\exp(\delta_t^{(i)}).
+\label{eq:k3_delta}
+\end{equation}
+The token level estimate is
+\begin{equation}
+\hat{D}_{\mathrm{KL}}^{(t,i)}
+=
+\rho_t^{(i)}-\delta_t^{(i)}-1.
+\label{eq:k3_estimator}
+\end{equation}
+This estimator is nonnegative, unbiased for
+$D_{\mathrm{KL}}(\pi_\theta\|\pi_{\mathrm{ref}})$ under samples from
+$\pi_\theta$, and empirically lower variance than direct log-ratio
+estimators. We clamp $\delta_t^{(i)}$ in implementation for numerical
+stability.
+
+\paragraph{Adaptive KL Masking.}
+Teacher constraints are most useful when task feedback is still weak. For
+rollouts whose prompt group already receives sufficient reward, strong KL
+regularization may unnecessarily restrict exploration. We therefore use a
+group level mask
+\begin{equation}
+\mu^{(i)}
+=
+\begin{cases}
+0, & \text{if } \frac{1}{G}\sum_{k\in g(i)} R^{(k)}
+> \tau_{\mathrm{KL}},\\
+1, & \text{otherwise},
+\end{cases}
+\label{eq:kl_mask}
+\end{equation}
+where $g(i)$ denotes the prompt group of sample $i$. This mask removes the
+teacher penalty when task feedback is already sufficient for
+policy improvement, while preserving teacher guidance on low reward
+rollouts.
+
+\subsection{Platform-Conditioned Teacher Routing}
+\label{sec:teacher_routing}
+
+Cross platform GUI interaction differs not only in visual layout, but also
+in action semantics, affordance structure, and execution context. Desktop
+tasks often require mouse operations, keyboard shortcuts, scrolling, and
+window switching, whereas mobile tasks rely on tap, swipe, long press, and
+application navigation. A single teacher or a direct mixture of teacher
+logits would compress heterogeneous behaviors into an averaged
+distribution, weakening platform specific interaction priors.
+
+We instead train separate expert teachers and route each rollout by its
+platform label:
+\begin{equation}
+\pi_{\mathrm{ref}}^{(i)}
+=
+\begin{cases}
+\pi_{\mathrm{ref}}^{m},
+& s_i \in \mathcal{S}_{\mathrm{mobile}},\\
+\pi_{\mathrm{ref}}^{d},
+& s_i \in \mathcal{S}_{\mathrm{desktop}},
+\end{cases}
+\label{eq:teacher_routing}
+\end{equation}
+where $s_i$ is the data source label recorded during data construction.
+This routing affects only teacher log probability computation. The student
+remains a single shared policy, so \METHODNAME does not introduce multiple
+agents or additional teacher models at inference time.
+
+
+During each reinforcement learning update, the student first samples
+rollouts from mixed platform prompts. The mini-batch is then partitioned by
+platform, each subset is evaluated by its corresponding teacher, and teacher
+log probabilities are merged back into the original batch order. The K3
+estimator in Eq.~\ref{eq:k3_estimator} then provides token level
+distillation signals for Eq.~\ref{eq:mopd_loss}. This procedure gives each
+platform a distinct behavioral anchor in the shared parameter space:
+reinforcement learning moves the policy toward higher task reward, while
+the routed teacher constrains this movement so that native interaction
+patterns are not overwritten by signals from another platform.
+
+\subsection{Reward Design}
+\label{sec:reward_design}
+
+We use a structured outcome reward for GUI actions. The policy outputs an
+action JSON inside a tool-call format, including action type, coordinates,
+text, or other action specific fields. For each action type, we define a set
+of required dimensions, such as action type correctness, coordinate
+inclusion in a target bounding box, scroll direction, key set equality, or
+case insensitive text matching. Let $f_a\in[0,1]$ be the fraction of matched
+dimensions for action $a$. The reward is
+\begin{equation}
+R(x,y)
+=
+\begin{cases}
+1.0, & f_a = 1,\\
+-0.5, & 0 \leq f_a < 1,\\
+-1.0, & \text{unparsable or invalid action}.
+\end{cases}
+\label{eq:action_reward}
+\end{equation}
+The intermediate penalty distinguishes partially valid but incorrect
+actions from invalid outputs, preserving a useful reward gap for
+group-relative advantage estimation used in policy optimization.
+
+\subsection{Training Objective}
+\label{sec:training_objective}
+
+Stage-2 training combines clipped policy optimization with the platform
+conditioned MOPD penalty. Let
+\begin{equation}
+A_t^{(i)}
+=
+R(x^{(i)},y^{(i)})
+-
+\frac{1}{|g(i)|}\sum_{k\in g(i)}R(x^{(k)},y^{(k)})
+\label{eq:advantage}
+\end{equation}
+be the token level advantage assigned to response tokens of sample $i$,
+where $g(i)$ denotes its prompt group. This advantage is computed from the
+structured reward in Eq.~\ref{eq:action_reward}; we write it as $A_t$ when
+the sample index is clear. Let
+\[
+r_t(\theta)
+=
+\frac{
+\pi_\theta(y_t\mid h_t)
+}{
+\pi_{\theta_{\mathrm{old}}}(y_t\mid h_t)
+}
+\]
+be the policy ratio. For a rollout from platform $p$, we maximize the
+regularized objective
+\begin{equation}
+\mathcal{J}(\theta)
+=
+\mathbb{E}_{p,x,y\sim\pi_\theta}
+\left[
+\sum_t m_t
+\left(
+\ell_{\mathrm{PG}}^{(t)}(\theta)
+-
+\beta\mu\,\hat{D}_{\mathrm{KL}}^{(t,p)}
+\right)
+\right],
+\label{eq:regularized_objective}
+\end{equation}
+where
+\begin{equation}
+\ell_{\mathrm{PG}}^{(t)}(\theta)
+=
+\min
+\left(
+r_t(\theta)A_t,\,
+\operatorname{clip}
+\left(
+r_t(\theta),
+1-\epsilon_{\mathrm{low}},
+1+\epsilon_{\mathrm{high}}
+\right)A_t
+\right).
+\label{eq:policy_objective}
+\end{equation}
+Here $\hat{D}_{\mathrm{KL}}^{(t,p)}$ is computed with the teacher selected
+by Eq.~\ref{eq:teacher_routing}, $m_t$ masks response tokens, $\mu$ is the
+adaptive KL mask, and $\beta$ controls distillation strength. Equivalently,
+we minimize
+\begin{equation}
+\mathcal{L}(\theta)
+=
+-
+\mathcal{J}(\theta)
+=
+\mathcal{L}_{\mathrm{PG}}(\theta)
++
+\beta\mathcal{L}_{\mathrm{MOPD}}(\theta).
+\label{eq:final_loss}
+\end{equation}
+This objective improves long horizon task completion through online
+reinforcement learning while preserving platform specific behavioral
+anchors through routed teacher supervision.

@@ -1,0 +1,112 @@
+% \begin{table}[htbp]
+%   \centering
+%   \caption{Mathematical notation.}
+%   \label{tab:notation}
+%   \small
+%   \setlength{\tabcolsep}{10mm}
+%   \begin{tabular}{@{}ll@{}}
+%     \toprule
+%     \textbf{Symbol} & \textbf{Meaning} \\
+%     \midrule
+%     $d$ & Total number of model parameters \\
+%     $\theta_t\in\mathbb{R}^d$ & Parameter vector at step $t$ \\
+%     $W_t\in\mathbb{R}^{m\times n}$ & Two-dimensional weight matrix \\
+%     $\mathcal{L}(\theta)$ & Training loss \\
+%     $g_t$ & Mini-batch stochastic gradient (vector) \\
+%     $G_t\in\mathbb{R}^{m\times n}$ & Gradient in matrix form \\
+%     $m_t$ & First-order momentum (gradient EMA) \\
+%     $v_t$ & Second-order moment estimate (squared-gradient EMA) \\
+%     $\eta_t$ & Learning rate at step $t$ \\
+%     $\beta_1,\,\beta_2$ & EMA decay coefficients \\
+%     $\lambda$ & Weight-decay coefficient \\
+%     $\epsilon$ & Numerical stability constant \\
+%     $\odot$ & Element-wise (Hadamard) product \\
+%     $\langle A,B\rangle=\mathrm{tr}(A^\top B)$ & Matrix inner product \\
+%     $\|\cdot\|_p$ & Vector $\ell_p$ norm \\
+%     $\|\cdot\|_F$ & Frobenius norm \\
+%     $\|\cdot\|_\mathrm{op}$ & Spectral (operator) norm \\
+%     $\|\cdot\|_\ast$ or $\|\cdot\|_*$ & Nuclear norm for matrices; dual norm for a generic norm \\
+%     $[\cdot]^\sharp$ & Dual map (sharp operator) \\
+%     $F(\theta)$ & Fisher information matrix \\
+%     $H(\theta)=\nabla^2\mathcal{L}(\theta)$ & Hessian matrix \\
+%     $\hat{H}_t$ & Hessian estimator (form depends on Axis~II) \\
+%     $\mathrm{EMA}_\beta(x_t)$ & Exp.\ moving avg.: $\beta(\cdot)_{t-1}+(1-\beta)x_t$ \\
+%     $W=U\Sigma V^\top$ & Singular value decomposition of $W$ \\
+%     $Q_L,\,Q_R$ & Analysis bases, left and right (LMO-driven Axis~I) \\
+%     $\Phi_\mathrm{dir}$ & Direction function (LMO-driven Axis~III) \\
+%     $\alpha\in[0,1]$ & Hessian exponent (LMO-driven Axis~III) \\
+%     $M_t\in\mathbb{R}^{m\times n}$ & Momentum in matrix form \\
+%     $\mathrm{lmo}_{\mathcal{C}}(s)$ & Linear minimization oracle over convex set $\mathcal{C}$ \\
+%     $\rho^{(i)}$ & Routing label of parameter $i$ (meta-pipeline Step~1) \\
+%     $\tilde{G}_t$ & Variance-reduced gradient estimate (LMO-driven Axis~II) \\
+%     $T_1$--$T_5$ & Five methodological optimizer families (Dimension~A) \\
+%     $O_1$--$O_6$ & Six effect objectives (Dimension~B) \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+\begin{table}[!t]
+  \centering
+  \caption{Summary of the mathematical notations used throughout this survey, including optimization variables, matrix operators, second-order quantities, and framework-specific symbols. The table serves as a reference for the formulations presented in the following sections.}
+  \label{tab:notation}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Symbol} & \textbf{Meaning} &
+    \textbf{Symbol} & \textbf{Meaning} \\
+    \midrule
+
+    $d$ & Total number of model parameters &
+    $W_t\in\mathbb{R}^{m\times n}$ & Weight matrix \\
+
+    $\theta_t\in\mathbb{R}^{d}$ & Parameter vector &
+    $G_t\in\mathbb{R}^{m\times n}$ & Gradient matrix \\
+
+    $\mathcal{L}(\theta)$ & Training loss &
+    $M_t\in\mathbb{R}^{m\times n}$ & Matrix momentum \\
+
+    $g_t$ & Mini-batch stochastic gradient &
+    $W=U\Sigma V^\top$ & Singular value decomposition \\
+
+    $m_t$ & First-order momentum &
+    $\langle A,B\rangle=\mathrm{tr}(A^\top B)$ & Matrix inner product \\
+
+    $v_t$ & Second-order moment estimate &
+    $\odot$ & Hadamard product \\
+
+    $\eta_t$ & Learning rate &
+    $\|\cdot\|_p$ & Vector $\ell_p$ norm \\
+
+    $\beta_1,\beta_2$ & EMA decay coefficients &
+    $\|\cdot\|_F$ & Frobenius norm \\
+
+    $\lambda$ & Weight-decay coefficient &
+    $\|\cdot\|_{\mathrm{op}}$ & Spectral norm \\
+
+    $\epsilon$ & Numerical stability constant &
+    $\|\cdot\|_\ast$ or $\|\cdot\|_*$ & Nuclear or dual norm \\
+
+    $F(\theta)$ & Fisher information matrix &
+    $Q_L,Q_R$ & Axis-I coordinate bases \\
+
+    $H(\theta)=\nabla^2\mathcal{L}(\theta)$ & Hessian matrix &
+    $\Phi_t$ & Axis-III direction operator \\
+
+    $\hat{H}_t$ & Axis-II curvature proxy &
+    $\alpha\in[0,1]$ & Preconditioner exponent \\
+
+    $\mathrm{EMA}_\beta(x_t)$ & Exponential moving average &
+    $\mathrm{lmo}_{\mathcal{C}}(s)$ & Linear minimization oracle \\
+
+    $\tilde{G}_t$ & Variance-reduced gradient estimate &
+    $\rho^{(i)}$ & Meta-pipeline routing label \\
+
+    $[\cdot]^\sharp$ & Dual map &
+    $T_1$--$T_5$ & Dimension-A method families \\
+
+    && $O_1$--$O_6$ & Dimension-B effect objectives \\
+
+    \bottomrule
+  \end{tabularx}
+\end{table}

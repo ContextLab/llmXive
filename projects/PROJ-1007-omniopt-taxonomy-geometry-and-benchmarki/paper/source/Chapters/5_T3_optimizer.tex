@@ -1,0 +1,300 @@
+\subsection{T3: Discretization and Directional Quantization}
+\label{sec:t3}
+
+\subsubsection{Family Overview and Meta-Pipeline Position}
+\label{sec:t3-overview}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \centering
+  \vspace{-1.6em}
+  \includegraphics[width=1.0\linewidth]{figures/opt_t3.pdf}
+  \caption{
+  Mechanism schematic for T3 discretization and directional quantization. This schematic provides a taxonomy guide rather than an empirical ranking for the compact T3 family, grouping discretization and directional quantization mechanisms by their sign-direction generation methods.
+  }
+  \vspace{-2.em}
+  \label{fig:t3_family_mechanism}
+\end{wrapfigure}
+
+T3 contains optimizers whose primary operation discretizes the update
+direction.  The characteristic map is
+$\operatorname{sign}(\cdot)$ or a close sign-like transformation: it keeps
+coordinate-wise orientation while discarding, clipping, or coarsening the
+continuous magnitude of the gradient or momentum signal.  This makes T3
+different from both T1 and T4.  T1 methods may become sign-like in some
+coordinates after adaptive normalization, but their defining mechanism is
+still moment estimation and diagonal scaling.  T4 methods may reduce memory,
+but their defining mechanism is state storage, sharing, quantization, or
+release.  T3 instead changes the geometry of the direction itself.
+
+\input{tables/tab_optimizer_taxonomy_t3}
+
+\paragraph{Mechanism-group structure.}
+Figure~\ref{tab:t3_family_taxonomy} gives the complete optimizer membership for
+T3.  Because the current taxonomy treats T3 as one compact family-level
+subclass, the discussion below interprets the taxonomy figure through three
+sign-direction routes rather than restating the member list.
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+  \item \textbf{Pure sign directions.}
+  The defining operation is a hard sign map applied to either the raw gradient
+  or a momentum buffer before the update is formed.  SignSGD is the canonical
+  instance, and its momentum-sign variant is usually discussed as Signum
+  ~\citep{bernstein2018signsgd}.
+  \item \textbf{Signed momentum.}
+  The direction is the sign of an interpolated current-gradient and
+  past-momentum signal, with only one persistent momentum buffer.  Lion is the
+  central large-model representative of this route~\citep{chen2023symbolic};
+  MARS-Lion keeps the same sign map but feeds it a MARS-style corrected signal
+  ~\citep{yuan2024mars}.
+  \item \textbf{Smooth and hybrid sign directions.}
+  These methods preserve a sign-like core but soften discontinuities, add
+  trajectory attraction, or reintroduce a limited magnitude channel.  RLion
+  smooths the sign decision~\citep{rong2024rlion};
+  FOCUS attracts iterates toward a running parameter trajectory
+  ~\citep{liu2025focus}; and Ano restores a bounded magnitude channel without
+  returning to a full Adam-style second-moment state~\citep{kegreisz2025ano}.
+\end{itemize}
+
+At the family level, T3 can be summarized as
+\begin{equation}
+  z_t = \mathcal{C}_t(g_t,m_{t-1},\theta_t),\quad
+  d_t = q_t(z_t),\quad
+  \theta_{t+1}
+  = (1-\eta_t\lambda)\theta_t
+    - \eta_t\big(s_t\odot d_t+a_t\big),
+  \label{eq:t3-direction-template}
+\end{equation}
+where $\mathcal{C}_t$ forms the signal on which the directional decision is
+made, $q_t$ is a hard or smooth sign-like map, $s_t$ is a scalar or
+coordinate-wise magnitude channel, and $a_t$ is an optional trajectory-control
+term.  SignSGD sets $\mathcal{C}_t(g_t)=g_t$, $q_t=\operatorname{sign}$,
+$s_t=\mathbf{1}$, and $a_t=0$.  Lion sets
+$\mathcal{C}_t=\beta_1m_{t-1}+(1-\beta_1)g_t$ and keeps the hard sign.  Hybrid
+variants retain the same directional core while changing $q_t$, $s_t$, or
+$a_t$.  Thus the transformed signal in S2 is already a discrete or
+near-discrete direction, S3 is usually a first-moment state or no second
+moment, S4 is identity, and S5 controls the learning-rate radius, weight
+decay, and any added trajectory or scale correction.  Compared with AdamW,
+the persistent optimizer state can be reduced because no second-moment buffer
+$v_t$ is stored.  This memory benefit is important, but it is an effect of the
+sign-direction mechanism rather than the classification rule.
+
+The family boundary is also important for masks and selective updates.  A
+method belongs to T3 when the sign-like map directly defines the base update
+direction, as in SignSGD, Lion, RLion, FOCUS, and Ano.  By contrast, methods
+whose primary increment is a binary or stochastic mask applied to an already
+computed AdamW-, Lion-, or Muon-style update are post-update filters.  We
+therefore place Magma and MGUP in T5.3 rather than in T3; the
+same rule covers cautious and top-$k$ update filters.  This separation keeps
+``direction quantization'' distinct from ``selective writeback'' even though
+both may use signs or binary decisions internally.
+
+\subsubsection{LMO-Driven Four-Axis Interpretation}
+\label{sec:t3-lmo-four-axis}
+
+In the four-axis view, the typical T3 coordinate is
+\begin{equation}
+  \big((I,I),\ \operatorname{sign},\ I,\ 0,\ \widehat{g}_t,\ \mathcal{S}_t\big),
+\end{equation}
+where the analysis basis remains the raw coordinate basis, the direction map
+is sign-like, the curvature proxy is absent or weak, and
+$\mathcal{S}_t$ records whether a first-moment buffer, no buffer, or an
+extra magnitude channel is stored.  The LMO explanation comes from the
+$\ell_\infty$ ball.  For the linearized problem
+\begin{equation}
+  \min_{\|d\|_\infty\leq 1}\langle g,d\rangle ,
+\end{equation}
+the optimizer is $d^*=-\operatorname{sign}(g)$.  The extreme points of the
+$\ell_\infty$ ball are coordinate-wise sign patterns, so a sign update is the
+steepest linearized step under a fixed maximum coordinate displacement.
+This is the coordinate analogue of the spectral sign logic used by Muon in
+T2, but with the identity basis rather than an SVD or Kronecker basis.
+
+SignSGD realizes this geometry directly by applying
+$d_t=\operatorname{sign}(g_t)$~\citep{bernstein2018signsgd}.  Lion replaces
+the raw stochastic gradient with a smoothed interpolation of current gradient
+and past momentum before applying the same vertex map.  This modification is
+small in algebra but large in practice: the sign decision is made on a
+lower-variance temporal signal, while the state remains cheaper than Adam's
+two-buffer design.  Recent norm-LMO and stochastic Frank--Wolfe analyses
+make this connection explicit by treating sign, normalized, and
+orthogonalized updates as different norm-constrained direction choices rather
+than unrelated heuristics
+~\citep{bernstein2024oldoptimizer,pethick2025normlmo,sfyraki2025lions}.
+
+The same interpretation also clarifies what T3 does not cover.  AdamW may
+look sign-like when the adaptive denominator largely cancels gradient
+magnitudes, but its update is still controlled by a diagonal curvature or
+variance estimate and exponent $\alpha=1/2$.  FOCUS and Ano are closer to T3
+because they preserve a sign-direction core while adding trajectory
+attraction or an explicit magnitude channel~\citep{liu2025focus,kegreisz2025ano}.
+RLion sits on the boundary in the opposite direction: it smooths the hard
+sign into a bounded continuous map, so it is best read as a Lion-style
+regularization of the same direction geometry rather than as a separate
+adaptive-moment family~\citep{rong2024rlion}.
+
+\subsubsection{Representative Methods}
+\label{sec:t3-methods}
+
+The following discussion follows the three-part organization introduced above.
+Within each group, representative methods are further separated by the local
+operation that changes the sign-direction template in
+Eq.~\eqref{eq:t3-direction-template}.
+
+\paragraph{Pure Sign Directions.}
+\label{sec:t3-sign-predecessors}
+
+The first branch applies a sign map with minimal additional optimizer state.
+At the survey level, it can be written as
+\begin{equation}
+  d_t=\operatorname{sign}(h_t),\quad
+  h_t =
+  \begin{cases}
+    g_t, & \text{pure SignSGD},\\
+    \beta h_{t-1}+(1-\beta)g_t, & \text{momentum sign}.
+  \end{cases}
+  \label{eq:t3-pure-sign-template}
+\end{equation}
+\begin{itemize}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Pure gradient sign.}  SignSGD is the historical anchor for T3.
+  Its update transmits and applies only the sign of each stochastic-gradient
+  coordinate, and the distributed variant aggregates worker signs through
+  majority vote~\citep{bernstein2018signsgd}.  The original motivation was
+  partly communication efficiency: a sign vector is a 1-bit message per
+  coordinate.  For this taxonomy, the more important point is geometric:
+  SignSGD removes continuous magnitude information before the update is formed.
+  \item \textbf{Momentum sign.}  Momentum sign methods, often referred to as
+  Signum in benchmark and theory discussions, move the sign decision from
+  $g_t$ to a smoothed momentum buffer.  This makes the direction less
+  sensitive to a single noisy mini-batch while keeping the fixed-magnitude
+  update structure.
+  \item \textbf{Benchmark role.}  SignSGD should not be evaluated as a modern
+  LLM optimizer on historical status alone.  Its communication advantages,
+  convergence assumptions, and failure modes were developed before current
+  Transformer pretraining protocols.  It remains useful because it isolates
+  direction discretization from Adam-style second moments; recent
+  language-model optimizer studies use Signum-like variants to decompose how
+  much of Adam's behavior comes from signed momentum, layer-wise adaptivity, and
+  other control components~\citep{zhao2025deconstructing}.
+\end{itemize}
+
+The common thread is the early removal of magnitude.  In the notation of
+Eq.~\eqref{eq:t3-direction-template}, pure sign methods set $s_t=\mathbf{1}$
+and $a_t=0$; all adaptation must therefore come from the signal $h_t$,
+learning-rate schedule, or external routing, not from a diagonal second-moment
+denominator.
+
+\paragraph{Signed Momentum.}
+\label{sec:t3-lion-line}
+
+The second branch is the modern signed-momentum line.  Lion's compact rule is
+\begin{align}
+  z_t &= \beta_1 m_{t-1}+(1-\beta_1)g_t, \quad
+  d_t = \operatorname{sign}(z_t), \\
+  m_t &= \beta_2 m_{t-1}+(1-\beta_2)g_t, \quad
+  \theta_{t+1} = (1-\eta_t\lambda)\theta_t-\eta_t d_t .
+  \label{eq:t3-lion-update}
+\end{align}
+\begin{itemize}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Search-discovered signed momentum.}  Lion is the central T3
+  method for LLM training.  It was discovered through symbolic optimizer
+  search and then simplified into Eq.~\eqref{eq:t3-lion-update}
+  ~\citep{chen2023symbolic}.  The method retains several practical features of
+  AdamW--a momentum interface, decoupled weight decay, and schedule
+  compatibility--but it replaces Adam's continuous adaptive direction by the
+  sign of a momentum-gradient interpolation.
+  \item \textbf{Interface, mechanism, and memory effect.}  Lion is often
+  described as an AdamW alternative, a sign optimizer, and a memory-friendlier
+  optimizer.  In this taxonomy, only the second description is primary.  The
+  AdamW interface is inherited scaffolding, and the memory saving follows from
+  removing $v_t$.
+  \item \textbf{Protocol-sensitive tuning.}  Because $\|d_t\|_\infty=1$, the
+  learning rate directly sets the largest coordinate movement, and
+  gradient-magnitude outliers cannot enlarge individual update coordinates.
+  This can improve robustness in some noisy regimes, but it can also make
+  learning rate, weight decay, warmup, and schedule choices sharper than in
+  AdamW.  Recent LLM studies include Lion as an important baseline, but also
+  show that rankings change with model scale, token budget, batch size, and
+  tuning effort
+  ~\citep{zhao2025deconstructing,semenov2025benchmarking,wen2025fantastic,schlotthauer2025budget}.
+  \item \textbf{Cross-family wrappers.}  MARS-Lion changes the
+  gradient-estimation axis by feeding a variance-reduced signal into a
+  Lion-style sign map; it does not create a new T3 subclass.  Cautious Lion
+  applies a consistency filter after the base direction is computed, so its
+  primary added mechanism is T5.3 post-update filtering.
+\end{itemize}
+
+The common thread is signed momentum under an AdamW-like training interface.
+Lion therefore functions as the central comparison point for T3: pure sign
+methods show what is lost without a temporal buffer, while hybrid variants
+test how much smoothing or magnitude information can be restored without
+leaving the sign-direction geometry.
+
+\paragraph{Smooth and Hybrid Sign Directions.}
+\label{sec:t3-hybrid-sign}
+
+The third branch tests which parts of the hard-sign template can be softened
+or supplemented.  A broad template is
+\begin{equation}
+  d_t=q_\tau(z_t),\quad
+  \theta_{t+1}
+  =(1-\eta_t\lambda)\theta_t
+  -\eta_t\big(s_t\odot d_t+\rho_t(\theta_t-\bar{\theta}_t)\big),
+  \label{eq:t3-hybrid-sign-template}
+\end{equation}
+where $q_\tau$ is a smooth or bounded sign-like map, $s_t$ may restore a
+limited magnitude channel, and $\bar{\theta}_t$ is an optional moving-average
+trajectory reference.
+\begin{itemize}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Smooth sign maps.}  RLion replaces the discontinuous sign
+  function with a bounded smooth alternative based on an $\arctan$-style
+  transformation~\citep{rong2024rlion}.  This keeps the update in the same
+  sign-like direction family while reducing abrupt coordinate flips near zero.
+  Its evidence is mainly outside LLM pretraining, so it is a boundary method
+  rather than a coequal anchor with Lion.
+  \item \textbf{Trajectory attraction around sign directions.}  FOCUS starts
+  from the observation that sign-momentum methods can move aggressively in
+  noisy, flat, or low-curvature regions, then adds attraction toward a moving
+  average of parameters to concentrate the trajectory~\citep{liu2025focus}.
+  The update still uses a sign-direction core, but S5 gains an additional
+  trajectory-control term.
+  \item \textbf{Magnitude side channels.}  Ano separates direction from
+  magnitude, using momentum to smooth the direction while using instantaneous
+  gradient magnitudes to set step sizes in noisy landscapes
+  ~\citep{kegreisz2025ano}.  It is best read as a sign-direction plus
+  magnitude-channel hybrid, not as a return to full Adam-style second-moment
+  adaptivity.
+\end{itemize}
+
+These methods show that T3 is not limited to hard binary updates.  They also
+make the boundary sharper: methods dominated by update masks or writeback
+filters are better handled in T5.3, even when they use directional agreement
+signals, whereas RLion, FOCUS, and Ano still define the base direction through
+a sign-like route.
+
+\subsubsection{Effect-Target Assessment}
+\label{sec:t3-effect-assessment}
+
+T3 replaces continuous update magnitudes with sign-like directions.  This
+creates a compact performance profile: the update is cheap, the persistent
+state can be smaller than AdamW, and the largest coordinate displacement is
+controlled directly by the learning rate.  The same discretization removes
+amplitude information before the step is formed.  SignSGD exposes this limit
+in its purest form~\citep{bernstein2018signsgd}; Lion makes the route more
+practical by applying the sign map to a smoothed momentum-gradient signal
+~\citep{chen2023symbolic}.  Table~\ref{tab:t3_effect_assessment} summarizes
+the mechanism-derived performance priors.
+
+\input{tables/tab_mechanism_informed_effect_assessment_T3}
+
+The first expected gain is resource efficiency rather than peak quality.  Lion
+can reduce optimizer state by removing $v_t$, and sign updates avoid expensive
+direction construction, but neither fact guarantees a better loss trajectory.
+Fixed-magnitude updates can be tolerant to local magnitude outliers while
+remaining sensitive to learning rate, warmup, and weight decay.  This
+distinction matches the benchmark narrative in
+Sec.~\ref{sec:benchmark-family-summary}: T3 is efficient and locally tolerant
+to learning-rate perturbations, yet its tuned perplexity is generally weaker
+than the best T1 and T2 alternatives.

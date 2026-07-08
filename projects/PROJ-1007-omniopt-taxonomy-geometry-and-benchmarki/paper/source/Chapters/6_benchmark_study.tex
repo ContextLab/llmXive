@@ -1,0 +1,39 @@
+\section{Benchmark Study}
+\label{sec:benchmark}
+
+This section presents a mechanism-aware benchmark of representative optimizers
+for LLM pretraining. Rather than treating the benchmark as a standalone
+leaderboard, we use the framework developed in the preceding sections---the
+universal meta-pipeline, the LMO-driven four-axis decomposition, and the
+dual-dimension taxonomy---to organize and interpret the empirical results.
+Each experiment is linked to a concrete framework question: which optimizer
+families perform well under controlled short-context pretraining, which
+quality--efficiency trade-offs emerge across optimization quality, runtime,
+and memory cost (O1--O3), whether short-context advantages transfer to
+long-context and cross-architecture settings (O6), and how training dynamics
+and hyperparameter perturbations reveal additional stability and robustness
+properties (O4--O5). We further use Muon as a representative
+matrix-structured optimizer to study how its sub-operations compose across
+scale and architecture.
+
+
+Compared with existing LLM-pretraining optimizer benchmarks
+(e.g., \emph{Fantastic Pretraining Optimizers}~\cite{wen2025fantastic},
+\emph{Benchmarking Optimizers for LLM Pretraining}~\cite{semenov2025benchmarking}),
+our benchmark emphasizes three aspects. First, results are analyzed not only at
+the optimizer level, but also at the family and axis levels, so that empirical
+patterns can be mapped back to the methodological taxonomy. Second, we evaluate
+optimizers under a multi-objective protocol: final quality is measured by
+perplexity, Stage~2 additionally reports downstream Commonsense Reasoning
+average accuracy (CS Avg.), efficiency is measured by per-step runtime and
+optimizer-state memory, stability is analyzed through gradient-norm dynamics,
+robustness is probed by learning-rate perturbation, and generalization is
+evaluated by cross-scenario transfer. Third, we conduct a mechanistic ablation
+of Muon to examine how matrix-structured optimizer
+components---orthogonalization, scaling, momentum placement, and
+finalization---interact. In this way, the benchmark both evaluates practical
+optimizer choices and provides empirical feedback on the proposed framework.
+
+\input{Chapters/6_1_setups}
+\input{Chapters/6_2_results_and_analysis}
+\input{Chapters/6_3_mechanistic_ablation_of_muon}

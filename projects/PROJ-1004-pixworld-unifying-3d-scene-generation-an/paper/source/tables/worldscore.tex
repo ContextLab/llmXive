@@ -1,0 +1,36 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Quantitative comparison on the WorldScore benchmark~\citep{duan2025worldscore}.} We report all seven official metrics together with their average. \textbf{Bold} and \underline{underline} indicate the best and the second-best results, respectively.}
+\vspace{-3mm}
+\label{tab:worldscore}
+\small
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccc|c}
+\toprule
+\textbf{Method}
+& \makecell{Camera\\ Control}
+& \makecell{Object\\ Control}
+& \makecell{Content\\ Alignment}
+& \makecell{3D\\ Consistency}
+& \makecell{Photometric\\ Consistency}
+& \makecell{Style\\ Consistency}
+& \makecell{Subjective\\ Quality}
+& \textbf{Average} \\
+\midrule
+Wan-2.1~\citep{wan2025wan}
+& 23.53 & 40.32 & 45.44 & 78.74 & 78.36 & \underline{77.18} & \underline{59.38} & 57.56 \\
+WonderJourney~\citep{yu2024wonderjourney}
+& 84.60 & 37.10 & 35.54 & 80.60 & 79.03 & 62.82 & \textbf{66.56} & 63.75 \\
+LucidDreamer~\citep{chung2023luciddreamer}
+& \underline{88.93} & 41.18 & \textbf{75.00} & \underline{90.37} & \underline{90.20} & 48.10 & 58.99 & 70.40 \\
+FlashWorld~\citep{li2025flashworld}
+& 84.43 & \textbf{50.28} & \underline{56.54} & 85.87 & 86.72 & \textbf{79.36} & 52.75 & \underline{70.85} \\
+\rowcolor{cyan!8}
+\textbf{PixWorld (ours)}
+& \textbf{91.08} & \underline{46.25} & 55.27 & \textbf{91.39} & \textbf{93.84} & 67.11 & 52.36 & \textbf{71.04} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

@@ -1,0 +1,93 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+% Include other packages here, before hyperref.
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{tabularx} % 用于设置表格总宽度
+\usepackage{makecell} % 用于单元格内换行
+\usepackage{amsmath}
+\usepackage{bbm} % for \mathbbm{1}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+
+
+\title{\textsc{PixWorld}: Unifying 3D Scene Generation and Reconstruction in Pixel Space}
+
+
+\author{
+Sensen Gao$^{1*}$, Zhaoqing Wang$^{2*}$, Qihang Cao$^{1}$, Dongdong Yu$^{2}$, Changhu Wang$^{2}$, \\
+\textbf{Jia-Wang Bian}$^{2\dagger}$  \\
+  $^{1}$ Nanyang Technological University \quad 
+  $^{2}$ AISphere  \\
+  * Co-first authors. \quad $^{\dagger}$Corresponding authors.\\
+}
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\vspace{-8mm}
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figs/teaser_pix_v3.pdf}
+    \vspace{-4mm}
+    \caption{PixWorld unifies 3D scene reconstruction and generation within a single model. Unlike prior approaches that compute losses in the latent space of a VAE~\citep{kingma2013auto} or RAE~\citep{zheng2025diffusion}, PixWorld applies a flow matching objective directly in pixel space over multi-view renderings, enabling end-to-end optimization of the underlying 3D representation. This design avoids the information loss inherent to latent representations and eliminates the cost of pretraining a VAE or RAE.}
+    \label{fig:teaser}
+\end{figure*}
+
+\begin{abstract}
+3D reconstruction and generation are commonly tackled by separate paradigms: pixel-based regression for reconstruction, and latent diffusion for generation. Recent works attempt to unify them in latent space, but with notable drawbacks: the diffusion objective is defined on latent features rather than the underlying 3D representation, and both branches suffer from information loss introduced by latent encoding, while requiring a pretrained Variational Autoencoder (VAE) or Representation Autoencoder (RAE). In this paper, we reformulate these two tasks under a unified pixel-space diffusion paradigm and introduce PixWorld, a single model that jointly addresses 3D reconstruction and generation. By supervising diffusion directly on rendered images, PixWorld removes the above limitations and aligns optimization with 3D scene fidelity. Beyond photometric and perceptual supervision that operates at the 2D image level and lacks 3D geometric awareness, we further introduce a geometry perception loss that aligns rendered views with their ground truth in the geometry-aware feature space of a pretrained 3D foundation model, providing 3D structural supervision. PixWorld consistently outperforms prior latent-space generation methods and matches state-of-the-art reconstruction methods, demonstrating the superiority of a unified pixel-space approach.
+\end{abstract}
+
+
+\input{section/1_Intro}
+\input{section/2_RelatedWork}
+\input{section/3_Method}
+\input{section/4_Experiment}
+\input{section/5_conclusion}
+
+
+\bibliography{main}
+\bibliographystyle{iclr2026_conference}
+
+\clearpage
+\appendix
+\section{Overview of the Appendix}
+This appendix supplements the main paper along five axes. Appendix~\ref{sec:appendix_settings} details the architecture of the two-stream MMDiT denoiser with a per-component parameter budget, together with the data, batching, and optimization recipes used to train PixWorld from scratch. Appendix~\ref{sec:appendix_per_config} provides disaggregated quantitative results on 1-view and 2-view generation, separating the configurations averaged in the main paper to reveal how each method behaves on the harder versus easier side of each setting. Appendix~\ref{sec:appendix_vis} presents additional qualitative visualizations covering reconstruction and generation under diverse view selections, with both RGB renderings and predicted depth maps. Appendix~\ref{sec:appendix_speed} reports an inference-speed comparison against representative baselines. Finally, the responsible-considerations (Appendix~\ref{appendix:responsible}) section discusses limitations, broader impacts, and LLM usage.
+
+\input{appendix/A_exp_settings}
+\input{appendix/detailed_exps}
+
+
+
+\end{document}

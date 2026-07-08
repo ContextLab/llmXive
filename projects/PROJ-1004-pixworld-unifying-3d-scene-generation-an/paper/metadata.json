@@ -1,0 +1,60 @@
+{
+  "arxiv_id": "2607.05373",
+  "arxiv_url": "https://arxiv.org/abs/2607.05373",
+  "title": "PixWorld: Unifying 3D Scene Generation and Reconstruction in Pixel Space",
+  "authors": [
+    "Sensen Gao",
+    "Zhaoqing Wang",
+    "Qihang Cao",
+    "Dongdong Yu",
+    "Changhu Wang",
+    "Jia-Wang Bian"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "3D reconstruction and generation are commonly tackled by separate paradigms: pixel-based regression for reconstruction, and latent diffusion for generation. Recent works attempt to unify them in latent space, but with notable drawbacks: the diffusion objective is defined on latent features rather than the underlying 3D representation, and both branches suffer from information loss introduced by latent encoding, while requiring a pretrained Variational Autoencoder (VAE) or Representation Autoencoder (RAE). In this paper, we reformulate these two tasks under a unified pixel-space diffusion paradigm and introduce PixWorld, a single model that jointly addresses 3D reconstruction and generation. By supervising diffusion directly on rendered images, PixWorld removes the above limitations and aligns optimization with 3D scene fidelity. Beyond photometric and perceptual supervision that operates at the 2D image level and lacks 3D geometric awareness, we further introduce a geometry perception loss that aligns rendered views with their ground truth in the geometry-aware feature space of a pretrained 3D foundation model, providing 3D structural supervision. PixWorld consistently outperforms prior latent-space generation methods and matches state-of-the-art reconstruction methods, demonstrating the superiority of a unified pixel-space approach.",
+  "submitted_via": "llmXive dashboard, GitHub issue #602",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/goodfeli/dlbook_notation."
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "appendix",
+    "appendix/A_exp_settings.tex",
+    "appendix/detailed_exps.tex",
+    "fancyhdr.sty",
+    "figs",
+    "figs/appendix_vis.png",
+    "figs/appendix_vis2.png",
+    "figs/pix_method_v4.pdf",
+    "figs/pose_traj.png",
+    "figs/teaser_pix_v3.pdf",
+    "figs/vis_ablation_study.pdf",
+    "figs/vis_compare_baselines.pdf",
+    "iclr2026_conference.bst",
+    "iclr2026_conference.sty",
+    "main.bib",
+    "main.tex",
+    "math_commands.tex",
+    "natbib.sty",
+    "section",
+    "section/1_Intro.tex",
+    "section/2_RelatedWork.tex",
+    "section/3_Method.tex",
+    "section/4_Experiment.tex",
+    "section/5_conclusion.tex",
+    "tables",
+    "tables/1view_gen.tex",
+    "tables/1view_gen_appendix.tex",
+    "tables/2view_gen.tex",
+    "tables/2view_gen_appendix.tex",
+    "tables/ablation_study.tex",
+    "tables/recon.tex",
+    "tables/worldscore.tex"
+  ]
+}

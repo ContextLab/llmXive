@@ -1,0 +1,40 @@
+\begin{table*}[t]
+\centering
+\caption{\textbf{Quantitative comparison on single-image 3D scene generation, averaged.} Results on RealEstate10K~\citep{zhou2018stereo} and DL3DV-10K~\citep{ling2024dl3dv} under the 1-view setting, averaged over First Frame and Bidirectional configurations. Best in \textbf{bold}; second best \underline{underlined}.}
+\vspace{-2mm}
+\label{tab:single_view_gen_avg}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l ccc cccc ccc}
+\toprule
+& \multicolumn{3}{c}{\textit{Novel View Synthesis}} & \multicolumn{4}{c}{\textit{Generation Quality}} & \multicolumn{3}{c}{\textit{Camera Control}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8} \cmidrule(lr){9-11}
+Method
+& PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$
+& I2V Subj.$\uparrow$ & I2V BG$\uparrow$ & I.Q.$\uparrow$ & Aes.Q.$\uparrow$
+& AUC@30$\uparrow$ & AUC@15$\uparrow$ & AUC@5$\uparrow$ \\
+\midrule
+\rowcolor{gray!12}
+\multicolumn{11}{l}{\textbf{RealEstate10K}} \\
+LVSM~\citep{jinlvsm}                & \underline{17.82} & 0.603 & \underline{0.336} & 0.971 & 0.970 & 0.593 & 0.506 & 0.710 & 0.592 & 0.372 \\
+GF~\citep{wu2025geometry}           & 15.63 & 0.553 & 0.454 & 0.931 & 0.941 & 0.504 & 0.475 & 0.596 & 0.478 & 0.290 \\
+Gen3C~\citep{ren2025gen3c}          & 17.26 & 0.624 & 0.391 & 0.951 & 0.956 & 0.561 & 0.524 & 0.648 & 0.514 & 0.334 \\
+FlashWorld~\citep{li2025flashworld} & 16.51 & 0.626 & 0.403 & 0.958 & 0.960 & \underline{0.615} & \underline{0.550} & \underline{0.843} & \underline{0.758} & \underline{0.546} \\
+Gen3R~\citep{huang2026gen3r}        & 17.59 & \underline{0.631} & 0.382 & \underline{0.974} & \underline{0.971} & 0.552 & 0.536 & 0.633 & 0.433 & 0.147 \\
+\rowcolor{cyan!8}
+\textbf{PixWorld (Ours)}           & \textbf{18.88} & \textbf{0.702} & \textbf{0.325} & \textbf{0.979} & \textbf{0.978} & \textbf{0.623} & \textbf{0.556} & \textbf{0.869} & \textbf{0.798} & \textbf{0.614} \\
+\midrule
+\rowcolor{gray!12}
+\multicolumn{11}{l}{\textbf{DL3DV-10K}} \\
+LVSM~\citep{jinlvsm}                & 14.91 & 0.433 & 0.530 & 0.931 & 0.933 & 0.494 & 0.466 & 0.552 & 0.372 & 0.134 \\
+GF~\citep{wu2025geometry}           & 12.69 & 0.356 & 0.591 & 0.898 & 0.910 & 0.474 & 0.435 & 0.491 & 0.338 & 0.113 \\
+Gen3C~\citep{ren2025gen3c}          & 15.58 & \underline{0.514} & 0.479 & 0.927 & 0.933 & 0.532 & 0.496 & 0.552 & 0.377 & 0.128 \\
+FlashWorld~\citep{li2025flashworld} & 15.42 & 0.473 & \underline{0.461} & 0.942 & \underline{0.950} & \underline{0.619} & \underline{0.558} & \underline{0.769} & \underline{0.674} & \underline{0.420} \\
+Gen3R~\citep{huang2026gen3r}        & \underline{15.75} & 0.503 & 0.495 & \underline{0.944} & 0.942 & 0.547 & 0.530 & 0.593 & 0.398 & 0.117 \\
+\rowcolor{cyan!8}
+\textbf{PixWorld (Ours)}           & \textbf{16.50} & \textbf{0.527} & \textbf{0.449} & \textbf{0.952} & \textbf{0.956} & \textbf{0.631} & \textbf{0.567} & \textbf{0.793} & \textbf{0.706} & \textbf{0.485} \\
+\bottomrule
+\end{tabular}}
+\vspace{-2mm}
+\end{table*}

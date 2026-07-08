@@ -1,0 +1,28 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Ablation study on geometry perception loss.}
+We report results on RealEstate10K~\citep{zhou2018stereo} under the \emph{1-view} setting.}
+\label{tab:ablation_geometry_perception}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l ccc cccc ccc}
+\toprule
+Variant
+& PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$
+& I2V Subj.$\uparrow$ & I2V BG$\uparrow$ & I.Q.$\uparrow$ & Aes.Q.$\uparrow$
+& AUC@30$\uparrow$ & AUC@15$\uparrow$ & AUC@5$\uparrow$ \\
+\midrule
+Full model 
+& 19.12 & 0.717 & 0.310
+& 0.972 & 0.975 & 0.619 & 0.561 
+& 0.886 & 0.813 & 0.642 \\
+
+w/o Geometry Perception 
+& 17.99 & 0.612 & 0.332
+& 0.973 & 0.974 & 0.613 & 0.541 
+& 0.847 & 0.763 & 0.562  \\
+\bottomrule
+\end{tabular}}
+\vspace{-3mm}
+\end{table}

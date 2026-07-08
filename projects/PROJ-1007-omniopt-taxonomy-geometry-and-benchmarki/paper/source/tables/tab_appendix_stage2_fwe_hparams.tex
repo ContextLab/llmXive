@@ -1,0 +1,234 @@
+% \begin{table}[!t]
+% \centering
+% \caption{Hyperparameter configurations for the FineWeb-Edu 32k Stage-2 experiments at 340M.}
+% % \vspace{-3mm}
+% \label{tab:appendix_fwe_stage2_340m_hparams}
+% \scriptsize
+% % \setlength{\tabcolsep}{3.5pt}
+% \setlength{\tabcolsep}{0.8em}
+% \renewcommand{\arraystretch}{1.03}
+% \resizebox{\linewidth}{!}{
+% \begin{tabular}{lccccc>{\raggedright\arraybackslash}p{0.35\linewidth}}
+% \toprule
+% \textbf{Optimizer} & \textbf{lr}
+% & $\boldsymbol{\beta_1}$
+% & $\boldsymbol{\beta_2}$
+% & $\boldsymbol{\beta_3}$
+% & $\boldsymbol{\epsilon}$
+% & \textbf{Extra} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{Transformer++}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-4 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 2e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 5e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 1e-2 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{GLA}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-4 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 2e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 5e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 1e-2 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{DeltaNet}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-3 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 2e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 5e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 1e-2 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{Gated DeltaNet}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-8 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 1e-4 & 0.9 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-AdamW & 5e-3 & 0.95 & 0.99 & $-$ & 1e-15 & $-$ \\
+% MARS-Lion & 2e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$\\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 1e-2 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \bottomrule
+% \end{tabular}}
+% \end{table}
+
+% \begin{table}[!t]
+% \centering
+% \caption{Hyperparameter configurations for the FineWeb-Edu 32k Stage-2 experiments at 1B.}
+% % \vspace{-3mm}
+% \label{tab:appendix_fwe_stage2_1b_hparams}
+% \scriptsize
+% % \setlength{\tabcolsep}{3.5pt}
+% \setlength{\tabcolsep}{0.8em}
+% \renewcommand{\arraystretch}{1.03}
+% \resizebox{\linewidth}{!}{
+% \begin{tabular}{lccccc>{\raggedright\arraybackslash}p{0.35\linewidth}}
+% \toprule
+% \textbf{Optimizer} & \textbf{lr}
+% & $\boldsymbol{\beta_1}$
+% & $\boldsymbol{\beta_2}$
+% & $\boldsymbol{\beta_3}$
+% & $\boldsymbol{\epsilon}$
+% & \textbf{Extra} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{Transformer++}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-4 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 1e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 5e-3 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 5e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{GLA}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-4 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 1e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 5e-3 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 5e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{DeltaNet}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 3e-3 & 0.9 & 0.99 & $-$ & $-$ & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-Lion & 1e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 5e-3 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 3e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 5e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \midrule
+% \multicolumn{7}{l}{\textit{Gated DeltaNet}} \\
+% AdamW & 1e-3 & 0.9 & 0.99 & $-$ & 1e-8 & $-$ \\
+% AdamP & 1e-3 & 0.9 & 0.98 & $-$ & 1e-15 & $-$ \\
+% Adan & 3e-3 & 0.9 & 0.92 & 0.99 & 1e-8 & $-$ \\
+% Lion & 1e-4 & 0.9 & 0.99 & $-$ & 1e-8 & $-$ \\
+% MARS-AdamW & 3e-3 & 0.95 & 0.99 & $-$ & 1e-15 & $-$ \\
+% MARS-Lion & 1e-4 & 0.9 & 0.98 & $-$ & 1e-12 & $-$ \\
+% MARS-Shampoo & 5e-3 & 0.95 & 0.99 & $-$ & 1e-12 & $-$ \\
+% Muon & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & $-$ \\
+% RMNP & 3e-3 & 0.9 & 0.99 & $-$ & 1e-15 & \texttt{adam\_lr=1e-3} \\
+% SOAP & 1e-3 & 0.9 & 0.95 & $-$ & 1e-15 & \texttt{pdim=2048, pfreq=10} \\
+% APOLLO & 3e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=2, rank=512, proj=channel\_std, gap=200} \\
+% Conda & 5e-3 & 0.9 & 0.99 & $-$ & 1e-12 & \texttt{scale=0.25, rank=256, gap=2000} \\
+% \bottomrule
+% \end{tabular}}
+% \end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption{Hyperparameter configurations for the FineWeb-Edu 32k Stage-2 experiments at model parameters of 340M and 1B.}
+\scriptsize
+\setlength{\tabcolsep}{1.2em}
+\renewcommand{\arraystretch}{1.03}
+\resizebox{1.\linewidth}{!}{
+\begin{tabular}{l ccccc | ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Optimizer}}
+& \multicolumn{5}{c}{\textbf{340M}} & \multicolumn{5}{c}{\textbf{1B}} \\
+\cmidrule(r){2-6} \cmidrule(l){7-11}
+& \textbf{lr} & $\boldsymbol{\beta_1}$ & $\boldsymbol{\beta_2}$ & $\boldsymbol{\beta_3}$ & $\boldsymbol{\epsilon}$
+& \textbf{lr} & $\boldsymbol{\beta_1}$ & $\boldsymbol{\beta_2}$ & $\boldsymbol{\beta_3}$ & $\boldsymbol{\epsilon}$ \\
+\midrule
+\rowcolor{basebg}
+\multicolumn{11}{l}{\textit{Transformer++}} \\
+AdamW        & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+AdamP        & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 \\
+Adan         & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  \\
+Lion         & 3e-4 & 0.9  & 0.99 & $-$   & $-$    & 3e-4 & 0.9  & 0.99 & $-$   & $-$    \\
+MARS-AdamW   & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  \\
+MARS-Lion    & 2e-4 & 0.9  & 0.98 & $-$   & 1e-12 & 1e-4 & 0.9  & 0.98 & $-$   & 1e-12 \\
+MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$   & 1e-12 & 5e-3 & 0.95 & 0.99 & $-$   & 1e-12 \\
+Muon         & 5e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+RMNP         & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+SOAP         & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+APOLLO       & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+Conda        & 1e-2 & 0.9  & 0.99 & $-$   & 1e-12 & 5e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+\midrule
+\rowcolor{basebg}
+\multicolumn{11}{l}{\textit{GLA}} \\
+AdamW        & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+AdamP        & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 \\
+Adan         & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  \\
+Lion         & 3e-4 & 0.9  & 0.99 & $-$   & $-$    & 3e-4 & 0.9  & 0.99 & $-$   & $-$    \\
+MARS-AdamW   & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  \\
+MARS-Lion    & 2e-4 & 0.9  & 0.98 & $-$   & 1e-12 & 1e-4 & 0.9  & 0.98 & $-$   & 1e-12 \\
+MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$   & 1e-12 & 5e-3 & 0.95 & 0.99 & $-$   & 1e-12 \\
+Muon         & 5e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+RMNP         & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+SOAP         & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+APOLLO       & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+Conda        & 1e-2 & 0.9  & 0.99 & $-$   & 1e-12 & 5e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+\midrule
+\rowcolor{basebg}
+\multicolumn{11}{l}{\textit{DeltaNet}} \\
+AdamW        & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+AdamP        & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 \\
+Adan         & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  \\
+Lion         & 3e-3 & 0.9  & 0.99 & $-$   & $-$    & 3e-3 & 0.9  & 0.99 & $-$   & $-$    \\
+MARS-AdamW   & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  & 3e-3 & 0.95 & 0.99 & $-$   & 1e-8  \\
+MARS-Lion    & 2e-4 & 0.9  & 0.98 & $-$   & 1e-12 & 1e-4 & 0.9  & 0.98 & $-$   & 1e-12 \\
+MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$   & 1e-12 & 5e-3 & 0.95 & 0.99 & $-$   & 1e-12 \\
+Muon         & 5e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+RMNP         & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+SOAP         & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+APOLLO       & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+Conda        & 1e-2 & 0.9  & 0.99 & $-$   & 1e-12 & 5e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+\midrule
+\rowcolor{basebg}
+\multicolumn{11}{l}{\textit{Gated DeltaNet}} \\
+AdamW        & 1e-3 & 0.9  & 0.99 & $-$   & 1e-8  & 1e-3 & 0.9  & 0.99 & $-$   & 1e-8  \\
+AdamP        & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.98 & $-$   & 1e-15 \\
+Adan         & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  & 3e-3 & 0.9  & 0.92 & 0.99 & 1e-8  \\
+Lion         & 1e-4 & 0.9  & 0.99 & $-$   & 1e-8  & 1e-4 & 0.9  & 0.99 & $-$   & 1e-8  \\
+MARS-AdamW   & 5e-3 & 0.95 & 0.99 & $-$   & 1e-15 & 3e-3 & 0.95 & 0.99 & $-$   & 1e-15 \\
+MARS-Lion    & 2e-4 & 0.9  & 0.98 & $-$   & 1e-12 & 1e-4 & 0.9  & 0.98 & $-$   & 1e-12 \\
+MARS-Shampoo & 1e-2 & 0.95 & 0.99 & $-$   & 1e-12 & 5e-3 & 0.95 & 0.99 & $-$   & 1e-12 \\
+Muon         & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+RMNP         & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-15 \\
+SOAP         & 3e-3 & 0.9  & 0.95 & $-$   & 1e-15 & 1e-3 & 0.9  & 0.95 & $-$   & 1e-15 \\
+APOLLO       & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 & 3e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+Conda        & 1e-2 & 0.9  & 0.99 & $-$   & 1e-12 & 5e-3 & 0.9  & 0.99 & $-$   & 1e-12 \\
+\bottomrule
+\end{tabular}}
+\label{tab:appendix_fwe_stage2_combined_expanded}
+\end{table}

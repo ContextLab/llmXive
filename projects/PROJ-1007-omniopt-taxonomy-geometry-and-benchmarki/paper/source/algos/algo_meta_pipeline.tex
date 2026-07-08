@@ -1,0 +1,30 @@
+\begin{algorithm}[!t]
+\caption{Universal Meta-Pipeline for Modern Optimizer Updates.}
+\label{alg:meta_optimizer}
+\begin{algorithmic}[1]
+  \Require Parameters $\Theta_0$, loss $\mathcal{L}$, 
+           learning-rate schedule $\{\eta_t\}_{t=1}^T$
+  \Require Initial optimizer state $\mathcal{S}_0$, 
+           regularization coefficient $\lambda$
+  \Ensure  Final parameters $\Theta_T$
+  \For{$t = 1, \ldots, T$}
+    \State \textcolor{famS0}{$G_t \gets \textsc{AcquireSignal}(\Theta_{t-1}, \mathcal{L})$
+      \Comment{S0: FO / VR / curvature-augmented}}
+    \For{each $\theta^{(i)}_{t-1} \in \Theta_{t-1}$}
+      \State $g_t^{(i)} \gets \textsc{Select}(G_t,\,\theta^{(i)}_{t-1})$
+      \State \textcolor{famS1}{$\rho^{(i)} \gets \textsc{Route}(\theta^{(i)}_{t-1})$ 
+        \Comment{S1: parameter scoping and routing}}
+      \State \textcolor{famS2}{$\hat{g}_t^{(i)} \gets \textsc{Transform}(g_t^{(i)},\,\rho^{(i)})$ 
+        \Comment{S2: gradient transformation}}
+      \State \textcolor{famS3}{$s_t^{(i)} \gets \textsc{Evolve}(s^{(i)}_{t-1},\,\hat{g}_t^{(i)},\,\rho^{(i)})$ 
+        \Comment{S3: state evolution}}
+      \State \textcolor{famS4}{$\hat{\Delta}_t^{(i)} \gets \textsc{Reconstruct}(s_t^{(i)},\,\rho^{(i)})$ 
+        \Comment{S4: update reconstruction}}
+      \State \textcolor{famS5}{$\theta_t^{(i)} \gets \textsc{Finalize}(\theta^{(i)}_{t-1},\,\hat{\Delta}_t^{(i)},\,\eta_t,\,\lambda)$ 
+        \Comment{S5: update finalization}}
+        
+    \EndFor
+    \State $\mathcal{S}_t \gets \{s_t^{(i)}\}_i$
+  \EndFor
+\end{algorithmic}
+\end{algorithm}

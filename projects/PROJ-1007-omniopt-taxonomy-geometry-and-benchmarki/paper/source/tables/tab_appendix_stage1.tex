@@ -1,0 +1,64 @@
+\begin{table}[!htbp]
+\centering
+\caption{Hyperparameter configurations for the C4-LLaMA short-context Stage-1 screening experiments.}
+\label{tab:appendix_c4_screen_hparams}
+\scriptsize
+\setlength{\tabcolsep}{0.8em}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Optimizer}
+& $\boldsymbol{\beta_1}$
+& $\boldsymbol{\beta_2}$
+& $\boldsymbol{\beta_3}$
+& $\boldsymbol{\epsilon}$
+& \textbf{60M lr}
+& \textbf{130M lr}
+& \textbf{350M lr}
+& \textbf{1B lr} \\
+\midrule
+\rowcolor{famT1!18}\multicolumn{9}{c}{\textbf{\textcolor{famT1!62!black}{\textit{T1: Element-wise adaptive moment and scalar control}}}} \\
+Adan         & 0.9  & 0.92  & 0.99 & $1\times10^{-8}$  & 0.003  & 0.003  & 0.003  & 0.001  \\
+RAdam        & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.003  & 0.001  & 0.001  & 0.0005 \\
+AdamW        & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.003  & 0.001  & 0.001  & 0.0005 \\
+NAdam        & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.001  & 0.001  & 0.001  & 0.0005 \\
+MARS-AdamW   & 0.95 & 0.99  & $-$   & $1\times10^{-8}$  & 0.005  & 0.005  & 0.005  & 0.001  \\
+Prodigy      & 0.9  & 0.95  & $-$   & $1\times10^{-8}$  & 0.5    & 1      & 2      & 2      \\
+AdaBelief    & 0.9  & 0.999 & $-$   & $1\times10^{-16}$/$10^{-12}$ & 0.003 & 0.001 & 0.001 & 0.001 \\
+\midrule
+\rowcolor{famT2!18}\multicolumn{9}{c}{\textbf{\textcolor{famT2!62!black}{\textit{T2: Matrix-level structural methods}}}} \\
+MARS-Shampoo & 0.95 & 0.99  & $-$   & $1\times10^{-8}$  & 0.05   & 0.03   & 0.02   & 0.01   \\
+Muon         & 0.9  & 0.95  & $-$   & $1\times10^{-8}$  & 0.02   & 0.01   & 0.006  & 0.006  \\
+RMNP         & 0.9/0.95 & 0.95 & $-$ & $1\times10^{-8}$  & 0.01   & 0.01   & 0.01   & 0.01   \\
+SOAP         & 0.9  & 0.95  & $-$   & $1\times10^{-8}$  & 0.003  & 0.002  & 0.001  & 0.0005 \\
+GaLore       & 0.9  & 0.98  & $-$   & $1\times10^{-6}$  & 0.03   & 0.03   & 0.01   & 0.01   \\
+Shampoo      & 0.9  & 0.999 & $-$   & $1\times10^{-8}$  & 0.05   & 0.05   & 0.02   & 0.01   \\
+\midrule
+\rowcolor{famT3!18}\multicolumn{9}{c}{\textbf{\textcolor{famT3!62!black}{\textit{T3: Discretization and directional quantization}}}} \\
+MARS-Lion    & 0.9  & 0.98  & $-$   & $1\times10^{-8}$  & 0.0005 & 0.0002 & 0.0002 & 0.0002 \\
+Lion         & 0.9  & 0.98  & $-$   & $-$                 & 0.0002 & 0.0002 & 0.0002 & 0.0001 \\
+\midrule
+\rowcolor{famT4!18}\multicolumn{9}{c}{\textbf{\textcolor{famT4!62!black}{\textit{T4: State compression and structural aggregation}}}} \\
+APOLLO       & 0.9  & 0.99  & $-$   & $1\times10^{-6}$  & 0.02   & 0.01   & 0.01   & 0.01   \\
+Conda        & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.01   & 0.01   & 0.01   & 0.0005 \\
+8-bit Adam     & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.003  & 0.001  & 0.0005 & 0.0005 \\
+CAME         & 0.9  & 0.999 & $-$   & $1\times10^{-6}$  & 0.001  & 0.0005 & 0.0005 & 0.0003 \\
+AdaFactor    & 0.9  & $-$    & $-$   & $-$                 & 0.002  & 0.002  & 0.001  & 0.0005 \\
+Adam-mini    & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.003  & 0.001  & 0.0005 & 0.0003 \\
+\midrule
+\rowcolor{famT5!18}\multicolumn{9}{c}{\textbf{\textcolor{famT5!62!black}{\textit{T5: Curvature-aware and geometric regularization}}}} \\
+AdamP        & 0.9  & 0.98  & $-$   & $1\times10^{-8}$  & 0.005  & 0.001  & 0.001  & 0.0005 \\
+LAMB         & 0.9  & 0.99  & $-$   & $1\times10^{-6}$  & 0.005  & 0.003  & 0.001  & 0.001  \\
+Sophia       & 0.9  & 0.99  & $-$   & $1\times10^{-8}$  & 0.0002 & 0.0002 & 0.0002 & 0.0001 \\
+\bottomrule
+\end{tabular}}
+
+\vspace{2pt}
+{\fontsize{8pt}{8pt}\selectfont
+\raggedright
+\textbf{Note:} $-$ indicates that the corresponding hyperparameter is not used or that no explicit numerical stability constant is set. The learning rates are the final configurations used for each optimizer and model scale in the C4-LLaMA short-context Stage-1 screening experiments. AdaBelief uses $\epsilon=1\times10^{-16}$ for 60M, 130M, and 350M, and $\epsilon=1\times10^{-12}$ for 1B. RMNP uses $\beta_1=\beta_2=0.95$ at 1B and applies an Adam-style auxiliary branch to non-matrix parameters. The projection ranks of APOLLO are 128/192/256/256, with projection interval 200. The ranks of Conda are 128/192/256/256, with projection intervals 2000/2000/2000/200. The ranks of GaLore are 128/256/256/1024, with projection intervals 200/500/500/200.
+\par
+}
+\end{table}
+

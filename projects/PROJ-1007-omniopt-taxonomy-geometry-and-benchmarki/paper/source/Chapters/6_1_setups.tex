@@ -1,0 +1,71 @@
+\subsection{Experimental Setup}
+\label{sec:benchmark-setup}
+
+\paragraph{Optimizer selection and taxonomy coverage.}
+We instantiate the taxonomy by selecting 24 representative optimizers spanning
+all five methodological families (T1--T5) and the major regions of the
+four-axis coordinate space. Their four-axis coordinates are listed in
+Table~\ref{tab:four-axis-instantiation} (Section~\ref{sec:four-axis-decomposition}),
+which places each optimizer in its family and records its update domain, state
+estimator, geometry-and-precondition operator, and finalization. This makes
+explicit that our optimizer set is a systematic coverage of the classification
+space.
+
+% \input{tables/tab_opt_coverage} % merged into Table~\ref{tab:four-axis-instantiation}
+
+\paragraph{Training protocol.}
+Our evaluation comprises two complementary stages.
+Stage~1 sweeps all optimizers on C4~\cite{raffel2020exploring} under the
+LLaMA architecture at sequence length 256, across four model scales---60M,
+130M, 350M, and 1B (trained for 10k, 20k, 60k, and 100k steps,
+respectively)---using final C4 validation perplexity as the quality metric.
+Stage~2 transfers the stronger Stage-1
+optimizers to the higher-quality FineWeb-Edu
+corpus~\cite{penedo2024finewebdatasetsdecantingweb,karpathy2024finewebedu100b}
+with long 32k sequences,
+at 340M and 1B ($\sim$30k steps), and across four
+architectures---Transformer++~\cite{yang2023gated}
+(standard attention) and three linear-attention variants (Gated
+DeltaNet~\cite{yang2025gated},
+DeltaNet~\cite{yang2024parallelizing}, GLA~\cite{yang2023gated})---to probe portability across dataset, sequence length, and
+architecture. We weight the 350M and 1B results most heavily, as small-scale
+rankings are unreliable predictors of behavior at scale. To ensure that
+observed differences genuinely stem from the optimizers themselves, we adopt a
+strict \emph{controlled-variable} principle: within each
+stage, only optimizer-related hyperparameters are tuned (\texttt{betas},
+\texttt{eps}, \texttt{lr}, and method-specific knobs such as APOLLO's projection
+rank and projection interval~$T$), while all architectural, data, and schedule
+settings are held fixed across optimizers.
+ 
+\paragraph{Stage-dependent regularization.}
+The two S5 (Update Finalization) operations of the meta-pipeline---decoupled
+weight decay and gradient clipping---are treated differently across the two
+stages, by design. In Stage~1 both are \emph{disabled}, so that the comparison
+isolates the S2/S3 machinery that distinguishes one family from another, and
+separates it from a generic finalization-stage regularizer. In Stage~2
+both are \emph{enabled} identically for all optimizers, to measure
+generalization under a realistic, production-style recipe. This also lets us
+distinguish whether an optimizer's advantage is intrinsic to its S2/S3 design
+(surviving into the regularized regime) or merely an artifact of the
+unregularized Stage-1 setting.
+ 
+
+
+
+\paragraph{Evaluation metrics (mapped to O1--O6).}
+\textbf{O1 (optimization quality):} C4 validation PPL in Stage~1, while
+Stage~2 uses WikiText~\cite{merity2016pointer} test PPL and downstream Commonsense Reasoning average
+accuracy (CS Avg.). CS Avg. is evaluated with lm-eval-harness~\cite{eval-harness} and
+computed over ten tasks/splits: ARC-Easy, ARC-Challenge, HellaSwag,
+WinoGrande, PIQA, OpenBookQA, BoolQ, COPA, LAMBADA-OpenAI, and
+SciQ~\cite{clark2018think,zellers2019hellaswag,sakaguchi2021winogrande,bisk2020piqa,mihaylov2018can,clark2019boolq,roemmele2011choice,paperno-EtAl:2016:P16-1,welbl2017crowdsourcing}. \textbf{O2 (per-step compute):} isolated wall-clock
+optimizer runtime per step ($T$, ms). \textbf{O3 (memory):} isolated
+optimizer-state memory (Mem, GB), excluding model parameters, activations, and
+gradients. \textbf{O4 (training stability):} long-context gradient-norm
+dynamics, mainly post-warmup GNormCV, with spike and NaN/Inf diagnostics.
+\textbf{O5 (hyperparameter robustness):} learning-rate perturbation around the
+tuned learning rate, using $1/5$ and $5\times$ perturbations. \textbf{O6
+(generalization):} cross-scenario transfer across dataset, context length,
+scale, and architecture, summarized by rank stability and sequence-length
+sensitivity. These measurements support the optimizer-level and family-level
+O1--O6 assessment below.

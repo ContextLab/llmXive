@@ -1,0 +1,28 @@
+\begin{table}[!htbp]
+  \centering
+  \caption{Mechanism-informed effect assessment for T3 methods. The entries
+  are design priors for benchmark planning, not empirical conclusions.}
+  \label{tab:t3_effect_assessment}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\linewidth}{@{}Y Y Y@{}}
+    \toprule
+    Primary target & Likely cost or failure mode & Benchmark focus \\
+    \midrule
+    \rowcolor{famT3!18}\multicolumn{3}{c}{\textbf{\textcolor{famT3!62!black}{T3: Discretization and directional quantization}}} \\
+    \rowcolor{famT3!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT3!62!black}{SignSGD / Signum}}} \\
+      O2 communication simplicity, O4 outlier robustness
+      & Magnitude loss, sign-noise sensitivity
+      & Pure vs.\ momentum sign vs.\ AdamW under matched settings \\
+    \rowcolor{famT3!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT3!62!black}{Lion}}} \\
+      O3 low state, O2 cheap updates
+      & LR, WD, and warmup become protocol-sensitive
+      & LR/WD/schedule sweeps against strong AdamW baselines \\
+    \rowcolor{famT3!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT3!62!black}{RLion / FOCUS / Ano}}} \\
+      O4 stability around sign directions
+      & Extra knobs, limited LLM evidence
+      & Source domains, extra-knob tuning, per-component ablations \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

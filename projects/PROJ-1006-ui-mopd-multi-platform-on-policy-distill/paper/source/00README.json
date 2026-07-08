@@ -1,0 +1,41 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "fancyhdr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "main.listing"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "tmlr.sty"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "xiaomiev/xiaomiev-Bold.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "xiaomiev/xiaomiev-Medium.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "xiaomiev/xiaomiev.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "xiaomiev/xiaomievmedium.tfm"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

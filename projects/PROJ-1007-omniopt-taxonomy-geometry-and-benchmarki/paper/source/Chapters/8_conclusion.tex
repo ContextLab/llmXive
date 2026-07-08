@@ -1,0 +1,89 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Optimizer selection for large-scale model training has become a system-level,
+multi-objective decision, yet the field offers more than one hundred methods
+described in incompatible vocabularies and supported by protocol-sensitive
+evidence. This paper set out to make this body of work navigable and, ultimately,
+actionable. We treated every optimizer as a structured transformation of a
+stochastic training signal and showed that modern methods are sparse
+modifications of a shared five-stage meta-pipeline. We then used norm-constrained linear minimization oracles to place sign,
+spectral-orthogonalized,
+Kronecker-factored preconditioned, and projected updates inside a single four-axis
+decomposition. Finally, we organized the resulting mechanisms into a
+dual-dimension taxonomy that records both where a method acts and which training
+objective it targets. A controlled benchmark over language-model pretraining
+then turned this framework from a descriptive device into an evaluative one. The benchmark spans four scales from 60M to 1B parameters, four architectures,
+and context lengths from 256 to 32k tokens, with a targeted CIFAR100
+vision-backbone study used to probe architecture-dependent optimizer behavior
+beyond language modeling.
+
+Our main conclusion is simple. There is no universal best optimizer, and the
+practical question is which mechanism's strength matches the binding constraint
+of the training regime. Under the
+tested protocol, the strongest quality gains are associated with
+geometry-sensitive direction maps and the structured state that feeds them.
+Scalar refinements of the adaptive-moment template alone contribute little. Most
+element-wise variants of AdamW do not survive a retuned baseline. Two empirical
+regularities sharpen this picture and should be treated as design constraints.
+Aggressive state compression is rank-bounded and
+degrades sharply as the gradient's effective rank rises with context length.
+Spectral matrix geometry is architecture-conditional, so its gains must be
+validated on the target topology, and their transfer must be confirmed.
+Composability, in turn, is governed by locality on the four axes. Techniques on
+different axes or pipeline stages stack, while techniques that contend for the
+same slot require an explicit ordering. The unit of design is therefore a
+composition chosen against a budget.
+
+These findings translate into concrete guidance. Across the benchmarked
+methods, the mainstream choices and the regime each one fits
+(Table~\ref{tab:optimizer_tiers}) are the following.
+\begin{itemize}
+  \item \textbf{AdamW} is the default reference for general-purpose
+  pretraining. It is not the strongest on any single metric, but it is stable,
+  inexpensive, interpretable, and the baseline every other choice should be
+  measured against.
+  \item \textbf{RMNP}~\citep{deng2026rmnp} is better read as a
+  practical, architecture-aware step beyond standard Muon-style preconditioning.
+  It targets a better quality--efficiency balance by
+  using architecture-induced row-wise structure. When the relevant curvature and
+  momentum statistics are diagonally dominant in a row-wise sense, a Muon-style
+  matrix direction can be implemented through a cheaper row-normalized form.
+  \item \textbf{SOAP} is the quality ceiling for long-context training and the
+  most transferable method across architectures. It is too costly to be a
+  default, but it is useful when final quality dominates and compute and memory
+  are not the bottleneck.
+  \item \textbf{Muon} is a stable, mechanistically transparent
+  matrix method. It should be used with awareness of the target model topology.
+  \item \textbf{AdaFactor} is the safe low-memory baseline at moderate quality.
+  \textbf{APOLLO} is a high-reward, high-risk compressed-state method that excels
+  at short context but collapses at long context, so its short-context wins do
+  not certify it.
+  \item \textbf{Lion} is a cheap exploratory option with an expected quality gap.
+  Curvature-aware and geometry-regularized methods such as Sophia and LAMB remain
+  situational under the current protocol.
+\end{itemize}
+In short, the decision rule is to identify the single binding constraint of a
+run, such as stability, quality, runtime, memory, or cross-scenario transfer,
+and select the method whose dominant strength addresses it. Starting from AdamW,
+move to RMNP, SOAP, or a memory-efficient method only when a specific constraint
+demands it.
+
+Beyond these recommendations, the framework's main contribution to the
+community is an operational coordinate system. Any optimizer, including methods
+that have not yet been proposed, can be located by its pipeline stages and its
+four-axis coordinate. Its composability with other techniques can be predicted from that
+location, and competing methods can be compared under
+explicit mechanism and objective assumptions.
+This gives practitioners a shared vocabulary and a constraint-driven decision
+procedure. For method designers, it maps crowded regions, unexplored
+compositions, and empirical boundaries that any new method must respect, such as
+rank-bounded compression and architecture-conditional geometry. A further
+lesson, developed in Section~\ref{sec:discussion-open-problems}, is that
+optimizer geometry should be coupled to the model architecture and training
+dynamics, with RMNP as one concrete example. The
+same coordinate system marks where this study should grow next. One direction is to develop
+quantitative interpretability metrics that turn the present qualitative mechanism
+attributions into predictive diagnostics. A
+second direction is to extend the study beyond language modeling, building on the
+foundation established here.

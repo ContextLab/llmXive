@@ -1,0 +1,44 @@
+\begin{table*}[!t]
+  \centering
+  \caption{Dimension-B effect objectives and measurement sources.}
+  \label{tab:effect_objectives}
+  \scriptsize
+  \setlength{\tabcolsep}{1.5pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\textwidth}{@{}Y p{0.17\textwidth}p{0.14\textwidth}Y@{}}
+    \toprule
+    Definition & Data source & Extra cost & Typical outputs \\
+    \midrule
+    \rowcolor{famO1!18}\multicolumn{4}{c}{\textbf{\textcolor{famO1!62!black}{O1: Convergence Efficiency}}} \\
+      Loss reduction and time-to-target under a fixed training budget
+      & Train/validation loss logs
+      & None
+      & Final loss; steps-to-threshold; token efficiency \\
+    \rowcolor{famO2!18}\multicolumn{4}{c}{\textbf{\textcolor{famO2!62!black}{O2: Step Cost}}} \\
+      Extra per-step computation and synchronization relative to a baseline
+      & Timers, FLOP analysis
+      & Recorded during training
+      & Step time; FLOPs; extra backward count \\
+    \rowcolor{famO3!18}\multicolumn{4}{c}{\textbf{\textcolor{famO3!62!black}{O3: Memory}}} \\
+      Memory from optimizer states and associated buffers
+      & Memory profiler, byte model
+      & Recorded during training
+      & Peak memory; state and buffer bytes \\
+    \rowcolor{famO4!18}\multicolumn{4}{c}{\textbf{\textcolor{famO4!62!black}{O4: Stability}}} \\
+      Robustness to spikes, divergence, and gradient fluctuations
+      & Loss and gradient-norm curves
+      & Offline post-processing
+      & Spike rate; gradient CV; divergence rate \\
+    \rowcolor{famO5!18}\multicolumn{4}{c}{\textbf{\textcolor{famO5!62!black}{O5: Hyperparameter Robustness}}} \\
+      Sensitivity to learning rate, decay, batch size, and other knobs
+      & Multiple training runs
+      & Search or transfer experiments
+      & Usable LR interval; performance variance; tuning burden \\
+    \rowcolor{famO6!18}\multicolumn{4}{c}{\textbf{\textcolor{famO6!62!black}{O6: Generalization}}} \\
+      Quality beyond the training objective (validation, downstream, OOD, transfer)
+      & Validation and downstream evaluation
+      & Low for validation, high for full evaluation
+      & Validation loss; generalization gap; downstream score \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}

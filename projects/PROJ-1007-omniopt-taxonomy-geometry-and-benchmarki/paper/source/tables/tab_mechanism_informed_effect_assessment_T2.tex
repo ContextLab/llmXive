@@ -1,0 +1,29 @@
+\begin{table*}[!htbp]
+  \centering
+  \caption{Mechanism-informed effect assessment for T2 subclasses.  The
+  entries are design priors for benchmark planning, not empirical
+  conclusions.}
+  \label{tab:t2_effect_assessment}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\textwidth}{@{}Y Y Y@{}}
+    \toprule
+    Primary target & Likely cost or failure mode & Benchmark focus \\
+    \midrule
+    \rowcolor{famT2!18}\multicolumn{3}{c}{\textbf{\textcolor{famT2!62!black}{T2: Matrix-level structural methods}}} \\
+    \rowcolor{famT2!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.1 Spectral orthogonalization}}} \\
+      O1 token efficiency, O4 stability
+      & O2 extra matrix multiplications, routing sensitivity
+      & Matched LR/warmup/batch, matrix-only scope, step-time accounting \\
+    \rowcolor{famT2!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.2 Kronecker-factored preconditioning}}} \\
+      O1 convergence, O4 conditioning
+      & O2 matrix roots, O3 Kronecker state, implementation complexity
+      & Preconditioner update frequency, memory and wall-clock overhead, damping \\
+    \rowcolor{famT2!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT2!62!black}{T2.3 Low-rank subspace projection}}} \\
+      O3 memory reduction with possible O1 retention
+      & Refresh cost, rank sensitivity, high-rank information loss
+      & Rank and interval sweeps, memory budget vs.\ AdamW and T4 \\
+    \bottomrule
+  \end{tabularx}
+\end{table*}

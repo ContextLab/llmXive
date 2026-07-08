@@ -1,0 +1,46 @@
+\abstract{
+Optimizer selection for large-scale model training has become a system-level
+design decision constrained jointly by compute, memory, tuning budget, and task
+diversity, yet the landscape of over one hundred methods remains fragmented.
+We therefore present \textbf{OmniOpt},
+a unified survey and benchmark cookbook of optimizers for the research community.
+OmniOpt rests on four coupled components. First, we treat every optimizer update
+as a structured transformation through a five-stage meta-pipeline, and show that
+most methods engage only one or two of these stages. Second, we use
+norm-constrained linear minimization oracles (LMOs) to unify different
+optimizers. Third, these two views ground a dual-dimension taxonomy, one
+dimension assigning each method to a mechanism family and the other recording the
+measurable training objectives it aims to improve. Fourth, and at the core of
+this paper, we instantiate the full taxonomy in a unified cross-domain benchmark
+spanning representative optimizers, model scales, and training regimes from
+language model pretraining to image classification, systematically analyzing each
+method family across multiple effect objectives and laying out their trade-offs.
+OmniOpt thus supplies the research community with an operational
+coordinate system for selecting optimizers under explicit mechanism and
+objective assumptions, and charts a direction for the future development of the
+optimizer community.
+%
+% Sentences condensed out of the abstract (kept for reference, not deleted):
+% 1. Meta-pipeline stage list: "...through a five-stage meta-pipeline covering
+%    parameter routing, gradient transformation, state evolution, update
+%    reconstruction, and finalization..."
+% 2. LMO direction examples: "Norm-constrained linear minimization oracles then
+%    provide a geometric primitive that places sign, spectral-orthogonalized,
+%    Kronecker-factored preconditioned, and projected directions within one
+%    four-axis decomposition."
+% 3. Taxonomy detail: "a methodological dimension assigning each of five mechanism
+%    families a unique pipeline locus, and an effect-objective dimension recording
+%    six measurable training properties."
+% 4. Benchmark scale numbers: "spanning language model pretraining at 60M to 1B
+%    parameters across four architectures and context lengths from 256 to 32k
+%    tokens, together with image classification on CIFAR, evaluating
+%    representative optimizers on convergence, cost, memory, stability,
+%    robustness, and generalization."
+% 5. Detailed findings (moved to Introduction contribution 4): "Key findings
+%    include that no single optimizer dominates the multi-objective frontier
+%    across domains, that aggressive state compression excelling under short
+%    context degrades sharply when input complexity grows, that structured-matrix
+%    methods transfer most stably across architectures and tasks but at
+%    substantial per-step cost, and that optimizer rankings exhibit systematic
+%    domain-dependent crossings unpredictable from any single-setting comparison."
+}

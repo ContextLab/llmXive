@@ -1,0 +1,288 @@
+\documentclass{opendatalab}
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{nicefrac}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+
+\newcommand{\cmark}{\ensuremath{\checkmark}}
+\newcommand{\pmark}{\ensuremath{\triangle}}
+\newcommand{\xmark}{\ensuremath{\times}}
+
+\newtheorem{theorem}{Theorem}[section]
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\usepackage{xcolor}
+\newcommand{\red}[1]{{\color{red}#1}}
+\usepackage[most]{tcolorbox}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage[numbers]{natbib}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{algorithm}%
+\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{wrapfig}
+\usepackage{booktabs,multirow,makecell,colortbl,graphicx,xcolor,amsmath,amssymb}
+\definecolor{bestbg}{RGB}{217,234,211}
+\definecolor{worstbg}{RGB}{244,204,204}
+\definecolor{basebg}{RGB}{239,239,239}
+
+\usepackage{tikz}
+\usepackage[edges]{forest}
+\usetikzlibrary{mindmap, trees, shadows, arrows.meta}
+\useforestlibrary{edges}
+\usepackage{mathtools}
+
+\definecolor{hidden-red}{RGB}{205, 44, 36}
+\definecolor{hidden-blue}{RGB}{194,232,247}
+\definecolor{hidden-orange}{RGB}{243,202,120}
+\definecolor{hidden-green}{RGB}{34,139,34}
+\definecolor{hidden-pink}{RGB}{255,245,247}
+\definecolor{hidden-black}{RGB}{20,68,106}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{promptcolor}{HTML}{D1D0F2}
+\definecolor{promptcolorheader}{HTML}{bdbcec}
+\definecolor{bestbg}{RGB}{217,234,211}
+\definecolor{basebg}{RGB}{239,239,239}
+\definecolor{warnbg}{RGB}{252,229,205}
+\definecolor{oursbg}{RGB}{229,243,255}
+\newcommand{\bestnum}[1]{\cellcolor{bestbg}\textbf{#1}}
+\newcommand{\gc}[1]{\textcolor{gray}{\scriptsize #1}}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/github_logo.pdf}}\xspace}
+\newcommand{\web}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/web_logo.pdf}}\xspace}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{assets/huggingface_logo.png}}\xspace}
+
+\definecolor{promptcolor}{HTML}{E3F0FA}
+\definecolor{promptcolorheader}{HTML}{B5D6ED}
+\definecolor{prompttitletext}{HTML}{1B3A5C}
+\definecolor{optHiddenBlue}{HTML}{4a90e2}
+\definecolor{optHiddenBlack}{HTML}{333333}
+
+% Methodological-family palette (matches Figure 1: T1--T5)
+\definecolor{famT1}{RGB}{80,120,200}   % T1 blue
+\definecolor{famT2}{RGB}{120,90,180}   % T2 purple
+\definecolor{famT3}{RGB}{230,120,120}  % T3 coral
+\definecolor{famT4}{RGB}{90,200,170}   % T4 teal
+\definecolor{famT5}{RGB}{220,160,60}   % T5 amber
+
+% Effect-objective palette (Dimension B: O1--O6)
+\definecolor{famO1}{RGB}{96,160,96}    % O1 green (convergence)
+\definecolor{famO2}{RGB}{214,126,68}   % O2 terracotta (step cost)
+\definecolor{famO3}{RGB}{86,148,196}   % O3 sky blue (memory)
+\definecolor{famO4}{RGB}{166,118,190}  % O4 lavender (stability)
+\definecolor{famO5}{RGB}{188,150,64}   % O5 ochre (hparam robustness)
+\definecolor{famO6}{RGB}{192,98,122}   % O6 rose (generalization)
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+
+\definecolor{main}{RGB}{70, 120, 180}
+\definecolor{sub}{RGB}{245, 248, 252}
+
+% ------ Alg color Step color------ %
+\definecolor{famS0}{HTML}{6A8292} % S0: Slate Blue
+\definecolor{famS1}{HTML}{1E88E5} % S1: Vibrant Blue
+\definecolor{famS2}{HTML}{26A69A} % S2: Teal Green
+\definecolor{famS3}{HTML}{E67E22} % S3: Orange
+\definecolor{famS4}{HTML}{8E44AD} % S4: Purple
+\definecolor{famS5}{HTML}{1565C0} % S5: Deep Blue
+\newtcolorbox{takeaway}{
+  enhanced,
+  breakable,
+  boxrule = 0pt,
+  colback = sub,
+  borderline west = {2pt}{0pt}{main},
+  borderline east  = {2pt}{0pt}{main},
+  sharp corners,
+  boxsep = 3pt,
+  left = 8pt,
+  right = 8pt,
+  top = 5pt,
+  bottom = 5pt,
+  before skip = 6pt,
+  after skip = 6pt,
+}
+
+\newtcolorbox{promptbox}[1][]{
+  enhanced, breakable,
+  top=0.3em,bottom=0.3em,left=0.5em,right=0.5em,
+  toptitle=0.3em,bottomtitle=0.2em,boxsep=0pt,
+  colframe=promptcolorheader, colback=promptcolor!50, boxrule=0.5pt,
+  width=\columnwidth, 
+  coltitle=prompttitletext,
+  title={\footnotesize #1} 
+}
+\lstdefinestyle{promptstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,          
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=promptstyle}
+
+\title{OmniOpt: Taxonomy, Geometry, and Benchmarking of Modern Optimizers}
+
+\author[1,3]{Siyuan Li$^{*}$}
+\author[1,2]{Jiabao Pan$^{*}$}
+\author[1,4]{Yumou Liu$^{*}$}
+\author[7]{Zhuoli Ouyang$^{*}$}
+\author[3]{Xin Jin$^{*}$}
+\author[5]{Xinglong Xu}
+\author[5]{Jingxuan Wei}
+\author[2]{Shengye Pang$^{\dagger}$}
+\author[6]{Jintao Chen}
+\author[4]{Xuanhe Zhou}
+\author[1]{Conghui He}
+\author[1]{Cheng Tan$^{\dagger}$}
+
+\affiliation[1]{Shanghai Artificial Intelligence Laboratory}
+\affiliation[2]{Shanghai University}
+\affiliation[3]{Westlake University}
+\affiliation[4]{Shanghai Jiao Tong University}
+\affiliation[5]{UCAS}
+\affiliation[6]{Zhejiang University}
+\affiliation[7]{Southern University of Science and Technology}
+
+\input{Chapters/0_abstract}
+
+% \date{\today}
+\metadatainfo{
+    \small\makebox[\linewidth][c]{
+        \github~\href{https://github.com/OpenRaiser/OmniOpt}{\textbf{Code}} \quad
+        \web~\href{https://openraiser.github.io/OmniOpt/}{\textbf{Website}} \quad
+        \huggingface~\href{https://huggingface.co/datasets/OpenRaiser/collections}{\textbf{Hugging Face}}
+    }
+}
+
+\begin{document}
+
+% Sync test: local -> GitHub -> Overleaf, 2026-05-12.
+
+\maketitle
+
+% Overview figure (short teaser) placed below the abstract
+\begin{figure}[H]
+  \centering
+  \vspace{-0.5em}
+  \includegraphics[width=1.0\linewidth]{figures/teaser_short.pdf}
+  \caption{Overview of the proposed survey and benchmark framework for a wild range of optimizers. The paper first introduces a universal meta-pipeline, then develops an LMO-driven four-axis decomposition, builds a process-aligned methodological taxonomy and an effect-objective taxonomy, and finally connects both taxonomies to a large-scale benchmark study.}
+  \vspace{-3.5em}
+  \label{fig:overview_abstract}
+\end{figure}
+\blfootnote{$^{*}$Equal contribution.\quad $^{\dagger}$Corresponding authors.}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\input{Chapters/1_introduction}
+\input{Chapters/2_preliminaries}
+\input{Chapters/3_optimizers}
+\input{Chapters/4_dual_dimension_taxonomy}
+\input{Chapters/5_optimizers}
+\input{Chapters/6_benchmark_study}
+\input{Chapters/7_discussion}
+\input{Chapters/8_conclusion}
+
+
+% \section*{Acknowledgments}
+% \label{sec:ack}
+% We thank xxx for their contributions and support for the project.
+
+
+\clearpage
+\newpage
+\bibliographystyle{plainnat}
+\setcitestyle{numbers}
+\bibliography{ref}
+
+\clearpage
+\newpage
+
+\beginappendix
+
+\section{Additional Experimental Hyperparameter Configurations}
+\label{app:hparam-configs}
+
+To improve the reproducibility of the benchmark results, this appendix reports
+the main optimizer hyperparameters used in the experiments. The main text
+reports the resulting perplexity, downstream performance, per-step optimizer
+runtime, and optimizer-state memory. In contrast, this appendix focuses on the
+training configurations, including learning rates, momentum coefficients,
+numerical stability constants, and method-specific auxiliary parameters.
+
+\subsection{Stage-1 C4-LLaMA Short-Context Screening}
+\label{app:stage1-hparams}
+
+Table~\ref{tab:appendix_c4_screen_hparams} summarizes the tuned hyperparameter
+configurations used in the Stage-1 C4-LLaMA short-context screening
+experiments. For each optimizer, we report the momentum coefficients,
+numerical stability constant, and the selected learning rate at each model
+scale. Method-specific auxiliary settings, such as projection rank and
+projection interval, are summarized in the table note.
+
+\input{tables/tab_appendix_stage1}
+
+\subsection{Stage-2 FineWeb-Edu 32k Long-Context Experiments}
+\label{app:stage2-fwe-hparams}
+
+Tables~\ref{tab:appendix_fwe_stage2_combined_expanded} report the best-run hyperparameter
+configurations for the Stage-2 FineWeb-Edu 32k experiments at 340M and 1B,
+respectively. The tables list the learning rate, momentum coefficients,
+numerical stability constant, and optimizer-specific auxiliary parameters
+encoded in the log filenames.
+
+\input{tables/tab_appendix_stage2_fwe_hparams}
+
+
+\section{Detailed Stage-2 Commonsense Reasoning Results}
+\label{app:stage2-cs-details}
+Tables~\ref{tab:appendix_stage2_cs_transformerpp_340m}--\ref{tab:appendix_stage2_cs_gated_deltanet_1b}
+further report the detailed per-task Commonsense Reasoning results for each
+architecture and model scale. CS Avg. is the average over ARC-Easy,
+ARC-Challenge, HellaSwag, WinoGrande, PIQA, OpenBookQA, BoolQ,
+COPA~\cite{roemmele2011choice}, LAMBADA-OpenAI~\cite{paperno-EtAl:2016:P16-1}, and SciQ~\cite{welbl2017crowdsourcing}.
+\input{tables/tab_appendix_stage2_commonsense_details}
+
+
+\input{tables/tab_method_taxonomy}
+
+\end{document}

@@ -1,0 +1,62 @@
+% \begin{table*}[t]
+\begin{wraptable}{r}{0.5\linewidth}
+\centering
+\vspace{-1.4em}
+\scriptsize
+\caption{CIFAR100 Top-1 Accuracy (\%) across CNN, ViT and MetaFormer architectures.}
+\label{tab:cifar100_results}
+\setlength{\tabcolsep}{2.mm}
+\resizebox{1.\linewidth}{!}{
+\begin{tabular}{lccc}
+\toprule
+\textbf{Optimizer} &
+\textbf{ResNet50} &
+\textbf{DeiT-S} &
+\textbf{CAFormer-S12} \\
+\midrule
+\rowcolor{famT1!18}\multicolumn{4}{c}{\textbf{\textcolor{famT1!62!black}{\textit{T1: Element-wise adaptive moment and scalar control}}}} \\
+AdaGrad     & 73.30 & 67.24 & 38.09 \\
+AdaDelta    & 75.07 & 65.44 & 82.08 \\
+RMSProp     & 74.25 & 70.71 & 81.83 \\
+Adam        & 74.55 & 71.04 & 82.18 \\
+\rowcolor{basebg}
+AdamW       & 75.56 & 72.15 & 83.60 \\
+Adamax       & 75.21 & 73.31 & 82.50 \\
+NAdam       & 74.82 & 72.75 & 82.83 \\
+RAdam       & 75.19 & 72.41 & 82.35 \\
+AdaBelief   & \cellcolor{bestbg}\textbf{80.53} & 70.66 & 83.56 \\
+Adan        & 77.08 & 76.33 & \cellcolor{bestbg}\textbf{84.89} \\
+AdaBound    & 78.11 & 68.59 & 82.38 \\
+NovoGrad    & 79.36 & 73.13 & 82.98 \\
+MARS-AdamW  & 74.19 & 71.57 & 80.48 \\
+\midrule
+
+\rowcolor{famT2!18}\multicolumn{4}{c}{\textbf{\textcolor{famT2!62!black}{\textit{T2: Matrix-level structural methods}}}} \\
+RMNP     & 73.39 & 71.83 & 82.44 \\
+Muon     & 75.25 & \cellcolor{bestbg}\textbf{77.38} & 84.43 \\
+GaLore   & 73.53 & 70.88 & 82.19 \\
+MOGA     & 63.20 & 62.48 & 79.00 \\
+\midrule
+
+\rowcolor{famT3!18}\multicolumn{4}{c}{\textbf{\textcolor{famT3!62!black}{\textit{T3: Discretization and directional quantization}}}} \\
+MARS-Lion   & 71.53 & 33.70 & 77.02 \\
+Lion      & 75.28 & 74.57 & 79.59 \\
+\midrule
+
+\rowcolor{famT4!18}\multicolumn{4}{c}{\textbf{\textcolor{famT4!62!black}{\textit{T4: State compression and structural aggregation}}}} \\
+AdaFactor     & 75.41  & 74.02  & 82.36 \\
+APOLLO  & 74.09 & 71.24 & 82.00 \\
+CAME          & 66.62 & 71.05 & 81.83 \\
+Conda         & 73.87 & 70.76 & 82.45 \\
+\midrule
+
+\rowcolor{famT5!18}\multicolumn{4}{c}{\textbf{\textcolor{famT5!62!black}{\textit{T5: Curvature-aware and geometric regularization}}}} \\
+LAMB      & 77.19 & 75.39 & 83.74 \\
+AdamP     & 78.17 & 71.55 & 83.40 \\
+Sophia    & 75.19 & 71.47 & 82.96 \\
+\bottomrule
+\end{tabular}
+}
+\vspace{-2em}
+\end{wraptable}
+% \end{table*}

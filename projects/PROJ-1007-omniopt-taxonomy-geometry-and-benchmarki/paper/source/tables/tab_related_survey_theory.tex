@@ -1,0 +1,56 @@
+\begin{table*}[!t]
+  \centering
+  \caption{Relation to optimizer surveys and unifying-theory work.}
+  \label{tab:related_survey_theory}
+  \scriptsize
+  \setlength{\tabcolsep}{0.75mm}
+  \renewcommand{\arraystretch}{1.22}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}m{0.225\textwidth}>{\raggedright\arraybackslash}m{0.100\textwidth}>{\raggedright\arraybackslash}m{0.170\textwidth}>{\centering\arraybackslash}m{0.075\textwidth}|>{\centering\arraybackslash}m{0.080\textwidth}>{\centering\arraybackslash}m{0.085\textwidth}|>{\centering\arraybackslash}m{0.085\textwidth}>{\centering\arraybackslash}m{0.075\textwidth}@{}}
+    \toprule
+    \multirow[c]{2}{0.225\textwidth}[-4.0ex]{\centering\arraybackslash\textbf{Work}} &
+    \multirow[c]{2}{0.100\textwidth}[-4.0ex]{\centering\arraybackslash\textbf{Type}} &
+    \multicolumn{2}{c}{\textbf{Scope}} &
+    \multicolumn{2}{c}{\textbf{Mathematical lens}} &
+    \multicolumn{2}{c}{\textbf{Evidence and taxonomy}} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}
+    & & \makecell[c]{\textbf{Primary}\\\textbf{object}} &
+    \makecell[c]{\textbf{LLM}\\\textbf{optimizer}\\\textbf{coverage}} &
+    \makecell[c]{\textbf{Optimizer}\\\textbf{update}\\\textbf{formulas}} &
+    \makecell[c]{\textbf{Geometric}\\\textbf{unification}\\\textbf{lens}} &
+    \makecell[c]{\textbf{Benchmark}\\\textbf{included}} &
+    \makecell[c]{\textbf{Update}\\\textbf{stage}\\\textbf{taxonomy}} \\
+    \midrule
+    \multicolumn{8}{@{}l}{\textbf{Survey and benchmark papers}} \\
+    \midrule
+    Evolution Methods~\citep{zhang2026evolution}
+    & Survey+bench. & Broad optimizers & \cmark & \cmark & \pmark & \cmark & \xmark \\
+    DL Optimizers~\citep{altinel2025development}
+    & Survey & DL optimizer history & \pmark & \cmark & \xmark & \xmark & \xmark \\
+    LLM Valley~\citep{ranganath2026navigating}
+    & Survey & LLM optimizers & \cmark & \pmark & \xmark & \pmark & \xmark \\
+    Mem.-Eff. PT~\citep{glentis2025scalable}
+    & Survey+bench. & Memory-efficient LLM & \cmark & \pmark & \xmark & \cmark & \xmark \\
+    \midrule
+    \multicolumn{8}{@{}l}{\textbf{Unifying mathematical theory}} \\
+    \midrule
+    Old Optimizer, New Norm~\citep{bernstein2024oldoptimizer}
+    & Theory & Norm geometry & \pmark & \cmark & \cmark & \xmark & \xmark \\
+    Norm-Constrained LMOs~\citep{pethick2025normlmo}
+    & Theory+Algo. & LMO training & \xmark & \cmark & \cmark & \pmark & \xmark \\
+    Lions/Muons~\citep{sfyraki2025lions}
+    & Theory & Lion/Muon geometry & \pmark & \cmark & \cmark & \xmark & \xmark \\
+    \midrule
+    \rowcolor{oursbg}
+    \textbf{Ours}
+    & Survey+bench. & 100+ LLM optimizers & \cmark & \cmark & \cmark & \cmark & \cmark \\
+    \bottomrule
+  \end{tabular}
+  \vspace{2pt}
+  \begin{minipage}{0.98\textwidth}
+    \footnotesize \emph{Note.} \cmark indicates that the criterion is central
+    to the work; \pmark indicates partial or secondary coverage; \xmark indicates
+    that the criterion is not central to the work. Bench., Algo., DL, and PT
+    abbreviate benchmark, algorithm, deep learning, and pretraining.
+  \end{minipage}
+\end{table*}
+\FloatBarrier

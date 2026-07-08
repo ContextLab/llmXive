@@ -1,0 +1,264 @@
+\section{Dual-Dimension Taxonomy}
+\label{sec:taxonomy}
+
+Section~\ref{sec:unified-theoretical-framework} unifies modern LLM optimizers
+from two complementary views.  The universal meta-pipeline asks where an
+optimizer intervenes in a single update, whereas the LMO-driven four-axis
+decomposition asks how the intervention changes the update direction,
+curvature estimate, gradient estimator, and state representation.  This
+section turns those two views into a survey taxonomy that can also guide the
+benchmark design.  The goal is not to list optimizers chronologically or to
+assign informal empirical labels.  The goal is to construct a mechanism
+coordinate system that supports literature organization, fair experimental
+grouping, and interpretable trade-off analysis.
+
+The taxonomy has two dimensions.  \emph{Dimension A} is a methodological
+taxonomy: each optimizer receives one primary mechanism label so that
+Section~\ref{sec:optimizer-families} can present T1--T5 as non-overlapping
+families.  \emph{Dimension B} is an effect-objective taxonomy: each optimizer
+may receive multiple objective labels describing the training properties it
+claims to improve or should be evaluated against, such as convergence,
+per-step cost, memory, stability, hyperparameter robustness, and
+generalization.  The two dimensions answer different questions: what does the
+optimizer change, and what outcome is the change intended to improve?
+
+\subsection{Taxonomy Design Principles}
+\label{sec:taxonomy-principles}
+
+A single tree taxonomy is not expressive enough for modern LLM optimizers. Lion, for example, can reasonably be described as an Adam alternative, a sign-based optimizer, and a memory-friendly optimizer. All three descriptions are defensible: Lion keeps a first-order momentum structure, replaces continuous-valued directions with a sign map, and removes Adam second-moment state. However, the labels answer different questions.
+The sign map is the primary update mechanism, whereas memory saving is an effect of that mechanism.  If Lion is placed only under ``memory-efficient optimizers,'' it is grouped with AdaFactor, 8-bit Adam, Adam-mini, and LOMO, although those methods mainly alter state storage, state sharing, or gradient lifetime. If Lion is copied into every relevant branch, the taxonomy loses its role as a clean survey organization and an experimental grouping rule.
+
+The same ambiguity appears throughout the optimizer landscape.  GaLore
+changes the subspace in which gradients and optimizer states live, whereas
+Q-GaLore adds low-bit state quantization on top of that subspace mechanism.
+SAM can wrap SGD or AdamW, but its defining contribution is a
+sharpness-aware perturbation and second gradient evaluation.  LAMB first
+performs an Adam-style element-wise update and then applies a layer-wise trust
+ratio at writeback.  Cautious AdamW and Cautious Lion inherit different base
+optimizers but share the same direction-consistency filter.  These examples
+show why the taxonomy must separate primary mechanism, base optimizer,
+composable wrapper, and intended effect.
+
+We therefore use three design principles.
+
+\textbf{First, Dimension A uses a single primary mechanism label.}
+Each optimizer is assigned to exactly one main family. The assignment is not based on the name of the optimizer or chronology, but on the component whose removal would make the method collapse to a simpler baseline. Direct modifications of Adam-style moments, bias correction, time scales, iterate
+averaging, or global step-size adaptation belong to T1.  Matrix routing,
+spectral orthogonalization, Kronecker-factored preconditioning, and low-rank
+subspace projection belong to T2.  Sign maps and related irreversible
+direction discretization belong to T3.  State sharing, compression,
+quantization, or elimination belong to T4.  Perturbations, explicit curvature
+wrappers, post-update filters, and layer-wise trust-region rules belong to T5.
+Composite methods are classified by their incremental contribution and record
+secondary tags in the cross-dimension matrix.
+
+\textbf{Second, family boundaries are aligned with the meta-pipeline.}
+The five families are not arbitrary names.  T1 mainly modifies element-wise
+state evolution in S3 and local scaling in S5.  T2 changes the update space
+through S1--S4 matrix routing, matrix transformation, structured state, and
+reconstruction.  T3 introduces irreversible direction discretization in S2
+and often simplifies S3.  T4 acts on S3/S4 state representation and gradient
+lifetime.  T5 acts near S5 through update writeback, post-processing, or
+geometric regularization.  Given an update rule, locating its dominant
+non-identity pipeline operation is usually enough to assign the method label.
+
+\textbf{Third, Dimension B uses multi-label effect annotations.}
+Effect objectives should not be mutually exclusive categories.  A method may
+target convergence efficiency and hyperparameter robustness at the same time,
+or it may reduce memory while hurting convergence or stability.  An effect
+label means that the method claims to improve, is designed to improve, or must
+be evaluated on that property.
+This separation avoids equating ``designed to save memory'' with ``better
+under a fixed hardware budget,'' and avoids assuming that every
+sharpness-aware method improves generalization under every protocol.
+
+\subsection{Methodological Taxonomy}
+\label{sec:taxonomy-method}
+
+Dimension A organizes the surveyed set of 108 optimizers into five families
+and fifteen subclasses.  The five
+families correspond to the dominant mechanism that transforms a stochastic
+gradient into a parameter update.  The main text keeps the organizing
+principles and family definitions that are needed for the survey chapters that
+follow, with a compact family-level summary given in
+Table~\ref{tab:taxonomy_cross_matrix}.
+
+\textbf{T1: Element-wise adaptive moment and scalar control.}
+T1 retains the Adam-style element-wise processing paradigm, but it is broader
+than a strict set of Adam variants.  Its core members maintain first moments,
+second moments, or related variance surrogates and normalize each parameter
+independently.  Its boundary members are scalar first-order predecessors or
+outer-control schemes that do not introduce matrix routing, sign
+quantization, state compression, or sharpness-aware wrapper gradients.
+Differences within the family come from temporal structure, variance
+estimation, iterate averaging, corrected decay, and global step-size rules.
+In the four-axis view, most T1 methods use the identity analysis basis, a
+diagonal Fisher or variance estimate, square-root preconditioning for the
+Adam-like core, and full state storage.
+
+\textbf{T2: Matrix-level structural methods.}
+T2 treats two-dimensional Transformer weights as matrices rather than as
+flattened vectors.  The family includes spectral orthogonalization,
+Kronecker-factored preconditioning, and low-rank subspace projection.  These
+methods share nontrivial S1 routing and S2 transformation: they either
+orthogonalize matrix momentum, maintain row/column curvature factors, or
+project gradients into a low-dimensional subspace before updating state.  T2
+is the family that most visibly changes Axis~I.  Muon-style methods use a
+dynamic SVD or polar basis, Shampoo and SOAP use Kronecker or Fisher eigenbases,
+and GaLore changes the effective optimizer-state space through projection.
+
+\textbf{T3: Discretization and directional quantization.}
+T3 is defined by sign maps or related direction-discretization operations.
+The core idea is to keep coarse direction information while discarding or
+quantizing magnitude.  Lion is the representative method: it forms a signed
+direction from a gradient-momentum interpolation and keeps only first-order
+momentum.  Compared with T1, T3 is not merely a cheaper second-moment
+estimator.  It changes the geometry of the update direction.  In the LMO view,
+the family is naturally associated with $\ell_\infty$-type direction
+selection and weak or absent Hessian preconditioning.  Methods whose primary
+increment is a binary or stochastic mask applied to an already computed
+update are treated as T5.3 post-update filtering rather than as T3, even when
+the mask is motivated by directional agreement.
+
+\textbf{T4: State compression and structural aggregation.}
+T4 directly targets the optimizer-state memory bottleneck.  It includes
+row/column factorization, low-bit state quantization, block- or layer-level
+state sharing, and fused backprop-update schemes.  Its distinction from T2.3
+is the object being compressed.  T2.3 first changes the mathematical subspace
+of the gradient signal and then runs an optimizer in that subspace.  T4 mainly
+changes how the state itself is stored, shared, quantized, or released.  In
+the four-axis view, T4 is the most direct instantiation of state compression in Axis~II.
+
+\textbf{T5: Curvature-aware and geometric regularization.}
+T5 does not primarily introduce a new element-wise moment estimator or matrix
+transform.  Instead, it adds geometric constraints near update finalization.
+Sharpness-aware methods change the point at which gradients are evaluated.
+Hessian-guided methods replace or augment curvature signals and often add
+trust-region clipping.  Post-processing methods centralize, project,
+normalize, mask, or sparsify an already computed update.  Layer-wise
+trust-region methods rescale updates according to parameter and update norms.
+Because many T5 methods are wrappers around a base optimizer, the base
+optimizer and the T5 mechanism must be recorded separately.
+
+Boundary cases are resolved by the primary incremental mechanism.  Direct
+Adam variants remain T1 even if they claim stability or generalization
+benefits, because their main mechanism is still element-wise moment
+estimation or step-size control.  Q-GaLore is T4.2 when the focus is the
+additional quantized-state mechanism, while base GaLore remains T2.3.  Magma and MGUP are T5.3 because their primary operation is a selective
+update mask.  SAM, Cautious optimizers, and
+LAMB are classified by wrapper-level contributions in T5 rather than by their
+possible AdamW or Lion base optimizers.  This keeps
+the main survey families mutually exclusive while leaving room for secondary
+tags in the appendix-level optimizer matrix.
+
+\subsection{Objective-Oriented Taxonomy}
+\label{sec:taxonomy-objective}
+
+Dimension B describes what an optimizer is intended to improve.  We organize
+effect objectives by evaluation cost rather than by method mechanism, because
+the feasibility of a benchmark depends on how each objective is measured.  We
+use six objectives: O1 convergence efficiency, O2 per-step computational
+cost, O3 memory overhead, O4 training stability, O5 hyperparameter
+robustness, and O6 generalization quality.  These labels are not mutually
+exclusive and should not be read as intrinsic family rankings.  They are
+evaluation axes for organizing experiments and interpreting trade-offs.
+
+The six objectives form three measurement layers.
+
+\textbf{Layer 1: directly logged metrics.}
+O1--O3 can be obtained from a single training run, timers, profilers, or
+analytic byte/FLOP models.  O1 measures how fast loss decreases or a target
+quality is reached under a fixed step, token, wall-clock, or compute budget.
+O2 measures additional per-step computation relative to AdamW or SGD,
+including matrix multiplications, orthogonalization iterations, extra
+forward/backward passes, synchronization, and quantization/dequantization.
+O3 measures memory from parameters, gradients, optimizer states, temporary
+matrices, projection bases, and quantization buffers.
+
+\textbf{Layer 2: single-run derived metrics.}
+O4 and the lightweight version of O6 require post-processing of standard
+training logs.  O4 measures whether the trajectory is robust to loss spikes,
+gradient-norm bursts, overflow, divergence, and incomplete runs.  The
+lightweight O6 signal comes from validation loss, train-validation gap, or a
+fixed validation protocol during pretraining.
+
+\textbf{Layer 3: cross-configuration metrics.}
+O5 and the full version of O6 require multiple training runs or downstream
+evaluations.  O5 measures sensitivity to learning rate, weight decay,
+momentum, warmup, batch size, and method-specific hyperparameters.  Full O6
+measures downstream transfer, out-of-distribution retention, scale transfer,
+or other quality metrics beyond pretraining loss.
+
+\input{tables/tab_effect_objectives}
+
+
+Dimension B must remain neutral before benchmarking.  T2 methods may improve
+O1 token efficiency through matrix structure, but their orthogonalization or
+Kronecker operations may hurt O2.  T4 methods are designed for O3, but
+aggressive compression may degrade O1 or O4.  T5 methods often target O4 and
+O6, but SAM-style extra gradient evaluations impose a clear O2 cost.  Thus
+effect labels are measurement prompts rather than substitutes for empirical
+results.
+
+For the family analyses in Section~\ref{sec:optimizer-families}, each
+optimizer or subclass can be annotated by
+\begin{equation}
+  \operatorname{Effect}(A) \subseteq \{O1,O2,O3,O4,O5,O6\},
+  \label{eq:effect-tags}
+\end{equation}
+where $A$ denotes an optimizer or subclass.  The annotation should distinguish
+design intent from experimentally verified effect.  AdaFactor, for instance,
+can be marked as O3-targeting under an analytic memory model, but whether it
+also improves O1, O4, or O6 under a fixed training protocol must be decided
+by the benchmark.
+
+\subsection{Cross-Dimension Analysis}
+\label{sec:taxonomy-cross}
+
+The value of the dual taxonomy appears in cross-dimension analysis.
+Dimension A gives mechanism labels, while Dimension B gives effect objectives.
+Table~\ref{tab:taxonomy_cross_matrix} provides a compact matrix of the
+objectives that each method family should emphasize in the benchmark.  The
+matrix is a mechanism-informed prior, not a final empirical conclusion.
+
+\input{tables/tab_taxonomy_cross_matrix}
+
+The symbols in Table~\ref{tab:taxonomy_cross_matrix} should not be read as a
+global performance ranking.  A T2 method may be slower per step but still win
+in wall-clock time if token efficiency improves enough.  A T4 method may look
+worse in a fixed-small-model loss comparison while enabling a larger batch or
+model under the same hardware budget.  A T5 method may improve generalization
+only at particular data scales, training durations, or evaluation suites.
+
+The cross view also identifies mechanisms that are likely to compose
+orthogonally.  Low-rank projection and state quantization can be combined
+because T2.3 changes the signal subspace, whereas T4.2 changes the state
+representation.  Variance-reduced gradient estimates can be layered onto
+AdamW, Lion, or Shampoo because variance reduction (Axis~II) is mostly independent of basis choice
+and curvature representation.  Post-update filters can wrap AdamW or Lion
+because T5.3 acts after the base direction has been computed.  Layer-wise
+trust ratios can similarly wrap an element-wise adaptive update because they
+primarily act in S5.
+
+Not every cross-family combination is natural.  Mechanisms that occupy the
+same meta-pipeline slot require an explicit ordering and a descent-quality
+argument.  Spectral orthogonalization and low-rank projection are both strong
+S2 constraints on a matrix signal, so combining them requires specifying whether
+projection precedes orthogonalization or vice versa.  LOMO-style streaming
+updates can conflict with methods that need global gradient statistics,
+delayed basis updates, or a second gradient evaluation.  SAM-style methods
+already require extra forward/backward computation, so adding expensive
+Kronecker-factored preconditioning may be mathematically valid but practically
+unattractive.  These constraints are not implementation details.  They are
+composition boundaries that the taxonomy should make explicit.
+
+The full appendix-level matrix should therefore record, for each optimizer,
+three fields: the primary Dimension-A label, secondary mechanism tags, and
+O1--O6 effect annotations.  The main text keeps only compact summaries such
+as Table~\ref{tab:taxonomy_cross_matrix}; the family analyses instantiate the
+matrix progressively by describing each subclass's meta-pipeline site,
+four-axis coordinates, and expected benchmark signature.  In this way, the
+taxonomy is a mechanism-aware
+benchmark plan: a new optimizer entering the framework must specify which
+pipeline stage it modifies, which four-axis coordinates it changes, and which
+effect objectives it claims to improve.

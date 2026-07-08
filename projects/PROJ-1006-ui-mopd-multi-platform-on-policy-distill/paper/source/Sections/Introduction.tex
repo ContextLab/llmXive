@@ -1,0 +1,100 @@
+\section{Introduction}
+\label{sec:intro}
+
+Recent advances in multimodal foundation models~\citep{qwen3-vl,
+Claude-Opus-4.6, Seed2.0} have strengthened visual understanding,
+language reasoning, and tool-use capabilities~\citep{tu2026consensus}. Simultaneously, agent
+systems~\citep{MM-MEM, milestone, Audio-Oscar} have rapidly evolved from
+language only assistants toward interactive agents that can plan, invoke
+tools, and operate in external environments. Graphical user interface
+(GUI) agents~\citep{UI-TARS-2,Mobile-agent-v3.5} have therefore emerged
+as a natural task form for connecting model intelligence with real digital
+environments. GUI agents must understand screen content, plan operation
+steps, and complete user goals through interface-level actions such as
+clicking, typing, and swiping. Early studies largely centered on 
+platform-specific web navigation or computer automation. Benchmarks such as OSWorld~\citep{osworld} and
+MobileWorld~\citep{mobileworld} evaluate agents in interactive computer
+and mobile environments, driving a shift from static interface
+understanding toward long-horizon, platform-grounded interaction. Yet
+real-world workflows often span computer applications, mobile apps, and web
+services, requiring agents to adapt across heterogeneous GUI environments while preserving the interaction
+conventions of each platform. This progression raises a central question:
+\textit{how can a shared GUI agent continually adapt across heterogeneous
+platforms while retaining platform-specific interaction behaviors}?
+
+Recent efforts have attempted to extend GUI agents beyond isolated
+platforms mainly by scaling interaction data or training a shared policy
+on heterogeneous environments. Open-source datasets such as
+OpenCUA~\citep{Opencua} and OpenMobile~\citep{openmobile} provide
+growing collections of GUI trajectories, while multi-platform GUI
+agents~\citep{Mobile-agent-v3.5, UI-venus-1.5} typically combine signals
+from computer, mobile, or web environments through mixed supervised
+fine-tuning (SFT), mixed reinforcement learning (RL), or model merging.
+Although these efforts broaden platform coverage, they largely treat
+cross-platform learning as aggregating more data or merging heterogeneous
+training signals.
+
+However, a capable cross-platform GUI agent requires more than exposure
+to multiple platforms. It must acquire transferable interface reasoning
+while preserving the distinct interaction conventions of each platform.
+This creates two bottlenecks. First, high-quality cross-platform
+trajectories remain scarce: existing datasets often focus on
+single-platform settings and may contain invalid actions, inaccurate
+state-action alignment, or inconsistent task granularity. Second,
+computer and mobile platforms differ in action semantics and affordances;
+for example, returning to the previous context may mean closing a window
+on computers but pressing the back button in a mobile app. Naively
+combining such signals can produce an overly averaged policy in joint
+training and, under continual learning, cause catastrophic forgetting of
+previously learned platform-specific behaviors.
+Thus, cross-platform GUI learning requires stable platform-specific
+behavioral anchors throughout policy optimization.
+
+To address these challenges, we first build a unified cross-platform
+data collection harness that collects interaction data from computer and
+mobile environments with a consistent action interface and logging format.
+Using this harness, we collect approximately 110K and 50K interaction
+steps from computer and mobile environments, respectively. After rigorous
+filtering and quality control, we construct \BENCH, a dataset
+containing nearly 10K high-quality cross-platform interaction trajectories.
+Building on Uni-GUI, we propose \METHODNAME, the first method to 
+introduce multi-teacher on-policy distillation (MOPD) into GUI agent continual learning, 
+with platform-conditioned teachers for multi-platform adaptation.
+
+
+\METHODNAME dynamically selects a platform-specific teacher for each
+rollout environment and transfers platform-specific behavior distributions
+to a shared policy. For computer and mobile environments, the model aligns
+with native interaction patterns preserved by corresponding teachers,
+preventing behavior signals with different interaction conventions from
+being indiscriminately mixed during optimization. These platform-specific
+teachers provide more than additional supervision. They serve as stable
+behavioral anchors, allowing a shared policy to improve task completion
+while preserving platform-specific behavioral priors. Through such
+environment-conditioned policy alignment, \METHODNAME better balances
+adaptation to new platforms with retention of existing platform behaviors,
+mitigates behavioral convention mixing and catastrophic forgetting of
+platform-specific behaviors, and encourages a
+platform-aware policy that activates different interaction modes according
+to environment context.
+
+
+
+Empirical results further demonstrate the effectiveness of \METHODNAME. It achieves
+task success rates of $\mathbf{38.2\%}$ on OSWorld and $\mathbf{12.0\%}$ on MobileWorld, corresponding to
+relative improvements of $\mathbf{12.7\%}$ and $\mathbf{55.8\%}$ over the base model, respectively.
+Importantly, these gains are observed in both computer and mobile environments,
+suggesting that \METHODNAME improves adaptation to new platforms without sacrificing
+existing platform capabilities and enables more balanced continual
+optimization across platforms.
+
+
+The main contributions of this work are summarized as follows:
+
+\begin{itemize}
+    \item We introduce \BENCHhl, a high-quality dataset for multi-platform GUI interaction. Using a unified cross-platform data-collection harness, we collect approximately 10K high-quality cross-platform interaction trajectories from computer and mobile environments.
+
+    \item We propose \METHODNAMEhl, the first method to introduce multi-teacher on-policy distillation for continual GUI agent learning, addressing behavioral convention mixing, platform-specific degradation, and catastrophic forgetting in continual GUI agent learning.
+
+    \item We conduct systematic experiments on \textbf{OSWorld} and \textbf{MobileWorld}. \METHODNAMEhl achieves task success rates of $\mathbf{38.2\%}$ and $\mathbf{12.0\%}$ on OSWorld and MobileWorld, respectively, demonstrating its effectiveness in preserving cross-platform capabilities while adapting to new platforms.
+\end{itemize}

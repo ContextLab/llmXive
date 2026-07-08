@@ -1,0 +1,27 @@
+\begin{table}[!htbp]
+  \centering
+  \caption{Mechanism-informed effect assessment for T1 subclasses. The entries are design priors for benchmark planning, not final empirical conclusions.}
+  \label{tab:t1_effect_assessment}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\linewidth}{@{}Y Y Y@{}}
+    \toprule
+    Primary target & Likely cost & Benchmark focus \\
+    \midrule
+    \rowcolor{famT1!18}\multicolumn{3}{c}{\textbf{\textcolor{famT1!62!black}{T1: Element-wise adaptive moment and scalar control}}} \\
+    \rowcolor{famT1!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.1 Scalar bases and direct Adam variants}}} \\
+      O1 convergence, O4 stability, O5 default robustness
+      & O3 two-state memory (lower for scalar predecessors)
+      & AdamW-normalized loss, warmup and $\beta_2$ sensitivity, decay coupling \\
+    \rowcolor{famT1!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.2 Multi-timescale and variance reduction}}} \\
+      O1 convergence, O4 smoother trajectories
+      & Extra S3 state
+      & Token efficiency, noise sensitivity, batch-size transfer \\
+    \rowcolor{famT1!8}\multicolumn{3}{@{}l@{}}{\textbf{\textcolor{famT1!62!black}{T1.3 Iterate averaging and automatic tuning}}} \\
+      O5 hyperparameter robustness (secondary O4)
+      & Possible O1 loss when schedules are well tuned
+      & LR sweep width, schedule transfer, constant-LR comparison \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

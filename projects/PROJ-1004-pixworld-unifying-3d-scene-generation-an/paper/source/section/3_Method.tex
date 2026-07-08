@@ -1,0 +1,158 @@
+%======================================================================
+\section{Methodology}
+\label{sec:method}
+%======================================================================
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figs/pix_method_v4.pdf}
+    \caption{\textbf{Overview of PixWorld.} (a) PixWorld adopts a unified DiT-based framework that takes noisy and clean multi-view inputs, with optional text conditioning, and jointly predicts depth and 3DGS through shared transformer blocks. (b) A pixel-space flow matching loss is imposed on rendered multi-view images to directly optimize the underlying 3D representation. (c) A geometry perception loss further enforces structural consistency by aligning rendered views with ground-truth observations through a 3D foundation model.}
+    \vspace{-6mm}
+    \label{fig:method}
+\end{figure}
+
+We present PixWorld, a unified pixel-space diffusion framework that jointly addresses 3D scene reconstruction and generation within a single model (Fig.~\ref{fig:method}). Given a set of posed multi-view images, PixWorld partitions them into a clean subset and a noisy subset, jointly processes both with a two-stream diffusion transformer, and decodes the resulting features into a pixel-aligned 3D Gaussian representation~\citep{kerbl20233d}. The predicted Gaussians are rendered back to images, on which the diffusion objective is supervised directly, aligning optimization with 3D scene fidelity rather than with targets in an intermediate latent space. To further provide 3D structural supervision beyond photometric and perceptual losses that operate at the 2D image level, we introduce a geometry perception loss defined in the geometry-aware feature space of a pretrained 3D foundation model.
+
+%======================================================================
+\subsection{Preliminary: Pixel-Space Diffusion}
+\label{sec:prelim}
+%======================================================================
+
+We first briefly review diffusion in the standard 2D image setting and contrast pixel-space diffusion with latent-space diffusion. In latent diffusion, an image $x$ is first mapped into a compact latent representation by a pretrained image autoencoder, \textit{e.g.}, a VAE or a RAE, written as $\mathcal{E}_{\mathrm{AE}}: x \mapsto z$. Diffusion is then performed in the latent space, and the denoised latent is finally mapped back to RGB space by $\mathcal{D}_{\mathrm{AE}}: \hat{z} \mapsto \hat{x}$. This design reduces the dimensionality and computational cost of diffusion modeling, but it also inserts an intermediate autoencoding bottleneck between the diffusion variable and the final image-space supervision.
+
+Following JiT~\citep{li2025back}, we instead adopt \emph{image prediction} in pixel space. Given a clean image $x\in\mathbb{R}^{H\times W\times 3}$, a Gaussian noise sample $\epsilon\sim\mathcal{N}(\mathbf{0},\mathbf{I})$, and a timestep $t\in[0,1]$, the noisy input is constructed by linear interpolation, $x_t = t\,x + (1-t)\,\epsilon$. The denoiser is parameterized directly as an image predictor,
+\begin{equation}
+f_\theta : (x_t,t,c) \mapsto \hat{x},
+\label{eq:prelim_xpred}
+\end{equation}
+where $c$ denotes conditional information such as class labels or text embeddings. The predicted image is converted into a velocity field $\hat{v}=(\hat{x}-x_t)/(1-t)$, yielding the flow-matching objective
+\begin{equation}
+\mathcal{L}_{\mathrm{FM}}
+=
+\mathbb{E}_{x,\epsilon,t}\!\left[\|\hat{v}-v\|_2^2\right]
+=
+\mathbb{E}_{x,\epsilon,t}\!\left[\frac{\|\hat{x}-x\|_2^2}{(1-t)^2}\right],
+\label{eq:prelim_fm}
+\end{equation}
+where $v=x-\epsilon$ is the ground-truth velocity. This pixel-space parameterization is particularly attractive for our 3D setting. Latent diffusion defines its objective on encoded latents, leaving the diffusion process decoupled from both the rendered output and the underlying 3D representation it is meant to supervise. Pixel-space diffusion instead keeps the diffusion variable and the rendered output in the same RGB domain, so the diffusion objective can be supervised directly on rendered images, aligning optimization with 3D scene fidelity rather than with targets in an intermediate latent space.
+
+%======================================================================
+\subsection{PixWorld Framework}
+\label{sec:pixworld}
+%======================================================================
+
+\paragraph{Task formulation.}
+Building on the 2D pixel-space diffusion formulation above, PixWorld extends image prediction to a posed multi-view setting. Given a scene with $N$ posed views, we denote the RGB images and camera parameters by
+$
+\mathcal{I}=\{\mathcal{I}^n\}_{n=1}^{N},
+\mathcal{T}=\{\mathcal{T}^n\}_{n=1}^{N},
+$
+where $\mathcal{I}^n\in\mathbb{R}^{H\times W\times 3}$ is the RGB image of the $n$-th view and $\mathcal{T}^n$ denotes its camera parameters. We partition the view indices into a clean subset $\Omega_{\mathrm c}$ and a noisy subset $\Omega_{\mathrm n}$ such that
+\begin{equation}
+\Omega_{\mathrm c}\cup\Omega_{\mathrm n}=\{1,\dots,N\},
+\qquad
+\Omega_{\mathrm c}\cap\Omega_{\mathrm n}=\varnothing,
+\qquad
+|\Omega_{\mathrm c}|\ge 1.
+\label{eq:clean_noisy_partition}
+\end{equation}
+When $\Omega_{\mathrm n}=\varnothing$, the task reduces to multi-view 3D reconstruction from clean observations. Otherwise, PixWorld predicts the noisy views conditioned on the clean ones. An optional text prompt $y$ may further specify the scene.
+
+For each view $n$, the model input is defined as
+\begin{equation}
+\tilde{\mathcal{I}}_t^n=
+\begin{cases}
+\mathcal{I}^n, & n\in\Omega_{\mathrm c},\\[2pt]
+t\,\mathcal{I}^n+(1-t)\epsilon^n, & n\in\Omega_{\mathrm n},
+\end{cases}
+\qquad
+\epsilon^n\sim\mathcal{N}(\mathbf 0,\mathbf I),
+\label{eq:mixed_input}
+\end{equation}
+where all noisy views of the same scene share the same timestep $t$. We denote the mixed multi-view input by $\tilde{\mathcal{I}}_t=\{\tilde{\mathcal{I}}_t^n\}_{n=1}^{N}$.
+
+\paragraph{Two-stream diffusion transformer.}
+Given the mixed input $\tilde{\mathcal{I}}_t$, PixWorld uses a two-stream diffusion transformer
+\begin{equation}
+f_\theta : (\tilde{\mathcal{I}}_t,\mathcal{T},y)\mapsto (\hat{\mathcal{D}},\hat{\mathcal{G}}),
+\label{eq:pixworld_mapping}
+\end{equation}
+where $\hat{\mathcal{D}}=\{\hat{\mathcal{D}}^n\}_{n=1}^{N}$ denotes the predicted multi-view depth maps and $\hat{\mathcal{G}}$ denotes the predicted pixel-aligned 3D Gaussian scene representation. Clean and noisy views are embedded by separate input projections and jointly processed by shared transformer blocks. The noisy stream is conditioned on the sampled timestep $t$, while the clean stream always receives the fully denoised time embedding corresponding to $t=1$. Camera parameters are injected via PRoPE~\citep{li2025cameras}, and the optional text condition is fused through cross-attention.
+
+\paragraph{3D Gaussian decoding and rendering.}
+From the shared features, the network predicts a depth map $\hat{\mathcal{D}}^n$ for each view together with the Gaussian attributes that define $\hat{\mathcal{G}}$. Rather than regressing 3D centers directly, we unproject each pixel using its predicted depth and camera: for the $p$-th pixel of the $n$-th view with depth $\hat d_p^n$, the Gaussian center is $\mu_p^n=\Pi^{-1}(p,\hat d_p^n,\mathcal{T}^n)$, where $\Pi^{-1}$ is the inverse projection to world space. Aggregating across all pixels and views yields the scene-level representation $\hat{\mathcal{G}}$, which is rendered by a differentiable renderer $\mathcal{R}:(\hat{\mathcal{G}},\mathcal{T}^n)\mapsto \bar{\mathcal{I}}^n$, giving the rendered multi-view set $\bar{\mathcal{I}}=\{\bar{\mathcal{I}}^n\}_{n=1}^{N}$.
+
+
+\paragraph{FM rendering and depth objectives.}
+To align the rendering supervision with the velocity-based parameterization introduced in Section~\ref{sec:prelim}, we formulate the rendering loss in the same FM style. For each noisy view $n\in\Omega_{\mathrm n}$, we define the rendered and ground-truth velocities as $\bar{v}^n = (\bar{\mathcal{I}}^n-\tilde{\mathcal{I}}_t^n)/(1-t)$ and $v^n = (\mathcal{I}^n-\tilde{\mathcal{I}}_t^n)/(1-t)$, where $v^n=\mathcal{I}^n-\epsilon^n$ follows directly from Eq.~\eqref{eq:mixed_input}. For each clean view $n\in\Omega_{\mathrm c}$, the rendered image $\bar{\mathcal{I}}^n$ is supervised against the observation $\mathcal{I}^n$ by a direct MSE term, since clean views serve as noise-free reconstruction anchors. We then define
+\begin{equation}
+\mathcal{L}_{\mathrm{render}}
+=
+\underbrace{\frac{1}{|\Omega_{\mathrm c}|}\sum_{n\in\Omega_{\mathrm c}}
+\|\bar{\mathcal{I}}^n-\mathcal{I}^n\|_2^2}_{\mathcal{L}_{\mathrm{recon}}}
++
+\underbrace{\frac{\mathbf{1}[\,|\Omega_{\mathrm n}|>0\,]}{|\Omega_{\mathrm n}|}\sum_{n\in\Omega_{\mathrm n}}
+\|\bar{v}^n-v^n\|_2^2}_{\mathcal{L}_{\mathrm{FM}}}
++
+\lambda_{\mathrm{lpips}}\,\mathcal{L}_{\mathrm{lpips}},
+\label{eq:lrender}
+\end{equation}
+where the FM term is equivalently written in image space as $
+\frac{1}{|\Omega_{\mathrm n}|}\sum_{n\in\Omega_{\mathrm n}}
+\frac{\|\bar{\mathcal{I}}^n-\mathcal{I}^n\|_2^2}{(1-t)^2}$,
+and the perceptual term is defined as $\mathcal{L}_{\mathrm{lpips}}=\mathbf{1}[t>t_{\mathrm{th}}]\,\frac{1}{N}\sum_{n=1}^{N}\mathrm{LPIPS}(\bar{\mathcal{I}}^n,\mathcal{I}^n)$. The indicator $\mathbf{1}[\,|\Omega_{\mathrm n}|>0\,]$ disables the FM term in the pure reconstruction case ($\Omega_{\mathrm n}=\varnothing$), while $|\Omega_{\mathrm c}|\ge 1$ is guaranteed by Eq.~\eqref{eq:clean_noisy_partition}. We activate the LPIPS term only when $t>t_{\mathrm{th}}$, since perceptual supervision is unreliable when the noisy input is too close to pure noise. We further sample 4–8 novel views per iteration and supervise their renderings against ground-truth images via MSE and lpips loss, regularizing the 3DGS to render well from all viewpoints.
+
+
+
+We further supervise the predicted depth maps against pseudo-depth labels $\mathcal{D}^{\star}=\{\mathcal{D}^{\star n}\}_{n=1}^{N}$ (obtained from DA3~\citep{lin2025depth}) by
+\begin{equation}
+\mathcal{L}_{\mathrm{depth}}
+=
+\frac{1}{N}\sum_{n=1}^{N}
+\rho\!\left(
+\log \hat{\mathcal{D}}^{\,n}
+-
+\log \mathcal{D}^{\star n}
+\right),
+\label{eq:ldepth}
+\end{equation}
+where $\rho(\cdot)$ is a Huber loss applied element-wise and then averaged over pixels.
+
+%======================================================================
+\subsection{Geometry Perception Loss}
+\label{sec:geo_loss}
+%======================================================================
+
+\paragraph{Motivation.}
+Although $\mathcal{L}_{\mathrm{render}}$ enforces view consistency, it remains photometric in nature and therefore does not fully constrain the underlying 3D structure. In particular, depth may drift along a viewing ray as long as the projected appearance is preserved, translucent floaters may average to plausible colors, and view-dependent texture can partially compensate for geometric misalignment. These ambiguities are especially problematic for noisy views, which do not have direct clean image supervision at the input stage.
+
+To complement pixel-level supervision with a more structural signal, we introduce a \emph{geometry perception loss} defined in the feature space of a frozen 3D foundation model $\Psi$ (\textit{e.g.}, VGGT~\citep{wang2025vggt} or $\pi^3$~\citep{wang2025pi}).
+
+\paragraph{Geometry perception loss.}
+Given the rendered view set $\bar{\mathcal{I}}$ and the ground-truth view set $\mathcal{I}$ under the same cameras $\mathcal{T}$, we extract multi-view geometric features with $\Psi : (\mathcal{I},\mathcal{T}) \mapsto \mathcal{H}\in\mathbb{R}^{N\times C_{\Psi}\times H' \times W'}$. Applying $\Psi$ to the rendered and reference images gives
+\begin{equation}
+\bar{\mathcal{H}}=\Psi(\bar{\mathcal{I}},\mathcal{T})=\{\bar{\mathcal{H}}^n\}_{n=1}^{N},
+\qquad
+\mathcal{H}^{\star}=\Psi(\mathcal{I},\mathcal{T})=\{\mathcal{H}^{\star n}\}_{n=1}^{N},
+\label{eq:geo_features}
+\end{equation}
+where $\bar{\mathcal{H}}^n$ and $\mathcal{H}^{\star n}$ denote the rendered and reference feature maps of the $n$-th view, respectively. We minimize the average per-location cosine distance between the two feature fields only when the timestep is sufficiently large:
+\begin{equation}
+\mathcal{L}_{\mathrm{geo}}
+=
+\mathbf{1}[t>t_{\mathrm{th}}]\,
+\frac{1}{N H' W'}\sum_{n=1}^{N}\sum_{p}
+\left[
+1-
+\frac{
+\left\langle \bar{h}^{\,n}_{p},\,h^{\star n}_{p}\right\rangle
+}{
+\|\bar{h}^{\,n}_{p}\|_2\,\|h^{\star n}_{p}\|_2
+}
+\right],
+\label{eq:geo_loss}
+\end{equation}
+where $\bar{h}^{\,n}_{p}$ and $h^{\star n}_{p}$ are the feature vectors at location $p$ of $\bar{\mathcal{H}}^n$ and $\mathcal{H}^{\star n}$, respectively. Because $\Psi$ jointly processes all views together with their cameras, its features encode cross-view 3D structure rather than only per-image appearance. Consequently, two renderings that are individually photo-consistent but mutually inconsistent in 3D can still produce different feature maps and incur a large $\mathcal{L}_{\mathrm{geo}}$. During training, we freeze $\Psi$, stop gradients on the reference branch $\mathcal{H}^{\star}$, and back-propagate only through the rendered branch $\bar{\mathcal{H}}$, so that $\Psi$ acts purely as a structural critic. We activate this term only when $t>t_{\mathrm{th}}$, since geometric feature matching is unstable when the noisy input is too close to pure noise.
+
+\paragraph{Overall objective.}
+The full training objective is $\mathcal{L} = \mathcal{L}_{\mathrm{render}} + \lambda_{\mathrm{depth}}\,\mathcal{L}_{\mathrm{depth}} + \lambda_{\mathrm{geo}}\,\mathcal{L}_{\mathrm{geo}}$.

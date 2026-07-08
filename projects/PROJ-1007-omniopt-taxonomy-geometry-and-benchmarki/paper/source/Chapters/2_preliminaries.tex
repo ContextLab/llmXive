@@ -1,0 +1,235 @@
+\section{Preliminaries}
+\label{sec:prelim}
+% -----------------------------------------------------------------------
+
+This section lays the groundwork for the rest of the paper and fixes the
+optimization framework, model-structural conventions, and mathematical notation
+used in the analysis that follows.  Section~\ref{sec:prelim-formulation} first
+formalizes large-language-model training as a stochastic optimization problem
+and clarifies its characteristic parameter topology.  Building on this,
+Section~\ref{sec:prelim-background} reviews the core mechanisms of classical
+optimization methods, ranging from SGD and momentum to adaptive moment
+estimation.  It also introduces the preconditioning perspective behind the
+Newton method, the natural gradient, and Fisher or Hessian curvature, so that the
+later sections have the background they need to develop the unified theoretical
+framework.
+
+\subsection{Problem Formulation}
+\label{sec:prelim-formulation}
+
+\paragraph{Training objective and stochastic gradients.}
+Let $\mathcal{D}=\{(\mathbf{x}_i,\mathbf{y}_i)\}_{i=1}^N$ denote a training
+corpus and let $\theta\in\mathbb{R}^d$ collect all trainable parameters of a
+language model.  Pretraining and supervised fine-tuning both reduce to empirical
+risk minimization,
+\begin{equation}
+  \min_{\theta\in\mathbb{R}^d}\;\mathcal{L}(\theta)
+  = \frac{1}{N}\sum_{i=1}^{N}\ell(\theta;\,\mathbf{x}_i,\mathbf{y}_i),
+  \label{eq:objective}
+\end{equation}
+where $\ell$ is usually a token-level cross-entropy or an instruction-tuning
+loss derived from it. At step $t$, the optimizer receives a mini-batch
+gradient,
+\begin{equation}
+  g_t = \frac{1}{|\mathcal{B}_t|}\sum_{i\in\mathcal{B}_t}
+        \nabla_\theta\ell(\theta_t;\,\mathbf{x}_i,\mathbf{y}_i),
+  \label{eq:mbgrad}
+\end{equation}
+where $\mathcal{B}_t\subset\{1,\ldots,N\}$.  When a stochastic-oracle model is
+needed, we write $\mathbb{E}[g_t\mid\theta_t]=\nabla\mathcal{L}(\theta_t)$ and
+$\mathbb{E}[\|g_t-\nabla\mathcal{L}(\theta_t)\|^2]\le\sigma^2$.  In practice,
+$g_t$ reflects data sampling, sequence packing, distributed reduction, mixed
+precision, gradient accumulation, clipping, and loss scaling.  These system
+details are not separate from optimizer behavior.  In fact, they are what
+determine the noise level, numerical range, and memory traffic seen by the
+update rule.
+
+\paragraph{Transformer parameter topology.}
+Transformer-style LLMs~\cite{vaswani2017attention} contain heterogeneous
+parameter tensors.  For optimizer design, the most important distinction is not
+the layer name but the tensor geometry.  Two-dimensional matrices
+$W\in\mathbb{R}^{m\times n}$, such as attention projections
+$W_Q,W_K,W_V,W_O$, feed-forward projections, and embedding tables, admit
+row-column operations including singular-value decompositions, Kronecker
+factorization, matrix orthogonalization, and low-rank projection.  Vector-like
+parameters, such as biases and normalization gains or shifts, do not have the
+same matrix geometry and are usually routed to element-wise rules or excluded
+from weight decay.  Some methods introduce finer scopes, e.g., attention-head
+blocks, per-layer groups, or module-specific rules.  This parameter topology is
+the basis for the scoping-and-routing stage of the universal meta-pipeline in
+Section~\ref{sec:meta-pipeline}.
+
+\paragraph{Memory budget under mixed-precision training.}
+Under BF16 forward and backward computation with FP32 master weights, the
+training memory can be estimated as
+\begin{equation}
+  M_{\mathrm{train}}
+  \approx 4d + 2d + 2d + S_{\mathrm{opt}}d + M_{\mathrm{act}}.
+  \label{eq:memory-budget}
+\end{equation}
+The first three terms correspond to FP32 master parameters, BF16 model copies,
+and BF16 gradients, $S_{\mathrm{opt}}$ is the optimizer-state footprint in bytes
+per parameter, and $M_{\mathrm{act}}$ denotes activation and temporary-buffer
+memory.  Adam stores two FP32 state tensors $m_t$ and $v_t$, so each parameter
+carries an extra 8 bytes.  A 7B-parameter model therefore needs about 56\,GB for
+Adam states alone, before activations, temporary buffers, and distributed-training
+overheads.  State-compressed methods in Section~\ref{sec:t4} are therefore not
+merely engineering variants.  Under a fixed hardware budget, reducing
+$S_{\mathrm{opt}}$ changes the feasible model size, batch size, and tuning regime.
+
+\subsection{Classical Optimization Background}
+\label{sec:prelim-background}
+
+The modern LLM optimizer literature can be read as a sequence of modifications
+to a small set of classical design choices.  These choices are whether to
+smooth gradients, whether to maintain a curvature proxy, how to scale the
+direction, and how to regularize the final write.  The following review fixes the baseline equations
+used by later sections.
+
+
+\paragraph{Newton method and the perspective of preconditioning.}
+A natural starting point for our subsequent preconditioning analysis is the Newton method. Near the current iterate, a second-order Taylor expansion yields:
+\begin{equation}
+  \mathcal{L}(\theta_t+\delta)
+  \approx
+  \mathcal{L}(\theta_t)
+  + g_t^\top\delta
+  + \frac{1}{2}\delta^\top H_t\delta,
+  \quad
+  H_t=\nabla^2\mathcal{L}(\theta_t).
+  \label{eq:newton-quadratic}
+\end{equation}
+Minimizing this local quadratic model gives the damped Newton update
+\begin{equation}
+  \theta_{t+1}
+  = \theta_t - \eta_t H_t^{-1}g_t,
+  \label{eq:newton-update}
+\end{equation}
+where the scalar $\eta_t$ absorbs damping, line search, or trust-region control.  This equation gives the classical preconditioning viewpoint, since the optimizer does not only choose a gradient signal but also chooses the geometry in which that signal is scaled.  SGD can be read as the first-order simplification that replaces $H_t^{-1}$ by the identity.  Modern large-model optimizers replace the exact inverse Hessian with tractable approximations or geometry-induced direction operators, where Adam uses a diagonal second-moment or Fisher-like proxy, Shampoo and SOAP use structured matrix factors or eigenbases, and Muon uses a polar or Gram-induced matrix direction.  This connection motivates the preconditioned and matrix-structured views used throughout the rest of the survey.
+
+\paragraph{SGD and momentum.}
+Stochastic gradient descent (SGD) writes the raw mini-batch gradient into the
+parameters:
+\begin{equation}
+  \theta_{t+1} = \theta_t - \eta_t\,g_t.
+  \label{eq:sgd}
+\end{equation}
+Momentum replaces the instantaneous gradient with an exponential moving
+average (EMA):
+\begin{equation}
+  m_t = \beta_1\,m_{t-1} + (1-\beta_1)\,g_t,\quad
+  \theta_{t+1} = \theta_t - \eta_t\,m_t.
+  \label{eq:sgdm}
+\end{equation}
+SGD and momentum use one global scale, or a schedule of global scales, for all
+coordinates.  They therefore do not adapt to coordinate-wise gradient
+magnitudes or curvature proxies.
+In the notation of Eq.~\eqref{eq:newton-update}, SGD corresponds to the
+identity preconditioner, $H_t=I$, so $H_t^{-1}g_t=g_t$.  Momentum keeps the
+same identity geometry but replaces the instantaneous signal $g_t$ with the
+smoothed signal $m_t$.
+
+\paragraph{AdaGrad and RMSProp.}
+AdaGrad~\cite{duchi2011adaptive} introduced a diagonal, history-dependent
+preconditioner by accumulating squared gradients:
+\begin{equation}
+  G_t = \sum_{\tau=1}^{t}g_\tau^2,\quad
+  \theta_{t+1}
+  = \theta_t - \eta_t\,\frac{g_t}{\sqrt{G_t}+\epsilon}.
+  \label{eq:adagrad}
+\end{equation}
+Here and below, powers and divisions are element-wise unless stated otherwise.
+The monotone accumulator is useful for sparse features but can make effective
+learning rates decay too aggressively in long training runs.  RMSProp
+~\cite{tieleman2012rmsprop} replaces the cumulative sum with an EMA:
+\begin{equation}
+  v_t = \beta_2\,v_{t-1}+(1-\beta_2)\,g_t^2,\quad
+  \theta_{t+1}
+  = \theta_t - \eta_t\,\frac{g_t}{\sqrt{v_t}+\epsilon}.
+  \label{eq:rmsprop}
+\end{equation}
+Equivalently, AdaGrad uses the effective diagonal metric
+$H_t^{\mathrm{AdaGrad}}=\operatorname{diag}(\sqrt{G_t}+\epsilon)$, whereas
+RMSProp uses $H_t^{\mathrm{RMSProp}}=\operatorname{diag}(\sqrt{v_t}+\epsilon)$.
+Both should be read as cheap diagonal preconditioners, that is, approximate
+proxies for Fisher or Hessian curvature.
+
+\paragraph{Adam.}
+Adam~\cite{kingma2015adam} combines momentum and RMSProp-style second moments,
+then corrects the initialization bias of both EMAs:
+\begin{align}
+  m_t &= \beta_1\,m_{t-1}+(1-\beta_1)\,g_t,\quad v_t = \beta_2\,v_{t-1}+(1-\beta_2)\,g_t^2,
+  \label{eq:adam-moments}\\
+  \hat{m}_t &= m_t/(1-\beta_1^t),\quad \hat{v}_t = v_t/(1-\beta_2^t),
+  \label{eq:adam-bias}\\
+  \theta_{t+1} &= \theta_t - \eta_t\,\hat{m}_t/(\sqrt{\hat{v}_t}+\epsilon).
+  \label{eq:adam-update}
+\end{align}
+The diagonal preconditioner of Adam remains the reference point for most LLM
+optimizers.  Later methods may alter the moment time scale, replace the
+gradient estimator, change the direction map, compress the state, or add a
+wrapper around the final update.  Nevertheless, they are often compared against
+this Adam-like template.
+In the same preconditioning notation, Adam uses the effective signal
+$\hat{m}_t$ and the diagonal metric
+$H_t^{\mathrm{Adam}}=\operatorname{diag}(\sqrt{\hat{v}_t}+\epsilon)$, so the
+preconditioned direction is $H_t^{-1}\hat{m}_t
+=\hat{m}_t/(\sqrt{\hat{v}_t}+\epsilon)$.
+
+\paragraph{AdamW: decoupled weight decay.}
+In Adam, adding $\ell_2$ regularization to the loss causes the regularization
+gradient to be divided by the adaptive denominator. AdamW
+~\cite{loshchilov2019decoupled} decouples weight decay from this adaptive
+scaling:
+\begin{equation}
+  \theta_{t+1} = \theta_t
+    - \eta_t\,\frac{\hat{m}_t}{\sqrt{\hat{v}_t}+\epsilon}
+    - \eta_t\,\lambda\,\theta_t .
+  \label{eq:adamw}
+\end{equation}
+This change is small at the formula level but important as a baseline convention: throughout the survey, an ``Adam-like'' optimizer means a method whose main state evolution is inherited from AdamW unless stated otherwise.
+AdamW retains the Adam diagonal preconditioner $H_t^{\mathrm{Adam}}$ for data-gradient components, moving weight decay outside the preconditioned update direction and incorporating it directly in the final parameter assignment step.
+
+\paragraph{Natural gradient and the Fisher information matrix.}
+The natural gradient~\cite{amari1998natural} motivates many preconditioned
+updates.  For a parameterized distribution $p_\theta(z)$, the Fisher
+information matrix is:
+\begin{equation}
+  F(\theta)=\mathbb{E}_{z\sim p_\theta}\!\left[
+    \nabla_\theta\log p_\theta(z)\,
+    \nabla_\theta\log p_\theta(z)^\top
+  \right].
+  \label{eq:fisher-matrix}
+\end{equation}
+The corresponding update
+$\theta_{t+1}=\theta_t-\eta_t F(\theta_t)^{-1}\nabla\mathcal{L}(\theta_t)$
+uses the geometry of the predictive distribution, whereas ordinary gradient
+descent uses the Euclidean geometry of raw parameters.  Exact storage and inversion of $F$ are infeasible
+for modern LLMs, so practical optimizers use diagonal, block-diagonal,
+Kronecker, low-rank, or stochastic approximations.
+Thus, natural gradient follows the same Newton-style template, but it
+replaces $H_t$ with the Fisher metric $F(\theta_t)$.  This makes it a useful
+bridge to later matrix and curvature-aware methods, which differ mainly in how
+they approximate, factor, or simplify this metric.
+
+\paragraph{Gradient covariance and curvature.}
+For negative log-likelihood objectives, the outer product of score gradients
+defines the Fisher matrix.  Under standard regularity conditions, the gradient
+covariance, the Fisher matrix, and the Hessian are approximately equal, as
+given by
+\begin{equation}
+  \mathbb{E}\!\left[g_t g_t^\top\mid\theta_t\right]
+  \approx F(\theta_t),
+  \quad
+  F(\theta_t) \approx H(\theta_t)=\nabla^2\mathcal{L}(\theta_t).
+  \label{eq:fisher-identity}
+\end{equation}
+This distinction matters for a survey.  The Adam $v_t=\mathrm{EMA}(g_t^2)$ serves as a diagonal gradient-covariance estimate.  The Shampoo factors $L_t=\mathrm{EMA}(G_tG_t^\top)$ and $R_t=\mathrm{EMA}(G_t^\top G_t)$ form a Kronecker-style curvature proxy~\cite{gupta2018shampoo}, with $H_t^{\mathrm{Shampoo}}\approx L_t^{1/4}\otimes R_t^{1/4}$. Sophia estimates a clipped diagonal Hessian using stochastic second-order information~\cite{liu2023sophia}.  Section~\ref{sec:lmo-four-axis} turns these choices into Axis~II (state and curvature estimator) and Axis~III
+(geometry and precondition operator) of the LMO-driven four-axis decomposition.
+
+\paragraph{Notation.}
+Table~\ref{tab:notation} collects the mathematical symbols used throughout
+the paper and closes the preliminary setup before the meta-pipeline is
+introduced.
+
+\input{tables/tab_notation}
