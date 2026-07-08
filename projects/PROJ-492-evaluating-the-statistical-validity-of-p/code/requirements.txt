@@ -9,8 +9,7 @@ pyyaml
 jsonschema
 psutil
 pytest
+mypy
 ruff
 black
 pre-commit
-pydantic
-scikit-learn

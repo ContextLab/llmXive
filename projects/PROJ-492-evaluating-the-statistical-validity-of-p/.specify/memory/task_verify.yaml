@@ -465,11 +465,6 @@
   \ c_958e12aa \u2014 status=not_enough_info] per FR\u2011032 (verify JSON output\
   \ contains required fields including sensitivity analysis results)."
 : 1
-? "T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis**\
-  \ (FR\u2011005a & FR\u2011005b) in `src/audit/prevalence.py` including dynamic Bonferroni\
-  \ correction (\u03B1 = 0.05\u202F/\u202Fnumber_of_subgroups) per FR\u2011032 (verify\
-  \ JSON output contains required fields including sensitivity analysis results)."
-: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
@@ -541,11 +536,6 @@
   \ for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the\
   \ absolute difference \u2264 0.005 (constraint\u2011preservation\u2011e62a0df4)\
   \ (verify module exits with status 0)."
-: 1
-? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
-  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
-  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 (constraint\u2011\
-  preservation\u2011e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
