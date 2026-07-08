@@ -1,0 +1,18 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Qrels Schema
+description: Schema for TREC qrels data (query-document relevance judgments).
+type: object
+properties:
+  query_id:
+    type: integer
+    description: Unique identifier for the query.
+  doc_id:
+    type: integer
+    description: Unique identifier for the document.
+  relevance:
+    type: integer
+    description: Relevance label (e.g., 0: not relevant, 1: relevant, 2: highly relevant).
+required:
+  - query_id
+  - doc_id
+  - relevance

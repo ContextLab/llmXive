@@ -1,0 +1,66 @@
+[project]
+name = "llmxive-ranking-metrics"
+version = "0.1.0"
+description = "Evaluating the Statistical Validity of Common Ranking Metrics"
+requires-python = ">=3.10"
+dependencies = [
+    "datasets>=2.14.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pyyaml>=6.0",
+    "statsmodels>=0.14.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py310"
+
+# Assume a standard library layout for this project
+src = ["code", "tests", "contracts"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # assertions allowed in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests", "contracts"]
+force-sort-within-sections = true

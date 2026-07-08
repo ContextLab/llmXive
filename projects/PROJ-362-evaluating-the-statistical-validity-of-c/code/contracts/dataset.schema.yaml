@@ -1,0 +1,16 @@
+type: object
+required:
+  - query_id
+  - doc_id
+  - relevance
+properties:
+  query_id:
+    type: integer
+    description: Unique identifier for the query
+  doc_id:
+    type: integer
+    description: Unique identifier for the document
+  relevance:
+    type: integer
+    description: Relevance label (0: not relevant, 1: relevant, 2: highly relevant, etc.)
+additionalProperties: false

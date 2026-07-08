@@ -1,0 +1,19 @@
+? T001 Create root project structure including `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
+  directory and `__init__.py`
+: 2
+T002 Initialize Python 3.10 project with pinned dependencies (`requirements.txt`): 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+? T004 [P] Implement `data_loader.py` to fetch TREC Robust and Web data via `datasets.load_dataset`
+  with retry logic (multiple attempts)
+: 2
+? 'T005 [P] Create `contracts/dataset.schema.yaml` defining qrels structure: `type:
+  object, properties: {query_id: {type: integer}, doc_id: {type: integer}, relevance:
+  {type: integer}}`'
+: 2
+? T006 [P] Implement validation logic in `data_loader.py` to enforce schema compliance
+  and log warnings for zero-relevance queries
+: 1
+? 'T006 [P] Implement validation logic in `data_loader.py` to enforce schema compliance
+  and log warnings for zero-relevance queries <!-- SKIPPED: YAML+regex parse failed
+  (while scanning an alias'
+: 1

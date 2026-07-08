@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TREC Qrels Schema"
+description: "Schema for raw TREC relevance judgment files"
+type: "object"
+properties:
+  query_id:
+    type: "integer"
+    description: "Unique identifier for the search query"
+  doc_id:
+    type: "string"
+    description: "Identifier for the document being judged"
+  relevance:
+    type: "integer"
+    description: "Relevance score (0-4)"
+    minimum: 0
+    maximum: 4
+  source:
+    type: "string"
+    description: "Source dataset identifier"
+    enum:
+      - "robust04"
+      - "web09"
+      - "web10"
+      - "web11"
+      - "web12"
+required:
+  - query_id
+  - doc_id
+  - relevance
+  - source
+additionalProperties: false
