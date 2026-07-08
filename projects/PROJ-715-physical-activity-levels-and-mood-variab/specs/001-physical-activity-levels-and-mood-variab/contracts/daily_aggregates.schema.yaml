@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Daily Aggregates Schema
+description: >
+  Schema for the daily aggregates dataset derived from StudentLife raw data.
+  Contains one row per participant per day with aggregated activity and mood metrics.
+type: object
+required:
+  - participant_id
+  - date
+  - total_steps
+  - mean_mood
+  - mood_std
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant
+    minLength: 1
+  date:
+    type: string
+    format: date
+    description: The date of the aggregation (YYYY-MM-DD)
+  total_steps:
+    type: integer
+    description: Total number of steps recorded for the participant on this day
+    minimum: 0
+  mean_mood:
+    type: number
+    description: Mean of valid mood ratings for the day
+    minimum: 0
+    maximum: 5
+  mood_std:
+    type: number
+    description: Standard deviation of valid mood ratings for the day.
+      Note: Days with < 2 valid ratings are excluded from this dataset.
+      Days with exactly 0 variability have been log-transformed with epsilon offset.
+    minimum: 0
+  sleep_duration:
+    type: number
+    description: Derived or recorded sleep duration in hours. May be null if not derivable.
+    nullable: true
+  baseline_affect:
+    type: number
+    description: Participant's baseline affect score. May be null if not derivable.
+    nullable: true
+  day_of_week:
+    type: integer
+    description: Day of week (0=Monday, 6=Sunday)
+    minimum: 0
+    maximum: 6
+  mood_rating_count:
+    type: integer
+    description: Number of valid mood ratings used for aggregation
+    minimum: 2
+additionalProperties: false

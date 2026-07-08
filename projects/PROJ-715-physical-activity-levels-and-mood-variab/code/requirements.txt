@@ -1,0 +1,8 @@
+pandas
+statsmodels
+scikit-learn
+pyyaml
+requests
+numpy
+pyarrow
+jsonschema

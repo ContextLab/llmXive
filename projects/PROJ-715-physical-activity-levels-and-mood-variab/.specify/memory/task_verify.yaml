@@ -1,0 +1,3 @@
+T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`: 1
+T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`: 1
+T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`: 1

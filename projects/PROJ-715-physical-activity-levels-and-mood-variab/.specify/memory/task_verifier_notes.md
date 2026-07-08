@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001b Create `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep`** — The required placeholder files `data/raw/.gitkeep`, `data/processed/.gitkeep`, and `data/interim/.gitkeep` are all missing from the repository, so the task of creating these files has not been fulfilled. The implementer must add each `.gitkeep` file (non‑empty or empty placeholder) at the specified paths.
+- **T001c Create `tests/unit/.gitkeep` and `tests/contract/.gitkeep`** — No evidence was presented that the files `tests/unit/.gitkeep` and `tests/contract/.gitkeep` actually exist in the repository; the response contains only the task description and no artifact listing. The required placeholder files are missing, so the task is not satisfied.
+- **T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or related setup scripts) are present in the `code/` directory, nor any evidence that flake8 and Black have been integrated into the project. Consequently the task of configuring these tools is not satisfied.

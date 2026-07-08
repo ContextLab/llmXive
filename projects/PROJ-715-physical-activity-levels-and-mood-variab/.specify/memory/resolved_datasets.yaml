@@ -1,0 +1,290 @@
+resolved_at: '2026-07-08T07:22:48.268351+00:00'
+datasets:
+- intent: StudentLife
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Carson-Shively/student-lifestyle/resolve/main/data/bronze/bronze.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 28722
+      parsed: true
+  - url: https://huggingface.co/datasets/chiewhui13/student-life/resolve/main/dataset.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Carson-Shively/student-lifestyle/resolve/main/data/bronze/bronze.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chiewhui13/student-life/resolve/main/dataset.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3529253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3371864
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17347426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8063569
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3371922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hpwvt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pnhkb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.08590
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/EPWVWX
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/rw973/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EMA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/corbt/enron_emails_sample_questions/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Emanuel/UD_Portuguese-Bosque/resolve/main/raw/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 175307
+      parsed: true
+  - url: https://huggingface.co/datasets/snoop2head/enron_aeslc_emails/resolve/main/data/train-00000-of-00003-e84eb6663f20c00e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/corbt/enron_emails_sample_questions/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Emanuel/UD_Portuguese-Bosque/resolve/main/raw/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/snoop2head/enron_aeslc_emails/resolve/main/data/train-00000-of-00003-e84eb6663f20c00e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hossein20s/enrun-emails-text-classification/resolve/main/data/test-00000-of-00001-92979598d5caa79a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hossein20s/enrun-emails-token-classification/resolve/main/data/test-00000-of-00001-21e6a5fb5f7e1ad7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7233204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5829344
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3371224
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18364591
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3571204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/78e5f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254618
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254618
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21252366
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_real-world_listening_motivation_in_hearing_aid_users_associations_between_heart_rate_ambient_acoustics_and_self-reported_importance_to_hear_well/30167971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/book/Volume_2-_De_Bagd_a_Damasco_Como_o_Velayat-e-Faqih_Destr_i_as_Na_es_Portugu_s/32934143
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Synzoochory_by_scatter-hoarding_rodents_in_a_seasonally_dry_forest_of_Madagascar/32880176
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/How_Social_Chatbot_Characteristics_Shape_Multidimensional_Trust/32358768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimating_stand_metrics_in_mountainous_temperate_forests_using_UAS_and_satellite_imagery_multiple_linear_regression_or_artificial_neural_networks_/32934164
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Hypertension_Prediction/32934149
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239806
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239703
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wakus/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mu4bj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jm85u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wchfr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bjtke/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
