@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-352-statistical-analysis-of-early-universe-c",
   "stage": "clarified",
-  "last_error": "research.md reference is unreachable: 'https://pla.esac.esa.int/pla/aio/product?action=DISPLAY&archive=planck&product=SMICA_Nside128' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "last_seen": "2026-07-03T22:10:33.723570+00:00",
-  "count": 2
+  "last_error": "research.md reference is unreachable: 'https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CMB_IQM-ILC_SICA-N-128.fits' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-08T01:54:03.091896+00:00",
+  "count": 3
 }
