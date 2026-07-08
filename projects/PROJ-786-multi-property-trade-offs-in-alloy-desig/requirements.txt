@@ -1,0 +1,17 @@
+pandas
+scikit-learn
+numpy
+scipy
+deap
+matplotlib
+seaborn
+requests
+pyyaml
+pyarrow
+pymatgen
+mendeleev
+pydantic
+pytest
+ruff
+black
+python-dotenv

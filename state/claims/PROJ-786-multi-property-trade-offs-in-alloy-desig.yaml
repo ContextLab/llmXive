@@ -1,0 +1,107 @@
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: fetch OQMD elastic properties dataset via HuggingFace
+  claim_id: c_c65dce21
+  context: Implement code/data_ingestion.py to fetch OQMD data via HuggingFace datasets.load_dataset('OQMD/elastic_properties'),
+    filter for entries with bulk_modulus and shear_modulus > 0
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_OQMD_elastic_properties_dataset_via_HuggingFace
+  kind: entity_fact
+  raw_text: fetch OQMD data via HuggingFace datasets.load_dataset('OQMD/elastic_properties')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:41:28Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: exit with code 0 if valid alloy entries are fewer than 500
+  claim_id: c_5f384a3c
+  context: Add logic in code/data_ingestion.py to log 'Insufficient data for statistical
+    analysis (N < 500)' and exit with code 0 if valid entries < 500 (US-1 Acceptance
+    1)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_with_code_0_if_valid_alloy_entries_are_fewer_than_500
+  kind: magnitude
+  raw_text: log 'Insufficient data for statistical analysis (N < 500)' and exit with
+    code 0 if valid entries < 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:42:19Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: train GradientBoostingRegressor models with 2 jobs and 7GB memory limit
+  claim_id: c_07458839
+  context: Implement code/model_training.py to train separate GradientBoostingRegressor
+    models for Bulk and Shear moduli using n_jobs=2 and max_memory=7GB constraints
+    (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train separate GradientBoostingRegressor models for Bulk and Shear moduli
+    using n_jobs=2 and max_memory=7GB constraints
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:42:36Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: run NSGA-II with population 100, 50 generations, crossover 0.9, mutation
+    0.1
+  claim_id: c_081c91cd
+  context: Implement NSGA-II logic in code/pareto_optimization.py using deap with
+    population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement NSGA-II logic using deap with population=100, generations=50,
+    cx_prob=0.9, mut_prob=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:43:09Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: perform K-Means clustering with k=5
+  claim_id: c_cbf7ef9b
+  context: Implement code/cluster_analysis.py to perform K-Means clustering on elemental
+    fractions with k=5 (determined via Elbow Method) (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform K-Means clustering on elemental fractions with k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:43:30Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: ensure memory usage is less than 7GB during NSGA-II optimization
+  claim_id: c_fa98d0fc
+  context: Performance optimization (ensure memory usage < 7GB during NSGA-II)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_7GB_during_NSGA-II_optimiza
+  kind: magnitude
+  raw_text: ensure memory usage < 7GB during NSGA-II
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-08T08:43:56Z'

@@ -1,0 +1,11 @@
+- artifact_hash: 694e6b3bffc28d23329a66c4892df88e8a63411b2b76492fde44bae7f0ca4a51
+  artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: targets.csv
+  kind: url
+  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?response-content-type=text%2Fcsv&user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1783502795&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTAyNzk1fX19XX0_&Signature=MEYCIQDVOq1q8I4NrvuQHa9O2qAqGsZT8pV9mzgES2LhOXthcAIhAPGLjpFGMaoY8MUX%7EwobBejEsZ87zcdv1JBLRBcBx7xH&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-08T08:26:35.731874Z'

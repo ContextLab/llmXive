@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyEntry"
+description: "Schema for a single processed alloy data point including composition and properties. Supports DFT proxies (bulk/shear) and optional experimental metrics."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the alloy entry."
+  composition:
+    type: "object"
+    description: "Elemental composition as key-value pairs."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  bulk_modulus:
+    type: "number"
+    description: "Bulk Modulus in GPa (DFT-derived)."
+    minimum: 0
+  shear_modulus:
+    type: "number"
+    description: "Shear Modulus in GPa (DFT-derived)."
+    minimum: 0
+  yield_strength:
+    type: ["number", "null"]
+    description: "Yield strength in MPa (Experimental, optional)."
+    minimum: 0
+  elongation:
+    type: ["number", "null"]
+    description: "Elongation percentage (Experimental, optional)."
+    minimum: 0
+    maximum: 100
+  feature_vector:
+    type: "array"
+    description: "Encoded feature vector including elemental fractions and periodic descriptors."
+    items:
+      type: "number"
+  system:
+    type: "string"
+    description: "Alloy system name (e.g., Fe-Cr)."
+  source:
+    type: "string"
+    description: "URL of the source dataset."
+required:
+  - id
+  - composition
+  - bulk_modulus
+  - shear_modulus
+  - feature_vector
+  - system
+  - source
+additionalProperties: false

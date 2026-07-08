@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParetoFrontier"
+description: "Schema for the computed Pareto frontier of synthetic alloy points."
+type: "object"
+properties:
+  points:
+    type: "array"
+    description: "List of non-dominated synthetic alloy points."
+    items:
+      type: "object"
+      properties:
+        composition:
+          type: "object"
+          additionalProperties:
+            type: "number"
+        predicted_bulk_modulus:
+          type: "number"
+          minimum: 0
+        predicted_shear_modulus:
+          type: "number"
+          minimum: 0
+        uncertainty_variance:
+          type: "number"
+          minimum: 0
+        is_extrapolated:
+          type: "boolean"
+          description: "True if point is on the boundary of the convex hull."
+      required:
+        - composition
+        - predicted_bulk_modulus
+        - predicted_shear_modulus
+        - uncertainty_variance
+        - is_extrapolated
+  dominance_ratio:
+    type: "number"
+    description: "Percentage of empirical test points dominated by this frontier."
+    minimum: 0
+    maximum: 100
+required:
+  - points
+  - dominance_ratio
+additionalProperties: false

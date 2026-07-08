@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DecoupledRegion"
+description: "Schema for identified compositional clusters with low property correlation."
+type: "object"
+properties:
+  cluster_id:
+    type: "integer"
+    description: "Unique ID for the cluster."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson correlation between Bulk and Shear moduli in this cluster."
+    minimum: -1
+    maximum: 1
+  point_count:
+    type: "integer"
+    description: "Number of data points in the cluster."
+    minimum: 1
+  uncertainty_variance:
+    type: "number"
+    description: "Average prediction variance for points in this cluster."
+    minimum: 0
+  is_significant:
+    type: "boolean"
+    description: "True if the deviation from global trend is statistically significant (p < 0.05 via permutation test)."
+  representative_composition:
+    type: "object"
+    description: "Centroid composition of the cluster."
+    additionalProperties:
+      type: "number"
+required:
+  - cluster_id
+  - correlation_coefficient
+  - point_count
+  - uncertainty_variance
+  - is_significant
+  - representative_composition
+additionalProperties: false
