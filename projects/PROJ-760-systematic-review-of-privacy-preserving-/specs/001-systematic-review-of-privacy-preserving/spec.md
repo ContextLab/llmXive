@@ -29,23 +29,23 @@ The system MUST parse PDFs of selected papers to extract specific quantitative p
 
 **Why this priority**: This transforms unstructured text into the structured dataset required for the meta-analysis. It is the core data processing step.
 
-**Independent Test**: Can be fully tested by running the parser on a set of 5 known PDFs with pre-validated ground truth tables and verifying the extracted CSV values match within a 5% tolerance or flagging discrepancies for manual review.
+**Independent Test**: Can be fully tested by running the parser on a set of 5 known PDFs with pre-validated ground truth tables. The ground truth MUST be constructed by manually extracting data by 2 independent reviewers with >90% inter-rater reliability. The parser output must match this ground truth within an acceptable tolerance threshold or flag discrepancies for manual review.
 
 **Acceptance Scenarios**:
 
-1. **Given** a PDF containing a table with "Accuracy Loss" and "Privacy Budget", **When** the parser processes the file, **Then** the values are correctly extracted into `extracted_metrics.csv` with the correct privacy mechanism tag.
+1. **Given** a PDF containing a table with "Accuracy Loss" and "Privacy Budget", **When** the parser processes it, **Then** the values are correctly extracted into `extracted_metrics.csv` with the correct privacy mechanism tag.
 2. **Given** a PDF with non-standard table formatting (e.g., merged cells), **When** the parser encounters it, **Then** the system logs a `parsing_error` and skips the specific table row, preserving the rest of the file's data.
-3. **Given** a paper reporting metrics in different units (e.g., seconds vs. milliseconds), **When** the system processes the data, **Then** all values are normalized to a standard unit (seconds for time, bytes for communication) before storage.
+3. **Given** a paper reporting metrics in different units, **When** the system processes the data, **Then** all values are normalized to standard units: Convergence Speed to 'rounds' (integer), Communication Overhead to 'bytes', and Computational Cost to 'seconds' or 'relative overhead ratio' (if baseline is available).
 
 ---
 
 ### User Story 3 - Meta-Analysis and Visualization Generation (Priority: P3)
 
-The system MUST perform random-effects meta-analysis to compute effect sizes linking privacy mechanism types to performance metrics, generate forest plots and bar charts, and produce a summary Markdown report.
+The system MUST perform meta-analysis to compute effect sizes linking privacy mechanism types to performance metrics, generate forest plots and bar charts, and produce a summary Markdown report. If variance data is missing, the system MUST fall back to descriptive statistics or fixed-effects models with robust variance.
 
 **Why this priority**: This delivers the final research output, synthesizing the extracted data into actionable insights and visual evidence.
 
-**Independent Test**: Can be fully tested by running the analysis on a small synthetic dataset with known effect sizes and verifying the generated plots match the expected statistical trends and the summary report contains the calculated confidence intervals.
+**Independent Test**: Can be fully tested by running the analysis on a small synthetic dataset with known effect sizes and verifying the generated plots match the expected statistical trends and the summary report contains the calculated confidence intervals (regardless of whether they include zero).
 
 **Acceptance Scenarios**:
 
@@ -66,9 +66,11 @@ The system MUST perform random-effects meta-analysis to compute effect sizes lin
 - **FR-001**: System MUST query arXiv and Semantic Scholar APIs using the exact search strings defined in the methodology to retrieve papers published between 2018 and 2024 (See US-1).
 - **FR-002**: System MUST extract and normalize communication overhead, convergence speed, accuracy loss, and computational cost from PDF tables into a single CSV file (See US-2).
 - **FR-003**: System MUST categorize each extracted study into one of four privacy mechanism types: Differential Privacy, Secure Aggregation, Homomorphic Encryption, or Hybrid (See US-2).
-- **FR-004**: System MUST perform a random-effects meta-analysis using `statsmodels` to compute effect sizes and 95% confidence intervals for each performance metric per mechanism (See US-3).
+- **FR-004**: System MUST perform a meta-analysis to compute effect sizes (e.g., Hedges' g) and 95% confidence intervals for each performance metric per mechanism. If variance data (SD/SE) is missing for >50% of studies in a group, the system MUST fallback to a fixed-effects model with robust variance or descriptive aggregation (See US-3).
 - **FR-005**: System MUST generate at least three visualization types: forest plots for effect sizes, bar charts for mean overhead, and a scatter plot for accuracy vs. privacy budget (See US-3).
-- **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to all hypothesis tests where >1 metric is analyzed simultaneously (See US-3).
+- **FR-006**: System MUST apply multiple-comparison correction (e.g., Benjamini-Hochberg) to the family of hypothesis tests comparing mechanism groups. The null hypothesis is "No difference in mean effect size across mechanism groups", and the test statistic is ANOVA or Kruskal-Wallis on effect sizes (See US-3).
+- **FR-007**: System MUST detect studies lacking variance estimates (SD/SE) and exclude them from random-effects models, falling back to descriptive statistics for those specific metrics (See US-3).
+- **FR-008**: System MUST normalize "Computational Cost" to a "relative overhead ratio" (Private Baseline / Non-Private Baseline) for studies reporting both. Studies reporting only absolute time/FLOPs without a baseline MUST be excluded from the computational cost meta-analysis to ensure metric commensurability (See US-2).
 
 ### Key Entities
 
@@ -80,9 +82,9 @@ The system MUST perform random-effects meta-analysis to compute effect sizes lin
 
 ### Measurable Outcomes
 
-- **SC-001**: The total number of successfully extracted studies with ≥3 valid data points per mechanism category is measured against the inclusion criteria (≥5 studies per category required for statistical power) (See US-1, US-2).
+- **SC-001**: The system extracts and reports the count (N) of studies per mechanism category. The system MUST successfully complete the pipeline even if N < 5, in which case the output is a "Descriptive Review" (See US-1, US-2).
 - **SC-002**: The accuracy of extracted numerical values is measured against a manually verified ground-truth subset of 10 papers (target: ≥95% exact match or within 5% tolerance) (See US-2).
-- **SC-003**: The statistical validity of the meta-analysis is measured by the successful generation of confidence intervals that do not include zero for at least one significant effect size, or a clear "no significant difference" conclusion if null (See US-3).
+- **SC-003**: The statistical validity of the meta-analysis is measured by the successful generation of valid 95% confidence intervals for all computed effect sizes, regardless of whether the intervals include zero (See US-3).
 - **SC-004**: The computational feasibility is measured by the total runtime of the `run.sh` script on a GitHub Actions free-tier runner (target: ≤6 hours) (See US-3).
 - **SC-005**: The reproducibility of the pipeline is measured by the ability to re-run the entire process on a fresh runner and produce identical `extracted_metrics.csv` and `results_summary.md` outputs (See US-1, US-3).
 
@@ -90,7 +92,7 @@ The system MUST perform random-effects meta-analysis to compute effect sizes lin
 
 - The arXiv and Semantic Scholar APIs provide sufficient access to PDFs and metadata for the 2018-2024 window without requiring institutional paywalls.
 - The `tabula-py` or `pdfplumber` libraries can successfully extract tabular data from at least 80% of the target PDFs; the remaining [deferred] will be flagged for manual review.
-- The "computational cost" metric is reported in a comparable unit (e.g., seconds, FLOPs, or relative overhead) across the majority of studies; studies using non-comparable units will be excluded or normalized if a conversion factor is explicitly stated.
-- The GitHub Actions free-tier runner (2 CPU, 7GB RAM) is sufficient to run the `statsmodels` random-effects meta-analysis and generate plots on the extracted dataset (expected size <100 rows).
-- The search strings will yield a sufficient sample size (N≥15 per category) to perform a meaningful random-effects meta-analysis; if N<15, the analysis will be limited to descriptive statistics.
+- The "computational cost" metric is reported in a comparable unit (e.g., seconds, FLOPs, or relative overhead) across the majority of studies; studies using non-comparable units without a baseline will be excluded per FR-008.
+- The GitHub Actions free-tier runner (2 CPU, 7GB RAM) is sufficient to run the `statsmodels` meta-analysis and generate plots on the extracted dataset (expected size <100 rows).
+- The search strings will yield a sufficient sample size (N≥5 per category) to perform a meta-analysis. If N < 5 per category, the project is valid and will output a "Descriptive Systematic Review" rather than a quantitative meta-analysis (See SC-001).
 - The dataset contains the necessary variables (privacy mechanism type, communication overhead, convergence speed, accuracy loss, computational cost) for all included studies; if a study lacks a specific metric, that study will be excluded from the analysis of that specific metric.

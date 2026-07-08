@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 8c7411d64f8f2e10637e6aa748ef59b78fa48716ffb92ce1519a0af743ffda1e
+  artifact_path: projects/PROJ-760-systematic-review-of-privacy-preserving-/specs/001-systematic-review-of-privacy-preserving/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: arXiv API Access - arXiv info
+  kind: url
+  value: https://arxiv.org/help/api`
+  verification_status: verified
+  verified_against_url: https://info.arxiv.org/help/api/index.html
+  verified_at: '2026-07-08T19:17:45.612909Z'
+- artifact_hash: 8c7411d64f8f2e10637e6aa748ef59b78fa48716ffb92ce1519a0af743ffda1e
+  artifact_path: projects/PROJ-760-systematic-review-of-privacy-preserving-/specs/001-systematic-review-of-privacy-preserving/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Semantic Scholar Academic Graph API | Semantic Scholar
+  kind: url
+  value: https://www.semanticscholar.org/product/api`
+  verification_status: verified
+  verified_against_url: https://www.semanticscholar.org/product/api
+  verified_at: '2026-07-08T19:17:45.612909Z'
