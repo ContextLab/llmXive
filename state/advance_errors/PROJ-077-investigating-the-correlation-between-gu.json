@@ -2,6 +2,6 @@
   "project_id": "PROJ-077-investigating-the-correlation-between-gu",
   "stage": "tasked",
   "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md.\n  Rules fired: unfilled_bracket_density=31 bracket markers; sample=['[User Story 1]', '[User Story 1]', '[User Story 1]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
-  "last_seen": "2026-07-07T23:41:50.296364+00:00",
-  "count": 162
+  "last_seen": "2026-07-08T00:15:19.195626+00:00",
+  "count": 163
 }
