@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DEAP EMG Feature Matrix Schema"
+description: "Schema for the processed feature matrix derived from DEAP EMG data."
+type: object
+properties:
+  subject_id:
+    type: integer
+    description: "Unique identifier for the participant (1-32)."
+  trial_id:
+    type: integer
+    description: "Identifier for the specific stimulus trial (1-40)."
+  window_index:
+    type: integer
+    description: "Index of the 1-second window within the trial."
+  features:
+    type: object
+    description: "Extracted time-domain features for 3 muscles."
+    properties:
+      corrugator:
+        type: object
+        properties:
+          rms: { type: number }
+          zcr: { type: number }
+          wamp: { type: number }
+          mav: { type: number }
+      zygomaticus:
+        type: object
+        properties:
+          rms: { type: number }
+          zcr: { type: number }
+          wamp: { type: number }
+          mav: { type: number }
+      orbicularis:
+        type: object
+        properties:
+          rms: { type: number }
+          zcr: { type: number }
+          wamp: { type: number }
+          mav: { type: number }
+    required:
+      - corrugator
+      - zygomaticus
+      - orbicularis
+  valence_label:
+    type: integer
+    description: "Binary label: 1 for positive (score >= 5.0), 0 for negative."
+    enum: [0, 1]
+required:
+  - subject_id
+  - trial_id
+  - window_index
+  - features
+  - valence_label
+additionalProperties: false

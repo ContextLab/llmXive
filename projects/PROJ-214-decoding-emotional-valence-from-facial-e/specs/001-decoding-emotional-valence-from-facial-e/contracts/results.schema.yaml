@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical results and model metrics."
+type: object
+properties:
+  cross_validation:
+    type: object
+    description: "Nested LOSO CV results."
+    properties:
+      mean_accuracy: { type: number }
+      std_accuracy: { type: number }
+      f1_score: { type: number }
+    required:
+      - mean_accuracy
+      - std_accuracy
+      - f1_score
+  statistical_validation:
+    type: object
+    description: "Permutation test, t-test, and effect size."
+    properties:
+      p_value_permutation:
+        type: number
+        description: "P-value from permutation test (1000 shuffles)."
+      p_value_ttest:
+        type: number
+        description: "P-value from paired t-test vs null distribution."
+      cohen_d:
+        type: number
+        description: "Effect size (Cohen's d) vs null distribution."
+      null_mean_accuracy:
+        type: number
+        description: "Mean accuracy of label-shuffled baseline."
+    required:
+      - p_value_permutation
+      - p_value_ttest
+      - cohen_d
+      - null_mean_accuracy
+  sensitivity_analysis:
+    type: object
+    description: "Accuracy variation across thresholds."
+    properties:
+      threshold_4_9: { type: number }
+      threshold_5_0: { type: number }
+      threshold_5_1: { type: number }
+      max_variation:
+        type: number
+        description: "Maximum accuracy difference across thresholds."
+    required:
+      - threshold_4_9
+      - threshold_5_0
+      - threshold_5_1
+      - max_variation
+  variance_explanation:
+    type: object
+    description: "Nagelkerke's R2 change for hierarchical models (Logistic Regression)."
+    properties:
+      corrugator_only: { type: number }
+      corrugator_plus_zygomaticus: { type: number }
+      full_model: { type: number }
+      incremental_gain:
+        type: number
+        description: "R2 gain from adding zygomaticus and orbicularis."
+    required:
+      - corrugator_only
+      - corrugator_plus_zygomaticus
+      - full_model
+      - incremental_gain
+  confessions:
+    type: object
+    description: "Associational nature of the study."
+    properties:
+      causal_claim:
+        type: boolean
+        const: false
+        description: "Must be false. Study is observational."
+    required:
+      - causal_claim
+required:
+  - cross_validation
+  - statistical_validation
+  - sensitivity_analysis
+  - variance_explanation
+  - confessions
+additionalProperties: false

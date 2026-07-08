@@ -1,0 +1,722 @@
+resolved_at: '2026-07-08T11:26:08.294228+00:00'
+datasets:
+- intent: DEAP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Jingwen0551/DEAP-dataset-from-Kaggle/resolve/main/deap_kaggle.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepasia/asia-ilo-une-deap-sex-age-rt-unemployment-rate-by-sex-and-age/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 143328
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Jingwen0551/DEAP-dataset-from-Kaggle/resolve/main/deap_kaggle.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/electricsheepasia/asia-ilo-une-deap-sex-age-rt-unemployment-rate-by-sex-and-age/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.qh1pg
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3580267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16901371
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/38815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4276170
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2409.07589
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sanad.iau.ir/Journal/jce/Article/1199738
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Optimized_Deep_Learning_Framework_for_Emotion_Recognition_Using_Multimodal_Physiological_Signals_and_Temporal_Convolutional_Networks/32886023
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/5311
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://elib.spbstu.ru/dl/3/2025/vr/vr26-1356.pdf/info
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EMG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jxie/emg/resolve/main/data/test-00000-of-00001-219d95dca0116082.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 96376
+      parsed: true
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTest/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain1/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jxie/emg/resolve/main/data/test-00000-of-00001-219d95dca0116082.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTest/resolve/main/data/test-00000-of-00006.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain1/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain2/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atgarcia/EMGSoundTrain3/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8103735
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/articles.php?id=1943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.p937t
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5729701
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.19070/2377-8075-210000464
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://osf.io/ucmwx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/fq54-gp25
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/wp989323s (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f9767679cd0>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://osf.io/ywv8a/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uzsaj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2512.07997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RMSnow/SpeechJudge-Data/resolve/main/dev-00000-of-00006.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Dahoas/rm-single-context/resolve/main/data/test-00000-of-00001-11779007d75cd608.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-static/resolve/main/data/test-00000-of-00001-8c7c51afc6d45980.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Dahoas/rm-synthetic-hh/resolve/main/data/test-00000-of-00001-6680d7187ad5afa0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liswei/rm-static-zhTW/resolve/main/data/test-00000-of-00001-f1ad0d8cdf705874.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/820150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8282213
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18326854
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10295171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20845824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.luiss.it//handle/11385/212101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20891318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20891318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257466
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ZCR
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1185502
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.h18931zfs
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/37713
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5670198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17855191
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21093890
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21093890
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20740891
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20740891
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/eu89s/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WAMP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/wampum/so100_test/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 21575
+      parsed: true
+  - url: https://huggingface.co/datasets/WampireEmpire/deain-bounty-logic-v1/resolve/main/bounty_data.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 66573
+      parsed: true
+  - url: https://huggingface.co/datasets/WampireEmpire/deain-bounty-grounding-v1/resolve/main/bounty_data.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2561
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/wampum/so100_test/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/WampireEmpire/deain-bounty-logic-v1/resolve/main/bounty_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/WampireEmpire/deain-bounty-grounding-v1/resolve/main/bounty_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/WampireEmpire/deain-bounty-science-v1/resolve/main/bounty_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/WampireEmpire/deain-bounty-agentic-research-v1/6257e1081eec09734fcf2d3776f33b792c02936d/bounty_data.json?%2Fdatasets%2FWampireEmpire%2Fdeain-bounty-agentic-research-v1%2Fresolve%2Fmain%2Fbounty_data.json=&etag=%2252d6140b5120d582eb68799af6f03d6e4b3ab224%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6097712
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5738100
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8416230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15350618
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10499091
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20666443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20666443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20694872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20694872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Implementation_of_a_Web-Based_Patient_Record_System_A_Case_Study_in_Healthcare_Digital_Transformation/32661081/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/scikkk/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ErickP/maven/resolve/main/test.tsv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/scikkk/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ErickP/maven/resolve/main/test.tsv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/maveriq/DocBank/resolve/main/data/test-00000-of-00011-77b4ffd80ff4afa2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Global_Dynamics_and_Disparities_in_Blue_Well-being_from_the_Ocean_under_Climate_Change_b_/32935694
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/9837293/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7515975
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7105327
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6160198/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/2158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000030900
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://arxiv.org/abs/2211.10872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21196960
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/7837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SVM
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_am/ed190bcd514f252c64a5051fc4f7f6ba113cccf5/www.amazon.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_am%2Fresolve%2Fmain%2Fwww.amazon.com.json=&etag=%224eedce3a75069576134fdb295ee258b9b7e0e2ec%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_ap/0aa68e9ea6a5e973b8e4d0ca8e2f02fa091273c9/www.apple.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_ap%2Fresolve%2Fmain%2Fwww.apple.com.json=&etag=%2247ae1d1ec8c2f935b28f28030f9ea21a7019ebf3%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/ieeaaeeH/svm_mix_tw/890cf63e2448c363b74a966e6fdbdaad310b0a32/www.twitter.com.json?%2Fdatasets%2FieeaaeeH%2Fsvm_mix_tw%2Fresolve%2Fmain%2Fwww.twitter.com.json=&etag=%222113abc6c7bccb9343b882ec0271bd20db933113%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Predicting_substrate_size_at_a_watershed_scale_to_inform_conservation_planning_for_a_declining_salmonid_species/32687178
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/bioinformatics/article/32/14/2196/1742803
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20058869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7792512
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18667799
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10890186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rayajsd.org/index.php/rjsd/article/view/75
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253788
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21253788
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Diagnostic_value_of_cytokine_detection_in_children_with_Mycoplasma_pneumoniae_pneumonia_complicated_by_bacterial_or_viral_co-infections/8581206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_for_Predicting_substrate_size_at_a_watershed_scale_to_inform_conservation_planning_for_a_declining_salmonid_species/32687178
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_A_white_shark_s_view_insights_into_the_behaviour_of_a_marine_predator_docx/32935748
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/student_dataset_that_will_be_user_for_training_Algorithms_that_will_help_professors_detect_faster_the_students_who_are_at_risk_so_they_will_get_assisted_fast/32935652
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Current_approaches_to_the_diagnosis_and_management_of_retained_products_of_conception_and_enhanced_myometrial_vascularity_of_the_first_trimester/32935677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Cross-wavelet_analysis_allows_obtaining_high_temporal_and_frequency_resolution_in_heart_rate_synchrony_analysis_pdf/32935742
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20759590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21258352
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20878734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20878734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
