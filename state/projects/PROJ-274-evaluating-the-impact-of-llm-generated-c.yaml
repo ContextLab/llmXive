@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T21:30:47.216242Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-274-evaluating-the-impact-of-llm-generated-c
-last_run_id: 5ed922db-1f36-4a67-90e9-0f6add6ca34d
+last_run_id: 610bef46-3b1e-4aac-8496-83cc85c1ea0c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c
 title: Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding
-updated_at: '2026-06-28T23:24:33.642190Z'
+updated_at: '2026-07-08T08:51:36.613226Z'

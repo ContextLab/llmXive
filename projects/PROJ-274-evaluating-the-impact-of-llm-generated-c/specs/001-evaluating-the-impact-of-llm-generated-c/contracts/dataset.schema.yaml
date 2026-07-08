@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Dataset Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  condition:
+    type: "string"
+    enum: ["LLM Docs", "Human Docs", "No Docs"]
+    description: "Experimental condition assigned to the participant."
+  repo_id:
+    type: "string"
+    description: "Identifier for the repository used in the task."
+  task_id:
+    type: "string"
+    description: "Identifier for the onboarding task."
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp when the task started."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp when the task ended."
+  completion_time:
+    type: "number"
+    description: "Task completion time in seconds."
+  question_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of clarification questions asked."
+  helpfulness_rating:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Subjective helpfulness rating on a Likert scale."
+  status:
+    type: "string"
+    enum: ["complete", "incomplete", "failed"]
+    description: "Status of the task completion."
+  failure_reason:
+    type: "string"
+    description: "Reason for failure or intervention (e.g., 'poor_docs', 'timeout')."
+  intervention_flag:
+    type: "boolean"
+    description: "True if a moderator intervened during the session."
+required:
+  - participant_id
+  - condition
+  - repo_id
+  - task_id
+  - start_time
+  - end_time
+  - completion_time
+  - question_count
+  - helpfulness_rating
+  - status
+  - intervention_flag
+additionalProperties: false
+
