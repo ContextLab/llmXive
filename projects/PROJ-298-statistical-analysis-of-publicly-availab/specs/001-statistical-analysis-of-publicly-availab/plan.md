@@ -1,40 +1,39 @@
 # Implementation Plan: Statistical Analysis of Publicly Available Stack Overflow Question Tags
 
-**Branch**: `001-stat-so-tag-trends` | **Date**: 2026-06-26 | **Spec**: `specs/001-statistical-analysis-of-publicly-availab/spec.md`
+**Branch**: `001-stat-so-tag-trends` | **Date**: 2023-10-27 | **Spec**: `specs/001-statistical-analysis-of-publicly-availab/spec.md`
+**Input**: Feature specification from `/specs/001-statistical-analysis-of-publicly-availab/spec.md`
 
 ## Summary
 
-This feature implements a statistical analysis pipeline to quantify technology growth/decline trajectories using Stack Overflow (SO) tag frequency data from a multi-year period. The approach involves downloading the `PostsTags` table, aggregating monthly frequencies, and applying the Modified Mann-Kendall test (with pre-whitening) to a representative subset of top-ranked tags. It includes time series decomposition (STL/Hodrick-Prescott), co-occurrence clustering (Jaccard similarity), and external validation against GitHub stars/NPM downloads. All analysis is strictly associational, with mandatory limitation disclosures.
+This feature implements a statistical analysis pipeline to quantify technology growth and decline trajectories using Stack Overflow question tags. The core approach involves downloading the `PostsTags` table, aggregating monthly frequencies, applying the Modified Mann-Kendall test with pre-whitening for trend detection, and performing time series decomposition. The plan strictly adheres to CPU-only constraints for GitHub Actions runners and ensures all statistical claims are associational with mandatory limitation disclosures.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `requests`, `pyyaml`, `jupyter`  
-**Storage**: Local file system (CSV/Parquet/JSON) within `data/` and `artifacts/`  
-**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline phases)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner)  
-**Project Type**: Data analysis pipeline / Research project  
-**Performance Goals**: Complete full pipeline (download → analysis → report) within 6 hours on 2 CPU cores, ≤7 GB RAM.  
-**Constraints**: No GPU; CPU-only statistical libraries; strict memory management (streaming/chunking for large dumps); no causal claims.  
-**Scale/Scope**: A subset of tags for trend analysis; ~10k+ unique tags for clustering; 9-year time series (108 months).
+**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `nbformat`  
+**Storage**: Local file system (CSV/Parquet intermediates), GitHub Actions ephemeral storage  
+**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline, contract validation)  
+**Target Platform**: Linux server (GitHub Actions `ubuntu-latest`)  
+**Project Type**: Data analysis pipeline / CLI tool / Jupyter Notebooks  
+**Performance Goals**: Complete analysis of top 50 tags within 6 hours on 2 CPU cores / 7GB RAM  
+**Constraints**: No GPU, no external API rate-limit violations (GitHub/NPM), strict memory limits (streaming/processing in chunks)  
+**Scale/Scope**: Top tags, multi-year time range, A sufficient number of data points per series to ensure statistical robustness
 
-> **Dataset Note**: The spec requires the `PostsTags` table from the canonical SO dump. The plan explicitly targets the specific `archive.org` snapshot URL: `https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z`. **Action**: The plan includes a task to fetch from this specific URL. **Fallback**: If the URL is unreachable or the table is missing, the system MUST flag the gap, log the error, and fall back to a **local `synthetic_generator` module** (located in `code/synthetic_generator.py`) to create a mock `PostsTags` dataset for CI/Pipeline Validation only. Real research results are blocked until the canonical source is verified. No external HuggingFace datasets are used as a fallback to ensure the Single Source of Truth is maintained within the plan's defined logic.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Action Required in Plan |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Conditional Pass** | Plan mandates pinned `requirements.txt`, random seed setting, and canonical data sources. **Distinction**: Synthetic data is allowed for *Pipeline Validation* (CI), but *Research Execution* requires the canonical source. The plan explicitly separates these phases. |
-| **II. Verified Accuracy** | **Blocked** (Resolved) | Plan requires external validation (GitHub/NPM) and explicit citation verification. **Gap Resolved**: The primary `PostsTags` source URL is now verified and specified in spec.md and plan.md. |
-| **III. Data Hygiene** | **Pass** | Plan includes SHA-256 checksumming for all artifacts and immutable raw data handling. |
-| **IV. Single Source of Truth** | **Pass** | All figures/stats trace to `data/` derived files; no hand-typed numbers. |
-| **V. Versioning Discipline** | **Pass** | Plan includes content hash recording in `state/` YAML files (Task 3.1). |
-| **VI. Statistical Validity & Limitation** | **Pass** | Plan enforces mandatory "Limitation: Associational" headers/footers (FR-011) and pre-whitening for Mann-Kendall. |
-| **VII. Temporal Data Integrity** | **Pass** | Plan ensures no look-ahead bias in feature engineering (strict time-ordering). |
-
-**Gap Alert**: The Constitution requires verified accuracy. The "Verified datasets" block previously indicated **NO verified source** for the primary `PostTags` data. This gap is now resolved: the plan explicitly targets the verified `archive.org` URL. If the fetch fails, the system falls back to synthetic data for CI only.
+| Principle | Status | Implementation Strategy |
+|-----------|--------|-------------------------|
+| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; `requirements.txt` pins versions; data fetched from canonical source (see Research); API results cached. |
+| **II. Verified Accuracy** | PASS | All citations in `research.md` and `paper/` will be validated against primary sources before review. |
+| **III. Data Hygiene** | PASS | SHA-256 checksums recorded for all artifacts in `state/`; raw data preserved; derivations written to new files. |
+| **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers in reports. |
+| **V. Versioning Discipline** | PASS | Content hashes used for invalidation; `state/` updated on artifact changes. |
+| **VI. Statistical Validity & Limitation Disclosure** | PASS | All reports include mandatory "Limitation: All findings are associational..." header/footer via `code/viz/templates.py` (FR-011); methods document assumptions. |
+| **VII. Temporal Data Integrity** | PASS | No look-ahead bias; future frequencies excluded from past trend classifications. |
 
 ## Project Structure
 
@@ -50,7 +49,8 @@ specs/001-stat-so-tag-trends/
 │   ├── dataset.schema.yaml
 │   ├── output.schema.yaml
 │   ├── post_tags.schema.yaml
-│   └── trend_results.schema.yaml
+│   ├── trend_results.schema.yaml
+│   └── cluster_results.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -60,117 +60,61 @@ specs/001-stat-so-tag-trends/
 projects/PROJ-298-statistical-analysis-of-publicly-availab/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── download.py              # Data ingestion (FR-001)
-│   ├── preprocess.py            # Aggregation & cleaning (FR-002)
+│   ├── data/
+│   │   ├── download.py          # Downloads raw data (FR-001)
+│   │   ├── preprocess.py        # Aggregates to monthly bins (FR-002)
+│   │   ├── external.py          # Fetches GitHub/NPM metrics (FR-007)
+│   │   └── generate_taxonomies.py # Generates/validates reference calendars (FR-008, SC-003)
 │   ├── analysis/
-│   │   ├── trend_analysis.py    # Mann-Kendall & Theil-Sen (FR-003)
-│   │   ├── decomposition.py     # STL/HP & ADF/Ljung-Box (FR-004, FR-009)
-│   │   └── clustering.py        # Jaccard & Hierarchical (FR-005)
-│   ├── validation.py            # External correlation (FR-007)
-│   ├── report.py                # Visualization & Limitation headers (FR-006, FR-011)
-│   ├── hasher.py                # Artifact hashing & state update (FR-012)
-│   ├── synthetic_generator.py   # Fallback data generator (Plan Consistency)
-│   └── notebooks/
-│       └── 01_full_pipeline.ipynb
+│   │   ├── trends.py            # Mann-Kendall, Theil-Sen, MDES via Monte Carlo (FR-003, FR-013)
+│   │   ├── decomposition.py     # STL, HP, ADF, Ljung-Box, Event Alignment (FR-004, FR-009, SC-003)
+│   │   ├── clustering.py        # Jaccard, Hierarchical, Permutation, Alignment Score (FR-005, FR-008)
+│   │   └── correlation.py       # External metric correlation (FR-007)
+│   ├── viz/
+│   │   ├── plots.py             # Generates figures
+│   │   └── templates.py         # Injects limitation headers/footers (FR-011)
+│   ├── utils/
+│   │   ├── hygiene.py           # SHA-256 hashing, state updates (FR-012)
+│   │   └── contract_validation.py # Schema enforcement (Constitution Check)
+│   ├── main.py                  # Orchestration script
+│   └── requirements.txt
+├── notebooks/                   # FR-006: Reproducible Jupyter notebooks
+│   ├── 01_data_ingestion.ipynb
+│   ├── 02_trend_analysis.ipynb
+│   ├── 03_decomposition.ipynb
+│   └── 04_clustering.ipynb
 ├── data/
-│   ├── raw/                     # Raw dumps (immutable)
-│   ├── processed/               # Monthly aggregates, similarity matrices
-│   └── events/
-│       └── reference_calendar.json
-├── artifacts/
-│   ├── confidence_interval.json
-│   └── final_reports/
+│   ├── raw/                     # Downloaded archives (checksummed)
+│   ├── processed/               # Monthly aggregates, derived stats
+│   ├── events/
+│   │   └── reference_calendar.json
+│   └── taxonomy/
+│       └── survey_2023.json
+├── state/
+│   └── projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml
 └── tests/
-    ├── unit/
-    └── integration/
+    ├── contract/
+    ├── integration/
+    └── unit/
 ```
 
-**Structure Decision**: Single-project structure under `code/` for a data pipeline. Separation of `raw/` and `processed/` data ensures Data Hygiene (Principle III). Notebooks in `code/notebooks/` satisfy FR-006. `code/hasher.py` added to explicitly handle FR-012. `code/synthetic_generator.py` added to handle the specific fallback logic defined in the Dataset Note.
+**Structure Decision**: Single project structure selected to maintain tight coupling between data ingestion, analysis, and visualization, ensuring reproducibility and ease of testing on constrained runners.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **None** | The plan adheres strictly to the spec's requirements. No un-specified constraints or extra complexity introduced. | N/A |
+|-----------|------------|-------------------------------------|
+| **Statistical Rigor** | Required by FR-003, FR-009, FR-013 | Simple linear regression fails to handle non-normal distributions and autocorrelation in time series; Mann-Kendall is non-parametric and robust. |
+| **External Validation** | Required by FR-007 | Sole reliance on SO data is circular; external metrics (GitHub/NPM) are needed to validate adoption trends (as consistency check). |
+| **Power Analysis** | Required by FR-013 | Without MDES via Monte Carlo, "Stable" classifications for non-significant trends are unreliable (Type II error risk). |
+| **Jupyter Notebooks** | Required by FR-006 | Scripts alone do not satisfy the "reproducible notebook" requirement for exploratory analysis. |
 
-## Implementation Phases & Tasks
+## Spec Root Cause Notes
 
-### Phase 0: Data Acquisition & Validation
-*Goal: Secure the data source and validate the pipeline with synthetic data if real data is missing.*
+*The following discrepancies between this plan and the source spec.md have been identified and require a spec update (kickback) to resolve fully:*
 
-- **Task 0.1: Environment Setup**
-  - Create `requirements.txt` with pinned versions.
-  - Set up virtual environment.
-- **Task 0.2: Resolve Data Source URL** (Addresses FR-001 gap)
-  - Implement logic to fetch from the specific `archive.org` snapshot URL: `https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z`.
-  - If fetch fails, log error and trigger `code/synthetic_generator.py` to create a mock `PostsTags` dataset for CI.
-  - **Output**: `data/raw/posts_tags.csv` (real or synthetic).
-- **Task 0.3: Data Integrity Check**
-  - Verify schema of `posts_tags.csv` against `contracts/post_tags.schema.yaml`.
-  - Check for missing months (2015-2023) and flag gaps.
-
-### Phase 1: Preprocessing & Feature Engineering
-*Goal: Transform raw data into analysis-ready time series.*
-
-- **Task 1.1: Tag Normalization** (Addresses Scientific Soundness: Semantic Drift)
-  - Normalize tag names to lowercase and trim.
-  - Map versioned tags (e.g., `python-2.7`, `python-3`) to base tags (`python`) to prevent artificial trends.
-- **Task 1.2: Aggregation**
-  - Aggregate post counts into monthly bins (-01 to 2023-12).
-  - Filter tags with < 12 months of data.
-  - Select top tags by total frequency.
-  - **Output**: `data/processed/monthly_frequencies.csv`.
-- **Task 1.3: Data Model Validation**
-  - Validate `monthly_frequencies.csv` against `contracts/dataset.schema.yaml`.
-
-### Phase 2: Statistical Analysis
-*Goal: Execute the core statistical methods (Trend, Decomposition, Clustering).*
-
-- **Task 2.1: Trend Analysis (Mann-Kendall)** (Addresses FR-003)
-  - Apply Modified Mann-Kendall with pre-whitening to a representative subset of the most prevalent tags.
-  - Compute Theil-Sen slopes.
-  - Apply Benjamini-Hochberg correction for multiple comparisons.
-  - **Calculate MDES** for N=108, alpha=0.05, power=0.8.
-  - Classify trends:
-    - `Growth`/`Decline`: p < 0.05 (BH corrected) AND |slope| > MDES.
-    - `Stable`: p ≥ 0.05 AND |slope| < MDES.
-    - `Insufficient Power`: p ≥ 0.05 AND |slope| ≥ MDES.
-  - **Output**: `artifacts/trend_results.json`.
-- **Task 2.2: Decomposition & Pre-Test Reporting** (Addresses FR-009)
-  - Perform ADF test on each series.
-  - If non-stationary, apply first-order differencing.
-  - Perform seasonality pre-test (spectral/ACF).
-  - Apply STL (if seasonal) or HP filter (if non-seasonal, on **original** series).
-  - Perform Ljung-Box test on residuals (lag=12) and **report results** to `artifacts/decomposition_results.json`.
-- **Task 2.3: Clustering (Co-occurrence)** (Addresses FR-005)
-  - Compute Jaccard similarity matrix for top tags.
-  - Perform hierarchical clustering.
-  - Validate clusters using **two-sample t-test** (intra vs. inter similarity) AND **permutation test** (1000 iterations) as per US-3.
-  - **Output**: `artifacts/clusters.json`.
-- **Task 2.4: External Validation** (Addresses FR-007)
-  - Fetch GitHub stars/NPM downloads for matched tags.
-  - Compute Pearson correlation with Theil-Sen slopes.
-  - **If no external data found**: Generate a record in `artifacts/validation_status.json` stating "External data absent; correlation skipped." (Do not skip silently).
-  - **Output**: `artifacts/validation_results.json`.
-
-### Phase 3: Reporting & Finalization
-*Goal: Generate visualizations, reports, and update state.*
-
-- **Task 3.1: Artifact Hashing & State Update** (Addresses FR-012)
-  - Implement `code/hasher.py` to calculate SHA-256 hashes for all primary artifacts (`data/`, `artifacts/`).
-  - Update `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with hashes and `updated_at`.
-- **Task 3.2: Visualization & Reporting** (Addresses FR-006, FR-011)
-  - Generate plots with mandatory "Limitation: Associational" header/footer.
-  - Compile final report.
-- **Task 3.3: Reproducibility Check**
-  - Re-run pipeline on fresh runner to verify reproducibility.
-
-## Risk Management
-
-| Risk | Mitigation |
-| :--- | :--- |
-| **Data Unavailable** | Fallback to `synthetic_generator` for CI; block final research until `archive.org` URL is verified. |
-| **Memory Overflow** | Use chunked processing for large dumps; limit clustering to a representative subset of top tags. |
-| **Statistical Power** | Explicitly report MDES and "Insufficient Power" classification; do not claim "Stable" without evidence. |
-| **Circular Validation** | Acknowledge cluster validation as a consistency check, not an independent discovery. |
+1.  **FR-013 / US-1**: Spec mandates "post-hoc power analysis". Plan implements "Monte Carlo MDES" (statistically valid). Spec must be updated to reflect MDES.
+2.  **FR-003**: Spec mandates p < 0.05 but is ambiguous on multiple testing correction. Plan commits to Benjamini-Hochberg. Spec must be updated to mandate BH.
+3.  **FR-006**: Spec requires notebooks but does not define the `notebooks/` directory structure. Plan defines it. Spec should reference this structure.
+4.  **US-1 / US-3**: Spec frames external validation as proof of "actual adoption" and "external validity". Plan clarifies these are "convergence of interest" and "consistency checks". Spec acceptance criteria must be updated to avoid circular causality claims.
+5.  **FR-007**: Spec requires correlation but does not mandate API caching for reproducibility. Plan adds caching. Spec should acknowledge reproducibility risks.

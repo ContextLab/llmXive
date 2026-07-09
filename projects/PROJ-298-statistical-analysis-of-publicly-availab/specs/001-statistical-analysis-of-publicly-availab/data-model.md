@@ -1,86 +1,64 @@
 # Data Model: Statistical Analysis of Publicly Available Stack Overflow Question Tags
 
-## Entities & Relationships
+## Overview
 
-### 1. Tag (Key Entity)
-- **Description**: A normalized technology topic.
-- **Attributes**:
-  - `tag_name` (string): Lowercase, trimmed (e.g., "python").
-  - `total_frequency` (int): Total count across 2015-2023.
-  - `has_sufficient_data` (bool): True if ≥12 months with data.
-  - `base_tag` (string): Mapped base tag (e.g., "python" for "python-2.7") to handle semantic drift.
+This document defines the data structures, schemas, and transformations used in the analysis pipeline. All data is stored in `data/` with checksums recorded in `state/`.
 
-### 2. TimeSeries
-- **Description**: Monthly frequency counts for a single tag.
-- **Attributes**:
-  - `tag_name` (string): FK to Tag.
-  - `year` (int): 2015-2023.
-  - `month` (int): 1-12.
-  - `frequency` (int): Count of posts with this tag in this month.
-  - `log_frequency` (float): `log(frequency + 1e-6)`.
+## Entity Definitions
 
-### 3. TrendResult
-- **Description**: Output of Mann-Kendall test.
-- **Attributes**:
-  - `tag_name` (string): FK to Tag.
-  - `slope` (float): Theil-Sen estimator.
-  - `p_value` (float): Adjusted p-value (BH corrected).
-  - `classification` (string): "Growth", "Decline", "Stable", "Insufficient Power".
-  - `ci_lower` (float): 95% CI lower bound.
-  - `ci_upper` (float): 95% CI upper bound.
-  - `power_status` (string): "Adequate" or "Low".
+### Tag
 
-### 4. DecompositionResult
-- **Description**: Output of time series decomposition (FR-009).
-- **Attributes**:
-  - `tag_name` (string).
-  - `method` (string): "STL" or "HP".
-  - `adf_p_value` (float).
-  - `seasonality_detected` (bool).
-  - `ljung_box_p_value` (float).
-  - `residual_independence` (bool).
+- **Type**: String (normalized: lowercase, trimmed)
+- **Example**: `python`, `react`
+- **Constraints**: Non-empty, alphanumeric + hyphens.
 
-### 5. CoOccurrenceMatrix
-- **Description**: Jaccard similarity between tag pairs.
-- **Attributes**:
-  - `tag_a` (string).
-  - `tag_b` (string).
-  - `jaccard_score` (float): 0.0 to 1.0.
+### TimeSeries
 
-### 6. Cluster
-- **Description**: Group of related tags.
-- **Attributes**:
-  - `cluster_id` (int).
-  - `members` (list of strings): Tag names.
-  - `avg_intra_similarity` (float).
-  - `validation_t_test_p_value` (float): Result of the two-sample t-test.
-  - `validation_jaccard` (float): Match to SO Survey taxonomy.
+- **Type**: Sequence of monthly counts.
+- **Structure**:
+  - `tag`: String
+  - `month`: Date (YYYY-MM-01)
+  - `count`: Integer (≥0)
+  - `trend_slope`: Float (Theil-Sen)
+  - `p_value`: Float
+  - `classification`: Enum ("Growth", "Decline", "Stable", "Insufficient Data")
 
-## File Formats
+### Cluster
 
-### 1. `data/processed/monthly_frequencies.csv`
-- **Schema**: `tag_name, year, month, frequency, log_frequency, base_tag`
-- **Format**: CSV (UTF-8).
+- **Type**: Group of tags.
+- **Structure**:
+  - `cluster_id`: String
+  - `members`: List[String]
+  - `intra_similarity`: Float (Jaccard)
+  - `alignment_score`: Float (vs. Survey Taxonomy)
 
-### 2. `artifacts/trend_results.json`
-- **Schema**: Array of `TrendResult` objects.
-- **Format**: JSON.
+## Data Flow
 
-### 3. `artifacts/decomposition_results.json`
-- **Schema**: Array of `DecompositionResult` objects.
-- **Format**: JSON.
+1. **Raw Ingestion**: `PostsTags` table (PostId, TagName).
+2. **Preprocessing**:
+   - Normalize tags.
+   - Filter for ≥12 months of data.
+   - Aggregate to monthly bins (2015-2023).
+3. **Analysis**:
+   - Mann-Kendall test → `trend_results`
+   - Decomposition → `decomposition_results`
+   - Clustering → `cluster_results`
+4. **External Validation**:
+   - GitHub/NPM correlation → `correlation_results`
+5. **Output**:
+   - Reports (PDF/HTML) with limitation headers.
+   - JSON artifacts (`confidence_interval.json`, `state/`).
 
-### 4. `artifacts/clusters.json`
-- **Schema**: Array of `Cluster` objects.
-- **Format**: JSON.
+## Schema Definitions
 
-### 5. `artifacts/validation_status.json`
-- **Schema**: `{ "tag_name": { "status": "Correlated" | "Absent" | "Skipped" }, "correlation": float | null }`
-- **Format**: JSON.
+See `contracts/` for detailed YAML schemas.
 
-## Constraints & Validation
+- `contracts/dataset.schema.yaml`: Schema for the processed monthly tag frequency data.
+- `contracts/output.schema.yaml`: Schema for the final trend analysis results.
+- `contracts/cluster_results.schema.yaml`: Schema for cluster membership and alignment scores.
 
-- **Uniqueness**: `(tag_name, year, month)` must be unique in `monthly_frequencies.csv`.
-- **Range**: `frequency` ≥ 0. `log_frequency` ≥ -13.8 (approx `log(1e-6)`).
-- **Completeness**: Only tags with `has_sufficient_data = true` are included in `trend_results`.
-- **Hashing**: All files in `data/` and `artifacts/` must have SHA-256 hashes recorded in `state/`.
+## Data Hygiene
+
+- **Checksums**: SHA-256 for all files in `data/`.
+- **Immutability**: Raw data never modified; derivations in new files.
+- **PII**: No PII in `PostsTags` (only PostId and TagName).

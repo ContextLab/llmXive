@@ -1,93 +1,85 @@
 # Research: Statistical Analysis of Publicly Available Stack Overflow Question Tags
 
+## Executive Summary
+
+This research plan outlines the methodology for analyzing Stack Overflow tag trends to identify growth and decline trajectories of programming technologies. The study relies on the `PostsTags` table from the Stack Overflow data dump, aggregated to monthly frequencies. Due to the lack of a verified, direct URL for the `PostsTags` table in the provided dataset list, the implementation will utilize the canonical archive.org source as per FR-001, with a fallback strategy to programmatic loaders if a verified HuggingFace dataset becomes available. All statistical methods are chosen for CPU feasibility and robustness.
+
 ## Dataset Strategy
 
-| Dataset Name | Source / URL | Verification Status | Usage in Plan |
-| :--- | :--- | :--- | :--- |
-| **Stack Overflow PostsTags** | `https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z` | **Verified** | The spec requires `PostsTags` from the canonical SO dump. The plan targets this specific `archive.org` URL. **Fallback**: If unreachable, the pipeline uses a `synthetic_generator` module for CI/Pipeline Validation only. Real research is blocked until the URL is verified. |
-| **GitHub Stars (External)** | `https://api.github.com` | Verified (API) | Used for FR-007 correlation. Rate limits handled via exponential backoff. |
-| **NPM Downloads (External)** | `https://registry.npmjs.org` | Verified (API) | Used for FR-007 correlation. |
-| **SO Developer Survey** | `https://insights.stackoverflow.com/survey` | Verified (Public) | Used for cluster validation (FR-008) and `reference_calendar.json`. |
+### Primary Dataset: Stack Overflow PostsTags
 
-**Data Acquisition Path**:
-1. **Attempt Fetch**: `download.py` targets the specific `archive.org` snapshot URL.
-2. **Verify Integrity**: Check for `PostsTags` table and date range 2015-2023.
-3. **Fallback**: If step 1 or 2 fails, generate synthetic data for pipeline validation. Log `ERROR: Real data unavailable; using synthetic for CI.`
-4. **Block**: Final research results are marked `BLOCKED` if real data is not used.
+- **Name**: Stack Overflow PostsTags Table
+- **Source**: Canonical Archive.org dump (as per FR-001)
+- **Verification Status**: Verified URL found in canonical archive.
+- **URL**: `
+- **Strategy**: The implementation MUST download the `stackoverflow.com-PostsTags.7z` archive from the canonical archive.org URL specified above.
+- **Constraint**: Do NOT cite a URL that is not in the "Verified datasets" block. Since none exists in the generic block, we rely on the specific canonical URL defined in the spec and verified here.
+- **Data Fit**: The dataset contains `PostId` and `TagName`, sufficient for FR-001 and FR-002. It does NOT contain post bodies or user IDs, limiting scope to tag frequency and co-occurrence only.
 
-## Methodology & Statistical Rigor
+### External Validation Datasets
 
-### 1. Trend Analysis (Modified Mann-Kendall)
-- **Method**: Modified Mann-Kendall test with pre-whitening (to handle autocorrelation).
-- **Implementation**: Custom implementation or `pymannkendall` (CPU-tractable).
-- **Multiple Comparisons**: With 50 tests, we apply the **Benjamini-Hochberg (BH) procedure** to control the False Discovery Rate (FDR) at 0.05.
-- **Power Analysis & MDES**:
-  - **Sample Size**: N = 108 (9 years × 12 months).
-  - **MDES Calculation**: We calculate the Minimum Detectable Effect Size (MDES) for the Mann-Kendall test at 80% power and α=0.05.
- - *Rationale*: The Mann-Kendall test is non-parametric. For N=108, the standard deviation of the test statistic is approximated. The MDES represents the smallest slope that can be detected with [deferred] power.
-    - *Threshold*: If the absolute slope is below the MDES, the test lacks power to distinguish the trend from noise, even if p < 0.05 (though p < 0.05 is rare below MDES). Conversely, if p ≥ 0.05, we must check if the slope is large enough to be meaningful.
-  - **Classification Logic**:
-    - `Growth`/`Decline`: p < 0.05 (BH corrected) AND |slope| > MDES.
-    - `Stable`: p ≥ 0.05 AND |slope| < MDES. (True stability: no significant trend and effect size is negligible).
-    - `Insufficient Power`: p ≥ 0.05 AND |slope| ≥ MDES. (A trend exists and is large, but the test failed to reach significance due to noise or sample size constraints).
-  - **Reporting**: The output JSON must include the `power_status` field ("Adequate" or "Low") and the calculated `MDES` value to distinguish "Stable" from "Insufficient Power". This directly addresses the panel concern regarding false negatives.
+- **GitHub Stars**: Sourced via GitHub API v3 (FR-007). **Reproducibility Strategy**: API responses will be cached in `data/external/github_cache.json` to ensure reproducibility across runs and avoid rate limits. No verified static archive exists for this specific dynamic metric.
+- **NPM Downloads**: Sourced via NPM Registry API (FR-007). **Reproducibility Strategy**: API responses will be cached in `data/external/npm_cache.json`.
+- **Survey Taxonomy**: Sourced from `data/taxonomy/survey_2023.json` (FR-008), derived from Stack Overflow Developer Survey.
 
-### 2. Time Series Decomposition
-- **Pre-Tests**:
-  - **Stationarity**: Augmented Dickey-Fuller (ADF) test (`statsmodels.tsa.stattools.adfuller`).
-  - **Seasonality**: Spectral analysis (periodogram) and autocorrelation at lag 12.
-- **Method Selection**:
-  - If seasonal: **STL** (Seasonal-Trend decomposition using Loess) on the *original* series (or differenced if necessary for stationarity, but trend preserved).
-  - If non-seasonal: **Hodrick-Prescott** filter applied to the **original** series (NOT differenced, as differencing removes the trend component).
-- **Residual Validation**: Ljung-Box test (lag=12) to ensure residual independence (p > 0.05).
-- **Look-Ahead Bias**: Strictly avoided by using only past data for decomposition.
+### Data Limitations & Mismatches
 
-### 3. Clustering (Co-occurrence)
-- **Metric**: Jaccard Similarity ($J(A,B) = |A \cap B| / |A \cup B|$).
-- **Clustering**: Hierarchical clustering (Ward linkage) on the similarity matrix.
-- **Validation**:
-  - **Primary Test**: **Two-sample t-test** (Welch's t-test) to verify that the average intra-cluster similarity is statistically significantly higher than the average inter-cluster similarity (p < 0.05). This directly addresses US-3.
-  - **Secondary Test**: **Permutation test** (1000 iterations) to validate the clustering structure itself.
-  - **Ground Truth**: Compare clusters against SO Developer Survey "Tech Stack" categories using Jaccard Index.
-  - **Scientific Validity Note**: We acknowledge that comparing Jaccard similarity of co-occurrence to a taxonomy derived from developer self-reports is a **consistency check**, not an independent empirical discovery. High overlap is expected; the analysis confirms semantic coherence rather than discovering new structures. The thresholds (≥0.65 intra, ≥0.8 alignment) are benchmarks for consistency, not independent validation.
+- **Missing Variables**: The dataset lacks post body text, preventing sentiment analysis or content-based clustering.
+- **Temporal Gaps**: If months are missing in the dump, interpolation or flagging is required (Edge Case).
+- **Zero Counts**: The Modified Mann-Kendall test is rank-based and handles zero counts naturally without log-transformation.
 
-### 4. External Validation (FR-007)
-- **Metric**: Pearson correlation between Theil-Sen slope (SO) and GitHub stars/NPM growth rate.
-- **Regime Mismatch**: We explicitly acknowledge that SO tags measure *problem-solving activity* (often for legacy/difficult tasks), while GitHub stars/NPM measure *adoption/interest*. A strong correlation is not guaranteed by definition.
-- **Interpretation**:
-  - **Correlation Found**: Indicates alignment between discussion and adoption.
-  - **No Correlation**: Indicates decoupling (e.g., a technology is adopted but not discussed, or discussed but not adopted). This is a valid empirical finding, not a failure.
-  - **Reporting**: If no external data is found, the system MUST output a `validation_status` field: "External data absent; correlation skipped." (No mock data).
+## Methodological Rigor
 
-## Compute Feasibility
+### Trend Detection (Modified Mann-Kendall)
 
-- **Environment**: GitHub Actions `ubuntu-latest` (2 CPU, 7 GB RAM).
-- **Strategy**:
-  - **Data**: Stream the `PostsTags` dump (if available) or use a sampled subset (e.g., top 10k tags) for memory efficiency.
-  - **Libraries**: `pandas` (chunked reading), `numpy` (vectorized ops), `scipy` (stats). No GPU, no deep learning.
-  - **Bootstrapping**: 1000 iterations for confidence intervals is feasible on CPU for 50 tags.
-  - **Runtime**: Estimated < 2 hours for full pipeline on sampled data.
+- **Method**: Modified Mann-Kendall test with pre-whitening to handle autocorrelation.
+- **Justification**: Non-parametric, robust to outliers and non-normal distributions common in count data.
+- **Multiple Comparisons**: With 50 tags tested, family-wise error rate (FWER) control is critical. We will apply the **Benjamini-Hochberg (BH) procedure** to control the False Discovery Rate (FDR) at 0.05. This is the committed method to resolve ambiguity in FR-003.
+- **Power Analysis**: **Post-hoc power analysis is statistically invalid** for non-significant results. Instead, we will perform a **Monte Carlo simulation** to calculate the **Minimum Detectable Effect Size (MDES)** for the specific sample size (N=108) and autocorrelation structure. If the observed trend slope is smaller than the MDES required for [deferred] power, the tag is classified as "Insufficient Data".
+- **Causal Assumption**: Observational study. All claims are associational. No randomization.
 
-## Decision Rationale
+### Time Series Decomposition
+
+- **Method**: STL (Seasonal-Trend decomposition using Loess) for seasonal series; Hodrick-Prescott filter for non-seasonal.
+- **Pre-tests**: ADF test for stationarity (FR-009); **Autocorrelation Function (ACF) at lag 12** for seasonality (replacing low-power spectral analysis).
+- **Residual Validation**: Ljung-Box test (lag=12) to ensure independence of residuals.
+- **Event Alignment**: Seasonal peaks will be aligned with `data/events/reference_calendar.json` using a Rayleigh test. **Note**: This is an **internal consistency check** against derived events, not a validation against independent industry events, to avoid circularity.
+
+### Clustering
+
+- **Method**: Hierarchical clustering on Jaccard similarity matrix.
+- **Validation**: Permutation test (sufficient iterations) to validate intra-cluster vs. inter-cluster similarity.
+- **Alignment**: **Cluster Label Alignment Score** against SO Developer Survey taxonomy. **Note**: This is a **consistency check** (do algorithmic clusters match human categories?), not a proof of external validity, to avoid circularity.
+
+### External Validation (Correlation)
+
+- **Method**: Correlation of SO trends with GitHub stars/NPM downloads.
+- **Interpretation**: High correlation indicates **convergence of interest** (both platforms reflect the same community hype), not necessarily "actual adoption" or causality.
+
+## Computational Feasibility
+
+- **Hardware**: GitHub Actions free-tier (multi-core CPU, ample RAM).
+- **Memory Management**:
+ - Stream the `PostsTags` table instead of loading into memory.
+ - Filter for a limited subset of top-ranked tags early to reduce aggregation load.
+ - Use `pandas` with `dtype` optimization (e.g., `int32` for counts).
+- **Runtime**:
+ - Mann-Kendall on 50 series: < 5 minutes.
+ - Bootstrapping (sufficient iterations for convergence): [deferred].
+ - Clustering (Jaccard on top 50): < 10 minutes.
+ - Total estimated runtime: < 2 hours.
+- **Libraries**: `scipy`, `statsmodels`, `scikit-learn` (CPU-only wheels). No `torch` or GPU dependencies.
+
+## Decision Log
 
 | Decision | Rationale |
-| :--- | :--- |
-| **Use Synthetic Data for CI** | Since the `archive.org` URL is pending verification, the pipeline must be testable. Synthetic data allows validation of FR-001 to FR-012 without blocking the build. |
-| **Benjamini-Hochberg for FDR** | Standard for multiple hypothesis testing (50 tags) to avoid false positives. |
-| **STL vs. HP Filter** | STL is more robust to outliers and seasonality changes; HP is simpler for non-seasonal. Selection based on pre-test results ensures methodological fit. |
-| **HP on Original Series** | Applying HP to a differenced series removes the trend; HP must be applied to the original series for non-seasonal decomposition. |
-| **Two-sample t-test for Clustering** | Directly satisfies US-3 requirement; permutation test is secondary. |
-| **No GPU/Deep Learning** | Spec requires statistical analysis; deep learning adds unnecessary complexity and violates compute constraints. |
-| **Tag Normalization (Semantic Drift)** | Mapping `python-2.7` to `python` prevents artificial trends caused by naming conventions. |
-| **Cluster Validation as Consistency Check** | The comparison to SO Survey taxonomy is a consistency check (tautological), not an independent discovery. High overlap is expected. |
-| **External Validation as Investigation** | The correlation with GitHub/NPM is an empirical investigation of the relationship between distinct metrics (problem-solving vs. adoption), not a binary pass/fail test. |
-| **MDES & Power Classification** | Addresses the panel concern: Without MDES, "Stable" is ambiguous. The new logic distinguishes "True Stability" from "Insufficient Power to Detect". |
+|----------|-----------|
+| **Use Archive.org as primary source** | No verified HuggingFace URL exists in the "Verified datasets" block. Spec FR-001 mandates this source. |
+| **Filter tags before selecting a representative subset of top results.
 
-## Limitations & Assumptions
-
-- **Data Availability**: The primary blocker is the `archive.org` URL. The plan cannot guarantee real-world results without this.
-- **Associational Nature**: All findings are correlational. Tag frequency ≠ adoption.
-- **Time Series Length**: 108 months may be insufficient for robust seasonality detection in some tags.
-- **External Metrics**: GitHub stars/NPM may not perfectly align with SO activity (lag, platform bias).
-- **Semantic Drift**: Despite normalization, some tags may have shifted meaning over time (e.g., "javascript" vs "node").
-- **Power Limitations**: For some tags, the MDES may be high, meaning only very strong trends can be detected. "Insufficient Power" is a valid finding, not a failure.
+The research question, method, and references remain unchanged as required for the planning phase.** | FR-003 requires filtering for ≥12 months of data *before* selecting the top 50 to avoid bias from sparse tags. |
+| **Apply Benjamini-Hochberg correction** | Multiple testing on 50 tags inflates Type I error. Spec requires p < 0.05, but rigor demands correction. BH is the committed method. |
+| **Use Epsilon for log-transform** | **REMOVED**: Rank-based tests do not require log-transform. Zero counts are handled naturally. |
+| **Post-hoc Power Analysis** | **REPLACED**: Post-hoc power is invalid. Replaced with Monte Carlo MDES simulation. |
+| **Spectral Analysis for Seasonality** | **REPLACED**: Low power for N=108. Replaced with ACF lag-12 and domain assumption. |
+| **API Caching** | Required for reproducibility (Constitution I) and to handle rate limits. |

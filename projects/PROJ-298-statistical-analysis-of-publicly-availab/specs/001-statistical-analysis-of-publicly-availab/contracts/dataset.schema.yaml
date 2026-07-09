@@ -1,34 +1,21 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Monthly Tag Frequency Dataset"
-description: "Schema for the processed monthly tag frequency data (data/processed/monthly_frequencies.csv)"
-type: "object"
+description: "Schema for the processed monthly tag frequency data used in trend analysis."
+type: object
 properties:
-  tag_name:
-    type: "string"
-    description: "Normalized tag name (lowercase, trimmed)"
-  year:
-    type: "integer"
-    minimum: 2015
-    maximum: 2023
+  tag:
+    type: string
+    description: "Normalized tag name (lowercase, trimmed)."
   month:
-    type: "integer"
-    minimum: 1
-    maximum: 12
-  frequency:
-    type: "integer"
+    type: string
+    format: date
+    description: "Month of the frequency count (YYYY-MM-01)."
+  count:
+    type: integer
     minimum: 0
-    description: "Count of posts with this tag in this month"
-  log_frequency:
-    type: "number"
-    description: "Log-transformed frequency (log(x + 1e-6))"
-  base_tag:
-    type: "string"
-    description: "Mapped base tag (e.g., 'python' for 'python-2.7')"
+    description: "Number of posts with this tag in the given month."
 required:
-  - tag_name
-  - year
+  - tag
   - month
-  - frequency
-  - log_frequency
-  - base_tag
+  - count
 additionalProperties: false

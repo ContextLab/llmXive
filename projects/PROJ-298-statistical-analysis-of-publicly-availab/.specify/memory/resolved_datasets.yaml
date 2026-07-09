@@ -1,4 +1,4 @@
-resolved_at: '2026-07-06T20:40:52.347513+00:00'
+resolved_at: '2026-07-09T22:36:50.919045+00:00'
 datasets:
 - intent: SHA-256
   status: verified
@@ -19,31 +19,33 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
+  - url: https://figshare.com/articles/dataset/_b_Fixed-effect_model_b_/32947823
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
+  - url: https://figshare.mq.edu.au/articles/thesis/Swimming_for_low_back_pain/32764725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
+  - url: https://acs.figshare.com/articles/journal_contribution/Retrospective_Analysis_of_the_Impact_of_the_Escape_from_Flatland_Publication_on_the_Merck_Co_Inc_Small_Molecule_Portfolio/32952650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
+  - url: https://bridges.monash.edu/articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://bridges.monash.edu/articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/19426733
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19996327
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -51,31 +53,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19996327
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19552870
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19378696
+  - url: https://zenodo.org/records/18333706
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18905519
+  - url: https://zenodo.org/records/21254385
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18905519
+  - url: https://zenodo.org/records/15626548
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19403942
+  - url: https://zenodo.org/records/14586838
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19403942
+  - url: https://zenodo.org/records/14586846
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21157378
+  - url: https://zenodo.org/records/20977739
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -83,26 +89,32 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
+  - url: https://figshare.com/articles/dataset/_b_Fixed-effect_model_b_/32947823
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
+  - url: https://figshare.mq.edu.au/articles/thesis/Swimming_for_low_back_pain/32764725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
+  - url: https://acs.figshare.com/articles/journal_contribution/Retrospective_Analysis_of_the_Impact_of_the_Escape_from_Flatland_Publication_on_the_Merck_Co_Inc_Small_Molecule_Portfolio/32952650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
+  - url: https://bridges.monash.edu/articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://bridges.monash.edu/articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/13303796
     source: zenodo
     status: wrong_format
@@ -119,7 +131,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7848387
+  - url: https://zenodo.org/records/7875717
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -127,26 +139,32 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/James_Hope_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_07047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_/32915570
+  - url: https://figshare.com/articles/dataset/_b_Fixed-effect_model_b_/32947823
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Recent_Trends_in_the_Synthesis_and_Applications_of_Organic_Dyes_and_Chromophores_A_Review/32838311
+  - url: https://figshare.mq.edu.au/articles/thesis/Swimming_for_low_back_pain/32764725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Datasets_for_NS_2026_Post-processed_dataset_/32915564
+  - url: https://acs.figshare.com/articles/journal_contribution/Retrospective_Analysis_of_the_Impact_of_the_Escape_from_Flatland_Publication_on_the_Merck_Co_Inc_Small_Molecule_Portfolio/32952650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CODERData2_3/32906495
+  - url: https://bridges.monash.edu/articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.canterbury.ac.nz/articles/media/_Being_what_I_am_has_its_connotations_Transition_to_Adult_Life_as_Told_by_Learning_Disabled_Young_Adults_in_Aotearoa_New_Zealand/32915546
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Static_and_Dynamic_Mechanical_Responses_of_CFRP-Reinforced_Ultra-High_Strength_Steel_UHSS_Tubular_Members/32952647
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://bridges.monash.edu/articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Fate_and_migration_of_PFASs_through_high-density_polyethylene_HDPE_geomembranes/32952641
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/3715464
     source: zenodo
     status: wrong_format
