@@ -1,0 +1,6 @@
+'|hat':
+  quote: 'Diagnostic adequacy was limited: rank-normalized R-hat <= 1.01 threshold
+    was achieved in 55/431 tasks, bulk-'
+  source_id: '2607.02000'
+  url: https://arxiv.org/abs/2607.02000
+  value: '1.01'

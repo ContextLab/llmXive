@@ -1,0 +1,24 @@
+# Project Configuration for PROJ-011
+# This file is loaded by code/utils/config.py if CONFIG_PATH is set or defaults to this location.
+
+seed: 42
+device: "cpu"
+n_cores: 1
+max_runtime_hours: 6
+
+# Preprocessing Thresholds
+motion_threshold_mm: 3.0
+motion_volume_threshold_pct: 10.0
+
+# Modeling Thresholds
+convergence_rate_threshold: 0.90
+prediction_accuracy_target: 0.60
+
+# Analysis Thresholds
+fdr_q_threshold: 0.05
+
+# Sensitivity Analysis
+sensitivity_thresholds:
+  - 0.01
+  - 0.05
+  - 0.1

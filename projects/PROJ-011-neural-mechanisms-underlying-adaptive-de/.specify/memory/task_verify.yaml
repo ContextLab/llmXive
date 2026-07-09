@@ -1,0 +1,8 @@
+T007 Create `data/` directory structure (`raw`, `processed`, `models`) and `state/` for artifact hashes: 2
+T008 Configure `pytest` with `conftest.py` for test fixtures and temporary data directories: 2
+? T010 [P] [US1] Contract test for data validation in `tests/contract/test_data_validation.py`
+  (verifies OpenNeuro ds003694 structure)
+: 1
+? T011 [P] [US1] Integration test for ROI extraction in `tests/integration/test_roi_extraction.py`
+  (verifies dimensions match timepoints)
+: 1

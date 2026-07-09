@@ -31,3 +31,16 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000202
   verified_at: '2026-07-07T01:39:31.781118Z'
+- artifact_hash: 50d39e740f3c417b325ad97a3bf10c48af4e65f5f23df9e754b261038367bac4
+  artifact_path: projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/specs/001-neural-mechanisms-underlying-adaptive-de/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2607.02000] Convergence fragility in probit Bayesian kernel machine
+    regression implemented in the bkmr R package for binary-outcome environmental
+    mixture analyses: a simulation study'
+  kind: url
+  value: https://arxiv.org/abs/2607.02000
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2607.02000
+  verified_at: '2026-07-09T23:57:18.554256Z'
