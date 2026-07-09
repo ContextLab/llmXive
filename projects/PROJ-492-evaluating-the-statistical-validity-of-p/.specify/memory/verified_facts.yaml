@@ -1,5 +1,6 @@
-'|accuracy csv data extraction label manual real validation world':
-  quote: 90.01% 94.47% 97.39% 97.15% 98.11%
-  source_id: '1407.6748'
-  url: https://arxiv.org/abs/1407.6748
-  value: 98.11%
+'|alpha bonferroni correction divided subgroup use':
+  quote: "on the neuron pair. Usingn = 100 and rejecting whenever\u02C6p\u2217\u2264\
+    \ 0.05/(2C(C\u22121))"
+  source_id: '1004.2910'
+  url: https://arxiv.org/abs/1004.2910
+  value: "0.05/(2C(C\u22121))"
