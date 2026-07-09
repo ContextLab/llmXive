@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisReportSchema"
+description: "Schema for the final statistical analysis output containing correlation and GLM results."
+type: "object"
+properties:
+  correlation_matrix:
+    type: "array"
+    description: "List of correlation test results."
+    items:
+      type: "object"
+      properties:
+        task_type:
+          type: "string"
+          description: "The task type (e.g., summarization)."
+        complexity_metric:
+          type: "string"
+          description: "The complexity metric used (e.g., cyclomatic_complexity or PCA_component_1)."
+        correlation_coefficient:
+          type: "number"
+          description: "Spearman rho value."
+        p_value:
+          type: "number"
+          description: "Raw p-value."
+        adjusted_p_value:
+          type: "number"
+          description: "Benjamini-Hochberg adjusted p-value."
+        sample_size:
+          type: "integer"
+          description: "Number of samples used."
+      required:
+        - task_type
+        - complexity_metric
+        - correlation_coefficient
+        - p_value
+        - adjusted_p_value
+        - sample_size
+  glm_results:
+    type: "array"
+    description: "List of GLM analysis results."
+    items:
+      type: "object"
+      properties:
+        task_type:
+          type: "string"
+          description: "The task type."
+        model_formula:
+          type: "string"
+          description: "The GLM formula used."
+        coefficient_complexity:
+          type: "number"
+          description: "Coefficient for the complexity variable."
+        std_error:
+          type: "number"
+          description: "Standard error of the coefficient."
+        z_value:
+          type: "number"
+          description: "Z-statistic."
+        p_value:
+          type: "number"
+          description: "P-value for the coefficient."
+        hypothesis_supported:
+          type: "boolean"
+          description: "True if p < 0.05 and coefficient is negative."
+        vif_status:
+          type: "string"
+          description: "Status of multicollinearity check (e.g., 'Pass', 'PCA_Fallback')."
+      required:
+        - task_type
+        - model_formula
+        - coefficient_complexity
+        - std_error
+        - z_value
+        - p_value
+        - hypothesis_supported
+        - vif_status
+required:
+  - correlation_matrix
+  - glm_results
+additionalProperties: false
