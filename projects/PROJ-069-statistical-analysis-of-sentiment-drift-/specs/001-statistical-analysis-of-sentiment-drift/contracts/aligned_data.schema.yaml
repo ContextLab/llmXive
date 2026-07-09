@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Quarterly Time Series Data"
+description: "Schema for the processed quarterly dataset containing sentiment, macro‑economic indicators, and consumer confidence."
+type: "object"
+properties:
+  date:
+    type: "string"
+    description: "Quarter end date in ISO 8601 format (YYYY-MM-DD)."
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  sentiment_positive:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Proportion of positive sentiment scores."
+  sentiment_negative:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Proportion of negative sentiment scores."
+  sentiment_neutral:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Proportion of neutral sentiment scores."
+  sentiment_confidence:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mean confidence of sentiment predictions."
+  gdp_growth:
+    type: "number"
+    description: "Quarterly GDP growth rate percentage."
+  unemployment_rate:
+    type: "number"
+    description: "Quarterly unemployment rate percentage."
+  consumer_confidence:
+    type: "number"
+    description: "Consumer Confidence Index (standardized)."
+  sample_size:
+    type: "integer"
+    minimum: 0
+    description: "Number of tweets aggregated in the quarter."
+  is_low_confidence:
+    type: "boolean"
+    description: "True if sample size < 100 or confidence < 0.7."
+  is_recession:
+    type: "boolean"
+    description: "True if the date falls within an NBER recession period."
+  missing_rate:
+    type: "number"
+    minimum: 0
+    maximum: 0.05
+    description: "Proportion of values imputed for this row (≤ 5 %)."
+required:
+  - date
+  - sentiment_positive
+  - sentiment_negative
+  - sentiment_neutral
+  - sentiment_confidence
+  - gdp_growth
+  - unemployment_rate
+  - consumer_confidence
+  - sample_size
+  - is_low_confidence
+  - is_recession
+  - missing_rate
+additionalProperties: false

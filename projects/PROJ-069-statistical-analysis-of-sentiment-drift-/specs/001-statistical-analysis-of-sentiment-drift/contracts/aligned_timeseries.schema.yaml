@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Quarterly Timeseries Schema"
-description: "Schema for the aligned quarterly time‑series data used in Granger causality analysis."
+title: "Aligned Quarterly Timeseries Schema"
+description: "Schema for the merged, cleaned, and aligned quarterly time‑series data used in Granger causality analysis."
 type: "object"
 properties:
   date:
@@ -9,43 +9,41 @@ properties:
     description: "Quarterly timestamp (end of quarter)."
   sentiment_positive:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Ratio of positive sentiment predictions."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of positive sentiment scores."
   sentiment_negative:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Ratio of negative sentiment predictions."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of negative sentiment scores."
   sentiment_neutral:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Ratio of neutral sentiment predictions."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of neutral sentiment scores."
   sentiment_confidence:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Average prediction confidence for the quarter."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Mean confidence score of the sentiment predictions."
   gdp_growth:
     type: "number"
     description: "Quarterly GDP growth rate."
   unemployment_rate:
     type: "number"
-    minimum: 0
-    maximum: 100
-    description: "Quarterly unemployment rate percentage."
+    description: "Quarterly unemployment rate."
   consumer_confidence:
     type: "number"
     description: "Quarterly Consumer Confidence Index."
   is_recession:
     type: "boolean"
-    description: "True if date falls within NBER recession dates."
+    description: "True if the date falls within an NBER‑defined recession period."
   missing_rate:
     type: "number"
-    minimum: 0
+    minimum: 0.0
     maximum: 0.05
-    description: "Proportion of imputed values for this row (≤ 5 %)."
+    description: "Percentage of missing values imputed for this row (≤ 5 %)."
 required:
   - date
   - sentiment_positive

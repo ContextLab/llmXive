@@ -1,51 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Results Schema"
-description: "Schema for statistical test outputs (ADF, Granger, VAR)."
-type: "array"
-items:
-  type: "object"
-  properties:
-    test_type:
-      type: "string"
-      enum:
-        - "ADF"
-        - "Granger"
-        - "VAR"
-        - "MBB"
-      description: "Type of statistical test performed."
-    variable_pair:
-      type: "string"
-      description: "Variables being tested (e.g., 'Sentiment->GDP')."
-    statistic:
+title: "Statistical Model Results"
+description: "Schema for the output of stationarity, VAR, and Granger causality tests."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["ADF", "Johansen", "Granger", "MBB"]
+    description: "Type of statistical test performed."
+  variable_pair:
+    type: "string"
+    description: "Direction of causality being tested (e.g., 'Sentiment -> GDP')."
+  statistic:
+    type: "number"
+    description: "Value of the test statistic (F-stat, ADF stat, etc.)."
+  p_value:
+    type: "number"
+    description: "P-value of the test."
+  optimal_lag:
+    type: "integer"
+    minimum: 0
+    description: "Optimal lag order selected by AIC (for VAR)."
+  cointegration_rank:
+    type: "integer"
+    minimum: 0
+    description: "Cointegration rank from Johansen test."
+  confidence_interval:
+    type: "array"
+    items:
       type: "number"
-      description: "Test statistic value."
-    p_value:
-      type: "number"
-      minimum: 0
-      maximum: 1
-      description: "P-value of the test."
-    lag_order:
-      type: "integer"
-      minimum: 0
-      description: "Optimal lag order selected (for VAR/Granger)."
-    stationary:
-      type: "boolean"
-      description: "Whether the series was found to be stationary."
-    transformation:
-      type: "string"
-      description: "Transformation applied (e.g., '1st_diff', 'log', 'none')."
-    confidence_interval:
-      type: "object"
-      properties:
-        lower:
-          type: "number"
-        upper:
-          type: "number"
-      description: "Bootstrap confidence interval (for MBB)."
-  required:
-    - test_type
-    - variable_pair
-    - statistic
-    - p_value
-    - stationary
+    minItems: 2
+    maxItems: 2
+    description: "Confidence interval [lower, upper] for MBB."
+  block_length:
+    type: "integer"
+    description: "Block length used in Moving Block Bootstrap (quarters)."
+  masking_proportion:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Proportion of data masked in sensitivity analysis."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value < 0.05."
+required:
+  - test_type
+  - variable_pair
+  - statistic
+  - p_value
+  - is_significant
 additionalProperties: false
