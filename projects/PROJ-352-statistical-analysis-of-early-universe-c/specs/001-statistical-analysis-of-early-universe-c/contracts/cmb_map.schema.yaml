@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CMB Minkowski Functional Analysis Results"
+title: "CMB Map and Minkowski Functional Result"
 description: "Schema for the final statistical results output (output/results.json)"
 type: "object"
 required:
@@ -8,7 +8,6 @@ required:
   - "degrees_of_freedom"
   - "model_used"
   - "covariance_matrix"
-  - "deviation_found"
 properties:
   p_value:
     type: "number"
@@ -31,7 +30,7 @@ properties:
       - "Gaussian + Cosmic String"
   covariance_matrix:
     type: "array"
-    description: "3x3 sample covariance matrix of the three Minkowski Functionals (Area, Perimeter, Genus) or reduced PCA components."
+    description: "3x3 sample covariance matrix of the three Minkowski Functionals (Area, Perimeter, Genus)."
     items:
       type: "array"
       items:
@@ -40,22 +39,6 @@ properties:
       maxItems: 3
     minItems: 3
     maxItems: 3
-  deviation_found:
-    type: "boolean"
-    description: "True if the null hypothesis (Gaussian) was rejected (p_value < alpha)."
-  template_fit_parameters:
-    type: "object"
-    description: "Parameters from the cosmic string template fit (only populated if deviation_found is true)."
-    required:
-      - "g_mu_best_fit"
-      - "likelihood_score"
-    properties:
-      g_mu_best_fit:
-        type: "number"
-        description: "Best fit cosmic string tension from the alternative hypothesis library."
-      likelihood_score:
-        type: "number"
-        description: "Log-likelihood score of the best fit."
   status:
     type: "string"
     description: "Execution status of the pipeline."
@@ -73,18 +56,9 @@ properties:
       n_simulations:
         type: "integer"
         description: "Number of Gaussian simulations generated."
-      n_simulations_alt:
-        type: "integer"
-        description: "Number of alternative hypothesis (string) simulations generated."
       beam_fwhm_arcmin:
         type: "number"
-        description: "Full Width at Half Maximum of the applied beam (effective)."
+        description: "Full Width at Half Maximum of the applied beam."
       noise_variance:
         type: "number"
         description: "Variance of the added instrumental noise in μK²."
-      mask_correction_method:
-        type: "string"
-        description: "Method used for mask correction (e.g., 'Schmalzing_Gorski_1998')."
-      pca_components_used:
-        type: "integer"
-        description: "Number of principal components used in the analysis."
