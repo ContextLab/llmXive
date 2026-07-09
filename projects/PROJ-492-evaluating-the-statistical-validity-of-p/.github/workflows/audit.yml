@@ -2,16 +2,20 @@ name: Audit Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, develop ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  run-audit:
+  audit:
     runs-on: ubuntu-latest
     
+    # Resource constraints as per FR-009 and SC-008
+    # GitHub Actions runners are typically 2 vCPU and 7GB RAM by default.
+    # We enforce strict limits in the workflow steps and via the resource_monitor module.
+    # The 'timeout-minutes' ensures the job does not exceed the 6-hour runtime limit (SC-008).
+    timeout-minutes: 360
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,40 +36,60 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Schema Validation
+      - name: Run Constitution Compliance Check (PT005C)
         run: |
-          python -m scripts.run_validator_test
+          python -m code.src.utils.constitution_checker || exit 1
+        continue-on-error: false
 
-      - name: Synthetic Validation
+      - name: Run Monte-Carlo Validation (T062/T031)
         run: |
-          python -m scripts.run_prevalence_validation
-          # Verify precision/recall thresholds are met internally
+          python -m code.src.audit.monte_carlo_validation
+        continue-on-error: false
 
-      - name: Resource Monitor Check
+      - name: Run Schema Validation
         run: |
-          python -m scripts.run_quickstart_venv_check
-          # This step verifies the environment can handle the load within limits
+          python -m code.src.audit.export_schema_validator
+          python -m code.src.audit.manifest_schema_validator
+        continue-on-error: false
+
+      - name: Run Synthetic Validation (T029)
+        run: |
+          python -m code.scripts.run_synthetic_validation
+        continue-on-error: false
 
       - name: Run Main Audit Pipeline
+        run: |
+          python -m code.src.cli.run_audit
         env:
-          CPU_LIMIT: 2
-          RAM_LIMIT_GB: 2
-          TIMEOUT_MINUTES: 60
-        run: |
-          python -m scripts.run_validator
-          # The pipeline enforces CPU <= 2 vCPU, RAM <= 2 GB, and timeout
-          # via src/utils/resource_monitor.py and aborts with ERR-301 if exceeded
+          # Enforce resource limits explicitly for the runner environment
+          # The resource_monitor module (T098) will also check these at runtime
+          # and abort with ERR-301 if exceeded.
+          MAX_CPU_VCPU: 2
+          MAX_RAM_GB: 2
 
-      - name: Verify Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-results
+          path: |
+            output/
+            data/processed/
+            data/provenance_log.csv
+            data/checksums.txt
+          retention-days: 7
+
+      - name: Verify Resource Limits
         run: |
-          if [ ! -f "output/audit_report.json" ]; then
-            echo "ERR-201: Audit report not generated"
-            exit 1
-          fi
-          if [ ! -f "output/manifest.json" ]; then
-            echo "ERR-201: Manifest not generated"
-            exit 1
-          fi
-          echo "Pipeline completed successfully with all artifacts generated."
+          python -m code.src.utils.resource_monitor --check-logs
+        if: always()
+
+      - name: Generate Manifest
+        run: |
+          python -m code.scripts.generate_manifest
+
+      - name: Final Consistency Check (T059)
+        run: |
+          python -m code.src.audit.export_validator
+        if: always()
