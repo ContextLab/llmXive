@@ -39,7 +39,7 @@
 - [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`) and `.gitkeep` files
 - [ ] T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle `DEGENERATE_DIALOGUE_TRUNCATED` events as JSON lines (Edge Case requirement)
 - [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`
-- [~] T007 Create base model loader utility in `src/utils/model_loader.py` supporting Low-bit quantization (GGUF or `bitsandbytes` CPU backend) to fit Limited RAM constraint.
+- [ ] T007 Create base model loader utility in `src/utils/model_loader.py` supporting Low-bit quantization (GGUF or `bitsandbytes` CPU backend) to fit Limited RAM constraint.
 - [~] T008 Implement prediction error proxy calculator in `src/utils/metrics.py` using log-probability normalized by sequence length (per Assumptions)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -107,15 +107,15 @@ References: [Citation placeholder].
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Contract test for statistical significance output in `tests/contract/test_stats.py`: implement `test_statistical_output` to assert JSON output contains `p_value`, `method`, and `corrected_alpha`.
-- [ ] T026 [P] [US3] Integration test for multiple-comparison correction in `tests/integration/test_analysis.py`: implement `test_bonferroni_correction` to assert p-values are adjusted when testing ≥ 2 benchmarks.
+- [~] T025 [P] [US3] Contract test for statistical significance output in `tests/contract/test_stats.py`: implement `test_statistical_output` to assert JSON output contains `p_value`, `method`, and `corrected_alpha`.
+- [~] T026 [P] [US3] Integration test for multiple-comparison correction in `tests/integration/test_analysis.py`: implement `test_bonferroni_correction` to assert p-values are adjusted when testing ≥ 2 benchmarks.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement statistical analysis script in `src/analyze/stats.py` running paired t-tests on multiple seeds per condition.
-- [ ] T028 [US3] Implement Bonferroni/FDR correction in `src/analyze/stats.py` for multiple benchmarks (FR-006).
-- [ ] T029 [US3] Implement sensitivity analysis sweep over prediction error threshold values {0.01, 0.05, 0.1} as defined in SC-004 (log-prob proxy) to validate robustness.
-- [ ] T031 [US3] Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T015 and T014 output.
+- [~] T027 [P] [US3] Implement statistical analysis script in `src/analyze/stats.py` running paired t-tests on multiple seeds per condition.
+- [~] T028 [US3] Implement Bonferroni/FDR correction in `src/analyze/stats.py` for multiple benchmarks (FR-006).
+- [~] T029 [US3] Implement sensitivity analysis sweep over prediction error threshold values {0.01, 0.05, 0.1} as defined in SC-004 (log-prob proxy) to validate robustness.
+- [~] T031 [US3] Implement ablation comparison logic in `src/analyze/stats.py` contrasting Dialogue vs. Ablation vs. Static conditions to isolate the critique signal. **Note**: This task depends on T015 and T014 output.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -125,11 +125,11 @@ References: [Citation placeholder].
 
 **Purpose**: Improvements that affect multiple user stories and address philosophical/operational clarity from reviews.
 
-- [ ] T032 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
-- [ ] T033 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review**.
-- [ ] T034 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
-- [ ] T035 Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
-- [ ] T044 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination (Review: ada-lovelace-simulated__2026-05-17, alan-turing-simulated__2026-05-17).
+- [~] T032 [P] Update `research.md` to explicitly distinguish between (a) engine executing a pre-ordained self-improvement procedure and (b) genuine origination, addressing **Ada Lovelace's** repeated concerns about "origination" vs. "operations".
+- [~] T033 [P] Refine problem statement in `spec.md` to frame the adversarial component as "evolutionary pressure" or "negative selection on belief" rather than "self-teaching", addressing **David Krakauer's review**.
+- [~] T034 Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
+- [~] T035 Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
+- [~] T044 [P] [Review] Document the operational distinction between "generative capability" (required by FR-001) and "deterministic operation" (Ada Lovelace's constraint) in `docs/philosophy.md`, clarifying that the system generates via ordered operations on internal states rather than spontaneous origination (Review: ada-lovelace-simulated__2026-05-17, alan-turing-simulated__2026-05-17).
 
 ---
 

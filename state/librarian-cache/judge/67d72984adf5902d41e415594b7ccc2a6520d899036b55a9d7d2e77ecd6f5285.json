@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.01209",
+  "judged_at": "2026-07-09T10:51:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openrath: session-centered runtime state for agent systems\" computer science",
+  "rationale": "This paper directly addresses the user's question by providing the canonical empirical study on \"interpreter persistence\" and \"runtime state\" in LLM agent systems, which is the core mechanism investigated in the referenced \"OpenRath\" work. It satisfies criteria (a) and (b) by measuring the specific causal mechanism (state persistence vs. reset) and its impact on agent performance (token cost, stability, error rates) within the exact domain of session-centered agent systems.",
+  "relevant": true
+}

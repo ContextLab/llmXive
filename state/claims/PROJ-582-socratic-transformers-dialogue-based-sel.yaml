@@ -1,0 +1,38 @@
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/docs/research.md
+  attempts: 1
+  canonical: Ada Lovelace asserted engine has no pretensions to originate anything
+  claim_id: c_0768fb73
+  context: A fundamental philosophical constraint identified by Ada Lovelace concerns
+    the nature of the engine itself. In her notes on Babbage's Analytical Engine...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ada_Lovelace_asserted_engine_has_no_pretensions_to_originate
+  kind: entity_fact
+  raw_text: In her notes on Babbage's Analytical Engine, Lovelace famously asserted
+    that the engine 'has no pretensions to originate anything. It can do whatever
+    we know how to order it to perform.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T10:36:26Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/docs/research.md
+  attempts: 1
+  canonical: Alan Turing envisioned a child-machine that could be educated
+  claim_id: c_e1263238
+  context: While Turing envisioned a 'child-machine' that could be educated, the distinction
+    remains that the education process is a series of ordered operations...
+  evidence:
+    entailment_evidence: Alan Turing envisioned a child-machine that could be educate
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Alan_Turing_envisioned_a_child-machine_that_could_be_educate
+  kind: entity_fact
+  raw_text: Alan Turing envisioned a 'child-machine' that could be educated.
+  resolved_value: Alan Turing envisioned a child-machine that could be educated
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-09T10:36:28Z'

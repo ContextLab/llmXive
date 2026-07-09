@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.09702",
+  "judged_at": "2026-07-09T10:39:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"full attention strikes back: transferring full attention into sparse w\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (d) as it investigates the same core mechanism—transferring attention patterns from a pre-trained model to a student model—albeit in the domain of Vision Transformers rather than the specific linguistic context mentioned in the user's title. It serves as a foundational empirical study on the \"sufficiency of attention maps\" for knowledge transfer, which is the exact mechanism the user's proposed work (\"Full Attention Strikes Back\") aims to extend to linguist",
+  "relevant": true
+}

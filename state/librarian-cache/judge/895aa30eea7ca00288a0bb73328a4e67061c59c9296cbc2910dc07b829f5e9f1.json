@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.08655",
+  "judged_at": "2026-07-09T10:51:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openrath: session-centered runtime state for agent systems\" computer science",
+  "rationale": "The paper focuses on autonomous vehicle traffic management using multi-agent reinforcement learning, which is an off-domain application unrelated to the user's specific question about extending \"OpenRath\" for session-centered runtime state in general agent systems. It does not address the core mechanism of session state management, the OpenRath framework, or the specific architectural challenges of LLM-based agent runtimes, failing to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

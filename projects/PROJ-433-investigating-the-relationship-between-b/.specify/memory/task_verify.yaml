@@ -1,9 +1,8 @@
 ? 'T001 Create project structure: Execute `mkdir -p data/raw data/processed data/results
   code/ tests/ state/` to initialize directories per implementation plan.'
+: 2
+'T002a [P] Create Python virtual environment: Run `python3.11 -m venv venv` in repository root.': 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 2
+? 'T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)`
+  returning boolean and `log_exclusion(reason, subject_id)` functions.'
 : 1
-'T002a [P] Create Python virtual environment: Run `python3.11 -m venv venv` in repository root.': 1
-? 'T002c [P] Pin dependencies: Add exact versions to `code/requirements.txt` for:
-  nilearn, networkx, scikit-learn, pandas, matplotlib, nibabel, scipy, pytest, dask,
-  distributed.'
-: 1
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1

@@ -46,7 +46,7 @@
 - [ ] T001 Create project structure: Execute `mkdir -p data/raw data/processed data/results code/ tests/ state/` to initialize directories per implementation plan.
 - [ ] T002a [P] Create Python virtual environment: Run `python3.11 -m venv venv` in repository root.
 - [X] T002b [P] Create requirements.txt: Initialize `code/requirements.txt` file.
-- [ ] T002c [P] Pin dependencies: Add exact versions to `code/requirements.txt` for: nilearn, networkx, scikit-learn, pandas, matplotlib, nibabel, scipy, pytest, dask, distributed.
+- [X] T002c [P] Pin dependencies: Add exact versions to `code/requirements.txt` for: nilearn, networkx, scikit-learn, pandas, matplotlib, nibabel, scipy, pytest, dask, distributed.
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -58,8 +58,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/utils.py` logging: Add `setup_logger()` function returning a logger writing to `data/preprocess_log.txt` and `data/analysis_log.txt` with ISO timestamps.
-- [~] T004b [P] Implement `code/utils.py` RNG: Add `get_seeded_rng(seed=42)` function returning a numpy.random.Generator with pinned seed for reproducibility.
-- [~] T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)` returning boolean and `log_exclusion(reason, subject_id)` functions.
+- [X] T004b [P] Implement `code/utils.py` RNG: Add `get_seeded_rng(seed=42)` function returning a numpy.random.Generator with pinned seed for reproducibility.
+- [ ] T004c [P] Implement `code/utils.py` QC: Add `check_fd(fd_value, threshold=0.5)` returning boolean and `log_exclusion(reason, subject_id)` functions.
 - [~] T007 Create data schema definitions: Create `contracts/dataset.schema.yaml`, `contracts/metric.schema.yaml`, and `contracts/result.schema.yaml` defining the JSON/YAML schemas for all data artifacts.
 - [~] T008 Create base Subject entity model: Implement `code/models.py` with a `Subject` class containing attributes: `id` (str), `fMRI_path` (str), `DSST_score` (float or None), `qc_metrics` (dict). **MUST include** `has_valid_data()` method returning `True` only if `fMRI_path` exists and `DSST_score` is not `None`.
 - [~] T006 [P] Implement `code/download.py` with HCP data retrieval logic, checksum verification, and status-based availability checking (no exceptions for missing data).
@@ -103,16 +103,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [~] T016 [P] [US2] Unit test for sliding-window correlation logic: Add `tests/unit/test_metrics.py::test_sliding_window_correlation_shapes` verifying output matrix shape matches expected (n_windows, n_parcels, n_parcels) for synthetic input.
-- [ ] T017 [P] [US2] Unit test for Louvain algorithm convergence: Add `tests/unit/test_metrics.py::test_louvain_retry_on_failure` verifying multiple retries with different seeds and exclusion on final failure.
+- [~] T017 [P] [US2] Unit test for Louvain algorithm convergence: Add `tests/unit/test_metrics.py::test_louvain_retry_on_failure` verifying multiple retries with different seeds and exclusion on final failure.
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/metrics.py` `compute_sliding_window()` to generate functional connectivity matrices (s window, small step) using the Schaefer parcellated atlas.
-- [ ] T019 [US2] Implement `code/metrics.py` `extract_reconfigurability()` using Louvain community detection with `get_seeded_rng(42)`, A retry logic mechanism will be implemented to handle transient failures. The research question focuses on determining the optimal retry strategy for system resilience. The method involves simulating network instability scenarios to evaluate recovery performance. References include prior work on fault tolerance patterns []. for convergence failure, and subject exclusion logging.
-- [ ] T020 [US2] Implement extraction of network reconfigurability metric (community state transition count) and save to `data/results/metrics_{subject_id}.json` with keys: `subject_id`, `transition_count`.
-- [ ] T020a [US2] Implement `code/metrics.py` `aggregate_metrics_to_tsv()` to convert all JSON metric files into a single TSV file `data/processed/metrics_aggregated.tsv` (intermediate step) with columns: `subject_id`, `transition_count`.
-- [ ] T021 [US2] Implement QC check in `code/metrics.py` to exclude subjects with excessive motion (FD > 0.5mm) before metric computation using `check_fd()`.
-- [ ] T022 [US2] Add logging for metric computation steps and exclusion reasons in `data/metrics_log.txt`.
+- [~] T018 [P] [US2] Implement `code/metrics.py` `compute_sliding_window()` to generate functional connectivity matrices (s window, small step) using the Schaefer parcellated atlas.
+- [~] T019 [US2] Implement `code/metrics.py` `extract_reconfigurability()` using Louvain community detection with `get_seeded_rng(42)`, A retry logic mechanism will be implemented to handle transient failures. The research question focuses on determining the optimal retry strategy for system resilience. The method involves simulating network instability scenarios to evaluate recovery performance. References include prior work on fault tolerance patterns []. for convergence failure, and subject exclusion logging.
+- [~] T020 [US2] Implement extraction of network reconfigurability metric (community state transition count) and save to `data/results/metrics_{subject_id}.json` with keys: `subject_id`, `transition_count`.
+- [~] T020a [US2] Implement `code/metrics.py` `aggregate_metrics_to_tsv()` to convert all JSON metric files into a single TSV file `data/processed/metrics_aggregated.tsv` (intermediate step) with columns: `subject_id`, `transition_count`.
+- [~] T021 [US2] Implement QC check in `code/metrics.py` to exclude subjects with excessive motion (FD > 0.5mm) before metric computation using `check_fd()`.
+- [~] T022 [US2] Add logging for metric computation steps and exclusion reasons in `data/metrics_log.txt`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,14 +126,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for Spearman correlation: Add `tests/unit/test_analysis.py::test_spearman_correlation_known_values` verifying coefficient and p-value match expected values for mock data within 1e-6.
-- [ ] T024 [P] [US3] Unit test for visualization: Add `tests/unit/test_viz.py::test_scatter_plot_generation` verifying that a PNG file is created and contains a trendline for mock data.
+- [~] T023 [P] [US3] Unit test for Spearman correlation: Add `tests/unit/test_analysis.py::test_spearman_correlation_known_values` verifying coefficient and p-value match expected values for mock data within 1e-6.
+- [~] T024 [P] [US3] Unit test for visualization: Add `tests/unit/test_viz.py::test_scatter_plot_generation` verifying that a PNG file is created and contains a trendline for mock data.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/analysis.py` `compute_spearman()` to perform Spearman rank correlations between `transition_count` and `DSST_score`.
-- [ ] T025b [US3] Implement Subject Filtering in `code/analysis.py`: Add logic to iterate through subjects and **exclude** any where `Subject.has_valid_data()` returns `False` (missing `DSST_score` or `fMRI_path`). Log the count of excluded subjects to `data/analysis_log.txt` as per FR-005.
-- [ ] T026 [US3] Implement Bonferroni correction in `code/analysis.py` `apply_bonferroni()` to adjust p-values for multiple comparisons and report adjusted p-values.
+- [~] T025 [P] [US3] Implement `code/analysis.py` `compute_spearman()` to perform Spearman rank correlations between `transition_count` and `DSST_score`.
+- [~] T025b [US3] Implement Subject Filtering in `code/analysis.py`: Add logic to iterate through subjects and **exclude** any where `Subject.has_valid_data()` returns `False` (missing `DSST_score` or `fMRI_path`). Log the count of excluded subjects to `data/analysis_log.txt` as per FR-005.
+- [~] T026 [US3] Implement Bonferroni correction in `code/analysis.py` `apply_bonferroni()` to adjust p-values for multiple comparisons and report adjusted p-values.
 - [ ] T027 [US3] Implement calculation of effect sizes (Cohen's r) and handling of extreme p-values (floor/ceiling at a predefined threshold) in `code/analysis.py`.
 - [ ] T028 [US3] Save **Aggregated Statistical Summary** to `data/analysis_results.tsv`. **MUST** be one row per metric-behavior pair (aggregated statistics), NOT per subject. **Header**: `metric_pair\tcoef\tp_val\tadj_p\teffect_size`. (No `subject_id` column).
 - [ ] T029 [US3] Implement `code/viz.py` `generate_scatter_plot()` to create scatter plots with confidence intervals and effect size annotations.

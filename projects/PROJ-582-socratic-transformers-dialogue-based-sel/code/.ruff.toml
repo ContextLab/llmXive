@@ -1,5 +1,15 @@
-# Ruff configuration for Socratic Transformers project
-# Extends pyproject.toml settings if needed, or can be used standalone
-# Currently, main config is in pyproject.toml. This file ensures
-# ruff finds the config if run from subdirectories.
-extend = "pyproject.toml"
+# Ruff configuration file (legacy format for compatibility, prefer pyproject.toml)
+# This file is kept for tools that look for .ruff.toml specifically.
+# Primary configuration is in pyproject.toml under [tool.ruff].
+
+line-length = 100
+target-version = "py39"
+
+[lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
+
+[lint.isort]
+known-first-party = ["src"]
+force-sort-within-sections = true
+combine-as-imports = true

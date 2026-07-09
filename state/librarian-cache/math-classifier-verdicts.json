@@ -967,6 +967,10 @@
     "classified_at": "2026-07-08T01:43:17Z",
     "verdict": false
   },
+  "PROJ-927-llmxive-follow-up-extending-openrath-ses::1.6.0": {
+    "classified_at": "2026-07-09T10:50:45Z",
+    "verdict": false
+  },
   "PROJ-937-llmxive-follow-up-extending-minimax-spar::1.6.0": {
     "classified_at": "2026-07-05T12:50:25Z",
     "verdict": false
@@ -1017,6 +1021,10 @@
   },
   "PROJ-979-llmxive-follow-up-extending-loopcoder-v2::1.6.0": {
     "classified_at": "2026-07-04T12:37:43Z",
+    "verdict": false
+  },
+  "PROJ-985-llmxive-follow-up-extending-full-attenti::1.6.0": {
+    "classified_at": "2026-07-09T10:39:02Z",
     "verdict": false
   },
   "PROJ-988-llmxive-follow-up-extending-abot-earth-0::1.6.0": {

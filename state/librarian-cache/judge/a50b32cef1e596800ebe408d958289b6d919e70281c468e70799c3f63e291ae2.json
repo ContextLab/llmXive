@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.07011",
+  "judged_at": "2026-07-09T10:39:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"full attention strikes back: transferring full attention into sparse w\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides foundational methodology and empirical evidence for the mechanism of \"transferring full attention into sparse\" implementations, which is the core technical challenge of the user's research question regarding extending the \"Full Attention Strikes Back\" work. Although the paper does not explicitly mention \"linguistics\" in the abstract, it addresses the underlying algorithmic mechanism (sparse attention via block sparsity) that is the prerequ",
+  "relevant": true
+}

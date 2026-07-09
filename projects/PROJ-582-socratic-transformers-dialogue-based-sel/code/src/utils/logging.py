@@ -1,157 +1,175 @@
 """
-Structured logging utility for the Socratic Transformers pipeline.
+Structured logging utility for Socratic Transformers project.
 
-Handles specific edge-case events (e.g., DEGENERATE_DIALOGUE_TRUNCATED)
-by writing structured JSON lines to disk, ensuring reproducibility and
-easy downstream parsing for analysis.
+Handles specific edge case events such as DEGENERATE_DIALOGUE_TRUNCATED
+by logging them as JSON lines for downstream analysis.
 """
-
 import json
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional, Dict, Any, List
 
-# Ensure the project root is in the path for imports if run as a script
-# though typically this is handled by the runner environment.
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
+# Constants for event types
+EVENT_DEGENERATE_DIALOGUE_TRUNCATED = "DEGENERATE_DIALOGUE_TRUNCATED"
+EVENT_DIALOGUE_GENERATION = "DIALOGUE_GENERATION"
+EVENT_CRITIQUE_GENERATION = "CRITIQUE_GENERATION"
+EVENT_REVISION_GENERATION = "REVISION_GENERATION"
 
 class SocraticLogger:
     """
-    A specialized logger that outputs structured JSON lines for specific
-    research events, alongside standard logging for human readability.
-
-    This satisfies the requirement to log `DEGENERATE_DIALOGUE_TRUNCATED`
-    events as JSON lines for precise edge-case tracking.
+    A structured logger that outputs JSON lines for specific events
+    and standard logs for general messages.
     """
 
-    DEGENERATE_DIALOGUE_TRUNCATED = "DEGENERATE_DIALOGUE_TRUNCATED"
-
-    def __init__(
-        self,
-        name: str = "socratic_pipeline",
-        log_dir: Optional[str] = None,
-        level: int = logging.INFO,
-    ):
+    def __init__(self, log_dir: Optional[Path] = None, level: int = logging.INFO):
         """
         Initialize the logger.
 
         Args:
-            name: Name of the logger.
-            log_dir: Directory to write JSONL logs. Defaults to `data/results/logs`.
-            level: Logging level (e.g., logging.INFO).
+            log_dir: Directory to store JSON log files. Defaults to data/results/logs.
+            level: Logging level.
         """
-        self.logger = logging.getLogger(name)
+        self.level = level
+        self.log_dir = log_dir or Path("data/results/logs")
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+
+        # Setup standard logging for console output
+        self.logger = logging.getLogger("socratic")
         self.logger.setLevel(level)
 
         # Prevent duplicate handlers if re-initialized
-        if self.logger.handlers:
-            self.logger.handlers.clear()
+        if not self.logger.handlers:
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(level)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            console_handler.setFormatter(formatter)
+            self.logger.addHandler(console_handler)
 
-        # Console handler for immediate feedback
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        console_handler.setFormatter(console_formatter)
-        self.logger.addHandler(console_handler)
-
-        # File handler for structured JSON logs
-        self.log_dir = Path(log_dir) if log_dir else _PROJECT_ROOT / "data" / "results" / "logs"
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-
-        self.json_log_path = self.log_dir / f"{name.lower()}_events.jsonl"
-        self.file_handler = logging.FileHandler(self.json_log_path, mode="w")
-        self.file_handler.setLevel(level)
-        # We use a custom formatter or just write raw JSON via a custom handler
-        # For this utility, we will expose a specific method to write JSON lines
-        # to keep the structure strict, rather than relying on a formatter.
-        # However, we keep the file handler open for potential text logs if needed.
-        # For now, we focus on the JSONL method.
+        # Setup file handler for JSON lines
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        json_log_path = self.log_dir / f"events_{timestamp}.jsonl"
+        self.json_file_handler = open(json_log_path, "a", encoding="utf-8")
 
     def _write_json_line(self, event_type: str, data: Dict[str, Any]) -> None:
-        """
-        Writes a single JSON line to the structured log file.
-
-        Args:
-            event_type: The type of event (e.g., DEGENERATE_DIALOGUE_TRUNCATED).
-        """
+        """Write a structured JSON line to the log file."""
         record = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "event_type": event_type,
-            "data": data,
+            "data": data
         }
+        self.json_file_handler.write(json.dumps(record) + "\n")
+        self.json_file_handler.flush()
 
-        try:
-            with open(self.json_log_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(record) + "\n")
-        except IOError as e:
-            self.logger.error(f"Failed to write JSON log: {e}")
-
-    def log_degenerate_dialogue_truncation(
+    def log_degenerate_dialogue_truncated(
         self,
-        dialogue_id: str,
+        question_id: str,
+        original_turns: int,
+        truncated_turns: int,
         ngram_overlap: float,
-        reason: str,
-        original_length: int,
-        truncated_length: int,
-        extra_context: Optional[Dict[str, Any]] = None,
+        reason: str = "High n-gram overlap detected"
     ) -> None:
         """
-        Logs a DEGENERATE_DIALOGUE_TRUNCATED event.
+        Log a DEGENERATE_DIALOGUE_TRUNCATED event.
 
-        This is the specific handler required by the Edge Case requirement.
+        This is triggered when the dialogue generation loop detects
+        excessive repetition (n-gram overlap > 0.9), indicating the
+        model is stuck in a degenerate loop.
 
         Args:
-            dialogue_id: Unique identifier for the dialogue instance.
-            ngram_overlap: The calculated n-gram overlap score (> 0.9).
+            question_id: Unique identifier for the source question.
+            original_turns: Number of turns before truncation.
+            truncated_turns: Number of turns kept.
+            ngram_overlap: The calculated overlap score that triggered truncation.
+            reason: Human-readable reason for the truncation.
         """
-        if ngram_overlap <= 0.9:
-            self.logger.warning(
-                f"N-gram overlap {ngram_overlap} is not > 0.9. "
-                "Logging DEGENERATE_DIALOGUE_TRUNCATED only for high overlap."
-            )
-            # Still log if explicitly requested, but warn.
-            # The task implies this is the trigger condition.
-
-        payload = {
-            "dialogue_id": dialogue_id,
-            "ngram_overlap": ngram_overlap,
-            "reason": reason,
-            "original_length": original_length,
-            "truncated_length": truncated_length,
-        }
-
-        if extra_context:
-            payload.update(extra_context)
-
-        self._write_json_line(self.DEGENERATE_DIALOGUE_TRUNCATED, payload)
-
-        # Also log a standard message for visibility
-        self.logger.info(
-            f"Event: {self.DEGENERATE_DIALOGUE_TRUNCATED} - "
-            f"Dialogue {dialogue_id} truncated due to {reason} "
-            f"(Overlap: {ngram_overlap:.4f})"
+        self.logger.warning(
+            f"DEGENERATE_DIALOGUE_TRUNCATED: Question {question_id} "
+            f"(overlap={ngram_overlap:.4f})"
         )
 
-    def log_generic_event(
-        self, event_type: str, data: Dict[str, Any], level: int = logging.INFO
+        event_data = {
+            "question_id": question_id,
+            "original_turns": original_turns,
+            "truncated_turns": truncated_turns,
+            "ngram_overlap": ngram_overlap,
+            "reason": reason,
+            "action_taken": "truncated"
+        }
+
+        self._write_json_line(EVENT_DEGENERATE_DIALOGUE_TRUNCATED, event_data)
+
+    def log_dialogue_generation(
+        self,
+        question_id: str,
+        total_turns: int,
+        status: str = "success"
     ) -> None:
-        """
-        Logs a generic structured event.
+        """Log a standard dialogue generation event."""
+        self.logger.info(f"Dialogue generated for {question_id}: {total_turns} turns")
+        self._write_json_line(EVENT_DIALOGUE_GENERATION, {
+            "question_id": question_id,
+            "total_turns": total_turns,
+            "status": status
+        })
 
-        Args:
-            event_type: Custom event type string.
-        """
-        self._write_json_line(event_type, data)
-        self.logger.log(level, f"Event: {event_type} - {data}")
+    def log_critique_generation(
+        self,
+        question_id: str,
+        confidence_score: float,
+        has_reasoning: bool
+    ) -> None:
+        """Log a critique generation event."""
+        self.logger.info(f"Critique generated for {question_id} (confidence: {confidence_score})")
+        self._write_json_line(EVENT_CRITIQUE_GENERATION, {
+            "question_id": question_id,
+            "confidence_score": confidence_score,
+            "has_reasoning": has_reasoning
+        })
+
+    def log_revision_generation(
+        self,
+        question_id: str,
+        revision_count: int
+    ) -> None:
+        """Log a revision generation event."""
+        self.logger.info(f"Revision generated for {question_id}: {revision_count} attempts")
+        self._write_json_line(EVENT_REVISION_GENERATION, {
+            "question_id": question_id,
+            "revision_count": revision_count
+        })
+
+    def close(self) -> None:
+        """Close the JSON log file."""
+        if self.json_file_handler:
+            self.json_file_handler.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
 
-# Convenience function for quick script usage
-def get_logger(name: str = "socratic_pipeline") -> SocraticLogger:
-    """Returns a configured SocraticLogger instance."""
-    return SocraticLogger(name=name)
+# Global logger instance for convenience
+_global_logger: Optional[SocraticLogger] = None
+
+def get_logger(log_dir: Optional[Path] = None, level: int = logging.INFO) -> SocraticLogger:
+    """
+    Get or create a global logger instance.
+
+    Args:
+        log_dir: Optional directory override.
+        level: Logging level.
+
+    Returns:
+        A SocraticLogger instance.
+    """
+    global _global_logger
+    if _global_logger is None:
+        _global_logger = SocraticLogger(log_dir=log_dir, level=level)
+    return _global_logger
