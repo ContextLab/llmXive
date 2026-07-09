@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T01:40:16.267479Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1014-hierarchical-sparse-attention-done-right
-last_run_id: null
+last_run_id: cc07eb8f-2195-4653-8f90-89a0a90ae132
 last_run_status: null
 points_paper: {}
 points_research: {}
