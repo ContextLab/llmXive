@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T12:45:09.082916Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-037-investigating-the-correlation-between-gu
-last_run_id: 74584c55-69f5-4b47-beb5-5f8edb238dca
+last_run_id: e686b316-858c-431b-9489-d71318667969
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-037-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Circadian
   Rhythm Disruption in Publicly Available Datasets
-updated_at: '2026-06-30T16:19:46.399372Z'
+updated_at: '2026-07-09T07:05:18.524615Z'

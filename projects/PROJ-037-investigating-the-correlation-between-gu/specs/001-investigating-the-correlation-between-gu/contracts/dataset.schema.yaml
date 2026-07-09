@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Cohort Dataset Schema"
+description: "Schema for the merged microbiome and sleep dataset used in analysis."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+    pattern: "^[A-Za-z0-9_-]+$"
+  age:
+    type: "integer"
+    description: "Age in years."
+    minimum: 0
+    maximum: 120
+  bmi:
+    type: "number"
+    description: "Body Mass Index."
+    minimum: 10.0
+    maximum: 60.0
+  diet_type:
+    type: "string"
+    description: "Categorical diet classification."
+    enum: ["Omnivore", "Vegetarian", "Vegan", "Other"]
+  antibiotic_use:
+    type: "boolean"
+    description: "History of antibiotic use (True/False)."
+  medication_use:
+    type: "boolean"
+    description: "Current medication use (True/False)."
+  sleep_duration:
+    type: "number"
+    description: "Hours of sleep per night (capped at 1st/99th percentile)."
+    minimum: 0.0
+    maximum: 24.0
+  sleep_quality:
+    type: "number"
+    description: "Self-reported sleep quality score (0-10)."
+    minimum: 0.0
+    maximum: 10.0
+  chronotype:
+    type: "string"
+    description: "Chronotype classification."
+    enum: ["Morning", "Evening", "Intermediate"]
+  shannon_diversity:
+    type: "number"
+    description: "Shannon diversity index."
+    minimum: 0.0
+  simpson_diversity:
+    type: "number"
+    description: "Simpson diversity index."
+    minimum: 0.0
+required:
+  - participant_id
+  - age
+  - bmi
+  - diet_type
+  - antibiotic_use
+  - medication_use
+  - sleep_duration
+  - sleep_quality
+  - chronotype
+  - shannon_diversity
+  - simpson_diversity
+additionalProperties: false

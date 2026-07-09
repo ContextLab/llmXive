@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the correlation and regression analysis results."
+type: "object"
+properties:
+  variable_pair:
+    type: "string"
+    description: "Description of the variable pair (e.g., 'shannon_diversity vs sleep_duration')."
+  correlation_method:
+    type: "string"
+    description: "Statistical method used."
+    enum: ["Spearman", "Pearson", "GLM", "PERMANOVA", "dbRDA"]
+  rho:
+    type: "number"
+    description: "Correlation coefficient or effect size."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_fdr:
+    type: "number"
+    description: "Benjamini-Hochberg FDR-corrected p-value."
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval from bootstrap."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval from bootstrap."
+  significant:
+    type: "boolean"
+    description: "True if p_value_fdr < 0.05."
+required:
+  - variable_pair
+  - correlation_method
+  - rho
+  - p_value_raw
+  - p_value_fdr
+  - ci_lower
+  - ci_upper
+  - significant
+additionalProperties: false

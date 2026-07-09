@@ -1,0 +1,273 @@
+resolved_at: '2026-07-09T06:33:39.770788+00:00'
+datasets:
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Spam_Detection/32945930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mitochondria-related_pathogenic_genes_in_acute_and_chronic_kidney_disease_a_Mendelian_randomization_study/32945938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/How_Early_Should_You_Start_Preparing_for_College_Theatre_Programs/32945918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/4D-DIA-based_proteomics_analysis_reveals_protein_changes_in_expression_during_palatal_development_/32944784
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/An_interactive_tool_to_identify_existing_evidence_and_research_gaps_on_agricultural_production_processes_to_address_heavy_metals_in_foods_developed_from_a_scoping_review/32945921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/3779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/2319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/78080/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/xct9-hz23
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/1z40m942v (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7faaf2ea5490>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/17973874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17973874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Quantifying_the_utility_of_type_2_diabetes_polygenic_risk_score_for_predicting_incident_diabetes_an_analysis_of_large_US-based_cohort_studies/8583862/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FDR-corrected
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Noni_genome_and_annotation/26827384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Spam_Detection/32945930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mitochondria-related_pathogenic_genes_in_acute_and_chronic_kidney_disease_a_Mendelian_randomization_study/32945938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/How_Early_Should_You_Start_Preparing_for_College_Theatre_Programs/32945918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/4D-DIA-based_proteomics_analysis_reveals_protein_changes_in_expression_during_palatal_development_/32944784
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16743754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.h443d
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646333
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7756151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2535631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=bef4e0dc98584adbaafb77f06c79fa0f
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rg1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kprr4xhkf
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent/resolve/main/2026-06-19T19-53-37-440Z_019ee172-2f9f-7341-8125-4e5d535d9e56.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19819
+      parsed: true
+  - url: https://huggingface.co/datasets/Jackrong/GLM-5.1-Reasoning-1M-Cleaned/resolve/main/Math.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hotdogs/uka-glm-5.2/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AletheiaResearch/GLM-5.2-Agent/resolve/main/2026-06-19T19-53-37-440Z_019ee172-2f9f-7341-8125-4e5d535d9e56.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Jackrong/GLM-5.1-Reasoning-1M-Cleaned/resolve/main/Math.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/hotdogs/uka-glm-5.2/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Jimbock/GLM_5.2_Dataset/resolve/main/DATASET.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/philipjohnbasile/glm52-demolition-data/resolve/main/calib/calib_v4.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Noni_genome_and_annotation/26827384
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Spam_Detection/32945930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mitochondria-related_pathogenic_genes_in_acute_and_chronic_kidney_disease_a_Mendelian_randomization_study/32945938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/How_Early_Should_You_Start_Preparing_for_College_Theatre_Programs/32945918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/4D-DIA-based_proteomics_analysis_reveals_protein_changes_in_expression_during_palatal_development_/32944784
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61936
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10512240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110429
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7350724
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14705514
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07508
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07207
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

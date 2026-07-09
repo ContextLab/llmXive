@@ -1,0 +1,11 @@
+pandas
+scikit-learn
+scipy
+statsmodels
+biom-format
+skbio
+numpy
+matplotlib
+seaborn
+requests
+biopython

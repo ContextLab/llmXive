@@ -1,0 +1,16 @@
+? 'T001a [P] Create project directory structure: `projects/PROJ-037-investigating-the-correlation-between-gu/`,
+  `data/raw/`, `data/processed/`, `data/outputs/`, `code/`, `tests/`, `docs/`'
+: 2
+T001b [P] Create empty `README.md`, `.gitignore`, and `requirements.txt` placeholder files: 2
+? 'T002a [P] Create `requirements.txt` at `projects/PROJ-037-investigating-the-correlation-between-gu/`
+  with dependencies: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`,
+  `skbio`, `numpy`, `matplotlib`, `seaborn`, `requests`, `biopython`. **Note**: Do
+  NOT use `american-gut` package; use `biom-format` and `skbio` with manual download
+  scripts as defined in plan.md.'
+: 2
+T002b [P] Create virtual environment (`python -m venv venv`) and install requirements in `code/` context: 1
+? 'T002b [P] Create virtual environment (`python -m venv venv`) and install requirements
+  in `code/` context <!-- FAILED: unspecified -->'
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `setup.cfg` or `pyproject.toml`: 2
+T004 [P] Create `code/__init__.py` and utility modules for configuration and logging in `code/utils/`: 2

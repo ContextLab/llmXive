@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (keep raw data out of repo, keep processed if small)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.csv
+data/processed/*.tsv
+data/outputs/*.png
+data/outputs/*.jpg
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (sensitive)
+.env
+*.pem
