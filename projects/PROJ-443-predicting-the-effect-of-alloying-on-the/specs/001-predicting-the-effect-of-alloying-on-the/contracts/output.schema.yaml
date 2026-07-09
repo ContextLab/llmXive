@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the results/metrics.yaml file."
+type: "object"
+properties:
+  models:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_name:
+          type: "string"
+          description: "Name of the model (RF, GB, ElasticNet)."
+        r2:
+          type: "number"
+          description: "R-squared on test set."
+        rmse:
+          type: "number"
+          description: "Root Mean Squared Error."
+        mae:
+          type: "number"
+          description: "Mean Absolute Error."
+        r2_ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI for R2."
+        r2_ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI for R2."
+        p_value_null:
+          type: "number"
+          description: "P-value for test R2 > 0."
+        significant:
+          type: "boolean"
+          description: "True if p < 0.05."
+        fdr_corrected_p:
+          type: "number"
+          description: "FDR-corrected p-value for pairwise comparison."
+      required:
+        - model_name
+        - r2
+        - rmse
+        - mae
+        - r2_ci_lower
+        - r2_ci_upper
+        - p_value_null
+        - significant
+  sensitivity_analysis:
+    type: "object"
+    description: "Type I error rates for different thresholds."
+    properties:
+      threshold_0_25:
+        type: "number"
+        description: "Type I error rate at 0.25."
+      threshold_0_30:
+        type: "number"
+        description: "Type I error rate at 0.30."
+      threshold_0_35:
+        type: "number"
+        description: "Type I error rate at 0.35."
+    required:
+      - threshold_0_25
+      - threshold_0_30
+      - threshold_0_35
+  disclaimer:
+    type: "string"
+    description: "Mandatory associational disclaimer."
+    const: "These findings are associational and do not imply causation"
+required:
+  - models
+  - sensitivity_analysis
+  - disclaimer

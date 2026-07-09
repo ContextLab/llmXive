@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-443-predicting-the-effect-of-alloying-on-the
-last_run_id: 5e5343ba-a79d-4a9b-851f-c6c2b4c843bb
+last_run_id: b2a2f84b-41e0-408c-9949-99a74a9d40ea
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the
 title: Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys
-updated_at: '2026-07-07T00:24:13.870817Z'
+updated_at: '2026-07-09T11:19:19.327179Z'

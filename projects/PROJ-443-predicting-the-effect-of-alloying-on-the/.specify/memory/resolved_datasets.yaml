@@ -1,8 +1,15 @@
-resolved_at: '2026-07-06T23:35:53.097906+00:00'
+resolved_at: '2026-07-09T10:38:26.780737+00:00'
 datasets:
 - intent: HEA
   status: verified
   candidates:
+  - url: https://huggingface.co/datasets/Amod/mental_health_counseling_conversations/resolve/main/combined_dataset.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   - url: https://huggingface.co/datasets/openai/healthbench/resolve/main/2025-05-07-06-14-12_oss_eval.jsonl
     source: huggingface
     format: jsonl
@@ -10,30 +17,19 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/chenhaodev/healthbench-eldercare-hallu-zh/resolve/main/data/annotations_full.jsonl
+  - url: https://huggingface.co/datasets/ourafla/Mental-Health_Text-Classification_Dataset/resolve/main/mental_health_combined_test.csv
     source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 194077
-      parsed: true
-  - url: https://huggingface.co/datasets/Amod/mental_health_counseling_conversations/resolve/main/combined_dataset.json
-    source: huggingface
-    format: jsonl
+    format: csv
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/openai/healthbench/resolve/main/2025-05-07-06-14-12_oss_eval.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/chenhaodev/healthbench-eldercare-hallu-zh/resolve/main/data/annotations_full.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
   - url: https://huggingface.co/datasets/Amod/mental_health_counseling_conversations/resolve/main/combined_dataset.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/openai/healthbench/resolve/main/2025-05-07-06-14-12_oss_eval.jsonl
     source: huggingface
     status: verified
     format: jsonl
@@ -41,24 +37,36 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://huggingface.co/datasets/therubricai/womens-health-benchmark-ground-truth/resolve/main/hf_dataset_best_expert_answers_partial.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Shofo/shofo-talking-head-en/resolve/main/metadata.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
+  - url: https://figshare.com/articles/presentation/_b_Premium_1121_Basmati_Rice_Exporter_from_India_Shri_Ram_Rice_Unit_b_/32947307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14431385
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://linkinghub.elsevier.com/retrieve/pii/S0257897220312330
@@ -69,35 +77,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7614872
+  - url: https://zenodo.org/records/7609726
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6223378
+  - url: https://zenodo.org/records/7609732
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8411064
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21227644
+  - url: https://zenodo.org/records/21277268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21227644
+  - url: https://zenodo.org/records/21277268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228030
+  - url: https://doi.org/10.5281/zenodo.20644367
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21276291
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228030
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228112
+  - url: https://zenodo.org/records/21276291
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -146,23 +150,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
+  - url: https://figshare.com/articles/presentation/_b_Premium_1121_Basmati_Rice_Exporter_from_India_Shri_Ram_Rice_Unit_b_/32947307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -233,23 +237,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
+  - url: https://figshare.com/articles/presentation/_b_Premium_1121_Basmati_Rice_Exporter_from_India_Shri_Ram_Rice_Unit_b_/32947307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Caritas_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916383
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -261,11 +265,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20101862
+  - url: https://zenodo.org/records/15611780
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15611780
+  - url: https://zenodo.org/records/20101862
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -273,23 +277,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2509.26306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/8190#doi
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://datacatalogue.ukdataservice.ac.uk/studies/study/9337#doi
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/brfn9/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21036215
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21036215
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -308,28 +312,24 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/The_Role_of_Carrion_In_Terrestrial_Ecosystems/32916380
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Can_personal_freedom_drive_economic_complexity_/31753036
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/50687
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/27472
@@ -344,6 +344,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
+  - url: https://zenodo.org/records/50687
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4678278
     source: zenodo
     status: wrong_format
@@ -352,19 +356,19 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/dataset/_b_Multi-phase_phenotyping_and_machine_learning_predict_grain_quality_profiles_in_a_population_of_temperate_b_/32934116/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.swinburne.edu.au/articles/dataset/_b_Multi-phase_phenotyping_and_machine_learning_predict_grain_quality_profiles_in_a_population_of_temperate_b_/32934116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://digitalcollection.zhaw.ch/handle/11475/36938
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21202203
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21084102
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21084102
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21074983
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -394,27 +398,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1783384453&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzODQ0NTN9fX1dfQ__&Signature=MEQCIC49TM6HGoqEXRPhK0eSwQWDFZQvn0ncfECGM1OD9Mr~AiBPKrqg6ejo-xxiJOCnbjByyBbIWUfc5T~yDP9GFmXpkw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1783597010&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1OTcwMTB9fX1dfQ__&Signature=MEUCIA6GV41kv7oy88PkveMQa~MglEJ~Nf9mtPrSi0encPq-AiEA~Z7G3nMVA3VgeoFX9plOFnxPGjSQsbazt-7M2jBE45Q_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/College_of_Nursing_Sciences_Eku_Delta_State_2026_2027_Admission_Form/32916389
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Can_personal_freedom_drive_economic_complexity_/31753036
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -438,23 +442,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21229776
+  - url: https://zenodo.org/records/21277220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19637515
+  - url: https://zenodo.org/records/21277220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19637515
+  - url: https://fair.unifg.it//handle/11369/382362
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19622928
+  - url: https://zenodo.org/records/21274848
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21225670
+  - url: https://zenodo.org/records/21274848
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -503,23 +507,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Bells_University_of_Technology_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916398
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -539,27 +543,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15795891
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/6jgy5/
+  - url: https://zenodo.org/records/21277220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21225670
+  - url: https://zenodo.org/records/21277220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21225670
+  - url: https://zenodo.org/records/21277057
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21224466
+  - url: https://zenodo.org/records/21277057
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21224466
+  - url: https://fair.unifg.it//handle/11369/369485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -608,23 +612,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Bells_University_of_Technology_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916398
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Warri_Delta_State_2026_2027_Admission_Form/32916392
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_0_7047903330_Bingham_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916395
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/DATA_InnovationStrategy_InnovationCapability_Performance/32287575
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/book/_p_dir_rtl____________38__48____41_56_p_/32915855
+  - url: https://figshare.com/articles/dataset/Research_DAta_for_paper_From_2D_Drawings_to_IFC-Compliant_BIM_A_Critical_Review_of/32947205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -644,27 +648,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5345597
+  - url: https://zenodo.org/records/6002615
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/occurrence/download/0022704-260623161305970
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://www.gbif.org/occurrence/download/0022694-260623161305970
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://yareta.unige.ch/archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
+  - url: https://zenodo.org/records/21272492
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/a56337e9-3cf6-4ec0-ae16-a6203d129ed1
+  - url: https://zenodo.org/records/21272492
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228752
+  - url: https://arxiv.org/abs/2607.04581
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.24222
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.00086
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

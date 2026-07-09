@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Dataset Schema"
+description: "Schema for the processed High-Entropy Alloy dataset CSV."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the alloy sample."
+  composition:
+    type: "string"
+    description: "JSON string of elemental composition (e.g. '{\"Fe\": 0.2}')."
+  bulk_modulus_observed:
+    type: "number"
+    description: "Observed Bulk Modulus in GPa."
+  bulk_modulus_miedema:
+    type: "number"
+    description: "Bulk Modulus calculated via Miedema's model in GPa."
+  bulk_modulus_residual:
+    type: "number"
+    description: "Residual Bulk Modulus (Observed - Miedema)."
+  constituent_elements:
+    type: "string"
+    description: "Sorted string of constituent elements (e.g. 'CrMnFeCoNi')."
+  source:
+    type: "string"
+    enum:
+      - "OQMD"
+      - "MaterialsProject"
+    description: "Source of the data."
+  ilr_features:
+    type: "string"
+    description: "JSON string of ILR-transformed features."
+required:
+  - sample_id
+  - composition
+  - bulk_modulus_observed
+  - bulk_modulus_residual
+  - constituent_elements
+  - source
+additionalProperties: true
