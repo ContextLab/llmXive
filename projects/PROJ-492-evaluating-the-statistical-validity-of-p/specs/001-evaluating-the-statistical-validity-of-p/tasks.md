@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_dc758d61 — status=not_enough_info]
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -94,11 +94,11 @@
 - [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – {{claim:c_44abad1e}} (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
 - [ ] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->
 - [X] T029 Evaluate inconsistency‑detection component on syntheticvalidation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 % (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
-- [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
+- [ ] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
 - [X] T032 Implement end‑to‑end driver script `src/cli/run_audit.py` that orchestrates ingestion → fetch → extract → reconstruct → validate → write artifacts (verify script exits with status 0 on success). **DEPENDS ON:** T025, T028, T029, T031.
 - [X] T033 Integration test that runs driver on synthetic dataset, computes precision/recall/F1 and aborts with `ERR-800` if thresholds not met (tests/integration/test_synthetic_validation.py) (verify test passes) [DEPENDS ON: T026].
-- [X] T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb` that documents any p‑value discrepancies >0.05 (1905.08726, https://arxiv.org/abs/1905.08726) with justification per Constitution Principle VI; run as part of pipeline acceptance (depends on T025) (verify notebook exists and contains discrepancy justifications) [DEPENDS ON: T025].
+- [ ] T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb` that documents any p‑value discrepancies >0.05 (1905.08726, https://arxiv.org/abs/1905.08726) with justification per Constitution Principle VI; run as part of pipeline acceptance (depends on T025) (verify notebook exists and contains discrepancy justifications) [DEPENDS ON: T025].
 - [ ] T035FR‑001 Verification: Run `tests/integration/test_url_ingestion.py` to assert `input/urls.csv` processing completes without error (coverage‑executability‑08d5764f) (verify test passes).
 - [X] T036 FR‑002 Verification: {{claim:c_3104c2cf}} (coverage‑executability‑08d5764f) (verify test passes). <!-- FAILED: unspecified -->
 - [X] T037 FR‑003 Verification: Run `tests/integration/test_reconstructor_completeness.py` to assert reconstructed p‑values computed for all records (coverage‑executability‑08d5764f) (verify test passes).
@@ -209,11 +209,11 @@
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
 - [ ] T073 Verify SC‑003: {{claim:c_037cdd5e}} for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. [UNRESOLVED-CLAIM: c_cbd8f31c — status=not_enough_info] (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
+- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
-- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_542525b6 — status=not_enough_info] (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
+- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_6e7b0ed2 — status=not_enough_info] (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
 - [ ] T077 Verify SC‑014: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range... (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_2277ebba — status=not_enough_info].. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
 - [ ] T080 Verify SC‑020: {{claim:c_9cebabc5}} (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).

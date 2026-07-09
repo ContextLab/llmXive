@@ -440,6 +440,15 @@
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487 [UNRESOLVED-CLAIM: c_2a0355d3 \u2014 status=not_enough_info],\
+  \ https://arxiv.org/abs/2510.17487 [UNRESOLVED-CLAIM: c_2a0355d3 \u2014 status=not_enough_info])\
+  \ ** (constraint\u2011preservation\u2011ba913176) (verify JSON file exists, contains\
+  \ numeric N, and satisfies condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified\
+  \ -->"
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ {{claim:c_21f3e400}} (2510.17487 [UNRESOLVED-CLAIM: c_7b072e4a \u2014 status=not_enough_info],\
   \ https://arxiv.org/abs/2510.17487 [UNRESOLVED-CLAIM: c_7b072e4a \u2014 status=not_enough_info])\
   \ ** (constraint\u2011preservation\u2011ba913176) (verify JSON file exists, contains\
@@ -459,7 +468,7 @@
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
   preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
   \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
-: 1
+: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
@@ -490,6 +499,13 @@
   \ 90\u202F%, recall \u2265 80\u202F%, F1 \u2265 0.85 [UNRESOLVED-CLAIM: c_0ce1c66f\
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
+: 1
+? "T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb`\
+  \ that documents any p\u2011value discrepancies >0.05 (1905.08726 [UNRESOLVED-CLAIM:\
+  \ c_957f09e4 \u2014 status=not_enough_info], https://arxiv.org/abs/1905.08726 [UNRESOLVED-CLAIM:\
+  \ c_957f09e4 \u2014 status=not_enough_info]) with justification per Constitution\
+  \ Principle VI; run as part of pipeline acceptance (depends on T025) (verify notebook\
+  \ exists and contains discrepancy justifications) [DEPENDS ON: T025]."
 : 1
 ? "T035 FR\u2011001 Verification: Run `tests/integration/test_url_ingestion.py` to\
   \ assert `input/urls.csv` processing completes without error [UNRESOLVED-CLAIM:\
@@ -644,6 +660,12 @@
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
   \ c_a2728275 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_cfc1e243 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
