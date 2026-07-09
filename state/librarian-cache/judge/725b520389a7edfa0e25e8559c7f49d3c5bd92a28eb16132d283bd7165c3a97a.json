@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.01287",
+  "judged_at": "2026-07-09T21:49:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "This paper satisfies criterion (a) by investigating the mechanism of how \"bodily sensations\" (a proxy for interoceptive awareness) shape \"emotional experience\" and \"emotional response,\" which directly addresses the core variables of the user's question regarding the link between interoception and emotion, even though the stressor is auditory rather than a general simulated stress paradigm.",
+  "relevant": true
+}

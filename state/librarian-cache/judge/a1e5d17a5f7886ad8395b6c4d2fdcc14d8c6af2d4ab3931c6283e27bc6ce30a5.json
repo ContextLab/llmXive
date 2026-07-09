@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.27233",
+  "judged_at": "2026-07-09T21:49:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on structural stressors, learned helplessness, and computational classification of stress narratives in a specific crisis population, but it does not measure or analyze the specific mechanism of \"interoceptive awareness\" or its causal link to \"emotional regulation\" required by the user's question. While it addresses the broad domain of stress and emotion, it lacks the specific independent variable (interoception) and the specific dependent mechanism (regulation via interoceptio",
+  "relevant": false
+}

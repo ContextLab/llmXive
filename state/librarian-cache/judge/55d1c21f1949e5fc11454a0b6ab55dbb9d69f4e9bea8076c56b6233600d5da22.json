@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.09777",
+  "judged_at": "2026-07-09T21:49:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) as it empirically measures the mechanism of stress regulation via respiratory guidance (a core component of interoceptive awareness) and analyzes individual variations in efficacy, directly addressing the user's interest in how internal awareness mechanisms impact emotional regulation during simulated stress. Although the specific population is drivers rather than a general clinical sample, it provides canonical evidence for the underlying biological an",
+  "relevant": true
+}

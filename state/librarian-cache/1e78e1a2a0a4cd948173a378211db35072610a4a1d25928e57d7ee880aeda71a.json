@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-30T04:49:24Z",
+  "fetched_at": "2026-07-09T21:49:57Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress",
       "target_n": 5
     },
-    "duration_seconds": 60.674,
-    "ended_at": "2026-06-30T04:49:24Z",
+    "duration_seconds": 49.994,
+    "ended_at": "2026-07-09T21:49:57Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "interoceptive sensitivity and emotion regulation"
+          "interoceptive accuracy and emotion regulation under stress"
         ],
         [
           2,
-          "heart rate variability and stress response"
+          "bodily awareness effects on stress response modulation"
         ],
         [
           3,
-          "bodily awareness in emotional control"
+          "cardiac interoception and emotional control during stress tasks"
         ],
         [
           4,
-          "mindfulness and interoception during stress"
+          "heartbeat perception and stress-induced emotional dysregulation"
         ],
         [
           5,
-          "affective neuroscience of interoceptive processing"
+          "visceral sensitivity impact on affective regulation in laboratory settings"
         ],
         [
           6,
-          "somatic markers and emotional regulation"
+          "alexithymia and interoceptive deficits in stress coping"
         ],
         [
           7,
-          "anxiety modulation through interoceptive training"
+          "somatic markers and emotional regulation during simulated threats"
         ],
         [
           8,
-          "visceral feedback and stress coping mechanisms"
+          "interoceptive sensibility and anxiety reduction techniques"
         ],
         [
           9,
-          "alexithymia and emotional dysregulation under stress"
+          "mind-body connection in stress management and emotional stability"
         ],
         [
           10,
-          "cardiac interoception and anxiety management"
+          "physiological self-awareness and stress reactivity"
         ],
         [
           11,
-          "physiological arousal and emotional recovery"
+          "interoceptive exposure and emotional habituation"
         ],
         [
           12,
-          "metacognitive awareness of bodily states"
+          "gut feelings and decision making under stress"
         ],
         [
           13,
-          "stress reactivity and interoceptive accuracy"
+          "breath awareness and emotional regulation in high-pressure scenarios"
         ],
         [
           14,
-          "emotion regulation strategies and body perception"
+          "metacognitive monitoring of bodily states during stress"
         ],
         [
           15,
-          "psychophysiological stress responses and self-awareness"
+          "interoceptive training for improved emotional resilience"
         ],
         [
           16,
-          "the role of the insula in emotional regulation"
+          "neural correlates of interoception and emotion regulation under stress"
         ],
         [
           17,
-          "interoceptive exposure therapy for emotional control"
+          "autonomic nervous system regulation via interoceptive awareness"
         ],
         [
           18,
-          "bodily sensations and stress resilience"
+          "subjective stress perception and bodily signal interpretation"
         ],
         [
           19,
-          "predictive coding of interoceptive signals and emotion"
+          "interoceptive precision and cortisol response to stress"
         ],
         [
           20,
-          "autonomic nervous system regulation via interoception"
+          "embodied cognition approaches to emotional regulation during stress"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology": 0,
-        "heart rate variability and stress response": 5,
-        "interoceptive sensitivity and emotion regulation": 1
+        "bodily awareness effects on stress response modulation": 2,
+        "cardiac interoception and emotional control during stress tasks": 2,
+        "interoceptive accuracy and emotion regulation under stress": 1
       },
-      "total_queries_issued": 2
+      "total_queries_issued": 3
     },
     "extracted_queries": [
-      "heartbeat detection accuracy emotional control",
-      "MBSR heart rate variability stress reactivity",
-      "alexithymia interoceptive sensitivity regulation deficits",
-      "emotion regulation strategies perceived stress reduction",
-      "somatic markers anxiety modulation theory"
+      "body awareness emotional control mindfulness",
+      "alexithymia somatic markers affective processing",
+      "emotion regulation reappraisal suppression physiological reactivity",
+      "predictive coding interoceptive inference anxiety modulation"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,46 +121,40 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "1607.04771"
+        "2504.01287"
       ]
     },
     "per_query_hit_count": {
-      "MBSR heart rate variability stress reactivity": 3,
       "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology": 3,
-      "alexithymia interoceptive sensitivity regulation deficits": 3,
-      "emotion regulation strategies perceived stress reduction": 3,
-      "heartbeat detection accuracy emotional control": 3,
-      "somatic markers anxiety modulation theory": 3
+      "alexithymia somatic markers affective processing": 3,
+      "body awareness emotional control mindfulness": 3,
+      "emotion regulation reappraisal suppression physiological reactivity": 3,
+      "predictive coding interoceptive inference anxiety modulation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 3,
       "rejections": [
         {
-          "primary_pointer": "2604.24527",
-          "rationale": "The paper focuses on applying interoceptive principles to artificial intelligence architectures and computational agents, which is an off-domain application distinct from the user's question regarding human psychological mechanisms of emotional regulation during stress. It does not measure the biological pathway, empirical population, or psychological variables specified in the user's query, failing to meet any inclusion criteria (a-f).",
-          "title": "Interoceptive machine framework: Toward interoception-inspired regulatory architectures in artificial intelligence"
+          "primary_pointer": "1710.05419",
+          "rationale": "The paper focuses on robotic engineering and sensor integration (proprioception/exteroception in soft robots), which is an off-domain application of \"bodily awareness\" distinct from the psychological construct of \"interoceptive awareness\" and \"emotional regulation\" in humans. This falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"bodily awareness\" in robotics vs. psychology) with no measurable connection to the user's mechanism, domain, or empirical set",
+          "title": "Bodily aware soft robots: integration of proprioceptive and exteroceptive sensors"
         },
         {
-          "primary_pointer": "2510.27028",
-          "rationale": "The paper focuses exclusively on the technical methodology for estimating Heart Rate Variability (HRV) from video, which is a measurement tool rather than a study of the psychological mechanism linking interoceptive awareness to emotional regulation. It does not measure the psychological constructs (interoceptive awareness, emotional regulation), the stress condition, or the causal relationship between them, failing to satisfy the criteria for same-mechanism evidence, variable measurement on the",
-          "title": "VitalLens 2.0: High-Fidelity rPPG for Heart Rate Variability Estimation from Face Video"
+          "primary_pointer": "2512.13539",
+          "rationale": "The paper focuses on neural oscillatory networks and inhibitory processing in ADHD, which does not measure the specific constructs of \"interoceptive awareness\" or \"emotional regulation during simulated stress\" required by the user's question. While both topics fall under the broad domain of psychology and emotion, the paper lacks the specific independent variable (interoception) and the specific experimental context (simulated stress) necessary to satisfy the inclusion criteria for a literature ",
+          "title": "Altered oscillatory brain networks during emotional face processing in ADHD: an eLORETA and functional ICA study"
         },
         {
-          "primary_pointer": "1607.04770",
-          "rationale": "The paper focuses on a machine learning engineering task (classifying stress vs. influenza using heart rate variance and SVMs) rather than investigating the psychological mechanism of how interoceptive awareness influences emotional regulation. It fails to measure the specific psychological construct of \"interoceptive awareness\" or the process of \"emotional regulation,\" and instead treats stress as a binary classification target for a healthcare device, which constitutes an off-domain applicatio",
-          "title": "Shesop Healthcare: Stress and influenza classification using support vector machine kernel"
-        },
-        {
-          "primary_pointer": "2210.01791",
-          "rationale": "The paper focuses on the technical methodology for estimating physiological stress markers (HRV, heart rate) via computer vision, but it does not measure or discuss \"interoceptive awareness\" (the psychological construct of perceiving internal bodily states) or its specific impact on \"emotional regulation.\" While it addresses the \"simulated stress\" and \"physiological data\" aspects, it fails to satisfy criteria (a) or (b) because it lacks the critical psychological variables (interoception and emo",
-          "title": "Real-Time Monitoring of User Stress, Heart Rate and Heart Rate Variability on Mobile Devices"
+          "primary_pointer": "2603.27233",
+          "rationale": "The paper focuses on structural stressors, learned helplessness, and computational classification of stress narratives in a specific crisis population, but it does not measure or analyze the specific mechanism of \"interoceptive awareness\" or its causal link to \"emotional regulation\" required by the user's question. While it addresses the broad domain of stress and emotion, it lacks the specific independent variable (interoception) and the specific dependent mechanism (regulation via interoceptio",
+          "title": "Structural Stress and Learned Helplessness in Afghanistan: A Multi-Layer Analysis of the AFSTRESS Dari Corpus"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-30T04:48:23Z",
+    "started_at": "2026-07-09T21:49:07Z",
     "term_input": {
       "normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
       "raw": "The Impact of Interoceptive Awareness on Emotional Regulation During Simulated Stress psychology"
@@ -181,7 +175,7 @@
           "primary_pointer": "1911.12361"
         },
         "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='GLA in MediaEval 2018 Emotional Impact of Movies Task')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -201,7 +195,7 @@
           "primary_pointer": "2311.16135"
         },
         "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Use of Deep Neural Networks for Uncertain Stress Functions with Extensions to Impact Mechanics')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -219,7 +213,7 @@
           "primary_pointer": "2603.27233"
         },
         "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Structural Stress and Learned Helplessness in Afghanistan: A Multi-Layer Analysis of the AFSTRESS Dari Corpus')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -241,7 +235,23 @@
           "primary_pointer": "2606.13006"
         },
         "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Emo-LiPO: Listwise Preference Optimization for Fine-Grained Emotion Intensity Control in LLM-based Text-to-Speech')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method is developed to design controllers in Euclidean space for systems defined on manifolds. The idea is to embed the state-space manifold $M$ of a given control system into some Euclidean space $\\mathbb R^n$, extend the system from $M$ to the ambient space $\\mathbb R^n$, and modify it outside $M$ to add transversal stability to $M$ in the final dynamics in $\\mathbb R^n$. Controllers are designed for the final system in the ambient space $\\mathbb R^n$. Then, their restriction to $M$ produces controllers for the original system on $M$. This method has the merit that only one single global Cartesian coordinate system in the ambient space $\\mathbb R^n$ is used for controller synthesis, and any controller design method in $\\mathbb R^n$, such as the linearization method, can be globally applied for the controller synthesis. The proposed method is successfully applied to the tracking problem for the following two benchmark systems: the fully actuated rigid body system and the quadcopter drone system.",
+          "claimed_authors": [
+            "Dong Eui Chang"
+          ],
+          "claimed_title": "On Controller Design for Systems on Manifolds in Euclidean Space",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.03475"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='On Controller Design for Systems on Manifolds in Euclidean Space')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -260,127 +270,79 @@
           "primary_pointer": "2006.11141"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Control of a Rigid Wing Pumping Airborne Wind Energy System in all Operational Phases')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper introduces the notion of an Input Constrained Control Barrier Function (ICCBF), as a method to synthesize safety-critical controllers for non-linear control affine systems with input constraints. The method identifies a subset of the safe set of states, and constructs a controller to render the subset forward invariant. The feedback controller is represented as the solution to a quadratic program, which can be solved efficiently for real-time implementation. Furthermore, we show that ICCBFs are a generalization of Higher Order Control Barrier Functions, and thus are applicable to systems of non-uniform relative degree. Simulation results are presented for the adaptive cruise control problem, and a spacecraft rendezvous problem.",
+          "claimed_abstract": "This paper introduces BReG-NeXt, a residual-based network architecture using a function wtih bounded derivative instead of a simple shortcut path (a.k.a. identity mapping) in the residual units for automatic recognition of facial expressions based on the categorical and dimensional models of affect. Compared to ResNet, our proposed adaptive complex mapping results in a shallower network with less numbers of training parameters and floating point operations per second (FLOPs). Adding trainable parameters to the bypass function further improves fitting and training the network and hence recognizing subtle facial expressions such as contempt with a higher accuracy. We conducted comprehensive experiments on the categorical and dimensional models of affect on the challenging in-the-wild databases of AffectNet, FER2013, and Affect-in-Wild. Our experimental results show that our adaptive complex mapping approach outperforms the original ResNet consisting of a simple identity mapping as well as other state-of-the-art methods for Facial Expression Recognition (FER). Various metrics are reported in both affect models to provide a comprehensive evaluation of our method. In the categorical model, BReG-NeXt-50 with only 3.1M training parameters and 15 MFLOPs, achieves 68.50% and 71.53% accuracy on AffectNet and FER2013 databases, respectively. In the dimensional model, BReG-NeXt achieves 0.2577 and 0.2882 RMSE value on AffectNet and Affect-in-Wild databases, respectively.",
           "claimed_authors": [
-            "Devansh Agrawal",
-            "Dimitra Panagou"
+            "Behzad Hasani",
+            "Pooran Singh Negi",
+            "Mohammad H. Mahoor"
           ],
-          "claimed_title": "Safe Control Synthesis via Input Constrained Control Barrier Functions",
+          "claimed_title": "BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08495"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='BReG-NeXt: Facial Affect Computing Using Adaptive Residual Networks With Bounded Gradient')",
+        "failed_at": "2026-07-09T21:49:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How could we gather affect annotations in a rapid, unobtrusive, and accessible fashion? How could we still make sure that these annotations are reliable enough for data-hungry affect modelling methods? This paper addresses these questions by introducing PAGAN, an accessible, general-purpose, online platform for crowdsourcing affect labels in videos. The design of PAGAN overcomes the accessibility limitations of existing annotation tools, which often require advanced technical skills or even the on-site involvement of the researcher. Such limitations often yield affective corpora that are restricted in size, scope and use, as the applicability of modern data-demanding machine learning methods is rather limited. The description of PAGAN is accompanied by an exploratory study which compares the reliability of three continuous annotation tools currently supported by the platform. Our key results reveal higher inter-rater agreement when annotation traces are processed in a relative manner and collected via unbounded labelling.",
+          "claimed_authors": [
+            "David Melhart",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "PAGAN: Video Affect Annotation Made Easy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.01008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='PAGAN: Video Affect Annotation Made Easy')",
+        "failed_at": "2026-07-09T21:49:29Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "How does the form of our surroundings impact the ways we feel? This paper extends the body of research on the effects that space and light have on emotion by focusing on critical features of architectural form and illumination colors and their spatiotemporal impact on arousal. For that purpose, we solicited a corpus of spatial transitions in video form, lasting over 60 minutes, annotated by three participants in terms of arousal in a time-continuous and unbounded fashion. We process the annotation traces of that corpus in a relative fashion, focusing on the direction of arousal changes (increasing or decreasing) as affected by changes between consecutive rooms. Results show that properties of the form such as curved or complex spaces align highly with increased arousal. The analysis presented in this paper sheds some initial light in the relationship between arousal and core spatiotemporal features of form that is of particular importance for the affect-driven design of architectural spaces.",
+          "claimed_authors": [
+            "Emmanouil Xylakis",
+            "Antonios Liapis",
+            "Georgios N. Yannakakis"
+          ],
+          "claimed_title": "Architectural Form and Affect: A Spatiotemporal Study of Arousal",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2104.01704"
+          "primary_pointer": "2112.05938"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Safe Control Synthesis via Input Constrained Control Barrier Functions')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Architectural Form and Affect: A Spatiotemporal Study of Arousal')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Shesop is an integrated system to make human lives more easily and to help people in terms of healthcare. Stress and influenza classification is a part of Shesop's application for a healthcare devices such as smartwatch, polar and fitbit. The main objective of this paper is to create a proper application to implement the stress and influenza classification. The application use Android studio, XML and Java. Also, while creating this application, all design and program is considered to be available for future updates. The application needs an android smartphone with Bluetooth Low Energy technology (bluetooth v4.0 or above). SheSop application will accommodate data entry, device picker, data gathering process, result and saving the result. In the end, we could use the polar H7 and this application to get a real-time heart rate, Heart rate variability and diagnose our stress and influenza condition.",
+          "claimed_abstract": "Emotion regulation is a crucial skill for managing emotions in everyday life, yet finding a constructive and accessible method to support these processes remains challenging due to their cognitive demands. In this study, we explore how regular interactions with a social robot, conducted in a structured yet familiar environment within university halls and departments, can provide effective support for emotion regulation through cognitive reappraisal. Twenty-one students participated in a five-session study at a university hall or department, where the robot, powered by a large language model (GPT-3.5), facilitated structured conversations, encouraging the students to reinterpret emotionally charged situations they shared with the robot. Quantitative and qualitative results indicate significant improvements in emotion self-regulation, with participants reporting better understanding and control of their emotions. The intervention led to significant changes in constructive emotion regulation tendencies and positive effects on mood and sentiment after each session. The findings also demonstrate that repeated interactions with the robot encouraged greater emotional expressiveness, including longer speech disclosures, increased use of affective language, and heightened facial arousal. Notably, expressiveness followed structured patterns aligned with the reappraisal process, with expression peaking during key reappraisal moments, particularly when participants were prompted to reinterpret negative experiences. The qualitative feedback further highlighted how the robot fostered introspection and provided a supportive space for discussing emotions, enabling participants to confront long-avoided emotional challenges. These findings demonstrate the potential of robots to effectively assist in emotion regulation in familiar environments, offering both emotional support and cognitive guidance.",
           "claimed_authors": [
-            "Andrien Ivander Wijaya",
-            "Ary Setijadi Prihatmanto",
-            "Rifki Wijaya"
+            "Guy Laban",
+            "Julie Wang",
+            "Hatice Gunes"
           ],
-          "claimed_title": "Shesop Healthcare: Android application to monitor heart rate variance, display influenza and stress condition using Polar H7",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1607.04771"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Shesop Healthcare: Android application to monitor heart rate variance, display influenza and stress condition using Polar H7')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This report introduces VitalLens 2.0, a new deep learning model for estimating physiological signals from face video. This new model demonstrates a significant leap in accuracy for remote photoplethysmography (rPPG), enabling the robust estimation of not only heart rate (HR) and respiratory rate (RR) but also Heart Rate Variability (HRV) metrics. This advance is achieved through a combination of a new model architecture and a substantial increase in the size and diversity of our training data, now totaling 1,413 unique individuals. We evaluate VitalLens 2.0 on a new, combined test set of 422 unique individuals from four public and private datasets. When averaging results by individual, VitalLens 2.0 achieves a Mean Absolute Error (MAE) of 1.57 bpm for HR, 1.08 bpm for RR, 10.18 ms for HRV-SDNN, and 16.45 ms for HRV-RMSSD. These results represent a new state-of-the-art, significantly outperforming previous methods. This model is now available to developers via the VitalLens API at https://rouast.com/api.",
-          "claimed_authors": [
-            "Philipp V. Rouast"
-          ],
-          "claimed_title": "VitalLens 2.0: High-Fidelity rPPG for Heart Rate Variability Estimation from Face Video",
+          "claimed_title": "A Robot-Led Intervention for Emotion Regulation: From Expression to Reappraisal",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2510.27028"
+          "primary_pointer": "2503.18243"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='VitalLens 2.0: High-Fidelity rPPG for Heart Rate Variability Estimation from Face Video')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Factor structure of heart rate periodogram has been detected with factor analysis.  The results showed that there are at least four periodical phenomena of HRV. Two of them have not been discovered and physiologically explained yet. Their frequency ranges are 0.21 to 0.31 1/beat with the peak at 0.26 1/beat and 0.25 to 0.5 1/beat with the peak 0.35 1/beat. Despite of differences of the peak frequencies the frequency rages of the factors are overlapped. Therefore, power of spectral density within any frequency range could not be a measure of a modulating physiological mechanism activity.",
-          "claimed_authors": [
-            "V. Mukhin"
-          ],
-          "claimed_title": "Frequency Structure of Heart Rate Variability",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1005.0776"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Frequency Structure of Heart Rate Variability')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This review proposes an integrative framework grounded on interoception and embodied AI-termed the interoceptive machine framework-that translates biologically inspired principles of internal-state regulation into computational architectures for adaptive autonomy. Interoception, conceived as the monitoring, integration, and regulation of internal signals, has proven relevant for understanding adaptive behavior in biological systems. The proposed framework organizes interoceptive contributions into three functional principles: homeostatic, allostatic, and enactive, each associated with distinct computational roles: internal viability regulation, anticipatory uncertainty-based re-evaluation, and active data generation through interaction. These principles are not intended as direct neurophysiological mappings, but as abstractions that inform the design of artificial agents with improved self-regulation and context-sensitive behavior. By embedding internal state variables and regulatory loops within these principles, AI systems can achieve more robust decision-making, calibrated uncertainty handling, and adaptive interaction strategies, particularly in uncertain and dynamic environments. This approach provides a concrete and testable pathway toward agents capable of functionally grounded self-regulation, with direct implications for human-computer interaction and assistive technologies. Ultimately, the interoceptive machine framework offers a unifying perspective on how internal-state regulation can enhance autonomy, adaptivity, and robustness in embodied AI systems",
-          "claimed_authors": [
-            "Diego Candia-Rivera"
-          ],
-          "claimed_title": "Interoceptive machine framework: Toward interoception-inspired regulatory architectures in artificial intelligence",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2604.24527"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Interoceptive machine framework: Toward interoception-inspired regulatory architectures in artificial intelligence')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The proposed European Artificial Intelligence Act (AIA) is the first attempt to elaborate a general legal framework for AI carried out by any major global economy. As such, the AIA is likely to become a point of reference in the larger discourse on how AI systems can (and should) be regulated. In this article, we describe and discuss the two primary enforcement mechanisms proposed in the AIA: the conformity assessments that providers of high-risk AI systems are expected to conduct, and the post-market monitoring plans that providers must establish to document the performance of high-risk AI systems throughout their lifetimes. We argue that AIA can be interpreted as a proposal to establish a Europe-wide ecosystem for conducting AI auditing, albeit in other words. Our analysis offers two main contributions. First, by describing the enforcement mechanisms included in the AIA in terminology borrowed from existing literature on AI auditing, we help providers of AI systems understand how they can prove adherence to the requirements set out in the AIA in practice. Second, by examining the AIA from an auditing perspective, we seek to provide transferable lessons from previous research about how to refine further the regulatory approach outlined in the AIA. We conclude by highlighting seven aspects of the AIA where amendments (or simply clarifications) would be helpful. These include, above all, the need to translate vague concepts into verifiable criteria and to strengthen the institutional safeguards concerning conformity assessments based on internal checks.",
-          "claimed_authors": [
-            "Jakob Mokander",
-            "Maria Axente",
-            "Federico Casolari",
-            "Luciano Floridi"
-          ],
-          "claimed_title": "Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.05071"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The body sends interoceptive visceral information through deep brain structures to the cerebral cortex. The insula cortex, organized in hierarchical modules, is the major cortical region receiving interoceptive afferents and contains visceral topographic maps. Yet, the biological significance of the insula's modular architecture in relation to deep brain regions remains unsolved. In this opinion, we propose the Insula Hierarchical Modular Adaptive Interoception Control (IMAC) model to suggest that insula modules (granular, dysgranular and agranular subregions), forming networks with prefrontal (supplementary motor area, dorsolateral and ventromedial cortices) and striatum (posterior, dorsomedial and ventromedial) subregions, are specialized for higher-order interoceptive representations, recruited in a context-dependent manner to support habitual, model-based and exploratory adaptive behavior. We then discuss how insula interoceptive representations, or metaceptions, could give rise to conscious interoceptive feelings built up from low-order visceral representations and associated basic emotions located in deep interoceptive brain structures.",
-          "claimed_authors": [
-            "Alan S. R. Fermin",
-            "Karl Friston",
-            "Shigeto Yamawaki"
-          ],
-          "claimed_title": "Insula Interoception, Active Inference and Feeling Representation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2112.12290"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Insula Interoception, Active Inference and Feeling Representation')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='A Robot-Led Intervention for Emotion Regulation: From Expression to Reappraisal')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
@@ -396,105 +358,78 @@
           "primary_pointer": "2005.11882"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Sentiment Analysis: Automatically Detecting Valence, Emotions, and Other Affectual States from Text')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Software development is intellectual, based on collaboration, and performed in a highly demanding economic market. As such, it is dominated by time pressure, stress, and emotional trauma. While studies of affect are emerging and rising in software engineering research, stress has yet to find its place in the literature despite that it is highly related to affect. In this paper, we study stress coping with the affect-laden framework of Salutogenesis, which is a validated psychological framework for enhancing mental health through a feeling of coherence. We propose a controlled experiment for testing our hypotheses that a static analysis tool enhanced with the Salutogenesis model will bring 1) a higher number of fixed quality issues, 2) reduced cognitive load, 3) reduction of the overall stress, and 4) positive affect induction effects to developers. The experiment will make use of validated physiological measurements of stress as proxied by cortisol and alpha-amylase levels in saliva samples, a psychometrically validated measurement of mood and affect disposition, and stress inductors such as a cognitive load task. Our hypotheses, if empirically supported, will lead to the creation of environments, methods, and tools that alleviate stress among developers while enhancing affect on the job and task performance.",
+          "claimed_abstract": "Cognitive reappraisal is a key strategy in emotion regulation, involving reinterpretation of emotionally charged stimuli to alter affective responses. Despite its central role in clinical and cognitive science, real-world reappraisal interventions remain cognitively demanding, abstract, and primarily verbal. This reliance on higher-order cognitive and linguistic processes is often impaired in individuals with trauma or depression, limiting the effectiveness of standard approaches. Here, we propose a novel, visually based augmentation of cognitive reappraisal by integrating large-scale text-to-image diffusion models into the emotional regulation process. Specifically, we introduce a system in which users reinterpret emotionally negative images via spoken reappraisals, which are transformed into supportive, emotionally congruent visualizations using stable diffusion models with a fine-tuned IP-adapter. This generative transformation visually instantiates users' reappraisals while maintaining structural similarity to the original stimuli, externalizing and reinforcing regulatory intent. To test this approach, we conducted a within-subject experiment (N = 20) using a modified cognitive emotion regulation (CER) task. Participants reappraised or described aversive images from the International Affective Picture System (IAPS), with or without AI-generated visual feedback. Results show that AI-assisted reappraisal significantly reduced negative affect compared to both non-AI and control conditions. Further analyses reveal that sentiment alignment between participant reappraisals and generated images correlates with affective relief, suggesting that multimodal coherence enhances regulatory efficacy. These findings demonstrate that generative visual input can support cogitive reappraisal and open new directions at the intersection of generative AI, affective computing, and therapeutic technology.",
           "claimed_authors": [
-            "Jan-Peter Ostberg",
-            "Daniel Graziotin",
-            "Stefan Wagner",
-            "Birgit Derntl"
+            "Edoardo Pinzuti",
+            "Oliver Tüscher",
+            "André Ferreira Castro"
           ],
-          "claimed_title": "Towards the Assessment of Stress and Emotional Responses of a Salutogenesis-Enhanced Software Tool Using Psychophysiological Measurements",
+          "claimed_title": "Visually grounded emotion regulation via diffusion models and user-driven reappraisal",
           "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1701.05739"
+          "claimed_year": 2025,
+          "primary_pointer": "2507.10861"
         },
-        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Towards the Assessment of Stress and Emotional Responses of a Salutogenesis-Enhanced Software Tool Using Psychophysiological Measurements')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Visually grounded emotion regulation via diffusion models and user-driven reappraisal')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the emotion regulation literature, the amount of neuroimaging studies on cognitive reappraisal led the impression that the same top-down, control-related neural mechanisms characterize all emotion regulation strategies. However, top-down processes may coexist with more bottom-up and emotion-focused processes that partially bypass the recruitment of executive functions. A case in point is acceptance-based strategies. To better understand neural commonalities and differences behind different emotion regulation strategies, in the present study we applied a meta-analytic method to fMRI studies of task-related activity of reappraisal and acceptance. Results showed increased activity in left-inferior frontal gyrus and insula for both strategies, and decreased activity in the basal ganglia for reappraisal, and decreased activity in limbic regions for acceptance. These findings are discussed in the context of a model of common and specific neural mechanisms of emotion regulation that support and expand the previous dual-routes models. We suggest that emotion regulation may rely on a core inhibitory circuit, and on strategy-specific top-down and bottom-up processes distinct for different strategies.",
+          "claimed_abstract": "Interoception and exteroception provide continuous feedback about the body and the environment, yet how they are dynamically integrated within a unified predictive coding framework has remained under-specified. This paper develops and empirically validates an integrative predictive coding model that treats interoceptive and exteroceptive inference as parallel hierarchical systems exchanging precision-weighted prediction errors. Within this framework, arbitration between the two streams is governed by relative precision weights (w) and integrated within the anterior insula (AIC) and anterior cingulate cortex (ACC). Computational simulations of the model reproduced biologically plausible dynamics: prediction errors decayed exponentially while arbitration weights self-normalized toward equilibrium (w = 0.5), demonstrating stable convergence and coherent integration. Simulated anxiety and PTSD profiles, characterized respectively by interoceptive and exteroceptive overweighting, yielded rigid, self-sustaining imbalances (w to 1 or w to 0) and slowed recalibration. Empirical application of the arbitration equation to published EEG-fMRI datasets further validated the model. The framework contributes a unifying account of how dysregulated precision weighting may underlie anxiety (overweighted interoception) and PTSD (underweighted interoception). Building on this validation, a proposed experimental paradigm is outlined to test the model's predictions in humans. It examines recalibration across anxiety, neutral, and PTSD groups following targeted interoceptive or exteroceptive therapies. Key predictions include identifiable neural markers of coherence, modulation of heartbeat-evoked potentials by vagal stimulation, and precision-sensitive behavioral signatures in interoceptive-exteroceptive congruency tasks.",
           "claimed_authors": [
-            "Bianca Monachesi",
-            "Alessandro Grecucci",
-            "Parisa Ahmadi Ghomroudi",
-            "Irene Messina"
+            "Pranjal Balar",
+            "Sundeep Kapila"
           ],
-          "claimed_title": "Understanding the neural architecture of emotion regulation by comparing two different strategies: A meta-analytic approach",
+          "claimed_title": "Integrative Model for Interoception and Exteroception: predictive coding, points of modulation, and testable predictions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2305.16241"
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13668"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Understanding the neural architecture of emotion regulation by comparing two different strategies: A meta-analytic approach')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Integrative Model for Interoception and Exteroception: predictive coding, points of modulation, and testable predictions')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_abstract": "An iterated refinement procedure for the Guruswami--Sudan list decoding algorithm for Generalised Reed--Solomon codes based on Alekhnovich's module minimisation is proposed. The method is parametrisable and allows variants of the usual list decoding approach. In particular, finding the list of \\emph{closest} codewords within an intermediate radius can be performed with improved average-case complexity while retaining the worst-case complexity.",
           "claimed_authors": [
-            "Jae Hyung Yee"
+            "Johan Sebastian Rosenkilde Nielsen",
+            "Alexander Zeh"
           ],
-          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_title": "Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes",
           "claimed_venue": "arXiv",
-          "claimed_year": 1997,
-          "primary_pointer": "hep-th/9707234"
+          "claimed_year": 2013,
+          "primary_pointer": "1301.6236"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Multi-Trial Guruswami--Sudan Decoding for Generalised Reed--Solomon Codes')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The Jupiter-Saturn 2:5 near-commensurability is analyzed in a fully analytic Hamiltonian planetary theory. Computations for the Sun-Jupiter-Saturn system, extending to the third order of the masses and to the 8th degree in the eccentricities and inclinations, reveal an unexpectedly sensitive dependence of the solution on initial data and its likely nonconvergence. The source of the sensitivity and apparent lack of convergence is this near-commensurability, the so-called great inequality. This indicates that simple averaging, still common in current semi-analytic planetary theories, may not be an adequate technique to obtain information on the long-term dynamics of the Solar System.\n  Preliminary results suggest that these difficulties can be overcome by using resonant normal forms.",
+          "claimed_abstract": "Generalized product codes (GPCs) are extensions of product codes (PCs) where coded bits are protected by two component codes but not necessarily arranged in a rectangular array. It has recently been shown that there exists a large class of deterministic GPCs (including, e.g., irregular PCs, half-product codes, staircase codes, and certain braided codes) for which the asymptotic performance under iterative bounded-distance decoding over the binary erasure channel (BEC) can be rigorously characterized in terms of a density evolution analysis. In this paper, the analysis is extended to the case where transmission takes place over parallel BECs with different erasure probabilities. We use this model to predict the code performance in a coded modulation setup with higher-order signal constellations. We also discuss the design of the bit mapper that determines the allocation of the coded bits to the modulation bits of the signal constellation.",
           "claimed_authors": [
-            "F. Varadi",
-            "M. Ghil",
-            "W. M. Kaula",
-            " Keywords",
-            " :",
-            "Hamiltonian systems",
-            "planetary motion",
-            "perturbation theory",
-            " resonances"
+            "Christian Häger",
+            "Alexandre Graell i Amat",
+            "Henry D. Pfister",
+            "Fredrik Brännström"
           ],
-          "claimed_title": "The Great Inequality In A Hamiltonian Planetary Theory",
+          "claimed_title": "Density Evolution for Deterministic Generalized Product Codes with Higher-Order Modulation",
           "claimed_venue": "arXiv",
-          "claimed_year": 1993,
-          "primary_pointer": "chao-dyn/9311011"
+          "claimed_year": 2016,
+          "primary_pointer": "1604.06553"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='The Great Inequality In A Hamiltonian Planetary Theory')",
-        "failed_at": "2026-06-30T04:48:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Predicting treatment non-response for anxiety and depression is challenging, in part because of sparse symptom assessments in real-world care. We examined whether passively captured, fine-grained emotions serve as linguistic markers of treatment outcomes by analyzing 12 weeks of de-identified teletherapy transcripts from 12,043 U.S. patients with moderate-to-severe anxiety and depression symptoms. A transformer-based small language model extracted patients' emotions at the talk-turn level; a state-space model (VISTA-SSM) clustered subgroups based on emotion dynamics over time and produced temporal networks. Two groups emerged: an improving group (n=8,230) and a non-response group (n=3,813) showing increased odds of symptom deterioration, and lower likelihood of clinically significant improvement. Temporal networks indicated that sadness and fear exerted most influence on emotion dynamics in non-responders, whereas improving patients showed balanced joy, sadness, and neutral expressions. Findings suggest that linguistic markers of emotional inflexibility can serve as scalable, interpretable, and theoretically grounded indicators for treatment risk stratification.",
-          "claimed_authors": [
-            "Benjamin Brindle",
-            "George A. Bonanno",
-            "Thomas Derrick Hull",
-            "Nicolas Charon",
-            "Matteo Malgaroli"
-          ],
-          "claimed_title": "Language Markers of Emotion Flexibility Predict Depression and Anxiety Treatment Outcomes",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.07961"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Language Markers of Emotion Flexibility Predict Depression and Anxiety Treatment Outcomes')",
-        "failed_at": "2026-06-30T04:48:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Interoceptive Awareness on Emotional Regulation During Simulated S', candidate_title='Density Evolution for Deterministic Generalized Product Codes with Higher-Order Modulation')",
+        "failed_at": "2026-07-09T21:49:29Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -502,53 +437,57 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Andrien Ivander Wijaya",
-            "Ary Setijadi Prihatmanto",
-            "Rifki Wijaya"
+            "A. J. Bequet",
+            "C. Jallais",
+            "J. Quick",
+            "D. Ndiaye",
+            "A. R. Hidalgo-Munoz"
           ],
-          "title": "Shesop Healthcare: Android application to monitor heart rate variance, display influenza and stress condition using Polar H7",
+          "title": "Road to Serenity: Individual Variations in the Efficacy of Unobtrusive Respiratory Guidance for Driving Stress Regulation",
           "venue": "arXiv",
-          "year": 2016
+          "year": 2024
         },
-        "primary_pointer": "1607.04771",
-        "summary": "Shesop is an integrated system to make human lives more easily and to help people in terms of healthcare. Stress and influenza classification is a part of Shesop's application for a healthcare devices such as smartwatch, polar and fitbit. The main objective of this paper is to create a proper application to implement the stress and influenza classification. The application use Android studio, XML and Java. Also, while creating this application, all design and program is considered to be available for future updates. The application needs an android smartphone with Bluetooth Low Energy technology (bluetooth v4.0 or above). SheSop application will accommodate data entry, device picker, data gathering process, result and saving the result. In the end, we could use the polar H7 and this application to get a real-time heart rate, Heart rate variability and diagnose our stress and influenza condition.",
+        "primary_pointer": "2406.09777",
+        "summary": "Stress impacts driving-related cognitive functions like attention and decision-making, and may arise in automated vehicles due to non-driving tasks. Unobtrusive relaxation techniques are needed to regulate stress without distracting from driving. Tactile wearables have shown efficacy in stress regulation through respiratory guidance, but individual variations may affect their efficacy. This study assessed slow-breathing tactile guidance under different stress levels on 85 participants. Physiological, behavioral and subjective data were collected. The influence of individual variations (e.g., driving habits and behavior, personality) using logistic regression analysis was explored. Participants could follow the guidance and adjust breathing while driving, but subjective efficacy depended on individual variations linked to different efficiency in using the technique, in relation with its attentional cost. An influence of factors linked to the evaluation of context criticality was also found. The results suggest that considering individual and contextual variations is crucial in designing and using such techniques in demanding driving contexts. In this line some design recommendations and insights for further studies are provided.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1607.04771",
+          "final_url": "https://arxiv.org/abs/2406.09777",
           "http_status": 200,
-          "pdf_sample_score": 0.2014,
-          "query_relevance_score": 0.8,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-30T04:49:05Z"
+          "verified_at": "2026-07-09T21:49:35Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "V. Mukhin"
+            "Maiko Minatoya",
+            "Tatsuya Daikoku",
+            "Yasuo Kuniyoshi"
           ],
-          "title": "Frequency Structure of Heart Rate Variability",
+          "title": "Emotional Responses to Auditory Hierarchical Structures is Shaped by Bodily Sensations and Listeners' Sensory Traits",
           "venue": "arXiv",
-          "year": 2010
+          "year": 2025
         },
-        "primary_pointer": "1005.0776",
-        "summary": "Factor structure of heart rate periodogram has been detected with factor analysis.  The results showed that there are at least four periodical phenomena of HRV. Two of them have not been discovered and physiologically explained yet. Their frequency ranges are 0.21 to 0.31 1/beat with the peak at 0.26 1/beat and 0.25 to 0.5 1/beat with the peak 0.35 1/beat. Despite of differences of the peak frequencies the frequency rages of the factors are overlapped. Therefore, power of spectral density within any frequency range could not be a measure of a modulating physiological mechanism activity.",
+        "primary_pointer": "2504.01287",
+        "summary": "Emotional responses to auditory stimuli are a common part of everyday life. However, for some individuals, these responses can be distressing enough to interfere with daily functioning. Despite their prevalence, the mechanisms underlying auditory-induced emotion remain only partially understood. Prior research has identified contributing factors such as auditory features, listener traits, and bodily sensations. However, most studies have focused on acoustic features, leaving the role of syntactic structure largely unexplored. This study specifically investigates how hierarchical syntactic structures influence emotional experience, in conjunction with listener traits and bodily sensations. An online experiment was conducted with 715 participants, who listened to 26 sound sequences varying systematically in hierarchical syntactic complexity. Sequences were generated by combining three types of local pitch movement with three types of global pitch movement in ascending and descending pitch directions, resulting in nine complexity levels. Participants rated the valence and arousal of each sequence and indicated any bodily sensations on a body map. Measures of sensory processing patterns were also collected. Results showed that emotional valence was associated with the complex interplay of moderate syntactic complexity (\"not too simple, not too complex\"), sensory sensitivity, and upper torso sensations. These findings expand existing research by identifying syntactic features that shape auditory-induced emotional experience and highlight the link between bodily sensation and emotional response. They also suggest potential applications for incorporating syntactic design into therapeutic approaches to emotion regulation.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1005.0776",
+          "final_url": "https://arxiv.org/abs/2504.01287",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": 0.3535,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-30T04:49:06Z"
+          "verified_at": "2026-07-09T21:49:40Z"
         }
       }
     ]
