@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (handled by project structure, but ignore large files if accidentally committed)
+data/raw/*.csv
+data/interim/*.csv
+data/processed/*.csv
+data/raw/*.json
+data/interim/*.json
+data/processed/*.json
+
+# Logs
+*.log
+logs/
+
+# Testing
+.coverage
+htmlcov/
+pytest.ini
+
+# Jupyter Notebook
+.ipynb_checkpoints

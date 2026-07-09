@@ -1,0 +1,22 @@
+# Configuration for the Atmospheric Pressure and Earthquake Precursors Pipeline
+# T014: Ensure anomaly_window_days is set to 30 for the left-censored moving average
+
+data_root: "data"
+random_seed: 42
+
+# Window parameters
+event_window_days: 7
+control_window_days: 30
+anomaly_window_days: 30  # Used in T014 for baseline calculation
+
+# USGS Query Parameters
+usgs_base_url: "https://earthquake.usgs.gov/fdsnws/event/1/query"
+min_magnitude: 4.0
+max_depth_km: 70
+
+# Test parameters
+test_event_count: 12
+test_region: "Alaska"
+
+# Paths
+deviations_path: "docs/deviations.md"

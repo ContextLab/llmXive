@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization, basic structure, and documentation scaffolding.
 
-- [ ] T001 Create project structure per `specs/001-exploring-the-correlation-between-atmosp/plan.md`: `mkdir -p data/{raw,interim,processed} code tests docs`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, requests, tqdm, pyyaml)
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
-- [ ] T004b [P] Initialize `docs/deviations.md` with a header, table of contents, and formal structure to document scope reductions (e.g., FR-001 global data block, FR-011 climate index deferment) as required by Constitution Principle II.
-- [ ] T004c [P] Create `docs/quickstart.md` as a Phase 1 output (per plan.md) to ensure it exists before T035 validation.
+- [X] T001 Create project structure per `specs/001-exploring-the-correlation-between-atmosp/plan.md`: `mkdir -p data/{raw,interim,processed} code tests docs`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, requests, tqdm, pyyaml)
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools
+- [X] T004b [P] Initialize `docs/deviations.md` with a header, table of contents, and formal structure to document scope reductions (e.g., FR-001 global data block, FR-011 climate index deferment) as required by Constitution Principle II.
+- [X] T004c [P] Create `docs/quickstart.md` as a Phase 1 output (per plan.md) to ensure it exists before T035 validation.
 
 ---
 
@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Dependencies**: T008 must be completed before T009. T025b must be completed before T025. T004b must be completed before T011b and T025b.
 
-- [ ] T004 Setup directory structure: `data/raw`, `data/interim`, `data/processed`, `code`, `tests`
-- [ ] T005 Create `code/__init__.py` and configure module imports
-- [ ] T006 Setup logging infrastructure in `code/utils/logging.py`
+- [X] T004 Setup directory structure: `data/raw`, `data/interim`, `data/processed`, `code`, `tests`
+- [X] T005 Create `code/__init__.py` and configure module imports
+- [X] T006 Setup logging infrastructure in `code/utils/logging.py`
 - [ ] T007 Implement configuration management for data paths, random seeds, and window parameters in `code/config.py`
 - [ ] T008 Create base data validation schemas in `contracts/` (earthquake.schema.yaml, pressure-anomaly.schema.yaml) with required fields: magnitude, depth, lat, lon, timestamp
 - [ ] T011b [P] Create a formal deviation record in `docs/deviations.md` for FR-001 (Global Data Download Blocked), explicitly stating the absence of verified global NOAA NCEP/NCAR sources, the fallback to verified test data only, and the verification logic required to confirm this state.
@@ -84,14 +84,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/download.py` to fetch verified test pressure data and USGS 2013-2023 catalog (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`; explicitly check for absence of global NOAA NCEP/NCAR source (FR-001), reference the deviation record in `docs/deviations.md` (T011b), and process only the 2018 Alaska subset (N=12) as test data.
-- [ ] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
-- [ ] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
-- [ ] T014 [US1] Implement logic in `code/preprocess.py` to calculate daily pressure anomalies using a left-censored -day moving average, explicitly EXCLUDING the period immediately preceding the event window (t-N to t-0) from the moving average calculation to prevent bias; verify the 30-day duration against `code/config.py` (T007) and ensure it matches the spec's 'sufficient duration' requirement.
-- [ ] T015 [US1] Implement filtering in `code/preprocess.py` to exclude ocean-masked events (interpolation reliability < 95%) and events with missing pressure data within the initial 48-hour window
-- [ ] T016 [US1] Implement deduplication logic in `code/preprocess.py` based on unique USGS event ID, retaining most recent revision
-- [ ] T017 [US1] Generate master dataset `data/processed/master_dataset.csv` pairing every earthquake with its pressure anomaly and control window label
-- [ ] T018 [US1] Implement validation report generator in `code/preprocess.py` to output JSON report of missing variables if validation fails (FR-008)
+- [~] T011 [US1] Implement `code/download.py` to fetch verified test pressure data and USGS 2013-2023 catalog (M≥4.0, depth≤70km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`; explicitly check for absence of global NOAA NCEP/NCAR source (FR-001), reference the deviation record in `docs/deviations.md` (T011b), and process only the 2018 Alaska subset (N=12) as test data.
+- [~] T012 [US1] Implement checksumming and raw data immutability checks in `code/download.py`
+- [~] T013 [US1] Implement `code/preprocess.py` to interpolate a coarse pressure grid to a finer resolution and extract nearest grid points for earthquake epicenters.
+- [~] T014 [US1] Implement logic in `code/preprocess.py` to calculate daily pressure anomalies using a left-censored -day moving average, explicitly EXCLUDING the period immediately preceding the event window (t-N to t-0) from the moving average calculation to prevent bias; verify the 30-day duration against `code/config.py` (T007) and ensure it matches the spec's 'sufficient duration' requirement.
+- [~] T015 [US1] Implement filtering in `code/preprocess.py` to exclude ocean-masked events (interpolation reliability < 95%) and events with missing pressure data within the initial 48-hour window
+- [~] T016 [US1] Implement deduplication logic in `code/preprocess.py` based on unique USGS event ID, retaining most recent revision
+- [~] T017 [US1] Generate master dataset `data/processed/master_dataset.csv` pairing every earthquake with its pressure anomaly and control window label
+- [~] T018 [US1] Implement validation report generator in `code/preprocess.py` to output JSON report of missing variables if validation fails (FR-008)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,18 +105,18 @@
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for KS test calculation in `tests/unit/test_statistics.py`
-- [ ] T020 [P] [US2] Integration test for permutation test convergence in `tests/integration/test_permutation.py`
-- [ ] T022b [P] [US2] Unit test for null hypothesis generation in `tests/unit/test_null_hypothesis.py`: Verify that the permutation test correctly shuffles labels and generates a null distribution matching SC-001 criteria.
+- [~] T019 [P] [US2] Unit test for KS test calculation in `tests/unit/test_statistics.py`
+- [~] T020 [P] [US2] Integration test for permutation test convergence in `tests/integration/test_permutation.py`
+- [~] T022b [P] [US2] Unit test for null hypothesis generation in `tests/unit/test_null_hypothesis.py`: Verify that the permutation test correctly shuffles labels and generates a null distribution matching SC-001 criteria.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/analysis.py` to perform two-sample Kolmogorov–Smisnov test on event vs. control window anomalies
-- [ ] T022 [US2] Implement permutation test in `code/analysis.py` with [deferred] iterations to generate null distribution of the test statistic
-- [ ] T023 [US2] Implement p-value calculation logic comparing observed statistic to the 95th percentile of the permuted null array
-- [ ] T024 [US2] Calculate effect size (Cohen's d) for significant results in `code/analysis.py`
-- [ ] T025 [US2] Implement stratification of control windows by matching month/day across non-event years (basic date matching only); verify that the 'Verified Datasets' block is checked for missing ENSO/PDO sources and label the fallback as 'unverified' in output artifacts, as documented in `docs/deviations.md` (T025b).
-- [ ] T026 [US2] Generate `data/processed/statistical_results.json` containing p-values, effect sizes, and explicit "associational" framing (FR-005)
+- [~] T021 [US2] Implement `code/analysis.py` to perform two-sample Kolmogorov–Smisnov test on event vs. control window anomalies
+- [~] T022 [US2] Implement permutation test in `code/analysis.py` with [deferred] iterations to generate null distribution of the test statistic
+- [~] T023 [US2] Implement p-value calculation logic comparing observed statistic to the 95th percentile of the permuted null array
+- [~] T024 [US2] Calculate effect size (Cohen's d) for significant results in `code/analysis.py`
+- [~] T025 [US2] Implement stratification of control windows by matching month/day across non-event years (basic date matching only); verify that the 'Verified Datasets' block is checked for missing ENSO/PDO sources and label the fallback as 'unverified' in output artifacts, as documented in `docs/deviations.md` (T025b).
+- [~] T026 [US2] Generate `data/processed/statistical_results.json` containing p-values, effect sizes, and explicit "associational" framing (FR-005)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,19 +126,19 @@
 
 **Goal**: Validate primary findings across magnitude thresholds, geographic regions, and anomaly definition cutoffs to ensure robustness.
 
-**Independent Test**: The robustness module can be tested by executing the stratified analysis loop. The system MUST output separate p-values and effect sizes for each subset. The sensitivity analysis MUST vary the cutoff by multiples of the background standard deviation (σ).
+**Independent Test**: The robustness module can be tested by executing the stratified analysis loop. The system MUST output separate p-values and effect sizes for each subset. The system MUST vary the cutoff by multiples of the background standard deviation (σ).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for sensitivity analysis sweep in `tests/unit/test_sensitivity.py`
+- [~] T027 [P] [US3] Unit test for sensitivity analysis sweep in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement robustness checks in `code/analysis.py` to stratify by magnitude (4.0–5.0, >5.0) and region (Pacific Ring of Fire vs. others)
-- [ ] T029 [US3] Implement sensitivity analysis in `code/analysis.py` sweeping the anomaly cutoff over a range of multiples of σ, where σ is the background pressure standard deviation
-- [ ] T030 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction in `code/analysis.py` for the family-wise error rate across multiple tests (FR-006)
-- [ ] T031 [US3] Generate `data/processed/robustness_report.json` containing p-values, effect sizes, and significance rates for all subsets and sensitivity sweeps
-- [ ] T032 [US3] Compile final report in `docs/pilot_report.md` explicitly labeling findings as "Pilot/Methodology Validation", documenting limitations (Global data blocked, no climate stratification), including full statistical power documentation (permutation p-values, effect sizes, robustness checks) for any result (positive or null) as required by Constitution Principle VII, and referencing `docs/deviations.md` (T025b).
+- [~] T028 [US3] Implement robustness checks in `code/analysis.py` to stratify by magnitude (4.0–5.0, >5.0) and region (Pacific Ring of Fire vs. others)
+- [~] T029 [US3] Implement sensitivity analysis in `code/analysis.py` sweeping the anomaly cutoff over a range of multiples of σ, where σ is the background pressure standard deviation
+- [~] T030 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction in `code/analysis.py` for the family-wise error rate across multiple tests (FR-006)
+- [~] T031 [US3] Generate `data/processed/robustness_report.json` containing p-values, effect sizes, and significance rates for all subsets and sensitivity sweeps
+- [~] T032 [US3] Compile final report in `docs/pilot_report.md` explicitly labeling findings as "Pilot/Methodology Validation", documenting limitations (Global data blocked, no climate stratification), including full statistical power documentation (permutation p-values, effect sizes, robustness checks) for any result (positive or null) as required by Constitution Principle VII, and referencing `docs/deviations.md` (T025b).
 
 ---
 
@@ -146,7 +146,7 @@
 
 **Purpose**: Improvements that affect multiple user stories. **Dependencies**: T033, T034 depend on T032 completion.
 
-- [ ] T033 [P] Documentation updates in `README.md`, `docs/quickstart.md`, and `docs/` regarding pilot limitations and deviation records
+- [~] T033 [P] Documentation updates in `README.md`, `docs/quickstart.md`, and `docs/` regarding pilot limitations and deviation records
 - [ ] T034 Code cleanup and refactoring for memory efficiency on CPU-only runners
 - [ ] T035 Run quickstart.md validation to ensure full pipeline execution on the test dataset within 6 hours, and document that global dataset feasibility remains unverified per plan.md
 - [ ] T036 [P] Additional unit tests for ocean masking and missing data exclusion logic in `tests/unit/`

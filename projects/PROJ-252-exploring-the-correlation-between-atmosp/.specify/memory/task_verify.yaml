@@ -1,0 +1,19 @@
+T007 Implement configuration management for data paths, random seeds, and window parameters in `code/config.py`: 1
+? 'T008 Create base data validation schemas in `contracts/` (earthquake.schema.yaml,
+  pressure-anomaly.schema.yaml) with required fields: magnitude, depth, lat, lon,
+  timestamp'
+: 1
+? 'T009 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`:
+  Validate `earthquake.schema.yaml` and `pressure-anomaly.schema.yaml` against sample
+  data; assert failure if required fields (magnitude, depth, lat, lon, timestamp)
+  are missing. (Dependency: T008)'
+: 1
+? "T010 [P] [US1] Integration test for download pipeline in `tests/integration/test_download_pipeline.py`:\
+  \ Fetch USGS test data from ` (2018 Alaska subset); assert row count equals 12 (\xB1\
+  1%). (Dependency: T008, T011 structure)"
+: 1
+? T011b [P] Create a formal deviation record in `docs/deviations.md` for FR-001 (Global
+  Data Download Blocked), explicitly stating the absence of verified global NOAA NCEP/NCAR
+  sources, the fallback to verified test data only, and the verification logic required
+  to confirm this state.
+: 1

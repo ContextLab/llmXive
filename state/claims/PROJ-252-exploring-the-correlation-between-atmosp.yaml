@@ -1,0 +1,580 @@
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska subset earthquake count is 12
+  claim_id: c_e6706393
+  context: The script MUST exit with code 0. The output CSV row count MUST match the
+    expected count of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:37:13Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: p-value less than 0.05 conditionally linked to test statistic exceeding
+    95th percentile of permuted statistics
+  claim_id: c_70b188d3
+  context: 'Independent Test: The analysis can be tested by running the statistical
+    module on the prepared dataset. The output JSON MUST contain a p-value < 0.05
+    if and only if the observed test statistic is strictly greater than the 95th percentile
+    of the permuted statistics.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_less_than_0.05_conditionally_linked_to_test_statisti
+  kind: magnitude
+  raw_text: The analysis can be tested by running the statistical module on the prepared
+    dataset. The output JSON MUST contain a p-value < 0.05 if and only if the observed
+    test statistic is strictly greater than the 95th percentile of the permuted statistics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:37:57Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis varies cutoff by multiples of background standard
+    deviation
+  claim_id: c_9ce33bdb
+  context: "The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_varies_cutoff_by_multiples_of_backgroun
+  kind: entity_fact
+  raw_text: "The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:38:17Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska subset earthquake count is 12 within 1% tolerance
+  claim_id: c_df1ea4b2
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:40:15Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: "USGS 2013-2023 catalog parameters: M\u22654.0, depth\u226470km"
+  claim_id: c_d9447a88
+  context: "T011 [US1] Implement code/download.py to fetch verified test pressure\
+    \ data and USGS 2013-2023 catalog (M\u22654.0, depth\u226470km) from https://earthquake.usgs.gov/fdsnws/event/1/query"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement code/download.py to fetch verified test pressure data and USGS\
+    \ 2013-2023 catalog (M\u22654.0, depth\u226470km) from https://earthquake.usgs.gov/fdsnws/event/1/query"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:40:36Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/deviations.md
+  attempts: 1
+  canonical: 2018 Alaska earthquake subset contains 12 events
+  claim_id: c_6fe4c375
+  context: The pipeline falls back exclusively to verified test data. The primary
+    test dataset is the 2018 Alaska earthquake subset (N=12 events).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary test dataset is the 2018 Alaska earthquake subset (N=12 events).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:42:10Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 12 earthquakes in the 2018 Alaska subset within 1% tolerance
+  claim_id: c_b285bf8f
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:43:16Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 12 earthquakes in 2018 Alaska subset within 1% tolerance
+  claim_id: c_43217960
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:46:30Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: p-value < 0.05 if test statistic > 95th percentile of permuted statistics
+  claim_id: c_f4a499f7
+  context: 'Independent Test: The analysis can be tested by running the statistical
+    module on the prepared dataset. The output JSON MUST contain a p-value < 0.05
+    if and only if the observed test statistic is strictly greater than the 95th percentile
+    of the permuted statistics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/p-value_%3C_0.05_if_test_statistic_%3E_95th_percentile_of_permut
+  kind: magnitude
+  raw_text: The output JSON MUST contain a p-value < 0.05 if and only if the observed
+    test statistic is strictly greater than the 95th percentile of the permuted statistics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:47:14Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: 2018 Alaska subset contains 12 earthquakes
+  claim_id: c_8df380a5
+  context: Important Notes section describing data scope limitations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This pilot uses a verified 2018 Alaska subset (N=12 earthquakes) due to
+    global data restrictions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:48:18Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska subset contains 12 earthquakes
+  claim_id: c_06f5abe5
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:52:33Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska earthquake subset contains 12 events
+  claim_id: c_90dca5ad
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:55:13Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: USGS 2018 Alaska subset has 12 events
+  claim_id: c_bd1c0699
+  context: "T010 [P] [US1] Integration test for download pipeline in tests/integration/test_download_pipeline.py:\
+    \ Fetch USGS test data from (2018 Alaska subset); assert row count equals 12 (\xB1\
+    1%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fetch USGS test data from (2018 Alaska subset); assert row count equals\
+    \ 12 (\xB11%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:55:34Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: USGS catalog filter M>=4.0 depth<=70km for 2013-2023
+  claim_id: c_4e8e884f
+  context: "T011 [US1] Implement `code/download.py` to fetch verified test pressure\
+    \ data and USGS 2013-2023 catalog (M\u22654.0, depth\u226470km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement `code/download.py` to fetch verified test pressure data and\
+    \ USGS 2013-2023 catalog (M\u22654.0, depth\u226470km) from `https://earthquake.usgs.gov/fdsnws/event/1/query`"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:55:36Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/quickstart.md
+  attempts: 1
+  canonical: USGS download test returns 12 earthquake records with 1% tolerance
+  claim_id: c_43b13098
+  context: "Expected behavior: The USGS download test should return exactly 12 earthquake\
+    \ records (\xB11%). All schema validations should pass."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The USGS download test should return exactly 12 earthquake records (\xB1\
+    1%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:59:28Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska subset contains 12 earthquakes within 1% tolerance
+  claim_id: c_82f78615
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T20:59:41Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Validation report confirms presence of required fields
+  claim_id: c_34acb7e7
+  context: 'Independent Test: The output CSV row count MUST match the expected count
+    of earthquakes in the 2018 Alaska subset (N=12) within a 1% tolerance. The output
+    MUST contain a validation report confirming all required fields are present.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_report_confirms_presence_of_required_fields
+  kind: entity_fact
+  raw_text: The output MUST contain a validation report confirming all required fields
+    are present.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:00:21Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: p-value < 0.05 if observed statistic > 95th percentile of permuted statistics
+  claim_id: c_1262ac67
+  context: 'Independent Test: The analysis can be tested by running the statistical
+    module on the prepared dataset. The output JSON MUST contain a p-value < 0.05
+    if and only if the observed test statistic is strictly greater than the 95th percentile
+    of the permuted statistics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/p-value_%3C_0.05_if_observed_statistic_%3E_95th_percentile_of_pe
+  kind: magnitude
+  raw_text: The output JSON MUST contain a p-value < 0.05 if and only if the observed
+    test statistic is strictly greater than the 95th percentile of the permuted statistics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:00:23Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis varies cutoff by multiples of background standard
+    deviation
+  claim_id: c_1806da91
+  context: "Independent Test: The sensitivity analysis MUST vary the cutoff by multiples\
+    \ of the background standard deviation (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_varies_cutoff_by_multiples_of_backgroun
+  kind: entity_fact
+  raw_text: "The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:00:56Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska earthquake subset count is 12
+  claim_id: c_91912f26
+  context: 'Independent Test: The script MUST exit with code 0. The output CSV row
+    count MUST match the expected count of earthquakes in the 2018 Alaska subset (N=12)
+    within a 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:14:54Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Validation report confirms presence of required fields
+  claim_id: c_860c1744
+  context: The output CSV row count MUST match the expected count of earthquakes in
+    the 2018 Alaska subset (N=12) within a 1% tolerance. The output MUST contain a
+    validation report confirming all required fields are present.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_report_confirms_presence_of_required_fields
+  kind: entity_fact
+  raw_text: The output MUST contain a validation report confirming all required fields
+    are present.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:14:56Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: P-value < 0.05 if observed statistic > 95th percentile of permuted statistics
+  claim_id: c_c7139ce4
+  context: 'Independent Test: The analysis can be tested by running the statistical
+    module on the prepared dataset. The output JSON MUST contain a p-value < 0.05
+    if and only if the observed test statistic is strictly greater than the 95th percentile
+    of the permuted statistics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_%3C_0.05_if_observed_statistic_%3E_95th_percentile_of_pe
+  kind: magnitude
+  raw_text: The output JSON MUST contain a p-value < 0.05 if and only if the observed
+    test statistic is strictly greater than the 95th percentile of the permuted statistics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:14:57Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 2
+  canonical: System outputs separate p-values and effect sizes for each subset
+  claim_id: c_d07271d0
+  context: 'Independent Test: The robustness module can be tested by executing the
+    stratified analysis loop. The system MUST output separate p-values and effect
+    sizes for each subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_separate_p-values_and_effect_sizes_for_each_s
+  kind: entity_fact
+  raw_text: The system MUST output separate p-values and effect sizes for each subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:14:58Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis varies cutoff by multiples of background standard
+    deviation
+  claim_id: c_b0c0506d
+  context: "The system MUST output separate p-values and effect sizes for each subset.\
+    \ The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_varies_cutoff_by_multiples_of_backgroun
+  kind: entity_fact
+  raw_text: "The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:15:00Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time on test dataset is within 6 hours
+  claim_id: c_66d89ac0
+  context: T035 Run quickstart.md validation to ensure full pipeline execution on
+    the test dataset within 6 hours, and document that global dataset feasibility
+    remains unverified per plan.md
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must execute on the test dataset within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:15:26Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: 2018 Alaska earthquake subset count is 12
+  claim_id: c_2d6064f1
+  context: The examples below include test tasks. Tests are MANDATORY to ensure reproducibility
+    and validation... The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV row count MUST match the expected count of earthquakes
+    in the 2018 Alaska subset (N=12) within a 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:16:41Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 1
+  canonical: Robustness module outputs separate p-values and effect sizes per subset
+  claim_id: c_57879647
+  context: The robustness module can be tested by executing the stratified analysis
+    loop. The system MUST output separate p-values and effect sizes for each subset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_module_outputs_separate_p-values_and_effect_sizes
+  kind: entity_fact
+  raw_text: The system MUST output separate p-values and effect sizes for each subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:16:43Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/specs/001-exploring-the-correlation-between-atmosp/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis varies cutoff by multiples of background standard
+    deviation
+  claim_id: c_1706df03
+  context: "The sensitivity analysis MUST vary the cutoff by multiples of the background\
+    \ standard deviation (\u03C3)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_varies_cutoff_by_multiples_of_backgroun
+  kind: entity_fact
+  raw_text: "The system MUST vary the cutoff by multiples of the background standard\
+    \ deviation (\u03C3)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:16:44Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/README.md
+  attempts: 1
+  canonical: 2018 Alaska subset contains 12 earthquakes for methodology validation
+  claim_id: c_906e90cf
+  context: 'FR-001: Global Data Download Blocked: Verified global NOAA NCEP/NCAR pressure
+    data sources are unavailable programmatically. The pipeline falls back to a verified
+    test dataset (2018 Alaska subset, N=12 earthquakes) for methodology validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline falls back to a verified test dataset (2018 Alaska subset,
+    N=12 earthquakes) for methodology validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:17:52Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/README.md
+  attempts: 1
+  canonical: 2018 Alaska test subset analysis includes 12 events with magnitude >=
+    4.0 and depth <= 70km
+  claim_id: c_b135df70
+  context: "Scope: Analysis is limited to the 2018 Alaska test subset (M\u22654.0,\
+    \ depth\u226470km) with N=12 events."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Analysis is limited to the 2018 Alaska test subset (M\u22654.0, depth\u2264\
+    70km) with N=12 events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:18:16Z'
+- artifact_path: projects/PROJ-252-exploring-the-correlation-between-atmosp/docs/deviations.md
+  attempts: 1
+  canonical: analysis restricted to 2018 Alaska subset with 12 earthquakes
+  claim_id: c_33f2153f
+  context: "Impact: The analysis is restricted to a verified test dataset (2018 Alaska\
+    \ subset, N=12 earthquakes) for methodology validation. Fallback Strategy: Use\
+    \ USGS earthquake catalog for the 2018 Alaska region (M\u22654.0, depth\u2264\
+    70km)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis is restricted to a verified test dataset (2018 Alaska subset,
+    N=12 earthquakes) for methodology validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:18:34Z'

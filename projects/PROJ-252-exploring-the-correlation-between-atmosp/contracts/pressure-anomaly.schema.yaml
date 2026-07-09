@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Pressure Anomaly Schema
+description: >
+  Schema for validating atmospheric pressure anomaly data.
+  Required fields: magnitude, depth, lat, lon, timestamp.
+  Note: This schema validates the pairing of pressure anomalies with earthquake metadata.
+type: object
+required:
+  - magnitude
+  - depth
+  - lat
+  - lon
+  - timestamp
+  - pressure_anomaly
+  - anomaly_date
+  - baseline_mean
+  - control_window_mean
+properties:
+  magnitude:
+    type: number
+    minimum: 0
+    description: Earthquake magnitude (linked to pressure data)
+  depth:
+    type: number
+    minimum: 0
+    maximum: 700
+    description: Earthquake depth in kilometers
+  lat:
+    type: number
+    minimum: -90
+    maximum: 90
+    description: Latitude of the epicenter
+  lon:
+    type: number
+    minimum: -180
+    maximum: 180
+    description: Longitude of the epicenter
+  timestamp:
+    type: string
+    format: date-time
+    description: Origin time of the earthquake
+  pressure_anomaly:
+    type: number
+    description: Calculated pressure anomaly value (hPa)
+  anomaly_date:
+    type: string
+    format: date
+    description: Date of the pressure measurement
+  baseline_mean:
+    type: number
+    description: Mean pressure during the baseline period
+  control_window_mean:
+    type: number
+    description: Mean pressure during the control window
+  event_window_start:
+    type: string
+    format: date-time
+    description: Start of the event window
+  event_window_end:
+    type: string
+    format: date-time
+    description: End of the event window
+  interpolation_quality:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Quality score of the pressure grid interpolation
+additionalProperties: true
