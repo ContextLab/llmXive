@@ -1,0 +1,9 @@
+T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/processed/`, `tests/`): 1
+? 'T002 Initialize Python 3.11 project with dependencies: `qiskit-ibm-runtime`, `networkx`,
+  `pandas`, `scipy`, `matplotlib`, `requests`, `pytest`'
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? T004 Create `code/hygiene.py` to compute `sha256sum` for all files in `data/` and
+  update `state/projects/PROJ-163-...yaml` artifact hashes
+: 1
+T006 [P] Setup environment configuration management (load IBM Quantum API tokens/defaults): 1

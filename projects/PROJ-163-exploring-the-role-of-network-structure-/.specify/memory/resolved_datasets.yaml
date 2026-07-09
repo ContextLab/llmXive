@@ -1,0 +1,402 @@
+resolved_at: '2026-07-09T02:14:25.623924+00:00'
+datasets:
+- intent: FDR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 766
+      parsed: true
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 27026
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_pc/eaa55dcc52ce3a34a2476e5ee83e770b90f0597b/fdr_ft_data.json?%2Fdatasets%2FAnt-j-a%2Ffdr_pc%2Fresolve%2Fmain%2Ffdr_ft_data.json=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_data/d17d474aa35707f6f6963bc81dc9b780c12c4a84/fdr_ft_data.jsonl?%2Fdatasets%2FAnt-j-a%2Ffdr_data%2Fresolve%2Fmain%2Ffdr_ft_data.jsonl=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Nigeria_Nsukka_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19485037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15629319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16743754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7756151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646333
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.24792
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kprr4xhmc
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Gopher-Lab/laurashin_How_Satoshi_Nakamoto_and_Vitalik_Buterin_Inspired_Key_Parts_of_Celestia_-_Ep__672/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Derur/all-portable-apps-and-ai-in-one-url/resolve/main/AINetSD/styles.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Nigeria_Nsukka_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IBM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ibm-research/Wikipedia_contradict_benchmark/resolve/main/WikiContradict/WikiContradict_dataset_v1_rag_qa.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ibm-research/debate_speeches/resolve/main/opening_speeches/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ibm-research/Wikipedia_contradict_benchmark/resolve/main/WikiContradict/WikiContradict_dataset_v1_rag_qa.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ibm-research/debate_speeches/resolve/main/opening_speeches/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ibm-research/900K-Judgements/resolve/main/judgements_1_arena.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ibm-granite/ChartNet/resolve/main/core/core_000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Call_07076040542_Nigerian_Maritime_University_Okerenkoko_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943371
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15800132
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.bcc2fqzdz
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8343041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1195853
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4901751
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.17519
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07554
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07550
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06760
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MDES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/zeqixiao/m_desert/resolve/main/0/000000.npz
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 9404
+      parsed: true
+  - url: https://huggingface.co/datasets/jilwang804/M-DESIGN-Knowledge-Base/resolve/main/metadata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 13134
+      parsed: true
+  - url: https://huggingface.co/datasets/md-esmaeili/rogii-data/resolve/main/rogii-data.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/zeqixiao/m_desert/resolve/main/0/000000.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/jilwang804/M-DESIGN-Knowledge-Base/resolve/main/metadata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/md-esmaeili/rogii-data/resolve/main/rogii-data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_01/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mdesrochers-afk/pick_cucumber_00_03/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.unimelb.edu.au/articles/figure/Grounded/32413986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Palladium-Catalyzed_Enantioselective_C_H_Activation_Reaction_of_Undirected_Arenes_with_Cyclopentenes/32943373
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Nigerian_Maritime_University_Okerenkoko_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943371
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5497524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s00127-003-0682-8
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18778471
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20028509
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20669054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/25t4r/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qyn5f/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6wzt3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/x8kae/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mv6nr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

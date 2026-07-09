@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results"
+description: "Schema for statistical correlation outcomes"
+type: object
+required:
+  - graph_metric
+  - performance_metric
+  - spearman_rho
+  - p_value
+  - adj_p_value
+  - is_significant
+properties:
+  graph_metric:
+    type: string
+    description: "Name of the topological descriptor"
+  performance_metric:
+    type: string
+    description: "Name of the performance indicator (T1, T2, etc.)"
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the test"
+  adj_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg adjusted p-value"
+  partial_rho:
+    type: ["number", "null"]
+    description: "Partial correlation coefficient controlling for chip_generation"
+  is_significant:
+    type: boolean
+    description: "True if adj_p_value < 0.05"
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if not applicable (e.g., missing data, chip_family_confound)"

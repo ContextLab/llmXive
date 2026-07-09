@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Graph Metrics"
+description: "Schema for computed topological descriptors per device"
+type: object
+required:
+  - device_id
+  - chip_generation
+  - metrics
+properties:
+  device_id:
+    type: string
+    description: "Unique identifier for the quantum device"
+  chip_generation:
+    type: string
+    description: "Manufacturing generation (e.g., Eagle, Falcon)"
+  metrics:
+    type: object
+    description: "Map of metric names to values"
+    properties:
+      avg_shortest_path:
+        type: ["number", "null"]
+        description: "Average shortest path length (or null if disconnected)"
+      diameter:
+        type: ["number", "null"]
+        description: "Graph diameter (or null if disconnected)"
+      clustering_coef:
+        type: number
+        description: "Global clustering coefficient"
+      edge_betweenness:
+        type: number
+        description: "Mean edge betweenness centrality"
+      degree_assortativity:
+        type: number
+        description: "Degree assortativity coefficient"
+      spectral_gap:
+        type: number
+        description: "Second smallest eigenvalue of the Laplacian (0 if disconnected)"
+    required:
+      - clustering_coef
+      - degree_assortativity
+      - spectral_gap
+  is_fresh:
+    type: boolean
+    description: "Whether the calibration data is within 30 days"
+  component_size:
+    type: integer
+    description: "Size of the largest connected component"

@@ -1,0 +1,9 @@
+qiskit-ibm-runtime
+networkx
+pandas
+scipy
+matplotlib
+requests
+pytest
+jsonschema
+pyyaml

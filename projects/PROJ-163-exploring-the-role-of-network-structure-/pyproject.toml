@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-163"
+version = "0.1.0"
+description = "Exploring the Role of Network Structure in Superconducting Qubit Coupling"
+requires-python = ">=3.11"
+dependencies = [
+    "qiskit-ibm-runtime>=0.25.0",
+    "networkx>=3.2.1",
+    "pandas>=2.1.4",
+    "scipy>=1.11.4",
+    "matplotlib>=3.8.2",
+    "requests>=2.31.0",
+    "pytest>=7.4.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.12.1",
+    "ruff>=0.1.8",
+    "jsonschema>=4.20.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
