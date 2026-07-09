@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan (`projects/PROJ-532-predicting-material-degradation-pathways/`): 2
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`: 2
+T005 [P] Create `data/` directory structure (`raw/`, `processed/`) and `data/README.md` for provenance: 2
+T006 [P] Create `results/` directory structure (`metrics/`, `plots/`, `artifacts/`): 2
+T007 Implement `code/__init__.py` and set `PYTHONPATH` configuration for `code/` module: 1
+T008 Configure environment variable handling for dataset URLs and random seeds in `code/utils.py`: 1

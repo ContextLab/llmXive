@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  research:
+    build: .
+    volumes:
+      - ./code:/app/code
+      - ./data:/app/data
+      - ./results:/app/results
+    environment:
+      - PYTHONPATH=/app
+    command: python code/ingestion.py
+
+# Note: Full Dockerfile and build context to be defined in T003 (Linter/Formatter setup)
+# This file provides the base orchestration for the pipeline.

@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data and Results (Large files)
+data/raw/*.csv
+data/processed/*.parquet
+results/*/*.pkl
+results/*/*.png
+results/*/*.jpg
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

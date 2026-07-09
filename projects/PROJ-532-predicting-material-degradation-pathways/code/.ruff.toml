@@ -1,0 +1,35 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (sorting imports)
+    "C90", # mccabe (complexity)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "S101", # Use of assert detected (common in tests)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+known-first-party = ["utils", "ingestion", "preprocessing", "literature_review"]
+relative-imports-order = "closest-to-furthest"
+single-line-exclusions = ["os", "json", "logging"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
