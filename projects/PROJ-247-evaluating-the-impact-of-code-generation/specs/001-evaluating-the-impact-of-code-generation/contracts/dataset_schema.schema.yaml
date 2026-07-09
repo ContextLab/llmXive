@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Dataset Schema for LLM Maintainability Study"
+description: "Schema for processed data files in the maintainability study."
+required:
+  - metadata
+  - records
+properties:
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      version:
+        type: string
+      source:
+        type: string
+        description: "GitHub API"
+      checksum:
+        type: string
+        description: "SHA-256 checksum of raw data"
+  records:
+    type: array
+    items:
+      type: object
+      required:
+        - block_id
+        - repo_id
+        - origin_label
+        - confidence_score
+        - complexity_score
+        - loc
+      properties:
+        block_id:
+          type: string
+          description: "Unique identifier for the code block"
+        repo_id:
+          type: string
+          description: "Repository identifier (owner/name)"
+        file_path:
+          type: string
+          description: "Path to the file containing the block"
+        start_line:
+          type: integer
+          description: "Starting line number of the block"
+        end_line:
+          type: integer
+          description: "Ending line number of the block"
+        origin_label:
+          type: string
+          enum: ["LLM", "Human"]
+          description: "Origin of the code block (probabilistic proxy)"
+        confidence_score:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Classifier confidence score"
+        complexity_score:
+          type: number
+          description: "Cyclomatic complexity"
+        loc:
+          type: integer
+          description: "Lines of code in the block"
+        matched_pair_id:
+          type: string
+          nullable: true
+          description: "ID of the matched pair (if applicable)"
+        propensity_score:
+          type: number
+          nullable: true
+          description: "Propensity score for matching"
+        churn_lines:
+          type: integer
+          nullable: true
+          description: "Total lines added/deleted in 6 months"
+        bug_fix_latency_days:
+          type: number
+          nullable: true
+          description: "Days to fix linked issue (null if no issue)"
+        ground_truth_label:
+          type: string
+          enum: ["LLM", "Human", "Uncertain"]
+          nullable: true
+          description: "Manual verification label"
+        repo_stars:
+          type: integer
+          description: "Repository star count (for matching)"
+        repo_age_days:
+          type: integer
+          description: "Repository age in days (for matching)"
+      additionalProperties: false
+additionalProperties: false

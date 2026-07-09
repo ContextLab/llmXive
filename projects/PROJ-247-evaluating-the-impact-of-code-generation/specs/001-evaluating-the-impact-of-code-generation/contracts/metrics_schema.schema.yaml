@@ -1,0 +1,115 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Metrics Schema for Statistical Analysis"
+description: "Schema for statistical results and figures."
+required:
+  - analysis_metadata
+  - tests
+  - figures
+  - sensitivity_analysis
+properties:
+  analysis_metadata:
+    type: object
+    properties:
+      run_id:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+      sample_size:
+        type: integer
+        description: "Number of matched pairs analyzed"
+      power_analysis:
+        type: object
+        properties:
+          achieved_power:
+            type: number
+            description: "Post-hoc power achieved"
+          target_power:
+            type: number
+            default: 0.80
+          effect_size_target:
+            type: number
+            default: 0.5
+      model_type:
+        type: string
+        enum: ["Linear Mixed-Effects Model (LMM)"]
+        description: "Statistical model used (LMM for hierarchical data)"
+  tests:
+    type: array
+    items:
+      type: object
+      required:
+        - test_name
+        - statistic
+        - p_value
+        - effect_size
+        - correction_method
+      properties:
+        test_name:
+          type: string
+          enum: ["churn", "bug_fix_latency"]
+        statistic:
+          type: number
+          description: "LMM fixed effect statistic (t-value or z-value)"
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        effect_size:
+          type: number
+          description: "Cohen's d (marginal)"
+        correction_method:
+          type: string
+          enum: ["Benjamini-Hochberg"]
+        adjusted_p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        significant:
+          type: boolean
+          description: "True if adjusted p-value < 0.05"
+        random_effect_variance:
+          type: number
+          description: "Variance of the random effect (repo_id)"
+  figures:
+    type: array
+    items:
+      type: object
+      required:
+        - figure_name
+        - file_path
+        - metric
+      properties:
+        figure_name:
+          type: string
+        file_path:
+          type: string
+          description: "Relative path to PNG file"
+        metric:
+          type: string
+          enum: ["churn", "bug_fix_latency"]
+        file_size_bytes:
+          type: integer
+          maximum: 10485760
+          description: "File size must be < 10 MB"
+  sensitivity_analysis:
+    type: object
+    description: "Bias correction based on ground truth misclassification"
+    required:
+      - misclassification_rate
+      - corrected_effect_size
+      - confidence_interval
+    properties:
+      misclassification_rate:
+        type: number
+        description: "Rate of misclassification from ground truth"
+      corrected_effect_size:
+        type: number
+        description: "Effect size adjusted for measurement error"
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        description: "95% CI for the corrected effect size"
+additionalProperties: false
