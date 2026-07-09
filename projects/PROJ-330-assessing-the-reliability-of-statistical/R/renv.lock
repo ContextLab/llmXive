@@ -1,0 +1,82 @@
+{
+  "R": {
+    "Version": "4.3.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
+  },
+  "Packages": {
+    "DESeq2": {
+      "Package": "DESeq2",
+      "Version": "1.40.0",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "BiocGenerics",
+        "generics",
+        "S4Vectors",
+        "IRanges",
+        "GenomicRanges",
+        "SummarizedExperiment",
+        "Biobase",
+        "MatrixGenerics",
+        "matrixStats",
+        "GenomeInfoDb",
+        "ggplot2",
+        "limma",
+        "Rcpp",
+        "RcppArmadillo",
+        "locfit"
+      ]
+    },
+    "edgeR": {
+      "Package": "edgeR",
+      "Version": "4.0.0",
+      "Source": "Bioconductor",
+      "Requirements": [
+        "BiocGenerics",
+        "generics",
+        "S4Vectors",
+        "IRanges",
+        "GenomicRanges",
+        "SummarizedExperiment",
+        "Biobase",
+        "MatrixGenerics",
+        "matrixStats",
+        "limma",
+        "Rcpp",
+        "RcppArmadillo"
+      ]
+    },
+    "BiocManager": {
+      "Package": "BiocManager",
+      "Version": "1.30.22",
+      "Source": "Repository",
+      "Requirements": []
+    },
+    "tidyverse": {
+      "Package": "tidyverse",
+      "Version": "2.0.0",
+      "Source": "Repository",
+      "Requirements": [
+        "ggplot2",
+        "dplyr",
+        "tidyr",
+        "readr",
+        "purrr",
+        "stringr",
+        "tibble",
+        "forcats",
+        "lubridate"
+      ]
+    },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.14.8",
+      "Source": "Repository",
+      "Requirements": []
+    }
+  }
+}

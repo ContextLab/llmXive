@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cs/0702154",
+  "judged_at": "2026-07-09T18:48:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mesh network supercomputer using pooled idle computing resources computer science",
+  "rationale": "This paper satisfies acceptance criteria (a) and (d) as it provides foundational information-theoretic capacity analysis and cooperation mechanisms for mesh networks, which are the core architectural components of the user's proposed \"Mesh Network Supercomputer.\" While the paper focuses on wireless communication limits rather than the specific application of pooling idle computing resources, it establishes the canonical theoretical baseline for the network topology and relay cooperation strategi",
+  "relevant": true
+}

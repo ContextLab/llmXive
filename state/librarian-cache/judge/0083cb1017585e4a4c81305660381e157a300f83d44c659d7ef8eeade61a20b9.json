@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.03408",
+  "judged_at": "2026-07-09T19:00:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"molmomotion: forecasting point trajectories in 3d with language instru\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the specific domain of integrating Large Language Models with trajectory prediction, which is the core mechanism and research area implied by the user's follow-up to \"MolmoMotion.\" Even though it is a survey rather than a specific extension of the MolmoMotion model, it provides the essential literature review baseline for anyone researching LLM-based 3D trajectory forecasting.",
+  "relevant": true
+}

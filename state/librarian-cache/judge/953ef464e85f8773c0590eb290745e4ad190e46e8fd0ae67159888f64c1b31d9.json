@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cs/0410016",
+  "judged_at": "2026-07-09T18:48:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mesh network supercomputer using pooled idle computing resources computer science",
+  "rationale": "This paper satisfies criterion (b) by measuring the independent variable of \"pooled idle computing resources\" (via the BOINC volunteer computing framework) to create a distributed system, which is the core mechanism of the user's question, even though it targets High Energy Physics rather than a general \"mesh network supercomputer.\" It also aligns with criterion (f) as it belongs to the canonical literature cluster of \"volunteer computing\" and \"BOINC-based distributed systems\" that any review on",
+  "relevant": true
+}

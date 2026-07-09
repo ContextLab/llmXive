@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1904.10125",
+  "judged_at": "2026-07-09T18:48:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mesh network supercomputer using pooled idle computing resources computer science",
+  "rationale": "This paper satisfies criterion (b) by measuring and characterizing the scheduling of applications on distributed computing resources (Edge, Fog, Cloud), which directly addresses the \"pooled idle computing resources\" and \"distributed\" aspects of the user's question, even though it does not explicitly focus on the \"mesh network\" topology or \"supercomputer\" scale. It also serves as a foundational methodology reference (criterion d) for the taxonomy of scheduling techniques in this domain.",
+  "relevant": true
+}

@@ -1,157 +1,103 @@
 """
-Versioning module for llmXive pipeline.
+Versioning Module for Artifact State Management.
 
-Computes SHA256 hashes of artifacts and updates state.yaml to track
-the provenance and integrity of generated files.
+This module provides functions to compute SHA256 hashes of artifacts,
+load and save state files, and update artifact state with hashes.
 """
 import hashlib
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
-
 import yaml
 
-from src.config import ensure_directories, PROJECT_ROOT
+from src.config import ensure_directories, PROJECT_ROOT, STATE_FILE
 
-
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """
-    Compute the SHA256 hash of a file.
+    Compute SHA256 hash of a file.
 
     Args:
-        file_path: Path to the file to hash.
+        file_path: Path to the file to hash
 
     Returns:
-        Hexadecimal string of the SHA256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        str: Hexadecimal SHA256 hash string
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Error reading file {file_path}: {e}")
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-
-def load_state(state_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_state() -> Dict[str, Any]:
     """
-    Load the state.yaml file.
-
-    Args:
-        state_path: Optional path to the state file. Defaults to PROJECT_ROOT / 'state.yaml'.
+    Load the project state file.
 
     Returns:
-        Dictionary representing the state file contents.
-        Returns an empty dict with 'artifacts' key if file does not exist.
+        dict: State dictionary containing artifact information
     """
-    if state_path is None:
-        state_path = PROJECT_ROOT / "state.yaml"
-
-    if not state_path.exists():
-        return {"artifacts": {}}
-
-    try:
-        with open(state_path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            if data is None:
-                return {"artifacts": {}}
-            if "artifacts" not in data:
-                data["artifacts"] = {}
-            return data
-    except yaml.YAMLError as e:
-        raise ValueError(f"Invalid YAML in state file {state_path}: {e}")
-
-
-def save_state(state: Dict[str, Any], state_path: Optional[Path] = None) -> None:
-    """
-    Save the state dictionary to state.yaml.
-
-    Args:
-        state: Dictionary to save.
-        state_path: Optional path to the state file. Defaults to PROJECT_ROOT / 'state.yaml'.
-    """
-    if state_path is None:
-        state_path = PROJECT_ROOT / "state.yaml"
-
     ensure_directories()
-    with open(state_path, "w", encoding="utf-8") as f:
-        yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
 
+    if not STATE_FILE.exists():
+        return {
+            "artifacts": {},
+            "last_updated": None
+        }
 
-def update_artifact_state(
-    artifact_path: Path,
-    state_path: Optional[Path] = None,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    with open(STATE_FILE, 'r') as f:
+        state = yaml.safe_load(f)
+
+    return state if state else {"artifacts": {}, "last_updated": None}
+
+def save_state(state: Dict[str, Any]) -> None:
     """
-    Compute the hash of an artifact and update the state.yaml file.
+    Save the project state file.
 
     Args:
-        artifact_path: Path to the artifact file.
-        state_path: Optional path to the state file. Defaults to PROJECT_ROOT / 'state.yaml'.
-        metadata: Optional dictionary of additional metadata to store with the artifact entry.
-
-    Returns:
-        The updated state dictionary.
-
-    Raises:
-        FileNotFoundError: If the artifact does not exist.
+        state: State dictionary to save
     """
-    if not artifact_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    ensure_directories()
 
-    state = load_state(state_path)
+    import datetime
+    state["last_updated"] = datetime.datetime.now().isoformat()
 
-    # Use relative path from project root as the key
-    try:
-        relative_key = str(artifact_path.relative_to(PROJECT_ROOT))
-    except ValueError:
-        # If artifact is not under PROJECT_ROOT, use absolute path
-        relative_key = str(artifact_path)
+    with open(STATE_FILE, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
 
-    hash_value = compute_sha256(artifact_path)
+def update_artifact_state(state: Dict[str, Any], artifact_path: str, hash_value: str) -> None:
+    """
+    Update the state dictionary with a new artifact hash.
 
-    entry = {
+    This function adds or updates an artifact entry in the state dictionary
+    with its path and SHA256 hash.
+
+    Args:
+        state: State dictionary to update (modified in place)
+        artifact_path: Relative path to the artifact from project root
+        hash_value: SHA256 hash of the artifact
+    """
+    if "artifacts" not in state:
+        state["artifacts"] = {}
+
+    state["artifacts"][artifact_path] = {
         "hash": hash_value,
-        "path": relative_key,
-        "size_bytes": artifact_path.stat().st_size
+        "updated": __import__('datetime').datetime.now().isoformat()
     }
 
-    if metadata:
-        entry.update(metadata)
-
-    state["artifacts"][relative_key] = entry
-
-    save_state(state, state_path)
-
-    return state
-
-
-def verify_artifact(artifact_path: Path, expected_hash: str, state_path: Optional[Path] = None) -> bool:
+def verify_artifact(artifact_path: str, expected_hash: str) -> bool:
     """
-    Verify the hash of an artifact against an expected value.
+    Verify that an artifact matches its expected hash.
 
     Args:
-        artifact_path: Path to the artifact file.
-        expected_hash: Expected SHA256 hash string.
-        state_path: Optional path to the state file.
+        artifact_path: Path to the artifact file
+        expected_hash: Expected SHA256 hash
 
     Returns:
-        True if the hash matches, False otherwise.
-
-    Raises:
-        FileNotFoundError: If the artifact does not exist.
+        bool: True if hash matches, False otherwise
     """
-    if not artifact_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
+    full_path = PROJECT_ROOT / artifact_path
 
-    actual_hash = compute_sha256(artifact_path)
+    if not full_path.exists():
+        return False
+
+    actual_hash = compute_sha256(str(full_path))
     return actual_hash == expected_hash

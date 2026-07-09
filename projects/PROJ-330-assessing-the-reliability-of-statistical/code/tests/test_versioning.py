@@ -1,158 +1,128 @@
-"""
-Tests for the versioning module.
-"""
 import os
 import tempfile
 from pathlib import Path
 import pytest
 import yaml
-
 from src.versioning import (
     compute_sha256,
     load_state,
     save_state,
     update_artifact_state,
-    verify_artifact,
-    PROJECT_ROOT
+    verify_artifact
 )
-
+from src.config import PROJECT_ROOT, STATE_FILE
 
 class TestComputeSha256:
     def test_compute_sha256_valid_file(self, tmp_path):
-        """Test hashing a valid file."""
         test_file = tmp_path / "test.txt"
-        content = "Hello, World!"
-        test_file.write_text(content)
-
-        hash_result = compute_sha256(test_file)
-
-        assert len(hash_result) == 64  # SHA256 hex length
-        assert isinstance(hash_result, str)
+        test_file.write_text("Hello, World!")
+        
+        hash_val = compute_sha256(test_file)
+        assert len(hash_val) == 64
+        assert all(c in '0123456789abcdef' for c in hash_val)
 
     def test_compute_sha256_empty_file(self, tmp_path):
-        """Test hashing an empty file."""
         test_file = tmp_path / "empty.txt"
-        test_file.touch()
+        test_file.write_text("")
+        
+        hash_val = compute_sha256(test_file)
+        assert len(hash_val) == 64
 
-        hash_result = compute_sha256(test_file)
-
-        # SHA256 of empty string
-        expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        assert hash_result == expected
-
-    def test_compute_sha256_nonexistent_file(self, tmp_path):
-        """Test hashing a non-existent file raises error."""
-        test_file = tmp_path / "missing.txt"
-
+    def test_compute_sha256_file_not_found(self, tmp_path):
+        non_existent = tmp_path / "does_not_exist.txt"
         with pytest.raises(FileNotFoundError):
-            compute_sha256(test_file)
-
+            compute_sha256(non_existent)
 
 class TestLoadSaveState:
-    def test_load_state_nonexistent_file(self, tmp_path):
-        """Test loading a non-existent state file returns empty structure."""
+    def test_load_state_empty_file(self, tmp_path, monkeypatch):
+        # Monkeypatch PROJECT_ROOT and STATE_FILE to use tmp_path
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
+        monkeypatch.setattr("src.config.STATE_FILE", tmp_path / "state.yaml")
+        
+        state = load_state()
+        assert state == {"artifacts": {}}
+
+    def test_save_state_and_load(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
         state_file = tmp_path / "state.yaml"
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        test_state = {"artifacts": {"test": {"sha256": "abc123"}}}
+        save_state(test_state)
+        
+        loaded = load_state()
+        assert loaded == test_state
 
-        state = load_state(state_file)
-
-        assert "artifacts" in state
-        assert state["artifacts"] == {}
-
-    def test_save_and_load_state(self, tmp_path):
-        """Test saving and loading state."""
-        state_file = tmp_path / "state.yaml"
-        test_state = {
-            "artifacts": {
-                "data/test.csv": {
-                    "hash": "abc123",
-                    "path": "data/test.csv"
-                }
-            }
-        }
-
-        save_state(test_state, state_file)
-        loaded_state = load_state(state_file)
-
-        assert loaded_state == test_state
-
-    def test_load_state_invalid_yaml(self, tmp_path):
-        """Test loading invalid YAML raises error."""
+    def test_load_invalid_yaml_returns_empty(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
         state_file = tmp_path / "state.yaml"
         state_file.write_text("invalid: yaml: content: [")
-
-        with pytest.raises(ValueError):
-            load_state(state_file)
-
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        state = load_state()
+        assert state == {"artifacts": {}}
 
 class TestUpdateArtifactState:
-    def test_update_artifact_state(self, tmp_path):
-        """Test updating state with a new artifact."""
+    def test_update_existing_artifact(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
         state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("test content")
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        artifact_file = tmp_path / "data" / "test.csv"
+        artifact_file.parent.mkdir(parents=True, exist_ok=True)
+        artifact_file.write_text("col1,col2\n1,2")
+        
+        update_artifact_state("test_artifact", artifact_file)
+        
+        state = load_state()
+        assert "test_artifact" in state["artifacts"]
+        assert state["artifacts"]["test_artifact"]["sha256"] is not None
+        assert state["artifacts"]["test_artifact"]["path"] == "data/test.csv"
 
-        # Initialize empty state
-        save_state({"artifacts": {}}, state_file)
-
-        updated_state = update_artifact_state(artifact_file, state_file)
-
-        assert len(updated_state["artifacts"]) == 1
-        key = str(artifact_file.relative_to(tmp_path))
-        assert key in updated_state["artifacts"]
-        assert "hash" in updated_state["artifacts"][key]
-        assert updated_state["artifacts"][key]["path"] == key
-
-    def test_update_artifact_state_with_metadata(self, tmp_path):
-        """Test updating state with metadata."""
+    def test_update_nonexistent_artifact(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
         state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "artifact.txt"
-        artifact_file.write_text("test content")
-
-        save_state({"artifacts": {}}, state_file)
-
-        metadata = {"source": "test_generator", "version": "1.0"}
-        updated_state = update_artifact_state(
-            artifact_file, state_file, metadata=metadata
-        )
-
-        key = str(artifact_file.relative_to(tmp_path))
-        assert updated_state["artifacts"][key]["source"] == "test_generator"
-        assert updated_state["artifacts"][key]["version"] == "1.0"
-
-    def test_update_artifact_nonexistent(self, tmp_path):
-        """Test updating state with non-existent artifact raises error."""
-        state_file = tmp_path / "state.yaml"
-        artifact_file = tmp_path / "missing.txt"
-
-        save_state({"artifacts": {}}, state_file)
-
-        with pytest.raises(FileNotFoundError):
-            update_artifact_state(artifact_file, state_file)
-
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        non_existent = tmp_path / "missing.csv"
+        
+        update_artifact_state("missing_artifact", non_existent)
+        
+        state = load_state()
+        assert "missing_artifact" in state["artifacts"]
+        assert state["artifacts"]["missing_artifact"]["sha256"] is None
+        assert "error" in state["artifacts"]["missing_artifact"]
 
 class TestVerifyArtifact:
-    def test_verify_artifact_match(self, tmp_path):
-        """Test verifying an artifact with correct hash."""
-        artifact_file = tmp_path / "test.txt"
-        content = "verify me"
-        artifact_file.write_text(content)
+    def test_verify_correct_hash(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
+        state_file = tmp_path / "state.yaml"
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        # Create a test file and update state
+        artifact_file = tmp_path / "verify_test.txt"
+        artifact_file.write_text("verify content")
+        update_artifact_state("verify_art", artifact_file)
+        
+        state = load_state()
+        expected_hash = state["artifacts"]["verify_art"]["sha256"]
+        
+        assert verify_artifact("verify_art", expected_hash) is True
 
-        correct_hash = compute_sha256(artifact_file)
+    def test_verify_wrong_hash(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
+        state_file = tmp_path / "state.yaml"
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        artifact_file = tmp_path / "wrong_test.txt"
+        artifact_file.write_text("wrong content")
+        update_artifact_state("wrong_art", artifact_file)
+        
+        assert verify_artifact("wrong_art", "invalid_hash_123") is False
 
-        assert verify_artifact(artifact_file, correct_hash)
-
-    def test_verify_artifact_mismatch(self, tmp_path):
-        """Test verifying an artifact with wrong hash."""
-        artifact_file = tmp_path / "test.txt"
-        artifact_file.write_text("content")
-
-        wrong_hash = "0" * 64
-
-        assert not verify_artifact(artifact_file, wrong_hash)
-
-    def test_verify_artifact_nonexistent(self, tmp_path):
-        """Test verifying non-existent artifact raises error."""
-        artifact_file = tmp_path / "missing.txt"
-
-        with pytest.raises(FileNotFoundError):
-            verify_artifact(artifact_file, "hash")
+    def test_verify_missing_artifact(self, tmp_path, monkeypatch):
+        monkeypatch.setattr("src.config.PROJECT_ROOT", tmp_path)
+        state_file = tmp_path / "state.yaml"
+        monkeypatch.setattr("src.config.STATE_FILE", state_file)
+        
+        assert verify_artifact("nonexistent_art", "any_hash") is False

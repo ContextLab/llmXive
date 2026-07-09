@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -49,7 +49,7 @@
 - [ ] T001d [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/unit/` directory and `__init__.py`
 - [ ] T001e [P] Create `projects/PROJ-594-quantum-cognition-in-llms-superposition/tests/contract/` directory and `__init__.py`
 - [ ] T002 Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, scikit-learn, numpy)
-- [ ] T003 [P] Configure linting (flake/black) and formatting tools
+- [~] T003 [P] Configure linting (flake/black) and formatting tools
 
 ---
 
@@ -61,13 +61,13 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Create `code/utils/complex_ops.py` implementing `to_complex`, `phase_shift`, `vector_add`, `born_rule` with `torch.complex64`
-- [ ] T005 [P] Create `code/utils/logging.py` with `detect_nan_inf` and `safe_normalize` utilities
-- [ ] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
-- [ ] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
-- [ ] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
-- [ ] T009 Setup environment configuration management (seed pinning, device selection `cpu`, batch size 8)
-- [ ] T009a [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
+- [~] T004 Create `code/utils/complex_ops.py` implementing `to_complex`, `phase_shift`, `vector_add`, `born_rule` with `torch.complex64`
+- [~] T005 [P] Create `code/utils/logging.py` with `detect_nan_inf` and `safe_normalize` utilities
+- [~] T006 Create `code/data/download_wic.py` to fetch WiC from SuperGLUE via `datasets.load_dataset("super_glue", "wic")`
+- [~] T007 Create `code/models/baseline_bert.py` implementing frozen BERT inference (no gradient computation)
+- [~] T008 Create `code/models/bert_adapter.py` skeleton for the complex-valued adapter (linear projection to R^d + I^d)
+- [~] T009 Setup environment configuration management (seed pinning, device selection `cpu`, batch size 8)
+- [~] T009a [P] [Foundational] Implement CPU pinning wrapper script `code/utils/cpu_pinning.sh` that executes `taskset --cpu-list 0` for all experiment runners, satisfying SC-004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,14 +83,14 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for baseline metrics schema in `tests/contract/test_baseline_schema.py`
-- [ ] T011 [P] [US1] Integration test for WiC data loading and frozen BERT inference in `tests/integration/test_baseline_wic.py`
+- [~] T010 [P] [US1] Contract test for baseline metrics schema in `tests/contract/test_baseline_schema.py`
+- [~] T011 [P] [US1] Integration test for WiC data loading and frozen BERT inference in `tests/integration/test_baseline_wic.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/experiments/run_baseline.py` to load frozen BERT, process WiC, and output `data/results/baseline_metrics.json`
-- [ ] T013 [US1] Implement stability check in `code/experiments/run_baseline.py`: run multiple seeds, add an assertion that raises an error if metric variance > 0.02 across runs.
-- [ ] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing
+- [~] T012 [P] [US1] Implement `code/experiments/run_baseline.py` to load frozen BERT, process WiC, and output `data/results/baseline_metrics.json`
+- [~] T013 [US1] Implement stability check in `code/experiments/run_baseline.py`: run multiple seeds, add an assertion that raises an error if metric variance > 0.02 across runs.
+- [~] T015 [US1] Add error handling for `[UNK]` tokens in WiC dataset processing
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,9 +104,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$) in `tests/unit/test_complex_ops.py`
-- [ ] T017 [P] [US2] Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after softmax) in `tests/unit/test_complex_ops.py`
-- [ ] T018 [P] [US2] Contract test for complex adapter output schema in `tests/contract/test_complex_adapter_schema.py`
+- [~] T016 [P] [US2] Unit test for destructive interference ($c_1=1, c_2=-1 \to P=0$) in `tests/unit/test_complex_ops.py`
+- [~] T017 [P] [US2] Unit test for constructive interference ($c_1=1, c_2=1 \to P=1$ after softmax) in `tests/unit/test_complex_ops.py`
+- [~] T018 [P] [US2] Contract test for complex adapter output schema in `tests/contract/test_complex_adapter_schema.py`
 - [ ] T020b [P] [US2] Verify U_c varies with context: Add unit test in `tests/unit/test_bert_adapter.py` that asserts $U_c$ changes when input context changes (vs. static matrix).
 
 ### Implementation for User Story 2
@@ -206,8 +206,8 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Ablation (Phase 6)**: Depends on US1 and US2 completion
 - **Documentation (Phase 7)**: Depends on US1, US2, US3, and Ablation completion (results available)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
@@ -277,9 +277,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Baseline)
-   - Developer B: User Story 2 (Quantum Adapter)
-   - Developer C: User Story 3 (Stats)
+ - Developer A: User Story 1 (Baseline)
+ - Developer B: User Story 2 (Quantum Adapter)
+ - Developer C: User Story 3 (Stats)
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,2 @@
+# This directory stores raw, immutable data fetched from external sources (e.g., SuperGLUE WiC).
+# Do not modify files here. Processed data belongs in data/results/.

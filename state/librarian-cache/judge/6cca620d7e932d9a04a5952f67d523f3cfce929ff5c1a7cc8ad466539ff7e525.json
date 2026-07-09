@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.14230",
+  "judged_at": "2026-07-09T19:00:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"molmomotion: forecasting point trajectories in 3d with language instru\" computer science",
+  "rationale": "The paper focuses on adversarial robustness and defense mechanisms for trajectory prediction in autonomous driving, which is a distinct research problem from the user's question about extending a specific language-conditioned 3D point trajectory forecasting model (MolmoMotion). While both involve \"trajectory prediction,\" the candidate paper does not address the core mechanism of language instruction conditioning, the specific 3D point trajectory forecasting task, or the architectural extensions ",
+  "relevant": false
+}

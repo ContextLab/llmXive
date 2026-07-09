@@ -1,135 +1,122 @@
 #!/usr/bin/env Rscript
 #
-# run_r_script.R
-# Performs Differential Expression (DESeq2) on the provided count matrix and sample metadata.
+# DESeq2/edgeR Differential Expression Analysis Script
+#
+# This script performs differential expression analysis and extracts
+# fixed-dispersion parameters for permutation-based null modeling.
 #
 # Usage:
-#   Rscript run_r_script.R <count_matrix_path> <metadata_path> <output_dir>
-#
-# Inputs:
-#   <count_matrix_path>: Path to CSV/TSV with genes as rows, samples as columns.
-#   <metadata_path>: Path to CSV/TSV with sample columns including 'condition' and optional 'batch'.
-#   <output_dir>: Directory where results will be written.
-#
-# Outputs:
-#   - <output_dir>/results.csv: DESeq2 results table (log2FC, pvalue, padj, etc.)
-#   - <output_dir>/dispersion_params.csv: Fixed dispersion parameters for permutation (US2)
-#   - <output_dir>/model_info.json: Metadata about the run (formula, coefficients)
+#   Rscript run_r_script.R --counts <path> --metadata <path> --output-dir <path>
 #
 
-# Suppress package startup messages for cleaner logs
-suppressPackageStartupMessages({
-  library(DESeq2)
-  library(dplyr)
-  library(jsonlite)
-  library(readr)
-})
+library(argparse)
+library(DESeq2)
+library(data.table)
+library(jsonlite)
 
-args <- commandArgs(trailingOnly = TRUE)
-
-if (length(args) < 3) {
-  stop("Usage: Rscript run_r_script.R <count_matrix_path> <metadata_path> <output_dir>")
-}
-
-count_file <- args[1]
-meta_file <- args[2]
-output_dir <- args[3]
+# Parse command line arguments
+parser <- ArgumentParser(description = "DESeq2/edgeR Differential Expression Analysis")
+parser$add_argument("--counts", type = "character", required = TRUE,
+                    help = "Path to input count matrix (CSV/TSV)")
+parser$add_argument("--metadata", type = "character", required = TRUE,
+                    help = "Path to sample metadata file")
+parser$add_argument("--output-dir", type = "character", required = TRUE,
+                    help = "Directory to save results")
+args <- parser$parse_args()
 
 # Ensure output directory exists
-if (!dir.exists(output_dir)) {
-  dir.create(output_dir, recursive = TRUE)
+if (!dir.exists(args$output_dir)) {
+  dir.create(args$output_dir, recursive = TRUE)
 }
 
-message("Loading count matrix from: ", count_file)
-counts <- read.csv(count_file, row.names = 1)
+cat("Loading count data from:", args$counts, "\n")
+cat("Loading metadata from:", args$metadata, "\n")
+cat("Output directory:", args$output_dir, "\n")
 
-message("Loading metadata from: ", meta_file)
-col_data <- read.csv(meta_file, row.names = 1)
+# Load count matrix
+# Expected format: rows = genes, columns = samples, first column = gene IDs
+counts_df <- fread(args$counts, header = TRUE, sep = "auto")
 
-# Validate that sample columns in counts match row names in metadata
-if (!all(colnames(counts) == rownames(col_data))) {
-  # Attempt to align them
-  common_samples <- intersect(colnames(counts), rownames(col_data))
-  if (length(common_samples) == 0) {
-    stop("No common samples found between count matrix and metadata.")
-  }
-  message("Re-aligning samples. Found ", length(common_samples), " common samples.")
-  counts <- counts[, common_samples]
-  col_data <- col_data[common_samples, ]
+# Extract gene IDs and convert to matrix
+if (ncol(counts_df) < 2) {
+  stop("Count matrix must have at least 2 columns (gene ID + counts)")
 }
 
-# Determine design formula
-# We assume 'condition' is the primary variable of interest.
-# If 'batch' exists in metadata, include it in the design.
-design_formula <- if ("batch" %in% colnames(col_data)) {
-  ~ batch + condition
-} else {
-  ~ condition
+gene_ids <- counts_df[[1]]
+count_matrix <- as.matrix(counts_df[, -1, with = FALSE])
+rownames(count_matrix) <- gene_ids
+colnames(count_matrix) <- paste0("Sample", 1:ncol(count_matrix))
+
+cat("Loaded count matrix:", nrow(count_matrix), "genes x", ncol(count_matrix), "samples\n")
+
+# Load metadata
+metadata <- fread(args$metadata, header = TRUE, sep = "auto")
+
+# Validate metadata
+if (!"condition" %in% colnames(metadata)) {
+  stop("Metadata must contain a 'condition' column for differential expression")
 }
 
-message("Running DESeq2 with design: ", deparse(design_formula))
+# Ensure metadata order matches count matrix columns
+if (nrow(metadata) != ncol(count_matrix)) {
+  stop("Number of samples in metadata (", nrow(metadata),
+       ") does not match count matrix columns (", ncol(count_matrix), ")")
+}
+
+# Create DESeq2 dataset
+coldata <- data.frame(
+  row.names = colnames(count_matrix),
+  condition = factor(metadata$condition)
+)
 
 # Create DESeqDataSet
 dds <- DESeqDataSetFromMatrix(
-  countData = counts,
-  colData = col_data,
-  design = design_formula
+  countData = count_matrix,
+  colData = coldata,
+  design = ~ condition
 )
 
-# Filter out genes with very low counts (standard DESeq2 practice)
-# Keep genes with at least 10 counts in at least 2 samples (or similar heuristic)
+cat("Created DESeqDataSet with", nrow(dds), "genes and", ncol(dds), "samples\n")
+
+# Filter low-count genes (keep genes with at least 10 counts in at least 2 samples)
 keep <- rowSums(counts(dds) >= 10) >= 2
 dds <- dds[keep, ]
+cat("Filtered to", nrow(dds), "genes after low-count filtering\n")
 
-# Run DESeq
-# This estimates size factors, dispersions, and fits the GLM
-dds <- DESeq(dds)
+# Run DESeq2 (this estimates dispersions)
+cat("Running DESeq2 analysis...\n")
+dds <- DESeq(dds, fitType = "local")
 
-# Extract results
-# Contrast: condition vs reference. We assume the second level is the treatment vs first (reference).
-# If the factor levels are not ordered, we take the last level as treatment vs first.
-res <- results(dds)
+# Extract fixed dispersion parameters
+# We use the estimated dispersions without refitting (fixed-dispersion approach)
+dispersions <- dispersions(dds)
+gene_ids <- rownames(dds)
+mean_counts <- rowMeans(counts(dds, normalized = TRUE))
 
-# Convert to data frame for saving
-res_df <- as.data.frame(res)
-res_df$gene <- rownames(res_df)
-# Reorder columns to put gene first
-res_df <- res_df[, c("gene", setdiff(colnames(res_df), "gene"))]
+cat("Extracted dispersion parameters for", length(dispersions), "genes\n")
 
-# Save main results
-results_path <- file.path(output_dir, "results.csv")
-write.csv(res_df, results_path, row.names = FALSE)
-message("Results saved to: ", results_path)
-
-# Extract fixed dispersion parameters for US2 (Permutation Null Modeling)
-# We need the gene-wise dispersion estimates and the fitted dispersion curve
-disp_gene <- dispersions(dds)
-disp_fit <- fitInfo(dds)$dispFit
-mu_vals <- fitInfo(dds)$mu
-
-disp_df <- data.frame(
-  gene = names(disp_gene),
-  dispersion = disp_gene,
-  fitted_dispersion = disp_fit,
-  mean_count = mu_vals
-)
-# Filter to only genes that survived filtering
-disp_df <- disp_df[disp_df$gene %in% res_df$gene, ]
-
-disp_path <- file.path(output_dir, "dispersion_params.csv")
-write.csv(disp_df, disp_path, row.names = FALSE)
-message("Dispersion parameters saved to: ", disp_path)
-
-# Save model info for downstream logging
-model_info <- list(
-  design_formula = deparse(design_formula),
+# Create output structure
+dispersion_params <- list(
+  gene_ids = as.character(gene_ids),
+  dispersions = as.numeric(dispersions),
+  mean_counts = as.numeric(mean_counts),
+  design_formula = "~ condition",
+  n_genes = length(gene_ids),
   n_samples = ncol(dds),
-  n_genes = nrow(dds),
-  coef_names = names(coefficients(dds)),
-  run_time = Sys.time()
+  n_conditions = length(levels(coldata$condition))
 )
-model_path <- file.path(output_dir, "model_info.json")
-write_json(model_info, model_path, pretty = TRUE)
-message("Model info saved to: ", model_path)
 
-message("DESeq2 analysis complete.")
+# Save dispersion parameters to JSON
+output_file <- file.path(args$output_dir, "fixed_dispersion_params.json")
+write_json(dispersion_params, output_file, pretty = TRUE, auto_unbox = TRUE)
+
+cat("Saved dispersion parameters to:", output_file, "\n")
+
+# Also save full results for reference (optional)
+results_df <- as.data.frame(results(dds))
+results_df$gene_id <- gene_ids
+results_file <- file.path(args$output_dir, "deseq2_results.csv")
+fwrite(results_df, results_file)
+
+cat("Saved full DESeq2 results to:", results_file, "\n")
+cat("Analysis complete.\n")

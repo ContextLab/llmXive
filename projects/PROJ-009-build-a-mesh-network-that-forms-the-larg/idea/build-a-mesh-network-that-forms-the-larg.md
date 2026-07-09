@@ -11,40 +11,59 @@ submitter: jeremymanning
 
 ## Research question
 
-Can a decentralized mesh network architecture effectively pool idle computing resources from opt-in consumer devices to achieve supercomputer-class performance for distributed scientific workloads?
+What fundamental trade-offs between network coordination overhead, resource heterogeneity, and task granularity determine the maximum achievable throughput when pooling idle consumer devices for distributed scientific computing?
 
 ## Motivation
 
-Current supercomputing infrastructure is centralized, expensive, and underutilized. A mesh network leveraging idle resources from globally distributed devices could democratize access to high-performance computing while reducing energy waste. This addresses the gap between growing computational demands and the physical/economic constraints of traditional data centers.
+Current supercomputing models struggle to scale cost-effectively for embarrassingly parallel scientific workloads due to high capital and energy costs. While volunteer computing exists, it lacks the dynamic orchestration required for complex, multi-stage scientific pipelines. This research addresses the gap in understanding how to mathematically bound the efficiency of heterogeneous, unreliable consumer hardware when aggregated for high-performance tasks.
 
 ## Related work
 
-- [Everywhere & Nowhere: Envisioning a Computing Continuum for Science (2024)](http://arxiv.org/abs/2406.04480v1) — Proposes a distributed computing continuum for scientific workflows, relevant to coordinating heterogeneous resources across locations.
-- [On the Capacity of the Single Source Multiple Relay Single Destination Mesh Network (2007)](http://arxiv.org/abs/cs/0702154v1) — Derives information theoretic capacity for mesh networks, providing theoretical bounds for our proposed architecture.
-- [Auto-scaling HTCondor pools using Kubernetes compute resources (2022)](http://arxiv.org/abs/2205.01004v1) — Demonstrates distributed workload management using HTCondor, which could serve as a foundation for resource scheduling in our mesh.
-- [Accelerating Serverless Computing by Harvesting Idle Resources (2021)](http://arxiv.org/abs/2108.12717v2) — Shows feasibility of harvesting idle resources for computation, directly supporting our core premise.
-- [Characterizing Application Scheduling on Edge, Fog and Cloud Computing Resources (2019)](http://arxiv.org/abs/1904.10125v1) — Provides scheduling characterization across distributed resources, informing our task allocation strategy.
-- [BSMBench: a flexible and scalable supercomputer benchmark from computational particle physics (2014)](http://arxiv.org/abs/1401.3733v2) — Offers benchmarking methodology for supercomputing workloads, which we can adapt for evaluating our mesh network performance.
-- [Supporting High-Performance and High-Throughput Computing for Experimental Science (2018)](http://arxiv.org/abs/1810.03056v2) — Discusses HPC requirements for experimental science, helping define target workload characteristics.
+- [Everywhere & Nowhere: Envisioning a Computing Continuum for Science (2024)](https://arxiv.org/abs/2406.04480) — Establishes the theoretical need for a continuum to handle distributed scientific workflows across heterogeneous data sources, providing the architectural context for our mesh approach.
+- [On the Capacity of the Single Source Multiple Relay Single Destination Mesh Network (2007)](https://arxiv.org/abs/cs/0702154) — Derives information-theoretic capacity bounds for mesh networks, offering a theoretical baseline for calculating the maximum data throughput our coordination layer can sustain.
+- [Grid enabled virtual screening against malaria (2006)](https://arxiv.org/abs/q-bio/0611054) — Demonstrates the practical feasibility of large-scale grid infrastructure for specific scientific domains (molecular docking), validating the utility of the target workload class.
+- [HEP@Home - A distributed computing system based on BOINC (2004)](https://arxiv.org/abs/cs/0410016) — Provides historical precedent for harnessing idle consumer cycles for high-energy physics, highlighting the challenges of trust and task verification that our system must address.
+- [Characterizing Application Scheduling on Edge, Fog and Cloud Computing Resources (2019)](https://arxiv.org/abs/1904.10125) — Offers empirical data on how task scheduling performance degrades across edge and fog layers, directly informing our model of resource heterogeneity and latency penalties.
 
 ## Expected results
 
-We expect to demonstrate that a mesh network of 1,000+ opt-in devices can achieve 10-50% of the throughput of a mid-tier supercomputer for embarrassingly parallel workloads. Performance will be measured using standard benchmarks (adapted from BSMBench) with statistical significance confirmed via ANOVA across multiple network configurations. Evidence will require consistent throughput metrics across 30+ days of operation with <5% node dropout impact.
+We expect to identify a non-linear "sweet spot" in task granularity where the overhead of mesh coordination is minimized relative to the gains from parallelism, likely revealing a sharp drop in efficiency beyond a specific heterogeneity threshold. The primary evidence will be a throughput curve showing diminishing returns as node count increases, quantified by a regression model explaining >80% of the variance in performance based on network latency and CPU variance. This will falsify the hypothesis that linear scaling is possible in unconstrained consumer meshes.
 
 ## Methodology sketch
 
-- Deploy a lightweight mesh networking protocol (based on existing P2P frameworks) across heterogeneous consumer devices
-- Implement an idle-resource detection system that monitors CPU/GPU utilization and schedules tasks during low-usage windows
-- Develop a task scheduler using HTCondor/Kubernetes integration to distribute computational workloads across the mesh
-- Create fault-tolerance mechanisms for handling node disconnections and variable network bandwidth
-- Run benchmark workloads (lattice QCD simulations, Monte Carlo methods) adapted from BSMBench
-- Measure throughput, latency, and resource utilization across different network sizes (100, 500, 1000+ nodes)
-- Apply statistical tests (ANOVA, t-tests) to compare performance against centralized cloud computing baselines
-- Document energy efficiency gains compared to traditional data center computing
-- Publish results with reproducible code and benchmark datasets
+- **Data Acquisition**: Download and containerize standard embarrassingly parallel benchmarks (e.g., Monte Carlo integration, lattice QCD sub-tasks) from public repositories (Zenodo/HEP data archives) to serve as the workload.
+- **Simulation Environment**: Construct a discrete-event simulation (using Python `simpy` or similar) to model 1,000+ nodes with randomized CPU speeds, network latencies, and dropout rates based on distributions from the Edge/Fog scheduling literature.
+- **Scheduler Implementation**: Implement a dynamic task-granularity scheduler that adjusts chunk sizes based on real-time feedback from the simulated mesh topology.
+- **Coordination Overhead Modeling**: Inject synthetic network latency and packet loss to simulate the cost of consensus and task handshaking in a decentralized mesh.
+- **Execution Loop**: Run the simulation across a grid of parameters: node counts (100–5,000), heterogeneity levels (low/medium/high), and task granularities (fine/medium/coarse).
+- **Metric Calculation**: Record total throughput (tasks/sec), coordination overhead (time spent in handshake vs. computation), and effective utilization.
+- **Statistical Analysis**: Apply multiple linear regression to quantify the interaction effects between heterogeneity and granularity on throughput; use ANOVA to test for significant differences between granularity settings.
+- **Validation Independence**: Validate the simulation's throughput predictions against a small-scale physical deployment (10–20 local machines) where actual execution time is measured independently of the simulation's internal state, ensuring the model is not circular.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: [N/A — corpus access required]
 - Closest match: [Pending corpus comparison]
 - Verdict: NOT a duplicate (pending corpus verification)
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-09T18:48:35Z
+**Outcome**: success
+**Original term**: Mesh Network Supercomputer Using Pooled Idle Computing Resources computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Mesh Network Supercomputer Using Pooled Idle Computing Resources computer science | 5 |
+
+### Verified citations
+
+1. **Everywhere & Nowhere: Envisioning a Computing Continuum for Science** (2024). Manish Parashar. arXiv. [2406.04480](https://arxiv.org/abs/2406.04480). PDF-sampled: No.
+2. **On the Capacity of the Single Source Multiple Relay Single Destination Mesh Network** (2007). Lawrence Ong, Mehul Motani. arXiv. [cs/0702154](cs/0702154). PDF-sampled: No.
+3. **Grid enabled virtual screening against malaria** (2006). N. Jacq, J. Salzemann, F. Jacq, Y. Legré, E. Medernach, et al.. arXiv. [q-bio/0611054](q-bio/0611054). PDF-sampled: Inaccessible.
+4. **HEP@Home - A distributed computing system based on BOINC** (2004). Antonio Amorim, Jaime Villate, Pedro Andrade. arXiv. [cs/0410016](cs/0410016). PDF-sampled: No.
+5. **Characterizing Application Scheduling on Edge, Fog and Cloud Computing Resources** (2019). Prateeksha Varshney, Yogesh Simmhan. arXiv. [1904.10125](https://arxiv.org/abs/1904.10125). PDF-sampled: No.

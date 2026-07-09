@@ -11,6 +11,10 @@
     "classified_at": "2026-06-25T21:35:50Z",
     "verdict": false
   },
+  "PROJ-009-build-a-mesh-network-that-forms-the-larg::1.6.0": {
+    "classified_at": "2026-07-09T18:48:21Z",
+    "verdict": false
+  },
   "PROJ-014-robotic-artificial-intelligence-for-auto::1.6.0": {
     "classified_at": "2026-07-03T13:02:28Z",
     "verdict": false
@@ -889,6 +893,10 @@
   },
   "PROJ-841-llmxive-follow-up-extending-shuttermuse::1.6.0": {
     "classified_at": "2026-07-07T16:02:47Z",
+    "verdict": false
+  },
+  "PROJ-848-llmxive-follow-up-extending-molmomotion::1.6.0": {
+    "classified_at": "2026-07-09T18:59:56Z",
     "verdict": false
   },
   "PROJ-856-llmxive-follow-up-extending-crafter-a-mu::1.6.0": {

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "q-bio/0611054",
+  "judged_at": "2026-07-09T18:48:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "mesh network supercomputer using pooled idle computing resources computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides an empirical baseline and canonical study for the domain of pooling idle or distributed computing resources (specifically via grid infrastructure) to create a supercomputing capability, which is the core mechanism of the user's question regarding \"pooled idle computing resources.\" Although the specific network topology (Grid vs. Mesh) and application domain (malaria screening) differ, the paper establishes the fundamental feasibility and o",
+  "relevant": true
+}
