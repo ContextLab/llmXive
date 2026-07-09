@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solar Irradiance Dataset Schema"
+description: "Schema for the preprocessed solar data (GSN + TSI)."
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "Date of the observation (YYYY-MM-DD)."
+  gsn:
+    type: "number"
+    description: "Group Sunspot Number."
+  tsi_value:
+    type: "number"
+    description: "Total Solar Irradiance in W/m^2."
+  tsi_lower:
+    type: "number"
+    description: "Lower bound of TSI uncertainty."
+  tsi_upper:
+    type: "number"
+    description: "Upper bound of TSI uncertainty."
+  cycle_phase_sin:
+    type: "number"
+    description: "Sine of cycle phase."
+  cycle_phase_cos:
+    type: "number"
+    description: "Cosine of cycle phase."
+  quality_flag:
+    type: "string"
+    enum:
+      - "raw"
+      - "interpolated"
+      - "proxy"
+    description: "Data quality flag."
+required:
+  - date
+  - gsn
+  - cycle_phase_sin
+  - cycle_phase_cos
+  - quality_flag

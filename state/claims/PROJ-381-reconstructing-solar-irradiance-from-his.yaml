@@ -1,0 +1,135 @@
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model with max_depth 10 and 100 estimators trained
+  claim_id: c_2e40d18d
+  context: Utilize Cycle ID as a feature, per FR-003 and Constitution Principle VI.
+    Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF
+    kernel).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:32:09Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Per-cycle baseline offsets calculated as mean residual against global
+    fallback model
+  claim_id: c_649dfa7f
+  context: "Train a single Cycle-Agnostic fallback model (GSN-only, no Cycle ID features)\
+    \ on the full satellite-era dataset (2003\u2013present). Derive per-cycle baseline\
+    \ offsets: Calculate the mean residual of each satellite-era cycle against this\
+    \ single global fallback model."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Per-cycle_baseline_offsets_calculated_as_mean_residual_again
+  kind: entity_fact
+  raw_text: 'Derive per-cycle baseline offsets: Calculate the mean residual of each
+    satellite-era cycle against this single global fallback model.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:32:32Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with 1000 iterations for variance comparison
+  claim_id: c_096efec1
+  context: Implement code/analysis/stats.py. Bootstrap resampling with at least 1000
+    iterations for variance comparison across Maunder, Dalton, and Modern minima (FR-005,
+    Constitution Principle VII).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_with_1000_iterations_for_variance_compa
+  kind: magnitude
+  raw_text: Bootstrap resampling with at least 1000 iterations for variance comparison
+    across Maunder, Dalton, and Modern minima.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:32:50Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Cycle-Agnostic fallback model trained on satellite-era dataset 2003 to
+    present
+  claim_id: c_2f1e6202
+  context: "Implement code/models/train_fallback.py. Train a single Cycle-Agnostic\
+    \ fallback model (GSN-only, no Cycle ID features) on the full satellite-era dataset\
+    \ (2003\u2013present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train a single Cycle-Agnostic fallback model (GSN-only, no Cycle ID features)\
+    \ on the full satellite-era dataset (2003\u2013present)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:33:03Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model with max_depth 10 and 100 estimators
+  claim_id: c_b883a28f
+  context: 'Implement code/models/train.py: Utilize Cycle ID... Train Random Forest
+    (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:42:08Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with 1000 iterations for variance comparison
+  claim_id: c_31f72b34
+  context: 'Implement code/analysis/stats.py: - Bootstrap resampling with **at least
+    1000 iterations** for variance comparison across Maunder, Dalton, and Modern minima
+    (FR-005, Constitution Principle VII).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_with_1000_iterations_for_variance_compa
+  kind: magnitude
+  raw_text: Bootstrap resampling with **at least 1000 iterations** for variance comparison
+    across Maunder, Dalton, and Modern minima.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:42:10Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Cycle-Agnostic fallback model trained on satellite-era dataset 2003 to
+    present
+  claim_id: c_7302aa79
+  context: "Implement code/models/train_fallback.py: - Train a **single Cycle-Agnostic\
+    \ fallback model** (GSN-only, no Cycle ID features) on the full satellite-era\
+    \ dataset (2003\u2013present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train a **single Cycle-Agnostic fallback model** (GSN-only, no Cycle\
+    \ ID features) on the full satellite-era dataset (2003\u2013present)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:42:10Z'

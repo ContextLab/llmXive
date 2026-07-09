@@ -1,0 +1,2 @@
+# This file ensures the data/raw directory is tracked by git.
+# Raw data files (e.g., from SILSO, SORCE) will be downloaded here.

@@ -1,0 +1,263 @@
+# Output Schema for Solar Irradiance Reconstruction Pipeline
+# Defines the structure for reconstruction outputs and validation reports
+# Used for data validation and contract testing
+
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/output_schema.schema.yaml
+title: Output Schema
+description: >-
+  Schema definitions for all pipeline outputs including reconstruction
+  datasets, cross-validation reports, sensitivity analyses, and final reports.
+
+definitions:
+  # Base structure for any time-series reconstruction record
+  ReconstructionRecord:
+    type: object
+    required:
+      - date
+      - tsi_value
+      - uncertainty_lower
+      - uncertainty_upper
+      - model_type
+      - cycle_id
+    properties:
+      date:
+        type: string
+        format: date
+        description: ISO 8601 date (YYYY-MM-DD)
+      tsi_value:
+        type: number
+        description: Total Solar Irradiance in W/m²
+      uncertainty_lower:
+        type: number
+        description: Lower bound of the 95% prediction interval (W/m²)
+      uncertainty_upper:
+        type: number
+        description: Upper bound of the 95% prediction interval (W/m²)
+      model_type:
+        type: string
+        enum:
+          - random_forest
+          - gaussian_process
+          - cycle_agnostic_fallback
+        description: The model used for this prediction
+      cycle_id:
+        type: integer
+        description: Solar cycle number (from SILSO historical list)
+      gsn_input:
+        type: integer
+        description: Group Sunspot Number used as input
+
+  # Structure for Cross-Validation Report (Task T015)
+  CVReport:
+    type: object
+    required:
+      - methodology
+      - cycle_metrics
+      - model_selection_rationale
+      - global_metrics
+    properties:
+      methodology:
+        type: string
+        const: "Leave-One-Cycle-Out"
+        description: Validation strategy used
+      cycle_metrics:
+        type: array
+        items:
+          type: object
+          required:
+            - cycle_id
+            - rmse
+            - r_squared
+            - n_samples
+          properties:
+            cycle_id:
+              type: integer
+            rmse:
+              type: number
+              description: Root Mean Squared Error for this cycle (W/m²)
+            r_squared:
+              type: number
+              description: R² coefficient for this cycle
+            n_samples:
+              type: integer
+              description: Number of data points in the held-out cycle
+      model_selection_rationale:
+        type: string
+        description: Explanation of why a specific model (RF vs GP) was selected
+      global_metrics:
+        type: object
+        required:
+          - mean_rmse
+          - mean_r_squared
+        properties:
+          mean_rmse:
+            type: number
+          mean_r_squared:
+            type: number
+
+  # Structure for Sensitivity Report (Task T029)
+  SensitivityReport:
+    type: object
+    required:
+      - sweep_parameters
+      - stability_metric
+      - baseline_rmse
+      - results
+    properties:
+      sweep_parameters:
+        type: object
+        required:
+          - inconsistency_tolerance_values
+        properties:
+          inconsistency_tolerance_values:
+            type: array
+            items:
+              type: number
+            description: List of absolute difference thresholds tested
+      stability_metric:
+        type: string
+        const: "standard_deviation_of_rmse"
+        description: Metric used to define stability
+      baseline_rmse:
+        type: number
+        description: RMSE of the Cycle-Agnostic baseline model
+      results:
+        type: array
+        items:
+          type: object
+          required:
+            - tolerance_threshold
+            - rmse_std_dev
+            - max_deviation
+          properties:
+            tolerance_threshold:
+              type: number
+            rmse_std_dev:
+              type: number
+              description: Standard deviation of RMSE at this threshold
+            max_deviation:
+              type: number
+
+  # Structure for Variance Analysis (Task T023)
+  VarianceAnalysisReport:
+    type: object
+    required:
+      - bootstrap_iterations
+      - minima_comparisons
+    properties:
+      bootstrap_iterations:
+        type: integer
+        minimum: 1000
+        description: Number of bootstrap resampling iterations performed
+      minima_comparisons:
+        type: object
+        required:
+          - maunder
+          - dalton
+          - modern
+        properties:
+          maunder:
+            type: object
+            required:
+              - mean_variance
+              - confidence_interval
+            properties:
+              mean_variance:
+                type: number
+              confidence_interval:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+          dalton:
+            type: object
+            required:
+              - mean_variance
+              - confidence_interval
+            properties:
+              mean_variance:
+                type: number
+              confidence_interval:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+          modern:
+            type: object
+            required:
+              - mean_variance
+              - confidence_interval
+            properties:
+              mean_variance:
+                type: number
+              confidence_interval:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+
+  # Structure for Final Comparison Report (Task T028)
+  FinalReport:
+    type: object
+    required:
+      - error_reduction
+      - baseline_comparison
+      - methodology_constraints
+    properties:
+      error_reduction:
+        type: object
+        required:
+          - percentage_reduction
+          - baseline_rmse
+          - new_rmse
+        properties:
+          percentage_reduction:
+            type: number
+            description: Percentage reduction in RMSE compared to 2007 baseline
+          baseline_rmse:
+            type: number
+          new_rmse:
+            type: number
+      baseline_comparison:
+        type: object
+        required:
+          - baseline_version
+          - cmip_version
+        properties:
+          baseline_version:
+            type: string
+            description: Version of the baseline model (e.g., "2007")
+          cmip_version:
+            type: string
+            description: Version of CMIP data used (e.g., "v3.2")
+      methodology_constraints:
+        type: array
+        items:
+          type: string
+        description: List of constraints and framing notes (e.g., associational findings)
+
+# Root schema definitions for file outputs
+schemas:
+  reconstruction_output:
+    $ref: "#/definitions/ReconstructionRecord"
+    description: Schema for data/processed/reconstruction_*.parquet (logical structure)
+  
+  cv_report:
+    $ref: "#/definitions/CVReport"
+    description: Schema for data/processed/cv_report.json
+  
+  sensitivity_report:
+    $ref: "#/definitions/SensitivityReport"
+    description: Schema for data/processed/sensitivity_report.json
+  
+  variance_analysis:
+    $ref: "#/definitions/VarianceAnalysisReport"
+    description: Schema for data/processed/variance_analysis.json
+  
+  final_report:
+    $ref: "#/definitions/FinalReport"
+    description: Schema for data/processed/final_report.md (logical JSON structure for validation)

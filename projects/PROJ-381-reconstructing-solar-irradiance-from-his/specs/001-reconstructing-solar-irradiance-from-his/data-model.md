@@ -1,114 +1,75 @@
 # Data Model: Reconstructing Solar Irradiance from Historical Sunspot Records
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data model for the solar irradiance reconstruction project. It includes the schema for raw and processed datasets, the feature engineering pipeline, and the output structures for model predictions and statistical analyses.
+### 1.1 SolarCycle
+Logical entity representing a specific solar activity cycle.
+*   **cycle_id**: Integer (e.g., 1, 2, ..., 25).
+*   **start_year**: Integer (approximate start).
+*   **end_year**: Integer (approximate end).
+*   **peak_year**: Integer (year of maximum activity).
+*   **avg_gsn**: Float (average sunspot number over the cycle).
 
-## Raw Data Schema
+### 1.2 SunspotRecord
+Time-series entity for Group Sunspot Number.
+*   **date**: Date (YYYY-MM-DD).
+*   **gsn**: Float (Group Sunspot Number).
+*   **quality_flag**: String (e.g., "raw", "interpolated", "proxy").
+*   **cycle_phase**: Float (sin/cos of day-of-year).
 
-### GSN (Group Sunspot Number)
+### 1.3 TSIRecord
+Time-series entity for Total Solar Irradiance.
+*   **date**: Date (YYYY-MM-DD).
+*   **tsi_value**: Float (W/m²).
+*   **tsi_lower**: Float (Lower bound of uncertainty).
+*   **tsi_upper**: Float (Upper bound of uncertainty).
+*   **source**: String ("satellite", "reconstruction", "synthetic").
 
-| Column | Type | Description | Source |
-|--------|------|-------------|--------|
-| date | datetime | Date of observation | SILSO (canonical URL) |
-| sunspot_number | float | Group Sunspot Number value | SILSO |
-| is_missing | boolean | Flag for missing values before interpolation | Derived |
+### 1.4 ModelArtifact
+Trained model metadata.
+*   **model_type**: String ("RandomForest", "GaussianProcess").
+*   **validation_rmse**: Float (Time-Block CV).
+*   **r_squared**: Float.
+*   **pkl_path**: String (path to pickled model).
 
-### SORCE/TIM TSI
+## 2. Data Flow
 
-| Column | Type | Description | Source |
-|--------|------|-------------|--------|
-| date | datetime | Date of observation | SORCE/TIM (canonical URL) |
-| tsi_value | float | Total Solar Irradiance value | SORCE/TIM |
-| instrument | string | Instrument name (SORCE or TIM) | SORCE/TIM |
-| uncertainty | float | Measurement uncertainty | SORCE/TIM |
+1.  **Ingestion**: Raw GSN (SILSO) and TSI (Satellite) loaded.
+2.  **Preprocessing**:
+    *   Gap filling (Linear/Proxy GSN=0).
+    *   Cycle detection (SILSO boundaries).
+    *   Feature engineering (Cycle_Phase).
+    *   Output: `preprocessed_data.parquet` (SunspotRecord + TSIRecord).
+3.  **Training**:
+    *   Split by Time-Block (Train: 2003-2015, Test: 2016-Present).
+    *   Train RF/GP.
+    *   Output: `model_artifact.pkl` + `cv_report.json`.
+4.  **Sensitivity Analysis**:
+    *   Sweep inconsistency tolerance threshold.
+    *   Output: `sensitivity_report.json`.
+5.  **Reconstruction**:
+    *   Apply model to pre-satellite GSN.
+    *   Generate uncertainty bands.
+    *   Output: `tsi_reconstruction_1610_2002.parquet`.
+6.  **Comparison**:
+    *   Compare with baseline/CMIP6.
+    *   Output: `comparison_report.json`.
 
-### CMIP6 v3.2
+## 3. Storage Layout
 
-| Column | Type | Description | Source |
-|--------|------|-------------|--------|
-| date | datetime | Date of observation | CMIP6 (canonical URL) |
-| tsi_value | float | Total Solar Irradiance value from CMIP6 | CMIP6 |
-| model | string | Climate model name | CMIP6 |
-| scenario | string | Emission scenario (e.g., SSP370) | CMIP6 |
-
-### Cosmogenic Isotope Proxies (Optional)
-
-| Column | Type | Description | Source |
-|--------|------|-------------|--------|
-| date | datetime | Date of observation | NOAA Paleoclimate (canonical URL) |
-| c14_delta14C | float | Δ14C value (per mil) | NOAA |
-| be10_concentration | float | 10Be concentration (atoms g⁻¹) | NOAA |
-
-## Processed Data Schema
-
-### Training/Validation Split
-
-| Column | Type | Description |
-|--------|------|-------------|
-| date | datetime | Date of observation |
-| sunspot_number | float | Group Sunspot Number (interpolated) |
-| cycle_phase | float | Fractional position within the solar cycle (0‑1) derived from HHT |
-| facular_proxy | float | Mg II or Ca II K index (if available) |
-| tsi_value | float | Total Solar Irradiance (target) |
-| split | string | "train" (2003–2015) or "validation" (2016–present) |
-
-### Pre‑Satellite Reconstruction
-
-| Column | Type | Description |
-|--------|------|-------------|
-| date | datetime | Date of observation (1610–2002) |
-| sunspot_number | float | Group Sunspot Number (interpolated) |
-| cycle_phase | float | Fractional cycle position |
-| tsi_reconstructed | float | Reconstructed TSI value |
-| tsi_lower | float | Lower bound of uncertainty band (CV + isotope adjusted) |
-| tsi_upper | float | Upper bound of uncertainty band (CV + isotope adjusted) |
-
-### Bootstrap Results
-
-| Column | Type | Description |
-|--------|------|-------------|
-| solar_minimum | string | Name of solar minimum (Maunder, Dalton, Modern) |
-| variance_mean | float | Mean variance estimate |
-| variance_lower | float | Lower bound of 95 % CI |
-| variance_upper | float | Upper bound of 95 % CI |
-| p_value | float | Corrected p‑value for variance difference test (vs. proxy) |
-
-## Feature Engineering Pipeline
-
-1.  **Missing Value Handling**: Linear interpolation for missing GSN values.  
-2.  **Cycle Detection**: Apply Hilbert‑Huang Transform (HHT) via `pyhht` to obtain instantaneous frequency; derive cycle boundaries and compute **cycle_phase** (fractional progression within each cycle, 0-1). *No fallback to peak detection*.  
-3.  **Facular Proxy Integration**: Load Mg II or Ca II K indices when available; otherwise, proceed with GSN + cycle_phase only (documented justification).  
-4.  **Training/Validation Split**: Split satellite‑era data into 2003–2015 (train) and 2016–present (validation).  
-5.  **One‑Hot Encoding**: Encode `cycle_phase` into 10 bins for model input.  
-6.  **Normalization**: Scale numerical features (sunspot_number, facular_proxy) to zero mean and unit variance.
-
-## Output Structures
-
-### Model Predictions
-
-- **Time Series**: Reconstructed TSI values with uncertainty bands for 1610–present.  
-- **Metrics**: RMSE, R² for training, validation, LOCO‑CV, and baseline; correlation with CMIP6; RMSE reduction percentage.  
-- **Baseline Comparison**: Percentage reduction in RMSE vs. 2007 baseline (fixed reference, no re-tuning).  
-
-### Statistical Analysis
-
-- **Variance Differences**: Table of corrected p‑values for variance differences between solar minima (reconstruction vs. proxy).  
-- **Confidence Intervals**: Visualization of 95 % CI for variance estimates (reconstruction vs. isotope proxies).  
-- **Correlation Coefficient**: Correlation between new reconstruction and CMIP6 v3.2 for overlapping period.
-
-## Data Flow
-
-```mermaid
-graph TD
-    A[Raw GSN Data] --> B[Preprocess: Interpolation, HHT → cycle_phase]
-    C[Raw TSI Data] --> D[Preprocess: Split, Normalization]
-    E[Isotope Proxies] --> F[Optional Validation Alignment]
-    B --> G[Feature Engineering: cycle_phase, facular proxy]
-    D --> G
-    G --> H[Model Training: RF/GP with LOCO‑CV]
-    H --> I[Validation: RMSE, R², baseline re‑run]
-    I --> J[Reconstruction: Pre‑Satellite TSI]
-    J --> K[Bootstrap Analysis: Variance & Proxy Comparison]
-    K --> L[Output: Time Series, Metrics, Plots]
+```text
+data/
+├── raw/
+│   ├── silso_sunspot.parquet          # Source GSN
+│   ├── tsi_satellite.parquet          # Source TSI
+│   └── cmip6_baseline.parquet         # Source CMIP6
+├── processed/
+│   ├── preprocessed_data.parquet      # Joined, gap-filled, phase-labeled
+│   └── tsi_reconstruction_1610_2002.parquet # Final output
+└── artifacts/
+    ├── model_rf.pkl
+    ├── model_gp.pkl
+    ├── cv_report.json
+    ├── sensitivity_report.json
+    └── comparison_report.json
 ```

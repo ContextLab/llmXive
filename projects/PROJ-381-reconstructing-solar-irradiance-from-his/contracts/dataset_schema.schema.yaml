@@ -1,0 +1,170 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Solar Irradiance Reconstruction Dataset Schemas
+description: >
+  JSON Schema definitions for SunspotRecord and TSIRecord entities
+  used in the llmXive solar irradiance reconstruction pipeline.
+definitions:
+  SunspotRecord:
+    type: object
+    description: >
+      A single record from the Group Sunspot Number (GSN) dataset,
+      sourced from SILSO (Royal Observatory of Belgium).
+    required:
+      - date
+      - sunspot_number
+      - uncertainty
+      - num_stations
+    properties:
+      date:
+        type: string
+        format: date
+        description: The observation date in ISO 8601 format (YYYY-MM-DD).
+      sunspot_number:
+        type: number
+        description: >
+          The Group Sunspot Number (GSN).
+          For gaps >= 1 year (per FR-002), this field is filled with 0.
+      uncertainty:
+        type: number
+        minimum: 0
+        description: The estimated uncertainty of the sunspot number measurement.
+      num_stations:
+        type: integer
+        minimum: 0
+        description: >
+          The number of observing stations contributing to this record.
+          Used for quality weighting in preprocessing.
+      cycle_id:
+        type: integer
+        nullable: true
+        description: >
+          The solar cycle ID (integer) mapped from the official SILSO historical cycle list.
+          NULL for dates outside known cycle boundaries or pre-cycle data.
+          Used as a categorical feature in model training (FR-003).
+      source:
+        type: string
+        enum: [SILSO, PROXY]
+        description: The origin of the data point (SILSO direct or derived from proxy).
+
+  TSIRecord:
+    type: object
+    description: >
+      A single record from the Total Solar Irradiance (TSI) dataset,
+      sourced from SORCE/TIM or other satellite instruments.
+    required:
+      - date
+      - tsi_value
+      - uncertainty
+      - instrument
+    properties:
+      date:
+        type: string
+        format: date
+        description: The observation date in ISO 8601 format (YYYY-MM-DD).
+      tsi_value:
+        type: number
+        description: >
+          The Total Solar Irradiance value in Watts per square meter (W/m²).
+          Typically around 1361 W/m².
+      uncertainty:
+        type: number
+        minimum: 0
+        description: The estimated uncertainty of the TSI measurement.
+      instrument:
+        type: string
+        enum: [SORCE_TIM, TSIS_1, ACRIM, VIRGO]
+        description: The satellite instrument that recorded the TSI value.
+      cycle_id:
+        type: integer
+        nullable: true
+        description: >
+          The solar cycle ID (integer) mapped from the official SILSO historical cycle list.
+          NULL for dates outside known cycle boundaries.
+      source:
+        type: string
+        enum: [SORCE, TSIS, ACRIM, VIRGO]
+        description: The primary data source archive.
+
+  PreprocessedDataset:
+    type: object
+    description: >
+      A merged dataset containing aligned Sunspot and TSI records
+      ready for model training.
+    required:
+      - records
+      - metadata
+    properties:
+      records:
+        type: array
+        items:
+          allOf:
+            - $ref: "#/definitions/SunspotRecord"
+            - type: object
+              properties:
+                tsi_value:
+                  type: number
+                  nullable: true
+                  description: Aligned TSI value if available for this date.
+      metadata:
+        type: object
+        properties:
+          date_range:
+            type: object
+            properties:
+              start:
+                type: string
+                format: date
+              end:
+                type: string
+                format: date
+          gap_filling_method:
+            type: string
+            description: Description of the gap filling logic applied (e.g., linear interp, GSN=0 proxy).
+          cycle_mapping_source:
+            type: string
+            description: Reference to the SILSO cycle list version used.
+
+  ReconstructionOutput:
+    type: object
+    description: >
+      The output of the reconstruction pipeline for pre-satellite eras.
+    required:
+      - records
+      - uncertainty_bands
+      - metadata
+    properties:
+      records:
+        type: array
+        items:
+          type: object
+          properties:
+            date:
+              type: string
+              format: date
+            predicted_tsi:
+              type: number
+            confidence_interval_lower:
+              type: number
+            confidence_interval_upper:
+              type: number
+            cycle_id:
+              type: integer
+              nullable: true
+      uncertainty_bands:
+        type: object
+        properties:
+          method:
+            type: string
+            enum: [bootstrap, gp_variance, rf_quantile]
+          iterations:
+            type: integer
+            description: Number of bootstrap iterations if applicable.
+      metadata:
+        type: object
+        properties:
+          model_artifact_path:
+            type: string
+            description: Path to the joblib artifact used for prediction.
+          fallback_model_used:
+            type: boolean
+            description: True if the Cycle-Agnostic fallback model was used for any records.

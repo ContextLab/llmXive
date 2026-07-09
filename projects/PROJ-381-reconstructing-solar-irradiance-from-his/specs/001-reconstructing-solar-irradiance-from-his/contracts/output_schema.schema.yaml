@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reconstruction Output Schema"
+description: "Schema for the final TSI reconstruction and comparison report."
+type: "object"
+properties:
+  reconstruction:
+    type: "object"
+    description: "Time series of reconstructed TSI."
+    properties:
+      date:
+        type: "string"
+        format: "date"
+      tsi_reconstructed:
+        type: "number"
+      tsi_uncertainty_lower:
+        type: "number"
+      tsi_uncertainty_upper:
+        type: "number"
+    required:
+      - date
+      - tsi_reconstructed
+      - tsi_uncertainty_lower
+      - tsi_uncertainty_upper
+  metrics:
+    type: "object"
+    description: "Performance metrics."
+    properties:
+      rmse_satellite:
+        type: "number"
+        description: "RMSE on satellite validation period."
+      r_squared:
+        type: "number"
+        description: "R-squared on satellite validation period."
+      error_reduction_percent:
+        type: "number"
+        description: "Percentage reduction vs 2007 baseline."
+  variance_analysis:
+    type: "object"
+    description: "Bootstrap variance analysis across minima."
+    properties:
+      maunder_variance:
+        type: "number"
+      dalton_variance:
+        type: "number"
+      modern_variance:
+        type: "number"
+      p_value_bonferroni:
+        type: "number"
+        description: "P-value after Bonferroni correction."
+  sensitivity_analysis:
+    type: "object"
+    description: "Sensitivity to inconsistency tolerance threshold."
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+        description: "Swept thresholds (0.01, 0.05, 0.1)."
+      stability_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            threshold:
+              type: "number"
+            rmse_variation:
+              type: "number"
+    required:
+      - thresholds
+      - stability_metrics
+required:
+  - reconstruction
+  - metrics
+  - variance_analysis
+  - sensitivity_analysis
