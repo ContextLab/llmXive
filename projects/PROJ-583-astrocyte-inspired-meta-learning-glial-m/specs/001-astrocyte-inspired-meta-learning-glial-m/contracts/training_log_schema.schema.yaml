@@ -18,7 +18,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Accuracy on Meta-Test Buffer (excluded from Calcium history) after training on current task."
+    description: "Accuracy on the immediately preceding task (N-1) after training on current task. This metric is derived from a held-out query set for N-1, which is excluded from the history buffer used to calculate the homeostatic factor for the current task."
   loss:
     type: "number"
     minimum: 0.0

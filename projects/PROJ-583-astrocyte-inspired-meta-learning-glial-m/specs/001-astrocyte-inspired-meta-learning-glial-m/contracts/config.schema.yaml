@@ -50,6 +50,9 @@ properties:
           - gamma
       history_buffer_size:
         type: "integer"
+      exclude_n_minus_1:
+        type: "boolean"
+        description: "If true, explicitly exclude Task N-1 from the history buffer to prevent circular validation."
     required:
       - enabled
       - lambda_scale
@@ -95,6 +98,12 @@ properties:
         type: "array"
         items:
           type: "number"
+      statistical_test:
+        type: "string"
+        enum:
+          - "Permutation Test"
+          - "Hotelling's T-squared"
+        description: "Primary statistical test to use. Default is 'Permutation Test' for N=5."
     required:
       - seeds
 required:

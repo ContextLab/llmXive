@@ -1,0 +1,76 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Astrocyte Meta-Learning Results Schema
+description: Schema for aggregated statistical test results and episode metrics.
+type: object
+properties:
+  test_name:
+    type: "string"
+    enum:
+      - "Permutation Test"
+      - "Hotelling's T-squared"
+    description: "Name of the statistical test performed."
+  observed_distance:
+    type: number
+    description: "Euclidean distance between mean vectors (for Permutation Test)."
+  t_squared_statistic:
+    type: number
+    description: "Hotelling's T-squared statistic value (secondary reference only)."
+  p_value:
+    type: number
+    description: "P-value from the statistical test."
+  verdict:
+    type: string
+    enum:
+      - "Significant"
+      - "Not Significant"
+      - "Inconclusive"
+      - "Undefined"
+    description: "Final verdict of the statistical test."
+  reason:
+    type: string
+    nullable: true
+    description: "Reason for the verdict if inconclusive (e.g., 'insufficient_power')."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    nullable: true
+    description: "Confidence interval for the effect size, or null if inconclusive."
+  power:
+    type: number
+    description: "Calculated statistical power of the test."
+  seeds_used:
+    type: array
+    items:
+      type: integer
+    description: "List of random seeds used in the analysis."
+  dataset:
+    type: string
+    description: "Name of the dataset used (e.g., 'omniglot', 'mini_imagenet')."
+  permutations:
+    type: integer
+    nullable: true
+    description: "Number of permutations performed (for Permutation Test)."
+  baseline_mean:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Mean vector [Stability, Plasticity] for the baseline model."
+  astrocyte_mean:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Mean vector [Stability, Plasticity] for the astrocyte model."
+required:
+  - test_name
+  - p_value
+  - verdict
+  - seeds_used
+  - dataset
+  - baseline_mean
+  - astrocyte_mean
+additionalProperties: false

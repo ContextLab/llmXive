@@ -20,7 +20,7 @@ properties:
     description: "Accuracy on the current task after 10 inner-loop steps."
   stability_score:
     type: "number"
-    description: "Mean accuracy on Meta-Test Buffer (tasks N-1, N-2, N-3) after training on the current task. Buffer is excluded from calcium history to prevent circular validation."
+    description: "Mean accuracy on the immediately preceding task (N-1) after training on the current task. This metric is derived from a held-out query set for N-1, which is excluded from the history buffer used to calculate the homeostatic factor for the current task."
   homeostatic_factor:
     type: "number"
     description: "The scalar factor h_t applied to the learning rate."

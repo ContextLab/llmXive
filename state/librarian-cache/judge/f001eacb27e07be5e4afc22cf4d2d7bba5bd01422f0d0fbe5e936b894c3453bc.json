@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2009.01672",
+  "judged_at": "2026-07-09T01:11:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper focuses on the robustness of artificial meta-learning algorithms against adversarial attacks in computer vision and reinforcement learning, which is an off-domain application of the term \"meta-learning\" compared to the user's question about biological glial modulation in neuroscience. It does not measure the biological mechanism, study the astrocyte population, or provide foundational methodology for the specific neuroscientific construct requested.",
+  "relevant": false
+}

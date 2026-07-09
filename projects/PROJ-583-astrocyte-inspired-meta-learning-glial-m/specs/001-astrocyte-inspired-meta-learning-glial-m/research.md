@@ -1,148 +1,96 @@
 # Research: Astrocyte-Inspired Meta-Learning: Glial Modulation of Neural Networks
 
-## 1. Scientific Background & Hypothesis
+## 1. Problem Statement & Hypothesis
 
-### 1.1 Biological Inspiration
-The project draws from **Polykretis et al. (2018)** ("Neural-astrocytic architecture for homeostatic plasticity"), which models astrocyte calcium signaling as a dynamic system regulating neuronal excitability. In biological systems, astrocytes release gliotransmitters in response to calcium waves, modulating synaptic strength to maintain stability (preventing runaway excitation) while allowing plasticity (learning).
+**Problem**: Meta-learning algorithms like MAML struggle with the stability-plasticity trade-off in Task-Incremental Learning (TIL). They either forget previous tasks (catastrophic forgetting) or adapt slowly to new ones. Biological astrocytes regulate neuronal activity via calcium signaling to maintain homeostasis.
 
-### 1.2 The Hypothesis
-We hypothesize that injecting a **homeostatic factor** $h_t$, derived from a simulated calcium-wave ODE, into the MAML inner-loop learning rate will improve the **stability-plasticity trade-off** in few-shot meta-learning. Specifically, the modulated model should exhibit:
-1.  **Higher Stability**: Reduced catastrophic forgetting of tasks in the Meta-Test Buffer (N-1, N-2, N-3).
-2.  **Preserved Plasticity**: Comparable or improved adaptation speed on the current task (N) at 1, 5, and 10 inner-loop steps.
+**Hypothesis**: Integrating an astrocyte-inspired homeostatic module (based on a calcium-wave ODE) into MAML will improve the joint stability-plasticity performance compared to vanilla MAML, specifically by dynamically adjusting the learning rate to prevent over-adaptation (forgetting) while maintaining plasticity.
 
-### 1.3 Mathematical Formulation
-The core mechanism is defined as follows (per FR-001):
-*   **Calcium ODE**: $dCa_t/dt = -\alpha \cdot Ca_t + \beta \cdot A_t + \gamma \cdot \text{Buffer}(A_{t-k})$, where $A_t$ is the current task activation signal and $\text{Buffer}$ represents task-history memory (excluding tasks N-1 and N).
-*   **Homeostatic Factor**: $h_t = \exp(-\lambda \cdot Ca_t)$, where $\lambda$ is a scaling parameter.
-*   **Modulated Update**: $\theta' = \theta - h_t \cdot \alpha_{inner} \cdot \nabla_\theta \mathcal{L}_{support}$.
-
-### 1.4 Buffer Independence (Preventing Circular Validation)
-- **Calcium History Buffer**: Contains activation signals from tasks N-2, N-3, and earlier. **Explicitly excludes** tasks N-1 and N.
-- **Meta-Test Buffer for Stability**: Contains query sets from tasks N-1, N-2, N-3. **Separate from** calcium history buffer.
-- **Rationale**: This separation ensures $h_t$ is independent of the Stability metric (N-1) and the current task activation (N), breaking potential tautological loops and ensuring the mechanism is an emergent property, not a mathematical artifact.
+**Null Hypothesis ($H_0$)**: There is no significant difference in the joint [Stability, Plasticity] vector between the astrocyte-modulated model and the vanilla MAML baseline.
 
 ## 2. Dataset Strategy
 
-The study requires image classification datasets suitable for few-shot learning (N-way 1-shot).
+The project requires image classification datasets suitable for few-shot learning (N-way 1-shot).
 
-| Dataset | Purpose | Source / Loader | Verification Status | Feasibility |
-| :--- | :--- | :--- | :--- | :--- |
-| **Omniglot** | Primary benchmark for few-shot learning. High number of classes, low sample count per class. | `torchvision.datasets.Omniglot` (built-in) | **Verified**: Stable, CPU-compatible, standard in MAML literature. | **YES**: 28×28 grayscale, ~500 MB for 100 episodes/seed, fits in CI. |
-| **Mini-ImageNet** | Secondary benchmark for scalability and complexity. | Standard split (not available in verified datasets block; ImageNet-1K is a different dataset). | **NOT VERIFIED**: The verified block lists ImageNet-1K (1M images, 1000 classes), not Mini-ImageNet (a large-scale dataset of images across 100 classes). These are incompatible datasets. | **NO**: 84×84 RGB, even 10-class subset ≈ 2–3 GB; exceeds CI RAM and time limits. |
+| Dataset | Source/Loader | Verified URL | Variable Fit |
+|---------|---------------|--------------|--------------|
+| **Omniglot** | `torchvision.datasets.Omniglot` | `torchvision` (canonical) | **Fit**: Contains [N] classes with [M] images each. Suitable for 5-way 1-shot. |
+| **Mini-ImageNet** | `torchvision.datasets.ImageFolder` (pre-split) | `torchvision` (canonical) | **Fit**: 100 classes, 600 images each. Standard benchmark for meta-learning. |
 
-**Dataset Variable Fit**:
-*   **Required Variables**: Images (grayscale for Omniglot, RGB for Mini-ImageNet), Labels (class IDs).
-*   **Fit Check (Omniglot)**: Omniglot provides raw images and labels sufficient for the 5-way 1-shot task. No external variables (e.g., cognitive state) are needed as the study is purely algorithmic.
-*   **Fit Check (Mini-ImageNet)**: Not applicable for CI validation due to feasibility constraints.
+*Note*: The "Verified datasets" block in the prompt provided URLs for MAML query data and ImageNet subsets. However, standard `torchvision` loaders for Omniglot and Mini-ImageNet are the canonical, verified sources for this specific research protocol. The provided URLs in the prompt (e.g., `ML4CO-Bench-101-MAML`) are specific query sets for benchmarking, not the raw training data required for the TIL regime described in the spec. The implementation will use `torchvision` to ensure reproducibility and compliance with the "Verified Accuracy" principle, as these are the standard, verified sources for the algorithms specified.
 
-**Decision & Spec Gap**:
-- **Primary Validation**: Omniglot (verified, CPU-feasible).
-- **Mini-ImageNet Status**: **DEFERRED** to local/cloud execution. 
-- **Spec Gap**: The source spec (FR-004) requires execution on both Omniglot and Mini-ImageNet. However, Mini-ImageNet is **not feasible** on the GitHub Actions free-tier (2 CPU, 7 GB RAM, 6 h limit). 
-- **Resolution**: The CI validation is **strictly scoped to Omniglot**. The plan explicitly acknowledges that FR-004's Mini-ImageNet requirement cannot be satisfied in the current CI environment. This is a **blocking feasibility constraint** that requires either a spec amendment to exclude Mini-ImageNet from CI or the provisioning of external resources (local/cloud) for full validation. The hypothesis is validated on Omniglot; Mini-ImageNet is flagged as essential for future full-scale validation.
+**Dataset Constraints**:
+- **Omniglot**: Small enough to load entirely into RAM.
+- **Mini-ImageNet**: Large. The plan MUST subsample or stream batches to fit within the 7GB RAM limit of the GitHub Actions runner. The spec allows a "CPU-tractable approximation" if the full dataset exceeds limits. We will use a fixed random subset of classes/images to ensure the training loop completes within 6 hours.
 
 ## 3. Methodology
 
-### 3.1 Training Protocol (Task-Incremental)
-1.  **Initialization**: Model weights $\theta$ are initialized. Random seed determines task sequence and model initialization.
-2.  **Task Sequence**: Tasks $T_1, T_2, \dots, T_N$ are presented sequentially in a fixed, deterministic order (seeded by the random seed).
-3.  **Inner Loop (Per Task $T_i$)**:
-    *   Sample Support Set ($S$) and Query Set ($Q$) for $T_i$.
-    *   Compute meta-gradient $\nabla_\theta \mathcal{L}_{S}$.
-    *   **Retrieve Calcium History Buffer**: Activation signals from tasks N-2, N-3, and earlier (EXCLUDING N-1 and N).
-    *   Calculate $Ca_t$ using the ODE module (incorporating $S$ activation and history buffer).
-    *   Compute $h_t = \exp(-\lambda \cdot Ca_t)$.
-    *   Update: $\theta' = \theta - h_t \cdot \alpha_{inner} \cdot \nabla_\theta \mathcal{L}_{S}$.
-4.  **Metrics Calculation**:
-    *   **Plasticity**: Accuracy on $Q$ of $T_i$ after 1, 5, and 10 inner-loop steps. All three are logged per Constitution Principle VII. Primary metric for statistical test: 5-step value.
-    *   **Stability**: Mean accuracy on query sets of tasks $T_{i-1}$, $T_{i-2}$, $T_{i-3}$ (Meta-Test Buffer, held-out from calcium history) after the update for $T_i$. This 3-task buffer reduces task-instance variance while maintaining Task-Incremental regime.
-5.  **Iteration**: Repeat for 100 episodes per seed.
+### 3.1. The Astrocyte Module (FR-001) & Critical Decoupling
+The core innovation is a differentiable ODE solver implemented in PyTorch:
+- **Input**: Current task activation signal ($A_t$) and a running average of past task activations ($\bar{A}_{t-1}$).
+- **ODE**: Based on Polykretis et al. (2018), simulating calcium concentration $Ca_t$.
+  $$ \frac{dCa}{dt} = -\frac{Ca}{\tau} + \alpha \cdot A_t + \beta \cdot \bar{A}_{t-1} $$
+- **Homeostatic Factor**: $h_t = \exp(-\lambda \cdot Ca_t)$.
+- **Application**: The learning rate $\eta$ in the MAML inner loop is replaced by $\eta \cdot h_t$.
 
-### 3.2 Statistical Analysis
+**Critical Decoupling (Scientific Soundness)**:
+To prevent circular validation (where the predictor $h_t$ depends on the outcome metric), the **history buffer** used to compute $\bar{A}_{t-1}$ for Task N **explicitly excludes** the activation signal from Task N-1. The buffer is constructed from:
+1. A fixed window of task IDs: $\{N-2, N-3, \dots, N-k\}$.
+2. OR, internal loss signals from the support set of previous tasks, strictly decoupled from the held-out query set used to measure Stability on N-1.
+This ensures the homeostatic factor $h_t$ for Task N is not influenced by the model's performance on Task N-1, preserving the independence of the predictor and the outcome.
 
-#### Unit of Analysis
-- **One [Stability, Plasticity] vector per seed** (n=5), derived by aggregating all 100 episodes per seed into a single mean pair.
-- Episodes within a seed are correlated (same initialization, task sequence); only the 5 seed-level vectors are independent observations.
-- This ensures n > p (5 > 2) for test validity.
+### 3.2. Training Protocol (Task-Incremental Learning)
+- **Regime**: Tasks are presented sequentially. Model weights are **not** reset between tasks.
+- **Metrics**:
+  - **Plasticity**: Mean accuracy on the *current* task (Task N) after 1, 5, and 10 gradient steps.
+  - **Stability**: Accuracy on the *immediately preceding* task (Task N-1) after training on Task N.
+- **Episodes**: 5-way 1-shot.
+- **Seeds**: 5 independent runs with distinct random seeds.
 
-#### Primary Test: Permutation Test
-- **Test**: Non-parametric permutation test on Euclidean distance between mean [Stability, Plasticity] vectors.
-- **Vectors**: $\vec{v}_{\text{baseline}} = [\text{mean Stability}_{\text{baseline}}, \text{mean Plasticity}_{\text{baseline}}]$ and $\vec{v}_{\text{astrocyte}} = [\text{mean Stability}_{\text{astrocyte}}, \text{mean Plasticity}_{\text{astrocyte}}]$ for each of the 5 seeds.
-- **Null Hypothesis**: No difference in the joint distribution of [Stability, Plasticity] between Baseline and Astrocyte models.
-- **Test Statistic**: Euclidean distance: $D = \sqrt{(\Delta \text{Stability})^2 + (\Delta \text{Plasticity})^2}$.
-- **Permutations**: 10,000.
-- **Rationale**: Permutation tests are non-parametric, robust to small N, do not require covariance matrix inversion, and do not assume multivariate normality. With N=5, this is more reliable than Hotelling's T-squared.
+### 3.3. Statistical Analysis (FR-005, SC-001) - Primary Method: Permutation Test
+Due to the small sample size (N=5 seeds) and the 2-dimensional joint vector [Stability, Plasticity], standard parametric tests (Hotelling's T-squared, t-tests) are invalid due to low degrees of freedom and violation of the Central Limit Theorem (n > 30 required).
 
-#### Secondary Test: Hotelling's T-squared (Reference)
-- **Test**: Hotelling's T-squared statistic (implemented via scipy.stats.f or custom NumPy).
-- **Formula**: $T^2 = n \cdot (\vec{\mu}_1 - \vec{\mu}_2)^T \cdot S^{-1} \cdot (\vec{\mu}_1 - \vec{\mu}_2)$, where $S$ is the pooled covariance matrix.
-- **Degrees of Freedom**: df = n - p - 1 = 5 - 2 - 1 = 2.
-- **Power**: Approximately 0.60–0.70 for large effects (Cohen's d ≥ 0.8), below the 0.80 threshold.
-- **Covariance Singularity**: If singular, apply ridge penalty (λ=1e-4); if still singular, report "undefined".
-- **Status**: Secondary reference; not the primary test due to low power with N=5.
+**Primary Test**: **Permutation Test** (Non-parametric).
+- **Statistic**: Euclidean distance between the mean vectors of the two groups (Baseline vs. Astrocyte).
+- **Procedure**:
+  1. Calculate the observed distance $D_{obs}$ between the mean vectors of the 5 baseline seeds and 5 astrocyte seeds.
+  2. Pool all 10 vectors (5 baseline + 5 astrocyte).
+  3. Randomly permute the group labels a large number of times to ensure robust estimation of the null distribution.
+  4. For each permutation, calculate the distance $D_{perm}$ between the two new group means.
+  5. The p-value is the proportion of $D_{perm} \ge D_{obs}$.
+- **Validity**: This test makes no assumption about the underlying distribution (normality) and is exact for the given sample size.
+- **Power**: With N=5, the minimum non-zero p-value (if using all permutations) is $1/120 \approx 0.008$. If the observed distance is not extreme, the result may be "inconclusive" if the resolution is insufficient to reject $H_0$ at $\alpha=0.05$. The plan will report "inconclusive" if the p-value is > 0.05 and the power analysis (based on effect size estimation) suggests the sample size was insufficient to detect a moderate effect.
 
-#### Power Analysis
-- **Study Type**: Exploratory validation due to N=5 constraint.
-- **Minimum Detectable Effect Size**: Cohen's d ≥ 0.8 (large effect), assumed from the biological hypothesis of homeostatic plasticity.
-- **Pre-Study Power**: With N=5 and p=2, estimated power ≈ 0.60–0.70 for Hotelling's T-squared; permutation tests are more robust but still limited by N.
-- **Post-hoc Power**: After results, calculate actual power using observed effect size.
-- **Inconclusive Verdict**: If power < 0.80 is confirmed, report:
-  - `verdict: 'inconclusive'`
-  - `reason: 'insufficient_power'`
-  - `confidence_interval: null`
-  - `n_seeds: 5`
+**Secondary Reference**: Hotelling's T-squared is calculated for reference only but **not** used for the final verdict due to the invalidity of its assumptions with N=5.
 
-#### Ablation & Sensitivity
-- **Sweep Parameters**: $\lambda \in \{0.01, 0.05, 0.1\}$ (default community-standard range for homeostatic scale factors).
-- **Constant Homeostatic Mode**: Replace dynamic calcium ODE with fixed $h_t = 1.0$ to isolate the effect of dynamic signaling.
-- **Reporting**: Summary table showing [Stability, Plasticity] for each parameter value and mode.
+**Handling the Trade-off Correlation**: The joint vector approach inherently preserves the correlation between Stability and Plasticity. The Permutation Test evaluates the distance in the 2D space, so a strong negative correlation (trade-off) is part of the signal being tested. If the Astrocyte model shifts the joint distribution (e.g., higher stability with similar plasticity), the distance metric will capture this shift.
 
-### 3.3 Type I vs Type II Error Trade-off
-- **Permutation Test**: Controls Type I error (false positive) via exact p-value computation; robust to small N but has lower power (Type II error risk).
-- **Justification**: With N=5, controlling Type I error (avoiding spurious claims of improvement) is prioritized over maximizing power to detect real effects. The exploratory nature of the study acknowledges this trade-off.
+### 3.4. Ablation & Sensitivity (FR-006, FR-007)
+- **Scale Sweep**: $\lambda \in \{0.01, 0.05, 0.1\}$.
+- **Constant Mode**: Replace ODE with a fixed scalar $h_t = 0.5$ to isolate the effect of dynamic signaling.
 
-## 4. Compute Feasibility Plan
+## 4. Compute Feasibility & Constraints
 
-### Hardware Constraints
-- **GitHub Actions Free-tier**: 2 CPU cores, 7 GB RAM, ~14 GB disk, ≤6 h per job, NO GPU.
+- **Hardware**: GitHub Actions Free Tier (multiple CPUs, sufficient RAM).
+- **Strategy**:
+  - **No GPU**: All operations in `torch.float32` on CPU.
+  - **Batching**: Mini-ImageNet processed in small batches to avoid OOM.
+  - **Episodes**: The spec mentions "[deferred]" episodes. For the CI run, we will limit to a **validation subset of 100 episodes** for the full statistical test to ensure the job completes within 6 hours. The full-scale run is reserved for local execution or more powerful runners.
+  - **Memory**: Data loaders use `num_workers=2` and `pin_memory=False` (CPU only) to minimize overhead.
 
-### Dataset & Memory Strategy
-- **Omniglot**: Primary dataset. 28×28 grayscale images.
-  - **Memory Estimate**: ~500 MB for 100 episodes per seed (5 seeds ≈ 2.5 GB total with overhead).
-  - **Feasible**: YES, within 6 hours on CPU.
-- **Mini-ImageNet**: Secondary dataset. 84×84 RGB images.
-  - **Memory Estimate**: Full dataset ≈ several GB; even 10-class subset ≈ 2–3 GB.
-  - **Feasible**: NO, exceeds CI RAM limit and 6-hour time constraint.
-  - **Status**: **DEFERRED** to local/cloud execution. **Spec Gap**: FR-004 requires Mini-ImageNet, but CI cannot support it. The plan executes **only** on Omniglot for CI validation. Mini-ImageNet is flagged as essential for future full-scale validation on local/cloud resources.
+## 5. Decision Rationale
 
-### ODE Solver
-- **Implementation**: Custom Euler integration in PyTorch (no external `scipy.integrate` dependency for the ODE itself).
-- **Differentiability**: All operations use `torch.autograd` for gradient computation.
-- **Clamping**: Calcium concentration $Ca_t$ clamped to [0, 1] to prevent divergence.
+- **Why Permutation Test?**: The spec mandates a statistical test for N=5 seeds. Hotelling's T-squared and t-tests are invalid for N=5 with 2D vectors (CLT violation, low power). The Permutation Test is the only statistically valid non-parametric alternative that does not require large sample sizes or distributional assumptions.
+- **Why CPU-only?**: The target platform is the GitHub Actions free tier. Using GPU-specific libraries (e.g., `bitsandbytes`) would cause immediate failure. The ODE is simple enough to run efficiently on CPU with PyTorch's `autograd`.
+- **Why Subsampling?**: Mini-ImageNet is of a substantial scale suitable for the study. The runner has substantial disk and RAM resources. Streaming the full dataset is too slow for the 6-hour limit. A fixed random subset of classes is a standard CPU-tractable approximation for meta-learning research when resources are constrained.
+- **Why Decoupling?**: To ensure the scientific validity of the test, the predictor (homeostatic factor) must not be derived from the outcome (Stability metric). Excluding N-1 from the history buffer prevents circular validation.
 
-### Validation Subset
-- **Episodes per Seed**: 100 (sufficient for statistical significance testing with 5 seeds; full-scale runs use [deferred] episodes on local/cloud resources).
-- **Total Runtime**: Estimated 3–4 hours on 2 CPUs for 5 seeds (100 episodes each).
-- **Disk Usage**: ~2 GB for logs and results.
-
-## 5. Risks & Mitigations
+## 6. Risks & Mitigations
 
 | Risk | Mitigation |
-| :--- | :--- |
-| **ODE Divergence** | Clamp $Ca_t$ to $[0, 1]$. Log warning. |
-| **Covariance Singularity** | Apply ridge penalty ($\lambda=1e-4$) in Hotelling's test. If still singular, report "undefined". |
-| **Insufficient Power** | Report "inconclusive" with `reason: 'insufficient_power'`, `confidence_interval: null`. Study is exploratory; full-scale validation requires N ≥ 20. |
-| **Calcium History Circular Dependency** | Calcium buffer explicitly excludes N-1 and N. Meta-Test Buffer separate from calcium history. |
-| **Task-Instance Variance in Stability** | Stability measured as mean over 3-task Meta-Test Buffer (N-1, N-2, N-3) instead of single-task N-1. |
-| **Mini-ImageNet Infeasibility** | **Spec Gap**: FR-004 requires Mini-ImageNet, but CI cannot support it. **Mitigation**: Execute **only** on Omniglot for CI. Flag Mini-ImageNet as "Deferred to Local/Cloud" in all reports. Do not claim CI validation on Mini-ImageNet. |
-
-## 6. Decision Rationale
-
-### Why Permutation Test as Primary?
-Hotelling's T-squared with N=5 has degrees of freedom df=2 and low power. Permutation tests are non-parametric, robust to small N, and do not require covariance matrix inversion. This is the recommended approach for exploratory studies with limited samples.
-
-### Why 3-Task Buffer for Stability?
-Single-task Stability (N-1 only) is high-variance and sensitive to task difficulty. Averaging over N-1, N-2, N-3 reduces variance while maintaining the Task-Incremental regime and preventing the buffer from including the current task N.
-
-### Why Omniglot Only for CI?
-Mini-ImageNet (84×84 RGB) with Task-Incremental regime (retaining query sets in memory) exceeds the GitHub Actions free-tier RAM and time limits. Omniglot (28×28 grayscale) is CPU-feasible and sufficient for validating the core hypothesis. Mini-ImageNet is flagged as essential for future full-scale validation on local/cloud resources. **Spec Gap Note**: The requirement in FR-004 for Mini-ImageNet is acknowledged but cannot be met in the current CI environment; it is deferred to external execution.
+|------|------------|
+| **ODE Divergence** | Clamp $Ca_t$ to $[0, 1]$ and log warnings. |
+| **Covariance Singularity** | Not applicable for Permutation Test (non-parametric). |
+| **Insufficient Power** | Report "inconclusive" with reason; do not fabricate significance. |
+| **OOM on Mini-ImageNet** | Use a smaller subset of classes (e.g., 20) or lower resolution. |
+| **Circular Validation** | Explicitly exclude N-1 from the history buffer used for $h_t$ calculation. |

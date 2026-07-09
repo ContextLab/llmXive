@@ -1,21 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
-The question asks about the influence of a specific biological mechanism (homeostatic plasticity via calcium signaling) on a fundamental computational trade-off (stability-plasticity) in meta-learning. It is framed as an inquiry into whether this biological principle improves system behavior, rather than merely testing if a specific code implementation runs within a time budget or uses a specific hardware constraint.
+
+The question investigates a specific biological mechanism (astrocyte calcium-driven homeostatic plasticity) and its influence on a fundamental learning phenomenon (the stability-plasticity trade-off). It does not frame the inquiry around whether a specific architecture (e.g., "a 3-layer GNN") works, but rather asks how a specific *mechanism* alters the behavior of the learning system, which is a substantive scientific question about the relationship between biological principles and algorithmic performance.
 
 ### Circularity check
+
 **Verdict**: pass
-The predictor (astrocyte-derived homeostatic factor) is generated from a simulated calcium ODE coupled to neuronal activity, while the predicted variables (stability and plasticity metrics) are derived from the model's accuracy on held-out tasks before and after adaptation. These data sources are distinct: one is an internal regulatory signal, and the other is an external performance outcome, ensuring the relationship is not mechanically guaranteed by shared input definitions.
+
+The predictor (homeostatic scaling factor derived from an ODE of calcium signaling) is an injected regulatory signal distinct from the network's weights or the task data. The predicted variables (stability and plasticity metrics) are measured as accuracy on held-out query sets from distinct tasks ($T_{N-1}$ and $T_N$). These evaluation targets are independent of the calcium mechanism's internal state, ensuring the relationship is empirical rather than mechanically constructed from the same signal.
 
 ### Triviality check
+
 **Verdict**: pass
-A positive result would demonstrate that specific neurobiological regulatory dynamics can solve the catastrophic forgetting problem in AI, which is a novel contribution to both neuroscience-inspired ML and meta-learning theory. A null result would be equally informative, suggesting that this particular biological mechanism does not translate to the discrete, episodic nature of few-shot learning, thereby refining our understanding of which biological principles are algorithmically relevant.
+
+Both outcomes are scientifically informative: a positive result would demonstrate that specific astrocytic dynamics provide a superior regularization strategy for meta-learning compared to standard baselines, while a null result would suggest that this specific biological mechanism does not translate to the computational constraints of few-shot learning, guiding future bio-inspired design away from this specific pathway.
 
 ### Question-narrowing check
+
 **Verdict**: pass
-The question explicitly names a domain relationship: the causal link between a modeled biological mechanism (glial modulation) and a theoretical system property (stability-plasticity trade-off). It does not frame the inquiry around implementation constraints (e.g., "Can this run on a CPU?") but rather focuses on the efficacy of the biological inspiration itself.
+
+The question explicitly names a domain relationship (the effect of homeostatic plasticity on the stability-plasticity trade-off) rather than imposing implementation constraints like budget, hardware, or specific library versions. The mention of "few-shot meta-learning tasks" defines the domain context, not a restrictive engineering constraint that would make the question purely about system performance.
 
 ### Overall verdict
+
 **Verdict**: validated
-All checks pass; the research question is well-posed, independent of specific implementation constraints, avoids circularity by using distinct data sources for prediction and outcome, and offers non-trivial insights regardless of the result. The project is ready to advance to initialization.
+
+All checks pass; the research question is well-formed, independent of specific implementation artifacts, and avoids circularity by using independent evaluation metrics. The project proposes a clear test of a biological hypothesis within a machine learning context, making it suitable for progression to the project initialization stage.

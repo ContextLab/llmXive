@@ -20,7 +20,7 @@ properties:
     description: "Mean accuracy on current tasks (5-step plasticity metric, primary)."
   mean_stability:
     type: "number"
-    description: "Mean accuracy on Meta-Test Buffer (3-task average: N-1, N-2, N-3)."
+    description: "Mean accuracy on the immediately preceding task (N-1)."
   std_plasticity:
     type: "number"
     description: "Standard deviation of plasticity scores (5-step)."

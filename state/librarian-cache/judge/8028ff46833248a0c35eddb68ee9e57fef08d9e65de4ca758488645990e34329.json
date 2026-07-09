@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.06207",
+  "judged_at": "2026-07-09T01:11:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper discusses general algorithmic meta-learning and model selection in computer science, which is a distinct construct from the user's specific question about biological glial modulation in neuroscience. It fails all inclusion criteria (a-f) because it does not measure astrocyte mechanisms, neural network biology, or the specific interaction between glia and learning, and it is not a foundational reference for the biological phenomenon in question.",
+  "relevant": false
+}

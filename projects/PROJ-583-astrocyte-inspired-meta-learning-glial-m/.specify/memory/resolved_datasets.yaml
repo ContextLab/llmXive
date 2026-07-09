@@ -1,4 +1,4 @@
-resolved_at: '2026-07-06T05:57:24.110715+00:00'
+resolved_at: '2026-07-09T00:46:20.635546+00:00'
 datasets:
 - intent: MAML
   status: verified
@@ -45,23 +45,26 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_1_raw_images_and_raw_data/32928287
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/media/Achievers_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942927
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://bridges.monash.edu/articles/report/Duty_of_Care_Teachers_experiences_of_sexism_misogyny_and_sexual_harassment_in_Australian_schools/32942816
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/Duty_of_Care_Teachers_experiences_of_sexism_misogyny_and_sexual_harassment_in_Australian_schools/32942816
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/figure/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figures/32928215
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Carbon_quota_pledge_or_bank_credit_which_financing_mode_better_drives_emission_abatement_in_remanufacturing_docx/32906243
+  - url: https://figshare.com/articles/media/Caleb_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942924
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -77,15 +80,18 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://ojs.aaai.org/index.php/AAAI/article/view/35239
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4309034
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.1609/aaai.v39i28.35239
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ConnectionError: (''Connection aborted.'', RemoteDisconnected(''Remote
-      end closed connection without response''))'
+  - url: https://arxiv.org/abs/2607.03680
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2607.00860
     source: datacite
     status: wrong_format
@@ -99,10 +105,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2606.26710
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20778398
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -151,31 +153,34 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_1_raw_images_and_raw_data/32928287
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/media/Achievers_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942927
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://bridges.monash.edu/articles/report/Duty_of_Care_Teachers_experiences_of_sexism_misogyny_and_sexual_harassment_in_Australian_schools/32942816
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/report/Duty_of_Care_Teachers_experiences_of_sexism_misogyny_and_sexual_harassment_in_Australian_schools/32942816
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/figure/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figures/32928215
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8361650
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21024183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8361650
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,23 +196,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/z9fjt/
+  - url: https://zenodo.org/records/21269555
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211623
+  - url: https://zenodo.org/records/21269555
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211623
+  - url: https://tandf.figshare.com/articles/dataset/Multilinear_Ordinary_Differential_Equations_for_Inferring_Gene_Regulatory_Network_from_Multimodal_Functional_Data/32942655
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211525
+  - url: https://tandf.figshare.com/articles/dataset/Multilinear_Ordinary_Differential_Equations_for_Inferring_Gene_Regulatory_Network_from_Multimodal_Functional_Data/32942655/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211525
+  - url: https://zenodo.org/records/21269530
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -256,23 +261,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Joseph_Ayo_Babalola_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment/32942930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_1_raw_images_and_raw_data/32928287
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
+  - url: https://figshare.com/articles/media/Achievers_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942927
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -296,23 +301,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206163
+  - url: https://zenodo.org/records/21269656
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21206163
+  - url: https://zenodo.org/records/21269656
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211606
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/5
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211606
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211140
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/6
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -333,16 +338,14 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K_Recaption/resolve/main/data/train-00000-of-00020.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/ILSVRC/imagenet-1k/resolve/main/data/test-00000-of-00028.parquet
-    source: huggingface
-    status: wrong_format
-    reason: HTTP 401
-  - url: https://huggingface.co/datasets/axiong/imagenet-r/resolve/main/test/test-00000-of-00005.parquet
-    source: huggingface
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''huggingface.co'',
-      port=443): Read timed out. (read timeout=20.0)'
   - url: https://huggingface.co/datasets/benjamin-paine/imagenet-1k-256x256/resolve/main/data/test-00000-of-00003.parquet
     source: huggingface
     status: verified
@@ -351,23 +354,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://huggingface.co/datasets/gmongaras/Imagenet21K_Recaption/resolve/main/data/train-00000-of-00020.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ILSVRC/imagenet-1k/resolve/main/data/test-00000-of-00028.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Joseph_Ayo_Babalola_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment/32942930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_1_raw_images_and_raw_data/32928287
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Deep_learning_model_to_generate_patient-specific_pulmonary_vein_isolation_lines_from_successful_atrial_fibrillation_ablation_cases_a_proof-of-concept_study_docx/32906246
+  - url: https://figshare.com/articles/media/Achievers_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942927
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -387,27 +398,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2536630
+  - url: https://zenodo.org/records/2469796
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210485
+  - url: https://zenodo.org/records/21268546
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210485
+  - url: https://zenodo.org/records/21268546
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/j2t9d/
+  - url: https://arxiv.org/abs/2604.13030
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/c7y86/
+  - url: https://arxiv.org/abs/2604.00421
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/wc4u9/
+  - url: https://arxiv.org/abs/2511.12100
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -415,23 +426,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://figshare.com/articles/dataset/Joseph_Ayo_Babalola_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment/32942930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_1_raw_images_and_raw_data/32928287
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://figshare.com/articles/media/Achievers_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942927
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -455,23 +466,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21204132
+  - url: https://zenodo.org/records/21254385
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21204132
+  - url: https://zenodo.org/records/18652306
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21202963
+  - url: https://zenodo.org/records/18652306
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21202963
+  - url: https://bib-pubdb1.desy.de/record/651404
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21202635
+  - url: https://zenodo.org/records/21262912
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -490,30 +501,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
+  - url: https://dro.deakin.edu.au/articles/report/Legal_Note_on_the_Cessation_of_International_Protection_and_Review_of_Protection_Status_in_Europe_European_Council_for_Refugees_and_Exiles_2025/32942102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Impact_of_delivery_mode_on_diastasis_recti_abdominis_pelvic_floor_muscle_function_and_quality_of_life_in_early_postpartum_women_a_cross-sectional_study_pdf/32906261
+  - url: https://figshare.com/articles/dataset/Joseph_Ayo_Babalola_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment/32942930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Determinants_of_growth_parameters_at_12-month_corrected_age_among_very_preterm_infants_in_China_a_retrospective_cohort_study_docx/32906249
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
+  - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
-    status: wrong_format
-    reason: HTTP 503
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
@@ -522,7 +534,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -530,23 +542,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21212251
+  - url: https://zenodo.org/records/21270439
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211653
+  - url: https://zenodo.org/records/21270439
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211653
+  - url: https://zenodo.org/records/21269707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://zenodo.org/records/21269707
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210112
+  - url: https://zenodo.org/records/21269725
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -554,23 +566,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Androgenic_agricultural_pollution_suppresses_immune_function_and_alters_reproductive_allocation_in_eastern_mosquitofish/29554136
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Power_from_the_press_cake_a_scoping_and_compositional_review_of_defatted_nut_and_seed_powders_with_regards_to_sports_nutrition/32934467
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_S2k_Guideline_Diagnosis_and_Assessment_of_Lung_Disease_Caused_by_Occupational_Silica_Dust_Exposure_Silicosis_Clinical_Practice_Guidelines_published_by_the_German_Respiratory_Society_DGP_/32906306
+  - url: https://dro.deakin.edu.au/articles/report/Legal_Note_on_the_Cessation_of_International_Protection_and_Review_of_Protection_Status_in_Europe_European_Council_for_Refugees_and_Exiles_2025/32942102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.swinburne.edu.au/articles/conference_contribution/The_forgotten_frontline_Workplace_trauma_in_SHS/32897942
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Penggunaan_Aplikasi_Tokopedia_Menggunakan_Pendekatan_Partial_Least_Squares_Structural_Equation_Modeling_PLS-SEM_/32833757
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/A_Programme_of_Conceptual_Scholarship_Underpinning_the_Development_of_a_Realist_Evaluation_of_Digital_Dementia_Risk-Reduction_Education/32746245
+  - url: https://figshare.com/articles/dataset/Joseph_Ayo_Babalola_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment/32942930
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -578,7 +590,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -586,31 +598,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://zenodo.org/records/15115020
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21019586
+  - url: https://arxiv.org/abs/2510.01764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21221306
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21019586
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20988320
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20988320
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20778398
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

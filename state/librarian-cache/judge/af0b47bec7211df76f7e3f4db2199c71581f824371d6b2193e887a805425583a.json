@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.10585",
+  "judged_at": "2026-07-09T01:11:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides a foundational framework for \"self-modifying neural networks\" via \"neuromodulated plasticity,\" which is the direct computational analog to the \"glial modulation\" mechanism the user is investigating for meta-learning. While the paper focuses on neuromodulators (like dopamine) rather than astrocytes specifically, it establishes the canonical methodology for biologically inspired, differentiable plasticity that a literature review on astrocyt",
+  "relevant": true
+}
