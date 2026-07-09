@@ -1,0 +1,317 @@
+resolved_at: '2026-07-09T18:56:06.790187+00:00'
+datasets:
+- intent: TinyLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-step-50K-105b/resolve/main/2023-09-12T12-30-04.204611/details_harness|arc:challenge|25_2023-09-12T12-30-04.204611.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-intermediate-step-240k-503b/resolve/main/2023-09-18T13-31-42.519724/details_harness|arc:challenge|25_2023-09-18T13-31-42.519724.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_BEE-spoke-data__TinyLlama-1.1bee/resolve/main/2023-09-22T04-13-14.200799/details_harness|arc:challenge|25_2023-09-22T04-13-14.200799.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-step-50K-105b/resolve/main/2023-09-12T12-30-04.204611/details_harness|arc:challenge|25_2023-09-12T12-30-04.204611.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-intermediate-step-240k-503b/resolve/main/2023-09-18T13-31-42.519724/details_harness|arc:challenge|25_2023-09-18T13-31-42.519724.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_BEE-spoke-data__TinyLlama-1.1bee/resolve/main/2023-09-22T04-13-14.200799/details_harness|arc:challenge|25_2023-09-22T04-13-14.200799.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mychen76/color_terms_tinyllama2/resolve/main/data/test-00000-of-00001-9c968e7b09f65349.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_PY007__TinyLlama-1.1B-Chat-v0.1/resolve/main/2023-10-03T10-21-28.182244/details_harness|arc:challenge|25_2023-10-03T10-21-28.182244.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/The_Planetary_Water_Budget_and_the_Flooding_of_the_Great_Pyramid/32938916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supporting_information/32951732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Recovery_trajectories_across_intensive_psychiatric_settings_a_multivariate_analysis_characterized_by_baseline_profiles/32952103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18002666
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19905906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17132334
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15459625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17671171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21216109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21216109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18983831
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GSM8K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/codelion/gsm8k-synth/resolve/main/gsm8k_synth.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Thomas-X-Yang/gsm8k-prolog/resolve/main/gsm_prolog_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/adalberto-temp/gsm8k-test-portuguese/5d3d1b8bfd11d9319b863b6de68c0d40295f4bc1/gsm8k_test_portuguese_final.json?%2Fdatasets%2Fadalberto-temp%2Fgsm8k-test-portuguese%2Fresolve%2Fmain%2Fgsm8k_test_portuguese_final.json=&etag=%22d62ba65882c8052dc69e6aff34c103dd137572ff%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Yuivdldk/gsm8k-results-g4b-lora-lr0.0003-ep2-s42-ntr4000-mn512-n1319-d1step/5a8fc7742abf792a0a93cf10b3c3eb2dccbd1b5d/finetuned_eval_records.json?%2Fdatasets%2FYuivdldk%2Fgsm8k-results-g4b-lora-lr0.0003-ep2-s42-ntr4000-mn512-n1319-d1step%2Fresolve%2Fmain%2Ffinetuned_eval_records.json=&etag=%22ead302ad337ffc07fba1113affe59c2513fbbbac%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/The_Planetary_Water_Budget_and_the_Flooding_of_the_Great_Pyramid/32938916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supporting_information/32951732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Recovery_trajectories_across_intensive_psychiatric_settings_a_multivariate_analysis_characterized_by_baseline_profiles/32952103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13294003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17587991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11126655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753555
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20753637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21279333
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21279333
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21248308
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MMLU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cais/mmlu/resolve/main/abstract_algebra/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3452
+      parsed: true
+  - url: https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/am/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 110031
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cais/mmlu/resolve/main/abstract_algebra/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/CohereLabs/Global-MMLU/resolve/main/am/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/CohereLabs/Global-MMLU-Lite/resolve/main/ar/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tasksource/mmlu/resolve/main/abstract_algebra/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/The_Planetary_Water_Budget_and_the_Flooding_of_the_Great_Pyramid/32938916
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Supporting_information/32951732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Recovery_trajectories_across_intensive_psychiatric_settings_a_multivariate_analysis_characterized_by_baseline_profiles/32952103
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/edinburgh-dawg/mmlu-redux
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/edinburgh-dawg/mmlu-redux-2.0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18509542
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11314109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19201896
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283931
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282580
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282580
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

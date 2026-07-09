@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for a single evaluation result record containing metrics and generated paths."
+type: object
+required:
+  - question_id
+  - question_text
+  - ground_truth
+  - generated_paths
+  - majority_vote
+  - is_correct
+  - confidence_scores
+  - avg_confidence
+  - consistency_score
+  - metrics
+properties:
+  question_id:
+    type: string
+    description: "Unique identifier for the question."
+  question_text:
+    type: string
+    description: "The input prompt text."
+  ground_truth:
+    type: string
+    description: "The correct answer from the dataset."
+  generated_paths:
+    type: array
+    items:
+      type: string
+    description: "List of 10 generated answer strings."
+    minItems: 10
+    maxItems: 10
+  majority_vote:
+    type: string
+    description: "The answer chosen by majority vote."
+  is_correct:
+    type: boolean
+    description: "Whether the majority vote matches the ground truth."
+  confidence_scores:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    description: "Confidence score for each of the 10 paths."
+    minItems: 10
+    maxItems: 10
+  avg_confidence:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Mean confidence across paths."
+  consistency_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of paths matching the majority vote."
+  metrics:
+    type: object
+    required:
+      - brier_score
+      - ece
+      - roc_auc
+      - correlation_coefficient
+    properties:
+      brier_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Brier score for uncertainty calibration."
+      ece:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Expected Calibration Error."
+      roc_auc:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "ROC-AUC for error detection."
+      correlation_coefficient:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: "Pearson correlation between consistency and accuracy."
+    additionalProperties: false
+additionalProperties: false

@@ -1,0 +1,21 @@
+? 'T001a [P] Create directory structure: `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`
+  with subdirs `data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/results`'
+: 1
+? T001b [P] Create `__init__.py` files for `code`, `code/models`, `code/training`,
+  `code/evaluation`, `code/analysis`, `code/utils`
+: 1
+? T001c [P] Initialize Python 3.11 project with `torch` (CPU-only), `transformers`,
+  `datasets`, `scikit-learn` in `requirements.txt`
+: 1
+T001d [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`: 1
+? 'T004 [P] Implement `data_loader.py` to fetch the ''arXiv'' subset of the Pile dataset
+  via HuggingFace `datasets` API, concatenate tokens, and truncate to the first tokens
+  (config key: `config.TOKEN_LIMIT`), saving to `data/raw/pile_arxiv_truncated.json`
+  with checksum in `data/manifest.json`. **Note**: This task is strictly for TRAINING
+  data.'
+: 1
+? 'T004b [P] Implement `data_loader.py` (additional function) to fetch GSM8K and MMLU
+  datasets via HuggingFace `datasets` API, saving to `data/raw/gsm8k.json` and `data/raw/mmlu.json`
+  with checksums in `data/manifest.json`. **Note**: This task is strictly for EVALUATION
+  data.'
+: 1
