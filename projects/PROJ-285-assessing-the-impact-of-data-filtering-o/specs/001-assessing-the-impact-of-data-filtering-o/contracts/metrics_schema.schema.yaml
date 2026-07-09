@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Threshold Metric Output Schema"
+description: "Schema for the detection matrix CSV output (data/processed/detection_matrix.csv)."
+type: "object"
+properties:
+  snr_threshold:
+    type: "number"
+    description: "The SNR cutoff used for this row."
+  morph_threshold:
+    type: "number"
+    description: "The morphology cutoff used for this row."
+  detection_count:
+    type: "integer"
+    description: "Total number of candidates passing thresholds."
+  tp_count:
+    type: "integer"
+    description: "True Positives (matches with validation catalog)."
+  fp_count:
+    type: "integer"
+    description: "False Positives (candidates without match)."
+  purity_score:
+    type: "number"
+    description: "Purity metric (TP / (TP + FP)). Can be NaN."
+  recovery_rate:
+    type: "number"
+    description: "Recovery rate of true lenses."
+  fdr_adjusted_p:
+    type: "number"
+    description: "Benjamini-Yekutieli adjusted p-value."
+  clm_coefficient:
+    type: "number"
+    description: "Coefficient from Cumulative Link Model."
+required:
+  - snr_threshold
+  - morph_threshold
+  - detection_count
+  - tp_count
+  - fp_count
+  - purity_score
+  - recovery_rate
+  - fdr_adjusted_p
+  - clm_coefficient
+additionalProperties: false

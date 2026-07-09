@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Threshold Metrics Schema"
+description: "Schema for the output metrics table after grid analysis."
+type: object
+properties:
+  snr_threshold:
+    type: number
+    description: "The SNR threshold used for this row."
+  morph_threshold:
+    type: number
+    description: "The morphology threshold used for this row."
+  detection_count:
+    type: integer
+    description: "Number of candidates passing the thresholds."
+    minimum: 0
+  true_positives:
+    type: integer
+    description: "Number of true positives."
+    minimum: 0
+  false_positives:
+    type: integer
+    description: "Number of false positives."
+    minimum: 0
+  purity_score:
+    type: number
+    description: "Purity score (TP / (TP + FP)). Can be NaN if denominator is 0."
+  recovery_rate:
+    type: number
+    description: "Fraction of true lenses detected."
+  detection_rate_variance:
+    type: number
+    description: "Variance of detection counts across the grid for this threshold pair."
+  fdr_adjusted_p:
+    type: number
+    description: "Benjamini-Yekutieli adjusted p-value."
+  clm_coefficient:
+    type: number
+    description: "Coefficient from Cumulative Link Model."
+required:
+  - snr_threshold
+  - morph_threshold
+  - detection_count
+  - true_positives
+  - false_positives
+  - purity_score
+  - recovery_rate
+  - fdr_adjusted_p
+  - clm_coefficient
+additionalProperties: false

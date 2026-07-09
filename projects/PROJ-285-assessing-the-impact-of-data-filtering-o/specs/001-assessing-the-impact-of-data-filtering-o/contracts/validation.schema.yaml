@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Catalog Schema"
+description: "Schema for the independent validation catalog (SLFC ground truth)."
+type: object
+properties:
+  validation_id:
+    type: string
+    description: "Unique identifier for the validation entry."
+  ra:
+    type: number
+    description: "Right Ascension in degrees."
+    minimum: -180
+    maximum: 180
+  dec:
+    type: number
+    description: "Declination in degrees."
+    minimum: -90
+    maximum: 90
+  is_true_lens:
+    type: boolean
+    description: "Ground truth label indicating if this is a true lens."
+required:
+  - validation_id
+  - ra
+  - dec
+  - is_true_lens
+additionalProperties: false

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SLFC Lens Candidate Dataset Schema"
+description: "Schema for the Strong Lens Finding Challenge dataset used in this project."
+type: object
+properties:
+  candidate_id:
+    type: string
+    description: "Unique identifier for the candidate."
+  ra:
+    type: number
+    description: "Right Ascension in degrees."
+    minimum: -180
+    maximum: 180
+  dec:
+    type: number
+    description: "Declination in degrees."
+    minimum: -90
+    maximum: 90
+  snr:
+    type: number
+    description: "Signal-to-Noise Ratio."
+    minimum: 0
+  morphology_score:
+    type: number
+    description: "Morphology score between 0.0 and 1.0."
+    minimum: 0
+    maximum: 1
+  is_lens:
+    type: boolean
+    description: "Ground truth label: True if lens, False if non-lens."
+required:
+  - candidate_id
+  - ra
+  - dec
+  - snr
+  - morphology_score
+  - is_lens
+additionalProperties: false

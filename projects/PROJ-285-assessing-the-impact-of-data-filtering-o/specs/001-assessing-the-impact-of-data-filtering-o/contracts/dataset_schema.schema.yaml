@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LensCandidate Dataset Schema"
+description: "Schema for the primary input dataset (SLFC)."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the candidate."
+  SNR:
+    type: "number"
+    description: "Signal-to-Noise Ratio. Must be a float."
+  morphology_score:
+    type: "number"
+    description: "Morphology classification score (0.0 to 1.0)."
+  RA:
+    type: "number"
+    description: "Right Ascension in degrees."
+  Dec:
+    type: "number"
+    description: "Declination in degrees."
+  is_lens:
+    type: "boolean"
+    description: "Ground truth label (True/False)."
+required:
+  - id
+  - SNR
+  - morphology_score
+  - RA
+  - Dec
+  - is_lens
+additionalProperties: false

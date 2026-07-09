@@ -1,0 +1,11 @@
+- artifact_hash: e849ea9d89af6df9d682d00acf8fc8fe96f99d2704c3f5cc69e8c680aad77b2f
+  artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/strong-lens-finding-challenge/`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/strong-lens-finding-challenge/datasets
+  verified_at: '2026-07-09T04:12:44.588658Z'

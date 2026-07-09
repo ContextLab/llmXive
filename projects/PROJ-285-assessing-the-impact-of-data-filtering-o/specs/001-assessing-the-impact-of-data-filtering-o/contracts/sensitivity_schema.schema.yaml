@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Sweep Schema"
+description: "Schema for the sensitivity analysis output (data/processed/sensitivity_sweep.csv)."
+type: "object"
+properties:
+  base_snr_threshold:
+    type: "number"
+    description: "The base SNR threshold for the sweep."
+  offset:
+    type: "number"
+    description: "The offset applied (e.g., 0.5, -1.0)."
+  fp_rate:
+    type: "number"
+    description: "False Positive Rate at this offset."
+  fp_variation:
+    type: "number"
+    description: "Change in FP rate relative to the base."
+required:
+  - base_snr_threshold
+  - offset
+  - fp_rate
+  - fp_variation
+additionalProperties: false

@@ -1,0 +1,213 @@
+resolved_at: '2026-07-09T03:54:03.482185+00:00'
+datasets:
+- intent: DES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bprateek/amazon_product_description/resolve/main/marketing_sample_for_amazon_com-ecommerce__20200101_20200131__10k_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jacob-hugging-face/job-descriptions/resolve/main/training_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/creative-graphic-design/Rico/resolve/main/data/metadata-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bprateek/amazon_product_description/resolve/main/marketing_sample_for_amazon_com-ecommerce__20200101_20200131__10k_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jacob-hugging-face/job-descriptions/resolve/main/training_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/creative-graphic-design/Rico/resolve/main/data/metadata-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/contra-labs/creative-photoshop-design-trajectories/resolve/main/data/train.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/UI-MOPD/Uni-GUI-Desktop-1/resolve/main/0c267f5e-02ce9a50-7af2-47ed-8596-af0c230501f8/task.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.mq.edu.au/articles/thesis/How_can_AI_Agents_Coordinate_Conversations_with_Humans_Towards_a_Framework_for_Modelling_Human-Agent_Task_Directed_Conversational_Interaction/32745819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplemental_Fig_S1_/30539414
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ondo_State_University_of_Science_and_Technology_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_and_code_supporting_the_paper_b_Small_but_spicy_Small_ants_repel_herbivores_fast_of_a_Mexican_endemic_shrub_b_/31049986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_07076040542_Ladoke_Akintola_University_of_Technology_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01675151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.biodiversitylibrary.org/part/357855
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.publishing.csiro.au/?paper=MRv23n3_BR
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17512253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1017/s1026881200068252
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21271514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271514
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257195
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Ashodkh/hsc-jwst-images-high-snr/resolve/main/data/train-00000-of-00025.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_none/resolve/main/data/test-00000-of-00001-7c1590c94db52498.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_neg10/resolve/main/data/test-00000-of-00001-5033b48ee62a31f7.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Ashodkh/hsc-jwst-images-high-snr/resolve/main/data/train-00000-of-00025.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_none/resolve/main/data/test-00000-of-00001-7c1590c94db52498.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_neg10/resolve/main/data/test-00000-of-00001-5033b48ee62a31f7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_0/resolve/main/data/test-00000-of-00001-7aaebcb09b30c1ce.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marccgrau/sbbdata_snr_10/resolve/main/data/test-00000-of-00001-0fae16540025bf82.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Call_07076040542_River_State_University_of_Science_and_Technology_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/How_can_AI_Agents_Coordinate_Conversations_with_Humans_Towards_a_Framework_for_Modelling_Human-Agent_Task_Directed_Conversational_Interaction/32745819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplemental_Fig_S1_/30539414
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ondo_State_University_of_Science_and_Technology_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_and_code_supporting_the_paper_b_Small_but_spicy_Small_ants_repel_herbivores_fast_of_a_Mexican_endemic_shrub_b_/31049986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7512309
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4724137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5833958
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8428643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v7i2.1167
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20361488
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140817
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05285
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.23527
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.19238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
