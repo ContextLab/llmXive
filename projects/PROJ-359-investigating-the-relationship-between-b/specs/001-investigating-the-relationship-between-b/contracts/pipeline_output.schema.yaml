@@ -1,0 +1,109 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pipeline Output Schema"
+description: "Schema for validating pipeline output files (model_summary.csv, baseline_metrics.csv, motion_metrics.csv). Validated in Phase 3."
+type: "object"
+properties:
+  baseline_metrics:
+    type: "object"
+    description: "Schema for baseline_metrics.csv"
+    properties:
+      participant_id:
+        type: "string"
+        description: "Unique participant identifier (e.g., sub-1001)"
+      global_efficiency:
+        type: "number"
+        description: "Global efficiency of the functional network"
+      modularity_q:
+        type: "number"
+        description: "Modularity (Q) of the functional network"
+      fpn_strength:
+        type: "number"
+        description: "Average edge weight within frontoparietal network"
+      dmn_strength:
+        type: "number"
+        description: "Average edge weight within default mode network"
+      age:
+        type: "integer"
+        description: "Participant age"
+      sex:
+        type: "string"
+        description: "Participant sex (M/F)"
+      wm_score:
+        type: "number"
+        description: "Working memory score (N-back d-prime)"
+    required:
+      - participant_id
+      - global_efficiency
+      - modularity_q
+      - fpn_strength
+      - dmn_strength
+      - age
+      - sex
+      - wm_score
+  model_summary:
+    type: "object"
+    description: "Schema for model_summary.csv"
+    properties:
+      predictor:
+        type: "string"
+        description: "Name of the predictor variable"
+      coefficient:
+        type: "number"
+        description: "Estimated regression coefficient (beta)"
+      std_error:
+        type: "number"
+        description: "Standard error of the coefficient"
+      ci_lower:
+        type: "number"
+        description: "Lower bound of 95% confidence interval"
+      ci_upper:
+        type: "number"
+        description: "Upper bound of 95% confidence interval"
+      p_value_raw:
+        type: "number"
+        description: "Raw p-value from permutation test"
+      p_value_corrected:
+        type: "number"
+        description: "Holm-Bonferroni corrected p-value"
+      significant:
+        type: "boolean"
+        description: "True if p_value_corrected < 0.05"
+    required:
+      - predictor
+      - coefficient
+      - std_error
+      - ci_lower
+      - ci_upper
+      - p_value_raw
+      - p_value_corrected
+      - significant
+  motion_metrics:
+    type: "object"
+    description: "Schema for motion_metrics.csv"
+    properties:
+      participant_id:
+        type: "string"
+        description: "Unique participant identifier"
+      mean_fd:
+        type: "number"
+        description: "Mean framewise displacement (mm)"
+      max_fd:
+        type: "number"
+        description: "Maximum framewise displacement (mm)"
+      excluded:
+        type: "boolean"
+        description: "True if mean_fd > 0.3 mm"
+      exclusion_reason:
+        type:
+          - "string"
+          - "null"
+        description: "Reason for exclusion (null if included)"
+    required:
+      - participant_id
+      - mean_fd
+      - max_fd
+      - excluded
+required:
+  - baseline_metrics
+  - model_summary
+  - motion_metrics

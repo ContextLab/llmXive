@@ -1,5 +1,215 @@
-resolved_at: '2026-07-05T21:20:26.534713+00:00'
+resolved_at: '2026-07-09T11:46:09.668309+00:00'
 datasets:
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/6hkj7-4kb59
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/c2622-q7q11
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000800480
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: FAIL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/merve/supersoaker-failures/resolve/main/supersoaker.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/diffusers-tools/test_failures/resolve/main/test_corrections.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3878
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/merve/supersoaker-failures/resolve/main/supersoaker.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/diffusers-tools/test_failures/resolve/main/test_corrections.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Javiai/failures-3D-print/resolve/main/data/train-00000-of-00001-d89ab36ef5b3866d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mstz/heart_failure/resolve/main/death/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7914037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922058
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7921937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7920483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11217229
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1191684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1152251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ejournals.uni-muenster.de/sun/article/view/9948
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/930263
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150089
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: OpenNeuro
   status: verified
   candidates:
@@ -26,31 +236,31 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Minna_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903750
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_International_Christian_College_of_Nursing_Sciences_ICCNS_Owerri_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903747
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Princess_College_of_Nursing_Sciences_Mgbirichi_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903744
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Merit_College_of_Nursing_Sciences_Orlu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903735
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Ezeala_School_of_Nursing_Sciences_Orlu_Amauzari_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903732
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21169036
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21169036
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -62,27 +272,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032699
+  - url: https://zenodo.org/records/19435085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209857
+  - url: https://openneuro.org/datasets/ds008037/versions/1.0.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209857
+  - url: https://zenodo.org/records/21271058
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209676
+  - url: https://zenodo.org/records/21271058
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209676
+  - url: https://osf.io/q89jw/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/gz2rw/
+  - url: https://osf.io/35sxv/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,23 +300,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Bida_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903753
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Minna_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903750
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_International_Christian_College_of_Nursing_Sciences_ICCNS_Owerri_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903747
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Princess_College_of_Nursing_Sciences_Mgbirichi_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903744
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Merit_College_of_Nursing_Sciences_Orlu_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903735
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -114,11 +324,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3401393
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+  - url: https://zenodo.org/records/3401393
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -126,7 +336,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vd7k7
+  - url: https://zenodo.org/records/8142640
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -153,13 +363,6 @@ datasets:
 - intent: PASS
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/ChocoChichia/synthetic-query-passage-pairs-en/resolve/main/arxiv_abstracts.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/Tevatron/msmarco-passage-corpus/resolve/main/corpus.jsonl.gz
     source: huggingface
     format: gzip
@@ -174,11 +377,14 @@ datasets:
     sample_check:
       downloaded_bytes: 134665
       parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/ChocoChichia/synthetic-query-passage-pairs-en/resolve/main/arxiv_abstracts.jsonl
+  - url: https://huggingface.co/datasets/allegro/polish-question-passage-pairs/resolve/main/all.csv
     source: huggingface
-    status: verified
-    format: jsonl
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/Tevatron/msmarco-passage-corpus/resolve/main/corpus.jsonl.gz
     source: huggingface
     status: verified
@@ -191,23 +397,27 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Kontagora_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903756
+  - url: https://huggingface.co/datasets/castorini/msmarco_v1_passage_doc2query-t5_expansions/resolve/main/d2q.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://tandf.figshare.com/articles/journal_contribution/Poly-adenine_decorated_pencil_graphite_electrode_for_the_electrochemical_quantification_of_indigo_carmine/32947740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Bida_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903753
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Minna_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903750
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_International_Christian_College_of_Nursing_Sciences_ICCNS_Owerri_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903747
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Princess_College_of_Nursing_Sciences_Mgbirichi_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903744
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -227,27 +437,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/8285733
+  - url: https://zenodo.org/records/8285234
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210439
+  - url: https://iris.unimore.it/handle/11380/1197316
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21210439
+  - url: https://air.unimi.it/handle/2434/150555
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19071531
+  - url: https://usiena-air.unisi.it//handle/11365/1133797
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19071531
+  - url: https://zenodo.org/records/21278840
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21209970
+  - url: https://zenodo.org/records/21278840
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -258,13 +468,6 @@ datasets:
 - intent: NOT
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 10859
-      parsed: true
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     format: json
@@ -272,52 +475,59 @@ datasets:
     sample_check:
       downloaded_bytes: 39475
       parsed: true
-  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 2431
-      parsed: true
-  candidates_tried:
   - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
     source: huggingface
-    status: verified
     format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     status: verified
     format: json
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
   - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Kontagora_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903756
+  - url: https://tandf.figshare.com/articles/journal_contribution/Poly-adenine_decorated_pencil_graphite_electrode_for_the_electrochemical_quantification_of_indigo_carmine/32947740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Bida_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903753
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/An_explainable_multi-agent_system_for_phishing_website_detection_with_calibrated_fusion_and_adaptive_routing/32923346
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_College_of_Nursing_Sciences_Minna_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903750
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Teaching_low-attaining_secondary_school_mathematics_students_what_practices_do_their_teachers_report_/32233866
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_International_Christian_College_of_Nursing_Sciences_ICCNS_Owerri_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903747
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Princess_College_of_Nursing_Sciences_Mgbirichi_2026_2027_Admission_Application_Form_Is_Out_Call_09152489563_/32903744
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15525595
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/16413212
@@ -328,11 +538,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15779328
+  - url: https://zenodo.org/records/15525595
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8298365
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578377
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

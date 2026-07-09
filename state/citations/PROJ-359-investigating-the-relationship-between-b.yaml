@@ -1,1 +1,46 @@
-[]
+- artifact_hash: 303dc2226a0fc1c73bd729355f31c5919545f5b02ac468ad2669deb216d89a9f
+  artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000278
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000278
+  verified_at: '2026-07-09T11:57:28.566460Z'
+- artifact_hash: 303dc2226a0fc1c73bd729355f31c5919545f5b02ac468ad2669deb216d89a9f
+  artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal\
+    \ at master \xB7 ThomasYeoLab/CBIG \xB7 GitHub"
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verification_status: verified
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal
+  verified_at: '2026-07-09T11:57:28.566460Z'
+- artifact_hash: 303dc2226a0fc1c73bd729355f31c5919545f5b02ac468ad2669deb216d89a9f
+  artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'fMRIPrep: A Robust Preprocessing Pipeline for fMRI Data &mdash;
+    fmriprep version documentation'
+  kind: url
+  value: https://fmriprep.org/en/stable/
+  verification_status: verified
+  verified_against_url: https://fmriprep.org/en/stable/
+  verified_at: '2026-07-09T11:57:28.566460Z'
+- artifact_hash: 994a8407cc31461a67d95f9bd8296bce5406482600fd45bd59d1dbd2290b7aaf
+  artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_400Parcels_17Networks_order.txt`
+  verification_status: mismatch
+  verified_against_url: https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/MNI/Schaefer2018_400Parcels_17Networks_order.txt
+  verified_at: '2026-07-09T12:32:45.215828Z'

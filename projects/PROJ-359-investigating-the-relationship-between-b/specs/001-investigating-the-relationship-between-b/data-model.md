@@ -2,66 +2,58 @@
 
 ## Overview
 
-This document defines the data structures used in the pipeline. All data is derived from the `ds000277` dataset and processed according to the fMRIPrep 23.1.3 and Schaefer 400 standards.
+This document defines the data structures, schemas, and file formats used throughout the pipeline. All data is stored in `data/` with checksums recorded.
 
-## Entities
+## File Structure
 
-### 1. Participant
-Unique identifier linking imaging and behavioral data.
-- `participant_id`: String (e.g., "sub-001")
-- `age`: Integer
-- `sex`: String ("M", "F", "Other")
-- `baseline_wm_score`: Float (Working Memory Score)
-- `mean_fd`: Float (Mean Framewise Displacement)
-- `excluded_motion`: Boolean (True if mean_fd > 3.0)
-- `excluded_missing_wm`: Boolean (True if WM score is missing)
+```text
+data/
+├── raw/
+│   ├── ds000278/            # Raw OpenNeuro download (HCP rs-fMRI)
+│   └── checksums.json       # SHA-256 hashes of raw files
+├── preprocessed/
+│   ├── sub-*/               # fMRIPrep outputs (cleaned NIfTI, confounds TSV)
+│   └── connectivity/        # 400x400 correlation matrices (NPY/CSV)
+├── motion/
+│   └── motion_metrics.csv   # Mean FD, max FD per participant (threshold: 0.3 mm)
+├── results/
+│   ├── baseline_metrics.csv # Network metrics per participant
+│   ├── pca_components.csv   # PCA-transformed metrics
+│   ├── model_summary.csv    # Regression coefficients, p-values, CIs
+│   ├── power_analysis.txt   # Power analysis output
+│   └── effect_sizes.pdf     # Visualization output
+└── logs/
+    └── pipeline_log.json    # Execution log with exclusion counts
+```
 
-### 2. ConnectivityMatrix
-Symmetric 400x400 matrix.
-- `participant_id`: String
-- `matrix_data`: List[List[Float]] (Flattened or 2D array)
-- `parcellation`: String ("Schaefer400")
-- `distance_metric`: String ("Pearson")
+## Entity Definitions
 
-### 3. NetworkMetrics
-Aggregated graph properties.
-- `participant_id`: String
-- `global_efficiency`: Float
-- `modularity`: Float (Q)
-- `frontoparietal_strength`: Float
-- `default_mode_strength`: Float
+### Participant
+- **ID**: String (e.g., `sub-1001`)
+- **Age**: Integer
+- **Sex**: String ('M', 'F')
+- **WM_Score**: Float (N-back d-prime)
+- **Mean_FD**: Float (framewise displacement)
+- **Exclusion_Reason**: String (null if valid)
 
-### 4. RegressionResult
-Output of the statistical model.
-- `predictor`: String
-- `coefficient`: Float
-- `std_error`: Float
-- `p_value_raw`: Float
-- `p_value_adjusted`: Float (Holm-Bonferroni)
-- `ci_lower`: Float
-- `ci_upper`: Float
-- `significant`: Boolean
+### ConnectivityMatrix
+- **Shape**: 400 x 400
+- **Type**: Symmetric Pearson correlation coefficients
+- **Storage**: NPY or CSV in `data/preprocessed/connectivity/`
 
-### 5. PipelineLog
-JSON log of pipeline execution.
-- `exclusion_motion`: Integer (Count of excluded due to motion)
-- `exclusion_missing_wm`: Integer (Count of excluded due to missing WM)
-- `runtime`: Float (Seconds)
-- `id_validation_status`: String ("PASS" or "FAIL")
-- `dataset_source`: String (URL or identifier)
+### NetworkMetrics
+- **Global_Efficiency**: Float
+- **Modularity_Q**: Float
+- **FPN_Strength**: Float (average edge weight within FPN)
+- **DMN_Strength**: Float (average edge weight within DMN)
 
 ## Data Flow
 
-1.  **Raw Data**: `ds000277` (NIfTI, JSON, TSV).
-2.  **Preprocessed**: fMRIPrep outputs (cleaned NIfTI, confounds TSV).
-3.  **Metrics**: `baseline_metrics.csv` (Participant + NetworkMetrics).
-4.  **Behavioral**: `baseline_wm_scores.csv` (Participant + WM + Demographics).
-5.  **Joined**: `analysis_dataset.csv` (Combined for regression).
-6.  **Results**: `model_summary.csv`, `effect_sizes.pdf`, `pipeline_log.json`.
-
-## Constraints
-
-- **Missing Data**: Participants with missing `mean_fd` or `baseline_wm_score` are excluded.
-- **Motion**: Participants with `mean_fd > 3.0` are excluded (Constitution Override).
-- **ID Validation**: Every participant in `baseline_metrics.csv` must exist in `baseline_wm_scores.csv`.
-- **Variable Verification**: The `baseline_wm_score` column must exist in behavioral data; otherwise, the pipeline halts.
+1. **Download**: Raw data fetched from OpenNeuro (`ds000278`). Checksums verified.
+2. **Preprocess**: fMRIPrep generates cleaned NIfTI and confounds TSV.
+3. **Validate**: ID matching and motion exclusion (FD > 0.3 mm).
+4. **Extract**: Time series extracted via the Schaefer atlas parcellation; correlation matrices computed.
+5. **Aggregate**: Network metrics calculated and saved to `baseline_metrics.csv`.
+6. **Transform**: PCA applied to network metrics; components saved to `pca_components.csv`.
+7. **Model**: Regression fit on PCA components; results saved to `model_summary.csv`.
+8. **Visualize**: PDF report generated.

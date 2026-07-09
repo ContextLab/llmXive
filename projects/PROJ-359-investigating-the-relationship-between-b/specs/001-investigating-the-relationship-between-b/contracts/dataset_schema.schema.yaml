@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Participant Dataset Schema (Pivoted: Baseline Association)"
-description: "Schema for the merged dataset of network metrics and baseline behavioral outcomes used in regression."
+title: "Participant Dataset Schema (Merged: Baseline Association)"
+description: "Schema for the merged dataset of network metrics (or PCA components) and baseline behavioral outcomes used in regression. Validated in Phase 2."
 type: "object"
 properties:
   participant_id:

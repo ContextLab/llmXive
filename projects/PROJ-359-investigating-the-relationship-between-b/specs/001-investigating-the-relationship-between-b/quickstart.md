@@ -5,72 +5,80 @@
 - Python 3.11+
 - Docker (for fMRIPrep)
 - Git
-- Sufficient Disk Space (for dataset and temporary files)
+- GB free disk space
+- 7 GB RAM
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-359-investigating-the-relationship-between-b
-    ```
+1. **Clone Repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-359-investigating-the-relationship-between-b
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ```
+2. **Install Dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Verify fMRIPrep**:
+   ```bash
+   docker pull nipreps/fmriprep:23.1.3
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main CLI entry point.
-
 ### Step 1: Download Data
 ```bash
-python src/cli.py download --dataset ds000277 --output data/raw --sample-size 15
+python code/src/download.py --dataset ds000278 --output data/raw/
 ```
-*Note: This downloads the dataset from OpenNeuro. The `--sample-size` flag is used for CI feasibility (N=15). Remove for full analysis.*
+*Verifies checksums and logs to `data/raw/checksums.json`.*
 
-### Step 2: Preprocess (fMRIPrep)
+### Step 2: Preprocess & Validate
 ```bash
-python src/cli.py preprocess --input data/raw --output data/preprocessed --fmriprep-version 23.1.3 --nprocs 1 --mem 6000
+python code/src/preprocess.py --input data/raw/ds000278 --output data/preprocessed/ --motion-threshold 0.3 --docker-memory 6g
 ```
-*This step runs fMRIPrep. It may take several hours. Memory limits are enforced.*
+*Excludes participants with mean FD > 0.3 mm. Logs exclusions to `data/logs/pipeline_log.json`. Docker memory limited to a constrained capacity to fit the available RAM constraint..*
 
 ### Step 3: Extract Metrics
 ```bash
-python src/cli.py metrics --preprocessed data/preprocessed --atlas Schaefer400 --output data/metrics
+python code/src/metrics.py --preprocessed data/preprocessed/ --parcellation Schaefer400 --output data/results/baseline_metrics.csv
 ```
 
-### Step 4: Run Analysis
+### Step 4: Power Analysis & PCA
 ```bash
-python src/cli.py analyze --metrics data/metrics --behavioral data/raw/phenotypic.tsv --output data/results
+python code/src/utils.py --power-analysis --n <actual_N> --alpha 0.05 --effect-size 0.15 --output data/results/power_analysis.txt
+python code/src/metrics.py --input data/results/baseline_metrics.csv --pca --output data/results/pca_components.csv
 ```
-*This performs the regression, permutation testing, and power analysis. The `baseline_wm_score` column is verified before execution. Power analysis output is written to `data/results/power_analysis.txt`.*
+*Aborts if N < 30. Calculates achieved power (expected ~0.65 for N=30). Warns if power < 0.80.*
 
-### Step 5: Visualize
+### Step 5: Regression
 ```bash
-python src/cli.py viz --results data/results --output data/results/effect_sizes.pdf --seed 42
+python code/src/regression.py --metrics data/results/pca_components.csv --output data/results/model_summary.csv --seed 42
 ```
-*Seed pinning is enforced for reproducibility (SC-004). The `--seed` flag ensures identical hashes on re-run.*
+*Performs permutation testing (a sufficient number of shuffles) and Holm-Bonferroni correction.*
 
-## Verification
+### Step 6: Visualization
+```bash
+python code/src/visualize.py --summary data/results/model_summary.csv --output data/results/effect_sizes.pdf --seed 42
+```
 
-Check the `data/results/pipeline_log.json` for the following:
-- `id_validation_status`: "PASS"
-- `exclusion_motion`: Count of excluded participants (threshold > 3.0mm)
-- `exclusion_missing_wm`: Count of excluded participants (missing WM score)
-- `runtime`: Total execution time
-- `power_analysis.txt`: Check for achieved power report.
+## Reproducibility Check
+
+To verify deterministic reproducibility:
+```bash
+# Run twice with same seed
+python code/src/visualize.py --summary data/results/model_summary.csv --output test1.pdf --seed 42
+python code/src/visualize.py --summary data/results/model_summary.csv --output test2.pdf --seed 42
+
+# Compare hashes
+sha256sum test1.pdf test2.pdf
+# Output hashes must be identical
+```
 
 ## Troubleshooting
 
-- **fMRIPrep OOM**: Reduce `--mem` flag in the preprocessing step or reduce `--sample-size`.
-- **Missing Behavioral Data**: Ensure the `ds000277` download includes the phenotypic TSV file. If `baseline_wm_score` is missing, the pipeline will halt.
-- **Motion Exclusion**: Check `data/motion/exclusions.csv` to see how many participants were dropped due to FD > 3.0mm.
-- **Reproducibility**: Ensure `--seed` is set in the visualization step.
+- **Memory Error**: Ensure Docker memory limit is set to 6 GB (`--docker-memory 6g`). Check swap space.
+- **fMRIPrep Failure**: Check Docker logs; ensure sufficient disk space.
+- **Missing IDs**: Pipeline aborts with exit code 1. Check `data/logs/pipeline_log.json`.
+- **Power Warning**: If power < 0.80, results are framed as exploratory.
