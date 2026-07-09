@@ -1,0 +1,573 @@
+{
+  "fetched_at": "2026-07-09T21:40:19Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration\"",
+      "target_n": 5
+    },
+    "duration_seconds": 67.107,
+    "ended_at": "2026-07-09T21:40:19Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "template-guided iterative error correction in natural language"
+        ],
+        [
+          2,
+          "proactive multi-issue detection in linguistic datasets"
+        ],
+        [
+          3,
+          "iterative refinement frameworks for LLM-generated text"
+        ],
+        [
+          4,
+          "automated discovery of linguistic anomalies via templates"
+        ],
+        [
+          5,
+          "systematic error identification in large language model outputs"
+        ],
+        [
+          6,
+          "multi-problem diagnosis in computational linguistics"
+        ],
+        [
+          7,
+          "template-based iteration for language model alignment"
+        ],
+        [
+          8,
+          "proactive debugging of linguistic reasoning in AI"
+        ],
+        [
+          9,
+          "iterative correction strategies for semantic errors in NLP"
+        ],
+        [
+          10,
+          "structured prompt engineering for multi-faceted problem solving"
+        ],
+        [
+          11,
+          "automated linguistic quality assurance via iterative prompting"
+        ],
+        [
+          12,
+          "template-driven analysis of LLM failure modes"
+        ],
+        [
+          13,
+          "multi-dimensional error detection in generative language models"
+        ],
+        [
+          14,
+          "iterative self-correction mechanisms for linguistic tasks"
+        ],
+        [
+          15,
+          "proactive identification of syntactic and semantic inconsistencies"
+        ],
+        [
+          16,
+          "framework for comprehensive error discovery in AI text generation"
+        ],
+        [
+          17,
+          "guided iteration techniques for improving LLM linguistic accuracy"
+        ],
+        [
+          18,
+          "systematic evaluation of multi-problem scenarios in NLP"
+        ],
+        [
+          19,
+          "template-based approaches to LLM reasoning gaps"
+        ],
+        [
+          20,
+          "iterative problem-solving architectures for natural language understanding"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "automated discovery of linguistic anomalies via templates": 2,
+        "iterative refinement frameworks for LLM-generated text": 4,
+        "llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration\" linguistics": 0,
+        "proactive multi-issue detection in linguistic datasets": 0,
+        "template-guided iterative error correction in natural language": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "template-guided iteration error detection",
+      "LLM linguistic error correction benchmarks",
+      "linguistic pattern mining error propagation",
+      "automated linguistic evaluation metrics robustness",
+      "systematic linguistic error taxonomy generation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.11022"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM linguistic error correction benchmarks": 3,
+      "automated linguistic evaluation metrics robustness": 3,
+      "linguistic pattern mining error propagation": 3,
+      "llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration\" linguistics": 3,
+      "systematic linguistic error taxonomy generation": 3,
+      "template-guided iteration error detection": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2410.14259",
+          "rationale": "The paper focuses on detecting LLM-generated text and measuring the degree of LLM involvement (binary vs. fine-grained detection), which is a distinct construct from the user's question about \"TIDE,\" a framework for proactive multi-problem discovery via template-guided iteration. While both involve LLMs, the candidate paper does not address the specific mechanism of template-guided iteration, problem discovery, or the \"linguistics\" extension of the TIDE framework, nor does it measure the same va",
+          "title": "Beyond Binary: Towards Fine-Grained LLM-Generated Text Detection via Role Recognition and Involvement Measurement"
+        },
+        {
+          "primary_pointer": "2601.15286",
+          "rationale": "The paper focuses on iterative refinement for text-to-image generation, which is a distinct domain (computer vision) from the user's specific question regarding \"linguistics\" and the TIDE framework for multi-problem discovery. While both involve \"iterative\" processes, the paper does not measure the same biological, physical, or algorithmic mechanism in the linguistic domain, nor does it address the specific variables or empirical population (linguistic problem discovery) required by the user's q",
+          "title": "Iterative Refinement Improves Compositional Image Generation"
+        },
+        {
+          "primary_pointer": "2408.08946",
+          "rationale": "The paper is a general survey on authorship attribution and LLM detection, which does not address the specific \"template-guided iteration\" mechanism or the \"proactive multi-problem discovery\" framework central to the user's question about extending the TIDE methodology. While both involve LLMs, the paper lacks the specific methodological focus (iterative template guidance) or the specific problem domain (proactive discovery) required to serve as a canonical reference for extending TIDE.",
+          "title": "Authorship Attribution in the Era of LLMs: Problems, Methodologies, and Challenges"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-09T21:39:12Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"tide: proactive multi-problem discovery via template-guided iteration\" linguistics",
+      "raw": "llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Template-Guided Iteration\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sound event localization and detection (SELD) is an emerging research topic that aims to unify the tasks of sound event detection and direction-of-arrival estimation. As a result, SELD inherits the challenges of both tasks, such as noise, reverberation, interference, polyphony, and non-stationarity of sound sources. Furthermore, SELD often faces an additional challenge of assigning correct correspondences between the detected sound classes and directions of arrival to multiple overlapping sound events. Previous studies have shown that unknown interferences in reverberant environments often cause major degradation in the performance of SELD systems. To further understand the challenges of the SELD task, we performed a detailed error analysis on two of our SELD systems, which both ranked second in the team category of DCASE SELD Challenge, one in 2020 and one in 2021. Experimental results indicate polyphony as the main challenge in SELD, due to the difficulty in detecting all sound events of interest. In addition, the SELD systems tend to make fewer errors for the polyphonic scenario that is dominant in the training set.",
+          "claimed_authors": [
+            "Thi Ngoc Tho Nguyen",
+            "Karn N. Watcharasupat",
+            "Zhen Jian Lee",
+            "Ngoc Khanh Nguyen",
+            "Douglas L. Jones",
+            "Woon Seng Gan"
+          ],
+          "claimed_title": "What Makes Sound Event Localization and Detection Difficult? Insights from Error Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.10469"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='What Makes Sound Event Localization and Detection Difficult? Insights from Error Analysis')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reversible logic has promising applications in emerging nanotechnologies, such as quantum computing, quantum dot cellular automata and optical computing, etc. Faults in reversible logic circuits that result in multi-bit error at the outputs are very tough to detect, and thus in literature, researchers have only addressed the problem of online testing of faults that result single-bit error at the outputs based on parity preserving logic. In this work, we propose a methodology for the concurrent error detection in reversible logic circuits to detect faults that can result in multi-bit error at the outputs. The methodology is based on the inverse property of reversible logic and is termed as 'inverse and compare' method. By using the inverse property of reversible logic, all the inputs can be regenerated at the outputs. Thus, by comparing the original inputs with the regenerated inputs, the faults in reversible circuits can be detected. Minimizing the garbage outputs is one of the main goals in reversible logic design and synthesis. We show that the proposed methodology results in 'garbageless' reversible circuits. A design of reversible full adder that can be concurrently tested for multi-bit error at the outputs is illustrated as the application of the proposed scheme. Finally, we showed the application of the proposed scheme of concurrent error detection towards fault detection in quantum dot cellular automata (QCA) emerging nanotechnology.",
+          "claimed_authors": [
+            "Himanshu Thapliyal",
+            "Nagarajan Ranganathan"
+          ],
+          "claimed_title": "Reversible Logic Based Concurrent Error Detection Methodology For Emerging Nanocircuits",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.4222"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Reversible Logic Based Concurrent Error Detection Methodology For Emerging Nanocircuits')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Botnets, which consist of thousands of compromised machines, can cause significant threats to other systems by launching Distributed Denial of Service (SSoS) attacks, keylogging, and backdoors. In response to these threats, new effective techniques are needed to detect the presence of botnets. In this paper, we have used an interception technique to monitor Windows Application Programming Interface (API) functions calls made by communication applications and store these calls with their arguments in log files. Our algorithm detects botnets based on monitoring abnormal activity by correlating the changes in log file sizes from different hosts.",
+          "claimed_authors": [
+            "Yousof Al-Hammadi",
+            "Uwe Aickelin"
+          ],
+          "claimed_title": "Detecting Botnets Through Log Correlation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2665"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Detecting Botnets Through Log Correlation')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continuous-time quantum error correction (CTQEC) is an approach to protecting quantum information from noise in which both the noise and the error correcting operations are treated as processes that are continuous in time. This chapter investigates CTQEC based on continuous weak measurements and feedback from the point of view of the subsystem principle, which states that protected quantum information is contained in a subsystem of the Hilbert space. We study how to approach the problem of constructing CTQEC protocols by looking at the evolution of the state of the system in an encoded basis in which the subsystem containing the protected information is explicit. This point of view allows us to reduce the problem to that of protecting a known state, and to design CTQEC procedures from protocols for the protection of a single qubit. We show how previously studied CTQEC schemes with both direct and indirect feedback can be obtained from strategies for the protection of a single qubit via weak measurements and weak unitary operations. We also review results on the performance of CTQEC with direct feedback in cases of Markovian and non-Markovian decoherence, where we have shown that due to the existence of a Zeno regime in non-Markovian dynamics, the performance of CTQEC can exhibit a quadratic improvement if the time resolution of the weak error-correcting operations is high enough to reveal the non-Markovian character of the noise process.",
+          "claimed_authors": [
+            "Ognyan Oreshkov"
+          ],
+          "claimed_title": "Continuous-time quantum error correction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.2485"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Continuous-time quantum error correction')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide a self-contained introduction for entanglement-assisted quantum error-correcting codes in this book chapter.",
+          "claimed_authors": [
+            "Todd Brun",
+            "Min-Hsiu Hsieh"
+          ],
+          "claimed_title": "Entanglement-Assisted Quantum Error-Correcting Codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04013"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Entanglement-Assisted Quantum Error-Correcting Codes')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are widely believed to possess self-correction capabilities, yet recent studies suggest that intrinsic self-correction--where models correct their own outputs without external feedback--remains largely ineffective. In this work, we systematically decompose self-correction into three distinct sub-capabilities: error detection, error localization, and error correction. Through cross-model experiments on GSM8K-Complex (n=500 per model, 346 total errors) with three major LLMs, we uncover a striking Accuracy-Correction Paradox: weaker models (GPT-3.5, 66% accuracy) achieve 1.6x higher intrinsic correction rates than stronger models (DeepSeek, 94% accuracy)--26.8% vs 16.7%. We propose the Error Depth Hypothesis: stronger models make fewer but deeper errors that resist self-correction. Error detection rates vary dramatically across architectures (10% to 82%), yet detection capability does not predict correction success--Claude detects only 10% of errors but corrects 29% intrinsically. Surprisingly, providing error location hints hurts all models. Our findings challenge linear assumptions about model capability and self-improvement, with important implications for the design of self-refinement pipelines.",
+          "claimed_authors": [
+            "Yin Li"
+          ],
+          "claimed_title": "Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2601.00828"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mid-level visual element discovery aims to find clusters of image patches that are both representative and discriminative. In this work, we study this problem from the prospective of pattern mining while relying on the recently popularized Convolutional Neural Networks (CNNs). Specifically, we find that for an image patch, activations extracted from the first fully-connected layer of CNNs have two appealing properties which enable its seamless integration with pattern mining. Patterns are then discovered from a large number of CNN activations of image patches through the well-known association rule mining. When we retrieve and visualize image patches with the same pattern, surprisingly, they are not only visually similar but also semantically consistent. We apply our approach to scene and object classification tasks, and demonstrate that our approach outperforms all previous works on mid-level visual element discovery by a sizeable margin with far fewer elements being used. Our approach also outperforms or matches recent works using CNN for these tasks. Source code of the complete system is available online.",
+          "claimed_authors": [
+            "Yao Li",
+            "Lingqiao Liu",
+            "Chunhua Shen",
+            "Anton van den Hengel"
+          ],
+          "claimed_title": "Mid-level Deep Pattern Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.6382"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Mid-level Deep Pattern Mining')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Increasingly, researchers have suggested the benefits of temporal analysis to improve our understanding of the learning process. Sequential pattern mining (SPM), as a pattern recognition technique, has the potential to reveal the temporal aspects of learning and can be a valuable tool in educational data science. However, its potential is not well understood and exploited. This chapter addresses this gap by reviewing work that utilizes sequential pattern mining in educational contexts. We identify that SPM is suitable for mining learning behaviors, analyzing and enriching educational theories, evaluating the efficacy of instructional interventions, generating features for prediction models, and building educational recommender systems. SPM can contribute to these purposes by discovering similarities and differences in learners' activities and revealing the temporal change in learning behaviors. As a sequential analysis method, SPM can reveal unique insights about learning processes and be powerful for self-regulated learning research. It is more flexible in capturing the relative arrangement of learning events than the other sequential analysis methods. Future research may improve its utility in educational data science by developing tools for counting pattern occurrences as well as identifying and removing unreliable patterns. Future work needs to establish a systematic guideline for data preprocessing, parameter setting, and interpreting sequential patterns.",
+          "claimed_authors": [
+            "Yingbin Zhang",
+            "Luc Paquette"
+          ],
+          "claimed_title": "Sequential pattern mining in educational data: The application context, potential, strengths, and limitations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.01932"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Sequential pattern mining in educational data: The application context, potential, strengths, and limitations')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent sequential pattern mining methods have used the minimum description length (MDL) principle to define an encoding scheme which describes an algorithm for mining the most compressing patterns in a database. We present a novel subsequence interleaving model based on a probabilistic model of the sequence database, which allows us to search for the most compressing set of patterns without designing a specific encoding scheme. Our proposed algorithm is able to efficiently mine the most relevant sequential patterns and rank them using an associated measure of interestingness. The efficient inference in our model is a direct result of our use of a structural expectation-maximization framework, in which the expectation-step takes the form of a submodular optimization problem subject to a coverage constraint. We show on both synthetic and real world datasets that our model mines a set of sequential patterns with low spuriousness and redundancy, high interpretability and usefulness in real-world applications. Furthermore, we demonstrate that the quality of the patterns from our approach is comparable to, if not better than, existing state of the art sequential pattern mining algorithms.",
+          "claimed_authors": [
+            "Jaroslav Fowkes",
+            "Charles Sutton"
+          ],
+          "claimed_title": "A Subsequence Interleaving Model for Sequential Pattern Mining",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.05012"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='A Subsequence Interleaving Model for Sequential Pattern Mining')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated testing is essential for evaluating and improving the reliability of Large Language Models (LLMs), yet the lack of automated oracles for verifying output correctness remains a key challenge. We present LLMORPH, an automated testing tool specifically designed for LLMs performing NLP tasks, which leverages Metamorphic Testing (MT) to uncover faulty behaviors without relying on human-labeled data. MT uses Metamorphic Relations (MRs) to generate follow-up inputs from source test input, enabling detection of inconsistencies in model outputs without the need of expensive labelled data. LLMORPH is aimed at researchers and developers who want to evaluate the robustness of LLM-based NLP systems. In this paper, we detail the design, implementation, and practical usage of LLMORPH, demonstrating how it can be easily extended to any LLM, NLP task, and set of MRs. In our evaluation, we applied 36 MRs across four NLP benchmarks, testing three state-of-the-art LLMs: GPT-4, LLAMA3, and HERMES 2. This produced over 561,000 test executions. Results demonstrate LLMORPH's effectiveness in automatically exposing inconsistencies.",
+          "claimed_authors": [
+            "Steven Cho",
+            "Stefano Ruberto",
+            "Valerio Terragni"
+          ],
+          "claimed_title": "LLMORPH: Automated Metamorphic Testing of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.23611"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='LLMORPH: Automated Metamorphic Testing of Large Language Models')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fairness is a critical trait in decision making. As machine-learning models are increasingly being used in sensitive application domains (e.g. education and employment) for decision making, it is crucial that the decisions computed by such models are free of unintended bias. But how can we automatically validate the fairness of arbitrary machine-learning models? For a given machine-learning model and a set of sensitive input parameters, our AEQUITAS approach automatically discovers discriminatory inputs that highlight fairness violation. At the core of AEQUITAS are three novel strategies to employ probabilistic search over the input space with the objective of uncovering fairness violation. Our AEQUITAS approach leverages inherent robustness property in common machine-learning models to design and implement scalable test generation methodologies. An appealing feature of our generated test inputs is that they can be systematically added to the training set of the underlying model and improve its fairness. To this end, we design a fully automated module that guarantees to improve the fairness of the underlying model.\n  We implemented AEQUITAS and we have evaluated it on six state-of-the-art classifiers, including a classifier that was designed with fairness constraints. We show that AEQUITAS effectively generates inputs to uncover fairness violation in all the subject classifiers and systematically improves the fairness of the respective models using the generated test inputs. In our evaluation, AEQUITAS generates up to 70% discriminatory inputs (w.r.t. the total number of inputs generated) and leverages these inputs to improve the fairness up to 94%.",
+          "claimed_authors": [
+            "Sakshi Udeshi",
+            "Pryanshu Arora",
+            "Sudipta Chattopadhyay"
+          ],
+          "claimed_title": "Automated Directed Fairness Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.00468"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Automated Directed Fairness Testing')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Digital advances have transformed the face of automatic music generation since its beginnings at the dawn of computing. Despite the many breakthroughs, issues such as the musical tasks targeted by different machines and the degree to which they succeed remain open questions. We present a functional taxonomy for music generation systems with reference to existing systems. The taxonomy organizes systems according to the purposes for which they were designed. It also reveals the inter-relatedness amongst the systems. This design-centered approach contrasts with predominant methods-based surveys and facilitates the identification of grand challenges to set the stage for new breakthroughs.",
+          "claimed_authors": [
+            "Dorien Herremans",
+            "Ching-Hua Chuan",
+            "Elaine Chew"
+          ],
+          "claimed_title": "A Functional Taxonomy of Music Generation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.04186"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='A Functional Taxonomy of Music Generation Systems')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Space infrastructures represent an emerging domain that is critical to the global economy and society. However, this domain is vulnerable to attacks, including cyber attacks and other kinds of attacks. To enhance the resilience of this domain, we must understand these attacks that can be waged against it and the defenses that can be employed to mitigate these attacks. The status quo is that there is neither a systematic understanding of these attacks against, nor defenses for, space infrastructures, despite their clear importance in guiding systematic analysis of space security and future research. In this paper, we fill the void by proposing the first systematic taxonomy of attacks against, and defenses for, space infrastructures. We hope this paper will inspire a community effort at refining the taxonomy towards a widely used one.",
+          "claimed_authors": [
+            "Jose Luis Castanon Remy",
+            "Shouhuai Xu"
+          ],
+          "claimed_title": "Towards a Systematic Taxonomy of Attacks against Space Infrastructures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.12829"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='Towards a Systematic Taxonomy of Attacks against Space Infrastructures')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study describes the development of an AI-assisted error analysis system designed to identify, categorize, and correct writing errors in English. Utilizing Large Language Models (LLMs) like Claude 3.5 Sonnet and DeepSeek R1, the system employs a detailed taxonomy grounded in linguistic theories from Corder (1967), Richards (1971), and James (1998). Errors are classified at both word and sentence levels, covering spelling, grammar, and punctuation. Implemented through Python-coded API calls, the system provides granular feedback beyond traditional rubric-based assessments. Initial testing on isolated errors refined the taxonomy, addressing challenges like overlapping categories. Final testing used \"English as she is spoke\" by Jose da Fonseca (1855), a text rich with authentic linguistic errors, to evaluate the system's capacity for handling complex, multi-layered analysis. The AI successfully identified diverse error types but showed limitations in contextual understanding and occasionally generated new error categories when encountering uncoded errors. This research demonstrates AI's potential to transform EFL instruction by automating detailed error analysis and feedback. While promising, further development is needed to improve contextual accuracy and expand the taxonomy to stylistic and discourse-level errors.",
+          "claimed_authors": [
+            "Damian Heywood",
+            "Joseph Andrew Carrier",
+            "Kyu-Hong Hwang"
+          ],
+          "claimed_title": "A Taxonomy of Errors in English as she is spoke: Toward an AI-Based Method of Error Analysis for EFL Writing Instruction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.00392"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TIDE: Proactive Multi-Problem Discovery via Templa', candidate_title='A Taxonomy of Errors in English as she is spoke: Toward an AI-Based Method of Error Analysis for EFL Writing Instruction')",
+        "failed_at": "2026-07-09T21:39:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shivani Shukla",
+            "Himanshu Joshi",
+            "Romilla Syed"
+          ],
+          "title": "Security Degradation in Iterative AI Code Generation -- A Systematic Analysis of the Paradox",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.11022",
+        "summary": "The rapid adoption of Large Language Models(LLMs) for code generation has transformed software development, yet little attention has been given to how security vulnerabilities evolve through iterative LLM feedback. This paper analyzes security degradation in AI-generated code through a controlled experiment with 400 code samples across 40 rounds of \"improvements\" using four distinct prompting strategies. Our findings show a 37.6% increase in critical vulnerabilities after just five iterations, with distinct vulnerability patterns emerging across different prompting approaches. This evidence challenges the assumption that iterative LLM refinement improves code security and highlights the essential role of human expertise in the loop. We propose practical guidelines for developers to mitigate these risks, emphasizing the need for robust human validation between LLM iterations to prevent the paradoxical introduction of new security issues during supposedly beneficial code \"improvements\".",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.11022",
+          "http_status": 200,
+          "pdf_sample_score": 0.22,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T21:39:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vladimir Pericliev"
+          ],
+          "title": "Empirical Discovery in Linguistics",
+          "venue": "arXiv",
+          "year": 1995
+        },
+        "primary_pointer": "cmp-lg/9506023",
+        "summary": "A discovery system for detecting correspondences in data is described, based on the familiar induction methods of J. S. Mill. Given a set of observations, the system induces the ``causally'' related facts in these observations. Its application to empirical linguistic discovery is described.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cmp-lg/9506023",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T21:40:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Quanjun Zhang",
+            "Chunrong Fang",
+            "Tongke Zhang",
+            "Bowen Yu",
+            "Weisong Sun",
+            "Zhenyu Chen"
+          ],
+          "title": "GAMMA: Revisiting Template-based Automated Program Repair via Mask Prediction",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.09308",
+        "summary": "Automated program repair (APR) aims to fix software bugs without human intervention and template-based APR has been widely investigated with promising results. However, it is challenging for template-based APR to select the appropriate donor code, which is an important repair ingredient for generating candidate patches. Inappropriate donor code may cause plausible but incorrect patch generation even with correct fix patterns, limiting the repair performance.\n  In this paper, we aim to revisit template-based APR, and propose GAMMA, to directly leverage large pre-trained language models for donor code generation. Our main insight is that instead of retrieving donor code in the local buggy file, we can directly predict the correct code tokens based on the context code snippets and repair patterns by a cloze task. Specifically, (1) GAMMA revises a variety of fix templates from state-of-the-art template-based APR techniques (i.e., TBar) and transforms them into mask patterns. (2) GAMMA adopts a pre-trained language model to predict the correct code for masked code as a fill-in-the-blank task. The experimental results demonstrate that GAMMA correctly repairs 82 bugs on Defects4J-v1.2, which achieves 20.59\\% (14 bugs) and 26.15\\% (17 bugs) improvement over the previous state-of-the-art template-based approach TBar and learning-based one Recoder. Furthermore, GAMMA repairs 45 bugs and 22 bugs from the additional Defects4J-v2.0 and QuixBugs, indicating the generalizability of GAMMA in addressing the dataset overfitting issue. We also prove that adopting other pre-trained language models can provide substantial advancement, e.g., CodeBERT-based and ChatGPT-based GAMMA is able to fix 80 and 67 bugs on Defects4J-v1.2, indicating the scalability of GAMMA. Overall, our study highlights the promising future of adopting pre-trained models to generate correct patches on top of fix patterns.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.09308",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T21:40:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"tide: proactive multi-problem discovery via template-guided iteration\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

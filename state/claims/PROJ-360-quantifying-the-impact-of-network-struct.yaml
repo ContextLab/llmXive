@@ -1,0 +1,200 @@
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Download at least 50 CIF files in 30 minutes
+  claim_id: c_46a587d9
+  context: "Implement `code/download.py` logic to fetch and save \u226550 CIF files\
+    \ to `data/raw/cif/` within 30 minutes, skipping materials missing thermal conductivity\
+    \ data"
+  evidence:
+    candidates:
+    - - Create account Log in Download at least
+      - 50.0
+    - - Download at least 50 CIF files in
+      - 30.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Download_at_least_50_CIF_files_in_30_minutes
+  kind: magnitude
+  raw_text: "Implement `code/download.py` to fetch and save \u226550 CIF files to\
+    \ `data/raw/cif/` within 30 minutes, skipping materials missing thermal conductivity\
+    \ data"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-09T21:46:05Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Verify at least 50 CIF files and 50 graphs
+  claim_id: c_a3aa780d
+  context: "Verify \u226550 CIF files exist in `data/raw/cif/` and \u226550 valid\
+    \ graph objects exist in `data/processed/networks/` with correct node/edge counts."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_50_CIF_files_and_50_graphs
+  kind: magnitude
+  raw_text: "Verify \u226550 CIF files exist in `data/raw/cif/` and \u226550 valid\
+    \ graph objects exist in `data/processed/networks/` with correct node/edge counts."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:46:19Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Fallback bond detection for disconnected graphs
+  claim_id: c_f100ef7d
+  context: Implement fallback bond detection in `code/construct_network.py` (progressive
+    distance cutoffs) for disconnected graphs; log and skip materials with no edges
+    after fallbacks
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_bond_detection_for_disconnected_graphs
+  kind: entity_fact
+  raw_text: Implement fallback bond detection in `code/construct_network.py` (progressive
+    distance cutoffs) for disconnected graphs; log and skip materials with no edges
+    after fallbacks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:46:39Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Graphs must have at least 2 nodes and 1 edge
+  claim_id: c_41f78663
+  context: "Implement validation in `code/construct_network.py` to ensure every graph\
+    \ has \u22652 nodes and \u22651 edge, or is explicitly skipped with a log entry"
+  evidence:
+    candidates:
+    - - Log in Graphs must have at least
+      - 2.0
+    - - Graphs must have at least 2 nodes and
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Graphs_must_have_at_least_2_nodes_and_1_edge
+  kind: magnitude
+  raw_text: "Implement validation in `code/construct_network.py` to ensure every graph\
+    \ has \u22652 nodes and \u22651 edge, or is explicitly skipped with a log entry"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-09T21:47:02Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Compute Pearson and Spearman correlations
+  claim_id: c_585f57e0
+  context: Compute Pearson and Spearman correlations between each **network metric**
+    (average degree, path length, clustering) and thermal conductivity, storing results
+    in `results/correlations.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Pearson_and_Spearman_correlations
+  kind: causal
+  raw_text: Compute Pearson and Spearman correlations between each **network metric**
+    (average degree, path length, clustering) and thermal conductivity, storing results
+    in `results/correlations.json`.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:03Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 3 correlation tests at alpha <= 0.05
+  claim_id: c_a9296042
+  context: "Implement Bonferroni correction in `code/analyze.py` for the 3 correlation\
+    \ tests to control family-wise error rate at \u03B1 \u2264 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Bonferroni correction in `code/analyze.py` for the 3 correlation\
+    \ tests to control family-wise error rate at \u03B1 \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:22Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation with stratified splitting
+  claim_id: c_24523c44
+  context: 'Implement k-fold cross-validation in `code/analyze.py` on CPU-only hardware.
+    **Stratification Strategy**: Bin thermal conductivity values into 5 quantile-based
+    strata and use `StratifiedKFold(n_splits=5)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement k-fold cross-validation in `code/analyze.py` on CPU-only hardware.
+    **Stratification Strategy**: Bin thermal conductivity values into 5 quantile-based
+    strata and use `StratifiedKFold(n_splits=5)`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:33Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: "If mean R\xB2 < 0.30, report weak predictive power"
+  claim_id: c_9d015638
+  context: "If mean R\xB2 < 0.30, write the exact string \"Weak predictive power (R\xB2\
+    \ < 0.30), consistent with null hypothesis.\" to the JSON key `r2_interpretation`\
+    \ in `results/model_performance.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If mean R\xB2 < 0.30, write the exact string \"Weak predictive power\
+    \ (R\xB2 < 0.30), consistent with null hypothesis.\" to the JSON key `r2_interpretation`\
+    \ in `results/model_performance.json`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:33Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Calculate VIF for network metrics
+  claim_id: c_57ebe269
+  context: Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF)
+    for network metrics using `statsmodels` OLS.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_VIF_for_network_metrics
+  kind: entity_fact
+  raw_text: Implement `code/analyze.py` to calculate Variance Inflation Factor (VIF)
+    for network metrics using `statsmodels` OLS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:47Z'
+- artifact_path: projects/PROJ-360-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Exclude features with VIF >= 5
+  claim_id: c_6b010e73
+  context: "Implement `code/analyze.py` to filter features: **MUST exclude any feature\
+    \ with VIF \u2265 5**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/analyze.py` to filter features: **MUST exclude any feature\
+    \ with VIF \u2265 5**."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T21:47:47Z'

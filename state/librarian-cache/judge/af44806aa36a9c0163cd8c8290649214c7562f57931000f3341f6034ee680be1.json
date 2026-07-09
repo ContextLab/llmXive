@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.14259",
+  "judged_at": "2026-07-09T21:40:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"tide: proactive multi-problem discovery via template-guided iteration\" linguistics",
+  "rationale": "The paper focuses on detecting LLM-generated text and measuring the degree of LLM involvement (binary vs. fine-grained detection), which is a distinct construct from the user's question about \"TIDE,\" a framework for proactive multi-problem discovery via template-guided iteration. While both involve LLMs, the candidate paper does not address the specific mechanism of template-guided iteration, problem discovery, or the \"linguistics\" extension of the TIDE framework, nor does it measure the same va",
+  "relevant": false
+}

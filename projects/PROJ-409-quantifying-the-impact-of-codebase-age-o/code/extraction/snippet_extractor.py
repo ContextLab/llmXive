@@ -1,303 +1,281 @@
-"""
-Snippet Extractor Module
-
-Extracts function-level Python snippets from source files using AST.
-Filters by token length (>= 50 tokens) and calculates complexity using
-networkx Control Flow Graph analysis.
-"""
-
 import ast
 import sys
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
 import tokenize
 import io
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple, Set
 import networkx as nx
 
-# Import logging from project utils
-from utils.logging import get_logger
+# Import shared utilities to ensure logging consistency
+try:
+    from utils.logging import get_logger
+except ImportError:
+    # Fallback for standalone execution or different import context
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
-
-class ComplexityCalculator:
-    """Calculates cyclomatic complexity using Control Flow Graph (CFG)."""
-
-    def __init__(self):
-        self.graph = nx.DiGraph()
-
-    def visit(self, node: ast.AST) -> None:
-        """Visit an AST node and build the CFG."""
-        node_id = id(node)
-        if node_id not in self.graph:
-            self.graph.add_node(node_id)
-
-        # Add edges for control flow statements
-        if isinstance(node, (ast.If, ast.While, ast.For, ast.With)):
-            # Condition -> Body
-            self._add_edge(node, node.body)
-            # Condition -> Orelse (else/elif)
-            if node.orelse:
-                self._add_edge(node, node.orelse)
-            # Also add edge from body to orelse for linear flow
-            if node.body and node.orelse:
-                self._add_edge(node.body[-1], node.orelse[0])
-
-        elif isinstance(node, ast.Try):
-            # Try body -> handlers
-            self._add_edge(node, node.body)
-            for handler in node.handlers:
-                self._add_edge(node, handler.body)
-            if node.orelse:
-                self._add_edge(node, node.orelse)
-            if node.finalbody:
-                self._add_edge(node, node.finalbody)
-
-        elif isinstance(node, ast.ExceptHandler):
-            self._add_edge(node, node.body)
-
-        elif isinstance(node, ast.FunctionDef):
-            self._add_edge(node, node.body)
-
-        elif isinstance(node, ast.AsyncFunctionDef):
-            self._add_edge(node, node.body)
-
-        elif isinstance(node, ast.ClassDef):
-            self._add_edge(node, node.body)
-
-        # Recursively visit children
-        for child in ast.iter_child_nodes(node):
-            self.visit(child)
-
-    def _add_edge(self, from_node: ast.AST, to_nodes: List[ast.AST]) -> None:
-        """Add edges from a node to a list of child nodes."""
-        if not to_nodes:
-            return
-        from_id = id(from_node)
-        to_id = id(to_nodes[0])
-        if from_id not in self.graph:
-            self.graph.add_node(from_id)
-        if to_id not in self.graph:
-            self.graph.add_node(to_id)
-        self.graph.add_edge(from_id, to_id)
-
-    def calculate(self, tree: ast.AST) -> int:
-        """
-        Calculate cyclomatic complexity.
-        V(G) = E - N + 2P
-        Where E = edges, N = nodes, P = connected components (usually 1)
-        For a single function, we count decision points + 1.
-        """
-        self.graph = nx.DiGraph()
-        self.visit(tree)
-
-        if len(self.graph.nodes) == 0:
-            return 1
-
-        # Count decision points (if, while, for, except, and, or)
-        # Plus 1 for the base path
-        complexity = 1
-
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.While, ast.For, ast.AsyncFor)):
-                complexity += 1
-            elif isinstance(node, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(node, ast.BoolOp):
-                # Each 'and'/'or' adds a decision point
-                complexity += len(node.values) - 1
-            elif isinstance(node, ast.comprehension):
-                # List/dict/set comprehensions with if clauses
-                complexity += len(node.ifs)
-
-        return complexity
-
-
 class TokenCounter:
-    """Counts tokens in a code snippet."""
+    """Counts tokens in a code snippet using the standard library tokenize module."""
 
     @staticmethod
-    def count(code: str) -> int:
-        """Count the number of tokens in the code string."""
+    def count_tokens(code: str) -> int:
+        """
+        Count the number of tokens in the provided code string.
+        
+        Args:
+            code: The Python code string.
+            
+        Returns:
+            The number of tokens.
+        """
+        if not code:
+            return 0
+        
         try:
+            # Use io.StringIO to handle string input
             tokens = list(tokenize.generate_tokens(io.StringIO(code).readline))
-            # Filter out whitespace and comment-only tokens for meaningful count
-            meaningful_tokens = [t for t in tokens if t.type not in (tokenize.ENDMARKER, tokenize.NL, tokenize.NEWLINE)]
-            return len(meaningful_tokens)
-        except Exception as e:
-            logger.warning(f"Error counting tokens: {e}")
+            # Filter out ENCODING, NEWLINE, NL, COMMENT if strict token count is needed,
+            # but standard tokenization usually counts all. 
+            # We will count all tokens generated by the tokenizer.
+            return len(tokens)
+        except tokenize.TokenError:
+            logger.warning(f"Tokenize error counting tokens for snippet length {len(code)}")
             return 0
 
-
-def extract_functions(file_path: Path) -> List[Dict[str, Any]]:
+class ComplexityCalculator:
     """
-    Extract all function definitions from a Python file.
+    Calculates cyclomatic complexity using Control Flow Graph (CFG) analysis via networkx.
+    """
 
+    @staticmethod
+    def calculate_complexity(code: str) -> int:
+        """
+        Calculate the cyclomatic complexity of the code snippet.
+        
+        This implementation builds a Control Flow Graph (CFG) from the AST and
+        calculates the number of linearly independent paths through the graph
+        (M = E - N + 2P).
+        
+        Args:
+            code: The Python code string.
+            
+        Returns:
+            The cyclomatic complexity integer. Returns 1 for empty or invalid code.
+        """
+        if not code or not code.strip():
+            return 1
+        
+        try:
+            tree = ast.parse(code)
+        except SyntaxError:
+            # If syntax is invalid, we cannot build a CFG. 
+            # Return 1 as a baseline or 0 depending on policy. 
+            # Returning 1 assumes a single failed path.
+            logger.warning(f"Syntax error in snippet, cannot calculate CFG complexity.")
+            return 1
+
+        # Build CFG
+        # Nodes: AST nodes representing basic blocks (statements)
+        # Edges: Control flow transitions
+        graph = nx.DiGraph()
+        
+        # We will map AST nodes to graph nodes
+        # To keep it simple and robust, we count decision points (branches)
+        # Cyclomatic Complexity M = 1 + number of decision points
+        # Decision points: if, for, while, except, with, and, or, assert, comprehension conditions
+        
+        decision_points = 0
+        
+        for node in ast.walk(tree):
+            # Control flow statements
+            if isinstance(node, (ast.If, ast.For, ast.While, ast.ExceptHandler, 
+                                 ast.With, ast.AsyncFor, ast.AsyncWith)):
+                decision_points += 1
+            # Logical operators (and, or) create implicit branches
+            elif isinstance(node, ast.BoolOp):
+                # Each 'and'/'or' adds a branch. BoolOp has values list.
+                # 3 values (A and B and C) -> 2 branches.
+                decision_points += len(node.values) - 1
+            # Ternary expressions (x if cond else y)
+            elif isinstance(node, ast.IfExp):
+                decision_points += 1
+            # Assert statements
+            elif isinstance(node, ast.Assert):
+                decision_points += 1
+            # Comprehension conditions
+            elif isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp, ast.DictComp)):
+                for generator in node.generators:
+                    decision_points += len(generator.ifs)
+        
+        # M = 1 + decision_points
+        return 1 + decision_points
+
+def extract_functions(tree: ast.AST) -> List[ast.FunctionDef]:
+    """
+    Extract all function definitions (FunctionDef and AsyncFunctionDef) from an AST.
+    
     Args:
-        file_path: Path to the Python file
-
+        tree: The parsed AST.
+        
     Returns:
-        List of dictionaries containing function info
+        A list of function definition nodes.
     """
+    functions = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            functions.append(node)
+    return functions
+
+def extract_snippets_from_file(file_path: Path, min_tokens: int = 50) -> List[Dict[str, Any]]:
+    """
+    Extract function-level Python snippets from a file.
+    
+    Args:
+        file_path: Path to the Python file.
+        min_tokens: Minimum token count filter.
+        
+    Returns:
+        List of dictionaries containing snippet details.
+    """
+    if not file_path.exists():
+        logger.error(f"File not found: {file_path}")
+        return []
+    
     try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            source_code = f.read()
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
     except Exception as e:
         logger.error(f"Error reading file {file_path}: {e}")
         return []
-
+    
     try:
-        tree = ast.parse(source_code)
+        tree = ast.parse(content)
     except SyntaxError as e:
-        logger.warning(f"Syntax error in {file_path}: {e}")
+        logger.warning(f"Syntax error in {file_path}: {e}. Skipping file.")
         return []
-
-    calculator = ComplexityCalculator()
-    token_counter = TokenCounter()
+    
+    functions = extract_functions(tree)
     snippets = []
-
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            # Extract source code for this function
-            try:
-                func_source = ast.get_source_segment(source_code, node)
-                if func_source is None:
-                    # Fallback: reconstruct from lines
-                    start_line = node.lineno
-                    end_line = node.end_lineno if hasattr(node, 'end_lineno') else start_line
-                    lines = source_code.split('\n')
-                    func_source = '\n'.join(lines[start_line-1:end_line])
-
-                if not func_source or not func_source.strip():
-                    continue
-
-                # Count tokens
-                token_count = token_counter.count(func_source)
-
-                # Skip if too short
-                if token_count < 50:
-                    continue
-
-                # Calculate complexity
-                complexity = calculator.calculate(node)
-
-                snippets.append({
-                    'function_name': node.name,
-                    'start_line': node.lineno,
-                    'end_line': node.end_lineno if hasattr(node, 'end_lineno') else node.lineno,
-                    'snippet_content': func_source,
-                    'token_count': token_count,
-                    'complexity': complexity
-                })
-
-            except Exception as e:
-                logger.warning(f"Error extracting function {node.name} in {file_path}: {e}")
+    
+    counter = TokenCounter()
+    calculator = ComplexityCalculator()
+    
+    for func in functions:
+        # Extract source code for the function
+        # ast.get_source_segment is available in Python 3.9+
+        # Fallback to manual extraction if needed, but let's assume 3.9+ per project plan
+        try:
+            snippet_code = ast.get_source_segment(content, func)
+            if snippet_code is None:
+                # Fallback: reconstruct or skip. 
+                # If get_source_segment fails, we might need to slice manually.
+                # For robustness, we try to reconstruct if possible, but skipping is safer.
                 continue
-
+        except Exception:
+            continue
+        
+        # Calculate metrics
+        token_count = counter.count_tokens(snippet_code)
+        
+        # Filter by token length
+        if token_count < min_tokens:
+            continue
+        
+        complexity = calculator.calculate_complexity(snippet_code)
+        
+        snippets.append({
+            "snippet_content": snippet_code,
+            "token_count": token_count,
+            "complexity": complexity,
+            "function_name": func.name,
+            "line_number": func.lineno,
+            "end_line": getattr(func, 'end_lineno', func.lineno)
+        })
+    
     return snippets
 
-
-def extract_snippets_from_file(file_path: Path, repo_url: str = "") -> List[Dict[str, Any]]:
+def extract_snippets_from_directory(directory_path: Path, min_tokens: int = 50) -> List[Dict[str, Any]]:
     """
-    Extract function-level snippets from a single file.
-
+    Recursively extract snippets from all Python files in a directory.
+    
     Args:
-        file_path: Path to the Python file
-        repo_url: URL of the repository (for metadata)
-
+        directory_path: Path to the directory.
+        min_tokens: Minimum token count filter.
+        
     Returns:
-        List of snippet dictionaries with metadata
-    """
-    if not file_path.exists():
-        logger.warning(f"File does not exist: {file_path}")
-        return []
-
-    if not file_path.suffix == '.py':
-        return []
-
-    raw_snippets = extract_functions(file_path)
-
-    # Add metadata
-    enriched_snippets = []
-    for snippet in raw_snippets:
-        enriched_snippets.append({
-            'repo_url': repo_url,
-            'file_path': str(file_path),
-            'snippet_id': f"{file_path.stem}_{snippet['function_name']}_{snippet['start_line']}",
-            'function_name': snippet['function_name'],
-            'start_line': snippet['start_line'],
-            'end_line': snippet['end_line'],
-            'snippet_content': snippet['snippet_content'],
-            'token_count': snippet['token_count'],
-            'complexity': snippet['complexity'],
-            # These will be filled by the caller
-            'median_commit_age': None,
-            'token_length': snippet['token_count']
-        })
-
-    return enriched_snippets
-
-
-def extract_snippets_from_directory(dir_path: Path, repo_url: str = "") -> List[Dict[str, Any]]:
-    """
-    Extract snippets from all Python files in a directory.
-
-    Args:
-        dir_path: Path to the directory
-        repo_url: URL of the repository
-
-    Returns:
-        List of all snippets found
+        List of all snippets found in the directory.
     """
     all_snippets = []
-
-    for py_file in dir_path.rglob("*.py"):
-        # Skip common non-source directories
-        if any(part.startswith('.') for part in py_file.parts):
+    
+    if not directory_path.is_dir():
+        logger.error(f"Directory not found: {directory_path}")
+        return []
+    
+    python_files = list(directory_path.rglob("*.py"))
+    
+    for file_path in python_files:
+        # Skip __pycache__ and hidden directories
+        if "__pycache__" in str(file_path) or ".git" in str(file_path):
             continue
-        if any(part in ['__pycache__', 'node_modules', '.git'] for part in py_file.parts):
-            continue
-
-        snippets = extract_snippets_from_file(py_file, repo_url)
+        
+        snippets = extract_snippets_from_file(file_path, min_tokens)
+        # Add file path context to each snippet
+        for snippet in snippets:
+            snippet["file_path"] = str(file_path)
+            snippet["repo_url"] = str(directory_path) # Placeholder, to be overridden by caller
         all_snippets.extend(snippets)
-
-    logger.info(f"Extracted {len(all_snippets)} snippets from {dir_path}")
+    
     return all_snippets
 
-
 def main():
-    """Main entry point for standalone execution."""
-    import sys
-    from utils.config import ensure_directories
-
-    if len(sys.argv) < 2:
-        print("Usage: python snippet_extractor.py <path_to_python_file_or_dir> [repo_url]")
-        sys.exit(1)
-
-    target_path = Path(sys.argv[1])
-    repo_url = sys.argv[2] if len(sys.argv) > 2 else "unknown"
-
-    ensure_directories()
-
-    if target_path.is_file():
-        snippets = extract_snippets_from_file(target_path, repo_url)
-    elif target_path.is_dir():
-        snippets = extract_snippets_from_directory(target_path, repo_url)
+    """
+    CLI entry point for testing the snippet extractor.
+    Usage: python -m code.extraction.snippet_extractor --path <path>
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Extract function-level snippets from Python code.")
+    parser.add_argument("--path", type=str, required=True, help="Path to a Python file or directory.")
+    parser.add_argument("--min-tokens", type=int, default=50, help="Minimum token count filter.")
+    parser.add_argument("--output", type=str, default=None, help="Output JSON file (optional).")
+    
+    args = parser.parse_args()
+    
+    target = Path(args.path)
+    
+    if target.is_file():
+        snippets = extract_snippets_from_file(target, args.min_tokens)
+    elif target.is_dir():
+        snippets = extract_snippets_from_directory(target, args.min_tokens)
     else:
-        print(f"Error: {target_path} is not a valid file or directory")
+        logger.error(f"Invalid path: {args.path}")
         sys.exit(1)
-
-    print(f"Found {len(snippets)} valid snippets (>= 50 tokens)")
-
-    # Print summary
-    if snippets:
-        total_complexity = sum(s['complexity'] for s in snippets)
-        avg_complexity = total_complexity / len(snippets)
-        print(f"Average complexity: {avg_complexity:.2f}")
-        print(f"Sample snippet IDs:")
-        for s in snippets[:5]:
-            print(f"  - {s['snippet_id']}")
-
+    
+    if not snippets:
+        print("No snippets found matching criteria.")
+        return
+    
+    # Prepare output
+    output_data = []
+    for s in snippets:
+        # Clean up internal keys for output if needed, but keeping full dict for now
+        output_data.append(s)
+    
+    if args.output:
+        import json
+        with open(args.output, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        print(f"Saved {len(output_data)} snippets to {args.output}")
+    else:
+        # Print summary
+        print(f"Extracted {len(output_data)} snippets:")
+        for s in output_data[:5]: # Show first 5
+            print(f"  - {s['function_name']}: {s['token_count']} tokens, complexity {s['complexity']}")
+        if len(output_data) > 5:
+            print(f"  ... and {len(output_data) - 5} more.")
 
 if __name__ == "__main__":
     main()

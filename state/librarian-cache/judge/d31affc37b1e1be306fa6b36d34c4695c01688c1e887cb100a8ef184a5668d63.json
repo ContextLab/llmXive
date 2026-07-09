@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cmp-lg/9506023",
+  "judged_at": "2026-07-09T21:40:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"tide: proactive multi-problem discovery via template-guided iteration\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for \"empirical discovery\" systems in linguistics, which is the core mechanism the user's question (\"TIDE... linguistics\") seeks to extend. Additionally, it meets criterion (a) by describing a system that induces \"causally related facts\" from observations, directly addressing the \"Proactive Multi-Problem Discovery via Template-Guided Iteration\" mechanism in the linguistic domain.",
+  "relevant": true
+}

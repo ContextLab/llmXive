@@ -73,12 +73,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/extraction/git_utils.py` to fetch git history and calculate `median_commit_age` per file (handling sparse history edge cases).
+- [X] T009 [US1] Implement `code/extraction/git_utils.py` to fetch git history and calculate `median_commit_age` per file (handling sparse history edge cases).
 - [ ] T010 [US1] Implement `code/extraction/snippet_extractor.py` using AST to extract function-level Python snippets, filter by token length (≥50 tokens), and calculate `complexity` using `networkx` Control Flow Graph analysis.
 - [ ] T010.1 [US1] Ensure `snippet_extractor.py` outputs `token_length` and `complexity` columns for every snippet to support later covariate control.
 - [X] T011 [US1] Implement `code/extraction/run_extraction.py` CLI entry point to orchestrate repo cloning, snippet extraction, age calculation, and complexity calculation for 3-5 repos.
-- [~] T012 [US1] Add error handling in `run_extraction.py` to log and skip repos with inaccessible git history while ensuring a minimum of 3 valid repos are processed.
-- [~] T013 [US1] Verify extraction output CSV structure matches requirements (columns: `snippet_id`, `repo_url`, `file_path`, `median_commit_age`, `snippet_content`, `token_count`, `complexity`, `token_length`).
+- [ ] T012 [US1] Add error handling in `run_extraction.py` to log and skip repos with inaccessible git history while ensuring a minimum of 3 valid repos are processed.
+- [ ] T013 [US1] Verify extraction output CSV structure matches requirements (columns: `snippet_id`, `repo_url`, `file_path`, `median_commit_age`, `snippet_content`, `token_count`, `complexity`, `token_length`).
 - [ ] T013.1 [US1] Create `tests/verify_extraction.py` to programmatically assert the CSV columns exist and row count is at least 800 (minimum viable dataset per FR-001).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,9 +99,9 @@ References: Nijkamp et al. (2023) to generate `perplexity` and `functional_corre
 
 ### Implementation for User Story 2
 
-- [~] T014 [US2] Implement `code/inference/model_loader.py` to load CodeGen-small with CPU-only quantization (8-bit/4-bit via `bitsandbytes` or `llama.cpp`), explicitly disabling CUDA.
+- [ ] T014 [US2] Implement `code/inference/model_loader.py` to load CodeGen-small with CPU-only quantization (8-bit/4-bit via `bitsandbytes` or `llama.cpp`), explicitly disabling CUDA.
 - [ ] T014.1 [US2] Create `code/inference/model_downloader.py` to download and cache CodeGen-350M weights to `data/models/` before inference begins.
-- [~] T015 [US2] Implement `code/inference/metrics_calculator.py` to calculate `perplexity` and `functional_correctness_rate`.
+- [ ] T015 [US2] Implement `code/inference/metrics_calculator.py` to calculate `perplexity` and `functional_correctness_rate`.
 - [ ] T015.1 [US2] In `metrics_calculator.py`, implement logic to locate and execute associated unit tests for each snippet if available; if not, generate synthetic semantic validation by attempting code execution (syntax + type + basic runtime logic) to assign a binary valid/invalid score.
 - [ ] T015.2 [US2] Implement `code/inference/file_aggregator.py` to group snippets by `file_path` and calculate mean `perplexity`, mean `functional_correctness_rate`, mean `complexity`, and mean `token_length` into `data/aggregated/file_metrics.csv` (Key Methodological Adjustment).
 - [ ] T015.3 [US2] Implement `code/inference/age_aggregator.py` to aggregate `median_commit_age` from snippet-level to file-level (using mean or median) and merge this with `data/aggregated/file_metrics.csv`, ensuring the unit of analysis matches the Plan's 'Key Methodological Adjustment'.

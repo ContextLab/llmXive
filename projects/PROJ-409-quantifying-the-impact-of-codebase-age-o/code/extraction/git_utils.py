@@ -1,97 +1,74 @@
-"""
-Git utilities for fetching repository history and calculating file age metrics.
-
-This module provides functions to clone repositories, extract commit history
-for specific files, and calculate the median commit age in days.
-"""
-
 import logging
 import subprocess
 import tempfile
 import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
-from utils.logging import get_logger
+from ..utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-
-def clone_repository(repo_url: str, target_dir: Optional[Path] = None) -> Path:
+def clone_repository(repo_url: str, dest_dir: Optional[Path] = None) -> Path:
     """
-    Clone a git repository to a temporary or specified directory.
-
+    Clones a git repository to a temporary or specified directory.
+    
     Args:
-        repo_url: URL of the git repository to clone.
-        target_dir: Optional target directory. If None, creates a temp dir.
-
+        repo_url: URL of the git repository.
+        dest_dir: Optional destination directory. If None, creates a temp dir.
+    
     Returns:
         Path to the cloned repository directory.
-
+    
     Raises:
         subprocess.CalledProcessError: If cloning fails.
     """
-    if target_dir is None:
-        target_dir = Path(tempfile.mkdtemp(prefix="git_clone_"))
-    else:
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Cloning repository {repo_url} to {target_dir}")
+    if dest_dir is None:
+        dest_dir = Path(tempfile.mkdtemp(prefix="llmxive_repo_"))
+    
+    logger.info(f"Cloning {repo_url} to {dest_dir}")
     try:
-        result = subprocess.run(
-            ["git", "clone", "--depth", "1000", repo_url, str(target_dir)],
+        subprocess.run(
+            ["git", "clone", "--depth", "1000", repo_url, str(dest_dir)],
+            check=True,
             capture_output=True,
-            text=True,
-            timeout=300
+            text=True
         )
-        if result.returncode != 0:
-            # Try full clone if shallow fails
-            logger.warning(f"Shallow clone failed, trying full clone: {result.stderr}")
-            subprocess.run(
-                ["git", "clone", repo_url, str(target_dir)],
-                capture_output=True,
-                text=True,
-                timeout=600
-            )
-    except subprocess.TimeoutExpired:
-        logger.error(f"Timeout cloning {repo_url}")
+        return dest_dir
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to clone repository: {e.stderr}")
         raise
-    except Exception as e:
-        logger.error(f"Error cloning {repo_url}: {e}")
-        raise
-
-    return target_dir
-
 
 def get_file_commits(repo_path: Path, file_path: str) -> List[Dict[str, Any]]:
     """
-    Get commit history for a specific file in the repository.
-
+    Retrieves commit history for a specific file in the repository.
+    
     Args:
         repo_path: Path to the local git repository.
         file_path: Relative path of the file within the repo.
-
+    
     Returns:
-        List of dictionaries containing commit hash and timestamp.
+        List of dicts containing commit hash and timestamp.
     """
     commits = []
     try:
+        # Get log with format: hash timestamp
+        # Using --follow to track renames if necessary, though basic history is usually enough
         result = subprocess.run(
-            ["git", "log", "--follow", "--format=%H %ct", "--", file_path],
-            cwd=str(repo_path),
+            [
+                "git", "-C", str(repo_path), "log", "--follow", 
+                "--format=%H %ct", "--", file_path
+            ],
+            check=True,
             capture_output=True,
             text=True,
-            timeout=120
+            timeout=60
         )
-
-        if result.returncode != 0:
-            logger.warning(f"Git log failed for {file_path}: {result.stderr}")
-            return []
-
+        
         lines = result.stdout.strip().split('\n')
         for line in lines:
-            if not line:
+            if not line.strip():
                 continue
             parts = line.split(' ')
             if len(parts) >= 2:
@@ -102,187 +79,163 @@ def get_file_commits(repo_path: Path, file_path: str) -> List[Dict[str, Any]]:
                     "timestamp": timestamp,
                     "datetime": datetime.fromtimestamp(timestamp, tz=timezone.utc)
                 })
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Could not retrieve history for {file_path}: {e.stderr}")
     except subprocess.TimeoutExpired:
-        logger.warning(f"Timeout getting commits for {file_path}")
-    except Exception as e:
-        logger.error(f"Error getting commits for {file_path}: {e}")
-
+        logger.warning(f"Timeout retrieving history for {file_path}")
+    
     return commits
 
-
-def calculate_median_commit_age(commits: List[Dict[str, Any]]) -> Optional[float]:
+def get_repo_commit_date(repo_path: Path) -> Optional[datetime]:
     """
-    Calculate the median age of commits in days.
-
-    Args:
-        commits: List of commit dictionaries with 'datetime' keys.
-
-    Returns:
-        Median age in days, or None if no commits exist.
-
-    Handles sparse history by:
-    - Returning None if the list is empty.
-    - Using the time from the first commit to now if only one commit exists.
-    - Calculating the median of intervals between commits if multiple exist.
-    """
-    if not commits:
-        logger.debug("No commits provided for age calculation")
-        return None
-
-    now = datetime.now(timezone.utc)
-
-    if len(commits) == 1:
-        # Sparse history: single commit. Age is time since that commit.
-        age_days = (now - commits[0]["datetime"]).days
-        logger.debug(f"Sparse history (1 commit): age = {age_days} days")
-        return float(age_days)
-
-    # Calculate intervals between consecutive commits
-    ages = []
-    for i in range(len(commits)):
-        commit_date = commits[i]["datetime"]
-        if i == 0:
-            # Age relative to now for the most recent commit
-            age = (now - commit_date).days
-        else:
-            # Age relative to the next older commit (interval)
-            next_date = commits[i - 1]["datetime"]
-            age = (next_date - commit_date).days
-        ages.append(age)
-
-    ages.sort()
-    n = len(ages)
-    if n % 2 == 0:
-        median_age = (ages[n // 2 - 1] + ages[n // 2]) / 2.0
-    else:
-        median_age = ages[n // 2]
-
-    logger.debug(f"Calculated median age from {n} intervals: {median_age} days")
-    return float(median_age)
-
-
-def get_repo_commit_date(repo_path: Path, file_path: str) -> Optional[datetime]:
-    """
-    Get the date of the most recent commit for a file.
-
+    Gets the date of the most recent commit in the repository.
+    
     Args:
         repo_path: Path to the local git repository.
-        file_path: Relative path of the file.
-
+    
     Returns:
-        Most recent commit datetime, or None if no commits found.
+        datetime of the latest commit or None if no commits found.
     """
     try:
         result = subprocess.run(
-            ["git", "log", "-1", "--format=%ct", "--", file_path],
-            cwd=str(repo_path),
+            ["git", "-C", str(repo_path), "log", "-1", "--format=%ct"],
+            check=True,
             capture_output=True,
             text=True,
             timeout=30
         )
-        if result.returncode == 0 and result.stdout.strip():
-            timestamp = int(result.stdout.strip())
-            return datetime.fromtimestamp(timestamp, tz=timezone.utc)
-    except Exception as e:
-        logger.warning(f"Could not get commit date for {file_path}: {e}")
-    return None
+        timestamp = int(result.stdout.strip())
+        return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    except (subprocess.CalledProcessError, ValueError, FileNotFoundError):
+        return None
 
-
-def process_file_history(repo_path: Path, file_path: str) -> Tuple[Optional[float], int]:
+def calculate_median_commit_age(file_commits: List[Dict[str, Any]], reference_date: Optional[datetime] = None) -> Optional[float]:
     """
-    Process a single file's git history to calculate median commit age.
-
+    Calculates the median age of a file in days based on its commit history.
+    
+    The age is calculated as the difference between the reference date (usually now or repo head)
+    and the commit date. If a file has sparse history (very few commits), we handle edge cases.
+    
     Args:
-        repo_path: Path to the local git repository.
-        file_path: Relative path of the file.
-
+        file_commits: List of commit dicts with 'datetime' keys.
+        reference_date: The date to calculate age from. Defaults to now.
+    
     Returns:
-        Tuple of (median_age_in_days, commit_count).
-        Returns (None, 0) if file has no history.
+        Median age in days as a float, or None if insufficient data.
+    """
+    if not file_commits:
+        logger.debug("No commits found for file")
+        return None
+    
+    if reference_date is None:
+        reference_date = datetime.now(timezone.utc)
+    
+    ages_days = []
+    for commit in file_commits:
+        if "datetime" not in commit:
+            continue
+        age_delta = reference_date - commit["datetime"]
+        ages_days.append(age_delta.total_seconds() / (24 * 3600))
+    
+    if not ages_days:
+        return None
+    
+    # Sort ages to find median
+    ages_days.sort()
+    n = len(ages_days)
+    if n % 2 == 1:
+        median_age = ages_days[n // 2]
+    else:
+        median_age = (ages_days[n // 2 - 1] + ages_days[n // 2]) / 2.0
+    
+    return median_age
+
+def process_file_history(repo_path: Path, file_path: str, reference_date: Optional[datetime] = None) -> Optional[float]:
+    """
+    Orchestrates getting file commits and calculating median age.
+    
+    Args:
+        repo_path: Path to the repository.
+        file_path: Path to the file within the repo.
+        reference_date: Reference date for age calculation.
+    
+    Returns:
+        Median commit age in days or None.
     """
     commits = get_file_commits(repo_path, file_path)
     if not commits:
-        return None, 0
-
-    median_age = calculate_median_commit_age(commits)
-    return median_age, len(commits)
-
+        return None
+    
+    return calculate_median_commit_age(commits, reference_date)
 
 def extract_file_age_from_url(repo_url: str, file_path: str) -> Optional[float]:
     """
-    Convenience function to clone, calculate age, and cleanup.
-
+    High-level function to clone (or use temp), get history, and calculate age for a file.
+    
     Args:
         repo_url: URL of the repository.
-        file_path: Path to the file within the repo.
-
+        file_path: Path to the file.
+    
     Returns:
-        Median commit age in days, or None if calculation fails.
+        Median commit age in days or None.
     """
     temp_dir = None
     try:
         temp_dir = clone_repository(repo_url)
-        age, count = process_file_history(temp_dir, file_path)
-        if age is not None:
-            logger.info(f"File {file_path} in {repo_url} has median age {age:.2f} days ({count} commits)")
-            return age
-        else:
-            logger.warning(f"No commit history found for {file_path} in {repo_url}")
-            return None
+        return process_file_history(temp_dir, file_path)
     except Exception as e:
-        logger.error(f"Failed to extract age for {file_path} from {repo_url}: {e}")
+        logger.error(f"Error processing {file_path} from {repo_url}: {e}")
         return None
     finally:
         if temp_dir and temp_dir.exists():
-            try:
-                import shutil
-                shutil.rmtree(temp_dir)
-            except Exception as e:
-                logger.warning(f"Failed to remove temp dir {temp_dir}: {e}")
-
+            import shutil
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
 def get_all_files_in_repo(repo_path: Path) -> List[str]:
     """
-    Get a list of all files in the repository.
-
+    Lists all tracked files in the repository.
+    
     Args:
-        repo_path: Path to the local git repository.
-
+        repo_path: Path to the repository.
+    
     Returns:
         List of relative file paths.
     """
     try:
         result = subprocess.run(
-            ["git", "ls-files"],
-            cwd=str(repo_path),
+            ["git", "-C", str(repo_path), "ls-files"],
+            check=True,
             capture_output=True,
             text=True,
-            timeout=60
+            timeout=30
         )
-        if result.returncode == 0:
-            return [f for f in result.stdout.strip().split('\n') if f]
-    except Exception as e:
-        logger.error(f"Error listing files in {repo_path}: {e}")
-    return []
-
+        return result.stdout.strip().split('\n')
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return []
 
 def main():
     """
-    CLI entry point for testing git utilities.
+    CLI entry point for testing git_utils functions.
+    Usage: python -m extraction.git_utils --repo <url> --file <path>
     """
     import argparse
-    parser = argparse.ArgumentParser(description="Git Age Calculator")
+    
+    parser = argparse.ArgumentParser(description="Git Utils CLI")
     parser.add_argument("--repo", type=str, required=True, help="Repository URL")
     parser.add_argument("--file", type=str, required=True, help="File path in repo")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
+    
     args = parser.parse_args()
-
+    
+    setup_logging = get_logger("extraction.git_utils")
+    logger.setLevel(args.log_level.upper())
+    
     age = extract_file_age_from_url(args.repo, args.file)
+    
     if age is not None:
-        print(f"Median commit age: {age:.2f} days")
+        print(f"Median commit age for {args.file}: {age:.2f} days")
     else:
-        print("Could not calculate age")
-        exit(1)
-
+        print(f"Could not determine age for {args.file}")
 
 if __name__ == "__main__":
     main()

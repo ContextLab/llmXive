@@ -1,11 +1,15 @@
+? "T010 [US1] Implement fallback bond detection in `code/construct_network.py` (progressive\
+  \ distance cutoffs) for disconnected graphs; log and skip materials with no edges\
+  \ after fallbacks [UNRESOLVED-CLAIM: c_f100ef7d \u2014 status=not_enough_info]"
+: 1
+? "T012 [P] [US1] Implement validation in `code/construct_network.py` to ensure every\
+  \ graph has \u22652 nodes and \u22651 edge, or is explicitly skipped with a log\
+  \ entry [UNRESOLVED-CLAIM: c_41f78663 \u2014 status=refuted]"
+: 1
 ? 'T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y
   + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!--
   FAILED: unspecified -->'
 : 1
-? 'T015 [US2] Implement extraction of thermal conductivity scalar ($\frac{k_x + k_y
-  + k_z}{3}$) for `data/processed/metrics.csv` (Network metrics only per FR-003) <!--
-  FAILED: unspecified --> <!-- FAILED: unspecified -->'
-: 2
 ? 'T015b [US2] Implement extraction of physical descriptors (columns: `unit_cell_volume`,
   `total_atom_count`, `mean_atomic_mass`) for `data/processed/metrics.csv`. **Action**:
   Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical
@@ -23,15 +27,14 @@
   Append these columns to the existing CSV with a header comment `# DIAGNOSTICS: Physical
   descriptors excluded from regression features` to distinguish them from primary
   features. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 1
-? T016 [P] [US2] Implement `code/analyze.py` to compute Pearson and Spearman correlations
-  between each **network metric** (average degree, path length, clustering) and thermal
-  conductivity, storing results in `results/correlations.json`. Do NOT include physical
-  descriptors in this analysis.
 : 2
 ? "T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation\
   \ tests to control family-wise error rate at \u03B1 \u2264 0.05"
 : 2
+? "T017 [US2] Implement Bonferroni correction in `code/analyze.py` for the 3 correlation\
+  \ tests to control family-wise error rate at \u03B1 \u2264 0.05 [UNRESOLVED-CLAIM:\
+  \ c_a9296042 \u2014 status=not_enough_info]"
+: 1
 ? T018 [US2] Implement power analysis logging in `code/analyze.py` to record warnings
   if $n < 50$ in `results/power_analysis.log`
 : 1

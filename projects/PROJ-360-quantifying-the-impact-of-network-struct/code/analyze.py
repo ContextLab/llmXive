@@ -4,279 +4,225 @@ import logging
 import csv
 import pickle
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any, List, Tuple
+import statistics
+
 import numpy as np
-import pandas as pd
 from scipy import stats
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.regression.linear_model import OLS
-import warnings
 
-# Suppress specific warnings for cleaner logs if necessary
-warnings.filterwarnings('ignore', category=RuntimeWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
+# Local imports
+from config import get_config
 
-def setup_analysis_logger(name: str = "analysis") -> logging.Logger:
-    """Setup a logger for the analysis module."""
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-    
+def setup_analysis_logger() -> logging.Logger:
+    """Set up the logger for analysis tasks."""
+    logger = logging.getLogger("analysis")
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-def load_metrics_csv(path: str) -> pd.DataFrame:
-    """Load the metrics CSV, handling potential header comments."""
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Metrics file not found: {path}")
+def load_metrics_csv() -> List[Dict[str, Any]]:
+    """Load metrics from data/processed/metrics.csv."""
+    metrics_path = Path("data/processed/metrics.csv")
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics file not found at {metrics_path}")
     
-    # Read lines to handle header comments
-    lines = p.read_text().splitlines()
-    clean_lines = [line for line in lines if not line.startswith('#')]
-    
-    # Write back to a temp or just parse if pandas supports skiprows with comment char
-    # pandas read_csv handles comments directly
-    df = pd.read_csv(path, comment='#')
-    return df
+    data = []
+    with open(metrics_path, 'r', newline='', encoding='utf-8') as f:
+        # Skip comment lines if present (e.g., # DIAGNOSTICS...)
+        lines = f.readlines()
+        content_lines = [l for l in lines if not l.strip().startswith('#')]
+        
+        if not content_lines:
+            raise ValueError("Metrics file is empty or contains only comments.")
+        
+        reader = csv.DictReader(content_lines)
+        for row in reader:
+            data.append(row)
+    return data
 
-def get_network_metrics(df: pd.DataFrame) -> List[str]:
-    """Identify network metric columns in the dataframe."""
-    # Based on T013, these are the standard network metrics
-    possible_metrics = ['avg_degree', 'avg_shortest_path', 'clustering_coefficient']
-    found = [col for col in possible_metrics if col in df.columns]
-    return found
+def get_network_metrics() -> List[str]:
+    """Return the list of network metric column names."""
+    return ["average_degree", "average_shortest_path", "clustering_coefficient"]
 
-def get_thermal_conductivity_col(df: pd.DataFrame) -> str:
-    """Identify the thermal conductivity column."""
-    candidates = ['thermal_conductivity', 'k_avg', 'thermal_conductivity_scalar']
-    for c in candidates:
-        if c in df.columns:
-            return c
-    # Fallback: look for any column containing 'thermal' and 'conductivity'
-    for c in df.columns:
-        if 'thermal' in c.lower() and 'conductivity' in c.lower():
-            return c
-    raise ValueError("Could not identify thermal conductivity column in dataframe")
+def get_thermal_conductivity_col() -> str:
+    """Return the column name for thermal conductivity."""
+    return "thermal_conductivity_scalar"
 
-def calculate_vif(df: pd.DataFrame, feature_cols: List[str], target_col: str) -> pd.DataFrame:
-    """Calculate Variance Inflation Factor for features."""
-    if len(feature_cols) == 0:
-        return pd.DataFrame(columns=['feature', 'vif'])
+def calculate_vif(df: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor for network metrics.
+    Input: List of dicts from metrics.csv.
+    Output: Dict mapping metric name to VIF value.
+    """
+    # Implementation deferred to T020. 
+    # Placeholder raises NotImplementedError to prevent silent failure if called early.
+    raise NotImplementedError("VIF calculation is implemented in T020.")
+
+def log_vif_results(vif_values: Dict[str, float], logger: logging.Logger) -> None:
+    """Log VIF results to power_analysis.log."""
+    # Implementation deferred to T020/T021.
+    pass
+
+def compute_correlations(data: List[Dict[str, Any]], logger: logging.Logger) -> Dict[str, Any]:
+    """
+    Compute Pearson and Spearman correlations between network metrics and thermal conductivity.
     
-    X = df[feature_cols].copy()
-    # Handle constant features or NaNs
-    X = X.dropna()
-    if X.empty:
-        return pd.DataFrame(columns=['feature', 'vif'])
+    Returns a dictionary structure suitable for JSON serialization.
+    """
+    metrics_cols = get_network_metrics()
+    target_col = get_thermal_conductivity_col()
     
-    # Add constant for OLS
-    X_with_const = sm.add_constant(X)
-    vif_data = []
+    # Extract numeric vectors
+    X = {col: [] for col in metrics_cols}
+    Y = []
     
-    # Note: VIF is calculated for each feature in the design matrix (excluding constant usually, but statsmodels includes it)
-    # We only care about the user-provided features
-    for col in feature_cols:
-        if col not in X.columns:
-            continue
-        # Recalculate VIF for this specific column using the current dataframe subset
-        # To be precise, VIF for column j is 1 / (1 - R_j^2) where R_j^2 is from regressing X_j on all other X
+    for row in data:
+        for col in metrics_cols:
+            try:
+                val = float(row[col])
+                if np.isnan(val):
+                    val = np.nan
+                X[col].append(val)
+            except (ValueError, TypeError):
+                X[col].append(np.nan)
         try:
-            # Using the formula directly or statsmodels
-            # Simple implementation:
-            y = X[col]
-            X_other = X.drop(columns=[col])
-            if X_other.empty:
-                vif = 0.0 # No other features
-            else:
-                X_other_const = sm.add_constant(X_other)
-                model = OLS(y, X_other_const).fit()
-                r2 = model.rsquared
-                if r2 == 1.0:
-                    vif = np.inf
-                else:
-                    vif = 1.0 / (1.0 - r2)
-            vif_data.append({'feature': col, 'vif': vif})
-        except Exception as e:
-            logging.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data.append({'feature': col, 'vif': np.nan})
+            Y.append(float(row[target_col]))
+        except (ValueError, TypeError):
+            Y.append(np.nan)
     
-    return pd.DataFrame(vif_data)
-
-def log_vif_results(vif_df: pd.DataFrame, log_path: str) -> None:
-    """Log VIF results to a file."""
-    p = Path(log_path)
-    p.parent.mkdir(parents=True, exist_ok=True)
+    # Filter out rows where target or any metric is NaN for correlation
+    # We need to align indices. Since we built lists, we can zip and filter.
+    valid_indices = []
+    for i in range(len(Y)):
+        if not np.isnan(Y[i]):
+            valid = True
+            for col in metrics_cols:
+                if np.isnan(X[col][i]):
+                    valid = False
+                    break
+            if valid:
+                valid_indices.append(i)
     
-    with open(p, 'a') as f:
-        f.write(f"\n--- VIF Analysis at {pd.Timestamp.now()} ---\n")
-        for _, row in vif_df.iterrows():
-            f.write(f"Feature: {row['feature']}, VIF: {row['vif']:.4f}\n")
-
-def compute_correlations(df: pd.DataFrame, metrics: List[str], target_col: str) -> Dict[str, Any]:
-    """
-    Compute Pearson and Spearman correlations between each network metric and thermal conductivity.
-    Returns a dictionary of results.
-    """
+    logger.info(f"Using {len(valid_indices)} valid samples for correlation analysis.")
+    
     results = {}
-    
-    for metric in metrics:
-        if metric not in df.columns or target_col not in df.columns:
+    for col in metrics_cols:
+        x_vals = [X[col][i] for i in valid_indices]
+        y_vals = [Y[i] for i in valid_indices]
+        
+        if len(x_vals) < 2:
+            logger.warning(f"Not enough data for {col}")
+            results[col] = {"pearson_r": None, "pearson_p": None, "spearman_r": None, "spearman_p": None}
             continue
-        
-        x = df[metric].dropna()
-        y = df[target_col].dropna()
-        
-        # Align indices after dropna
-        common_idx = x.index.intersection(y.index)
-        if len(common_idx) < 3:
-            results[metric] = {
-                'pearson_r': None,
-                'pearson_p': None,
-                'spearman_r': None,
-                'spearman_p': None,
-                'n': len(common_idx)
-            }
-            continue
-        
-        x = x.loc[common_idx]
-        y = y.loc[common_idx]
-        
+
         # Pearson
-        p_pearson_r, p_pearson_p = stats.pearsonr(x, y)
+        try:
+            p_r, p_p = stats.pearsonr(x_vals, y_vals)
+        except Exception as e:
+            logger.error(f"Pearson correlation failed for {col}: {e}")
+            p_r, p_p = None, None
+
         # Spearman
-        p_spearman_r, p_spearman_p = stats.spearmanr(x, y)
-        
-        results[metric] = {
-            'pearson_r': float(p_pearson_r),
-            'pearson_p': float(p_pearson_p),
-            'spearman_r': float(p_spearman_r),
-            'spearman_p': float(p_spearman_p),
-            'n': len(common_idx)
+        try:
+            s_r, s_p = stats.spearmanr(x_vals, y_vals)
+        except Exception as e:
+            logger.error(f"Spearman correlation failed for {col}: {e}")
+            s_r, s_p = None, None
+
+        results[col] = {
+            "pearson_r": float(p_r) if p_r is not None else None,
+            "pearson_p": float(p_p) if p_p is not None else None,
+            "spearman_r": float(s_r) if s_r is not None else None,
+            "spearman_p": float(s_p) if s_p is not None else None
         }
     
     return results
 
-def apply_bonferroni_correction(correlation_results: Dict[str, Any], alpha: float = 0.05) -> Dict[str, Any]:
+def apply_bonferroni_correction(correlations: Dict[str, Any], alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Apply Bonferroni correction to the p-values from the correlation tests.
-    The family-wise error rate is controlled at alpha.
-    Number of tests = number of metrics * 2 (Pearson + Spearman) OR just per metric type?
-    Task T017 says: "for the 3 correlation tests". This implies 3 tests total.
-    Usually, we test each metric against the target. If we do both Pearson and Spearman,
-    that's 6 tests. However, the task says "3 correlation tests", likely meaning
-    one test per metric (perhaps focusing on Pearson, or treating the pair as one hypothesis).
-    Given the phrasing "3 correlation tests", we assume 3 hypotheses (one per metric).
-    If we correct per metric type (Pearson vs Spearman), we might do 3 corrections for Pearson and 3 for Spearman.
-    Let's assume the standard interpretation: 3 hypotheses (Metric 1, Metric 2, Metric 3).
-    We will correct the p-values for each metric. If both Pearson and Spearman are present,
-    we apply the correction to both, but the "3 tests" constraint suggests we are testing the
-    relationship of the metric to conductivity.
+    Apply Bonferroni correction to the p-values of the correlation tests.
     
-    Correction: p_corrected = min(p * m, 1.0) where m is the number of tests.
-    Here m = 3.
+    Args:
+        correlations: Output from compute_correlations.
+        alpha: Family-wise error rate (default 0.05).
+    
+    Returns:
+        Updated correlations dict with 'bonferroni_p' and 'is_significant' keys.
     """
-    m = 3 # Number of metrics (hypotheses)
-    corrected_results = {}
-    
-    for metric, data in correlation_results.items():
-        corrected_data = data.copy()
-        
-        if data['pearson_p'] is not None:
-            corrected_data['pearson_p_corrected'] = min(data['pearson_p'] * m, 1.0)
-            corrected_data['pearson_significant'] = corrected_data['pearson_p_corrected'] < alpha
-        
-        if data['spearman_p'] is not None:
-            corrected_data['spearman_p_corrected'] = min(data['spearman_p'] * m, 1.0)
-            corrected_data['spearman_significant'] = corrected_data['spearman_p_corrected'] < alpha
-        
-        corrected_results[metric] = corrected_data
-        
-    return corrected_results
+    n_tests = len(correlations)
+    if n_tests == 0:
+        return correlations
 
-def run_kfold_cross_validation(X: pd.DataFrame, y: pd.Series, n_splits: int = 5) -> Dict[str, Any]:
-    """Perform k-fold cross validation for linear regression."""
-    from sklearn.linear_model import LinearRegression
-    from sklearn.model_selection import KFold
-    
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-    r2_scores = []
-    rmse_scores = []
-    
-    model = LinearRegression()
-    
-    for train_idx, test_idx in kf.split(X):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+    adjusted_alpha = alpha / n_tests
+    logger = logging.getLogger("analysis")
+    logger.info(f"Applying Bonferroni correction: {n_tests} tests, adjusted alpha = {adjusted_alpha:.6f}")
+
+    for metric, values in correlations.items():
+        p_pearson = values.get("pearson_p")
+        p_spearman = values.get("spearman_p")
         
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+        if p_pearson is not None:
+            corrected_p = min(p_pearson * n_tests, 1.0)
+            values["bonferroni_p_pearson"] = corrected_p
+            values["is_significant_pearson"] = corrected_p < alpha
         
-        r2 = model.score(X_test, y_test)
-        rmse = np.sqrt(np.mean((y_test - y_pred) ** 2))
-        
-        r2_scores.append(r2)
-        rmse_scores.append(rmse)
+        if p_spearman is not None:
+            corrected_p = min(p_spearman * n_tests, 1.0)
+            values["bonferroni_p_spearman"] = corrected_p
+            values["is_significant_spearman"] = corrected_p < alpha
     
-    return {
-        'r2_scores': r2_scores,
-        'rmse_scores': rmse_scores,
-        'mean_r2': float(np.mean(r2_scores)),
-        'std_r2': float(np.std(r2_scores)),
-        'mean_rmse': float(np.mean(rmse_scores)),
-        'std_rmse': float(np.std(rmse_scores))
-    }
+    return correlations
+
+def run_kfold_cross_validation() -> None:
+    """Placeholder for T023. Implementation deferred."""
+    raise NotImplementedError("K-fold cross-validation is implemented in T023.")
 
 def main():
     """
-    Main entry point for analysis tasks including correlation and Bonferroni correction.
-    This function specifically addresses T016 and T017.
+    Main entry point for analysis tasks.
+    Specifically handles T016 (Correlations) and T017 (Bonferroni Correction).
     """
     logger = setup_analysis_logger()
-    
-    # Paths
-    metrics_path = Path("data/processed/metrics.csv")
-    correlations_path = Path("results/correlations.json")
-    
-    if not metrics_path.exists():
-        logger.error(f"Metrics file not found at {metrics_path}")
+    logger.info("Starting analysis pipeline (T016/T017).")
+
+    try:
+        data = load_metrics_csv()
+        logger.info(f"Loaded {len(data)} rows from metrics.csv.")
+    except FileNotFoundError as e:
+        logger.error(str(e))
         return
     
-    logger.info("Loading metrics data...")
-    df = load_metrics_csv(str(metrics_path))
+    # T016: Compute correlations
+    correlations = compute_correlations(data, logger)
     
-    # Identify columns
-    network_metrics = get_network_metrics(df)
-    if not network_metrics:
-        logger.warning("No network metrics found in the dataframe.")
-        return
+    # Save raw correlations
+    results_dir = Path("results")
+    results_dir.mkdir(exist_ok=True)
     
-    target_col = get_thermal_conductivity_col(df)
-    logger.info(f"Target column: {target_col}")
-    logger.info(f"Network metrics found: {network_metrics}")
+    output_path = results_dir / "correlations.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(correlations, f, indent=2)
+    logger.info(f"Saved raw correlations to {output_path}")
+
+    # T017: Apply Bonferroni correction
+    corrected_correlations = apply_bonferroni_correction(correlations, alpha=0.05)
     
-    # Compute correlations (T016)
-    logger.info("Computing correlations...")
-    raw_correlations = compute_correlations(df, network_metrics, target_col)
-    
-    # Apply Bonferroni Correction (T017)
-    logger.info("Applying Bonferroni correction (m=3)...")
-    corrected_correlations = apply_bonferroni_correction(raw_correlations)
-    
-    # Save results
-    correlations_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(correlations_path, 'w') as f:
+    # Save corrected results (overwrite or append? Spec implies storing results in correlations.json)
+    # We will update the existing file with the corrected values.
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(corrected_correlations, f, indent=2)
-    
-    logger.info(f"Correlation results saved to {correlations_path}")
+    logger.info(f"Saved Bonferroni-corrected correlations to {output_path}")
     
     # Log summary
-    for metric, data in corrected_correlations.items():
-        logger.info(f"{metric}: Pearson p-corr={data.get('pearson_p_corrected', 'N/A'):.4f}, Significant={data.get('pearson_significant', False)}")
+    logger.info("Bonferroni correction completed.")
+    for metric, values in corrected_correlations.items():
+        sig_pearson = values.get("is_significant_pearson", False)
+        sig_spearman = values.get("is_significant_spearman", False)
+        logger.info(f"{metric}: Pearson sig={sig_pearson}, Spearman sig={sig_spearman}")
 
 if __name__ == "__main__":
     main()
