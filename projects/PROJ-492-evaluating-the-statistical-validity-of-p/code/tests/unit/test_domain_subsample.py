@@ -1,225 +1,161 @@
-"""
-Unit tests for Domain Bias Subsampling (T044)
-
-Verifies that the subsampling logic correctly enforces the 30% domain cap.
-"""
 import pytest
+import csv
 import json
+from pathlib import Path
 import tempfile
 import os
-from pathlib import Path
-from unittest.mock import patch
-import sys
-
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.src.audit.domain_subsample import (
     load_audit_records_from_json,
+    load_summaries_from_csv,
     extract_domain_from_record,
     calculate_domain_proportions,
     create_balanced_subsample,
-    run_domain_subsample,
-    write_subsample_to_csv
+    write_subsample_to_csv,
+    run_domain_subsample
 )
 
-class TestDomainExtraction:
-    def test_extract_domain_from_record_explicit(self):
-        record = {"domain": "example.com", "url": "http://other.com"}
-        assert extract_domain_from_record(record) == "example.com"
+@pytest.fixture
+def sample_records():
+    """Create sample audit records with known domain distribution."""
+    return [
+        {"id": 1, "domain": "tech", "value": 0.5},
+        {"id": 2, "domain": "tech", "value": 0.6},
+        {"id": 3, "domain": "tech", "value": 0.7},
+        {"id": 4, "domain": "tech", "value": 0.8},
+        {"id": 5, "domain": "tech", "value": 0.9},
+        {"id": 6, "domain": "health", "value": 0.4},
+        {"id": 7, "domain": "health", "value": 0.5},
+        {"id": 8, "domain": "finance", "value": 0.6},
+        {"id": 9, "domain": "finance", "value": 0.7},
+        {"id": 10, "domain": "education", "value": 0.8},
+    ]
 
-    def test_extract_domain_from_record_url(self):
-        record = {"url": "https://test.org/path/to/page"}
-        assert extract_domain_from_record(record) == "test.org"
+@pytest.fixture
+def temp_json_file(sample_records):
+    """Create a temporary JSON file with sample records."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(sample_records, f)
+        temp_path = Path(f.name)
+    yield temp_path
+    os.unlink(temp_path)
 
-    def test_extract_domain_from_record_url_with_port(self):
-        record = {"url": "http://example.com:8080/page"}
-        assert extract_domain_from_record(record) == "example.com"
+@pytest.fixture
+def temp_csv_file(sample_records):
+    """Create a temporary CSV file with sample records."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        fieldnames = sample_records[0].keys()
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(sample_records)
+        temp_path = Path(f.name)
+    yield temp_path
+    os.unlink(temp_path)
 
-    def test_extract_domain_from_record_unknown(self):
-        record = {"id": 123}
-        assert extract_domain_from_record(record) == "unknown"
+def test_extract_domain_from_record():
+    """Test domain extraction from various record formats."""
+    # Standard domain field
+    record1 = {"domain": "example.com", "other": "data"}
+    assert extract_domain_from_record(record1) == "example.com"
+    
+    # Source domain field
+    record2 = {"source_domain": "test.org", "other": "data"}
+    assert extract_domain_from_record(record2) == "test.org"
+    
+    # URL extraction
+    record3 = {"url": "https://news.site.com/article", "other": "data"}
+    assert extract_domain_from_record(record3) == "news.site.com"
+    
+    # Missing domain
+    record4 = {"id": 1}
+    assert extract_domain_from_record(record4) == "unknown"
 
-class TestDomainProportions:
-    def test_calculate_proportions(self):
-        records = [
-            {"domain": "A"}, {"domain": "A"}, {"domain": "B"}
-        ]
-        props = calculate_domain_proportions(records)
-        assert abs(props["A"] - 0.6666) < 0.01
-        assert abs(props["B"] - 0.3333) < 0.01
+def test_calculate_domain_proportions(sample_records):
+    """Test calculation of domain proportions."""
+    proportions = calculate_domain_proportions(sample_records)
+    
+    assert len(proportions) == 4  # tech, health, finance, education
+    assert abs(proportions["tech"] - 0.5) < 0.01  # 5/10
+    assert abs(proportions["health"] - 0.2) < 0.01  # 2/10
+    assert abs(proportions["finance"] - 0.2) < 0.01  # 2/10
+    assert abs(proportions["education"] - 0.1) < 0.01  # 1/10
 
-    def test_empty_records(self):
-        props = calculate_domain_proportions([])
-        assert props == {}
+def test_create_balanced_subsample_no_violation():
+    """Test subsampling when no domain exceeds threshold."""
+    # All domains are <= 30%
+    records = [
+        {"id": 1, "domain": "a"},
+        {"id": 2, "domain": "b"},
+        {"id": 3, "domain": "c"},
+    ]
+    
+    subsampled = create_balanced_subsample(records, max_domain_proportion=0.30)
+    
+    # All records should be preserved
+    assert len(subsampled) == 3
 
-class TestBalancedSubsample:
-    def test_no_subsample_needed(self):
-        # A: 2, B: 2. Total 4. Max prop 0.5. Cap 0.3 -> 1.2.
-        # Actually, let's make a case where it's fine.
-        # A: 1, B: 9. Total 10. A is 0.1. B is 0.9.
-        # If cap is 0.3, B must be reduced.
-        # Let's try: A: 3, B: 3. Total 6. Max prop 0.5. Cap 0.6 -> 3.6.
-        # So if cap is 0.6, no subsample needed.
-        records = [{"domain": "A"} for _ in range(3)] + [{"domain": "B"} for _ in range(3)]
-        subsample = create_balanced_subsample(records, max_domain_ratio=0.6, seed=42)
-        # Should return all
-        assert len(subsample) == 6
+def test_create_balanced_subsample_with_violation(sample_records):
+    """Test subsampling when a domain exceeds threshold."""
+    # tech domain is 50% (5/10), which exceeds 30%
+    subsampled = create_balanced_subsample(sample_records, max_domain_proportion=0.30)
+    
+    # Total records should be reduced
+    assert len(subsampled) < len(sample_records)
+    
+    # Tech should be at most 30%
+    tech_count = sum(1 for r in subsampled if r["domain"] == "tech")
+    tech_proportion = tech_count / len(subsampled)
+    assert tech_proportion <= 0.30
 
-    def test_subsample_dominant_domain(self):
-        # Create a dataset where domain A is 80%
-        # 8 A's, 2 B's. Total 10.
-        # Cap 0.3.
-        # Max allowed A = floor(10 * 0.3) = 3.
-        # We need to reduce A from 8 to 3.
-        # Total target = 3 / 0.3 = 10.
-        # Wait, if we keep 3 A's, and we have 2 B's, total is 5.
-        # 3/5 = 0.6 > 0.3.
-        # The algorithm:
-        # dominant_count = 8.
-        # target_total = 8 / 0.3 = 26.6 -> 26.
-        # max_allowed_dominant = floor(26 * 0.3) = 7.
-        # This logic seems to allow 7 A's out of 26? No, we only have 10 records.
-        # Let's re-read the logic in create_balanced_subsample.
-        # It calculates target_total based on dominant_count.
-        # If dominant_count > max_ratio * total:
-        #   target_total = dominant_count / max_ratio
-        #   max_allowed_dominant = target_total * max_ratio
-        #   final_dominant_count = min(dominant_count, max_allowed_dominant)
-        #   remaining_slots = target_total - final_dominant_count
-        #   ...
+def test_run_domain_subsample_json(temp_json_file):
+    """Test running domain subsampling on JSON input."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        output_path = Path(f.name)
+    
+    try:
+        original_count, subsampled_count, proportions = run_domain_subsample(
+            temp_json_file, output_path, max_domain_proportion=0.30, input_format="json"
+        )
         
-        # Let's construct a simpler test case.
-        # 100 records. 90 from A, 10 from B.
-        # Cap 0.3.
-        # dominant_count = 90.
-        # target_total = 90 / 0.3 = 300.
-        # Since 300 > 100, we don't need to subsample?
-        # Wait, the condition is: if dominant_count / total <= max_ratio: return records.
-        # 90/100 = 0.9 > 0.3. So we enter the subsample block.
-        # target_total = 90 / 0.3 = 300.
-        # max_allowed_dominant = 300 * 0.3 = 90.
-        # final_dominant_count = min(90, 90) = 90.
-        # remaining_slots = 300 - 90 = 210.
-        # We have 10 non-dominant. We take all 10.
-        # Total = 90 + 10 = 100.
-        # But 90/100 = 0.9. Still > 0.3.
+        assert original_count == 10
+        assert subsampled_count < original_count
+        assert output_path.exists()
         
-        # Ah, the logic in the code:
-        # target_total = int(dominant_count / max_domain_ratio)
-        # if target_total < non_dominant_count + 1:
-        #    target_total = non_dominant_count + 1
-        # This logic is flawed if the goal is to reduce the dominant proportion.
-        # If we have 90 A and 10 B, and we want A <= 0.3 * Total.
-        # Let T be the new total. A_new <= 0.3 * T.
-        # If we keep all B (10), then A_new <= 0.3 * (A_new + 10).
-        # A_new <= 0.3 A_new + 3 => 0.7 A_new <= 3 => A_new <= 4.28.
-        # So we can keep at most 4 A's.
-        # Total = 4 + 10 = 14.
-        # 4/14 = 0.28 <= 0.3.
-        
-        # The current implementation:
-        # target_total = 90 / 0.3 = 300.
-        # max_allowed_dominant = 300 * 0.3 = 90.
-        # final_dominant_count = 90.
-        # remaining_slots = 210.
-        # We take 10 non-dominant.
-        # Total = 100.
-        # Proportion = 90/100 = 0.9.
-        
-        # The implementation logic is incorrect for the case where the dominant
-        # domain is so large that even keeping all non-dominant records requires
-        # a massive reduction of the dominant domain.
-        
-        # Let's fix the test to match the current (flawed but implemented) logic?
-        # No, I should implement the logic correctly in the source file.
-        # But the task is to implement T044. I must ensure the code works.
-        # I will correct the logic in the source file (above) to be mathematically sound.
-        
-        # Correct Logic:
-        # We want: count_dominant / (count_dominant + count_others) <= R
-        # count_dominant <= R * (count_dominant + count_others)
-        # count_dominant * (1 - R) <= R * count_others
-        # count_dominant <= (R * count_others) / (1 - R)
-        
-        # So max_dominant_allowed = floor( (R * count_others) / (1 - R) )
-        # If current dominant > max_dominant_allowed, we subsample dominant to max_dominant_allowed.
-        # We keep all others (or subsample others if we want to reduce total size further, but minimal reduction is best).
-        
-        # Let's re-implement the logic in the source file correctly.
-        # For now, let's test the corrected logic.
-        pass
+        # Verify no domain exceeds 30%
+        for domain, prop in proportions.items():
+            assert prop <= 0.30
+    finally:
+        if output_path.exists():
+            os.unlink(output_path)
 
-# Since the logic in the source file needs to be robust, let's assume the source file
-# has been updated with the correct math.
-# I will write the test for the corrected logic.
-
-class TestCorrectedSubsample:
-    def test_strong_dominance(self):
-        # 90 A, 10 B. Cap 0.3.
-        # max_dominant = (0.3 * 10) / (0.7) = 3 / 0.7 = 4.28 -> 4.
-        # We should keep 4 A and 10 B. Total 14.
-        # 4/14 = 0.285 <= 0.3.
+def test_run_domain_subsample_csv(temp_csv_file):
+    """Test running domain subsampling on CSV input."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        output_path = Path(f.name)
+    
+    try:
+        original_count, subsampled_count, proportions = run_domain_subsample(
+            temp_csv_file, output_path, max_domain_proportion=0.30, input_format="csv"
+        )
         
-        records = [{"domain": "A"} for _ in range(90)] + [{"domain": "B"} for _ in range(10)]
-        subsample = create_balanced_subsample(records, max_domain_ratio=0.3, seed=42)
+        assert original_count == 10
+        assert subsampled_count < original_count
+        assert output_path.exists()
         
-        # Check proportions
-        counts = {}
-        for r in subsample:
-            d = extract_domain_from_record(r)
-            counts[d] = counts.get(d, 0) + 1
-        
-        total = len(subsample)
-        assert total > 0
-        for d, c in counts.items():
-            prop = c / total
-            assert prop <= 0.3 + 1e-9, f"Domain {d} has proportion {prop} > 0.3"
-        
-        # Check specific counts if possible (deterministic with seed)
-        # With seed 42, we expect specific samples.
-        # But the main constraint is the proportion.
-        assert len(subsample) <= 100
-        assert counts.get("A", 0) <= 5 # Should be around 4
+        # Verify no domain exceeds 30%
+        for domain, prop in proportions.items():
+            assert prop <= 0.30
+    finally:
+        if output_path.exists():
+            os.unlink(output_path)
 
-    def test_no_subsample_needed(self):
-        records = [{"domain": "A"} for _ in range(3)] + [{"domain": "B"} for _ in range(7)]
-        # A: 0.3, B: 0.7. Cap 0.7.
-        subsample = create_balanced_subsample(records, max_domain_ratio=0.7, seed=42)
-        assert len(subsample) == 10
-
-class TestIntegration:
-    def test_run_domain_subsample_file_io(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.json"
-            output_path = Path(tmpdir) / "output.csv"
-            
-            records = [{"domain": "A"} for _ in range(90)] + [{"domain": "B"} for _ in range(10)]
-            with open(input_path, 'w') as f:
-                json.dump(records, f)
-            
-            success, stats = run_domain_subsample(input_path, output_path, max_domain_ratio=0.3, seed=42)
-            
-            assert success
-            assert output_path.exists()
-            assert stats["constraint_met"]
-            
-            # Read back and verify
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-            
-            assert len(rows) <= 100
-            # Verify proportions
-            counts = {}
-            for row in rows:
-                d = row.get("domain", "unknown")
-                counts[d] = counts.get(d, 0) + 1
-            
-            total = len(rows)
-            for d, c in counts.items():
-                assert c / total <= 0.3 + 1e-9
-
-import csv
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_create_balanced_subsample_deterministic(sample_records):
+    """Test that subsampling is deterministic with fixed seed."""
+    # Run twice and compare results
+    result1 = create_balanced_subsample(sample_records, max_domain_proportion=0.30)
+    result2 = create_balanced_subsample(sample_records, max_domain_proportion=0.30)
+    
+    # Results should be identical due to seeded RNG
+    ids1 = [r["id"] for r in result1]
+    ids2 = [r["id"] for r in result2]
+    assert ids1 == ids2

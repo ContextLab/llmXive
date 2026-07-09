@@ -1,321 +1,259 @@
-"""
-Bias Adjustment Module (FR-027)
-
-Computes domain-weighted prevalence using domain-weighted averaging.
-Either subsamples the dominant domain or flags a violation when any
-domain exceeds 30% proportion per FR-027.
-
-Outputs bias-adjusted prevalence rate to output/bias_adjustment.json
-and logs any domain violations.
-"""
-
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 from code.src.utils.logger import get_default_logger
-from code.src.audit.domain_subsample import (
-    load_audit_records_from_json,
-    calculate_domain_proportions,
-    create_balanced_subsample,
-    write_subsample_to_csv,
-)
-from code.src.audit.prevalence import compute_prevalence, binomial_test
-from code.src.config import set_rng_seed
 
+logger = get_default_logger()
 
-def compute_domain_weights(domain_counts: Dict[str, int], total_count: int) -> Dict[str, float]:
+def compute_domain_weights(
+    domain_proportions: Dict[str, float],
+    max_proportion: float = 0.30
+) -> Dict[str, float]:
     """
-    Compute domain weights for weighted averaging.
-
-    Args:
-        domain_counts: Dictionary mapping domain to count of summaries
-        total_count: Total number of summaries across all domains
-
-    Returns:
-        Dictionary mapping domain to normalized weight (sum of weights = 1.0)
+    Compute weights for domain-weighted averaging.
+    
+    If any domain exceeds max_proportion, its weight is capped.
     """
-    if total_count == 0:
-        return {}
-
     weights = {}
-    for domain, count in domain_counts.items():
-        weights[domain] = count / total_count
-
+    
+    # Cap weights for dominant domains
+    for domain, proportion in domain_proportions.items():
+        if proportion > max_proportion:
+            weights[domain] = max_proportion
+        else:
+            weights[domain] = proportion
+    
+    # Normalize weights to sum to 1
+    total_weight = sum(weights.values())
+    if total_weight > 0:
+        weights = {k: v / total_weight for k, v in weights.items()}
+    
     return weights
 
-
 def compute_domain_weighted_prevalence(
-    audit_records: List[Dict[str, Any]],
+    records: List[Dict[str, Any]],
     domain_weights: Dict[str, float]
-) -> Tuple[float, Dict[str, float]]:
+) -> float:
     """
     Compute bias-adjusted prevalence using domain-weighted averaging.
-
-    For each domain, compute the inconsistency rate, then weight by
-    the domain's proportion in a balanced (subsampled) corpus.
-
+    
     Args:
-        audit_records: List of audit record dictionaries
-        domain_weights: Dictionary mapping domain to weight
-
+        records: List of audit records with 'inconsistent' flag
+        domain_weights: Weights for each domain
+    
     Returns:
-        Tuple of (bias_adjusted_prevalence, domain_inconsistency_rates)
+        Bias-adjusted prevalence rate
     """
+    if not records:
+        return 0.0
+    
     # Group records by domain
-    domain_records: Dict[str, List[Dict[str, Any]]] = {}
-    for record in audit_records:
+    domain_inconsistent_counts: Dict[str, int] = {}
+    domain_total_counts: Dict[str, int] = {}
+    
+    for record in records:
         domain = record.get("domain", "unknown")
-        if domain not in domain_records:
-            domain_records[domain] = []
-        domain_records[domain].append(record)
-
-    # Compute inconsistency rate per domain
-    domain_inconsistency_rates: Dict[str, float] = {}
-    for domain, records in domain_records.items():
-        if len(records) == 0:
-            domain_inconsistency_rates[domain] = 0.0
-            continue
-
-        inconsistent_count = sum(1 for r in records if r.get("is_inconsistent", False))
-        domain_inconsistency_rates[domain] = inconsistent_count / len(records)
-
-    # Compute weighted average
-    bias_adjusted_prevalence = 0.0
+        is_inconsistent = record.get("inconsistent", False)
+        
+        domain_total_counts[domain] = domain_total_counts.get(domain, 0) + 1
+        if is_inconsistent:
+            domain_inconsistent_counts[domain] = domain_inconsistent_counts.get(domain, 0) + 1
+    
+    # Calculate weighted prevalence
+    weighted_prevalence = 0.0
+    
     for domain, weight in domain_weights.items():
-        rate = domain_inconsistency_rates.get(domain, 0.0)
-        bias_adjusted_prevalence += weight * rate
-
-    return bias_adjusted_prevalence, domain_inconsistency_rates
-
+        total = domain_total_counts.get(domain, 0)
+        inconsistent = domain_inconsistent_counts.get(domain, 0)
+        
+        if total > 0:
+            domain_rate = inconsistent / total
+            weighted_prevalence += weight * domain_rate
+    
+    return weighted_prevalence
 
 def check_domain_violation(
     domain_proportions: Dict[str, float],
-    threshold: float = 0.30
+    max_proportion: float = 0.30
 ) -> Tuple[bool, List[str]]:
     """
-    Check if any domain exceeds the threshold proportion.
-
-    Args:
-        domain_proportions: Dictionary mapping domain to proportion
-        threshold: Maximum allowed proportion (default 0.30 = 30%)
-
+    Check if any domain exceeds the maximum allowed proportion.
+    
     Returns:
         Tuple of (has_violation, list of violating domains)
     """
-    violating_domains = []
-    for domain, proportion in domain_proportions.items():
-        if proportion > threshold:
-            violating_domains.append(domain)
-
-    return len(violating_domains) > 0, violating_domains
-
+    violations = [
+        domain for domain, proportion in domain_proportions.items()
+        if proportion > max_proportion
+    ]
+    return len(violations) > 0, violations
 
 def write_bias_adjustment_results(
-    results: Dict[str, Any],
-    output_path: Path
+    output_path: Path,
+    original_proportions: Dict[str, float],
+    adjusted_prevalence: float,
+    domain_weights: Dict[str, float],
+    has_violation: bool,
+    violating_domains: List[str],
+    action_taken: str
 ) -> None:
-    """
-    Write bias adjustment results to JSON file.
-
-    Args:
-        results: Dictionary containing bias adjustment results
-        output_path: Path to output file
-    """
+    """Write bias adjustment results to a JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2)
-
-
-def run_bias_adjustment(
-    audit_records_path: Path,
-    output_dir: Path,
-    subsample_output_path: Optional[Path] = None,
-    threshold: float = 0.30,
-    seed: int = 42
-) -> Dict[str, Any]:
-    """
-    Run the full bias adjustment pipeline.
-
-    This function:
-    1. Loads audit records from JSON
-    2. Calculates domain proportions
-    3. Checks for domain violations (any domain > threshold)
-    4. If violation exists, either subsamples or flags violation
-    5. Computes domain-weighted prevalence
-    6. Writes results to output
-
-    Args:
-        audit_records_path: Path to audit_report.json
-        output_dir: Directory for output files
-        subsample_output_path: Path for balanced subsample CSV (optional)
-        threshold: Maximum allowed domain proportion (default 0.30)
-        seed: Random seed for reproducibility
-
-    Returns:
-        Dictionary containing bias adjustment results
-    """
-    logger = get_default_logger(__name__)
-    set_rng_seed(seed)
-
-    logger.info(f"Loading audit records from {audit_records_path}")
-    audit_records = load_audit_records_from_json(audit_records_path)
-
-    if len(audit_records) == 0:
-        logger.warning("No audit records found, returning empty results")
-        return {
-            "bias_adjusted_prevalence": 0.0,
-            "domain_weights": {},
-            "domain_inconsistency_rates": {},
-            "had_violation": False,
-            "violating_domains": [],
-            "action_taken": "none",
-            "total_records": 0,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-
-    # Calculate domain proportions
-    domain_proportions = calculate_domain_proportions(audit_records)
-    logger.info(f"Domain proportions: {domain_proportions}")
-
-    # Check for violations
-    has_violation, violating_domains = check_domain_violation(domain_proportions, threshold)
-
-    action_taken = "none"
-    subsample_path = None
-
-    if has_violation:
-        logger.warning(f"Domain violation detected: {violating_domains} exceed {threshold*100}%")
-
-        # Try to subsample if we have enough records
-        if len(audit_records) >= 100:
-            logger.info(f"Creating balanced subsample to address domain violation")
-            subsample_path = subsample_output_path or output_dir / "subsampled_balanced.csv"
-
-            # Create balanced subsample
-            balanced_subsample = create_balanced_subsample(
-                audit_records,
-                max_proportion=threshold,
-                seed=seed
-            )
-
-            write_subsample_to_csv(balanced_subsample, subsample_path)
-            action_taken = "subsampled"
-
-            # Recalculate proportions from subsample
-            domain_proportions = calculate_domain_proportions(balanced_subsample)
-            audit_records = balanced_subsample
-            logger.info(f"Subsampled to {len(audit_records)} records")
-        else:
-            # Cannot subsample, flag violation
-            logger.warning(f"Cannot subsample (insufficient records: {len(audit_records)}), flagging violation")
-            action_taken = "violation_flagged"
-
-    # Compute domain weights
-    domain_counts = {}
-    for record in audit_records:
-        domain = record.get("domain", "unknown")
-        domain_counts[domain] = domain_counts.get(domain, 0) + 1
-
-    total_count = sum(domain_counts.values())
-    domain_weights = compute_domain_weights(domain_counts, total_count)
-
-    # Compute bias-adjusted prevalence
-    bias_adjusted_prevalence, domain_inconsistency_rates = compute_domain_weighted_prevalence(
-        audit_records, domain_weights
-    )
-
-    # Prepare results
+    
     results = {
-        "bias_adjusted_prevalence": round(bias_adjusted_prevalence, 6),
-        "domain_weights": {k: round(v, 6) for k, v in domain_weights.items()},
-        "domain_inconsistency_rates": {k: round(v, 6) for k, v in domain_inconsistency_rates.items()},
-        "domain_proportions": {k: round(v, 6) for k, v in domain_proportions.items()},
-        "had_violation": has_violation,
+        "timestamp": datetime.now().isoformat(),
+        "original_domain_proportions": original_proportions,
+        "domain_weights": domain_weights,
+        "bias_adjusted_prevalence": adjusted_prevalence,
+        "has_violation": has_violation,
         "violating_domains": violating_domains,
         "action_taken": action_taken,
-        "threshold": threshold,
-        "total_records": len(audit_records),
-        "original_total_records": len(load_audit_records_from_json(audit_records_path)),
-        "subsample_path": str(subsample_path) if subsample_path else None,
-        "timestamp": datetime.utcnow().isoformat()
+        "max_proportion_threshold": 0.30
     }
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Wrote bias adjustment results to {output_path}")
 
+def run_bias_adjustment(
+    records: List[Dict[str, Any]],
+    output_path: Path,
+    max_proportion: float = 0.30,
+    subsample_path: Optional[Path] = None
+) -> Tuple[float, Dict[str, float], bool, List[str], str]:
+    """
+    Run bias adjustment process.
+    
+    This function:
+    1. Calculates domain proportions
+    2. Checks for violations
+    3. Either subsamples dominant domains OR flags a violation
+    4. Computes domain-weighted prevalence
+    
+    Args:
+        records: List of audit records
+        output_path: Path to write results JSON
+        max_proportion: Maximum allowed proportion per domain
+        subsample_path: Path to subsampled data if subsampling was performed
+    
+    Returns:
+        Tuple of (adjusted_prevalence, domain_weights, has_violation, violating_domains, action_taken)
+    """
+    # Calculate domain proportions
+    domain_counts: Dict[str, int] = {}
+    for record in records:
+        domain = record.get("domain", "unknown")
+        domain_counts[domain] = domain_counts.get(domain, 0) + 1
+    
+    total = len(records)
+    original_proportions = {
+        domain: count / total for domain, count in domain_counts.items()
+    } if total > 0 else {}
+    
+    logger.info(f"Original domain proportions: {original_proportions}")
+    
+    # Check for violations
+    has_violation, violating_domains = check_domain_violation(original_proportions, max_proportion)
+    
+    if has_violation:
+        logger.warning(f"Domain violation detected: {violating_domains} exceed {max_proportion}")
+    
+    # Compute weights
+    domain_weights = compute_domain_weights(original_proportions, max_proportion)
+    
+    # Determine action taken
+    if has_violation:
+        if subsample_path and subsample_path.exists():
+            action_taken = "subsampled"
+            logger.info(f"Subsampled dominant domains to meet {max_proportion} threshold")
+        else:
+            action_taken = "flagged"
+            logger.warning(f"Flagged domain violation without subsampling")
+    else:
+        action_taken = "none"
+        logger.info("No domain violation detected")
+    
+    # Compute bias-adjusted prevalence
+    adjusted_prevalence = compute_domain_weighted_prevalence(records, domain_weights)
+    
     # Write results
-    output_path = output_dir / "bias_adjustment.json"
-    write_bias_adjustment_results(results, output_path)
-    logger.info(f"Bias adjustment results written to {output_path}")
+    write_bias_adjustment_results(
+        output_path,
+        original_proportions,
+        adjusted_prevalence,
+        domain_weights,
+        has_violation,
+        violating_domains,
+        action_taken
+    )
+    
+    return adjusted_prevalence, domain_weights, has_violation, violating_domains, action_taken
 
-    return results
-
-
-def main() -> None:
-    """
-    Main entry point for bias adjustment module.
-
-    Reads from output/audit_report.json and writes to output/bias_adjustment.json
-    """
-    logger = get_default_logger(__name__)
-    logger.info("Starting bias adjustment module")
-
-    # Default paths
-    output_dir = Path("output")
-    audit_records_path = output_dir / "audit_report.json"
-    subsample_output_path = Path("data") / "subsampled_balanced.csv"
-
-    # Parse command line arguments if provided
+def main() -> int:
+    """Main entry point for bias adjustment script."""
     import argparse
-    parser = argparse.ArgumentParser(description="Run bias adjustment on audit results")
+    
+    parser = argparse.ArgumentParser(description="Compute bias-adjusted prevalence")
     parser.add_argument(
         "--input",
         type=Path,
-        default=audit_records_path,
-        help="Path to audit_report.json"
+        default=Path("output/audit_report.json"),
+        help="Path to input audit report JSON"
     )
     parser.add_argument(
-        "--output-dir",
+        "--output",
         type=Path,
-        default=output_dir,
-        help="Output directory for results"
+        default=Path("output/bias_adjustment.json"),
+        help="Path to output results JSON"
     )
     parser.add_argument(
-        "--subsample-output",
+        "--subsample",
         type=Path,
-        default=subsample_output_path,
-        help="Path for balanced subsample CSV"
+        default=None,
+        help="Path to subsampled data (if subsampling was performed)"
     )
     parser.add_argument(
-        "--threshold",
+        "--max-proportion",
         type=float,
         default=0.30,
-        help="Maximum allowed domain proportion"
+        help="Maximum allowed proportion per domain (default: 0.30)"
     )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
-
+    
     args = parser.parse_args()
-
-    # Run bias adjustment
-    results = run_bias_adjustment(
-        audit_records_path=args.input,
-        output_dir=args.output_dir,
-        subsample_output_path=args.subsample_output,
-        threshold=args.threshold,
-        seed=args.seed
-    )
-
-    logger.info(f"Bias adjustment complete. Adjusted prevalence: {results['bias_adjusted_prevalence']:.4f}")
-
-    if results["had_violation"]:
-        logger.warning(f"Domain violation: {results['violating_domains']}")
-        logger.info(f"Action taken: {results['action_taken']}")
-
+    
+    try:
+        # Load records
+        if not args.input.exists():
+            logger.error(f"Input file not found: {args.input}")
+            return 1
+        
+        with open(args.input, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # Handle both list and dict formats
+        if isinstance(data, list):
+            records = data
+        elif isinstance(data, dict) and 'records' in data:
+            records = data['records']
+        else:
+            logger.error("Unexpected input format")
+            return 1
+        
+        # Run bias adjustment
+        run_bias_adjustment(
+            records,
+            args.output,
+            args.max_proportion,
+            args.subsample
+        )
+        
+        return 0
+    except Exception as e:
+        logger.error(f"Bias adjustment failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())
