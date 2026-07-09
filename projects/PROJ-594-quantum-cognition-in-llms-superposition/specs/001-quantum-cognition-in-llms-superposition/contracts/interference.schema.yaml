@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Interference Validation Schema"
+type: "object"
+properties:
+  destructive_interference_test:
+    type: "boolean"
+    description: "True if destructive interference (c1=1, c2=-1) yields negative cross-term."
+  constructive_interference_test:
+    type: "boolean"
+    description: "True if constructive interference (c1=1, c2=1) yields positive cross-term."
+  cross_term_significant:
+    type: "boolean"
+    description: "True if cross-term assumes significant negative values for ambiguous inputs."
+  normalization_valid:
+    type: "boolean"
+    description: "True if probabilities sum to 1.0 and are in [0, 1]."
+  gradient_correlation:
+    type: "number"
+    description: "Correlation coefficient between cross-term magnitude and ambiguity confidence (if available)."
+required:
+  - destructive_interference_test
+  - constructive_interference_test
+  - cross_term_significant
+  - normalization_valid
+  - gradient_correlation
+additionalProperties: false

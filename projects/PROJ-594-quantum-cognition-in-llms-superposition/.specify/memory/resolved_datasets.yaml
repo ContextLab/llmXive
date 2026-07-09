@@ -1,0 +1,193 @@
+resolved_at: '2026-07-09T00:50:20.121606+00:00'
+datasets:
+- intent: BERT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/leetdavid/market-positivity-bert-tokenized/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_raw_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 258464
+      parsed: true
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_tokenized_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 186321
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bertin-project/mc4-es-sampled/resolve/main/mc4-es-train-50M-gaussian-shard-0001-of-1024.json.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/bertin-project/mc4-sampling/resolve/main/dummy/af/0.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/leetdavid/market-positivity-bert-tokenized/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_raw_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Amba/bert-finetuned-ner_tokenized_datasets/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/_b_Dissolution_in_Two_Traditions_A_Comparative_Study_of_Magnetic_Monopole_Collapse_and_Lafcadio_Hearn_s_Buddhist_Cosmology_b_/32926502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Development_and_b_b_v_b_b_alidation_of_a_b_b_m_b_b_ental_b_b_h_b_b_ealth_b_b_r_b_b_isk_b_b_n_b_b_omogram_for_b_b_r_b_b_ural_b_b_j_b_b_unior_b_b_h_b_b_igh_b_b_s_b_b_tudents_in_b_b_c_b_b_hinese_b_b_i_b_b_sland_b_b_r_b_b_egions_A_b_b_s_b_b_/32942687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Power_from_the_press_cake_a_scoping_and_compositional_review_of_defatted_nut_and_seed_powders_with_regards_to_sports_nutrition/32934467
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/report/Legal_Note_on_the_Cessation_of_International_Protection_and_Review_of_Protection_Status_in_Europe_European_Council_for_Refugees_and_Exiles_2025/32942102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7249590
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7268337
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15607758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13916381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6070444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ruor.uottawa.ca/handle/10393/51824
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/dbgst/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270478
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270478
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xjpdc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UNK
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/unklefedor/language-identification/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jmichaelov/inverse_scaling_prize-into_the_unknown/resolve/main/test.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 232037
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/unklefedor/language-identification/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jmichaelov/inverse_scaling_prize-into_the_unknown/resolve/main/test.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/journal_contribution/_b_Dissolution_in_Two_Traditions_A_Comparative_Study_of_Magnetic_Monopole_Collapse_and_Lafcadio_Hearn_s_Buddhist_Cosmology_b_/32926502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Development_and_b_b_v_b_b_alidation_of_a_b_b_m_b_b_ental_b_b_h_b_b_ealth_b_b_r_b_b_isk_b_b_n_b_b_omogram_for_b_b_r_b_b_ural_b_b_j_b_b_unior_b_b_h_b_b_igh_b_b_s_b_b_tudents_in_b_b_c_b_b_hinese_b_b_i_b_b_sland_b_b_r_b_b_egions_A_b_b_s_b_b_/32942687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Power_from_the_press_cake_a_scoping_and_compositional_review_of_defatted_nut_and_seed_powders_with_regards_to_sports_nutrition/32934467
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/report/Legal_Note_on_the_Cessation_of_International_Protection_and_Review_of_Protection_Status_in_Europe_European_Council_for_Refugees_and_Exiles_2025/32942102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6375627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://jamanetwork.com/article.aspx?doi=10.1001/jama.1903.02490100042009
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/15218932
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10386181
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10227833
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814105
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20814105
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21114518
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19746305
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19747364
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

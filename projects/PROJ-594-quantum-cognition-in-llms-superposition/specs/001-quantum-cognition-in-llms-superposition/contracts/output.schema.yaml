@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Run Output Schema"
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  model_type:
+    type: "string"
+    description: "Type of model: 'baseline', 'quantum', 'ablation_classical', or 'ablation_magnitude'."
+  accuracy:
+    type: "number"
+    description: "Accuracy on WiC test split (range: 0.0–1.0)."
+  macro_f1:
+    type: "number"
+    description: "Macro-F1 score on WiC test split (range: 0.0–1.0)."
+  loss_epoch1:
+    type: "number"
+    description: "Training loss at epoch 1."
+  loss_epoch3:
+    type: "number"
+    description: "Training loss at epoch 3 (must be < 0.7 for quantum model)."
+  mean_interference_score:
+    type: "number"
+    description: "Mean value of interference cross-term for ambiguous inputs (can be negative)."
+  interference_gradient:
+    type: "number"
+    description: "Correlation between interference magnitude and ambiguity confidence."
+  nan_detected:
+    type: "boolean"
+    description: "Flag indicating if NaN/Inf was detected during training."
+required:
+  - seed
+  - model_type
+  - accuracy
+  - macro_f1
+  - loss_epoch1
+  - loss_epoch3
+  - mean_interference_score
+  - nan_detected
+additionalProperties: false

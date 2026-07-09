@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WiC Dataset Schema"
+type: "object"
+properties:
+  sentence1:
+    type: "string"
+    description: "First sentence context containing the target word."
+  sentence2:
+    type: "string"
+    description: "Second sentence context containing the target word."
+  word:
+    type: "string"
+    description: "Target word to disambiguate."
+  label:
+    type: "integer"
+    description: "Binary label: 0 (unambiguous), 1 (ambiguous)."
+  start1:
+    type: "integer"
+    description: "Start token index of target word in sentence1."
+  end1:
+    type: "integer"
+    description: "End token index of target word in sentence1."
+  start2:
+    type: "integer"
+    description: "Start token index of target word in sentence2."
+  end2:
+    type: "integer"
+    description: "End token index of target word in sentence2."
+required:
+  - sentence1
+  - sentence2
+  - word
+  - label
+  - start1
+  - end1
+  - start2
+  - end2
+additionalProperties: false
