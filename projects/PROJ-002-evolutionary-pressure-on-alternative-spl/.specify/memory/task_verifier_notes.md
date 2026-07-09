@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 Create project structure per implementation plan** — No project files, directory tree, configuration scripts, or pipeline code were presented; the claim provides only the specification text. The required artifact—a concrete project structure (e.g., `raw/`, `scripts/`, `pipeline.log`, config files, etc.) implementing the described pipeline—is missing.
+- **T002 Initialize Python 3.11 and R 4.3 project with dependencies [UNRESOLVED-CLAIM: c_b0a1dfb9 — status=not_enough_info] (pandas, numpy, pyyaml, biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru, phylolm, ape, data.table, ggplot2)** — No repository, script files, configuration, or log artifacts were presented; the claim provides only the original specification without any actual Python/R project initialization, dependency specifications, or pipeline code required by the task. Consequently, the required deliverables are missing.

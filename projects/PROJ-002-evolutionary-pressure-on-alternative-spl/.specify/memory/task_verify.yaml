@@ -1,0 +1,5 @@
+T001 Create project structure per implementation plan: 1
+? "T002 Initialize Python 3.11 and R 4.3 project with dependencies [UNRESOLVED-CLAIM:\
+  \ c_b0a1dfb9 \u2014 status=not_enough_info] (pandas, numpy, pyyaml, biopython, requests,\
+  \ tqdm, pybedtools, pyBigWig, scikit-learn, loguru, phylolm, ape, data.table, ggplot2)"
+: 1

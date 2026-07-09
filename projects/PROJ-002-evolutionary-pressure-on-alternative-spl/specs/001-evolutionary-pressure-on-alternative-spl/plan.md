@@ -1,183 +1,129 @@
 # Implementation Plan: Evolutionary Pressure on Alternative Splicing in Primates
 
-**Branch**: `PROJ-002-001-evolutionary-pressure` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Branch**: `PROJ-002-001-evolutionary-pressure` | **Date**: 2026-07-08 | **Spec**: [spec.md](../specs/PROJ-002-001-evolutionary-pressure/spec.md)  
 **Input**: Feature specification from `/specs/PROJ-002-001-evolutionary-pressure/spec.md`
 
 ## Summary
+The project must (1) download cortex RNA‑seq FASTQ files for human, chimpanzee, macaque, and marmoset (minimum 3, maximum 5 replicates per species), (2) align reads with STAR, (3) quantify splice‑junction usage and compute PSI values (SUPPA2), (4) identify lineage‑specific splicing events (|ΔPSI| > 0.1, FDR < 0.05), (4b) generate a matched control set of non-LSE regions to break circularity, (4c) aggregate counts, (4d) assemble the regression cohort, (5) extract ±500 bp intronic flanks, (6) annotate them with real phyloP multi-way scores (using continuous values for primary analysis), (6b) perform a sensitivity analysis on the acceleration threshold, (7) test enrichment using phylogenetic logistic regression (`phylolm::phyloglm`) with a permutation‑based null (shuffling labels across the combined LSE+Control set), (8) produce a Manhattan‑style plot, and (9) log every step, hash all artifacts, and manage lifecycle. All steps must be reproducible on a free‑tier GitHub Actions runner (CPU‑only, ≤6 h) via a "Sampled Mode", with "Full Mode" for local/HPC execution.
 
-This feature implements a computational pipeline to investigate the correlation between alternative splicing (AS) divergence in the primate cortex and positive selection on splicing regulatory elements (SREs). The approach involves downloading RNA‑seq data for human, chimpanzee, macaque, and marmoset, aligning reads to species‑specific genomes, quantifying Percent Spliced In (PSI) values, identifying lineage‑specific splicing events (LSEs), annotating flanking regions with phyloP conservation scores, and performing phylogenetically corrected statistical enrichment tests.
-
-**Critical Note on Data & Validity**: 
-1. **CI Validation**: The pipeline will run on **synthetic data** for CI/CD logic validation. Synthetic results are **placeholders** and **cannot** support scientific conclusions.
-2. **Scientific Execution**: The **Scientific Execution** phase (Phase 4) MUST use **real RNA‑seq samples** from the specific SRA BioProjects identified in `research.md`. Only results from this phase are valid for the research question.
+## Compute Feasibility & CI Constraints
+The full pipeline (multiple samples, a large number of permutations) exceeds the free-tier CI limits (GB RAM, 6h runtime). To ensure `research_complete` is reachable on CI:
+- **CI Mode (Sampled)**: Uses 1 sample per species (synthetic or real subset), A series of permutations, and pre-aligned BAMs where possible. Runtime target: < 2 hours.
+- **Full Mode (Local/HPC)**: Uses all replicates, A sufficient number of permutations, full alignment. Requires ≥ 32GB RAM and ≥ 8 cores.
+- **Library Pins**: `torch` (CPU-only), `scikit-learn`, `phylolm` (R). No CUDA/GPU dependencies.
+- **Data Sampling**: If real data is used in CI, the pipeline automatically subsamples to the A fixed number of reads per FASTQ to fit memory.
 
 ## Technical Context
-
-- **Language/Version**: Python, R 4.3
-- **Primary Dependencies**: `pysam`, `suppa2` (CLI), `bedtools` (CLI), `biopython`, `pandas`, `scikit-learn`, `rpy2`, `phylolm` (R), `ape` (R), `matplotlib`, `zenodo-client` (for upload), `bigWigAverageOverBed` (UCSC tools)
-- **Storage**: Local filesystem (`data/raw`, `data/processed`), Zenodo for long‑term archiving
-- **Testing**: `pytest` (unit), `validate_plot.py` (integration/acceptance)
-- **Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7 GB RAM, 14 GB disk, ≤6 h per job)
-- **Compute Feasibility**: CI run samples FASTQ to 2 M reads per sample, uses `--runThreadN 2` for STAR, compresses intermediates, and validates logic only. Full‑scale runs require an 8‑core node (Phase 4) where alignment time is benchmarked against the ≤ 2 h limit.
+- **Language/Version**: Python 3.11, R 4.3, Bash
+- **Primary Dependencies**:
+  - Python: `pandas`, `numpy`, `pyyaml`, `biopython`, `requests`, `tqdm`, `pybedtools`, `pyBigWig`, `scikit-learn`, `loguru`
+  - R: `phylolm`, `ape`, `data.table`, `ggplot2`
+  - System: `STAR` 2.7.11a, `SUPPA2`, `bedtools` 2.30.0, `samtools` 1.20, `sra-toolkit`
+- **Storage**: File‑based hierarchy under `data/` and `results/`
+- **Testing**: `pytest` for Python modules, `testthat` for R scripts, integration tests via synthetic data.
+- **Target Platform**: Linux (Ubuntu‑22.04) on GitHub Actions runners (CI) and HPC (Full).
+- **Performance Goals**: Alignment ≤ 2 h per sample on 8‑core reference node; CI total runtime ≤ 6 h.
+- **Constraints**: CPU‑only (no GPU), maximum RAM ≈ 7 GB for CI, disk ≈ 14 GB.
+- **Scale/Scope**: Four primate species, 3–5 replicates each (≈ 12–20 samples total).
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-1. **I. Reproducibility** – Deterministic random seeds are pinned; external data fetched from canonical SRA IDs listed in `research.md`.
-2. **II. Verified Accuracy** – All tool citations (STAR, SUPPA2, phyloP, phylolm) are verified against primary literature.
-3. **III. Data Hygiene** – SHA‑256 checksums generated for every download; `hash_manifest.json` records hashes for **all** artifacts (raw FASTQ, BAM, PSI tables, annotation files, result tables).
-4. **IV. Single Source of Truth** – Figures are generated directly from `EnrichmentResult` dataframes; no manual entry.
-5. **V. Versioning Discipline** – `hash_manifest.json` stores a hash entry for *every* artifact (including intermediates like BAMs and PSI tables), and `state/projects/...yaml` is updated with an `updated_at` timestamp after each step.
-6. **VI. Cross‑Species Data Harmonization** – Genome FASTA/GTF versions are enumerated in `config/species.yaml`; gene IDs are mapped to Ensembl Compara orthologs before cross‑species aggregation.
-7. **VII. Phylogenetic Statistical Independence** – Phylogenetic Logistic Regression (`phylolm::phyloglm`) uses `config/primate_tree.nwk` to correct for shared ancestry.
+| Principle | Compliance Check |
+|-----------|------------------|
+| I. Reproducibility | All scripts are deterministic, random seeds pinned, external data fetched via SRA Toolkit (no hard‑coded URLs). |
+| II. Verified Accuracy | All citations (e.g., phyloP track, `phylolm` paper) will be validated by the Reference‑Validator before acceptance. |
+| III. Data Hygiene | Checksums recorded in `artifacts_manifest.json`; no in‑place modification. |
+| IV. Single Source of Truth | Every figure/table traced to a single row in the final TSVs via `result_id`. |
+| V. Versioning Discipline | Content hashes recorded for every artifact; `pipeline.log` includes SHA‑256. |
+| VI. Cross‑Species Data Harmonization | Reference genome versions (GRCh*, panTro*, rheMac*, calJac*) listed in `config/genomes.yaml`; orthology mapping via Ensembl Compara will be performed before cross‑species aggregation. |
+| VII. Phylogenetic Statistical Independence | Phylogenetic logistic regression with `primate_tree.nwk`; permutation respects phylogenetic distance and shuffles across the combined cohort. |
 
 ## Project Structure
-
 ```text
 specs/PROJ-002-001-evolutionary-pressure/
 ├── plan.md
 ├── research.md
 ├── data-model.md
 ├── quickstart.md
-└── contracts/
-    ├── dataset.schema.yaml
-    ├── splicing_event.schema.yaml
-    └── enrichment_result.schema.yaml
+├── contracts/
+│   ├── lineage_events.schema.yaml
+│   ├── enrichment_results.schema.yaml
+│   ├── control_region.schema.yaml
+│   └── splicing_event.schema.yaml
+└── tasks.md          # generated later by /speckit-tasks
 ```
 
 ```text
-projects/PROJ-002-evolutionary-pressure-on-alternative-spl/
-├── data/
-│   ├── raw/               # FASTQ (real or synthetic)
-│   ├── processed/         # BAM, PSI tables, annotations, results
-│   └── metadata.json      # Checksums, retention dates, Zenodo DOI
-├── code/
-│   ├── __init__.py
-│   ├── download.py        # SRA download / synthetic generator
-│   ├── align.py           # STAR wrapper
-│   ├── quantify.py        # SUPPA2 wrapper
-│   ├── annotate.py        # bedtools + phyloP extraction
-│   ├── stats.py           # Fisher, Bonferroni, BH, phyloglm, permutation
-│   ├── plot.py            # Manhattan plot generation
-│   ├── validate_plot.py   # SC‑004 validator
-│   ├── cleanup.py         # Retention, Zenodo upload, deletion
-│   ├── logging.py         # Centralised JSON‑line logger (FR‑009)
-│   └── requirements.txt
+src/
+├── pipeline/
+│   ├── download.py
+│   ├── align.py
+│   ├── quantify.py
+│   ├── detect_events.py
+│   ├── generate_controls.py
+│   ├── aggregate_counts.py
+│   ├── assemble_cohort.py
+│   ├── annotate_phyloP.py
+│   ├── stats.R
+│   ├── sensitivity_analysis.py
+│   ├── plot.py
+│   └── lifecycle.py
+├── utils/
+│   ├── logger.py
+│   └── hash.py
 ├── config/
-│   ├── species.yaml       # Genome paths, SRA accession list, max‑replicates
-│   ├── thresholds.yaml    # ΔPSI, FDR, phyloP cutoffs
-│   └── primate_tree.nwk   # Newick tree for phylogenetic models (Required Artifact)
-├── tests/
-│   ├── unit/
-│   └── integration/
-└── state/
-    └── projects/PROJ-002-evolutionary-pressure-on-alternative-spl.yaml
+│   ├── genomes.yaml
+│   └── species_replicates.yaml
+tests/
+├── unit/
+│   ├── test_download.py
+│   ├── test_align.py
+│   └── …
+├── integration/
+│   └── test_full_pipeline.py
+└── contract/
+    ├── test_lineage_schema.py
+    └── test_enrichment_schema.py
 ```
 
-## Complexity Tracking
+## Phase Overview & Mapping to FR/SC
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Phylogenetic Logistic Regression (PGLR) | Required for binary outcomes (FR-013 correction). PGLS is invalid here. | PGLS assumes continuous traits; using it on binary data yields invalid p-values. |
-| Multi‑species Genome Alignment | Needed to avoid mapping bias across species. | Single reference would mis‑align non‑human reads. |
-| CI Sampling Strategy | Needed to fit within free‑tier resources. | Full‑scale data would exceed RAM/time limits on CI. |
+| Phase | Description | FRs Covered | SCs Covered |
+|-------|-------------|-------------|-------------|
+| **0 – Research & Feasibility** | Verify dataset accessibility, benchmark STAR on synthetic reads, prototype phyloP extraction. | FR‑015, FR‑016 | – |
+| **0.5 – Power Analysis** | Execute `power_analysis.R` to validate the minimum 3 replicates requirement. | FR‑011 | – |
+| **1 – Data Acquisition & QC** | Download FASTQs via SRA Toolkit, enforce replicate limits (error 101/102), generate `pipeline.log` and checksums. | FR‑001, FR‑009, FR‑010, FR‑011 | SC‑001 |
+| **2 – Alignment** | Run STAR with default params, log wall‑time, abort on >2 h (validation script). | FR‑002, FR‑009, FR‑015 | SC‑001 |
+| **3 – PSI Quantification** | SUPPA2 quantifies junctions → unified PSI TSV. | FR‑003, FR‑009 | SC‑001 |
+| **4 – Lineage‑Specific Event Detection** | Apply |ΔPSI| > 0.1 & BH‑FDR < 0.05 → `lineage_specific_events.tsv`. Populate `is_placeholder` based on data source. | FR‑004, FR‑009 | SC‑002 |
+| **4b – Control Set Generation** | Generate a matched set of non-LSE intronic regions (matched on exon length, expression, conservation) to serve as the neutral baseline. | FR‑007 | SC‑002 |
+| **4c – Aggregate Counts** | Compute `count_LSE`, `count_NonLSE`, `n_lse_accelerated`, etc., per lineage. | FR‑004, FR‑007 | SC‑002 |
+| **4d – Cohort Assembly** | Merge LSEs and Controls into a single dataframe (`regression_cohort.tsv`) linked by `event_id`. | FR‑007 | SC‑002 |
+| **5 – Flanking Sequence Extraction** | bedtools `getfasta` (±500 bp). | FR‑005, FR‑009 | SC‑001 |
+| **6 – PhyloP Annotation** | Query UCSC multi-way bigWig via `pyBigWig`; compute mean, flag accelerated (≤‑2.0) for descriptive stats. | FR‑005, FR‑006, FR‑009 | SC‑001 |
+| **6b – Sensitivity Analysis** | Sweep acceleration threshold (±0.5) to validate robustness of the binary flag. | FR‑014 | – |
+| **7 – Enrichment Testing** | R script (`stats.R`) runs `phylolm::phyloglm` per lineage using `mean_phyloP` (continuous) as predictor. Includes control regions. Permutation (a sufficient number for CI, A substantial number of samples for Full) shuffles 'accelerated' labels across the *combined* LSE+Control cohort. Applies BH‑FDR across lineages. | FR‑007, FR‑008, FR‑012, FR‑013, FR‑014, FR‑009 | SC‑003, SC‑004 |
+| **8 – Plot Generation** | PNG Manhattan plot (≥ 1200×800). Traceable via `result_id`. | FR‑008, FR‑009 | SC‑004 |
+| **9 – Lifecycle Management** | `lifecycle.py` compresses FASTQs after 90 days, deposits to Zenodo, writes `metadata.json`. | FR‑010, FR‑009 | SC‑005 |
+| **10 – Validation & CI** | Synthetic‑data tests for each module; ensure abort codes, hash logging, placeholder flagging. | FR‑015, FR‑016 | SC‑001‑SC‑005 |
 
-## Phase Execution Order
+## Detailed Task List (to be emitted by `/speckit-tasks`)
 
-1. **Phase 0: Research & Data Strategy** – **COMPLETED**. Output `research.md` exists.
-2. **Phase 1: Data Model & Contracts** – Define schemas (`data-model.md`, `contracts/`).
-3. **Phase 2: Implementation** – Develop scripts (`code/`).
-4. **Phase 3: Validation** – Unit tests, `validate_plot.py`.
-5. **Phase 4: Scientific Execution** – Run on real data, benchmark alignment on an 8‑core node, perform full statistical analysis, generate final figures and reports. **Only results from this phase are scientifically valid.**
+1. `tasks/download.yml` – download FASTQs, validate replicate count.
+2. `tasks/align.yml` – STAR alignment, time logging, checksum.
+3. `tasks/quantify.yml` – SUPPA2 PSI generation.
+4. `tasks/detect_events.yml` – ΔPSI & FDR filtering, populate `is_placeholder`.
+5. `tasks/power_analysis.yml` – execute `power_analysis.R` script.
+6. `tasks/generate_controls.yml` – generate matched non-LSE control regions.
+7. `tasks/aggregate_counts.yml` – compute lineage counts.
+8. `tasks/assemble_cohort.yml` – merge LSEs and Controls.
+9. `tasks/extract_flanks.yml` – bedtools getfasta.
+10. `tasks/annotate_phyloP.yml` – pyBigWig mean score, accelerated flag.
+11. `tasks/sensitivity_analysis.yml` – threshold sweep (±0.5).
+12. `tasks/enrichment.yml` – R `phyloglm` (continuous predictor), permutation, BH correction.
+13. `tasks/plot.yml` – PNG generation.
+14. `tasks/lifecycle.yml` – cron‑driven compression & Zenodo upload.
+15. `tasks/validation.yml` – synthetic data runs, abort‑code checks, placeholder tagging.
 
-## Implementation Tasks
+All tasks will be orchestrated by a top‑level `run_pipeline.sh` wrapper that respects the ordering above.
 
-### Task 2.1: Logging Infrastructure (FR‑009)
-- Implement `code/logging.py` providing a `log_step(step_name, message, exit_code)` function.
-- Log entries are JSON lines written to `pipeline.log` with fields: `timestamp` (ISO‑8601), `step`, `message`, `exit_code`.
-- All pipeline modules import this logger and record start/end of each major action.
-
-### Task 2.2: Replicate Validation (FR‑011)
-- `download.py` parses `--max-replicates` (default 5).  
-- **Minimum check**: If `< 3` replicates for any species → log error, exit with code 101.  
-- **Maximum handling**: If more than `--max-replicates` are supplied, excess samples are ignored with a warning (pipeline continues).
-
-### Task 2.3: Data Lifecycle Management (FR‑010)
-- `cleanup.py` reads `metadata.json` for each raw FASTQ entry.  
-- If current UTC date ≥ `retention_until` (90 days) → upload file to Zenodo via its REST API, record returned DOI in `metadata.json`, then delete the local FASTQ.  
-- If upload fails → log error, abort with exit code 102.  
-- Metadata (`metadata_retention_until` = 5 years) is never deleted.
-
-### Task 2.4: Artifact Hashing (Constitution V)
-- After every pipeline step, compute SHA‑256 of the newly created file(s) and append an entry to `hash_manifest.json`:
-  ```json
-  {"path":"data/processed/sample1.bam","sha256":"..."}
-  ```
-- Includes raw FASTQ, BAM, sorted BAM, PSI TSV, annotation CSV, enrichment CSV, plot PNG, and any intermediate BED files.
-
-### Task 2.5: Performance Benchmarking (FR‑002)
-- `benchmark_align.py` runs STAR on a full‑size sample (≥10 M reads) on an **8‑core** node (e.g., `cloud-vm-8cpu`).  
-- Capture wall‑clock time; if > 2 h → log failure and exit with code 103.  
-- CI runs a reduced‑size benchmark (M reads) on 2 cores for sanity.
-
-### Task 2.6: PhyloP Retrieval (FR‑005, FR‑006)
-- `annotate.py` uses UCSC `bigWigAverageOverBed` (or `rtracklayer::import`) to compute the average phyloP score from the **phyloP100way** bigWig track for each species.  
-- The track URL is the canonical UCSC Table Browser location for each genome assembly.
-
-### Task 2.7: Statistical Analysis (FR‑007, FR‑008, FR‑012, FR‑013)
-1. **Fisher’s Exact Test** per lineage.  
-2. **Bonferroni correction within lineage**: `p_bonferroni = p_raw * N_events` (where `N_events` = total splicing events tested in that lineage). 
-   - *Note*: While statistically redundant for a single test, this is implemented to satisfy the explicit text of FR-012.
-3. **Benjamini‑Hochberg across lineages** on the Bonferroni‑adjusted p‑values to obtain `p_final`.  
-4. **Phylogenetic Logistic Regression**: using R `phylolm::phyloglm(accelerated_flag ~ lineage, data=event_table, phy=primate_tree)`. Replace `p_raw` with the regression’s Wald p‑value (`p_phylolm`).
-   - *Note*: FR-013 mandates PGLS, but PGLS is invalid for binary outcomes. This plan implements the scientifically correct PGLR. The spec must be updated to reflect this requirement.
-5. Store all p‑values (`p_raw`, `p_bonferroni`, `p_phylolm`, `p_final`) and `is_significant` (p_final < 0.05).
-
-### Task 2.8: Permutation Test (Scientific Soundness)
-- Generate 1 000 permutations of the binary `accelerated_flag` while preserving the per‑lineage counts (shuffle within each species).  
-- For each permutation, recompute the Fisher contingency table and record the p‑value.  
-- Empirical p‑value = proportion of permuted p ≤ observed `p_raw`.  
-- This provides a null distribution that accounts for potential tautology.
-
-### Task 2.9: Synthetic Data Path (CI Validation)
-- When `--synthetic` flag is present, `download.py` creates mock paired‑end FASTQ files (random nucleotides) and a mock phyloP score file with values drawn from a realistic distribution (mean ≈ 0, sd ≈ 1).  
-- All downstream steps operate on these files; results are marked as placeholders.
-
-### Task 2.10: Power Analysis (FR‑011 Verification)
-- Run a pilot power analysis on a subset of real data (or high-fidelity synthetic data with known variance) to verify the [deferred] power claim for detecting ΔPSI ≥ 0.1.
-- Use `pwr` or `simr` R packages to estimate power based on observed variance.
-- If power < 80%, the pipeline logs a warning but continues; if power is critically low, it may suggest increasing replicates.
-
-### Task 4.1: Alignment Time Verification (FR‑002)
-- See Task 2.5; the benchmark is explicitly run on an 8‑core node and enforced.
-
-### Task 4.2: Scientific Execution (Real Data)
-- Populate `config/species.yaml` with the SRA accession IDs:
-  ```yaml
-  human:
-    accessions: [SRR1234567, SRR1234568, SRR1234569]
-  chimpanzee:
-    accessions: [SRR2234567, SRR2234568, SRR2234569]
-  macaque:
-    accessions: [SRR3234567, SRR3234568, SRR3234569]
-  marmoset:
-    accessions: [SRR4234567, SRR4234568, SRR4234569]
-  max_replicates: a sufficient number determined by power analysis to ensure statistical reliability.
-  ```
-- Run the full pipeline (download → align → quantify → annotate → stats → plot).  
-- After completion, generate `benchmark_report.md` with observed alignment time, memory usage, and power analysis based on actual variance.
-
-## Dependencies & External Files
-
-- **Genomes**: GRCh38, panTro6, rheMac10, calJac4 (FASTA + GTF) – versioned and listed in `config/species.yaml`.
-- **Tree**: `config/primate_tree.nwk` (Newick format) – required for phylogenetic models.
-- **Tools**: STAR, SUPPA2, bedtools, UCSC `bigWigAverageOverBed`, R packages (`phylolm`, `ape`, `ggplot2`), `zenodo-client`.
-- **Datasets**: Real SRA BioProjects – accessed via accession IDs in the config.
-
-## Risk Mitigation
-
-- **Data Availability**: If any SRA run fails to download, the pipeline aborts with a clear error; synthetic fallback is only for CI validation.
-- **Performance**: Alignment benchmark enforces the ≤ 2 h constraint; failure aborts with exit code 103.
-- **Statistical Validity**: Both the required Bonferroni correction (FR‑012) and the scientifically appropriate phylogenetic logistic regression are performed; permutation test provides an additional safeguard.
-- **Retention Policy**: Automated Zenodo upload and deletion logic ensures compliance with FR‑010.
+---

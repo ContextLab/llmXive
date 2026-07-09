@@ -1,1 +1,22 @@
-[]
+- artifact_hash: c5111565bf7adbf88c5c4901e5518d58711cc6efcfcb8bc2a6bd1bdd3275bad7
+  artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Index of /goldenPath/hg38/phyloP100way
+  kind: url
+  value: http://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP100way/
+  verification_status: verified
+  verified_against_url: http://hgdownload.soe.ucsc.edu/goldenPath/hg38/phyloP100way/
+  verified_at: '2026-07-09T03:36:19.634680Z'
+- artifact_hash: d9a19fbcab783b922af0802af6707b1f5f4096e3526521c2ad39e7a0ff795c6e
+  artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/yourorg/evolutionary-pressure-splicing.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/yourorg/evolutionary-pressure-splicing
+  verified_at: '2026-07-09T03:36:28.650479Z'

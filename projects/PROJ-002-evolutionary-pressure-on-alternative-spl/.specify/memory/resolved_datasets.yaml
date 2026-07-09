@@ -1,4 +1,4 @@
-resolved_at: '2026-07-01T14:25:20.484408+00:00'
+resolved_at: '2026-07-09T03:23:27.114134+00:00'
 datasets:
 - intent: RNA
   status: verified
@@ -30,64 +30,69 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/South_Africa_in_Africa_introduction/32860262
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_and_sexual_risks_for_HIV_AIDS_in_sub-Saharan_Africa_systematic_review_of_empirical_findings/32860238
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Dedication_to_Ronald_Louw/32860259
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Breaking_the_spirit_of_fear_the_nature_and_extent_of_HIV_and_AIDS-related_stigma_in_the_Anglican_Church_of_Southern_Africa_a_quantitative_study/32860235
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/What_distinct_opportunities_could_relational_wellbeing_as_framework_offer_to_advance_wellbeing_research_a_purposive_review_of_evidence/32860298
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Raw_data_of_eRNA_and_eDNA_concentrations_for_Environmental_RNA_improves_detection_and_surveillance_of_schistosomiasis_transmission/31123516/1
+  - url: https://zenodo.org/records/1490475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19249554
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4049430
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18607757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18292801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266280
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Raw_data_of_eRNA_and_eDNA_concentrations_for_Environmental_RNA_improves_detection_and_surveillance_of_schistosomiasis_transmission/31123516/2
+  - url: https://zenodo.org/records/21266280
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Raw_data_of_eRNA_and_eDNA_concentrations_for_Environmental_RNA_improves_detection_and_surveillance_of_schistosomiasis_transmission/31123516
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141234
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://massive.ucsd.edu/ProteoSAFe/private-dataset.jsp?task=eadfaf76b17c46bebc39e421bfbd0c4d
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141227
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21106229
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141210
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: PSI
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/s-nlp/PsiloQA/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/PsiPi/robotics_stackexchange_com_QLORA/resolve/main/robotics_stackexchange_com_QLORA_eval.jsonl
     source: huggingface
     format: jsonl
@@ -95,15 +100,14 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
+  - url: https://huggingface.co/datasets/PsiPi/PascalQnA100/resolve/main/train_pascal.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 58733
+      parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/s-nlp/PsiloQA/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/PsiPi/robotics_stackexchange_com_QLORA/resolve/main/robotics_stackexchange_com_QLORA_eval.jsonl
     source: huggingface
     status: verified
@@ -116,45 +120,63 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Breaking_the_spirit_of_fear_the_nature_and_extent_of_HIV_and_AIDS-related_stigma_in_the_Anglican_Church_of_Southern_Africa_a_quantitative_study/32860235
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Genealogies_of_the_Royal_amaZondi_of_Ngome/32860292
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/South_Africa_s_new_education_system_great_intentions_-_harsh_realities/32860265
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/What_distinct_opportunities_could_relational_wellbeing_as_framework_offer_to_advance_wellbeing_research_a_purposive_review_of_evidence/32860298
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perspectives_and_practices_of_Xhosa-speaking_African_traditional_healers_when_managing_psychosis/32860232
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://toubkal.imist.ma/handle/123456789/8106
+  - url: https://zenodo.org/records/3236819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7057172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4926086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0022311519314631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5969869
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271208
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21069221
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.18055015
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://iris.uniupo.it//handle/11579/46198
+  - url: https://zenodo.org/records/21271208
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.luiss.it//handle/11385/204574
+  - url: https://osf.io/6dzph/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3gtqk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qhgzt/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -199,42 +221,223 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Community_appraisal_Madadana_village_ward_20_Mbizana/32860271
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Some_progress_but_role_of_women_in_local_government_often_marginal/32860310
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Is_anyone_listening_to_the_poor_/32860214
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HIV_AIDS_stigma_and_children_a_literature_review/32860322
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_The_release_b_b_recapture_framework_Co-occurring_elevated_CO_b_sub_strong_2_strong_sub_b_and_warming_boost_global_soil_nitrogen_storage_and_mitigate_N_b_sub_strong_2_strong_sub_b_O_emissions_b_/32860208
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/ba3jc/
+  - url: https://zenodo.org/records/13890889
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16421444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7505840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3ehuc/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20955660
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/21104740
+  - url: https://zenodo.org/records/21269650
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
-  - url: https://zenodo.org/records/19695557
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269650
     source: datacite
     status: wrong_format
-    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
-      timeout=20)'
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: SRP010775
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRP009050
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRP009051
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRP009052
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BioProject
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tri-component_model/32588496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/_The_power_of_universality_is_that_everybody_is_treated_the_same_Exploring_the_possibilities_and_limitations_of_a_universal_approach_to_stigma_reduction_among_BBV_STI_sector_stakeholders_in_Australia/32943614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Imo_State_University_Owerri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Ignatius_Ajuru_University_of_Education_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17611433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19257300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19456097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15719114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19051620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/vdyh6h8rwp
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6/1
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/dzfwcg7hp6
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://figshare.com/articles/dataset/De_novo_transcriptome_assembly_and_predicted_coding_sequences_of_i_Justicia_adhatoda_i_Vasaka_/32939264/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

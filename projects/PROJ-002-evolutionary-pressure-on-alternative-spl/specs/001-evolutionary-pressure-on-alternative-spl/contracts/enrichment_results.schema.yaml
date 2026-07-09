@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Enrichment Results"
+type: object
+description: "Schema for results/enrichment_results.tsv"
+required:
+  - result_id
+  - lineage
+  - odds_ratio
+  - p_raw
+  - p_fdr
+  - p_empirical
+  - is_placeholder
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the result row, ensuring traceability to the plot."
+  lineage:
+    type: string
+    enum: ["Human", "Chimpanzee", "Macaque", "Marmoset"]
+    description: "Primate lineage tested for enrichment."
+  odds_ratio:
+    type: number
+    description: "Odds ratio from phylogenetic logistic regression (using continuous phyloP)."
+  p_raw:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p‑value from the phylogenetic logistic model."
+  p_fdr:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg FDR‑corrected p‑value across the four lineages."
+  p_empirical:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Empirical p‑value from permutations (shuffling across combined cohort)."
+  is_placeholder:
+    type: boolean
+    description: "True if results stem from synthetic CI data; otherwise false."
+additionalProperties: false

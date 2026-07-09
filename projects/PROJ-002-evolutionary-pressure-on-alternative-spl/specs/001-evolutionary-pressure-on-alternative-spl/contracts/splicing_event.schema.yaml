@@ -1,41 +1,7 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SplicingEvent Schema
-description: Schema for alternative splicing event quantification results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Splicing Event"
 type: object
-properties:
-  event_id:
-    type: string
-    description: "Unique identifier for the splicing event"
-  gene_id:
-    type: string
-    description: "Ensembl Gene ID"
-  species:
-    type: string
-    enum:
-      - human
-      - chimpanzee
-      - macaque
-      - marmoset
-  psi_mean:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Mean Percent Spliced In"
-  psi_std:
-    type: number
-    minimum: 0.0
-    description: "Standard deviation of PSI"
-  delta_psi:
-    type: number
-    description: "Difference in PSI vs reference"
-  fdr:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Benjamini-Hochberg corrected p-value"
-  is_lineage_specific:
-    type: boolean
-    description: "TRUE if ΔPSI > 0.1 and FDR < 0.05"
+description: "Schema for results/splicing_events.tsv"
 required:
   - event_id
   - gene_id
@@ -45,3 +11,38 @@ required:
   - delta_psi
   - fdr
   - is_lineage_specific
+  - is_placeholder
+properties:
+  event_id:
+    type: string
+    description: "Unique identifier for the splicing event."
+  gene_id:
+    type: string
+    description: "Ensembl Gene ID."
+  species:
+    type: string
+    enum: ["Human", "Chimpanzee", "Macaque", "Marmoset"]
+  psi_mean:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Mean Percent Spliced In."
+  psi_std:
+    type: number
+    minimum: 0.0
+    description: "Standard deviation of PSI."
+  delta_psi:
+    type: number
+    description: "Difference in PSI vs reference."
+  fdr:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg corrected p-value."
+  is_lineage_specific:
+    type: boolean
+    description: "TRUE if ΔPSI > 0.1 and FDR < 0.05."
+  is_placeholder:
+    type: boolean
+    description: "True if the row originates from synthetic CI data; otherwise false."
+additionalProperties: false

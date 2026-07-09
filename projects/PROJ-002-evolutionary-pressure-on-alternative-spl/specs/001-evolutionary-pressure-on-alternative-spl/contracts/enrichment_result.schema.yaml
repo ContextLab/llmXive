@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EnrichmentResult Schema
-description: Schema for statistical enrichment analysis results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnrichmentResult Schema"
+description: "Schema for statistical enrichment analysis results."
 type: object
 properties:
   lineage:

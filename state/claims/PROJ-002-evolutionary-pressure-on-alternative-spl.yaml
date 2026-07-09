@@ -1,0 +1,391 @@
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SUPPA2 used to generate unified PSI TSV
+  claim_id: c_8159a454
+  context: Implementation for User Story 1 - T016
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SUPPA2_used_to_generate_unified_PSI_TSV
+  kind: entity_fact
+  raw_text: Implement SUPPA2 quantification script (src/pipeline/quantify.py) to generate
+    unified PSI TSV
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:04:29Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: STAR used for read alignment
+  claim_id: c_dfb24355
+  context: Implementation for User Story 1 - T015
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/STAR_used_for_read_alignment
+  kind: entity_fact
+  raw_text: Implement STAR alignment wrapper (src/pipeline/align.py)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:04:54Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Human RNA-seq data from SRP010775
+  claim_id: c_641d0c47
+  context: Implementation for User Story 1 - T013
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Human_RNA-seq_data_from_SRP010775
+  kind: entity_fact
+  raw_text: Fetch FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:05:34Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Chimp RNA-seq data from SRP009050
+  claim_id: c_7d158a17
+  context: Implementation for User Story 1 - T013
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chimp_RNA-seq_data_from_SRP009050
+  kind: entity_fact
+  raw_text: Fetch FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:05:40Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Macaque RNA-seq data from SRP009051
+  claim_id: c_957ccc19
+  context: Implementation for User Story 1 - T013
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Macaque_RNA-seq_data_from_SRP009051
+  kind: entity_fact
+  raw_text: Fetch FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:05:44Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Marmoset RNA-seq data from SRP009052
+  claim_id: c_d666a9ab
+  context: Implementation for User Story 1 - T013
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Marmoset_RNA-seq_data_from_SRP009052
+  kind: entity_fact
+  raw_text: Fetch FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:05:45Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: "Lineage-specific splicing events defined by |\u0394PSI| > 0.1 and FDR\
+    \ < 0.05"
+  claim_id: c_330e2d18
+  context: Implementation for User Story 1 - T017
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.1 and FDR < 0.05'
+    relation: "\u0394PSI"
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_splicing_events_defined_by_%CE%94PSI_%3E_0.1_and_F
+    source_value: "https://en.wikipedia.org/wiki/Lineage-specific_splicing_events_defined_by_\u0394\
+      PSI_>_0.1_and_F"
+    subject: Lineage-specific splicing events defined by
+  kind: relational
+  raw_text: "Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:06:24Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: "Lineage-specific splicing events defined by |\u0394PSI| > 0.1"
+  claim_id: c_059f9368
+  context: Implementation for User Story 1 - T017
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.1'
+    relation: "\u0394PSI"
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_splicing_events_defined_by_%CE%94PSI_%3E_0.1
+    source_value: "https://en.wikipedia.org/wiki/Lineage-specific_splicing_events_defined_by_\u0394\
+      PSI_>_0.1"
+    subject: Lineage-specific splicing events defined by
+  kind: relational
+  raw_text: "Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:06:27Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: "Flanking sequence extraction using bedtools getfasta for \xB1500 bp\
+    \ regions"
+  claim_id: c_38a63129
+  context: Implementation for User Story 2 - T024
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement flanking sequence extraction (src/pipeline/extract_flanks.py)\
+    \ using bedtools getfasta for \xB1500 bp regions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:06:52Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: PhyloP scores retrieved from UCSC 100-way Vertebrate Conservation track
+  claim_id: c_c5ac0bf7
+  context: Implementation for User Story 2 - T025
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement phyloP score retrieval (src/pipeline/annotate_phyloP.py) using
+    pyBigWig to query UCSC 100-way Vertebrate Conservation track
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:07:22Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Phylogenetic logistic regression performed using phylolm::phyloglm
+  claim_id: c_2fa83c5e
+  context: Implementation for User Story 3 - T035
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Phylogenetic_logistic_regression_performed_using_phylolm::ph
+  kind: entity_fact
+  raw_text: Implement R statistical script (src/pipeline/stats.R) using phylolm::phyloglm
+    with LSE status as response and mean_phyloP (continuous) as predictor
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:08:44Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test executed with at least 1,000 iterations
+  claim_id: c_41775cdf
+  context: Implementation for User Story 3 - T036
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_executed_with_at_least_1,000_iterations
+  kind: magnitude
+  raw_text: "Implement permutation test (\u22651,000 iterations) in stats.R shuffling\
+    \ LSE status across combined LSE+Control cohort"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:09:21Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied across 4 lineage tests
+  claim_id: c_2bc450e8
+  context: Implementation for User Story 3 - T037
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Benjamini-Hochberg FDR correction across the 4 lineage tests
+    in stats.R
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:09:50Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: "Minimum 3 replicates required to detect |\u0394PSI| >= 0.1"
+  claim_id: c_2e3a96c1
+  context: 'Phase 6: Power Analysis & Validation - T041'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.1'
+    relation: "\u0394PSI"
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Minimum_3_replicates_required_to_detect_%CE%94PSI_%3E=_0.1
+    source_value: "https://en.wikipedia.org/wiki/Minimum_3_replicates_required_to_detect_\u0394\
+      PSI_>=_0.1"
+    subject: Minimum 3 replicates required to detect
+  kind: relational
+  raw_text: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:10:40Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: "Minimum detectable effect size is |\u0394PSI| >= 0.1"
+  claim_id: c_3d465890
+  context: 'Phase 6: Power Analysis & Validation - T041'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.1'
+    relation: "\u0394PSI"
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Minimum_detectable_effect_size_is_%CE%94PSI_%3E=_0.1
+    source_value: "https://en.wikipedia.org/wiki/Minimum_detectable_effect_size_is_\u0394\
+      PSI_>=_0.1"
+    subject: Minimum detectable effect size is
+  kind: relational
+  raw_text: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:10:40Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if replicate count is less than 3
+  claim_id: c_f0b1e31e
+  context: Tests for User Story 1 - T010
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_replicate_count_is_less_than_3
+  kind: magnitude
+  raw_text: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:11:10Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if replicate count is greater than 5
+  claim_id: c_48ef3513
+  context: Tests for User Story 1 - T010
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_replicate_count_is_greater_than_5
+  kind: magnitude
+  raw_text: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:11:12Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Alignment duration must be less than or equal to 2 hours
+  claim_id: c_a4d2e45f
+  context: Tests for User Story 1 - T012
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_duration_must_be_less_than_or_equal_to_2_hours
+  kind: magnitude
+  raw_text: "Verify script correctly parses duration from pipeline.log and asserts\
+    \ \u22642 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:12:05Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: 'Genome assemblies used: GRCh, panTro6, rheMac10, calJac4'
+  claim_id: c_dfba9ef8
+  context: 'Phase 2: Foundational - T004'
+  evidence:
+    entailment_evidence: 'Genome assemblies used: GRCh, panTro6, rheMac10, calJac4'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Genome_assemblies_used:_GRCh,_panTro6,_rheMac10,_calJac4
+  kind: entity_fact
+  raw_text: Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10,
+    calJac4) in config/genomes.yaml
+  resolved_value: 'Genome assemblies used: GRCh, panTro6, rheMac10, calJac4'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-09T04:12:07Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_b0a1dfb9
+  context: 'Phase 1: Setup - T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 and R 4.3 project with dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:13:06Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Project initialized with R 4.3
+  claim_id: c_13cb3d47
+  context: 'Phase 1: Setup - T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 and R 4.3 project with dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:13:06Z'

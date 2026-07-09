@@ -1,90 +1,129 @@
 # Quickstart: Evolutionary Pressure on Alternative Splicing in Primates
 
+This guide walks a new user through running the full analysis on a small synthetic dataset (suitable for CI) and on real data (once the required SRA accession list is provided).
+
 ## Prerequisites
 
--   **Python**: 3.11+
--   **R**: 4.3+ (with packages `caper`, `ape`, `ggplot2`, `phylolm`)
--   **External Tools**: `STAR`, `SUPPA2`, `bedtools` (installed in PATH)
--   **Git**: For repository cloning
+- GitHub Actions runner (Linux) **or** a local Linux/macOS machine with Docker.
+- Docker installed (recommended for reproducibility).
+- `conda` or `micromamba` for environment creation (optional; the Docker image contains everything).
 
-## Installation
+## Step 0 – Clone the Repository
 
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-org/PROJ-002-evolutionary-pressure.git
-    cd PROJ-002-evolutionary-pressure-on-alternative-spl
-    ```
+```bash
+git clone
+cd evolutionary-pressure-splicing
+```
 
-2.  **Set up Python environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
-    ```
+## Step 1 – Build the Docker Image (CPU‑only)
 
-3.  **Set up R packages**:
-    ```bash
-    R -e "install.packages(c('caper', 'ape', 'ggplot2', 'dplyr', 'phylolm'), repos='https://cloud.r-project.org')"
-    ```
+```bash
+docker build -t evo-splicing:latest -f Dockerfile.
+```
 
-4.  **Verify External Tools**:
-    Ensure `star`, `suppa`, and `bedtools` are in your PATH.
-    ```bash
-    star --version
-    suppa.py --version
-    bedtools --version
-    ```
+The Dockerfile pins all versions (Python 3.11, R 4.3, STAR 2.7.11a, etc.) and installs `sra-toolkit`, `bedtools`, `pyBigWig`, and required Python/R packages.
 
-## Running the Pipeline
+## Step 2 – Prepare a Configuration File
 
-### Option A: Full Run (Requires Real Data)
-*Note: Requires valid SRA accessions and sufficient disk space.*
+Create `config/run_config.yaml`:
 
-1.  **Prepare Configuration**: Edit `config/species.yaml` with real SRA IDs and genome paths.
-2.  **Execute**:
-    ```bash
-    python code/download.py --config config/species.yaml
-    python code/align.py --config config/species.yaml
-    python code/quantify.py --config config/species.yaml
-    python code/annotate.py --config config/species.yaml
-    python code/stats.py --config config/species.yaml
-    python code/plot.py --config config/species.yaml
-    ```
+```yaml
+species:
+ Human:
+ accessions:
+ - SRR1234567
+ - SRR1234568
+ - SRR1234569
+ Chimpanzee:
+ accessions:
+ - SRR2234567
+ - SRR2234568
+ - SRR2234569
+ Macaque:
+ accessions:
+ - SRR3234567
+ - SRR3234568
+ - SRR3234569
+ Marmoset:
+ accessions:
+ - SRR4234567
+ - SRR4234568
+ - SRR4234569
+max_replicates: 5
+min_replicates: 3
+mode: ci # Options: 'ci' (sampled, 100 permutations) or 'full' (all samples, 1000 permutations)
+```
 
-### Option B: CI/Synthetic Run (Recommended for Validation)
-*Uses synthetic data to validate logic without downloading large files.*
+*Replace the placeholder SRR IDs with the real SRA accession numbers from the spec (SRP010775, SRP009050, SRP009051, SRP009052).*
 
-1.  **Generate Synthetic Data**:
-    ```bash
-    python code/download.py --synthetic --config config/species.yaml
-    ```
-    *This creates `data/raw/synthetic/` with mock FASTQs.*
+## Step 3 – Run the Full Pipeline (Docker)
 
-2.  **Run Full Pipeline**:
-    ```bash
-    python code/align.py --synthetic --config config/species.yaml
-    python code/quantify.py --synthetic --config config/species.yaml
-    python code/annotate.py --synthetic --config config/species.yaml
-    python code/stats.py --synthetic --config config/species.yaml
-    python code/plot.py --synthetic --config config/species.yaml
-    ```
+```bash
+docker run --rm -v "$(pwd)":/workspace -w /workspace evo-splicing:latest \
+ bash./run_pipeline.sh config/run_config.yaml
+```
 
-3.  **Validate Output**:
-    ```bash
-    python code/validate_plot.py --input data/processed/manhattan.png
-    ```
-    *Expected: "Validation Passed: Dimensions >= 1200x800, axes labeled, threshold line present."*
+`run_pipeline.sh` orchestrates the phases described in `plan.md`. It creates the following directories:
 
-## Expected Outputs
+```
+data/
+ raw/ # FASTQs
+ aligned/ # BAMs
+ phyloP/ # bigWig files
+results/
+ psi.tsv
+ lineage_specific_events.tsv
+ control_regions.tsv
+ regression_cohort.tsv
+ annotation.csv
+ enrichment_results.tsv
+ manhattan.png
+logs/
+ pipeline.log
+artifacts_manifest.json
+```
 
--   `data/processed/lineage_specific_events.tsv`: Filtered splicing events.
--   `data/processed/annotation_table.csv`: Flanking regions and phyloP scores.
--   `data/processed/enrichment_results.csv`: Statistical tests and PGLS adjustments.
--   `data/processed/manhattan.png`: Visualization of results.
--   `pipeline.log`: Timestamped log of all steps.
+## Step 4 – Inspect Results
 
-## Troubleshooting
+```bash
+# Check the log for any abort codes
+cat logs/pipeline.log
 
--   **STAR Memory Error**: Reduce `--max-mem` in `config/species.yaml` or sample fewer reads.
--   **Missing phyloP**: If using real data, ensure UCSC Table Browser access. For synthetic, check `annotate.py` simulation logic.
--   **PGLS Failure**: Ensure `primate_tree.nwk` is valid Newick format and matches species names exactly.
+# Verify that hashes exist
+jq. data/artifacts_manifest.json
+
+# View the enrichment table
+column -t results/enrichment_results.tsv
+
+# Open the Manhattan plot (requires an image viewer)
+open results/manhattan.png # macOS
+xdg-open results/manhattan.png # Linux
+```
+
+## Step 5 – Run CI‑Only Synthetic Test (Fast)
+
+The repository includes a GitHub Actions workflow (`.github/workflows/ci.yml`). To run locally:
+
+```bash
+docker run --rm -v "$(pwd)":/workspace -w /workspace evo-splicing:latest \
+ pytest -m "ci"
+```
+
+This executes the synthetic‑data path, checks that:
+
+- `pipeline.log` contains timestamps and exit codes.
+- Abort codes 101/102 are triggered when the config violates replicate limits.
+- Output tables contain the placeholder flag `"PLACEHOLDER"`.
+
+## Step 6 – Lifecycle Management (Optional)
+
+To simulate the 90‑day archiving step:
+
+```bash
+docker run --rm -v "$(pwd)":/workspace -w /workspace evo-splicing:latest \
+ python -m src.pipeline.lifecycle --dry-run
+```
+
+The script prints actions it would take (compression, Zenodo upload, DOI insertion).
+
+---

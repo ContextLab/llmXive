@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Lineage Specific Splicing Events"
+type: object
+description: "Schema for results/lineage_specific_events.tsv"
+required:
+  - lineage
+  - event_id
+  - gene_id
+  - delta_psi
+  - fdr
+  - is_placeholder
+  - count_LSE
+  - count_NonLSE
+properties:
+  lineage:
+    type: string
+    enum: ["Human", "Chimpanzee", "Macaque", "Marmoset"]
+    description: "Primate lineage for which the event is specific."
+  event_id:
+    type: string
+    description: "Unique identifier for the splicing event (as produced by SUPPA2)."
+  gene_id:
+    type: string
+    description: "Ensembl gene identifier."
+  delta_psi:
+    type: number
+    description: "|ΔPSI| between the focal lineage and the others."
+  fdr:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg adjusted p‑value for the event."
+  is_placeholder:
+    type: boolean
+    description: "True if the row originates from synthetic CI data; otherwise false."
+  count_LSE:
+    type: integer
+    minimum: 0
+    description: "Total count of LSEs in this lineage."
+  count_NonLSE:
+    type: integer
+    minimum: 0
+    description: "Total count of Non-LSEs in this lineage."
+additionalProperties: false
