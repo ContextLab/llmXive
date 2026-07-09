@@ -1,66 +1,73 @@
 # Quickstart: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
 ## Prerequisites
-- **Python** 3.11 (or later) installed.  
-- **Git** to clone the repository.  
-- **Internet** access to download the OSF dataset (≈ 2 MB) that includes the required outcome measures.
+- Python 3.10+
+- Access to GitHub Actions (for CI) or local environment.
+- Internet connection (to fetch OSF dataset).
 
-## Setup
+## Installation
 
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-167-the-impact-of-self-compassion-on-resilie
+   ```
+
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners.*
+
+## Running the Analysis
+
+### Option 1: Full Pipeline (Recommended)
+Run the main script to download, clean, analyze, and generate the report.
 ```bash
-# 1. Clone the repository
-git clone https://github.com/yourorg/self-compassion-feedback.git
-cd self-compassion-feedback
+python code/main.py
+```
+**Expected Output**:
+- `data/raw/dataset.csv` (with checksum recorded in `state/...yaml`)
+- `data/processed/cleaned_data.csv`
+- `output/plots/` (3 PNGs)
+- `output/report.html`
 
-# 2. Create a virtual environment
-python -m venv .venv
-source .venv/bin/activate   # on Windows: .venv\Scripts\activate
+**Note on Data Availability**: If the OSF dataset `3k9r2` is missing or inaccessible, the pipeline will terminate immediately with the error: `[DATA_UNAVAILABLE: ...]`. This is an expected outcome if the data source is not available.
 
-# 3. Install pinned dependencies
-pip install -r requirements.txt
+### Option 2: Step-by-Step
+If you need to inspect intermediate steps:
+```bash
+# 1. Download and Validate
+python code/data_loader.py --fetch
+
+# 2. Preprocess
+python code/preprocessing.py
+
+# 3. Run Models
+python code/models.py
+
+# 4. Generate Plots
+python code/visualization.py
+
+# 5. Generate Report
+python code/report_generator.py
 ```
 
-## Running the Full Pipeline
+## Verifying Results
+1. Open `output/report.html` in a browser.
+2. Check the "Methodological Caveats" section for the "Associational" vs "Causal" flag.
+3. Verify that `interaction_pval_adj` is reported for each outcome.
+4. Ensure `output/plots/` contains `anxiety_simple_slopes.png`, `rumination_simple_slopes.png`, and `self_efficacy_simple_slopes.png`.
 
-```bash
-# Set the random seed (ensured by the script, but can be overridden)
-export PYTHONHASHSEED=42
-
-# Execute the end‑to‑end analysis
-python src/main.py run_all
-```
-
-The command performs, in order:
-
-1. **Download** the raw OSF Parquet (`data/raw/osf_feedback.parquet`).  
-2. **Compute and record** a SHA‑256 checksum of the downloaded file (Principle III).  
-3. **Clean** the data, produce `data/clean/cleaned_osf.csv`.  
-4. **Fit** ANCOVA models for anxiety, rumination, and self‑efficacy (including robust HC3 SEs).  
-5. **Bootstrap** the interaction term (5 000 resamples).  
-6. **Run** robustness analysis with the rumination subscale.  
-7. **Generate** simple‑slope PNGs (`outputs/figures/*.png`).  
-8. **Create** the HTML report (`outputs/report.html`).  
-
-All artefacts are logged in `outputs/logs/` and checksummed in `state/projects/...yaml`.
-
-## Verifying the Result (Contract Test)
-
-```bash
-pytest tests/contract/test_analysis_result.py
-```
-
-The test loads `outputs/analysis/analysis_result.json` and validates it against `contracts/analysis_result.schema.yaml`. A passing test confirms that:
-
-- The interaction coefficient is present with a p‑value < 0.05 (SC‑001).  
-- Partial η² ≥ 0.02 (SC‑002).  
-- Bootstrap CI excludes zero and overlaps the parametric CI (SC‑003).  
-- Simple‑slope PNGs exist for each outcome with three distinct lines (SC).  
-- The HTML report renders in Chrome/Firefox and includes all required sections (SC‑005).
-
-## Common Issues
-
-| Symptom | Likely Cause | Remedy |
-|---------|--------------|--------|
-| “Dataset not found” error | OSF URL changed or network block | Verify connectivity; the script falls back to the verified OSF URL. |
-| “Insufficient sample size” abort | After cleaning < 92 participants remain | Review missing‑data log; consider relaxing exclusion criteria only after ethical review. |
-| “Heteroskedasticity flag = true” | Breusch‑Pagan p < 0.10 | Results are still reported; note the flag in the HTML report. |
+## Troubleshooting
+- **Error: `[DATA_UNAVAILABLE: Required columns missing...]`**: The OSF dataset does not match the spec. The pipeline cannot proceed.
+- **Error: `[DATA_UNAVAILABLE: Dataset source unreachable...]`**: The OSF source `3k9r2` is not accessible. The project cannot proceed without this specific data.
+- **Error: `[POWER_INSUFFICIENT: Sample size < 92...]`**: The dataset has too few participants for the required power.
+- **Error: `[BOOTSTRAP_CONVERGENCE_WARNING...]`**: Bootstrap failed to converge; parametric CIs were used instead.
+- **Error: `[TIMEOUT: Modeling phase exceeded 30 mins...]`**: The bootstrap or model fitting took too long.

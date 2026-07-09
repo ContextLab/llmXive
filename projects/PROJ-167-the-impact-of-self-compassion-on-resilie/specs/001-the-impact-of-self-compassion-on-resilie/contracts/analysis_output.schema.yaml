@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the structured analysis results (AnalysisResult object)."
+type: "object"
+properties:
+  outcome:
+    type: "string"
+    description: "Name of the outcome variable (e.g., 'anxiety')"
+  interaction_coef:
+    type: "number"
+    description: "Coefficient for the interaction term"
+  interaction_se:
+    type: "number"
+    description: "Standard Error (HC3 robust)"
+  interaction_pval:
+    type: "number"
+    description: "Raw p-value"
+  interaction_pval_adj:
+    type: "number"
+    description: "Holm-Bonferroni adjusted p-value"
+  interaction_ci_lower:
+    type: "number"
+    description: "95% CI Lower bound (parametric)"
+  interaction_ci_upper:
+    type: "number"
+    description: "95% CI Upper bound (parametric)"
+  interaction_ci_bootstrap:
+    type: "array"
+    description: "Bootstrap 95% CI [lower, upper]"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+  partial_eta2:
+    type: "number"
+    description: "Partial Eta Squared effect size"
+  vif_values:
+    type: "object"
+    description: "Variance Inflation Factors for all predictors"
+    additionalProperties:
+      type: "number"
+  heteroskedasticity_flag:
+    type: "boolean"
+    description: "True if Breusch-Pagan test p < 0.10"
+  sample_size:
+    type: "integer"
+    description: "Final N after listwise deletion"
+  randomization_confirmed:
+    type: "boolean"
+    description: "True if dataset metadata confirms experimental randomization"
+  bootstrap_convergence_status:
+    type: "string"
+    description: "Status of bootstrap convergence: 'converged', 'fallback_parametric', 'timeout'"
+required:
+  - outcome
+  - interaction_coef
+  - interaction_se
+  - interaction_pval
+  - interaction_pval_adj
+  - interaction_ci_lower
+  - interaction_ci_upper
+  - interaction_ci_bootstrap
+  - partial_eta2
+  - vif_values
+  - heteroskedasticity_flag
+  - sample_size
+  - randomization_confirmed
+  - bootstrap_convergence_status
+additionalProperties: false

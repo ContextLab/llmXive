@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Report Schema"
+description: "Schema for the generated HTML report content structure (logical)."
+type: "object"
+properties:
+  sections:
+    type: "array"
+    items:
+      type: "string"
+      enum:
+        - "Data Cleaning"
+        - "Descriptive Statistics"
+        - "Model Results"
+        - "Robustness Checks"
+        - "Visualizations"
+        - "Methodological Caveats"
+  methodological_caveats:
+    type: "object"
+    properties:
+      causal_claim:
+        type: "string"
+        description: "Explicit statement on causality (Causal vs. Associational)."
+      collinearity_warning:
+        type: "string"
+        description: "Warning if VIF > 5."
+      heteroskedasticity_warning:
+        type: "string"
+        description: "Warning if heteroskedasticity detected."
+      well_being_note:
+        type: "string"
+        description: "Note on participant well-being protocols."
+      ci_overlap_caveat:
+        type: "string"
+        description: "Caveat text if parametric and bootstrap CIs do not overlap."
+      data_availability_note:
+        type: "string"
+        description: "Note if the dataset was unavailable or if the project halted due to data issues."
+  visualizations:
+    type: "array"
+    items:
+      type: "string"
+      description: "File paths to generated PNG files."
+required:
+  - sections
+  - methodological_caveats
+  - visualizations

@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Dataset Schema"
+description: "Schema for the raw CSV downloaded from OSF. All fields are required unless marked optional."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier"
+  scf_total:
+    type: "number"
+    description: "Total Self-Compassion Scale score"
+  scf_self_judgment:
+    type: "number"
+    description: "Self-Judgment subscale"
+  scf_self_kindness:
+    type: "number"
+    description: "Self-Kindness subscale"
+  stai_pre:
+    type: "number"
+    description: "Pre-feedback State-Trait Anxiety Inventory score"
+  stai_post:
+    type: "number"
+    description: "Post-feedback State-Trait Anxiety Inventory score"
+  rrs_pre:
+    type: "number"
+    description: "Pre-feedback Ruminative Responses Scale score"
+  rrs_post:
+    type: "number"
+    description: "Post-feedback Ruminative Responses Scale score"
+  gse_pre:
+    type: "number"
+    description: "Pre-feedback General Self-Efficacy Scale score"
+  gse_post:
+    type: "number"
+    description: "Post-feedback General Self-Efficacy Scale score"
+  feedback_cond:
+    type: "string"
+    description: "Feedback condition (Positive, Neutral, Negative)"
+    enum:
+      - "Positive"
+      - "Neutral"
+      - "Negative"
+  age:
+    type: "integer"
+    description: "Age in years"
+  gender:
+    type: "string"
+    description: "Gender"
+  big5_openness:
+    type: ["number", "null"]
+    description: "Big Five Openness (optional)"
+  big5_conscientiousness:
+    type: ["number", "null"]
+    description: "Big Five Conscientiousness (optional)"
+  big5_extroversion:
+    type: ["number", "null"]
+    description: "Big Five Extroversion (optional)"
+  big5_agreeableness:
+    type: ["number", "null"]
+    description: "Big Five Agreeableness (optional)"
+  big5_neuroticism:
+    type: ["number", "null"]
+    description: "Big Five Neuroticism (optional)"
+required:
+  - participant_id
+  - scf_total
+  - scf_self_judgment
+  - scf_self_kindness
+  - stai_pre
+  - stai_post
+  - rrs_pre
+  - rrs_post
+  - gse_pre
+  - gse_post
+  - feedback_cond
+  - age
+  - gender
+additionalProperties: true

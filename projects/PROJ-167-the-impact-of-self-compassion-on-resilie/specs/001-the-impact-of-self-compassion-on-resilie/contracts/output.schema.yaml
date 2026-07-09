@@ -1,0 +1,128 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the JSON output of the analysis pipeline."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      n_total:
+        type: "integer"
+        description: "Total participants after cleaning/imputation."
+      seed:
+        type: "integer"
+        description: "Random seed used."
+      randomization_confirmed:
+        type: "boolean"
+        description: "Whether experimental randomization was confirmed in metadata."
+      missing_data_method:
+        type: "string"
+        description: "Method used for missing data (e.g., 'listwise', 'multiple_imputation')."
+      convergence_status:
+        type: "string"
+        description: "Status of bootstrap convergence (e.g., 'converged', 'fallback_parametric', 'timeout')."
+      final_resample_count:
+        type: "integer"
+        description: "Number of resamples performed before convergence or abort."
+  models:
+    type: "array"
+    description: "Results for each outcome model."
+    items:
+      type: "object"
+      properties:
+        outcome:
+          type: "string"
+          description: "Name of the outcome variable (e.g., stai_post)."
+        interaction_term:
+          type: "string"
+          description: "Name of the interaction term (e.g., C(feedback)[T.2]:SCS_z)."
+        coefficient:
+          type: "number"
+          description: "Interaction coefficient."
+        p_value_raw:
+          type: "number"
+          description: "Unadjusted p-value."
+        p_value_adjusted:
+          type: "number"
+          description: "Holm-Bonferroni adjusted p-value."
+        ci_lower:
+          type: "number"
+          description: "Lower bound of 95% CI."
+        ci_upper:
+          type: "number"
+          description: "Upper bound of 95% CI."
+        ci_bootstrap_lower:
+          type: "number"
+          description: "Lower bound of bootstrap 95% CI."
+        ci_bootstrap_upper:
+          type: "number"
+          description: "Upper bound of bootstrap 95% CI."
+        ci_overlap_status:
+          type: "boolean"
+          description: "True if parametric and bootstrap CIs do not overlap."
+        caveat_text:
+          type: "string"
+          description: "Generated caveat text if CIs do not overlap."
+        partial_eta_squared:
+          type: "number"
+          description: "Partial eta-squared for the interaction."
+        robust_se:
+          type: "number"
+          description: "HC3 robust standard error."
+        vif_interaction:
+          type: "number"
+          description: "VIF for the interaction term."
+      required:
+        - outcome
+        - interaction_term
+        - coefficient
+        - p_value_raw
+        - p_value_adjusted
+        - ci_lower
+        - ci_upper
+        - robust_se
+        - vif_interaction
+  robustness:
+    type: "object"
+    properties:
+      kindness_moderator:
+        type: "object"
+        description: "Results using Self-Kindness as moderator."
+        properties:
+          interaction_coefficient:
+            type: "number"
+          p_value:
+            type: "number"
+      sensitivity_analysis:
+        type: "object"
+        description: "Results across alpha thresholds."
+        properties:
+          alpha_001:
+            type: "integer"
+            description: "Number of significant findings at alpha=0.01."
+          alpha_005:
+            type: "integer"
+            description: "Number of significant findings at alpha=0.05."
+          alpha_010:
+            type: "integer"
+            description: "Number of significant findings at alpha=0.10."
+  diagnostics:
+    type: "object"
+    properties:
+      breusch_pagan_p_value:
+        type: "number"
+        description: "P-value for heteroskedasticity test."
+      collinearity_flag:
+        type: "boolean"
+        description: "True if any VIF > 5."
+      heteroskedasticity_flag:
+        type: "boolean"
+        description: "True if Breusch-Pagan p < 0.10."
+      mcar_test_p_value:
+        type: "number"
+        description: "P-value for Little's MCAR test."
+required:
+  - metadata
+  - models
+  - robustness
+  - diagnostics

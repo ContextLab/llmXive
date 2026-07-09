@@ -1,43 +1,68 @@
 # Research: The Impact of Self‑Compassion on Resilience to Negative Feedback
 
-## Background
-Self‑Compassion Scale (SCS) scores have been linked to better emotional regulation and reduced maladaptive responses to stressors. Negative feedback is a well‑documented inducer of anxiety, rumination, and reduced self‑efficacy. The present study tests whether higher SCS buffers (moderates) these adverse effects.
+## Research Question
+Does self-compassion (SCS) moderate the relationship between negative feedback and psychological outcomes (anxiety, rumination, self-efficacy)?
 
-## Dataset Strategy
-| Role | Dataset | Verified Source | Loader / Access Method |
-|------|---------|----------------|------------------------|
-| Primary raw data | “Self‑Compassion + Personality & Feedback” (OSF) | https://osf.io/xyz123/download | `requests.get` → save as Parquet `data/raw/osf_feedback.parquet`; then `pandas.read_parquet` |
-| Supplemental SCS validation info | SCS Phase‑II dataset (parquet) | https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/resolve/main/data/train-00000-of-00001.parquet | `datasets.load_dataset("tobaba2001/scs_phase2_ts_dataset")` |
+## Methodology
 
-**Note**: The OSF dataset referenced above **does contain** the required post‑feedback outcome measures (anxiety_post, rumination_post, selfefficacy_post) needed for the ANCOVA moderation analyses. (If a future version of the dataset lacks these columns, the specification must be updated to point to a verified dataset that includes them.)
+### Statistical Approach
+The core analysis is a **Moderated ANCOVA** (Analysis of Covariance) for each of the three outcomes:
+1.  **Outcome**: Post-feedback score (e.g., `stai_post`).
+2.  **Predictor**: Feedback Condition (Categorical: Positive=Ref, Neutral, Negative).
+3.  **Moderator**: Self-Compassion (Continuous, z-scored).
+4.  **Covariates**: Baseline outcome (e.g., `stai_pre`), Age, Gender, (Big Five traits if present).
+5.  **Interaction**: `Feedback_Condition * SCS_z`.
 
-All datasets will be saved under `data/raw/` with SHA‑256 checksums recorded in `state/projects/...yaml`.
+**Model Formula**:
+`Outcome_post ~ Feedback_Condition + SCS_z + Feedback_Condition:SCS_z + Baseline_outcome + Age + Gender + [Big_Five]`
 
-## Data Cleaning & Preparation
-1. **Missing‑Data Handling** – Rows missing any of `SCS_total`, baseline outcome, post‑feedback outcome, or `wellbeing_check` are dropped; the count of exclusions is logged (`outputs/logs/missing_data.log`).  
-2. **Encoding** – `feedback` recoded as categorical (`0=positive`, `1=neutral`, `2=negative`). Gender encoded as binary (`0=male`, `1=female`).  
-3. **Standardization** – Continuous predictors (`SCS_total`, baseline scores, age) are z‑scored, producing `SCS_z`, `age_z`, etc.  
-4. **Derivation** – Interaction term `feedback_negative * SCS_z` created implicitly via the statsmodels formula `C(feedback)[T.2]:SCS_z`.  
+### Dataset Strategy
 
-## Statistical Analysis
-- **Primary Model**: ANCOVA (OLS) for each outcome (anxiety, rumination, self‑efficacy)  
-  `post_outcome ~ baseline_outcome + age_z + gender_cat + SCS_z + C(feedback) + C(feedback)[T.2]:SCS_z`  
-- **Robust SEs**: HC3 heteroskedasticity‑consistent standard errors computed via `statsmodels`.  
-- **Heteroskedasticity Check**: Breusch‑Pagan test; if `p < 0.10`, a flag is added to the results.  
-- **Effect Size**: Partial η² for the interaction term (computed from ANOVA).  
-- **Multiple‑Comparison Correction**: Holm‑Bonferroni adjustment applied to the three primary ANCOVA p‑values (α = 0.05).  
-- **Bootstrap**: 5 000 resamples of the interaction coefficient (seed = 42) to obtain a bias‑corrected CI.
+| Dataset Name | Source URL (Verified) | Relevance | Status |
+| :--- | :--- | :--- | :--- |
+| **Feedback and Self-Compassion** | `https://osf.io/3k9r2/` (Specified in FR-001) | Contains required `stai_post`, `rrs_post`, `gse_post`, `scf_total`, `feedback_cond`. | **UNVERIFIED**. The provided "Verified datasets" block **does not** list a URL for this specific OSF ID. The pipeline will attempt to fetch from the OSF URL. If the file is missing or columns are absent, the pipeline **MUST** abort with the specific error defined in FR-001. No substitution from other verified datasets (e.g., SCS-only datasets) is permitted as they lack the critical post-feedback outcome variables. |
+| **SCS (parquet)** | `https://huggingface.co/datasets/tobaba2001/scs_phase2_ts_dataset/...` | Contains SCS scores only. | **NOT SUITABLE**. Lacks feedback condition and post-feedback outcomes. |
+| **OSF (parquet)** | `https://huggingface.co/datasets/cjziems/osf_loglikelihood/...` | Log-likelihood data, not psychological outcomes. | **NOT SUITABLE**. |
 
-## Robustness Checks
-1. **Alternative Moderator** – Replace `SCS_total` with the rumination subscale (`SCS_rumination_z`) and repeat the primary model (FR‑014).  
-2. **Bootstrap Validation** – Compare parametric CI with bootstrap CI; both must exclude zero and overlap (SC‑003).  
+**Decision**: The pipeline relies exclusively on the OSF source specified in the spec. If the dataset is unavailable, the project halts. No alternative dataset is used to prevent "dataset mismatch" errors. The project is **Data-Contingent**; success requires the existence of the OSF source.
 
-## Visualization
-- **Simple‑Slope Plots** – For each outcome, plot predicted post‑feedback scores across feedback conditions at low (‑1 SD), mean, and high (+1 SD) SCS levels. Generated with Seaborn’s `lineplot` and saved as PNGs (`outputs/figures/<outcome>_simple_slopes.png`). Each figure contains three distinct lines with legends “Low SCS”, “Mean SCS”, “High SCS” and confidence bands.
+### Statistical Rigor & Assumptions
 
-## Reporting
-- **HTML Report** – Jinja2 template (`report/template.html`) populated with: data‑cleaning summary, regression tables (including robust SEs, η²), bootstrap results, heteroskedasticity flags, simple‑slope figures, and the well‑being protocol (`code/protocol.md`). Output written to `outputs/report.html`. The report is verified to render in Chrome/Firefox and contains sections for data cleaning, model tables, robustness results, and all generated plots.
+1.  **Multiple Comparisons**: Holm-Bonferroni correction applied across the 3 primary outcomes and 1 robustness check (SCS-Self-Kindness) as per FR-011.
+2.  **Power Analysis**: Spec assumes N=158 available, N=92 required for power (f²=0.02, α=0.05, 1-β=0.80). Pipeline checks N >= 92 (FR-001).
+3.  **Causal Inference**: 
+    - If dataset metadata confirms randomization: Findings framed as causal.
+    - If metadata is absent/ambiguous: Findings explicitly framed as **associational** (FR-017).
+4.  **Measurement Validity**: 
+    - SCS (Neff, 2003) - Validated.
+    - STAI (Spielberger) - Validated.
+    - RRS (Nolen-Hoeksema) - Validated.
+    - GSES (Schwarzer) - Validated.
+5.  **Collinearity**: VIF computed for all predictors. If VIF > 5, collinearity warning issued and independent effects not claimed (FR-013).
+6.  **Heteroskedasticity**: Breusch-Pagan test performed. If p < 0.10, HC3 robust SEs used (FR-009).
+7.  **Bootstrap**: 5,000 resamples (seed=42) for interaction CI (FR-008). Convergence assessed by CV of SE < 0.05.
 
-## Ethical & Well‑Being Considerations
-- The pipeline verifies that each participant record includes a `wellbeing_check` field (true/false). If any record lacks this field or is marked false, the run aborts with a clear error message directing the researcher to review `code/protocol.md`.  
-- The debriefing script and mental‑health resource list are embedded in the HTML report for transparency.
+### Computational Feasibility
+- **Hardware**: CPU-only (2 cores, ~7GB RAM).
+- **Methods**: OLS (statsmodels) is computationally trivial for N~150. Bootstrap (5k) is feasible on CPU within 10 mins.
+- **Libraries**: `pandas`, `statsmodels`, `scipy` (all CPU-optimized). No GPU/CUDA required.
+- **Timeout**: Modeling phase limited to a bounded duration to prevent runner hangs.
+
+## Risk Assessment
+
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Dataset Unavailable** | High | Pipeline halts with specific error (FR-001). No fallback to unsuitable datasets. |
+| **Insufficient Power** | High | Pipeline checks N >= 92; aborts if lower (FR-001). |
+| **Non-Normal Residuals** | Medium | HC3 robust SEs and Bootstrap CIs used. |
+| **Collinearity** | Medium | VIF check and warning; no claim of independent effects if VIF > 5. |
+| **Randomization Ambiguity** | Medium | Default to "associational" framing (FR-017). |
+| **Bootstrap Convergence** | Medium | Retry with a sufficient number of resamples; fallback to parametric CIs with warning. |
+| **Historical Data Limitations** | Medium | Report explicitly flags inability to verify participant well-being protocols (Constitution Principle VII). |
+
+## Data Contingency Note
+
+This research question is fundamentally tied to the existence of the OSF dataset `3k9r2`. No verified alternative dataset exists that contains the specific combination of **feedback manipulation** and **pre/post outcome measures**. Consequently:
+1.  The pipeline is designed to **abort** if the OSF source is unreachable.
+2.  The project does **not** proceed with a "correlational only" analysis, as this would invalidate the specific hypothesis of "moderation of feedback impact."
+3.  The "Success" of the project includes the successful retrieval of the data. If data is missing, the pipeline returns a specific "Data Unavailable" status, which is a valid scientific outcome.
