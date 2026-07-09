@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T23:25:14.608617Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-382-the-impact-of-simulated-social-exclusion
-last_run_id: c511884e-56fc-4ab6-912a-832ff6948f7d
+last_run_id: 1f4f0048-cf4b-4126-be3a-e32f794ee2d1
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-382-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion
 title: The Impact of Simulated Social Exclusion on Subsequent Prosocial Behavior
-updated_at: '2026-07-01T08:13:34.493902Z'
+updated_at: '2026-07-09T10:17:10.047028Z'

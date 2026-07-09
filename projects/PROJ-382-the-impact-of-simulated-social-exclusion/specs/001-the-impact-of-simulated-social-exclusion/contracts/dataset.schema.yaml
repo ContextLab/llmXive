@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Ingestion Schema"
+description: "Schema for validating downloaded datasets before ingestion."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "The verified URL of the dataset."
+  is_valid:
+    type: "boolean"
+    description: "Whether the dataset passed schema validation."
+  randomized:
+    type: "boolean"
+    description: "Flag indicating if the study used random assignment."
+  rejection_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for rejection if is_valid is false."
+required:
+  - dataset_id
+  - source_url
+  - is_valid
+  - randomized

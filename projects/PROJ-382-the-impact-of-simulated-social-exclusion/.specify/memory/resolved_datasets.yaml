@@ -1,0 +1,792 @@
+resolved_at: '2026-07-09T09:57:11.318090+00:00'
+datasets:
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/software/MoActiPred/31986846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Adaptive_distribution-aware_transformer_for_multi-scale_visual_representation_learning_on_imbalanced_and_low-resolution_data/32802147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_questions_for_the_article_Boyd_E_Nygren_Laestander_T_Hall_O_Uhlin_A_Turner_S_de_Leeuw_G_Kilichova_C_Ayanlade_A_Becker_P_Bardi_C_Chen_F_Djalon_A_A_Eriksen_J_Elias_P_Gatto_A_van_der_Geest_K_Gehre_Galv_o_T_Grugel_J_N_Guetta_A_Hickmann_T_H/32947091
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://crick.figshare.com/articles/journal_contribution/AAK1-mediated_phosphorylation_of_PDLIM5_and_Talin1_promotes_focal_adhesion_disassembly_to_accelerate_cell_migration_/32947094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zivahub.uct.ac.za/articles/media/A_3D_Model_at_the_Gede_heritage_site/11770272
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/media/A_3D_Model_at_the_Gede_heritage_site/11770272
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239806
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21239703
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/52v6u/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/p9mjv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/v7fa6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wrfvp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/5r9tn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 39475
+      parsed: true
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_impact_of_the_UK_s_withdrawal_from_the_EU_ETS_on_firms_carbon_emissions_evidence_from_the_UK_ETS/32835749
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Exploring_the_potential_of_HVJ-E_for_cancer_immunotherapy/32947118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/African_origin_and_Late_Cretaceous_divergence_of_the_Middle_American_catfish_i_Lacantunia_enigmatica_i_corroborated_by_a_global_mitogenome_phylogeny/32947117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/MoActiPred/31986846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Adaptive_distribution-aware_transformer_for_multi-scale_visual_representation_learning_on_imbalanced_and_low-resolution_data/32802147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17305397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4578581
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_impact_of_the_UK_s_withdrawal_from_the_EU_ETS_on_firms_carbon_emissions_evidence_from_the_UK_ETS/32835749
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Exploring_the_potential_of_HVJ-E_for_cancer_immunotherapy/32947118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/African_origin_and_Late_Cretaceous_divergence_of_the_Middle_American_catfish_i_Lacantunia_enigmatica_i_corroborated_by_a_global_mitogenome_phylogeny/32947117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/MoActiPred/31986846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Adaptive_distribution-aware_transformer_for_multi-scale_visual_representation_learning_on_imbalanced_and_low-resolution_data/32802147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20525204
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20525204
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21273686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21273686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ZIG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/amzar1303/zigwheels.my-images/resolve/main/zigwheels-best-cars-img.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 199251
+      parsed: true
+  - url: https://huggingface.co/datasets/Ziggy1/dataset/resolve/main/FKGrave.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ziggy1/Goularte/resolve/main/Goularte.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/amzar1303/zigwheels.my-images/resolve/main/zigwheels-best-cars-img.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ziggy1/dataset/resolve/main/FKGrave.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Ziggy1/Goularte/resolve/main/Goularte.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_impact_of_the_UK_s_withdrawal_from_the_EU_ETS_on_firms_carbon_emissions_evidence_from_the_UK_ETS/32835749
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Exploring_the_potential_of_HVJ-E_for_cancer_immunotherapy/32947118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/African_origin_and_Late_Cretaceous_divergence_of_the_Middle_American_catfish_i_Lacantunia_enigmatica_i_corroborated_by_a_global_mitogenome_phylogeny/32947117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/MoActiPred/31986846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Adaptive_distribution-aware_transformer_for_multi-scale_visual_representation_learning_on_imbalanced_and_low-resolution_data/32802147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16234022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1461203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16298556
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16234053
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21211425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21276725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21276725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21272860
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07503
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270454
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RCTs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cardiffnlp/TSAR2025_SharedTask_RCTS_Trial-Data/resolve/main/tsar2025_trial.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 41463
+      parsed: true
+  - url: https://huggingface.co/datasets/cardiffnlp/TSAR2025_SharedTask_RCTS_Test-Data/resolve/main/tsar2025_test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 205576
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepeurope/europe-owid-total-number-of-rcts-published-in-high-ranked-medical-journals/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2427
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/araag2/RCT_Summary/resolve/main/conversational/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/cardiffnlp/TSAR2025_SharedTask_RCTS_Trial-Data/resolve/main/tsar2025_trial.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/cardiffnlp/TSAR2025_SharedTask_RCTS_Test-Data/resolve/main/tsar2025_test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/electricsheepeurope/europe-owid-total-number-of-rcts-published-in-high-ranked-medical-journals/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepasia/asia-owid-total-number-of-rcts-published-in-high-ranked-medical-journals/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Is_the_exploration_of_the_Socotran_flora_complete_A_new_species_and_the_return_of_a_lost_i_Psiadia_i_Asteraceae_/32947127
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_HoseHawk_Pro_Pressure_Washer_Reviews_The_Powerful_Cleaning_Tool_for_Your_Home_Garden_b_/32947121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_impact_of_the_UK_s_withdrawal_from_the_EU_ETS_on_firms_carbon_emissions_evidence_from_the_UK_ETS/32835749
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Exploring_the_potential_of_HVJ-E_for_cancer_immunotherapy/32947118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/African_origin_and_Late_Cretaceous_divergence_of_the_Middle_American_catfish_i_Lacantunia_enigmatica_i_corroborated_by_a_global_mitogenome_phylogeny/32947117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/142130/element/2/14/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/142130/element/2/13/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.253q2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pharmacia.pensoft.net/article/142130/element/2/15/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.565kh
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publikationen.bibliothek.kit.edu/1000195015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/258fd10b-f38e-4607-90f9-dd83c9d7a30c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/74755/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vcyp6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Language-related_eligibility_criteria_in_UK_randomised_trials_a_systematic_review_of_extended_research_reports/8583844/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 108629
+      parsed: true
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sarahwei/cyber_MITRE_attack_tactics-and-techniques/resolve/main/MITRE-attack-tactics-and-techniques.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Gopher-Lab/laurashin_How_Satoshi_Nakamoto_and_Vitalik_Buterin_Inspired_Key_Parts_of_Celestia_-_Ep__672/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Derur/all-portable-apps-and-ai-in-one-url/resolve/main/AINetSD/styles.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/online_resource/A_Comet-Impact_Tsunami_and_the_Flooding_of_the_Great_Pyramid/32947115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Is_the_exploration_of_the_Socotran_flora_complete_A_new_species_and_the_return_of_a_lost_i_Psiadia_i_Asteraceae_/32947127
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_HoseHawk_Pro_Pressure_Washer_Reviews_The_Powerful_Cleaning_Tool_for_Your_Home_Garden_b_/32947121
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_impact_of_the_UK_s_withdrawal_from_the_EU_ETS_on_firms_carbon_emissions_evidence_from_the_UK_ETS/32835749
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Exploring_the_potential_of_HVJ-E_for_cancer_immunotherapy/32947118
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3380311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AnalysisResult
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cicero-im/analysis_results/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/An_old_species_with_a_new_identity_resurrection_and_updated_distribution_of_i_Saron_hemprichii_i_Heller_1861_Hippolytidae_Decapoda_from_the_Mediterranean_and_Red_Sea/32947141
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Cytomegalovirus_gastrointestinal_disease_masquerading_as_inflammatory_bowel_disease_in_a_patient_with_occult_HIV_infection_receiving_biologics_A_case_report_/32947139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Neuroendocrine_Tumor_of_Unknown_Origin_Leading_to_the_Diagnosis_of_Advanced_Celiac_Disease_A_Case_Report_Exploring_a_Possible_Association/32947136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Dynamic_Profiles_of_Serum_Kisspeptin_and_DLK1_During_GnRH_Stimulation_in_Central_Precocious_Puberty_and_Premature_Thelarche/32947133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Global_Research_Trends_in_the_Surgical_Management_of_Spasticity_A_Systematic_Review_and_Bibliometric_Analysis/32947130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19422572
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11919062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RCT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yxchar/rct-20k-tlm/resolve/main/dev.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zapsdcn/rct-20k/resolve/main/rct-20k_dev.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/OxAISH-AL-LLM/pubmed_20k_rct/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yxchar/rct-20k-tlm/resolve/main/dev.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/zapsdcn/rct-20k/resolve/main/rct-20k_dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/zj88zj/PubMed_200k_RCT/2bc68a9b902ae51b856b3c22e48181a76ba10849/dev.txt?%2Fdatasets%2Fzj88zj%2FPubMed_200k_RCT%2Fresolve%2Fmain%2Fdev.txt=&etag=%22b44401cc112b46c78a81e6772353efc9c32f6f7d%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/OxAISH-AL-LLM/pubmed_20k_rct/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/armanc/pubmed-rct20k/resolve/main/dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://tandf.figshare.com/articles/dataset/An_old_species_with_a_new_identity_resurrection_and_updated_distribution_of_i_Saron_hemprichii_i_Heller_1861_Hippolytidae_Decapoda_from_the_Mediterranean_and_Red_Sea/32947141
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Cytomegalovirus_gastrointestinal_disease_masquerading_as_inflammatory_bowel_disease_in_a_patient_with_occult_HIV_infection_receiving_biologics_A_case_report_/32947139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Neuroendocrine_Tumor_of_Unknown_Origin_Leading_to_the_Diagnosis_of_Advanced_Celiac_Disease_A_Case_Report_Exploring_a_Possible_Association/32947136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Dynamic_Profiles_of_Serum_Kisspeptin_and_DLK1_During_GnRH_Stimulation_in_Central_Precocious_Puberty_and_Premature_Thelarche/32947133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Global_Research_Trends_in_the_Surgical_Management_of_Spasticity_A_Systematic_Review_and_Bibliometric_Analysis/32947130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF02202372
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.19070/2377-8075-20000223
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/8104176
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7437032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7068115
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publikationen.bibliothek.kit.edu/1000195015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/zdkxw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/74755/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000802794
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://boris-portal.unibe.ch/entities/publication/b936579b-70c2-46e7-9843-e3ac4ae69303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IRI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Haamipromax/8th-grade-QA-IRI/resolve/main/Science.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Gifted/iris/resolve/main/Iris.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5107
+      parsed: true
+  - url: https://huggingface.co/datasets/scikit-learn/iris/resolve/main/Iris.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5107
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Haamipromax/8th-grade-QA-IRI/resolve/main/Science.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Gifted/iris/resolve/main/Iris.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/scikit-learn/iris/resolve/main/Iris.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/skorkmaz88/iris/resolve/main/data/train-00000-of-00001-1d8a6b6d5e8fea77.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/An_old_species_with_a_new_identity_resurrection_and_updated_distribution_of_i_Saron_hemprichii_i_Heller_1861_Hippolytidae_Decapoda_from_the_Mediterranean_and_Red_Sea/32947141
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Cytomegalovirus_gastrointestinal_disease_masquerading_as_inflammatory_bowel_disease_in_a_patient_with_occult_HIV_infection_receiving_biologics_A_case_report_/32947139
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Neuroendocrine_Tumor_of_Unknown_Origin_Leading_to_the_Diagnosis_of_Advanced_Celiac_Disease_A_Case_Report_Exploring_a_Possible_Association/32947136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Dynamic_Profiles_of_Serum_Kisspeptin_and_DLK1_During_GnRH_Stimulation_in_Central_Precocious_Puberty_and_Premature_Thelarche/32947133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Global_Research_Trends_in_the_Surgical_Management_of_Spasticity_A_Systematic_Review_and_Bibliometric_Analysis/32947130
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8399164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,103 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for storing regression and meta-analysis results."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the analysis result."
+  pool_type:
+    type: "string"
+    enum:
+      - "Causal"
+      - "Associational"
+    description: "The pool of data used for this analysis."
+  model_type:
+    type: "string"
+    enum:
+      - "ZIG"
+      - "Hurdle"
+      - "Logistic"
+    description: "The statistical model used."
+  zero_inflation_coefficient:
+    type: "number"
+    description: "The regression coefficient for the zero-inflation component (log-odds of donating)."
+  gamma_coefficient:
+    type: "number"
+    description: "The regression coefficient for the gamma component (log-amount conditional on donating)."
+  std_error_zero:
+    type: "number"
+    description: "Standard error of the zero-inflation coefficient."
+  std_error_gamma:
+    type: "number"
+    description: "Standard error of the gamma coefficient."
+  p_value_zero:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the zero-inflation component."
+  p_value_gamma:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the gamma component."
+  ci_lower_zero:
+    type: "number"
+    description: "Lower bound of the 95% CI for zero-inflation."
+  ci_upper_zero:
+    type: "number"
+    description: "Upper bound of the 95% CI for zero-inflation."
+  ci_lower_gamma:
+    type: "number"
+    description: "Lower bound of the 95% CI for gamma component."
+  ci_upper_gamma:
+    type: "number"
+    description: "Upper bound of the 95% CI for gamma component."
+  n_samples:
+    type: "integer"
+    minimum: 0
+    description: "Total number of samples used."
+  n_zeros:
+    type: "integer"
+    minimum: 0
+    description: "Number of zero outcomes in the dataset."
+  sensitivity_sweep:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        link_function:
+          type: "string"
+          description: "Link function used (e.g., 'logit', 'probit')."
+        distribution:
+          type: "string"
+          description: "Distribution used (e.g., 'gamma', 'lognormal')."
+        zero_coefficient:
+          type: "number"
+        gamma_coefficient:
+          type: "number"
+      required:
+        - link_function
+        - distribution
+        - zero_coefficient
+        - gamma_coefficient
+    description: "Results from the sensitivity analysis sweep (link function/distribution)."
+  power_analysis:
+    type: "object"
+    properties:
+      mdes:
+        type: "number"
+        description: "Minimum Detectable Effect Size."
+      power:
+        type: "number"
+        description: "Estimated power of the meta-analysis."
+    description: "Meta-analytic power assessment results."
+required:
+  - result_id
+  - pool_type
+  - model_type
+  - zero_inflation_coefficient
+  - gamma_coefficient
+  - p_value_zero
+  - p_value_gamma
+  - n_samples
