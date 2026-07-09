@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solar Irradiance Dataset Schema"
+description: "Schema for raw and processed datasets in the solar irradiance reconstruction project"
+type: "object"
+properties:
+  gsn:
+    type: "object"
+    description: "Group Sunspot Number dataset"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      sunspot_number:
+        type: "number"
+        description: "Group Sunspot Number value"
+      is_missing:
+        type: "boolean"
+        description: "Flag for missing values (before interpolation)"
+    required:
+      - "date"
+      - "sunspot_number"
+  tsi:
+    type: "object"
+    description: "Total Solar Irradiance dataset (SORCE/TIM)"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      tsi_value:
+        type: "number"
+        description: "Total Solar Irradiance value"
+      instrument:
+        type: "string"
+        description: "Instrument name (SORCE or TIM)"
+      uncertainty:
+        type: "number"
+        description: "Measurement uncertainty"
+    required:
+      - "date"
+      - "tsi_value"
+  cmip6:
+    type: "object"
+    description: "CMIP6 v3.2 dataset"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      tsi_value:
+        type: "number"
+        description: "Total Solar Irradiance value from CMIP6"
+      model:
+        type: "string"
+        description: "Climate model name"
+      scenario:
+        type: "string"
+        description: "Emission scenario (e.g., SSP370)"
+    required:
+      - "date"
+      - "tsi_value"
+  isotope_14c:
+    type: "object"
+    description: "14C cosmogenic isotope proxy"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      c14_delta14c:
+        type: "number"
+        description: "Δ14C value (per mil)"
+    required:
+      - "date"
+      - "c14_delta14c"
+  isotope_10be:
+    type: "object"
+    description: "10Be cosmogenic isotope proxy"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      be10_concentration:
+        type: "number"
+        description: "10Be concentration (atoms g⁻¹)"
+    required:
+      - "date"
+      - "be10_concentration"
+required:
+  - "gsn"
+  - "tsi"
+  - "cmip6"
+  - "isotope_14c"
+  - "isotope_10be"

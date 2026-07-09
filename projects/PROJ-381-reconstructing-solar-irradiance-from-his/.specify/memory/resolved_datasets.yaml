@@ -1,0 +1,747 @@
+resolved_at: '2026-07-09T20:23:46.560798+00:00'
+datasets:
+- intent: GSN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DopeorNope/gs_new_QA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Francesco/construction-safety-gsnvb/resolve/main/data/test-00000-of-00001-2a010722bb743ffa.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsnoor/zod_mini_test/resolve/main/metadata.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/DopeorNope/gs_new_QA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/gsnap88/nautichat-testing/449a1ae2f09ae9bdacc45261eebfed26432b6d2d/data.json?%2Fdatasets%2Fgsnap88%2Fnautichat-testing%2Fresolve%2Fmain%2Fdata.json=&etag=%224e2b7f083eb6f57529b6d3bbe748afcd3742070c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/998965
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3715965
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3499802
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18094657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15519024
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05508
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://oa.tib.eu/renate/handle/123456789/39636
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2505.10611
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5167/uzh-434702
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.zora.uzh.ch'',
+      port=443): Max retries exceeded with url: /handle/20.500.14742/247973 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''www.zora.uzh.ch'', port=443)
+      at 0x7ffbbfccc890>, ''Connection to www.zora.uzh.ch timed out. (connect timeout=20.0)''))'
+  - url: https://arxiv.org/abs/2605.29382
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SORCE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lcxrocks/sorce-1k/resolve/main/dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 196775
+      parsed: true
+  - url: https://huggingface.co/datasets/MrezaPRZ/SQL_Sorcerer_Dataset/resolve/main/training_set.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MrezaPRZ/SQL_Sorcerer_Dataset/resolve/main/training_set.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/lcxrocks/sorce-1k/resolve/main/dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4604284
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4604286
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10256834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.e3s-conferences.org/articles/e3sconf/abs/2023/51/e3sconf_supehr2023_01004/e3sconf_supehr2023_01004.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5773280
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.06665
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/697/A12
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/697/A11
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2506.14441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TIM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/timm/oxford-iiit-pet/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ron-the-code/Telangana_time_series_2023-2025/resolve/main/Telangana_combined_weather_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/timm/oxford-iiit-pet/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ron-the-code/Telangana_time_series_2023-2025/resolve/main/Telangana_combined_weather_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Time-RA/RATs40K/resolve/main/RATs-Multi-TSImage_Reason.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/TimJaspersTue/ATLAS-120k/resolve/main/dataset_info.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2563672
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4387030
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17242013
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10902824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7795993
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284420
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284420
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.60950/d20b117a-6b5a-415a-b429-0ec6b01eb186
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21283425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TSI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/momilla/Tsinghua_EthereumTransaction/resolve/main/ethereum_smart_contract_data.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/CyberHarem/kal_tsit_arknights/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 7184
+      parsed: true
+  - url: https://huggingface.co/datasets/Tsinggu/PolyU-COMP-Information/resolve/main/PolyU-COMP-Information.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98168
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/momilla/Tsinghua_EthereumTransaction/resolve/main/ethereum_smart_contract_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/CyberHarem/kal_tsit_arknights/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Tsinggu/PolyU-COMP-Information/resolve/main/PolyU-COMP-Information.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2079-9292/11/13/1944
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/8013470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14976890
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17581066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s11227-024-06103-y
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21236536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21236536
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://era.ed.ac.uk/handle/1842/41947
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.actris.eu/Content/?pageid=39a25e967ef3481b8152f654434c258c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.995382
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1783632124&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM2MzIxMjR9fX1dfQ__&Signature=MEQCIGt5PPrtvQtTmhzyDUAC5tzwjTD5ts83dDgpG~-usIz1AiAEd-0~Fv8SiXXgVL8c9boAwqaIWfP~KX8Bzneeillywg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966066
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284307
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284307
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimation_of_forest_floor_light_environment_based_on_3D_point_cloud_data_towards_broad-scale_assessment_and_prediction_of_post-removal_light_conditions/32360752/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Estimation_of_forest_floor_light_environment_based_on_3D_point_cloud_data_towards_broad-scale_assessment_and_prediction_of_post-removal_light_conditions/32360752
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluation_of_suspended_particulate_matter_retrieval_models_for_subtropical_estuarine_waters_monitoring/32652731/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CMIP6
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6_v2/resolve/main/mini/test/ACCESS-CM2_gn_ssp370_r1i1p1f1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6_v2.1/resolve/main/mini/test/ACCESS-CM2_gn_ssp370_r1i1p1f1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6/resolve/main/hf_dataset_test/test-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6_v2/resolve/main/mini/test/ACCESS-CM2_gn_ssp370_r1i1p1f1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6_v2.1/resolve/main/mini/test/ACCESS-CM2_gn_ssp370_r1i1p1f1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sungduk/wip_cmip6_v2.2/resolve/main/mini/test/ACCESS-CM2_gn_ssp370_r1i1p1f1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1117692
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16970378
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16970380
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14028571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14217784
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000798115
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://www.frdr-dfdr.ca/repo/dataset/586c9e68-d3f9-452f-a26b-49c5d5d57deb
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20827512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SILSO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/juliensimon/silso-sunspot-number/resolve/main/data/silso_sunspot_number.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4654773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4654722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230552
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184326
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20520055
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21184326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20576404
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Supporting_Information_b_i_Glutamine_Availability_Impacts_Lymphatic_Endothelial_Cell_Glycolysis_and_Lymphangiogenesis_in_Hypoxic_Environments_i_b_/30913952
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Surface_Chemistry-Driven_Surface-Enhanced_Raman_Scattering_Fingerprinting_of_Aptamers_on_Silver_Colloids/32952369
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multi-Force-Field_Molecular_Dynamics_Reveals_How_Cation_Hydration_Kinetics_Dictate_Polypeptide_Assembly_Pathways_and_Timescales/32952366
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Downregulation_of_mTORC1_Signaling_is_Associated_with_Increased_Sensitivity_to_Protein_Synthesis_Perturbations_in_Multiple_Myeloma/32952363
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Roles_of_Metal_Vacancies_in_the_Photocatalytic_Hydrogen_Peroxide_Production_by_2D_ZnIn_sub_2_sub_S_sub_4_sub_Nanosheets/32952360
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282425
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21282005
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21281387
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281387
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

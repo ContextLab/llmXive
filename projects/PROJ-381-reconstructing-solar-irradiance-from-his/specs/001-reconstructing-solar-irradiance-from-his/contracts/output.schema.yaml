@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solar Irradiance Output Schema"
+description: "Schema for model predictions and statistical analysis outputs"
+type: "object"
+properties:
+  reconstruction:
+    type: "object"
+    description: "Reconstructed TSI time series with uncertainty bands"
+    properties:
+      date:
+        type: "string"
+        format: "date-time"
+        description: "Date of observation"
+      tsi_reconstructed:
+        type: "number"
+        description: "Reconstructed TSI value"
+      tsi_lower:
+        type: "number"
+        description: "Lower bound of uncertainty band"
+      tsi_upper:
+        type: "number"
+        description: "Upper bound of uncertainty band"
+    required:
+      - "date"
+      - "tsi_reconstructed"
+      - "tsi_lower"
+      - "tsi_upper"
+  metrics:
+    type: "object"
+    description: "Model evaluation metrics"
+    properties:
+      rmse_train:
+        type: "number"
+        description: "RMSE on training set"
+      rmse_validation:
+        type: "number"
+        description: "RMSE on validation set"
+      r2_train:
+        type: "number"
+        description: "R² score on training set"
+      r2_validation:
+        type: "number"
+        description: "R² score on validation set"
+      rmse_reduction_percentage:
+        type: "number"
+        description: "Percentage reduction in RMSE vs. 2007 baseline"
+      cmip6_correlation:
+        type: "number"
+        description: "Correlation coefficient with CMIP6 v3.2"
+      baseline_rmse:
+        type: "number"
+        description: "RMSE of the 2007 baseline on the same split"
+      baseline_r2:
+        type: "number"
+        description: "R² of the 2007 baseline on the same split"
+    required:
+      - "rmse_train"
+      - "rmse_validation"
+      - "r2_train"
+      - "r2_validation"
+      - "rmse_reduction_percentage"
+      - "cmip6_correlation"
+      - "baseline_rmse"
+      - "baseline_r2"
+  bootstrap_stats:
+    type: "array"
+    description: "Bootstrap resampling results for variance differences (reconstruction vs. proxy)"
+    items:
+      type: "object"
+      properties:
+        solar_minimum:
+          type: "string"
+          description: "Name of solar minimum (Maunder, Dalton, Modern)"
+        variance_mean:
+          type: "number"
+          description: "Mean variance estimate"
+        variance_lower:
+          type: "number"
+          description: "Lower bound of 95% CI"
+        variance_upper:
+          type: "number"
+          description: "Upper bound of 95% CI"
+        p_value:
+          type: "number"
+          description: "Corrected p-value for variance difference test (vs. proxy)"
+      required:
+        - "solar_minimum"
+        - "variance_mean"
+        - "variance_lower"
+        - "variance_upper"
+        - "p_value"
+required:
+  - "reconstruction"
+  - "metrics"
+  - "bootstrap_stats"
