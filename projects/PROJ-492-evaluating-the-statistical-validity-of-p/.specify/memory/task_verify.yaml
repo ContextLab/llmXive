@@ -476,12 +476,6 @@
   \ \u2014 status=not_enough_info] (depends on T026) (verify test passes, otherwise\
   \ raise `ERR-800`) [DEPENDS ON: T026]."
 : 1
-? "T034 Create analysis notebook `notebooks/statistical_consistency_verification.ipynb`\
-  \ that documents any p\u2011value discrepancies >0.05 (1905.08726, https://arxiv.org/abs/1905.08726)\
-  \ with justification per Constitution Principle VI; run as part of pipeline acceptance\
-  \ (depends on T025) (verify notebook exists and contains discrepancy justifications)\
-  \ [DEPENDS ON: T025]."
-: 2
 ? "T035 FR\u2011001 Verification: Run `tests/integration/test_url_ingestion.py` to\
   \ assert `input/urls.csv` processing completes without error [UNRESOLVED-CLAIM:\
   \ c_8b9cf4c7 \u2014 status=not_enough_info] (coverage\u2011executability\u201108d5764f)\
@@ -537,7 +531,7 @@
   \ (FR\u2011005a & FR\u2011005b) in `src/audit/prevalence.py` including dynamic Bonferroni\
   \ correction (\u03B1 = 0.05\u202F/\u202Fnumber_of_subgroups) per FR\u2011032 (verify\
   \ JSON output contains required fields including sensitivity analysis results)."
-: 1
+: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
@@ -559,7 +553,7 @@
 : 1
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10. (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ (tests/unit/test_prevalence.py) (verify test passes)."
-: 1
+: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10. (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ [UNRESOLVED-CLAIM: c_d27d69f0 \u2014 status=not_enough_info] (tests/unit/test_prevalence.py)\
   \ (verify test passes)."
