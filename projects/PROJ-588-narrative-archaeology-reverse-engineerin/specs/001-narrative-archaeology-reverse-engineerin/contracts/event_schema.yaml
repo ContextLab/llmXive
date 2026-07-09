@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Narrative Event Schema"
+description: "Schema for segmented narrative events aligned with fMRI timecourses."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., 'sub-01')."
+  event_id:
+    type: "string"
+    description: "Unique identifier for the event."
+  onset:
+    type: "number"
+    description: "Onset time in seconds relative to scan start."
+  duration:
+    type: "number"
+    description: "Duration of the event in seconds."
+  trial_type:
+    type: "string"
+    description: "Type of narrative element (e.g., 'plot', 'character', 'theme')."
+  semantic_label:
+    type: "string"
+    description: "Text content of the event."
+  hrf_aligned:
+    type: "boolean"
+    description: "Whether the event has been convolved with the HRF."
+required:
+  - subject_id
+  - event_id
+  - onset
+  - duration
+  - trial_type
+  - semantic_label
+  - hrf_aligned
+additionalProperties: false

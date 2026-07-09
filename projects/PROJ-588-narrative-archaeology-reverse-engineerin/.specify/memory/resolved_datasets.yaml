@@ -1,4 +1,4 @@
-resolved_at: '2026-07-07T01:20:57.576889+00:00'
+resolved_at: '2026-07-09T11:39:48.729801+00:00'
 datasets:
 - intent: OpenNeuro
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/poster/African_University_of_Economics_FCT_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32916776
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/huang_ning/32916758
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/New_City_University_Ayetoro_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704/32916770
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/PROCESSO_CVM_RJ_2005_2345/32916695
+  - url: https://plos.figshare.com/articles/dataset/_p_Inclusion_and_exclusion_criteria_p_/32947704
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/University_of_Fortune_Igbotako_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0/32916767
+  - url: https://plos.figshare.com/articles/figure/_p_The_percentage_content_coverage_across_the_cancer_trajectory_diagnosis_treatment_end_of_life_dying_together_with_accessible_inclusive_information_from_the_144_resources_p_/32947701
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -62,40 +62,33 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17185931
+  - url: https://zenodo.org/records/19435085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007122/versions/1.1.0
+  - url: https://openneuro.org/datasets/ds008037/versions/1.0.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007892/versions/1.1.0
+  - url: https://zenodo.org/records/21271058
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007892/versions/1.0.2
+  - url: https://zenodo.org/records/21271058
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007058/versions/1.1.1
+  - url: https://osf.io/q89jw/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/hd6zk/
+  - url: https://osf.io/35sxv/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: NOT
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 10859
-      parsed: true
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     format: json
@@ -103,47 +96,58 @@ datasets:
     sample_check:
       downloaded_bytes: 39475
       parsed: true
-  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 2431
-      parsed: true
-  candidates_tried:
   - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
     source: huggingface
-    status: verified
     format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
   - url: https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter 3/chapter_3_batched_loss.json
     source: huggingface
     status: verified
     format: json
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HuggingFaceTB/issues-kaggle-notebooks/resolve/main/issues/train-00000-of-00062.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingisenough/Solidity_Code_Graph_Codearena/resolve/main/Solidity_Code_Graph_Codearena.zip
+    source: huggingface
+    status: verified
+    format: zip
   - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1835ac/f813331e385a1262352d21b9bc0a6152170575b5e627b54ce0a54f73daeaf5fd?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1783390843&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNWFjL2Y4MTMzMzFlMzg1YTEyNjIzNTJkMjFiOWJjMGE2MTUyMTcwNTc1YjVlNjI3YjU0Y2UwYTU0ZjczZGFlYWY1ZmRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzkwODQzfX19XX0_&Signature=MEQCIFF5pmlZOcnBcEQh4OpXZS1QV9KoMhI5CEr6en3Sxfs8AiA4piWwIqdY8ycyM~9FXV07KQvYVSdZx~F6uF4YYDhTXg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/African_University_of_Economics_FCT_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON/32916776
+  - url: https://plos.figshare.com/articles/dataset/_p_mDISCERN_and_GQS_reliability_and_quality_and_NHS_readability_assessment_p_/32947713
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/huang_ning/32916758
+  - url: https://plos.figshare.com/articles/dataset/_p_Resource_characteristics_according_to_source_publisher_country_of_origin_and_video_metrics_p_/32947710
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/New_City_University_Ayetoro_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0704/32916770
+  - url: https://plos.figshare.com/articles/dataset/_p_Keyword_phrase_searches_used_to_identify_resources_p_/32947707
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/PROCESSO_CVM_RJ_2005_2345/32916695
+  - url: https://plos.figshare.com/articles/dataset/_p_Inclusion_and_exclusion_criteria_p_/32947704
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/University_of_Fortune_Igbotako_2026_2027_admission_form_Now_OPEN_07040964654_DR_FAITH_is_still_for_undergraduate_programme_Also_Direct_intake_forms_Transcript_Application_FOR_GUIDELINES_AND_ADMISSION_ASSISTANCE_CALL_THE_SCHOOL_ADMIN_ON_OR_0/32916767
+  - url: https://plos.figshare.com/articles/figure/_p_The_percentage_content_coverage_across_the_cancer_trajectory_diagnosis_treatment_end_of_life_dying_together_with_accessible_inclusive_information_from_the_144_resources_p_/32947701
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -151,19 +155,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16413231
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15525595
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17305397
+  - url: https://zenodo.org/records/16413231
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4578581
+  - url: https://zenodo.org/records/15779328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7654336
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

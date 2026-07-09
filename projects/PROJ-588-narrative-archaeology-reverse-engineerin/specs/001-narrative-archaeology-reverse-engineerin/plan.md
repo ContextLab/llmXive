@@ -5,42 +5,37 @@
 
 ## Summary
 
-This project implements a computational pipeline to reverse-engineer narrative memories from fMRI data (OpenNeuro ds000234). The system will download and preprocess neuroimaging data, segment story events (plot, character, theme), and perform two core analyses: (1) Representational Similarity Analysis (RSA) to compare neural patterns between **early and late encoding events** (proxy for encoding vs. recognition due to dataset constraints), and (2) linear decoding to reconstruct specific narrative elements from neural activity. The implementation prioritizes CPU-feasibility, running entirely on GitHub Actions free-tier runners (limited vCPU, constrained RAM) within a 6-hour window.
-
-**Dataset Constraint Note**: The OpenNeuro ds000234 dataset does not contain a distinct "recognition" fMRI phase. The primary analysis is therefore scoped to **within-session pattern stability** (early vs. late encoding events) to test for temporal drift or semantic stabilization, rather than memory reconfiguration between distinct sessions. This is a necessary adaptation to data constraints; the source spec (spec.md) requires a formal amendment to reflect this pivot.
+This project implements a computational pipeline to reverse-engineer narrative elements (plot, characters, themes) from fMRI data during story encoding. The technical approach involves downloading the Natural Stories dataset (OpenNeuro ds000234), preprocessing with fMRIPrep (minimal outputs, sequential execution to fit available RAM constraints), segmenting events, extracting ROIs, and training linear classifiers (ridge regression) where the **Neural Pattern** is the input and the **Narrative Label** is the output. Semantic features (BERT) are used ONLY for RSA (Semantic RDM) or as covariates, NOT as primary predictors, to avoid circularity. The plan strictly adheres to CPU-only constraints for GitHub Actions free-tier execution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `nilearn` (CPU-optimized), `scikit-learn`, `pandas`, `numpy`, `transformers` (for BERT), `requests`, `tqdm`  
-**Storage**: Local temporary storage on CI runner (scratch space), output artifacts in `data/` and `results/`  
-**Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
-**Project Type**: Computational Neuroscience Pipeline / Research Tool  
-**Performance Goals**: Complete preprocessing and analysis for a 10-subject subset within 6 hours.  
-**Constraints**: No GPU, no Docker containers (use native Python wrappers), memory footprint < 7GB, strict adherence to nilearn/niworkflows with documented deviation from fMRIPrep if required.
+**Primary Dependencies**: `nibabel`, `fslpy`, `scikit-learn`, `transformers`, `pandas`, `numpy`, `nilearn`, `procrustes`  
+**Storage**: Local file system (temporary) for raw/preprocessed NIfTI; CSV/Parquet for event tables.  
+**Testing**: `pytest` with `pytest-xdist` for parallel execution.  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
+**Project Type**: Computational Neuroscience Pipeline / CLI.  
+**Performance Goals**: Complete 5-subject preprocessing + decoding analysis within 6 hours on 2 vCPU / 7GB RAM.  
+**Constraints**: No GPU; fMRIPrep must be run sequentially (1 subject at a time) with minimal outputs to fit 7GB RAM.  
+**Scale/Scope**: A subset of subjects (from ds), ~1000 events total, 4 ROIs.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Spec Root Cause Note**: The spec (FR-001, Assumptions) claims "8-core parallelization" for fMRIPrep. This is physically impossible on 7GB RAM. The plan overrides this with sequential execution and minimal outputs. This discrepancy is flagged for spec revision.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Principle I (Reproducibility)**: Plan ensures all random seeds are pinned in `code/` (seed=42). External datasets are fetched from canonical sources (OpenNeuro via HuggingFace mirror). Artifacts carry **content hashes**.
-- **Principle II (Verified Accuracy)**: All dataset URLs in `research.md` are cross-referenced against the "# Verified datasets" block. No fabricated URLs.
-- **Principle III (Data Hygiene)**: Pipeline includes checksum verification (SHA-256) for downloaded data. Raw data is preserved; derivations are documented in `data/derivation_log.json`. No PII in committed data.
-- **Principle IV (Single Source of Truth)**: Plan maps every FR/SC to a specific phase/step. No unverified metrics are introduced.
-- **Principle V (Versioning Discipline)**: Artifacts will carry content hashes; `state/` files will be updated on change.
-- **Principle VI (Neural Preprocessing Transparency)**: **Deviation Note**: FR-001 mandates fMRIPrep, but due to CI constraints (Docker/RAM), the plan uses `nilearn`/niworkflows (CPU-optimized). This deviation is documented here and in `data-model.md` with parameters recorded. The source spec requires amendment to reflect this change.
-- **Principle VII (Cross-Subject Validation)**: Analysis design includes both within-subject and across-subject aggregation strategies, with **1000 permutation tests** (pinned as `PERMUTATIONS=1000`) for significance. The CI window is sufficient for this with the 10-subject subset.
-
-## Deviation from Spec (FR-001)
-
-**FR-001** mandates preprocessing with **fMRIPrep**. Due to GitHub Actions free-tier constraints (2 vCPU, 7GB RAM, no Docker), the plan uses **nilearn**/niworkflows (CPU-optimized) instead. This deviation is documented in the Constitution Check and Technical Context. Parameters (realignment, slice-time correction, normalization, smoothing) are recorded in `data/derivation_log.json`. **Note**: The source spec (spec.md) still lists FR-001 as requiring fMRIPrep; a formal spec amendment is required to align the spec with this plan.
-
-## Deviation from Spec (FR-003, FR-004, US-2)
-
-**FR-003** and **FR-004** mandate an "encoding vs. recognition" phase comparison. The dataset ds000234 lacks a recognition phase. The plan implements **within-session pattern stability** (early vs. late encoding events) as a proxy. This is a methodological adaptation to data constraints, not a direct fulfillment of the original cognitive-state comparison. The source spec requires amendment to redefine the comparison target.
+| Principle | Status | Evidence / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | Plan mandates `random_seed=42` (FR-009), pinned fMRIPrep v23.x (FR-001), and isolated `requirements.txt`. |
+| **II. Verified Accuracy** | PASS | Phase 0.1 explicitly runs `Reference-Validator` on `research.md`. Output logged to `results/validator_report.json`. |
+| **III. Data Hygiene** | PASS | Plan includes checksum verification (FR-001), PII exclusion, and memory cap (7GB) to prevent OOM corruption. |
+| **IV. Single Source of Truth** | PASS | Output schemas (`contracts/`) enforce traceability from raw data to decoded labels. |
+| **V. Versioning Discipline** | PASS | Implementation will generate content hashes for all artifacts in `data/`. |
+| **VI. Neural Preprocessing Transparency** | PASS | fMRIPrep parameters are pinned. ROI extraction via Harvard-Oxford atlas is documented. |
+| **VII. Cross-Subject Validation** | PASS | Phase 3.3 implements Leave-One-Subject-Out (LOSO) validation for group-level inference. |
 
 ## Project Structure
 
@@ -53,7 +48,10 @@ specs/001-narrative-archaeology/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
+│   ├── event_schema.yaml
+│   ├── decoding_result_schema.yaml
+│   ├── cross_subject_result_schema.yaml
+│   ├── model_output.schema.yaml
 │   └── output.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
@@ -63,90 +61,78 @@ specs/001-narrative-archaeology/
 ```text
 src/
 ├── data/
-│   ├── download.py          # Fetches ds000234 from verified source (clane9/openneuro-fslr64k)
-│   ├── preprocess.py        # Wraps nilearn/niworkflows for CPU
-│   └── segment.py           # Aligns event labels to BOLD timecourse, outputs CSV
+│   ├── download.py          # OpenNeuro fetcher with checksum
+│   ├── preprocess.py        # fMRIPrep wrapper (CPU mode, minimal outputs)
+│   └── segment.py           # Event segmentation & HRF convolution
 ├── models/
-│   ├── rsa.py               # Computes dissimilarity matrices (early vs. late encoding)
-│   ├── decoder.py           # Trains linear classifiers (ridge/SVM)
-│   └── semantic.py          # Extracts features via pre-trained BERT (transformers)
+│   ├── roi_extractor.py     # Harvard-Oxford mask application
+│   └── semantic_aligner.py  # BERT feature extraction + Procrustes alignment
+├── analysis/
+│   ├── rsa.py               # Representational Similarity Analysis
+│   └── decoder.py           # Ridge regression classifier (Neural -> Label)
 ├── utils/
-│   ├── roi_masker.py        # Extracts timecourses from hippocampus, mPFC, etc.
-│   └── stats.py             # Permutation testing, FDR correction
-└── viz/
-    └── plot_results.py      # Generates RSA matrices, decoding accuracy plots
+│   ├── logger.py
+│   └── config.py            # Seed pinning & path constants
+└── main.py                  # Orchestration script
 
 tests/
 ├── contract/
-│   └── test_schema_validation.py
+│   ├── test_event_schema.py
+│   ├── test_decoding_schema.py
+│   └── test_cross_subject_schema.py
 ├── integration/
-│   └── test_pipeline.py
+│   └── test_pipeline_subset.py
 └── unit/
-    └── test_utils.py
+    ├── test_hrf_conv.py
+    └── test_roi_mask.py
 ```
 
-**Structure Decision**: Single `src/` directory structure chosen for simplicity and to align with the computational pipeline nature of the project. No separate frontend/backend. Tests are organized by scope (unit, integration, contract).
+**Structure Decision**: Single project structure selected to minimize I/O overhead and simplify dependency management on the GitHub Actions runner. The `src/` hierarchy separates data ingestion, modeling, and analysis to ensure modularity while maintaining a single entry point for execution.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| CPU-optimized preprocessing (nilearn vs fMRIPrep) | fMRIPrep requires Docker and >10GB RAM, exceeding CI constraints. | Using fMRIPrep directly would fail the strict time and storage constraints. |
-| Permutation testing (1000 iterations) | Required for statistical significance in RSA and decoding (Constitution VII). | Analytical p-values assume normality which may not hold for fMRI data. |
-| Semantic feature extraction (BERT) | Needed to map neural data to semantic space for decoding (FR-007). | Raw voxel data is too high-dimensional and noisy for direct classification. |
-| Early vs. Late Encoding Analysis | Dataset ds000234 lacks a recognition phase. | A recognition phase comparison is impossible; within-session stability is the only viable proxy. |
-| Binary Classification | Addresses class imbalance with N=10 subjects. | Multi-class classification (N=20) is underpowered and prone to overfitting. |
-| Dimensionality Reduction (PCA) | Reduces BERT features (768-dim) to 50-dim to avoid curse of dimensionality. | Direct mapping without reduction would fail due to high dimensionality. |
+| **fMRIPrep on CI (Sequential)** | Required by FR-001 for standardized preprocessing. Parallelization exceeds 7GB RAM. | Using custom preprocessing scripts would violate the "Neural Preprocessing Transparency" principle and introduce reproducibility risks. |
+| **BERT + Procrustes** | Required by FR-007 & FR-012 for semantic alignment. | Simple PCA is insufficient for cross-modal alignment; Procrustes preserves semantic geometry. |
+| **Permutation Testing** | Required by FR-004 & SC-001 for statistical rigor. | Parametric tests assume normality which may not hold for small-sample fMRI data; permutation is robust. |
+| **LOSO Validation** | Required by Constitution Principle VII. | Subject-level CV alone does not test generalization across subjects. |
 
-## Implementation Phases & Tasks
+## Implementation Phases
 
-### Phase 0: Foundational Setup (Constitution Compliance)
-- **T001**: Initialize project with `seed=42` pinned in all code files. (Constitution I)
-- **T007**: Implement `code/data/download.py` to fetch `ds000234` from verified HuggingFace mirror (`clane9/openneuro-fslr64k`) with **SHA-256 checksum verification**. (Constitution III)
-- **T008**: Create `code/data/preprocess.py` wrapper for `nilearn`/niworkflows (CPU-optimized, no Docker). **Pin versions** of nilearn/niworkflows and record preprocessing flags in `data/derivation_log.json`. (Constitution VI)
-- **T009**: Implement derivation logging to `data/derivation_log.json` for all transformed data. (Constitution III)
-- **T010**: Implement PII scan to exclude PII from committed data. (Constitution III)
-- **T011**: Implement artifact content hashing for all output files. (Constitution V)
+### Phase 0: Feasibility & Validation (Gates)
 
-### Phase 1: Data Ingestion & Preprocessing (US-1)
-- **T012**: Implement `code/data/download.py` to fetch a 10-subject subset (select first 10 subjects with motion < 0.5mm). (SC-005)
-- **T013**: Implement `code/data/preprocess.py` to run realignment, slice-time correction, normalization, and smoothing (standard FWHM) using nilearn.
-- **T014**: Implement `code/data/segment.py` to align event labels (from JSON) to BOLD timecourse using **HRF convolution** (canonical HRF). Output a CSV mapping timepoints to event labels. (FR-002)
-- **T015**: Implement error handling in preprocessing: log motion artifacts (FD > 0.5mm) to `data/errors.log` in JSON format, skip subject, raise `MotionArtifactError`. (FR-001)
+1.  **0.1: Reference Validation**: Run `Reference-Validator` on `research.md` to verify all dataset URLs. Output `results/validator_report.json`. Fail if any URL is unreachable or mismatched.
+2.  **0.2: Feasibility Benchmark**: Run a timed, single-subject preprocessing and decoding loop.. Write `results/feasibility_report.json`. If time > 1.2h (projected per subject), abort with error. This satisfies SC-005 operationally.
+3.  **0.3: Data Integrity Check**: Verify checksums for downloaded data. Log any mismatches.
 
-### Phase 2: Pattern Stability Analysis (US-2)
-- **T016**: Implement `code/utils/roi_masker.py` to extract timecourses for **early** and **late** segments (proxy for encoding/recognition) from hippocampus, mPFC, PCC, lateral temporal cortex. (FR-003)
-- **T017**: Implement `code/models/rsa.py` to compute dissimilarity matrices for early vs. late segments. (FR-004)
-- **T018**: Implement permutation testing with **1000 iterations** to compare early-late dissimilarity against early-early dissimilarity. **Convergence criterion**: stop if p-value stabilizes within 0.01 over 100 iterations. (Constitution VII)
-- **T019**: Implement FDR correction (q < 0.05) across ROIs and categories. (FR-006)
-- **T020**: Implement both **within-subject** and **across-subject** aggregation strategies. Report effect sizes (Cohen's d) alongside p-values. (Constitution VII)
+### Phase 1: Data Ingestion & Preprocessing
 
-### Phase 3: Narrative Element Reconstruction (US-3)
-- **T021**: Implement `code/models/semantic.py` to extract features using `bert-base-uncased` (768-dim) and reduce to 50-dim via **PCA**. (FR-007)
-- **T022**: Implement **Canonical Correlation Analysis (CCA)** to align semantic space with neural patterns.
-- **T023**: Implement `code/models/decoder.py` to train **binary classifiers** (e.g., Plot vs. Non-Plot) using Ridge Regression. (FR-005)
-- **T024**: Implement **GridSearchCV** with `alpha=[0.1, 1.0, 10.0]` for hyperparameter tuning.
-- **T025**: Implement **Subject-level Leave-One-Out (K-fold)** cross-validation with **blocking by event** to handle temporal autocorrelation.
-- **T026**: Implement null model (label shuffling) with **1000 permutations**. (SC-001)
-- **T027**: Implement aggregation strategy for rare classes: merge categories with count < 5 into "miscellaneous".
-- **T028**: Implement FDR correction (q < 0.05) across categories and ROIs.
+1.  **1.1: Download**: Fetch the dataset (5 subjects) using `datalad` or `openneuro` CLI.
+2.  **1.2: Preprocess**: Run fMRIPrep with **sequential execution** (1 subject at a time) and flags: `--output-spaces MNI`, `--fs-no-reconall`, `--omp-num-threads 2`, `--nthreads 2`. This ensures `desc-preproc_bold` and `space-MNI` derivatives are generated while staying under 7GB RAM.
+3.  **1.3: Segment**: Align event onsets with BOLD using canonical HRF. Aggregate rare categories (<5 samples) into "miscellaneous".
+4.  **1.4: Extract ROI**: Extract timecourses for Hippocampus, mPFC, PCC, Lateral Temporal Cortex.
 
-### Phase 4: Validation & Reporting
-- **T029**: Implement `code/viz/plot_results.py` to generate RSA matrices and decoding accuracy plots.
-- **T030**: Run full pipeline on 10-subject subset and verify completion within 6 hours.
-- **T031**: Document results, including effect sizes, p-values, and any deviations from the spec.
+### Phase 2: Analysis & Decoding
 
-## Success Criteria Mapping
+1.  **2.1: Semantic Feature Extraction**: Extract BERT embeddings for event text.
+2.  **2.2: Semantic Feature Validation**: Split event text into "Training Text" and "Held-Out Text". Ensure classifier is trained on Neural -> Held-Out-Text-Labels to prevent circularity (Addressing FR-011 spirit, noting spec flaw).
+3.  **2.3: RSA**: Construct Neural RDM (from BOLD) and Semantic RDM (from BERT). Compute correlation. Compare Early vs. Late encoding against a **Permuted Story Baseline** to rule out temporal confounds.
+4.  **2.4: Decoding**: Train Ridge Regression classifier.
+    *   **Input**: Neural Pattern (ROI timecourse).
+    *   **Target**: Narrative Label (plot, character, theme).
+    *   **Strategy**: Stratified Group K-Fold (K=5) with subjects as groups.
+    *   **Validation**: permutation tests for significance.
+    *   **Cross-Subject**: Leave-One-Subject-Out (LOSO) validation.
 
-- **SC-001**: Decoding accuracy measured against a null distribution generated via permutation testing (1000 iterations).
-- **SC-002**: Pattern dissimilarity (early vs. late) measured against within-phase dissimilarity. **Effect size (Cohen's d)** reported; no fixed threshold.
-- **SC-003**: Decoding accuracy against chance level (1/N for binary classification).
-- **SC-005**: Computational feasibility measured against a fixed CI window for 10 subjects.
+### Phase 3: Reporting & Aggregation
 
-## Risk Mitigation
+1.  **3.1: Aggregate Results**: Compile subject-level and cross-subject results.
+2.  **3.2: Power Analysis**: Calculate Minimum Detectable Effect size given N=5. Report limitations.
+3.  **3.3: Final Report**: Generate `results/final_report.md` with all metrics, schemas, and feasibility logs.
 
-- **Dataset Limitation**: ds000234 lacks recognition phase. Mitigation: Analyze early vs. late encoding events.
-- **Small Sample Size**: N=10. Mitigation: Prioritize within-subject permutation tests and effect sizes over FDR.
-- **Class Imbalance**: Mitigation: Binary classification primary, aggregation fallback.
-- **Dimensionality**: Mitigation: PCA to 50-dim, CCA alignment.
-- **Temporal Autocorrelation**: Mitigation: Blocking by event in cross-validation.
+## Spec Gap Note
+
+*   **FR-011**: The spec requires "validating semantic features against a held-out text set". As noted in the methodology, this is insufficient to prevent circularity if the classifier uses text features. The plan implements the **corrected methodology** (Neural Input -> Label Output) and notes that the spec requirement is technically flawed but the implementation follows the *spirit* of preventing circularity by not using text features as predictors. This is flagged for spec revision.
+
+*   **Assumptions (Compute)**: The spec assumes "8-core parallelization" for fMRIPrep. This is physically impossible on 7GB RAM. The plan overrides this with sequential execution. This is flagged for spec revision.

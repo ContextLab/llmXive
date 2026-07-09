@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 120
+exclude = .git,__pycache__,build,dist,.eggs
+ignore = E203,W503
+per-file-ignores =
+    # Allow longer lines in docstrings
+    code/config.py:D100,D101
+extend-ignore = E203,W503

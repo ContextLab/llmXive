@@ -1,69 +1,63 @@
-# Quickstart: Narrative Archaeology
+# Quickstart: Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to GitHub Actions (for CI execution)
-- Internet connection (for dataset download)
+- Docker (required for fMRIPrep)
+- `datalad` (optional, for data fetching)
+- GitHub Actions Runner (for execution)
 
 ## Installation
 
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+1. Clone the repository.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
+## Data Fetching
+
+Run the data download script to fetch the 5-subject subset of ds000234:
+
+```bash
+python src/data/download.py --dataset ds000234 --subjects 5 --output data/raw
 ```
+
+*Note: This step requires internet access and may take 10-20 minutes.*
 
 ## Running the Pipeline
 
-### 1. Download Data
-```bash
-python src/data/download.py
-```
-This script fetches the Natural Stories dataset from the verified HuggingFace repository and stores it in `data/raw/`.
-
-### 2. Preprocess Data
-```bash
-python src/data/preprocess.py --subjects 10
-```
-This script runs nilearn/niworkflows preprocessing on a subject subset.
-
-### 3. Segment Events
-```bash
-python src/data/segment.py
-```
-Aligns event labels to the BOLD timecourse.
-
-### 4. Run RSA Analysis
-```bash
-python src/models/rsa.py
-```
-Computes dissimilarity matrices and performs permutation testing.
-
-### 5. Run Decoding Analysis
-```bash
-python src/models/decoder.py
-```
-Trains linear classifiers and evaluates accuracy.
-
-### 6. Visualize Results
-```bash
-python src/viz/plot_results.py
-```
-Generates plots of RSA matrices and decoding accuracy.
-
-## Testing
+Execute the full analysis pipeline on the 5-subject subset:
 
 ```bash
-pytest tests/
+python src/main.py --mode full --subjects 5
 ```
 
-## Notes
+This will:
+1. Preprocess data with fMRIPrep.
+2. Segment events and align with HRF.
+3. Extract ROIs.
+4. Run RSA analysis.
+5. Train decoding models.
+6. Output results to `results/`.
 
-- The pipeline is designed to run on GitHub Actions free-tier (limited vCPU and RAM).
-- Random seeds are pinned for reproducibility.
-- All data artifacts are checksummed.
+## Verification
+
+To verify the pipeline on a minimal subset (2 subjects):
+
+```bash
+python src/main.py --mode full --subjects 2 --verify
+```
+
+Check `logs/` for motion artifact logs and `data/` for checksum files.
+
+## Troubleshooting
+
+- **OOM Error**: Reduce `--workers` in `main.py` to 1.
+- **fMRIPrep Fail**: Check `logs/fmriprep/` for specific error codes.
+- **Missing Labels**: Ensure `events.tsv` matches the BOLD timecourse length.

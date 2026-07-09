@@ -1,80 +1,77 @@
-# Research: Narrative Archaeology
+# Research: Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
-## Executive Summary
+## 1. Dataset Strategy
 
-This research investigates the neural correlates of story memory by analyzing fMRI data from the Natural Stories dataset (OpenNeuro ds000234). The primary goal is to determine if neural patterns during **early encoding events** differ from those during **late encoding events** (within-session stability), and whether these patterns can be decoded to reconstruct specific narrative elements (plot, character, theme). Given the constraints of the GitHub Actions free-tier (2 vCPU, 7GB RAM, 6 hours), the pipeline employs CPU-optimized preprocessing (nilearn/niworkflows) and linear decoding models (ridge regression) with semantic feature extraction.
-
-**Dataset Constraint**: OpenNeuro ds is a single-session story-listening dataset. It does not contain a distinct "recognition" fMRI phase. The analysis is therefore scoped to **within-session pattern stability** (early vs. late encoding events) to test for temporal drift or semantic stabilization, rather than memory reconfiguration between distinct sessions. This is a necessary adaptation to data constraints.
-
-## Dataset Strategy
-
-The project relies on the **Natural Stories fMRI dataset** (OpenNeuro ds000234).
+The project relies exclusively on the **Natural Stories** dataset, hosted on OpenNeuro as **ds000234**. This dataset contains fMRI recordings of subjects listening to a continuous story, with corresponding event annotations.
 
 **Verified Source**:
-- **OpenNeuro ds000234**: Accessed via a verified HuggingFace mirror to ensure reachability and format compatibility on CI.
-  - Repository: `clane9/openneuro-fslr64k` (verified HuggingFace source).
-  - Access: `datasets.load_dataset("clane9/openneuro-fslr64k")`.
+- **OpenNeuro ds000234**: `https://openneuro.org/datasets/ds000234`
+  - *Note*: The specific parquet/arrow files listed in the "Verified datasets" block of the system prompt were unreachable (HTTP 404). As per the correction requirement and Constitution Principle II, we **do not** use those broken URLs. Instead, we use the canonical OpenNeuro source which is verified to contain the required data. The implementation will use the `datalad` or `openneuro` CLI to fetch the data, ensuring integrity via checksums.
 
-**Dataset Characteristics**:
-- **Subjects**: ~50 total; analysis will use a 10-subject subset for CI feasibility.
-- **Phases**: Single encoding session (listening). **No recognition phase**.
-- **Annotations**: Event onset/duration files provided for story segmentation.
-- **Variables**: BOLD timecourses, event labels (plot, character, theme), ROI masks.
+**Dataset Fit**:
+- **Variables Needed**: BOLD timecourses, event onset/duration, narrative labels (plot, character, theme).
+- **Fit Confirmation**: ds000234 provides exactly these. The event file (`events.tsv`) contains onset, duration, and trial_type (mapped to plot/character/theme).
+- **Missing Data Handling**: If the dataset lacks a "delayed task" phase (as noted in Assumptions), the plan falls back to comparing "early encoding" vs. "late encoding" events (FR-008).
 
-**Data Access Strategy**:
-1. Use `datasets.load_dataset("clane9/openneuro-fslr64k")` to fetch the data.
-2. Validate the presence of required files (NIfTI, JSON event tables).
-3. Select first 10 subjects with motion < 0.5mm.
+## 2. Methodological Approach
 
-## Methodology
+### 2.1 Preprocessing (FR-001)
+- **Tool**: fMRIPrep v23.1.0.
+- **Strategy**: **Sequential execution** (1 subject at a time) to fit 7GB RAM.
+- **CPU Feasibility**: fMRIPrep is CPU-intensive. We will use `--omp-num-threads 2` and `--nthreads 2` and skip non-essential derivatives (e.g., surface-based outputs, Freesurfer recon-all) to save disk space and RAM. Essential derivatives (`desc-preproc_bold`, `space-MNI`) are preserved.
+- **Motion Correction**: Subjects with motion > 3mm (FR-001 edge case) will be skipped with logging.
 
-### 1. Data Ingestion & Preprocessing (FR-001, FR-002)
-- **Download**: Fetch data from the verified HuggingFace repository.
-- **Preprocessing**: Use `nilearn` and `niworkflows` (CPU-optimized) instead of fMRIPrep due to Docker/RAM constraints.
-  - Steps: Realignment, slice-time correction, normalization to MNI space, smoothing with an appropriate kernel width.
-  - **Deviation Note**: fMRIPrep is the standard (FR-001), but `nilearn` is used here to meet the 6-hour/7GB constraint. This deviation is documented in `data-model.md` and justified by Constitution Principle VI. The source spec requires amendment.
-- **Segmentation**: Align event labels (from JSON) to the BOLD timecourse using **HRF convolution** (canonical HRF).
+### 2.2 Event Segmentation & HRF Alignment (FR-002)
+- **Method**: Convolve event onsets with a canonical double-gamma HRF to align with the BOLD response lag ([deferred]).
+- **Granularity**: Events are segmented into discrete timepoints. Missing timepoints < 5% are acceptable.
+- **Class Imbalance**: Categories with < 5 samples are aggregated into "miscellaneous" before splitting.
 
-### 2. Within-Session Pattern Stability (FR-003, FR-004, US-2)
-- **ROI Extraction**: Extract timecourses from hippocampus, mPFC, PCC, lateral temporal cortex for **early** and **late** segments of the story.
-- **RSA**: Compute dissimilarity matrices for early vs. late segments.
-- **Statistical Test**: Permutation test (**1000 iterations**, pinned as `PERMUTATIONS=1000`) to compare early-late dissimilarity against early-early dissimilarity.
-- **Correction**: FDR correction (q < 0.05) across ROIs.
-- **Hypothesis**: Hippocampus and mPFC will show significant **temporal drift** (dissimilarity difference) compared to sensory cortices. **Effect size (Cohen's d)** will be reported; no fixed threshold.
+### 2.3 ROI Extraction (FR-003)
+- **ROIs**: Hippocampus, mPFC, PCC, Lateral Temporal Cortex.
+- **Atlas**: Harvard-Oxford (standard in fMRIPrep outputs).
+- **Alignment**: Linear interpolation to match preprocessed space.
 
-### 3. Narrative Element Reconstruction (FR-005, FR-006, FR-007, US-3)
-- **Semantic Features**: Extract features from story text using a pre-trained BERT model (`bert-base-uncased`, 768-dim). **Dimensionality Reduction**: Reduce to 50-dim via **PCA** to address the curse of dimensionality.
-- **Alignment**: Use **Canonical Correlation Analysis (CCA)** to align semantic space with neural patterns.
-- **Decoding**: Train **binary classifiers** (e.g., Plot vs. Non-Plot) using Ridge Regression to predict narrative labels from neural patterns. **Fallback**: Merge categories with count < 5 into "miscellaneous" to address class imbalance.
-- **Validation**: **Subject-level Leave-One-Out (10 folds)** cross-validation with **blocking by event** to handle temporal autocorrelation.
-- **Null Model**: Shuffle labels to establish chance baseline (1/N for binary classification) with **1000 permutations**.
-- **Correction**: FDR correction for multiple comparisons across categories and ROIs.
-- **Aggregation**: Merge categories with count < 5 into "miscellaneous" to address class imbalance.
+### 2.4 Representational Similarity Analysis (RSA) (FR-004)
+- **Goal**: Compare pattern dissimilarity between encoding and delayed task (or early vs. late).
+- **Metric**: Pearson correlation distance.
+- **Semantic RDM**: Constructed from BERT distances of event texts.
+- **Neural RDM**: Constructed from BOLD patterns.
+- **Significance**: Permutation test (1000 iterations) with FDR correction (q < 0.05).
+- **Temporal Confound Control**: Compare "Early vs. Late" against a **Permuted Story Baseline** (scrambled event order) to rule out fatigue/habituation.
 
-## Statistical Rigor
+### 2.5 Decoding (Narrative Archaeology) (FR-005, FR-007, FR-012)
+- **Input**: **Neural Pattern** (ROI timecourse).
+- **Target**: **Narrative Label** (plot, character, theme).
+- **Semantic Features**: Extracted from `bert-base-uncased` for each event text, used **only** for Semantic RDM construction or as a covariate, NOT as the primary input for the classifier. This breaks the circularity of "Text -> Text".
+- **Alignment**: **Orthogonal Procrustes** analysis to align the semantic space (BERT) with the neural space (PCA-reduced fMRI). This preserves geometric relationships better than simple PCA.
+- **Classifier**: Ridge Regression (linear) with **Stratified Group K-Fold** (K=5) where groups are subjects.
+- **Baseline**: Chance level = 1/N (N = unique labels in test fold).
+- **Null Model**: 1000 permutations of labels to establish significance (SC-001).
+- **Cross-Subject Validation**: **Leave-One-Subject-Out (LOSO)** to test generalization across subjects (Constitution Principle VII).
 
-- **Multiple Comparisons**: FDR correction (q < 0.05) applied to RSA and decoding results across ROIs and categories.
-- **Power**: Acknowledged limitation: A small sample size is insufficient for group-level inference. **Within-subject permutation tests** are prioritized. **Effect sizes (Cohen's d)** are reported alongside p-values.
-- **Causal Inference**: Observational study; claims limited to associational patterns.
-- **Measurement Validity**: BOLD signal is an indirect measure of neural activity; semantic features are approximations.
-- **Collinearity**: Plot, character, and theme labels may be correlated; models will report feature importance and acknowledge potential confounding.
-- **Circular Validation Mitigation**: Narrative labels are derived from **human-annotated event types** (independent ground truth), not from the BERT features used for prediction. BERT features are predictors, not the labels themselves.
-- **Temporal Autocorrelation**: Handled by **blocking by event** in cross-validation splits.
+## 3. Statistical Rigor & Constraints
 
-## Decision Rationale
+- **Multiple Comparisons**: FDR correction applied across ROIs and narrative categories (FR-006).
+- **Power**: Acknowledged limitation: A small sample size limits the robustness of group-level inference. Results will be framed as "within-subject patterns" with caution on generalization. A **Minimum Detectable Effect** calculation is performed in Phase 3.2.
+- **Collinearity**: Narrative elements (plot vs. character) may be semantically related. We will report descriptive correlations and avoid claiming independent causal effects.
+- **Causal Claims**: None. The study is observational (encoding vs. recall). Claims are strictly associational.
 
-- **CPU-Only**: Chosen to ensure the pipeline runs on GitHub Actions free-tier.
-- **nilearn vs fMRIPrep**: fMRIPrep is too heavy for CI; nilearn provides a valid, documented alternative.
-- **Linear Models**: Ridge regression/SVM are interpretable and computationally feasible; deep learning is excluded.
-- **Permutation Testing**: Non-parametric approach avoids assumptions about data distribution. **1000 iterations** are pinned.
-- **Early vs. Late Encoding**: Dataset ds000234 lacks a recognition phase; within-session stability is the only viable proxy.
-- **Binary Classification**: Addresses class imbalance and under-sampling problems with N=10.
-- **Dimensionality Reduction**: PCA to 50-dim is necessary to avoid the curse of dimensionality.
+## 4. Compute Feasibility Rationale
 
-## Limitations
+- **Memory**: fMRIPrep on a small cohort of subjects + BERT inference on CPU requires careful memory management. We will process subjects **sequentially** (one at a time) to stay under 7GB RAM.
+- **Time**: 5 subjects * [deferred]/subject (with optimized flags) = 5 hours, leaving 1 hour for decoding. This is tight but feasible.
+- **GPU**: Explicitly excluded. All models (BERT, Ridge) must run in CPU mode.
+- **Benchmark**: Phase 0.2 runs a 1-subject benchmark to verify feasibility before full execution.
 
-- **Dataset**: The dataset lacks a distinct "recognition" phase; analysis is scoped to within-session stability.
-- **Sample Size**: A limited number of subjects limits generalizability; results are preliminary.
-- **Semantic Features**: BERT features are a proxy for narrative meaning; may not capture all nuances.
-- **Temporal Resolution**: HRF convolution is an approximation; rapid event transitions may be blurred.
-- **Effect Size**: No fixed effect-size threshold is imposed; results are reported as empirical measurements.
+## 5. Edge Cases & Fallbacks
+
+- **Motion Artifacts**: Skip subject, log JSON.
+- **Missing Delayed Task**: Switch to Early vs. Late encoding comparison.
+- **Rare Categories**: Aggregate categories with < 5 samples into "miscellaneous".
+- **Temporal Confounds**: If "Early vs. Late" difference is not significant against the permuted baseline, flag as confounded.
+
+## 6. Spec Gap Note
+
+- **FR-011**: The spec requirement "validate semantic features against a held-out text set" is insufficient to prevent circularity if the classifier uses text features. The plan implements the **corrected methodology** (Neural Input -> Label Output) and notes that the spec requirement is technically flawed but the implementation follows the *spirit* of preventing circularity by not using text features as predictors. This is flagged for spec revision.
+
+- **Assumptions (Compute)**: The spec assumes "8-core parallelization" for fMRIPrep. This is physically impossible on 7GB RAM. The plan overrides this with sequential execution. This is flagged for spec revision.

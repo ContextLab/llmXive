@@ -1,60 +1,50 @@
-# Data Model: Narrative Archaeology
+# Data Model: Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
-## Overview
+## 1. Overview
 
-This document defines the data structures, schemas, and transformations used in the Narrative Archaeology pipeline. All data artifacts are checksummed and stored in `data/` or `results/`.
+This document defines the data structures and schemas used throughout the pipeline. All data flows from raw NIfTI files to derived CSV/Parquet tables, adhering to the "Data Hygiene" principle (no in-place modifications).
 
-## Entities
+## 2. Core Entities
 
-### NeuralPattern
-- **Description**: A vector representing the BOLD signal amplitude across voxels in a specific ROI at a specific timepoint.
-- **Attributes**:
-  - `subject_id`: str
-  - `phase`: str ("early_encoding" or "late_encoding")
-  - `roi`: str ("hippocampus", "mPFC", "PCC", "lateral_temporal")
-  - `timepoints`: list[float]
-  - `event_labels`: list[str]
+### 2.1 NeuralPattern
+- **Definition**: A vector of BOLD signal amplitudes across voxels in a specific ROI at a specific timepoint.
+- **Source**: Derived from preprocessed NIfTI files via ROI masking.
+- **Shape**: `[n_voxels, n_timepoints]` per subject per ROI.
+- **Contract**: `dataset.schema.yaml` (subset: timepoints, event_labels).
 
-### NarrativeEvent
-- **Description**: A discrete unit of the story defined by its type, timestamp, and semantic content.
-- **Attributes**:
-  - `event_id`: str
-  - `type`: str ("plot", "character", "theme")
-  - `onset`: float (seconds)
-  - `duration`: float (seconds)
-  - `semantic_features`: list[float] (from BERT)
+### 2.2 NarrativeEvent
+- **Definition**: A discrete unit of the story defined by type, timestamp, and semantic content.
+- **Source**: `events.tsv` from OpenNeuro ds000234.
+- **Attributes**: `onset`, `duration`, `trial_type`, `text_content`.
+- **Contract**: `event_schema.yaml`.
 
-### DecodingModel
-- **Description**: A trained linear classifier mapping semantic features to narrative labels.
-- **Attributes**:
-  - `model_type`: str ("ridge", "svm")
-  - `weights`: list[float]
-  - `accuracy`: float
-  - `chance_level`: float
-  - `p_value`: float
+### 2.3 DecodingModel
+- **Definition**: A trained linear classifier mapping **Neural Patterns** to narrative labels.
+- **Attributes**: `weights`, `bias`, `accuracy`, `cross_validation_folds`.
+- **Input**: Neural Pattern (ROI timecourse).
+- **Target**: Narrative Label.
+- **Contract**: `decoding_result_schema.yaml`, `model_output.schema.yaml`.
 
-## Data Flow
+## 3. Data Flow
 
-1. **Raw Data**: Downloaded from OpenNeuro (via HuggingFace).
-2. **Preprocessed Data**: NIfTI files after realignment, normalization, smoothing.
-3. **Segmented Data**: CSV mapping timepoints to event labels (output of `segment.py`).
-4. **ROI Timecourses**: Extracted from preprocessed data for specific ROIs.
-5. **Semantic Features**: Extracted from story text using BERT.
-6. **Decoding Results**: Accuracy metrics, weights, p-values.
+1. **Raw**: `sub-XX/ses-XX/func/sub-XX_ses-XX_task-story_bold.nii.gz`
+2. **Preprocessed**: `derivatives/fmriprep/sub-XX/func/sub-XX_ses-XX_task-story_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz`
+3. **Segmented**: `data/segmented_events.csv` (aligned with BOLD timecourse)
+4. **Extracted**: `data/roi_timecourses/{roi}_{subject}.csv`
+5. **Semantic**: `data/semantic_features/{subject}.parquet` (used for RSA/covariates only)
+6. **Results**: `results/decoding_accuracy.csv`, `results/rsa_dissimilarity.csv`, `results/cross_subject_results.csv`
 
-## Schema Definitions
+## 4. Schema Mapping
 
-### Dataset Schema
-- **Input**: Raw NIfTI, JSON event files.
-- **Output**: Preprocessed NIfTI, segmented CSV.
+| Data Model Entity | Contract Schema File | Description |
+| :--- | :--- | :--- |
+| **NeuralPattern** | `dataset.schema.yaml` | Defines the structure of preprocessed fMRI data and event alignment. |
+| **NarrativeEvent** | `event_schema.yaml` | Defines the structure of segmented narrative events. |
+| **DecodingModel** | `decoding_result_schema.yaml`, `model_output.schema.yaml` | Defines the structure of decoding results and model outputs. |
+| **Cross-Subject Result** | `cross_subject_result_schema.yaml` | Defines the structure of LOSO validation metrics. |
 
-### Output Schema
-- **RSA Results**: JSON with dissimilarity matrices, p-values.
-- **Decoding Results**: JSON with accuracy, chance level, p-values per category.
+## 5. Schema Constraints
 
-## Transformation Rules
-
-- **HRF Convolution**: Event labels convolved with HRF to align with BOLD signal.
-- **ROI Masking**: Timecourses extracted using standard MNI masks.
-- **Normalization**: Z-score normalization per subject per ROI.
-- **Permutation**: Labels shuffled repeatedly to generate null distribution.
+- **Checksums**: All raw data files must have a corresponding `.sha256` file.
+- **PII**: No raw text containing PII is stored; only anonymized event labels are used.
+- **Versioning**: All derived files include a `version` field matching the code hash.

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Decoding Result Schema"
+description: "Schema for decoding model performance metrics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'ridge_regression')."
+  roi:
+    type: "string"
+    description: "Region of Interest (e.g., 'hippocampus')."
+  trial_type:
+    type: "string"
+    description: "Target narrative element (e.g., 'plot')."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Cross-validated accuracy."
+  chance_level:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Expected accuracy by chance (1/N)."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Significance p-value from permutation test."
+  fdr_corrected:
+    type: "boolean"
+    description: "Whether FDR correction was applied."
+required:
+  - subject_id
+  - model_type
+  - roi
+  - trial_type
+  - accuracy
+  - chance_level
+  - p_value
+  - fdr_corrected
+additionalProperties: false

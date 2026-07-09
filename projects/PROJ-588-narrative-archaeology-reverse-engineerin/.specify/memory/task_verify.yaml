@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan: 2
+T002 Initialize Python 3.11 project with dependencies (nilearn, scikit-learn, transformers, pandas, numpy, openneuro-cli): 2
+T003 [P] Configure linting (flake8/black) and formatting tools: 2
+T004 [P] Implement `code/config.py` with pinned random seeds, CPU-only constraints, and path definitions: 2
+T005 [P] Create `code/utils/stats.py` for permutation testing and FDR correction logic: 2
+T009 [P] Implement error handling infrastructure (skip subject on motion artifacts, log errors): 1
