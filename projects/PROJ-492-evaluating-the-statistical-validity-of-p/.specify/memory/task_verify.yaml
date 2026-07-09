@@ -277,12 +277,6 @@
 : 1
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
-  \ summaries. (binary AND continuous outcomes) **and verify both outcome types are\
-  \ present** (constraint\u2011preservation\u20112958f04c) (verify files are created\
-  \ and contain \u2265\u202F10\u202F000 records). **DEPENDS ON:** T006\u2011T012."
-: 1
-? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
-  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_0f3274c0 \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
@@ -305,6 +299,13 @@
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries. [UNRESOLVED-CLAIM: c_268da5ca \u2014 status=not_enough_info] (binary\
+  \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
+  preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
+  000 records). **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
+  030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
+  \ summaries. [UNRESOLVED-CLAIM: c_3c47fb2d \u2014 status=not_enough_info] (binary\
   \ AND continuous outcomes) **and verify both outcome types are present** (constraint\u2011\
   preservation\u20112958f04c) (verify files are created and contain \u2265\u202F10\u202F\
   000 records). **DEPENDS ON:** T006\u2011T012."
@@ -425,6 +426,15 @@
   \ status=not_enough_info] ** (constraint\u2011preservation\u2011ba913176) (verify\
   \ JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:**\
   \ T010."
+: 1
+? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
+  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
+  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
+  \ {{claim:c_21f3e400}} (2510.17487 [UNRESOLVED-CLAIM: c_7b072e4a \u2014 status=not_enough_info],\
+  \ https://arxiv.org/abs/2510.17487 [UNRESOLVED-CLAIM: c_7b072e4a \u2014 status=not_enough_info])\
+  \ ** (constraint\u2011preservation\u2011ba913176) (verify JSON file exists, contains\
+  \ numeric N, and satisfies condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified\
+  \ -->"
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
