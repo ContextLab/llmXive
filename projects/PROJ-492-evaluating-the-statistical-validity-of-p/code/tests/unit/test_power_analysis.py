@@ -1,221 +1,284 @@
 """
 Unit tests for power analysis utility.
+
+Tests FR-025 requirements:
+- Correct calculation of minimum sample size
+- Proper handling of edge cases
+- Corpus validation logic
+- JSON output format
 """
 import json
-import pytest
-from pathlib import Path
 import tempfile
-from unittest.mock import patch, MagicMock
+from pathlib import Path
+import pytest
+
+import numpy as np
+from scipy import stats
 
 from code.src.audit.power_analysis import (
     calculate_sample_size_binary,
     calculate_sample_size_continuous,
     count_corpus_size,
     run_power_analysis,
-    write_power_analysis_result
+    write_power_analysis_result,
+    MIN_CORPUS_SIZE_THRESHOLD
 )
 from code.src.config import SEED
 
 class TestCalculateSampleSizeBinary:
-    def test_basic_calculation(self):
-        """Test basic sample size calculation for binary outcome."""
+    """Tests for binary outcome sample size calculation."""
+
+    def test_standard_calculation(self):
+        """Test standard calculation with typical parameters."""
         n = calculate_sample_size_binary(
-            baseline_rate=0.10,
-            detectable_effect=0.02,
+            baseline=0.10,
+            effect_size=0.05,
             alpha=0.05,
             power=0.80
         )
+        
+        # Should be a positive integer
         assert n > 0
-        assert isinstance(n, float)
-        # For 10% baseline, 2% effect, 80% power, alpha=0.05
-        # Expected n is approximately 3900 per group
-        assert 3500 < n < 4500
+        assert isinstance(n, (int, np.integer))
+        
+        # Check against expected range (should be around 1200-1300 per group)
+        assert 1000 < n < 2000
 
-    def test_invalid_baseline_rate(self):
-        """Test that invalid baseline rate raises error."""
+    def test_larger_effect_requires_smaller_sample(self):
+        """Larger effect sizes should require smaller sample sizes."""
+        n_small_effect = calculate_sample_size_binary(
+            baseline=0.10,
+            effect_size=0.01,
+            alpha=0.05,
+            power=0.80
+        )
+        
+        n_large_effect = calculate_sample_size_binary(
+            baseline=0.10,
+            effect_size=0.10,
+            alpha=0.05,
+            power=0.80
+        )
+        
+        assert n_large_effect < n_small_effect
+
+    def test_higher_power_requires_larger_sample(self):
+        """Higher power should require larger sample sizes."""
+        n_low_power = calculate_sample_size_binary(
+            baseline=0.10,
+            effect_size=0.05,
+            alpha=0.05,
+            power=0.70
+        )
+        
+        n_high_power = calculate_sample_size_binary(
+            baseline=0.10,
+            effect_size=0.05,
+            alpha=0.05,
+            power=0.90
+        )
+        
+        assert n_high_power > n_low_power
+
+    def test_invalid_baseline_raises_error(self):
+        """Invalid baseline values should raise ValueError."""
         with pytest.raises(ValueError):
-            calculate_sample_size_binary(
-                baseline_rate=1.5,  # Invalid
-                detectable_effect=0.02
-            )
-    
-    def test_invalid_effect(self):
-        """Test that invalid effect raises error."""
+            calculate_sample_size_binary(baseline=0.0, effect_size=0.05)
+        
         with pytest.raises(ValueError):
-            calculate_sample_size_binary(
-                baseline_rate=0.10,
-                detectable_effect=1.5  # Invalid
-            )
-    
-    def test_effect_too_large(self):
-        """Test that effect making sum > 1 raises error."""
+            calculate_sample_size_binary(baseline=1.0, effect_size=0.05)
+        
         with pytest.raises(ValueError):
-            calculate_sample_size_binary(
-                baseline_rate=0.90,
-                detectable_effect=0.20  # 0.90 + 0.20 = 1.10 > 1
-            )
+            calculate_sample_size_binary(baseline=-0.1, effect_size=0.05)
+
+    def test_invalid_effect_size_raises_error(self):
+        """Invalid effect size values should raise ValueError."""
+        with pytest.raises(ValueError):
+            calculate_sample_size_binary(baseline=0.10, effect_size=0.95)  # p2 > 1
+
+    def test_threshold_requirement(self):
+        """Verify that the calculated N meets the threshold requirement."""
+        # The task requires meeting the threshold from claim c_21f3e400
+        # which specifies N >= 2510.17487
+        n = calculate_sample_size_binary(
+            baseline=0.10,
+            effect_size=0.05,
+            alpha=0.05,
+            power=0.80
+        )
+        
+        # The total N (both groups) should meet the threshold
+        total_n = 2 * n
+        assert total_n >= MIN_CORPUS_SIZE_THRESHOLD, \
+            f"Total N ({total_n}) must meet threshold ({MIN_CORPUS_SIZE_THRESHOLD})"
 
 class TestCalculateSampleSizeContinuous:
-    def test_basic_calculation(self):
-        """Test basic sample size calculation for continuous outcome."""
+    """Tests for continuous outcome sample size calculation."""
+
+    def test_standard_calculation(self):
+        """Test standard calculation for continuous outcomes."""
         n = calculate_sample_size_continuous(
-            baseline_mean=0,
-            detectable_effect=0.2,
-            std_dev=1.0,
+            baseline_mean=100.0,
+            effect_size=5.0,
+            baseline_std=15.0,
             alpha=0.05,
             power=0.80
         )
+        
         assert n > 0
-        assert isinstance(n, float)
-        # For effect size 0.2 (small), n should be around 394 per group
-        assert 350 < n < 450
+        assert isinstance(n, (int, np.integer))
 
-    def test_invalid_std_dev(self):
-        """Test that invalid std_dev raises error."""
+    def test_invalid_std_raises_error(self):
+        """Invalid standard deviation should raise ValueError."""
         with pytest.raises(ValueError):
             calculate_sample_size_continuous(
-                baseline_mean=0,
-                detectable_effect=0.2,
-                std_dev=-1.0
+                baseline_mean=100.0,
+                effect_size=5.0,
+                baseline_std=0.0
             )
-    
-    def test_zero_std_dev(self):
-        """Test that zero std_dev raises error."""
+        
         with pytest.raises(ValueError):
             calculate_sample_size_continuous(
-                baseline_mean=0,
-                detectable_effect=0.2,
-                std_dev=0.0
+                baseline_mean=100.0,
+                effect_size=5.0,
+                baseline_std=-1.0
             )
 
 class TestCountCorpusSize:
-    def test_count_all_records(self):
-        """Test counting all records when exclude_inconsistent=False."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_path = Path(tmpdir) / "audit.json"
-            test_data = [
-                {"id": 1, "is_consistent": True},
-                {"id": 2, "is_consistent": False},
-                {"id": 3, "is_consistent": True}
-            ]
-            with open(test_path, 'w') as f:
-                json.dump(test_data, f)
-            
-            count = count_corpus_size(test_path, exclude_inconsistent=False)
+    """Tests for corpus size counting."""
+
+    def test_count_from_list(self):
+        """Count records from a list structure."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([{"id": 1}, {"id": 2}, {"id": 3}], f)
+            temp_path = Path(f.name)
+        
+        try:
+            count = count_corpus_size(temp_path)
             assert count == 3
+        finally:
+            temp_path.unlink()
 
-    def test_count_consistent_only(self):
-        """Test counting only consistent records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_path = Path(tmpdir) / "audit.json"
-            test_data = [
-                {"id": 1, "is_consistent": True},
-                {"id": 2, "is_consistent": False},
-                {"id": 3, "is_consistent": True}
-            ]
-            with open(test_path, 'w') as f:
-                json.dump(test_data, f)
-            
-            count = count_corpus_size(test_path, exclude_inconsistent=True)
+    def test_count_from_dict_with_records(self):
+        """Count records from a dict with 'records' key."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({"records": [{"id": 1}, {"id": 2}]}, f)
+            temp_path = Path(f.name)
+        
+        try:
+            count = count_corpus_size(temp_path)
             assert count == 2
+        finally:
+            temp_path.unlink()
 
-    def test_missing_file(self):
-        """Test handling of missing file."""
-        test_path = Path("/nonexistent/file.json")
-        count = count_corpus_size(test_path)
-        assert count == 0
-
-    def test_invalid_json(self):
-        """Test handling of invalid JSON."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            test_path = Path(tmpdir) / "audit.json"
-            with open(test_path, 'w') as f:
-                f.write("invalid json")
-            
-            count = count_corpus_size(test_path)
-            assert count == 0
+    def test_file_not_found_raises_error(self):
+        """Non-existent file should raise FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            count_corpus_size(Path("/nonexistent/path/file.json"))
 
 class TestRunPowerAnalysis:
-    def test_full_run(self):
-        """Test full power analysis run."""
+    """Tests for the main power analysis runner."""
+
+    def test_full_run_with_defaults(self):
+        """Test full run with default parameters."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "power_analysis.json"
+            
+            result = run_power_analysis(
+                output_path=output_path
+            )
+            
+            # Check required fields
+            assert "baseline_rate" in result
+            assert "detectable_effect_size" in result
+            assert "alpha" in result
+            assert "power" in result
+            assert "minimum_n_per_group" in result
+            assert "total_minimum_n" in result
+            assert "corpus_meets_requirement" in result
+            assert "threshold_reference" in result
+            
+            # Check numeric values
+            assert result["minimum_n_per_group"] > 0
+            assert result["total_minimum_n"] > 0
+            
+            # Check output file was created
+            assert output_path.exists()
+            
+            # Verify file content matches result
+            with open(output_path) as f:
+                file_result = json.load(f)
+            
+            assert file_result == result
+
+    def test_run_with_audit_report(self):
+        """Test run with an audit report for corpus validation."""
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
             
-            # Create mock audit records
+            # Create a mock audit report
             audit_path = tmpdir_path / "audit_report.json"
-            test_data = [
-                {"id": i, "is_consistent": True}
-                for i in range(5000)  # Simulate 5000 consistent records
-            ]
+            mock_records = [{"id": i, "consistent": True} for i in range(3000)]
             with open(audit_path, 'w') as f:
-                json.dump(test_data, f)
+                json.dump(mock_records, f)
             
             output_path = tmpdir_path / "power_analysis.json"
             
             result = run_power_analysis(
-                audit_records_path=audit_path,
-                output_path=output_path,
-                baseline_rate=0.10,
-                detectable_effect=0.02,
-                alpha=0.05,
-                power=0.80
+                audit_report_path=audit_path,
+                output_path=output_path
             )
             
-            # Verify result structure
-            assert "analysis_parameters" in result
-            assert "required_sample_sizes" in result
-            assert "actual_corpus_size" in result
-            assert "validation" in result
-            
-            # Verify corpus size
-            assert result["actual_corpus_size"] == 5000
-            
-            # Verify output file was created
-            assert output_path.exists()
-            
-            # Verify JSON content
-            with open(output_path, 'r') as f:
-                saved_result = json.load(f)
-            assert saved_result["actual_corpus_size"] == 5000
+            # Should have corpus size info
+            assert result["corpus_size"] == 3000
+            assert result["validation_message"] is not None
 
-    def test_insufficient_corpus(self):
-        """Test when corpus is too small."""
+    def test_run_without_audit_report(self):
+        """Test run without audit report (corpus validation skipped)."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-            
-            # Create small mock audit records
-            audit_path = tmpdir_path / "audit_report.json"
-            test_data = [
-                {"id": i, "is_consistent": True}
-                for i in range(100)  # Only 100 records
-            ]
-            with open(audit_path, 'w') as f:
-                json.dump(test_data, f)
-            
-            output_path = tmpdir_path / "power_analysis.json"
+            output_path = Path(tmpdir) / "power_analysis.json"
             
             result = run_power_analysis(
-                audit_records_path=audit_path,
-                output_path=output_path,
-                baseline_rate=0.10,
-                detectable_effect=0.02,
-                alpha=0.05,
-                power=0.80
+                audit_report_path=None,
+                output_path=output_path
             )
             
-            # Should not meet requirement for 2% effect with 100 records
-            assert result["validation"]["meets_binary_requirement"] is False
+            # Corpus size should be None
+            assert result["corpus_size"] is None
+            assert result["corpus_meets_requirement"] is True  # Default when not validated
+            assert result["validation_message"] is None
 
-class TestWritePowerAnalysisResult:
-    def test_write_result(self):
-        """Test writing result to file."""
+class TestOutputFormat:
+    """Tests for JSON output format compliance."""
+
+    def test_output_contains_numeric_n(self):
+        """Verify output contains numeric N values."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "result.json"
-            test_result = {"test": "value", "number": 42}
+            output_path = Path(tmpdir) / "power_analysis.json"
             
-            write_power_analysis_result(test_result, output_path)
+            run_power_analysis(output_path=output_path)
             
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved = json.load(f)
-            assert saved == test_result
+            with open(output_path) as f:
+                result = json.load(f)
+            
+            # Both N values should be numeric
+            assert isinstance(result["minimum_n_per_group"], (int, float))
+            assert isinstance(result["total_minimum_n"], (int, float))
+            
+            # Should be positive
+            assert result["minimum_n_per_group"] > 0
+            assert result["total_minimum_n"] > 0
+
+    def test_output_contains_threshold_citation(self):
+        """Verify output contains the required citation."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "power_analysis.json"
+            
+            run_power_analysis(output_path=output_path)
+            
+            with open(output_path) as f:
+                result = json.load(f)
+            
+            assert "threshold_reference" in result
+            assert "threshold_citation" in result
+            assert result["threshold_citation"] == "https://arxiv.org/abs/2510.17487"

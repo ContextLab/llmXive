@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_dc758d61 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -92,7 +92,7 @@
 - [X] T025c **[P]** Run `tests/unit/test_sample_size_exclusion.py` to verify that summaries flagged for sample‑size mismatch are not included in `output/prevalence.json`. **DEPENDS ON:** T025.
 - [X] T027 Unit tests for validator covering absolute p‑difference > 0.05, effect‑size > 5 %, inequality handling, sample‑size mismatch with data_quality_warning generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON: T025]. <!-- FAILED: unspecified -->
 - [X] T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR‑030) – {{claim:c_44abad1e}} (binary AND continuous outcomes) **and verify both outcome types are present** (constraint‑preservation‑2958f04c) (verify files are created and contain ≥ 10 000 records). **DEPENDS ON:** T006‑T012.
-- [X] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->
+- [ ] T028 Implement power‑analysis utility in `src/audit/power_analysis.py` (FR‑025) that computes the minimum N given baseline, detectable effect, α and power, writes result to `output/power_analysis.json`, **and asserts audited corpus meets {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint‑preservation‑ba913176) (verify JSON file exists, contains numeric N, and satisfies condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->
 - [X] T029 Evaluate inconsistency‑detection component on syntheticvalidation dataset (FR‑031) – compute precision, recall, F1 and assert precision ≥ 90 %, recall ≥ 80 % (depends on T026) (verify test passes, otherwise raise `ERR-800`) [DEPENDS ON: T026].
 - [X] T062 Implement Monte‑Carlo validation module (FR‑026) in `src/audit/monte_carlo_validation.py` that runs 10 10000 replicates for each statistical test (z-test, Fisher's, Welch's, binomial) and checks the absolute difference ≤ 0.005 (constraint‑preservation‑e62a0df4) (verify module exits with status 0).
 - [X] T031 **[P]** Run Monte‑Carlo validation (from T062) as part of pipeline start‑up; abort with `ERR-801` if any test fails the ≤ 0.005 criterion (T031 runs T062 module internally). **DEPENDS ON:** T062.
@@ -122,8 +122,8 @@
 
 - [X] T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis** (FR‑005a & FR‑005b) in `src/audit/prevalence.py` including dynamic Bonferroni correction (α = 0.05 / number_of_subgroups) per FR‑032 (verify JSON output contains required fields including sensitivity analysis results).
 - [X] T042b **[P]** Verify that `prevalence.json` does **not** contain any entries flagged for sample‑size mismatch (cross‑check with T025c). (depends on T025c)
-- [X] T043 Unit tests for binomial test and CI width ≤ 0.10. (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
-- [ ] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
+- [ ] T043 Unit tests for binomial test and CI width ≤ 0.10. (1807.00365, https://arxiv.org/abs/1807.00365) (tests/unit/test_prevalence.py) (verify test passes).
+- [X] T044 **[P]** Domain Bias Subsampling – create a balanced subsample of the corpus so that no single domain exceeds 30 % before bias adjustment (FR‑027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006‑T012.
 - [X] T045 Implement bias‑adjustment module that computes domain‑weighted prevalence using domain‑weighted averaging (FR‑027) **and either subsamples the dominant domain *or* flags a violation** per FR‑027 (constraint‑preservation‑01844dd3) in `src/audit/bias_adjustment.py` (verify bias‑adjusted rate is written and appropriate action taken when any domain exceeds 30 %). **DEPENDS ON:** T044.
 - [ ] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
@@ -209,9 +209,9 @@
 
 - [ ] T072 Verify SC‑001: Extraction accuracy ≥ 95 % on `data/manual_validation/real_world_labels.csv` (run `tests/integration/test_extractor_accuracy.py`) (depends on T020, T069c) (addresses ordering‑fef4baa0). **Also confirms stratification across five domains.**
 - [ ] T073 Verify SC‑003: {{claim:c_037cdd5e}} for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
-- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
+- [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. [UNRESOLVED-CLAIM: c_cbd8f31c — status=not_enough_info] (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
-- [ ] T076 Verify SC‑013: The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs... (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
+- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_542525b6 — status=not_enough_info] (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
 - [ ] T077 Verify SC‑014: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range... (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).

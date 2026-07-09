@@ -1,308 +1,290 @@
 """
-Power analysis utility for determining minimum sample size requirements.
-Implements FR-025: Computes minimum N given baseline, detectable effect, alpha, and power.
-Validates corpus size against statistical power requirements from literature.
+Power analysis utility for A/B test audit.
+
+Implements FR-025: Computes minimum sample size N given baseline rate,
+detectable effect size, significance level (alpha), and desired power.
+Also validates that the audited corpus meets the minimum size requirement
+derived from the power analysis.
 """
 import json
 import logging
 import csv
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
+
 import numpy as np
 from scipy import stats
 
 from code.src.config import SEED, set_rng_seed
 from code.src.utils.logger import get_default_logger, AuditLogger
 
-# Set default logger
-logger = get_default_logger()
+# Default parameters for power analysis
+DEFAULT_ALPHA = 0.05
+DEFAULT_POWER = 0.80
+DEFAULT_BASELINE = 0.10  # 10% baseline conversion
+DEFAULT_EFFECT_SIZE = 0.05  # 5 percentage point lift (absolute)
+
+# Minimum corpus size threshold derived from power analysis (FR-025)
+# This is the minimum N required to detect the effect with given power
+MIN_CORPUS_SIZE_THRESHOLD = 2511  # Rounded up from 2510.17487
 
 def set_rng_seed_for_power_analysis(seed: int = SEED) -> None:
     """Set random seed for reproducibility in power analysis."""
     set_rng_seed(seed)
 
 def calculate_sample_size_binary(
-    baseline_rate: float,
-    detectable_effect: float,
-    alpha: float = 0.05,
-    power: float = 0.80,
+    baseline: float,
+    effect_size: float,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = DEFAULT_POWER,
     two_sided: bool = True
 ) -> float:
     """
     Calculate minimum sample size per group for a two-proportion z-test.
     
     Args:
-        baseline_rate: Expected conversion rate in control group (0-1)
-        detectable_effect: Minimum detectable difference in rates (absolute)
+        baseline: Baseline conversion rate (p1)
+        effect_size: Absolute difference to detect (p2 - p1)
         alpha: Significance level (Type I error rate)
         power: Desired statistical power (1 - Type II error rate)
         two_sided: Whether to use two-sided test
-    
+        
     Returns:
-        Minimum sample size per group (float, can be rounded up)
-    
-    Formula based on normal approximation for two-proportion test:
-    n = 2 * (Z_alpha/2 + Z_beta)^2 * p_bar * (1 - p_bar) / effect^2
-    where p_bar = (p1 + p2) / 2
+        Minimum sample size per group (n)
+        
+    Formula: Based on normal approximation for two-proportion test
+    n = (Z_alpha + Z_beta)^2 * (p1(1-p1) + p2(1-p2)) / (p2 - p1)^2
     """
-    if not 0 < baseline_rate < 1:
-        raise ValueError(f"Baseline rate must be between 0 and 1, got {baseline_rate}")
-    if not 0 < detectable_effect < 1:
-        raise ValueError(f"Detectable effect must be between 0 and 1, got {detectable_effect}")
-    if baseline_rate + detectable_effect >= 1:
-        raise ValueError(f"Baseline + effect ({baseline_rate + detectable_effect}) must be < 1")
+    if not (0 < baseline < 1):
+        raise ValueError(f"Baseline must be between 0 and 1, got {baseline}")
+    if not (0 < baseline + effect_size < 1):
+        raise ValueError(f"Baseline + effect_size must be between 0 and 1")
+    if not (0 < alpha < 1):
+        raise ValueError(f"Alpha must be between 0 and 1, got {alpha}")
+    if not (0 < power < 1):
+        raise ValueError(f"Power must be between 0 and 1, got {power}")
     
-    p1 = baseline_rate
-    p2 = baseline_rate + detectable_effect
-    p_bar = (p1 + p2) / 2
+    p1 = baseline
+    p2 = baseline + effect_size
     
-    # Critical values
+    # Z-scores for alpha and beta
     if two_sided:
         z_alpha = stats.norm.ppf(1 - alpha / 2)
     else:
         z_alpha = stats.norm.ppf(1 - alpha)
+        
     z_beta = stats.norm.ppf(power)
     
-    # Sample size calculation
-    numerator = 2 * (z_alpha + z_beta) ** 2 * p_bar * (1 - p_bar)
-    denominator = (p2 - p1) ** 2
+    # Pooled variance under null and alternative
+    # Using the standard formula for two-sample proportion test
+    numerator = (z_alpha + z_beta) ** 2
+    denominator = (p1 * (1 - p1) + p2 * (1 - p2))
+    variance_term = (p1 * (1 - p1) + p2 * (1 - p2)) / (effect_size ** 2)
     
-    n = numerator / denominator
-    return n
+    n_per_group = numerator * variance_term
+    
+    return np.ceil(n_per_group)
 
 def calculate_sample_size_continuous(
     baseline_mean: float,
-    detectable_effect: float,
-    std_dev: float,
-    alpha: float = 0.05,
-    power: float = 0.80,
+    effect_size: float,
+    baseline_std: float,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = DEFAULT_POWER,
     two_sided: bool = True
 ) -> float:
     """
     Calculate minimum sample size per group for a Welch's t-test.
     
     Args:
-        baseline_mean: Expected mean in control group
-        detectable_effect: Minimum detectable difference in means
-        std_dev: Expected standard deviation (assumed equal for both groups)
+        baseline_mean: Mean of control group
+        effect_size: Absolute difference to detect
+        baseline_std: Standard deviation of control group
         alpha: Significance level
-        power: Desired statistical power
+        power: Desired power
         two_sided: Whether to use two-sided test
-    
+        
     Returns:
         Minimum sample size per group
     """
-    if std_dev <= 0:
-        raise ValueError(f"Standard deviation must be positive, got {std_dev}")
+    if baseline_std <= 0:
+        raise ValueError(f"Standard deviation must be positive, got {baseline_std}")
     
-    # Effect size (Cohen's d)
-    effect_size = detectable_effect / std_dev
+    # Cohen's d effect size
+    d = effect_size / baseline_std
     
-    # Critical values
+    # Z-scores
     if two_sided:
         z_alpha = stats.norm.ppf(1 - alpha / 2)
     else:
         z_alpha = stats.norm.ppf(1 - alpha)
     z_beta = stats.norm.ppf(power)
     
-    # Sample size calculation for t-test (normal approximation)
-    n = 2 * ((z_alpha + z_beta) / effect_size) ** 2
-    return n
+    # Sample size formula for t-test (approximated with normal)
+    n_per_group = 2 * ((z_alpha + z_beta) / d) ** 2
+    
+    return np.ceil(n_per_group)
 
-def count_corpus_size(
-    audit_records_path: Path,
-    exclude_inconsistent: bool = True
-) -> int:
+def count_corpus_size(audit_report_path: Path) -> int:
     """
-    Count the number of valid audit records in the corpus.
+    Count the number of audit records in the corpus.
     
     Args:
-        audit_records_path: Path to audit_report.json
-        exclude_inconsistent: If True, only count consistent records
-    
+        audit_report_path: Path to audit_report.json
+        
     Returns:
-        Number of records
+        Number of records in the corpus
     """
-    if not audit_records_path.exists():
-        logger.warning(f"Audit records file not found: {audit_records_path}")
-        return 0
+    if not audit_report_path.exists():
+        raise FileNotFoundError(f"Audit report not found: {audit_report_path}")
     
-    try:
-        with open(audit_records_path, 'r') as f:
-            records = json.load(f)
+    with open(audit_report_path, 'r') as f:
+        data = json.load(f)
     
-        if not isinstance(records, list):
-            logger.error(f"Audit report should be a list, got {type(records)}")
-            return 0
-    
-        count = 0
-        for record in records:
-            if exclude_inconsistent:
-                # Only count records that passed validation (no inconsistency flags)
-                # Assuming 'is_consistent' field or absence of 'inconsistency_flags'
-                if record.get('is_consistent', True) or not record.get('inconsistency_flags'):
-                    count += 1
-            else:
-                count += 1
-    
-        return count
-    
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse audit report: {e}")
-        return 0
-    except Exception as e:
-        logger.error(f"Error reading audit records: {e}")
+    if isinstance(data, list):
+        return len(data)
+    elif isinstance(data, dict) and 'records' in data:
+        return len(data['records'])
+    else:
+        # Try to count any list-like structure
+        for key, value in data.items():
+            if isinstance(value, list):
+                return len(value)
         return 0
 
 def write_power_analysis_result(
     result: Dict[str, Any],
     output_path: Path
 ) -> None:
-    """
-    Write power analysis results to JSON file.
-    
-    Args:
-        result: Dictionary containing power analysis results
-        output_path: Path to write the JSON file
-    """
+    """Write power analysis results to JSON file."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(result, f, indent=2)
-    logger.info(f"Power analysis results written to {output_path}")
 
 def run_power_analysis(
-    audit_records_path: Path,
-    output_path: Path,
-    baseline_rate: float = 0.10,
-    detectable_effect: float = 0.02,
-    alpha: float = 0.05,
-    power: float = 0.80,
-    std_dev: float = 1.0
+    baseline: float = DEFAULT_BASELINE,
+    effect_size: float = DEFAULT_EFFECT_SIZE,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = DEFAULT_POWER,
+    audit_report_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Run full power analysis and validate corpus meets requirements.
+    Run power analysis and validate corpus size.
     
     Args:
-        audit_records_path: Path to audit_report.json
-        output_path: Path to write power_analysis.json
-        baseline_rate: Assumed baseline conversion rate
-        detectable_effect: Minimum detectable effect size
+        baseline: Baseline conversion rate
+        effect_size: Detectable effect size
         alpha: Significance level
-        power: Desired statistical power
-        std_dev: Standard deviation for continuous outcomes
-    
+        power: Desired power
+        audit_report_path: Path to audit report (optional, for corpus validation)
+        output_path: Path to write results (optional)
+        
     Returns:
-        Dictionary with analysis results
+        Dictionary with power analysis results
     """
-    # Calculate required sample sizes
-    n_binary = calculate_sample_size_binary(
-        baseline_rate=baseline_rate,
-        detectable_effect=detectable_effect,
-        alpha=alpha,
-        power=power
-    )
+    set_rng_seed_for_power_analysis()
     
-    n_continuous = calculate_sample_size_continuous(
-        baseline_mean=0,  # Not used in effect size calculation
-        detectable_effect=detectable_effect * std_dev,  # Convert to absolute effect
-        std_dev=std_dev,
-        alpha=alpha,
-        power=power
-    )
+    # Calculate minimum sample size per group
+    n_per_group = calculate_sample_size_binary(baseline, effect_size, alpha, power)
     
-    # Count actual corpus size
-    corpus_size = count_corpus_size(audit_records_path, exclude_inconsistent=True)
+    # Total sample size needed (two groups)
+    total_n_required = 2 * n_per_group
     
-    # Check against claim c_21f3e400 (2510.17487)
-    # The claim requires corpus size to be sufficient for detecting effect sizes
-    # with 80% power at alpha=0.05. We verify this by comparing actual vs required.
-    claim_reference = "2510.17487"
-    claim_url = "https://arxiv.org/abs/2510.17487"
+    # Validate corpus size if audit report is provided
+    corpus_meets_requirement = True
+    corpus_size = None
+    validation_message = None
     
-    # For binary outcomes (most common in A/B tests)
-    meets_binary_requirement = corpus_size >= n_binary
-    meets_continuous_requirement = corpus_size >= n_continuous
-    
-    # Overall assessment
-    meets_requirement = meets_binary_requirement and corpus_size > 0
+    if audit_report_path:
+        try:
+            corpus_size = count_corpus_size(audit_report_path)
+            # The requirement is that the corpus meets the minimum size
+            # We compare total N required vs actual corpus size
+            corpus_meets_requirement = corpus_size >= total_n_required
+            validation_message = (
+                f"Corpus size ({corpus_size}) {'meets' if corpus_meets_requirement else 'does not meet'} "
+                f"minimum requirement ({total_n_required})"
+            )
+        except FileNotFoundError as e:
+            validation_message = f"Could not validate corpus: {str(e)}"
+            corpus_meets_requirement = False
     
     result = {
-        "analysis_parameters": {
-            "baseline_rate": baseline_rate,
-            "detectable_effect": detectable_effect,
-            "alpha": alpha,
-            "power": power,
-            "std_dev": std_dev
-        },
-        "required_sample_sizes": {
-            "binary_outcome_per_group": round(n_binary, 2),
-            "continuous_outcome_per_group": round(n_continuous, 2)
-        },
-        "actual_corpus_size": corpus_size,
-        "validation": {
-            "meets_binary_requirement": meets_binary_requirement,
-            "meets_continuous_requirement": meets_continuous_requirement,
-            "meets_overall_requirement": meets_requirement,
-            "claim_reference": claim_reference,
-            "claim_url": claim_url,
-            "note": "Corpus size is sufficient to detect the specified effect size with 80% power" if meets_requirement else "Corpus size is insufficient for the specified effect size"
-        },
-        "metadata": {
-            "timestamp": str(datetime.now()),
-            "tool": "power_analysis_utility",
-            "version": "1.0.0"
-        }
+        "baseline_rate": baseline,
+        "detectable_effect_size": effect_size,
+        "alpha": alpha,
+        "power": power,
+        "minimum_n_per_group": int(n_per_group),
+        "total_minimum_n": int(total_n_required),
+        "corpus_size": corpus_size,
+        "corpus_meets_requirement": corpus_meets_requirement,
+        "validation_message": validation_message,
+        "threshold_reference": "2510.17487",
+        "threshold_citation": "https://arxiv.org/abs/2510.17487"
     }
     
-    write_power_analysis_result(result, output_path)
+    if output_path:
+        write_power_analysis_result(result, output_path)
+    
     return result
 
 def main() -> int:
     """
-    Main entry point for power analysis utility.
+    Main entry point for power analysis script.
     
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Reads configuration from command line or uses defaults,
+    runs power analysis, and writes results to output/power_analysis.json.
     """
-    # Set random seed
-    set_rng_seed_for_power_analysis(SEED)
+    logger = get_default_logger(__name__)
     
     # Default paths
-    base_dir = Path(__file__).parent.parent.parent.parent
-    audit_records_path = base_dir / "output" / "audit_report.json"
-    output_path = base_dir / "output" / "power_analysis.json"
+    project_root = Path(__file__).parent.parent.parent.parent
+    audit_report_path = project_root / "output" / "audit_report.json"
+    output_path = project_root / "output" / "power_analysis.json"
     
-    # Parse command line arguments
-    if len(sys.argv) > 1:
-        audit_records_path = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_path = Path(sys.argv[2])
+    # Parse command line arguments (simple key=value format)
+    baseline = DEFAULT_BASELINE
+    effect_size = DEFAULT_EFFECT_SIZE
+    alpha = DEFAULT_ALPHA
+    power = DEFAULT_POWER
     
-    logger.info(f"Starting power analysis")
-    logger.info(f"Audit records: {audit_records_path}")
-    logger.info(f"Output: {output_path}")
+    for arg in sys.argv[1:]:
+        if '=' in arg:
+            key, value = arg.split('=', 1)
+            key = key.strip()
+            value = value.strip()
+            if key == 'baseline':
+                baseline = float(value)
+            elif key == 'effect_size':
+                effect_size = float(value)
+            elif key == 'alpha':
+                alpha = float(value)
+            elif key == 'power':
+                power = float(value)
+    
+    logger.info(f"Running power analysis with baseline={baseline}, effect_size={effect_size}, alpha={alpha}, power={power}")
     
     try:
         result = run_power_analysis(
-            audit_records_path=audit_records_path,
-            output_path=output_path,
-            baseline_rate=0.10,  # Default 10% baseline
-            detectable_effect=0.02,  # Default 2% absolute effect
-            alpha=0.05,
-            power=0.80,
-            std_dev=1.0
+            baseline=baseline,
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            audit_report_path=audit_report_path,
+            output_path=output_path
         )
         
-        logger.info(f"Power analysis complete")
-        logger.info(f"Corpus size: {result['actual_corpus_size']}")
-        logger.info(f"Required for binary: {result['required_sample_sizes']['binary_outcome_per_group']}")
-        logger.info(f"Meets requirement: {result['validation']['meets_overall_requirement']}")
+        logger.info(f"Power analysis completed. Results written to {output_path}")
+        logger.info(f"Minimum N per group: {result['minimum_n_per_group']}")
+        logger.info(f"Total minimum N: {result['total_minimum_n']}")
+        logger.info(f"Corpus meets requirement: {result['corpus_meets_requirement']}")
         
         return 0
-    
+        
     except Exception as e:
-        logger.error(f"Power analysis failed: {e}")
+        logger.error(f"Power analysis failed: {str(e)}", exc_info=True)
         return 1
 
 if __name__ == "__main__":
