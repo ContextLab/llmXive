@@ -1,0 +1,16 @@
+\section{Discussion \& Conclusion}
+This work introduces HiLS-Attention, a sparse attention mechanism featuring end-to-end retrieval learning and native sparse training.
+Our experiments show that HiLS-Attention exhibits strong length extrapolation ability. This raises a natural question: what is the source of such extrapolation ability, and is it only reflected under out-of-distribution context lengths?
+\paragraph{Our hypothesis}
+We argue that stronger extrapolation essentially stems from more accurate in-context retrieval, which is enabled by the compression-and-retrieval inductive bias of HiLS-Attention.
+During compression, token-level noise can partially be canceled out, while shared semantic signals are preserved. This  leads  to higher-quality retrieval key representations.
+The advantage of HiLS-Attention for in-domain retrieval becomes especially evident under longer contexts.
+As long-context capability becomes increasingly important for modern LLMs and agent models, our findings provide useful insights for improving long-context modeling.
+
+\paragraph{Toward infinite context modeling}
+Although HiLS-attention achieves ultra-long context capability mainly through extrapolation in this work, it also provides a practical route toward training with ultra-long contexts. Its key advantage lies in its native sparsity during training and length generalization. Unlike full-attention or distillation-based methods~\cite{liu2025deepseek}, which score all token-level pairs with quadratic complexity $O(L^2)$, HiLS first compresses each chunk into a lightweight summary via intra-chunk attention. Each query token then retrieves from only $L/S$ chunk summaries, resulting in a per-token retrieval cost of $O(L/S)$ and a sequence-level retrieval cost of $O(L^2/S)$. 
+
+Once the relevant chunks are retrieved, the actual token-level attention is restricted to the selected chunks and a local window, yielding a per-token attention cost of $O(KS)$ and a total attention cost of $O(LKS)$. Thus, the only remaining superlinear component is retrieval, which can be further reduced to approximately $O(L\log(L/S))$ with approximate nearest-neighbor search methods like FAISS~\cite{11202651}.
+
+\paragraph{Limitation and Future works}
+HiLS-Attention does not support context parallelism yet, so its effectiveness under larger training context lengths remains to be fully validated. In addition, unselected chunks receive no gradient updates. The underlying mechanism by which Q-Cal improves extrapolation and in-domain performance is still not fully understood. We leave further validation and improvement to future work.

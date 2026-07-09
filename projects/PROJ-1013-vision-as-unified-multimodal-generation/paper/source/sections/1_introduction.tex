@@ -1,0 +1,52 @@
+\section{Introduction}
+\label{sec:intro}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{assets/main_figures/fig2_qualitative_overview.pdf}
+    \caption{
+        SenseNova-Vision integrates diverse computer vision tasks into a single UMM, producing outputs for structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry through unified multimodal generation.
+    }
+    \label{fig:qualitative-overview}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{assets/main_figures/fig3_system_overview.pdf}
+    \caption{
+        Overview of SenseNova-Vision: heterogeneous computer vision annotations are converted into native text, image, and mixed text-image generation targets for joint training in a single UMM, without task-specific heads.
+    }
+    \label{fig:system-overview}
+\end{figure}
+
+Large language models~\cite{gpt3} have shown that diverse language tasks can be consolidated through prompting and generation, and unified multimodal models (UMMs)~\cite{chameleon,showo,janus,bagel,sensenovau1} further extend this paradigm to both text and image generation.
+We consider whether the entire spectrum of classical computer vision---from detection to multi-view 3D---can be expressed as unified multimodal generation within a single UMM, without task-specific heads.
+Computer vision has made remarkable progress through specialist systems~\cite{detr,maskrcnn,sam,raft,depthanything,vggt} tailored to individual task families.
+Their outputs range from boxes and masks to motion fields, dense maps, and 3D geometry, each typically paired with task-specific architectures, losses, decoding rules, and evaluation protocols.
+This task-specific organization makes visual supervision difficult to share, reuse, and compose across tasks, motivating a shared and scalable formulation for computer vision.
+
+Prior efforts approach this goal in complementary ways: sequence-format unifications~\cite{ofa,pix2seqv2,unifiedio2} bring diverse annotations into shared model interfaces, but different output types still require serialization and parsing conventions; representation-centric models~\cite{sam,seggpt,depthanything,vggt} generalize within visually coherent task families yet offer no unified output space and limited language control.
+In parallel, generative foundation models offer a different substrate: diffusion and image-generation models~\cite{ddpm,latentdiffusion} provide visual generative priors for spatially aligned outputs, while multimodal large language models (MLLMs)~\cite{flamingo,llava} bring language instructions and reasoning into visual perception.
+Recent perception work adopts these strengths only partially: image-generative methods~\cite{lotus,diception,visionbanana} handle dense maps but struggle with symbolic records, while MLLM-based systems~\cite{lisa,visionllmv2,xsam} add language and reasoning yet still route dense outputs through task-specific decoders.
+Across these routes, symbolic records, dense spatial targets, and mixed outputs are still not expressed within one native multimodal generation framework.
+
+To address this gap, we introduce SenseNova-Vision, built on a simple formulation: heterogeneous computer vision tasks can be cast as unified multimodal generation.
+Natural-language instructions specify the task, target, output schema, and decoding convention, while text generation expresses symbolic visual answers such as categories, spatial references, OCR strings, and camera parameters.
+Image generation is natural for dense prediction because masks, depth maps, surface normals, and point maps are spatially aligned with the input image and can be represented on the same grid.
+Together, text and image generation provide complementary response spaces that can express a broad range of computer vision tasks.
+This formulation is, for visual perception, the analogue of what GPT~\cite{gpt3} did for NLP tasks: consolidating heterogeneous specialist supervision into a single generative interface.
+
+Making this formulation trainable at scale requires converting heterogeneous computer vision annotations into instruction-response examples.
+We therefore construct the SenseNova-Vision Corpus, spanning structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry with decodable text, image, and mixed targets that can be recovered as boxes, masks, depth maps, surface normals, point maps, or camera poses.
+Built from the off-the-shelf UMM Bagel~\cite{bagel}, SenseNova-Vision is trained on this corpus to express diverse visual task outputs through the unified multimodal generation interface illustrated in Figure~\ref{fig:system-overview}.
+Figure~\ref{fig:qualitative-overview} and Figure~\ref{fig:benchmark-overview} show representative qualitative outputs and quantitative results across four perception families, respectively.
+In quantitative evaluations, SenseNova-Vision leads on structured visual understanding, remains close to the strongest dense geometric prediction and segmentation baselines, and approaches the leading specialist in multi-view visual geometry.
+This flexibility further allows the same model to follow language-defined task variants that are not explicitly enumerated in the training corpus, combining category, color, region, and other visual cues.
+
+SenseNova-Vision is built on a simple premise: computer vision can become a native generative capability of unified foundation models, moving beyond a collection of isolated task-specific systems.
+First, we introduce a unified multimodal generation formulation that casts heterogeneous vision tasks into native input-output spaces of UMMs.
+Second, we construct the SenseNova-Vision Corpus, a large-scale computer-vision instruction-response corpus with decodable text, image, and mixed targets.
+Third, we train SenseNova-Vision, showing strong results across four perception families and supporting language-defined task variants beyond the training set.
+Together, this work points toward a new era of computer vision, where perception is no longer engineered task by task, but becomes a programmable, generative, and extensible capability of unified foundation models, providing a reusable basis for future research.
+
+\FloatBarrier

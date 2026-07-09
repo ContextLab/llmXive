@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-09T01:40:13.359139Z'
+current_stage: paper_ingested
+failed_stage: null
+field: computer science
+human_escalation_reason: null
+id: PROJ-1013-vision-as-unified-multimodal-generation
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: Vision as Unified Multimodal Generation
+updated_at: '2026-07-09T01:40:14.331594Z'

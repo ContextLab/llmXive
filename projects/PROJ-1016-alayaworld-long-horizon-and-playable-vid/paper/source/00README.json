@@ -1,0 +1,29 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "README.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/Optimistic.ttf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/optimistic.tfm"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "assets/plainnat.bst"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

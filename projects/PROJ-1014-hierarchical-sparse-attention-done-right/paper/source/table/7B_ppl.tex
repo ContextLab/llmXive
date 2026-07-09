@@ -1,0 +1,22 @@
+\begin{table}[t!]
+    \centering
+    \caption{Validation perplexity on the Olmo3 pretraining corpus at different context lengths. Lower is better. Models are continued-pretrained at 8K length. Perplexity values are reported to three decimal places to better highlight small differences across models.}
+    \resizebox{0.8\textwidth}{!}{
+    \begin{tabular}{lcccccc}
+    \toprule
+    Models & 512 & 8K & 16K & 64K & 128K & 256K \\
+    \midrule
+    Olmo3-base & 10.396 & 3.997 & 6.898 & 11.003 & 11.226 & 14.554 \\
+    LDM token tuning & 10.394 & 3.470 & 5.124 & 7.058 & 6.126 & 7.770 \\
+    % \midrule
+    Olmo3-512swa-CPT & \textbf{10.180} & \textbf{3.234} & 4.398 & 5.218 & 6.984 & 12.760 \\
+    % \midrule
+    HiLS-Attn-HoPE & 10.201 & 3.236 & \textbf{2.772} & \textbf{2.722} & \textbf{2.550} & \textbf{3.095} \\
+    HiLS-Attn-RoPE & 10.200 & 3.242 & 3.770 & 4.454 & 4.709 & 6.546 \\
+    HiLS-Attn-NoPE & 10.235 & 3.248 & 2.895 & 27.117 & 51.911 & 73.896 \\
+    \bottomrule
+    \end{tabular}
+    }
+
+    \label{tab:olmo3_ppl}
+\end{table}

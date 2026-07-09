@@ -1,0 +1,314 @@
+
+
+\section{Experiments}
+\subsection{Training Details}
+
+
+We adopt Wan2.2-TI2V-5B~\citep{wang2025wan} as our base model. To align the base model with the visual characteristics of our target environments (\eg lighting, specific objects), we first perform standard text-and-image-to-video (TI2V) fine-tuning as a warm-up. This stage does not involve action conditioning. We train the full model for 2,000 steps with a learning rate of $2 \times 10^{-5}$ on 64 NVIDIA H100 GPUs, allowing the model to adapt to the specific visual domain of the human and robotic datasets.
+
+
+
+
+
+
+\noindent 
+\textbf{Action-Conditioned Training.} 
+We introduce the depth-aware skeletal conditioning branch and explore two training paradigms to adapt the model: Low-Rank Adaptation (LoRA) and full-parameter Supervised Fine-Tuning (SFT). Both paradigms follow a two-stage progressive schedule:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Stage 1 (Egocentric Human Pretraining):} We initialize the model with the pretrained Wan-2.2-TI2V-5B backbone and learn fundamental manipulation dynamics on large-scale human datasets.
+    \begin{itemize}[leftmargin=*]
+        \item \textit{LoRA-based:} We optimize the patch embedding layers and LoRA weights (rank 64) with a learning rate of $2 \times 10^{-5}$.
+        \item \textit{Full-parameter SFT:} We perform full-parameter fine-tuning with a learning rate of $2 \times 10^{-5}$, employing a 200-step warmup and EMA (decay $0.999$) to stabilize the learning of interaction priors.
+    \end{itemize}
+
+    \item \textbf{Stage 2 (Robotic Domain Adaptation):} We fine-tune the Stage 1 checkpoints on 1,800 paired human-robot episodes to bridge the embodiment gap. 
+    \begin{itemize}[leftmargin=*]
+        \item \textit{LoRA-based:} We continue training the LoRA weights and control branch with a learning rate of $1 \times 10^{-5}$.
+        \item \textit{Full-parameter SFT:} We refine the full model parameters with a learning rate of $1 \times 10^{-5}$, incorporating EMA (decay $0.999$) and a 200-step warm-up to ensure stability across complex bimanual coordination tasks.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Autoregressive Distillation.} Finally, the bidirectional teacher is converted into a causal student for real-time inference:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Causal Flow-Matching Warm-up:} The student model undergoes a warm-up phase to establish temporal causality with a learning rate of $1 \times 10^{-5}$.
+    \item \textbf{Adversarial Distillation (DMD):} For few-step interactive generation, we apply DMD with a generative learning rate of $2 \times 10^{-6}$ and a critic learning rate of $5 \times 10^{-7}$.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Digital Teleoperation System Evaluation}
+
+
+\noindent 
+\textbf{Experimental Setup.} 
+Experiments are conducted on a TIANJI M6 mobile robot equipped with dual arms and dual WUJI dexterous hands. An egocentric RealSense D435i captures the visual stream. Please refer to Appendix~\ref{sec:body} for hardware and the inverse kinematics solver details.
+
+As shown in Fig.~\ref{fig:tasks}, to demonstrate generalization across diverse manipulation challenges, we evaluate our method on four distinct tasks requiring varying levels of bimanual coordination:
+
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\linewidth]{Fig/tasks.pdf}\\
+  \caption{\textbf{Task illustration}. We design four manipulation tasks for real-world evaluation.}
+  \label{fig:tasks}
+\end{figure}
+
+\begin{itemize}[labelsep=0.6em, leftmargin=1.2em,itemindent=0em]
+    \item \textbf{(1) \textit{Dual Picking}}: The robot uses its left arm to pick an apple and its right arm to pick a banana from a plate, sequentially placing both objects onto the tabletop.
+    
+    \item \textbf{(2) \textit{Block Pushing}}: A sequential pushing task where the left arm pushes a large block from the left zone to the center, after which the right arm takes over to push it to the designated right target zone.
+    
+    \item \textbf{(3) \textit{Bimanual Lifting}}: A heavy-load coordination task where both arms must synchronously lift a watermelon plush from the table and accurately place it into a tray.
+    
+    \item \textbf{(4) \textit{Lid Placement}}: A precision-oriented task requiring the robot to pick up a lid and accurately align it to cover a cardboard box.
+\end{itemize}
+
+
+
+\begin{table*}[t]
+ \centering
+ \small
+ \caption{\textbf{Real-world policy performance.} Success rates (\%) across four complex tasks.}
+ \label{tab:sim2real}
+ \setlength{\tabcolsep}{5pt}
+ 
+ \begin{tabularx}{\textwidth}{l l CCCC}
+ \toprule
+ \textbf{Method} & \textbf{Data Source} & \textbf{Dual Picking} & \textbf{Block Pushing} & \textbf{Bimanual Lifting} & \textbf{Lid Placement} \\ 
+ \midrule
+ \rowcolor{gray!10}DP~\citep{chi2025diffusion} & 300 Real & 82.86 & 85.71 & 88.57 & 57.14 \\
+ \rowcolor{headerpurple!60}DP~\citep{chi2025diffusion} & 300 Real + 300 \our & \textbf{88.57} & \textbf{88.57} & \textbf{94.29} & \textbf{65.71} \\
+ \hline
+ \rowcolor{gray!10} $\pi_{0.5}$~\citep{intelligence2025pi_} & 300 Real & 94.29 & \textbf{100.00} & 94.29 & 42.86 \\
+  \rowcolor{headerpurple!60}$\pi_{0.5}$~\citep{intelligence2025pi_} & 300 Real + 300 \our & \textbf{97.14}  & 97.14 & \textbf{100.00} & \textbf{62.86} \\
+ \hline
+ \rowcolor{gray!10}$\pi_0$~\citep{black2024pi_0} & 300 Real & 88.57 & 94.29 & 91.43 & 34.29 \\
+ $\pi_0$~\citep{black2024pi_0} & 0 Real + 300 \our & 68.57 & 82.86 & 77.14 & 28.57 \\
+ \rowcolor{headerpurple!60} $\pi_0$~\citep{black2024pi_0} & 300 Real + 300 \our & \textbf{94.29} & \textbf{100.00} & \textbf{97.14} & \textbf{54.29} \\
+ \bottomrule
+ \end{tabularx}
+\end{table*}
+
+
+These tasks collectively challenge the model's proficiency in dual-arm synergy, temporal sequencing, and long-horizon interaction. 
+For each task, we evaluate the model's generalization by applying significant randomization to the initial environment state. This includes varying the 6-DoF poses of task-relevant objects (\eg fruits, containers) in terms of both workspace coordinates and axial rotations.
+The primary evaluation metric is the \textbf{Success Rate}, defined as the percentage of successful completions over 35 consecutive real-world trials per task. A trial is considered successful if the robot reaches the target state within 120 seconds.
+
+
+\noindent 
+\textbf{Policy Learning via Generative Data Scaling.} 
+Beyond visual fidelity, \our functions as a generative data engine for digital teleoperation: it scales robot training sets by translating unconstrained human gestures into photorealistic execution trajectories that are perfectly synchronized with ground-truth actions.
+
+We evaluate this capability by augmenting three state-of-the-art policies: Diffusion Policy (DP)~\citep{chi2025diffusion}, $\pi_{0.5}$~\citep{intelligence2025pi_}, and $\pi_0$~\citep{black2024pi_0}. As shown in Tab.~\ref{tab:sim2real}, augmenting 300 real-world episodes with 300 \our-generated episodes leads to consistent performance gains across nearly all tasks. The improvement is most pronounced in high-precision tasks like \textit{Lid Placement}, where the success rate of $\pi_{0.5}$ increases from 42.86\% to 62.86\% (+20\%) and $\pi_0$ from 34.29\% to 54.29\% (+20\%). 
+
+Notably, $\pi_0$ trained \textbf{solely on 300 \our-generated episodes} (without any real data) achieves a competitive success rate of \textbf{82.86\%} in \textit{Block Pushing} and 77.14\% in \textit{Bimanual Lifting}. This Zero-Real-Data performance highlights that our model's synthesized videos are not only visually realistic but also physically grounded, capturing the essential dynamics of dexterous manipulation. By transforming low-cost human gesture sequences into high-value robotic training data, \our provides a scalable solution to the data scarcity bottleneck in real-world robotics.
+
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=\linewidth]{Fig/tsne.pdf}
+  \caption{\textbf{Feature Distribution Analysis via t-SNE}. We visualize the high-dimensional feature embeddings of real-world trajectories and \our-generated trajectories.}
+  \label{fig:tsne}
+\end{figure}
+
+
+\noindent 
+\textbf{Feature Distribution Analysis.} 
+To further investigate the visual and semantic alignment between real-world robot trajectories and those synthesized by \our, we perform a feature distribution analysis using t-SNE. We randomly sample 1000 frames each from our real-world demonstration set and the \our-generated dataset. Features are extracted using a pre-trained I3D~\citep{carreira2017quo} to capture high-level semantic information.
+
+As shown in Fig.~\ref{fig:tsne}, the distribution of \our-generated data significantly overlaps with the real-world data. This high degree of alignment indicates that our generative world model successfully captures the underlying distribution of robotic manipulation, including complex hand-object interactions and environmental lighting. This feature-level consistency explains the effective Zero-shot Sim2Real transfer observed in our policy learning experiments.
+
+
+\noindent 
+\textbf{Latency Analysis for Real-time Control.}
+To validate the real-time capability of \our (Causal), we evaluate its end-to-end inference latency on a single NVIDIA H100 GPU. Our distilled causal student model, optimized with a 4-step flow matching schedule, achieves a high throughput of \textbf{40.0~fps} at $480 \times 832$ resolution.
+
+The average per-frame latency is approximately $25$\,ms, which can be decomposed into three primary stages:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Skeletal Action Encoding ($\sim$5\%):} Pre-processing and VAE encoding of the depth-aware skeletal sequence to provide the conditioning latent.
+    \item \textbf{Causal DiT Denoising ($\sim$72\%):} Autoregressive latent generation via 4-step DiT inference, leveraging a sliding-window KV cache for temporal efficiency.
+    \item \textbf{Visual Decoding ($\sim$23\%):} VAE decoding from the latent space to the final RGB pixel space.
+\end{itemize}
+
+This performance results in an effective interactive frequency of $\sim$40\,Hz, which significantly exceeds the typical $2$--$10$\,Hz frame rates of existing action-conditioned world models \cite{wang2026hand2world, akkerman2025interdyn}. Crucially, this throughput matches or exceeds the standard $30$\,Hz frequency of real-world robotic cameras, thereby minimizing the sensing-to-actuation gap and ensuring a fluid, responsive experience during digital teleoperation.
+
+
+
+
+
+
+\begin{table*}[t]
+ \small
+ \centering
+\caption{\textbf{Quantitative results of \our.} We report visual quality metrics and inference speeds. \textbf{Text-} and \textbf{Action-conditioned World Models}, as well as the \textbf{Ablation Study}, are evaluated on \textbf{EgoDex-Test}, while \textbf{Robot-Specific} evaluations are conducted on \textbf{Robotic-Test}.}
+    \label{tab:exp}
+    \setlength{\tabcolsep}{12pt}
+    \begin{tabular}{lccccc}
+    \toprule
+    \textbf{Method} & \textbf{PSNR} $\uparrow$ & \textbf{SSIM} $\uparrow$ & \textbf{LPIPS} $\downarrow$ & \textbf{FVD} $\downarrow$ & \textbf{FPS} $\uparrow$  \\
+    \midrule
+    \multicolumn{6}{c}{\textbf{Text-conditioned World Models}} \\
+    \rowcolor{gray!10} CogVideoX-1.5-I2V-5B~\citep{yang2024cogvideox}  & 18.22 & 0.786 & 0.322 & 2790 &  0.8 \\
+    Wan-2.2-TI2V-5B~\citep{wang2025wan}  & 18.61 & 0.772 & 0.373 & 1998 & 2.8 \\
+    \rowcolor{gray!10} Wan-2.1-I2V-14B~\citep{wang2025wan}  & 18.08 & 0.735 & 0.418  & 1540 & 0.3   \\
+    Wan-2.2-I2V-14B~\citep{wang2025wan}  & 21.05 & 0.816 & 0.265  & 1337 & 0.3  \\
+    \rowcolor{gray!10}Wan-2.2-TI2V-5B (SFT)~\citep{wang2025wan}  & 20.93 & 0.806 & 0.282 & 1223 & 2.8   \\
+
+    \midrule[\heavyrulewidth]
+    \multicolumn{6}{c}{\textbf{Action-conditioned World Models}} \\
+    \rowcolor{gray!10} InterDyn~\citep{akkerman2025interdyn} & 21.47 & 0.831 & 0.279 & 655 & 2.9  \\
+    CosHand~\citep{sudhakar2024controlling} & 18.14 & 0.785 & 0.406 & 1527 & 0.8 \\
+    \rowcolor{gray!10}Mask2IV~\citep{li2026mask2iv} & 21.50 & 0.836 & 0.219 & 1650 & 0.9  \\
+    \rowcolor{headerpurple!60} \textbf{\our} (LoRA~\citep{hu2022lora})  & 26.08 & 0.876 & 0.151 & 585 & 2.8 \\
+    \rowcolor{headerpurple!60} \textbf{\our} (SFT)  & \textbf{26.78} & \textbf{0.887} & \textbf{0.119} & \textbf{550} & 2.8 \\
+    \rowcolor{headerpurple!60} \textbf{\our-Causal}  & 22.25 & 0.830 & 0.207 & 1226 & \textbf{40.0} \\
+
+    \midrule[\heavyrulewidth]
+    \multicolumn{6}{c}{\textbf{Ablation Study (LoRA)}} \\
+    \rowcolor{gray!10} Concatenation Fusion & 19.69 & 0.821 & 0.260 & 1191 & 2.8  \\
+    w/o Human Pre-training & 17.81 & 0.763 & 0.453 & 2598 &  2.8 \\
+    \rowcolor{gray!10} w/o DMD (Causal) & 19.25 & 0.777 & 0.244 & 1338 & \textbf{40.0}  \\
+     w/o Causal Warm-up (Causal) & 14.26 & 0.688 & 0.408 & 2150 & \textbf{40.0}  \\
+
+    \midrule[\heavyrulewidth]
+    \addlinespace[-1.1pt]
+    \midrule[\heavyrulewidth]
+    \multicolumn{6}{c}{\textbf{Action-conditioned Robot-Specific World Models}} \\
+    \rowcolor{headerpurple!60} \textbf{\our}  & 22.53 & 0.898 & 0.148  & 763  & 2.8 \\
+    \rowcolor{headerpurple!60} \textbf{\our-Causal}  & 18.66 & 0.743 & 0.249 & 1534 & \textbf{40.0}  \\
+    
+    \bottomrule
+    \end{tabular}
+    \vspace{-1mm}
+\end{table*}
+
+
+
+
+
+\subsection{Action-Conditioned World Model Evaluation}
+\label{sec:ac-wm-eval}
+
+\noindent 
+\textbf{Experimental Setup.} 
+To provide a comprehensive assessment of \our's generative capabilities, we establish two distinct evaluation benchmarks as reported in Tab.~\ref{tab:exp}: %
+
+\begin{itemize}[labelsep=0.6em, leftmargin=1.2em,itemindent=0em]
+    \item \textbf{EgoDex-Test (Human-Centric Domain)}: For evaluating general interaction priors and conducting the ablation study, we utilize the EgoDex dataset~\citep{hoque2025egodex}. We randomly sample 50 video sequences from the official EgoDex test set, each consisting of 81 frames at 16 FPS. These sequences cover a wide variety of unseen human-object interactions. Using this representative subset ensures an unbiased evaluation of how well the model transfers large-scale human manipulation priors to action-conditioned synthesis.
+    
+    \item \textbf{Robotic-Test (Robot-Specific Domain)}: To assess the model's performance on actual robotic embodiments and real-world laboratory environments, we hold out a specific \textbf{Robotic-Test} set. This set consists of 20 video sequences (81 frames each) randomly selected from our self-collected teleoperation data, ensuring they were not seen during the Stage 2 Robotic Adaptation training. These sequences encompass all four task categories (Dual Picking, Block Pushing, Bimanual Lifting, and Lid Placement) to verify that \our can maintain high visual fidelity and temporal consistency across diverse robotic manipulation scenarios.
+\end{itemize}
+
+To evaluate action-conditioned video generation, we employ a comprehensive set of metrics: \textbf{PSNR} and \textbf{SSIM} for structural fidelity, \textbf{LPIPS} for perceptual similarity, and \textbf{FVD} to assess temporal coherence. 
+For FVD, we use the standard I3D backbone to evaluate the distribution alignment and temporal coherence of the 81-frame rollouts. All metrics are averaged across the respective test sequences to ensure statistical significance.
+We also report \textbf{FPS} measured on a single NVIDIA H100 GPU.
+
+
+
+
+
+
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=\linewidth]{Fig/vis.pdf}\\
+    \caption{\textbf{Qualitative Results of \our.} Our model effectively maps a single hand-gesture stream to both human and robotic embodiments. By pre-training on large-scale egocentric human videos, \our absorbs rich manipulation priors and successfully transfers this knowledge to robotic execution. The synthesized videos maintain high fidelity and temporal coherence.}
+  \label{fig:vis}
+\end{figure}
+
+
+
+
+
+
+\begin{figure}%
+  \centering
+    \includegraphics[width=\linewidth]{Fig/ood.pdf}\\
+  \caption{\textbf{Generalization to Out-of-Distribution (OOD) Visual States}. 
+  \our generalizes along two axes that are absent from training: (i) unseen objects (top two rows), where the manipulated item in the reference frame is replaced by a novel category or shape;
+  and (ii) unseen backgrounds (bottom two rows), where the tabletop texture is swapped for an environment not seen during training. In all cases, the modified reference image is obtained via off-the-shelf image editing, without any real-world object or scene modification. \our preserves high visual fidelity, temporal coherence, and physically plausible dynamics under both object-level and background-level shifts.
+  }
+  \label{fig:ood_vis}
+\end{figure}
+
+
+\noindent 
+\textbf{Action-Conditioned World Modeling.}
+As shown in Tab.~\ref{tab:exp}, our method significantly outperforms both general-purpose I2V models and action conditioned video generation models. 
+
+General I2V baselines like Wan~\citep{wang2025wan} and CogVideoX~\citep{yang2024cogvideox}, while possessing strong texture priors, lack the mechanism to respond to fine-grained hand gestures, leading to poor temporal coherence in manipulation (FVD $>1300$). 
+\textbf{Notably, a vanilla SFT baseline that directly fine-tunes Wan-2.2-TI2V-5B on the same robotic and human datasets (denoted as SFT in Tab.~\ref{tab:exp}) still trails \our by a wide margin (FVD 1223 vs. 585; PSNR 20.93 vs. 26.08).} This comparison underscores that simple supervised fine-tuning is insufficient for mastering complex robotic dexterity. In contrast, \our's superior performance stems from our specialized depth-aware pose representation and distribution-aligned conditioning, which provide more explicit and effective action grounding.
+
+Compared to human-centric models like CosHand~\citep{sudhakar2024controlling} and Mask2IV~\citep{li2026mask2iv}, \our effectively bridges the embodiment gap by accurately rendering the complex robotic embodiments. Our distilled Causal student model maintains this high fidelity while supporting interactive generation, facilitating responsive closed-loop applications, supported by the visualizations in Fig.~\ref{fig:vis}.
+
+
+
+
+
+
+
+
+
+\begin{figure}[t]
+  \centering
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \vspace{-10pt}
+    \includegraphics[width=\linewidth]{Fig/ablation_concat_add.pdf}
+    \caption{\textbf{Conditioning Strategy.} Compared to concatenation, our distribution-aligned additive scheme (Eq.~\ref{eq:patchify_addplus}) preserves pre-trained weights, ensuring stable synthesis.} 
+    \label{fig:ablation_fusion}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{Fig/ablation-pretrain.pdf}
+    \caption{\textbf{Effect of Pretraining.} Stage 1 pretraining provides a robust interaction prior. Without it, the model fails to maintain visual quality when fine-tuned on limited robotic data.} 
+    \label{fig:ablation_pretrain}
+  \end{minipage}
+\end{figure}
+
+
+
+
+
+\noindent
+\textbf{Generalization to Out-of-Distribution (OOD) Visual States.}
+A key advantage of digital teleoperation is that a new manipulation scene can be instantiated from a single reference image. To validate this claim, beyond the closed-set benchmarks above, we assess \our's ability to generalize to scenes that lie outside the training distribution. Specifically, we consider two complementary axes of visual OOD generalization: unseen objects and unseen backgrounds. For unseen objects, we replace the manipulated item in the reference image with a category or shape that never appears in the training data (\eg substituting a wooden block with a red sphere, or a watermelon plush with a rugby ball). For unseen backgrounds, we swap the tabletop texture in the reference image (\eg overlaying a patterned tablecloth on a plain white table). In both settings, the modified reference image is produced via off-the-shelf image editing, without any real-world object or scene modification. As shown in Fig.~\ref{fig:ood_vis}, \our maintains temporal consistency and faithfully executes the action-conditioned trajectory under both object-level and background-level shifts. These results suggest that \textbf{\our learns a generalized interaction prior that is decoupled from specific object textures and background appearances, supporting the paradigm-level claim that digital teleoperation can instantiate arbitrary target scenes from a single reference image}.
+
+
+\subsection{Ablation Study}
+
+\noindent
+\textbf{Conditioning Strategy: Addition vs. Concatenation.} 
+We investigate the impact of different fusion strategies for integrating pose control. We compare our distribution-aligned additive scheme (Eq.~\ref{eq:patchify_addplus}) with the standard \textbf{Concatenation Fusion}, where control latents are appended to the noisy video latents. As shown in Tab.~\ref{tab:exp}, Concat Fusion results in a significant performance drop, with FVD increasing from 585 to 1191. This indicates that direct concatenation disrupts the pre-trained latent distribution of the base DiT, leading to unstable synthesis. Qualitatively, as shown in Fig.~\ref{fig:ablation_fusion}, our additive approach with zero-initialized gating effectively preserves the generative priors, ensuring better visual fidelity while maintaining precise control.
+
+\noindent
+\textbf{Value of Human Egocentric Pre-training.} 
+To validate our two-stage training paradigm, we evaluate a variant \textbf{w/o Human Pre-training}, which is directly fine-tuned on robotic data. Quantitative results in Tab.~\ref{tab:exp} show a severe performance collapse (FVD 2598, LPIPS 0.453), as the limited robotic data is insufficient to teach the model complex hand-object physics from scratch. 
+As visualized in Fig.~\ref{fig:ablation_pretrain}, without the interaction priors from human videos, the model fails to synthesize realistic hand structures and exhibits severe ``ghosting'' and blurred textures, ultimately leading to a loss of object permanence where the robot effector and the target apple vanish entirely during manipulation.
+This confirms that transferring knowledge from large-scale human egocentric datasets is crucial for bridging the embodiment gap and achieving high-quality robotic world modeling.
+
+
+
+\noindent
+\textbf{Effectiveness of Sequential Distillation.}
+We evaluate the necessity of our two-stage distillation curriculum in Tab.~\ref{tab:exp}. Comparing the final model with the Flow-Matching-only baseline (\textbf{w/o DMD}) reveals a significant quality gap (PSNR 22.25 vs. 19.25). While flow-matching establishes the basic causal architecture, it lacks the high-fidelity refinement of the teacher. More importantly, we observe that directly applying DMD~\citep{yin2024one} to the bidirectional teacher without the causal warm-up phase (\textbf{w/o Causal Warm-up}) leads to severe training instability and blurred textures. This confirms that the first stage (Causal Warm-up) is essential for bridging the structural gap between bidirectional and causal processing, providing a stable initialization that allows the subsequent DMD~\citep{yin2024one} phase to successfully inherit the teacher’s complex hand-object interaction priors in just 4 steps.
+
+
+
+
+
+

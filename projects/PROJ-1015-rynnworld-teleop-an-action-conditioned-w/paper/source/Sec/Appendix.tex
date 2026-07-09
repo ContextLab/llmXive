@@ -1,0 +1,124 @@
+
+
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\linewidth]{Fig/body.pdf}\\
+  \caption{\textbf{Hardware Infrastructure.} The evaluation utilizes our standard robotic setup: a bimanual TIANJI M6 system equipped with WUJI hands. Detailed specifications including degrees of freedom (DoF), payload, and fingertip force are summarized to ensure the reproducibility of our manipulation benchmark.}
+  \label{fig:body}
+\end{figure}
+
+
+
+\section{Real Robot System Setup}
+\label{sec:body}
+Our real robot is built on the TIANJI M6 and WUJI Hand, as shown in Fig.~\ref{fig:body}.
+The policy’s inference frequency is set at 50 Hz. The commands are sent with a delay kept between 18 and 30 milliseconds. The low-level interface operates at a frequency of 500 Hz, ensuring smooth real-time control. The communication between the control policy and the low-level interface is realized through LCM (Lightweight Communications and Marshalling).
+
+We collect real-world demonstration data through a teleoperation system.
+Our hardware setup consists of dual TIANJI 7-DoF robotic arms and dual WUJI 20-DoF dexterous hands, yielding a total of 54 degrees of freedom.                            
+For arm control, the human operator wears five HTC Vive trackers (mounted on the chest, both wrists, and both upper arms). The system computes wrist-to-chest relative transforms at 100-120 Hz and feeds them into a Pinocchio-based inverse kinematics solver running in a separate process. The resulting joint commands are further smoothed by a Ruckig trajectory generator with velocity, acceleration, and jerk constraints before being sent to the robot arms at 200 Hz.                  
+
+For hand control, the operator, as shown in Fig.~\ref{fig:operator}, wears Manus data gloves. The raw glove signals are converted to a 21-point MediaPipe hand skeleton format and retargeted to the 20-DoF WUJI hand joint space via a dedicated retargeting module, with an exponential moving average filter applied for motion smoothing.
+
+
+\section{Retargeting in \our} 
+\label{sec:retargeting_appendix}
+We provide here the full retargeting pipeline summarized in Sec.~\ref{sec:data_pipeline}.
+Given the raw poses from the Vive trackers, we first compute the target end-effector pose for each arm via a coordinate transform chain:    
+\begin{equation}                                                                       \mathbf{T}_{\text{target}} = \mathbf{T}_{\text{base}} \cdot \text{Scale}(\mathbf{T}_{\text{chest}}^{-1} \cdot \mathbf{T}_{\text{wrist}}) \cdot \mathbf{T}_{\text{ee}},
+\end{equation}
+where $\mathbf{T}_{\text{chest}}^{-1} \cdot \mathbf{T}_{\text{wrist}}$ extracts the wrist-to-chest relative pose in tracker space, the $\text{Scale}(\cdot)$ operator scales only the translation component by a factor $s$ (\eg $s=1.5$) to map the operator's workspace to the robot's workspace, and $\mathbf{T}_{\text{base}}$, $\mathbf{T}_{\text{ee}}$ are fixed calibration transforms that align the tracker coordinate frame with the robot base frame and end-effector frame, respectively.       
+
+We solve the inverse kinematics using an iterative damped least-squares (DLS) method. At each iteration, the 6D task-space error $\mathbf{e} \in \mathbb{R}^6$ (position and orientation) is computed, and the joint update is:                        
+\begin{equation}                                                                       \Delta \mathbf{q} = \mathbf{J}^{\#}_{\lambda} \, \mathbf{e},                           \end{equation}                                                                         where $\mathbf{J}^{\#}_{\lambda}$ is the damped pseudo-inverse obtained via SVD:       \begin{equation}                                                                       \mathbf{J} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^\top, \quad                     \mathbf{J}^{\#}_{\lambda} = \mathbf{V} \, \text{diag}\!\left(\frac{\sigma_i}{\sigma_i^2 + \lambda^2}\right) \mathbf{U}^\top,                                       \end{equation}                                                                         with an adaptive damping factor $\lambda = \lambda_{\min} + \frac{0.01}{1 + \sigma_{\max}}$ that increases near singularities.                                     
+
+To produce natural arm configurations, we exploit a \textbf{null-space shoulder prior} derived from the upper-arm trackers. Specifically, the arm tracker position is transformed into the robot frame to yield a reference elbow position, from which  we solve a partial IK (least-squares on a $3 \times 2$ sub-Jacobian of joints $q_0, q_1$) to obtain shoulder reference values $\mathbf{q}_{\text{shoulder}}^{\text{ref}}$. These are injected as a weighted null-space task:                           
+\begin{equation}
+\Delta \mathbf{q} \leftarrow \Delta \mathbf{q} + (\mathbf{I} - \mathbf{J}^{\#}_{\lambda} \mathbf{J}) \, w \, (\mathbf{q}^{\text{ref}} - \mathbf{q}),
+\end{equation}
+where $w=0.5$ for the shoulder joints. Joint limits are enforced by hard clipping after each integration step.
+
+
+
+
+
+\begin{figure}
+  \centering
+    \includegraphics[width=0.4\linewidth]{Fig/operator.pdf}\\
+  \caption{\textbf{Operator setup} for real-world data collection.}
+  \label{fig:operator}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\linewidth]{Fig/hand-vis.pdf}
+  \caption{\textbf{Qualitative comparison.} Unlike baselines that rely on SAM-generated masks for conditioning, \our uses sparse skeletal poses, achieving superior fidelity and temporal coherence. Note that baselines are visualized at their native supported resolutions.}
+  \label{fig:qualitative_comp}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+    \includegraphics[width=\linewidth]{Fig/robo-vis.pdf}
+    \caption{\textbf{Qualitative results of \our on robotic manipulation tasks.} Starting from a single reference image and a sequence of human hand-pose streams, \our synthesizes high-fidelity, temporally coherent robotic execution videos. The results demonstrate the model's ability to render complex dexterous interactions, such as bimanual coordination and high-precision object handling, while maintaining strict adherence to the input action signal.}
+  \label{fig:robo-vis}
+\end{figure}
+
+
+\noindent 
+\section{Visual Comparison Results} 
+As shown in Fig.~\ref{fig:qualitative_comp}, \our produces more temporally stable and physically plausible interactions compared to mask-based methods. While methods like Mask2IV maintain structural shape, they often suffer from texture flickering and lack fine-grained finger articulation. In contrast, our depth-aware skeletal representation provides explicit structural constraints, allowing \our to synthesize realistic finger-object contact even in complex bimanual scenarios on the EgoDex~\citep{hoque2025egodex} benchmark.
+
+Furthermore, we demonstrate the practical efficacy of \our in the target robotic domain in Fig.~\ref{fig:robo-vis}. By successfully transferring interaction priors from human datasets to the WUJI dexterous hand, our model synthesizes photorealistic execution videos at a high resolution. These results show that \our accurately captures the intricate mechanical dynamics and environmental reflections, producing robotic trajectories that are visually indistinguishable from real-world teleoperation recordings across diverse tasks such as Lid Placement and Bimanual Lifting.
+
+
+
+\section{Baseline Implementation Details} 
+\noindent 
+\textbf{CosHand.}
+CosHand~\citep{sudhakar2024controlling} is a diffusion-based hand image generation model that synthesizes target hand appearances conditioned on a reference image and target hand masks. We use the officially released checkpoint and adopt its image-conditioned generation pipeline. For each video, we extract frame~0 as the reference image and use SAM2~\citep{ravi2025sam} to obtain per-frame binary hand segmentation masks from the ground truth video. At each timestep $t>0$, we condition on the reference image, the reference hand mask (frame~0), and the target hand mask (frame~$t$), and generate the target frame at $256\times 256$ resolution using DDIM sampling with 50 steps and a classifier-free guidance scale of 1.5. The generated frames are then resized to $480\times 832$ to match the ground truth resolution, producing 81 frames at 16\,fps per video.
+
+
+
+\noindent 
+\textbf{Mask2IV.}     
+Mask2IV~\citep{li2026mask2iv} is a two-stage latent video diffusion model that generates videos conditioned on an input image, text prompt, and start/end hand masks. We use the officially released checkpoints for both stages. For each ground truth video, we extract SAM2~\citep{ravi2025sam} hand masks and divide the 81-frame sequence into 5 non-overlapping chunks of 16 frames. For chunk~$i$, the conditioning consists of: the ground truth frame at index $16i$ as the input image, the hand masks at frames $16i$ (start) and $16(i+1)$ (end), and a text prompt derived from the task name (\eg ``a hand pouring''). Inference is performed at $320\times 512$ resolution with 50 DDIM steps, $\eta=1.0$, classifier-free guidance scale of 1.0, and guidance rescale of 0.7. The 5 chunks are stitched sequentially to form an 80-frame output video, which is then resized to $480\times 832$ for evaluation.
+
+\noindent 
+\textbf{InterDyn.}
+InterDyn~\citep{akkerman2025interdyn} extends Stable Video Diffusion (SVD) with a ControlNet branch that accepts hand interaction masks as spatial conditioning. We convert each ground truth video from 16\,fps to 12\,fps via frame resampling and split it into 2 non-overlapping chunks of 28 frames.The corresponding SAM2~\citep{ravi2025sam} hand masks are similarly resampled and converted to VP9-encoded WebM format as required by InterDyn's input pipeline. For each chunk, InterDyn takes the first frame as the reference image and the 28-frame mask sequence as ControlNet conditioning, producing 14 output frames at 6\,fps (temporal sub-sampling factor of 2) with 50 denoising steps. The two chunks yield 28 prediction frames per video at a native resolution of $256\times 384$, which are upscaled to $480\times 832$ for metric computation against the ground truth. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

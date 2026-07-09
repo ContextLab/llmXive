@@ -1,0 +1,57 @@
+\begin{table}[tb]
+\caption{Downstream task evaluation results for 1.4B model after 300B-token training.}\label{tb:1B_downstream}
+\centering
+\setlength{\tabcolsep}{3pt}
+\vspace{0.1cm}
+\resizebox{1.0\textwidth}{!}{
+\begin{tabular}{lccccccccc >{\columncolor{blue!10}}c}
+\toprule
+\multirow{2}{*}{Models} &
+LAMBADA & HellaSwag & PIQA & WinoGrande &
+OpenBookQA & ARC-e & ARC-c &
+ARC-e & ARC-c & AVG \\
+ & &  &  &  & & 25-shot & 25-shot & &  &  \\
+\midrule
+
+Random-Guess
+& -
+& 25.00
+& 50.00
+& 50.00
+& 25.00
+& 25.00
+& 25.00
+& 25.00
+& 25.00
+& 25.00 \\
+% \midrule
+
+Full-Attn RoPE
+& \textbf{57.13}
+& 51.99
+& 70.51
+& \textbf{56.51}
+& \textbf{22.60}
+& 68.25
+& 36.95
+& 44.44
+& \textbf{29.49}
+& 48.65 \\
+
+
+HiLS-Attn HoPE
+& 57.05
+& \textbf{52.21}
+& \textbf{72.14}
+& 55.64
+& 22.50
+& \textbf{70.02}
+& \textbf{37.97}
+& \textbf{45.86}
+& 28.14
+& \textbf{49.06} \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:1b_downstream}
+\end{table}

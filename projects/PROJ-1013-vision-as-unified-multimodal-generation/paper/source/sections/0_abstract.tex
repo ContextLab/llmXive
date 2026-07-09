@@ -1,0 +1,18 @@
+\abstract{
+
+We formulate computer vision as unified multimodal generation, where heterogeneous visual tasks are expressed through the native text and image generation spaces of a unified multimodal model (UMM), without task-specific architectures.
+With this formulation, the single model \textbf{SenseNova-Vision} matches leading task-specialized systems across structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry.
+Natural-language instructions and optional visual prompts specify the task, target regions or views, and decoding convention.
+Responses are then generated as text for symbolic records, images for dense spatial targets, or mixed outputs for compositional tasks.
+To enable large-scale training, we convert heterogeneous computer vision annotations into instruction-response examples compatible with these native generation spaces.
+This conversion yields the \textbf{SenseNova-Vision Corpus}, a computer-vision instruction-response corpus spanning text, image, and mixed text-and-image targets.
+Starting from an off-the-shelf pretrained UMM, SenseNova-Vision is trained primarily on the SenseNova-Vision Corpus, using auxiliary multimodal data as a capability-preserving mixture and requiring no task-specific prediction heads or architectural changes.
+The resulting model covers detection, OCR, keypoints, segmentation, depth, surface normals, point maps, and camera pose estimation, and can follow language-defined variants that combine category, color, region, and other visual cues.
+These results suggest unified multimodal generation as a scalable route for integrating computer vision into general-purpose foundation models.
+The SenseNova-Vision model and SenseNova-Vision Corpus are publicly available.
+
+
+}
+
+\checkdata[Codebase]{\url{https://github.com/OpenSenseNova/SenseNova-Vision}}
+\checkdata[Model and Dataset]{\url{https://huggingface.co/collections/sensenova/sensenova-vision}}

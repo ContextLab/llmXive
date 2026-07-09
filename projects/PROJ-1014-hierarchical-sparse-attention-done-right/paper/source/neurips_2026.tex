@@ -1,0 +1,152 @@
+\documentclass{article}
+
+\PassOptionsToPackage{numbers, sort}{natbib}
+\usepackage[main, final]{neurips_2026}
+\usepackage{makecell}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{multirow}       % multi-row cells in tables
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{bm}
+\usepackage{caption}
+\usepackage{mathtools}
+\captionsetup{font=small}
+\usepackage[cal=cm]{mathalpha} 
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{multibib}
+\usepackage[normalem]{ulem}
+\usepackage[compact]{titlesec}
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage[most]{tcolorbox}
+\usepackage{tabularx}
+\usepackage{threeparttable}
+\usepackage{siunitx}
+\usepackage{subcaption}
+\usepackage{tabularray}
+\usepackage[dvipsnames]{xcolor}
+
+\definecolor{ourblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,linkcolor=red,citecolor=ourblue]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Annotations
+\newcommand{\raym}[1]{\textcolor[rgb]{0.0, 0.2, 0.8}{#1}}
+\newcommand{\rayq}[1]{\textcolor[rgb]{0.8, 0.2, 0.3}{[Lei: #1]}}
+\definecolor{softred}{HTML}{A85C5C}
+\definecolor{softgreen}{HTML}{3F7F5F}
+\definecolor{softgreenbg}{HTML}{EEF7F2}
+\definecolor{headergray}{HTML}{F6F6F6}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newtcbtheorem[number within=section]{research_question}{Research Question}{
+  colback=gray!8,
+  colframe=gray!60,
+  coltitle=black,
+  fonttitle=\bfseries,
+  colbacktitle=gray!20,
+  boxrule=0.6pt,
+  arc=2pt,
+  left=5pt,
+  right=5pt,
+  top=4pt,
+  bottom=4pt,
+}{ki}
+
+
+\makeatletter
+\def\RulerShowFour#1,#2,#3,#4,#5\@nil{%
+  \ignorespaces#1 & \ignorespaces#2 & \ignorespaces#3%
+}
+\def\RulerSelectHideLengths#1;#2;#3;#4;#5;#6;#7\@nil{%
+  \RulerShowFour#1,\@nil &
+  \RulerShowFour#2,\@nil &
+  \RulerShowFour#3,\@nil &
+  \RulerShowFour#5,\@nil &
+  \RulerShowFour#7,\@nil%
+}
+\newcommand{\RulerRowHideLengths}[3]{%
+  \ifx\relax#3\relax
+    #1 & \multicolumn{15}{c|}{} \\
+  \else
+    #1 &  \RulerSelectHideLengths#3\@nil \\
+  \fi
+}
+
+\definecolor{lt}{RGB}{62, 141, 34}
+\newcommand{\lt}[1]{\textcolor{lt}{[LT: #1]}}
+\newcommand{\leo}[1]{\textcolor{red}{[Leo: #1]}}
+\newcommand{\hx}[1]{\textcolor{blue}{[hx: #1]}}
+\newcommand{\hy}[1]{\textcolor{brown}{[hy: #1]}}
+\newcommand{\wxy}[1]{\textcolor{orange}{[wxy: #1]}}
+\DeclareMathOperator{\Attn}{attn}
+\DeclareMathOperator{\topk}{top-k}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\Norm}{norm}
+\DeclareMathOperator{\sort}{sort}
+\DeclareMathOperator{\linear}{linear}
+\newtheorem{proposition}{Proposition}[section] 
+
+\title{Hierarchical Sparse Attention Done Right: \\Toward Infinite Context Modeling}
+
+
+
+\author{
+\begin{tabular}{c}
+Xiang Hu$^1$\thanks{Core Contributors. shawnxxxhu@tencent.com} \quad Xinyu Wei$^{2*}$ \quad Hao Gu$^{3*}$ \quad Minshen Zhang$^{4*}$ \quad Tian Liang$^1$ \\
+Huayang Li$^1$ \quad Lei Zhu$^1$ \quad Yan Wang$^1$ \quad Sirui Han$^3$ \quad \\
+Yushi Bai$^1$ \quad Kewei Tu$^2$ \quad Haitao Mi$^1$ \quad Leo Liang$^1$
+\end{tabular}\\
+$^1$Tencent HY Team,\quad $^2$ShanghaiTech University, \quad \\$^3$The Hong Kong University of Science and Technology \quad \\ $^4$University of California, San Diego \\
+\url{https://github.com/Tencent-Hunyuan/HiLS-Attention}
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\input{cover_table}
+\newpage
+\begin{abstract}
+Scaling modern large language models (LLMs) to long contexts is limited by the quadratic computation cost, and poor length extrapolation of dense attention. Chunk-wise sparse attention offers a promising alternative, but all existing methods fall short of full attention because of their inaccurate chunk selection.
+We propose \textbf{Hi}erarchical \textbf{L}andmark \textbf{S}parse (HiLS) Attention, a chunk-wise sparse attention mechanism that learns chunk selection end-to-end under the language-modeling (LM) loss. HiLS factorizes attention hierarchically: each query performs attention independently with each retrieved chunk to extract chunk-specific information, and the resulting outputs are fused according to chunk retrieval scores. By incorporating retrieval scores into the forward attention computation, HiLS optimizes them directly with the LM loss, enabling end-to-end retrieval learning and native sparse training.
+Experimental results in Fig~\ref{fig:main_results} show that HiLS-Attention achieves performance comparable to, and in some cases better than, full attention at in-domain context lengths. Meanwhile, HiLS-Attention extrapolates more than $64\times$ the training context length with 90\% retrieval accuracy, far beyond full attention. Moreover, existing full-attention models can be converted to HiLS-Attention with lightweight continued pretraining, preserving in-domain performance while acquiring ultra-long-context extrapolation. Together with its sparse KV access and computation, HiLS-Attention breaks the usual efficiency-performance trade-off, enabling long-context LLMs that are both more efficient and more effective on general long-context tasks than their full-attention counterparts.
+\end{abstract}
+
+
+\input{1_intro}
+\input{2_preliminary}
+\input{3_method}
+\input{4_experiments}
+\input{5_related} 
+\input{6_conclusion }
+
+\clearpage
+{
+	\small
+	\bibliographystyle{unsrtnat}
+	\bibliography{references}
+}
+
+\clearpage
+\appendix
+\input{7_appendix}
+
+\end{document}

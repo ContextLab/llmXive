@@ -1,0 +1,236 @@
+\section{Small-scale  Studies}
+We first conduct small-scale experiments to rigorously evaluate HiLS-Attention against diverse baselines and investigate the empirical impact of each core component on its performance, in order to gain further insight on the behavior of HiLS-Attention.
+
+\subsection{Main experiments}\label{sec:small_scale_exp}
+
+\paragraph{Setup.}
+
+Following the architectural configurations of GPT-2 Medium~\citep{radford2019language}, we train decoder-only transformers from scratch at the 345M parameter scale with different attention methods. All the models are initialized and trained using the same recipe with 8K context length (see details in Appendix~\ref{apdx:training_recipe}). For all the sparse attention variants, we allocate a 2K-token activation budget alongside a 512-token local sliding window, following findings of prior works that a 512-token window provides a strong efficiency-quality trade-off~\cite{wang2025rattentionminimalslidingwindow}.
+
+RULER~\citep{hsieh2024ruler} is a synthetic long-context task that inserts specified needles into the context and asks corresponding questions at the end, requiring the model to retrieve the relevant needles from the context. It is therefore commonly used to evaluate a model's ability to retrieve task-relevant information from long inputs.
+Because small models have limited instruction-following ability, standard RULER-style prompts may not 
+provide a clean measurement of in-context retrieval. We therefore convert 5\% of the training samples into RULER-style Needle-in-a-Haystack (NIAH) tasks. This is achieved by inserting multiple needles into the context and appending the corresponding query and answer at the end. 
+
+\paragraph{Baselines.}
+We benchmark HiLS-Attention against three categories of attention methods: 
+(1) \textit{Full Attention}, and its extrapolation-enhanced variant with HoPE position embedding \textit{Full-Attn (HoPE)}~\citep{chen-etal-2025-hope};
+(2) \textit{Sliding-Window Attention (SWA)},   with a fixed 512-token window size across all layers; and
+(3) \textit{State-of-the-Art Sparse Attention}, including Native Sparse Attention (NSA)~\citep{yuan-etal-2025-native}, DashAttention~\citep{huang2026dashattentiondifferentiableadaptivesparse}, InfLLM v2~\citep{zhao2025infllmv2densesparseswitchableattention} and HSA-UltraLong~\citep{hu2026everytoken}. For fair comparison, we use the same sparsity-related hyperparameters across all sparse baselines, including the local sliding-window size 512, chunk size 64, and top-$K$ 32. This ensures that different methods operate under a comparable attention budget.
+
+
+\paragraph{Evaluation Metrics.}
+As small models have limited instruction-following ability, we assess model capability via \emph{language modeling perplexity (PPL)} and \emph{in-context retrieval} performance. We quantify retrieval capability using the RULER benchmark~\citep{hsieh2024ruler}, focusing on three representative evaluation primitives: Single Needle (S-N), Multi-Key Multi-Query (MK-MQ, with 6 KV pairs and 2 ordered retrieval queries), and Variable Tracking (VT, comprising 6 assignments spanning up to 2 pointer hops). We argue that evaluating sparse attention on RULER should be conducted on small-scale models, since most tasks are essentially ``find \& copy'' and larger models may compensate for retrieval inaccuracies with broader information bandwidth. 
+
+\input{table/345M_main}
+
+
+\paragraph{Results and Analysis.}
+Tab.~\ref{tb:345M_main_ppl} and \ref{tb:345M_main_ruler} present the small-scale evaluation results. 
+Based on these empirical results, we have the following key observations. 
+
+\begin{itemize}[leftmargin=*,itemsep=0.2em,topsep=0.3em]
+    \item \textbf{Expressiveness limitations prevent perfect NIAH, even under in-domain settings.} On the simplest Single-NIAH task, only Naive BSA and HiLS-Attention sustain performance comparable to full attention within the 8K in-domain context length. By contrast, existing sparse attention that use mean-pooled summaries, including NSA, DashAttention, and InfLLM v2, show noticeable degradation.
+    This supports our analysis in Sec.~\ref{sec:exp_limit}: mean-pooled chunk summaries have limited expressiveness, as they dilute highly concentrated attention mass—precisely the pattern required by NIAH, where only a few needle tokens dominate.
+    \item 
+    \textbf{HiLS-Attention learns more robust sparse attention allocation than naive BSA.}
+    HiLS-Attn achieves PPL comparable to naive-BSA at the training length (4.94 v.s. 4.94 at $8$K), but performs much better under context interpolation ($\leq 256K$) and extrapolation ($> 256K$).
+    Together with the RULER results (where HiLS significantly leads for both within and beyond the training context length settings), this suggests that HiLS does not simply mimic the behavior of full-attention and estimate the full-attention-induced chunk mass, but it indeed learns more effective sparse attention allocation over important context tokens. A possible reason is that token-level full attention has an inherent noise issue: \textit{as long as a token logit is not $-\infty$, the token receives non-zero attention mass.} Since the model cannot learn $-\infty$ attention logits for all irrelevant tokens in practice, these irrelevant tokens inevitably consume small but nonzero probability mass, injecting noise to the probability mass. 
+    As the context grows longer, these small noisy masses accumulate over many irrelevant tokens, making the full-attention-induced chunk mass a noisy selection signal. This may lead naive BSA to suboptimal chunk selection, which is consistent with its inferior downstream performance compared with HiLS.
+    
+    \item \textbf{Compression Enhances In-context Retrieval.}
+    HiLS-Attn not only outperforms naive-BSA, but also substantially surpasses full attention on variable tracking (VT), a task that requires multi-hop reasoning. 
+    We attribute this gain to compression: \textit{it allows token-level noise to partially cancel out while preserving shared semantic signals, thereby yielding more reliable retrieval representations.}
+    Concretely, if each key can be decomposed as $\mathbf{k}_i=\mathrm{semantic}(\mathbf{k}_i)+\mathrm{noise}(\mathbf{k}_i)$, then compression aggregates multiple keys into $\mathbf{k}'_c$. The noise terms, being less aligned, tend to cancel out, while the shared semantic signal is preserved, yielding a cleaner representation. Therefore, compression may lead to better in-context retrieval. From this perspective, we conjecture that HiLS's strong extrapolation ability stems from its improved in-domain retrieval capability.
+
+
+\end{itemize}
+
+\subsection{Long-context Scaling}
+Under the aforementioned setting, the sparsity of HiLS-Attention remains no less than 25\%, i.e., 2K out of an 8K context.
+To evaluate the model's performance under even higher sparsity, we extend the training context length to 256K while keeping a maximum of 2K tokens activated, thereby validating its capabilities in both sparser and longer-context regimes.
+
+\paragraph{Continued-Training Setup.} 
+To validate HiLS-Attention under a longer training context length, we continue training the 345M checkpoints from the previous 8K-context models using a 256K context length.
+Before continued training, we enlarge the RoPE base from $1\times 10^4$ to $1\times 10^7$ for the RoPE-based positional components to expand the perceptible range of global positions. The continued training data are from \texttt{allenai/dolma3\_longmino\_mix-50B-1025}~\citep{allenai_dolma3_longmino_mix_50b_1025}, i.e., the long-context mixture used for Olmo 3 7B long-context training. 
+We train both the Full-Attn and HiLS-Attn-HoPE models under the same settings.
+
+\input{table/345M_256K}
+
+\paragraph{Results.}
+After extending the training context to 256K, Tab.~\ref{tbl:345M_256K_ppl} shows that HiLS-Attention consistently achieves lower perplexity across all settings when evaluated at a length of 256K than full attention.
+
+We observe several interesting phenomena. First, without enlarging the RoPE base, Full-Attn RoPE almost fails on all RULER tasks, showing that the original positional range is insufficient for 256K contexts. However, when the RoPE base is enlarged, both are near zero on MK-MQ, suggesting that changing the RoPE base breaks the retrieval pattern learned within 8K.
+Surprisingly, HiLS-Attn-HoPE still performs better than Full-Attn RoPE on variable tracking (VT). 
+This aligns with our earlier observation that compression can enhance in-context retrieval in \S~\ref{sec:small_scale_exp}. 
+VT requires retrieving a small number of relevant variable assignments from a long context; under full attention, irrelevant tokens still receive small but nonzero attention mass, and their accumulated noise can dilute the useful retrieval signal. 
+By contrast, HiLS uses compressed-key retrieval, where token-level noise can partially cancel out while shared semantic signals are preserved, leading to cleaner retrieval and better VT performance.
+
+Second, HiLS-Attn-HoPE consistently outperforms Full-Attn HoPE/RoPE under the same 256K training setting, despite activating at most 2K tokens. This shows that HiLS-Attention's sparsity does not sacrifice model capability; instead, accurate sparse retrieval can yield lower perplexity and much stronger long-context retrieval ability.
+
+Overall, these results suggest that HiLS-Attn provides a promising path toward ultra-long or even infinite-context training. 
+Infinite-context training must rely on native sparse attention to keep the attention cost bounded, whose key challenge is to ensure that the sparsely selected blocks contain relevant KV states. 
+The strong length-extrapolation ability of HiLS-Attn provides a highly feasible approach to this problem: it can learn retrieval patterns in short contexts and generalize them to much longer contexts, enabling reliable block selection with ultra-long training length. 
+Combined with the fixed computation cost of sparse attention, this makes infinite-context training practically possible.
+
+
+\subsection{Ablation Study}
+
+\paragraph{ Configurations.}
+To isolate the contributions of each component in HiLS-Attention, we benchmark the default setting against the variants 
+in Tab.~\ref{tab:ablation-configuration}.
+
+\begin{table}[t]
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.5}
+    \caption{Summary of ablation variants and their configuration details. }
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{p{0.2\linewidth} p{0.8\linewidth}}
+    \toprule
+    \textbf{Ablation Variants} & \textbf{Description} \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Query Calibration (Q-Cal) Variants}} \\
+    \cmidrule(lr){1-2}
+    w/ Q-Cal ($r$) & Employ the low-rank query projection   in Eq.~\eqref{eq:lora_q} with rank $r$. \\
+    \textcolor{RoyalBlue}{w/ full-rank} & \textcolor{RoyalBlue}{Replaces the low-rank projection with a full-rank linear transformation $\hat{\mathbf{q}}_i = \mathbf{W}^{\hat{Q}}\mathbf{h}_i$, where $\mathbf{W}^{\hat{Q}} \in \mathbb{R}^{d_{\text{model}} \times d_{\text{model}}}$.} \\
+    w/o Q-Cal & Remove the extra $\Delta\mathbf{q}$ term from the query. \\
+    \midrule
+    \multicolumn{2}{l}{\textit{Chunk Summarization Variants}} \\
+    \cmidrule(lr){1-2}
+    w/o Prop.~\ref{prop:logsumexp} & Use the raw landmark token key directly as the routing key $\mathbf{k}'_c$ without Taylor expansion rectification in Eq~\eqref{eq:attn_lhsa}. \\
+    \textcolor{RoyalBlue}{LMK-Attn} & \textcolor{RoyalBlue}{Align with Landmark Attention~\cite{mohtashami2023random} by removing the extra $\Delta\mathbf{q}$ and using the landmark key.} \\
+    w/ mean pooling & Use mean-pooled keys as the summary $\mathbf{k}'_c$ for each chunk. \\
+    \textcolor{RoyalBlue}{w/o lmk, shared $\mathbf{q}_c$} 
+    & \textcolor{RoyalBlue}{Remove landmark tokens and replace $\mathbf{q}'_c$ in Eq.~\eqref{eq:prop_q_c} with a shared   query $\mathbf{q}_c$.} \\
+    \bottomrule
+    \end{tabular}
+    }
+    \label{tab:ablation-configuration}
+\end{table}
+
+
+\paragraph{Main Findings.} The ablation results in Tab.~\ref{tb:345M_ablation_ppl} and \ref{tb:345M_ablation_ruler} show that HoPE positional encoding, query augmentation, and landmark tokens all contribute to the overall performance improvement.
+
+\input{table/345M_ablation}
+
+
+\begin{itemize}[leftmargin=*,itemsep=0.2em,topsep=0.3em]
+    
+    
+    \item \textbf{Impact of Low-Rank Query Calibration:} Excluding the low-rank path (\textit{w/o Q-Cal} in Tab.~\ref{tb:345M_ablation_ppl}) severely degrades performance, whereas overly expanding the rank dimension (r=128 in Table~\ref{tb:345M_ablation_ruler}) conversely impairs length extrapolation. 
+    We conjecture that $\Delta Q$ helps decouple token-level attention from the chunk-level mass surrogate, as they operate at different information level. Although this phenomenon is consistently observed in our experiments, the underlying mechanism is not yet fully understood, and we leave a more principled investigation to future work.
+    
+    \item \textbf{Necessity of Landmark Tokens:} While the landmark-free variant (\textit{w/o lmk}, shared $\mathbf{q}_c$) offers a viable in-domain alternative, its context extrapolation capability degrades rapidly. This demonstrates that specific landmark tokens are indispensable for robust generalization over ultra-long sequences. 
+    As discussed in Sec.~\ref{sec:method}, the effectiveness of a chunk compressed-key is determined by the quality of its learned query $\mathbf{q}'_c$. Since the shared $\mathbf{q}_c$ is only a fixed set of parameters, its expressive power is inherently limited and may fail to capture diverse chunk-level semantics. By contrast, landmark-token queries are produced by the full Transformer computation, including both attention and MLP layers, allowing them to exploit the model's full capacity and adaptively encode each chunk. This explains why landmark tokens are essential for robust long-context extrapolation.
+
+    \item \textbf{Efficacy of Positional Encodings:} Incorporating HoPE yields the best performance, significantly outperforming alternative methods such as RoPE and NoPE. 
+    By applying RoPE only to dimensions whose rotation periods are covered during training and NoPE otherwise, HoPE avoids out-of-distribution positional rotations beyond the training length.
+    Although HoPE brings marginal gains in length extrapolation and perplexity for full attention, its integration with HiLS-Attention delivers substantial gains in both in-domain performance and long-context extrapolation.
+    We hypothesize that HoPE improves HiLS-Attention by reducing the interference of rotary positional encodings during chunk compression. Since chunk compression performs a weighted aggregation over keys $\mathbf{k}_i$, applying RoPE to all dimensions also aggregates different positional rotations, which can distort the resulting semantic representation. The NoPE dimensions in HoPE provide a position-independent semantic subspace, helping preserve chunk semantics and thereby improving both in-domain performance and length extrapolation.
+\end{itemize}
+
+
+
+\section{Large-scale Experiments}
+
+\subsection{Training from scratch}
+To further test whether native sparse training can match full attention at a larger scale, we train a 1.4B-parameter model from scratch on 300B tokens. We track perplexity and length extrapolation performance throughout training, and evaluate the final model on multiple downstream tasks. We use full attention with RoPE as the baseline, as it achieves lower perplexity than full attention with HoPE within 512-token context in Tab.~\ref{tb:345M_main_ppl}, forming a stronger baseline for benchmarks whose average sequence length is below 64 tokens.
+We evaluate PPL and NIAH tasks every 20K steps to track extrapolation stability and their performance discrepancy during training. Details about the model hyperparameters and training recipe are given in Appendix~\ref{appdx:hyper-params}. Benchmark details are listed in Appendix~\ref{apdx:benchmarks}.
+
+
+\paragraph{Results.}
+Fig.~\ref{fig:1B_perstep}(a) shows that the results are consistent with our small-scale findings: HiLS-attention and full-attention achieve almost identical PPL across different context lengths and training stages, especially close at 8K. This indicates that HiLS-attention, despite being trained with native sparsity, preserves short-context modeling ability that is fully comparable to full-attention. 
+Figure~\ref{fig:1B_perstep}(b) confirms that HiLS-Attention's extrapolation remains stable without decaying over training.  Furthermore, Tab.~\ref{tb:1B_downstream} reveals that despite native sparse training\textemdash where HiLS-attention attends to less than half of the tokens of full-attention\textemdash  it still achieves comparable or better performance, thanks to its accurate retrieval. Overall, although HiLS-Attention modifies the standard attention form and is trained from scratch with native sparsity, it remains comparable to full-attention on short-context tasks while showing substantially stronger length extrapolation.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{data/1B_ppl_ruler_combined.pdf}
+    \caption{Perplexity (a) and RULER accuracy (b) of the 1.4B model at different training steps. Left: Full-Attention with RoPE;
+    right: HiLS-Attention with  HoPE.
+    The annotated values on the curves correspond to the final checkpoint (143k steps), which is highlighted with star markers and thicker lines. The detailed per-step results are deferred to Appendix~\ref{apdx:1B_perstep} (Tab.~\ref{tb:1B_ppl_steps} \& Tab.~\ref{tb:1B_ruler_steps}).}
+    \label{fig:1B_perstep}
+\end{figure}
+\input{table/1B_downstream}
+
+
+\subsection{Continue Pre-Training with HiLS-Attention} 
+Since prompt lengths in most benchmarks rarely exceed 1,000 tokens — with Tab.~\ref{tb:1B_downstream} averaging under 64 tokens — they often fall entirely within HiLS-Attention’s sliding-window range. Therefore, we scale up the model size and evaluate on practical long-context tasks like LongBench~\cite{bai2024longbench} to validate its efficacy in real-world long-range scenarios.
+\paragraph{Setup.} 
+We start from the Olmo3-1025-7B base checkpoint~\citep{allenai_olmo3_1025_7b_checkpoint}, which uses standard MHA and a repeating pattern of three 4K sliding-window layers followed by one full-attention layer~\citep{olmo2025olmo}. 
+ We replace the full-attention layers with HiLS-Attn and reduce the sliding-window size from 4K to 512 tokens, preserving the 3:1 pattern while shifting long-range modeling to the HiLS retrieval branch.
+
+
+
+Following the small- and medium-scale settings, we set the chunk size to 64 and the HiLS top-$k$ to 32, which retrieves $32 \times 64 = 2048$ tokens under the 8K continue-pretraining length. Detailed training recipe can be found in Appendix~\ref{apdx:training_recipe}.
+
+
+We compare HiLS-Attn variants against two baselines in Tab.~\ref{tab:olmo3_indomain}.
+
+\textbf{LMK token tuning} follows the training-free recipe in Sec.~\ref{sec:continue-training}: all base parameters are frozen, and only the inserted landmark-token embeddings and the $\mathbf{W}^{\mathrm{up}}, \mathbf{W}^{\mathrm{down}}$ projections are updated.
+In this stage, we conduct training on 5B tokens and use the same learning-rate schedule as above.
+
+\textbf{Olmo3-512swa-CPT} is a full-parameter continued-pretraining baseline that keeps the original full-attention layers but reduces the sliding-window size in every SWA layer from 4K to 512 tokens, matching the local window used by our HiLS-Attn models.
+This baseline isolates the effect of shrinking the local attention window without introducing HiLS retrieval; it uses the same 50B-token continued-pretraining recipe and optimizer schedule as the HiLS models.
+
+\input{table/7B_downstream}
+\input{table/7B_ppl}
+\input{table/7B_longbench}
+
+\paragraph{Results.} 
+The results on the 7B model are generally consistent with those on small- and medium-scale models: HiLS results are overall comparable or even slightly better than baselines (including full-attention) on general tasks.
+We note that the slightly higher 8K perplexity of HiLS-Attn-HoPE-Q-Cal in Tab.~\ref{tab:olmo3_ppl} (3.234 v.s. 3.236) mainly comes from the migration cost of continuing training from a full-attention checkpoint, which is not observed from native HiLS-Attention training from scratch. The gap consistently shrinks with more training tokens, and detailed results are provided in the Appendix~\ref{apdx:ppl_in_cpt}.
+Considering that most tasks in Tab.~\ref{tab:olmo3_indomain} have an average length of around 1K, this only indicates that HiLS-Attention has on-par ability to full attention in short contexts.
+In contrast, the LongBench results in Tab.~\ref{tab:longbench_v1} can sufficiently demonstrate the long-context capability of HiLS-Attention. Even with the extrapolation enhancement provided by YaRN~\cite{peng2024yarn}, there remains a noticeable gap on LongBench compared with the training-free HiLS-Attention.
+
+
+\section{Analysis}
+
+\subsection{Inference Efficiency of HiLS-Attention}
+We benchmark the end-to-end inference latency of HiLS-Attention against full attention in the SGLang~\cite{zheng2024sglangefficientexecutionstructured} inference engine on a single NVIDIA H800 GPU. % TODO: \citep{zheng2024sglang}
+To ensure an apple-to-apple comparison, both backends share the same Triton attention-kernel infrastructure and differ only in the attention algorithm. In particular,  the full-attention baseline is run with the same Triton kernels rather than a vendor-optimized paged-attention implementation. We use the 345M-scale architecture of Sec.~\ref{sec:small_scale_exp} with chunk size 64, top-$k=32$, and a 512-token sliding window. We set the paging granularity of the KV cache equal to the chunk size, and decode in a single stream (batch size 1) in bf16. We report warm-run prefill latency for the full input and the median per-token decode latency with CUDA graphs enabled.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\linewidth]{data/efficiency_speedup_bars.pdf}
+     \caption{Inference latency of HiLS-Attention vs.\ full attention at the 345M scale on a single NVIDIA H800 (batch size 1, bf16, chunk size 64, top-$k=32$, 512-token sliding window). Prefill is the warm-run latency for the full input; decode is the median per-token latency with CUDA graphs. Speedup is full attention $/$ HiLS-Attention ($>1$ means HiLS-Attention is faster). HiLS-Attention reaches parity at $\sim$16K and is $13.5\times$/$15.7\times$ faster (prefill/decode) at 512K.}
+    \label{fig:efficiency}
+\end{figure}
+
+As shown in Fig.~\ref{fig:efficiency}, the cost of HiLS-Attention is governed by its fixed retrieval budget ($K\times\text{chunk}=2048$ tokens) plus the local sliding window, rather than by the full context length. Consequently its prefill latency grows \emph{near-linearly} with context length while full attention grows quadratically. Its per-token decoding latency stays \emph{effectively constant} ($\mathcal{O}(1)$) while full attention grows linearly with the KV-cache length. The latency curves of the two methods cross over at roughly 16K tokens: below this length, the cost of top-$k$ retrieval is not yet amortized, so full attention is faster; at and beyond 16K, HiLS-Attention reaches parity on prefill and is already faster on decoding. Past the crossover the gap widens rapidly with length\textemdash at 512K context HiLS-Attention is $13.5\times$ faster in prefill (5.0\,s vs.\ 67.0\,s) and $15.7\times$ faster per decode step (5.5\,ms vs.\ 85.9\,ms)\textemdash  making HiLS-Attention substantially more practical than full attention for long-context serving while matching its quality (Sec.~\ref{sec:small_scale_exp}).
+
+
+
+\subsection{Chunk Overlap}
+We next validate a key empirical assumption behind the HiLS-Attention kernel: adjacent
+autoregressive queries retrieve highly overlapping chunks. This is especially important for MHA
+models, where GQA-style head grouping, as used in NSA, is unavailable to enlarge the GEMM dimension
+for Tensor Cores. HiLS-Attention therefore adopts a \emph{one-load-multiple-compute} strategy: it
+groups $M$ adjacent queries, loads the union of their retrieved chunks once, and computes attention
+for all $M$ queries over this shared set. The union may introduce a few invalid query--chunk pairs,
+but it improves data reuse, reduces memory traffic, and better utilizes Tensor Cores.
+
+For a block of $M>1$ adjacent queries, let $\mathcal{I}_m$ denote the top-$K$ retrieved chunks of the
+$m$-th query. We measure the normalized chunk-overlap ratio as
+\begin{equation}
+    \mathrm{Overlap}
+    =
+    \frac{M K - \left|\bigcup_{m=1}^{M}\mathcal{I}_m\right|}
+    {(M-1)K},
+\end{equation}
+where $\mathrm{Overlap}=1$ means perfect overlap and $\mathrm{Overlap}=0$ means no overlap. We
+evaluate the Olmo3-7B continued-pretraining checkpoint on pretraining sequences with chunk size 64
+and top-$K=32$. We use $M=16$ for tail-block loading from 4K to 64K contexts, and sweep
+$M\in\{2,4,8,16,32,64\}$ for the overlap ratio, with $M=1$ included as the single-query baseline.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{data/chunk_overlap.pdf}
+    \caption{Chunk-id overlap among adjacent query tokens. Left: loaded union size for the final $M=16$ queries versus the visible historical chunks; percentages denote loaded fractions. Right: normalized overlap as group size $M$ increases, with the dashed line showing inter-block reuse at $M=16$. Error bars show standard deviation across HiLS layers and heads, and shaded regions show the layer-wise min--max range.}
+    \label{fig:chunk_overlap}
+\end{figure}
+
+Fig.~\ref{fig:chunk_overlap} shows strong chunk sharing among adjacent queries. For the final
+$M=16$ queries, the visible historical pool grows from 57 to 1032 chunks as context increases from
+4K to 64K, yet the loaded union grows only from 43.6 to 102.1 chunks, reducing the loaded fraction
+from 76.4\% to 9.9\%. Moreover, 92.8\% of chunks in a query block already appeared in the previous
+block on average, further supporting adjacent-query packing and one-load-multiple-compute.

@@ -1,0 +1,59 @@
+{
+  "arxiv_id": "2607.06559",
+  "arxiv_url": "https://arxiv.org/abs/2607.06559",
+  "title": "RynnWorld-4D: 4D Embodied World Models for Robotic Manipulation",
+  "authors": [
+    "Haoyu Zhao",
+    "Xingyue Zhao",
+    "Siteng Huang",
+    "Xin Li",
+    "Deli Zhao",
+    "Zhongyu Li"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Robotic manipulation in the open world requires not only recognizing what a scene looks like, but also anticipating how its 3D structure moves under interaction. We argue that synchronized RGB, depth, and optical flow, namely RGB-DF, provide a physically grounded representation that captures the underlying 4D dynamics of a scene. Compared to 2D pixel videos, this multi-modal synergy aligns visual appearance with geometric structure and temporal motion, creating a representation space significantly closer to the low-level end-effector actions demanded by robotic systems, thereby narrowing the gap between world prediction and policy learning. Building on this insight, we introduce RynnWorld-4D, a generative model that co-produces future RGB frames, depth maps, and optical flow from a single RGB-D image and a language instruction within one unified diffusion process. This 4D world model features a tri-branch architecture that integrates cross-modal attention with frame-wise 3D RoPE, ensuring that appearance, geometry, and motion evolve consistently. To supply training data at scale, we curate Rynn4DDataset 1.0, a massive dataset of over 254.4 million frames across egocentric human and robotic manipulation videos with high-quality pseudo-labels for depth and optical flow. We further propose RynnWorld-4D-Policy, an inverse dynamics head that consumes the internal 4D representations of RynnWorld-4D in a single forward pass, bypassing expensive multi-step denoising, to output robot actions in a closed-loop manner. Experiments show that RynnWorld-4D produces temporally and spatially coherent 4D predictions, and that RynnWorld-4D-Policy achieves state-of-the-art performance on real-world dexterous bimanual manipulation tasks, particularly excelling in tasks demanding spatial precision and temporal coordination.",
+  "submitted_via": "llmXive dashboard, GitHub issue #714",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/alibaba-damo-academy/RynnWorld-4D"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "paper.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "assets",
+    "assets/plainnat.bst",
+    "assets/optimistic.tfm",
+    "assets/logo.png",
+    "assets/logometa.pdf",
+    "assets/Optimistic.ttf",
+    "fairmeta.cls",
+    "Fig",
+    "Fig/data_dist.pdf",
+    "Fig/tasks.pdf",
+    "Fig/body.pdf",
+    "Fig/logos",
+    "Fig/logos/home.png",
+    "Fig/logos/ms_logo.jpg",
+    "Fig/logos/hf-logo.pdf",
+    "Fig/logos/github-logo.pdf",
+    "Fig/operator.pdf",
+    "Fig/pipeline.pdf",
+    "Fig/teasor.pdf",
+    "Fig/data.pdf",
+    "Fig/appendix-vis.pdf",
+    "Fig/vis.pdf",
+    "paper.bib",
+    "paper.tex",
+    "Sec",
+    "Sec/5-conclusion.tex",
+    "Sec/4-exp.tex",
+    "Sec/1-intro.tex",
+    "Sec/2-related.tex",
+    "Sec/3-method.tex",
+    "Sec/Appendix.tex"
+  ]
+}

@@ -1,0 +1,474 @@
+\section{Experiments}
+\label{sec:experiments}
+
+We evaluate whether SenseNova-Vision can cover a broad set of computer vision tasks through unified multimodal generation.
+The evaluation is organized into four task families: structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry.
+We further compare SenseNova-Vision with recent generalist visual models and evaluate multimodal understanding and image generation to assess whether training on computer vision tasks preserves the base model's general capabilities.
+Finally, we provide additional analyses of convergence behavior, qualitative results, and language-defined task variants beyond standard benchmark settings.
+
+All tasks are formulated with natural-language instructions.
+Textual outputs are parsed into benchmark-specific structured formats, such as boxes, points, recognized text, keypoints, and camera parameters.
+Image outputs are decoded into masks, depth maps, normal maps, or 3D point maps using deterministic conversion rules.
+This protocol allows heterogeneous computer vision tasks to be evaluated after generation through task-specific benchmark metrics.
+
+\subsection{Structured Visual Understanding}
+
+Structured visual understanding evaluates tasks whose outputs can be represented as structured textual predictions, such as bounding boxes, points, recognized text, and keypoint coordinates.
+As shown in Table~\ref{tab:structured-results}, the evaluation covers box- and point-based localization and grounding on COCO-Common~\cite{lin2014microsoft}, HumanRef~\cite{zhang2024humanref}, RefCOCOg val/test~\cite{yu2016modeling,kazemzadeh-etal-2014-referitgame}, LVIS~\cite{gupta2019lvis}, Dense200~\cite{rexomni}, and VisDrone~\cite{du2019visdrone}, OCR localization on HierText~\cite{long2022towards,long2023icdar} and ICDAR15~\cite{ICDAR2015}, GUI grounding on ScreenSpot-V2~\cite{wu2024atlas}, and keypoint detection on COCO-Kpt.~\cite{lin2014microsoft}.
+
+These tasks test whether the model can produce benchmark-compatible coordinate-level predictions through a unified text generation interface.
+They are challenging for serialized generation because dense scenes require long object lists, stable ordering, and precise coordinates.
+SenseNova-Vision achieves strong overall performance, especially on dense, long-tailed, small-object, referring, and OCR localization benchmarks.
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{2pt}
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{l|cccccccccc}
+            \toprule
+            \multirow{3}{*}{Method}
+            & \multicolumn{6}{c}{Object Detection}
+            & \multicolumn{2}{c}{OCR}
+            & \multicolumn{1}{c}{GUI}
+            & \multicolumn{1}{c}{Keypoint} \\
+            & \multicolumn{1}{c}{COCO-Com.}
+            & \multicolumn{1}{c}{HR/RefCOCOg V/T}
+            & \multicolumn{1}{c}{LVIS}
+            & \multicolumn{1}{c}{Dense200}
+            & \multicolumn{2}{c}{VisDrone}
+            & HierText
+            & ICDAR15
+            & ScreenSpot-V2
+            & COCO-Kpt. \\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-10} \cmidrule(lr){11-11}
+            & bbox
+            & bbox
+            & bbox
+            & bbox
+            & bbox & point
+            & bbox & bbox
+            & bbox
+            & point \\
+            \midrule
+            Grounding DINO-Swin-T~\cite{liu2024grounding} & \textbf{56.6} & 25.2 / 45.9 / 46.8                   & 38.8              & 33.1             & 38.5              & --                & --               & --               & --    & --               \\
+            Bagel~\cite{bagel}                            & 50.2             & 74.6 / 76.4 / \underline{77.8}       & 46.8              & 42.4             & 23.0              & 36.9              &   7.1             &    15.8      & 81.1 & --               \\
+            Qwen3-VL-8B-Instruct~\cite{qwen2025qwen3vl}   & 46.6             & 70.4 / 72.3 / 72.6                   & 43.2              & 13.5             & 28.7              & 35.7              & 22.4            & 25.4            & \underline{90.5} & --               \\
+            Qwen3.5-9B~\cite{qwen2026qwen35}              & 49.3             & 71.7 / 72.1 / 72.6                   & 43.2              & 27.5             & 26.8              & 41.7              & 19.6            & 11.4            & \textbf{92.2} & --               \\
+            LocateAnything~\cite{locateanything}          & \underline{54.7}             & 78.7 / \underline{76.7} / 77.6       & \underline{50.7}  & \underline{58.7} & \underline{39.9}  & \underline{60.4}  & \underline{29.1} & 26.4            & 85.5 & --               \\
+            Rex-Omni~\cite{rexomni}                   & 52.9             & \underline{79.9} / 73.6 / 74.3       & 46.9              & 58.3             & 35.8              & 58.9              & 28.0            & \underline{28.1} & 88.4 & \underline{32.6} \\
+            \textbf{SenseNova-Vision}                             & \textbf{56.6}             & \textbf{80.2} / \textbf{79.6} / \textbf{80.5} & \textbf{54.8}     & \textbf{66.8}    & \textbf{43.3}  & \textbf{62.9}       & \textbf{31.2}   & \textbf{49.5}   & 85.9 & \textbf{34.6}    \\
+            \bottomrule
+        \end{tabular}
+    }
+    \caption{
+        Quantitative comparison of structured visual understanding.
+        Performance is assessed using F1@mIoU for box-based detection, referring, and OCR localization tasks, F1@Point for VisDrone point localization, click accuracy for GUI grounding, and F1@mOKS for keypoint localization.
+        Higher values indicate better performance for all metrics.
+    }
+    \label{tab:structured-results}
+\end{table}
+
+\subsection{Dense Geometric Prediction}
+
+Dense geometric prediction evaluates pixel-aligned geometric outputs, including monocular depth estimation and surface normal estimation.
+Depth maps are decoded from generated depth images and evaluated using affine-invariant depth metrics, while surface normal maps are recovered from color-coded images and evaluated by angular error.
+As shown in Table~\ref{tab:dense-geometry-results}, we report depth results on NYUv2~\cite{silberman2012indoor}, KITTI~\cite{geiger2013vision}, ETH3D~\cite{schoeps2017multi}, ScanNet~\cite{dai2017scannetrichlyannotated3dreconstructions}, and DIODE~\cite{vasiljevic2019diode}, together with normal estimation results on ScanNet, iBims-1~\cite{koch2018evaluation}, and NYUv2.
+
+These tasks test whether dense geometric maps can be produced as image outputs without task-specific depth or normal prediction heads.
+SenseNova-Vision achieves strong performance across both depth and normal estimation, outperforming recent generation-based baselines on several benchmarks and remaining competitive with geometry-specialized models.
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{3pt}
+    \begin{tabular}{l|ccccc|ccc}
+        \toprule
+        \multirow{3}{*}{Method} & \multicolumn{5}{c|}{Depth} & \multicolumn{3}{c}{Normal} \\
+        & \multicolumn{5}{c|}{abs rel. $\downarrow$ / $\delta_1 \uparrow$} & \multicolumn{3}{c}{mean err. $\downarrow$ / $\delta_{11.25} \uparrow$} \\
+        \cmidrule(lr){2-6} \cmidrule(lr){7-9}
+        & NYUv2 & KITTI & ETH3D & ScanNet & DIODE
+        & ScanNet & iBims-1 & NYUv2 \\
+        \midrule
+        DSINE~\cite{bae2024dsine}                   & --                              & --                               & --                             & --                               & --                    & 16.2 / 61.0                         & 17.1 / 67.4                      & 16.4 / 59.6                        \\
+        DepthAnything~\cite{depthanything}          & 4.3 / \textbf{98.1}              & 7.6 / 94.7                          & 12.7 / 88.2                        & 4.3 / 98.1                         & 26.0 / 75.9             & --                              & --                           & --                             \\
+        DepthAnything V2~\cite{depthanythingv2}     & 4.5 / 97.9                        & 7.4 / 94.6                          & 13.1 / 86.5                        & 4.2 / 97.8                         & 26.5 / 73.4             & --                              & --                           & --                             \\
+        $\ast$MoGe-2~\cite{wang2025moge2}          & \textbf{3.5} / 98.0& \textbf{5.5} / \textbf{97.7}& \textbf{3.4} / \textbf{98.8}& \textbf{3.4} / \textbf{98.3}& \textbf{23.0} / \textbf{82.3}& \textbf{12.8} / \textbf{68.4}& \textbf{14.7} / \textbf{70.4}& \textbf{14.7} / \textbf{62.3}\\
+        \midrule
+        Marigold~\cite{ke2024marigold}              & 5.5 / 96.4                        & 9.9 / 91.6                           & 6.5 / 95.9                         & 6.4 / 95.2                           & 30.8 / 77.3 & 21.3 / 45.6                         & 18.5 / 64.7                      & 20.9 / 50.5                        \\
+        DICEPTION~\cite{diception}                  & 6.1 / 96.0                        & 6.9 / 94.9                           & 5.0 / 97.5                         & 7.2 / 94.4                           & 28.9 / 72.2             & 18.8 / 53.6                         & --                           & 18.3 / 52.9                        \\
+        FE2E~\cite{fe2e2025editor}                  & 4.1 / 97.7& 6.6 / \textbf{96.0}& \textbf{3.8} / \textbf{98.7}& 4.4 / 97.5                           & 22.8 / \textbf{81.2}& 13.8 / 67.2& \textbf{15.1} / \textbf{70.6}& 16.2 / 59.6\\
+        Lotus-2~\cite{lotus2}                       & 4.1 / 97.6& 6.7 / 94.5                           & 4.6 / 98.1& 4.2 / 97.6& 22.1 / 75.2 & 14.2 / 66.8                         & 15.4 / 70.4          & 16.9 / 59.0                        \\
+        \textbf{SenseNova-Vision}       & \textbf{4.0} / \textbf{98.1}& \textbf{5.9} / 95.9& 4.3 / 97.4& \textbf{3.9} / \textbf{98.0}& \textbf{20.6} / 76.4& \textbf{12.8} / \textbf{68.9}     & 15.4 / 69.1        & \textbf{14.4} / \textbf{62.7}\\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Quantitative comparison of dense geometric prediction.
+        The upper block reports geometry-specialized models, while the lower block compares generation-based methods.
+        Methods denoted with an asterisk ($\ast$) have been re-evaluated to ensure a direct and consistent comparison with our method.
+    }
+    \label{tab:dense-geometry-results}
+\end{table}
+
+\subsection{Segmentation}
+
+Segmentation evaluates mask prediction under semantic, referring, reasoning, grounded, and interactive guidance.
+Generated segmentation images are decoded into benchmark masks using the color palettes, visual prompts, or target specifications defined by each instruction.
+As shown in Table~\ref{tab:segmentation-results}, we report generic, referring, reasoning, Grounded Conversation Generation (GCG)~\cite{rasheed2024glamm}, and interactive segmentation results using the corresponding benchmark metrics.
+
+These tasks test two abilities: selecting the intended language-conditioned target and producing benchmark-compatible masks.
+SenseNova-Vision achieves competitive overall performance among unified segmentation and multimodal baselines, with strong results on reasoning and GCG segmentation.
+Specialized segmentation models remain stronger on several generic and referring segmentation metrics, where segmentation-specific pretrained mask models such as SAM~\cite{sam} or Mask2Former~\cite{mask2former} can provide strong mask priors.
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{l|ccccc}
+        \toprule
+        \multirow{2}{*}{Method} & Gen. Seg. & Ref. Seg. & Rea. Seg. & GCG Seg. & Inter. Seg. \\
+        & Pan. / Sem. & RefCOCO / + / g & Val / Test & Val / Test & Point / Box \\
+        \midrule
+        LISA-7B~\cite{lisa}               & --                                  & 74.9 / 65.1 / 67.9                                  & 52.9 / 47.3             & 62.0 / 61.7                         & --                               \\
+        PSALM~\cite{zhang2024psalm}       & \textbf{55.9} / \textbf{66.6}       & 83.6 / 72.9 / 73.8                                  & --                      & --                                  & \underline{64.3} / 67.3          \\
+        Text4Seg~\cite{lan2025text4seg}   & --                                  & 79.2 / 72.8 / 74.0                                  & 59.1 / 57.1             & --                                  & --                               \\
+        LENS~\cite{zhu2026lens}           & --                                  & \underline{84.2} / \textbf{79.4} / \underline{81.2} & \underline{62.1} / 57.2 & --                                  & --                               \\
+        ConverSeg~\cite{conversational}   & --                                  & 79.4 / 74.3 / 74.9                                  & 61.9 / 57.0             & --                                  & --                               \\
+        X-SAM~\cite{xsam}                 & \underline{54.7} / \underline{66.5} & \textbf{85.1} / \underline{78.0} / \textbf{83.8}    & 56.6 / \underline{57.8} & \textbf{69.4} / \textbf{69.0}       & \textbf{65.4} / \underline{70.0} \\
+        \textbf{SenseNova-Vision}           & 48.8 / 64.0                         & 81.3 / 76.0 / 80.3                                  & \textbf{63.2} / \textbf{60.7}    & \underline{65.7} / \underline{66.2} & 60.9 / \textbf{73.9}             \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Quantitative comparison of segmentation.
+        For Gen. Seg., we report PQ for panoptic segmentation (Pan.) and mIoU for semantic segmentation (Sem.).
+        For Ref. Seg., we report cIoU, defined as the ratio of total true positives to total union.
+        For Rea. Seg., we report gIoU; for GCG Seg. and Inter. Seg., we report mIoU.
+        Higher values indicate better performance for all metrics.
+    }
+    \label{tab:segmentation-results}
+\end{table}
+
+\subsection{Multi-View Visual Geometry}
+
+Multi-view visual geometry evaluates geometric prediction from multiple input images.
+We focus on multi-view point map reconstruction and camera pose estimation, with results for both tasks reported in Table~\ref{tab:multiview-results}.
+For reconstruction on 7Scenes~\cite{shotton2013scene} and ETH3D~\cite{schoeps2017multi}, we report accuracy and completeness following VGGT~\cite{vggt}, together with F1-score using the thresholds from Depth Anything 3~\cite{depthanything3}; for camera pose estimation on RealEstate10K (Re10K)~\cite{zhou2018stereo} and CO3Dv2~\cite{reizenstein2021commonobjects3dlargescale}, we report relative rotation accuracy (RRA), relative translation accuracy (RTA), and AUC under the 30-degree threshold.
+All methods are re-evaluated to ensure a fair and direct comparison with SenseNova-Vision.
+
+These tasks test whether the model can align information across multiple views and produce view-specific geometric outputs for reconstruction and camera pose estimation.
+SenseNova-Vision achieves strong results among generalist geometric approaches, especially on ETH3D reconstruction and camera pose estimation.
+Compared with feed-forward geometric models such as VGGT and Depth Anything 3, a performance gap remains on several metrics, highlighting the continued benefit of geometry-focused training and geometric inductive biases.
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{l|cc|cc}
+        \toprule
+        \multirow{3}{*}{Method} & \multicolumn{2}{c|}{Multi-View Reconstruction} & \multicolumn{2}{c}{Camera Pose} \\
+        & \multicolumn{2}{c|}{Acc.$\downarrow$ / Comp.$\downarrow$ / F1$\uparrow$} & \multicolumn{2}{c}{RRA@30$\uparrow$ / RTA@30$\uparrow$ / AUC@30$\uparrow$} \\
+        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+        & \multicolumn{1}{c}{7Scenes} & \multicolumn{1}{c|}{ETH3D} & \multicolumn{1}{c}{Re10K} & \multicolumn{1}{c}{CO3Dv2} \\
+        \midrule
+        DUSt3R~\cite{dust3r}                     & 0.026 / 0.034 / 87.1                            & 0.359 / 0.531 / 66.6                            & 99.8 / 84.9 / 67.6                             & 97.7 / 93.4 / 78.3                            \\
+        DepthAnything3~\cite{depthanything3}     & \textbf{0.020} / \textbf{0.026} / \textbf{90.5} & 0.228 / 0.212 / 76.6                            & \textbf{100.0} / \textbf{96.4} / \textbf{89.6} & \textbf{99.3} / \textbf{98.0} / \textbf{91.8} \\
+        VGGT~\cite{vggt}                         & 0.023 / 0.032 / 88.4                            & \textbf{0.177} / \textbf{0.155} / \textbf{80.9} & \textbf{100.0} / 93.5 / 79.3                   & 98.3 / 96.6 / 89.2                            \\
+        MoRe~\cite{MoRe4d2026}                   & 0.038 / 0.039 / 77.1                            & 0.348 / 0.318 / 62.7                            & \textbf{100.0} / 94.0 / 79.1                   & 98.4 / 96.3 / 83.0                            \\
+        \midrule
+        MapAnything~\cite{keetha2026mapanything} & \textbf{0.027} / 0.029 / 87.8                   & 0.400 / 0.524 / 67.0                            & \textbf{100.0} / 93.5 / \textbf{80.7}          & 95.5 / 91.6 / 70.9                            \\
+        G2VLM~\cite{g2vlm}                       & 0.084 / 0.056 / 59.2                            & 0.784 / 0.553 / 36.7                            & 99.8 / 77.5 / 51.8                             & 96.3 / 92.0 / 55.2                            \\
+        \textbf{SenseNova-Vision}                & 0.028 / \textbf{0.026} / \textbf{87.9}          & \textbf{0.301} / \textbf{0.175} / \textbf{72.2} & 99.8 / \textbf{94.2} / 77.3                    & \textbf{97.4} / \textbf{95.4} / \textbf{80.1} \\
+        \bottomrule
+    \end{tabular}
+    \caption{Quantitative comparison of multi-view point map reconstruction and camera pose estimation.
+        We evaluate feed-forward geometric models (top) alongside generalist geometric approaches (bottom).
+        MapAnything is classified within the latter category, as it accepts images with optional geometric inputs and fuses the encoded features with a multi-view transformer.
+    }
+    \label{tab:multiview-results}
+\end{table}
+
+\subsection{Comparison with Generalist Vision Models}
+
+The previous sections mainly compare SenseNova-Vision with strong task-specialized systems within each vision task family.
+We further compare with recent generalist visual models that span multiple visual capabilities, as shown in Table~\ref{tab:generalist-visual-models}.
+This comparison evaluates how broadly a single model can cover heterogeneous visual tasks under unified multimodal generation, beyond performing well on individual benchmarks.
+
+We select Youtu-VL~\cite{youtuvl} and Vision Banana~\cite{visionbanana} as representative recent generalist visual models, since they extend vision task coverage from complementary directions.
+Youtu-VL represents a vision-language understanding route, so we compare on benchmarks aligned with structured and semantic perception, including detection, referring segmentation, semantic segmentation, and depth.
+Vision Banana represents an image-generation-centered route, so we compare on benchmarks aligned with image-space prediction, including segmentation, depth, and surface normals.
+
+\begin{table}[t]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+
+    \textbf{(a) Comparison with Youtu-VL}
+    \vspace{3pt}
+
+    \begin{tabular}{l|c|c|c|c}
+        \toprule
+        \multirow{3}{*}{Method} & Detection & Sem. Seg. & Ref. Seg. & Depth \\
+        & mAP $\uparrow$ & mIoU $\uparrow$ & cIoU $\uparrow$ & $\delta_1 \uparrow$ \\
+        \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-5}
+        & COCO & Cityscapes & RefCOCO / + / g & NYUv2 \\
+        \midrule
+        Youtu-VL                  & 47.1          & 70.4          & 80.7 / \textbf{76.2} / 76.5 & 90.4 \\
+        \textbf{SenseNova-Vision} & \textbf{53.7} & \textbf{71.2} & \textbf{81.3} / 76.0 / \textbf{80.3} & \textbf{98.1} \\
+        \bottomrule
+    \end{tabular}
+
+    \vspace{8pt}
+
+    \textbf{(b) Comparison with Vision Banana}
+    \vspace{3pt}
+
+    \setlength{\tabcolsep}{3pt}
+    \resizebox{\linewidth}{!}{%
+        \begin{tabular}{l|c|c|c|cccc|ccc}
+            \toprule
+            \multirow{3}{*}{Method} & Sem. Seg. & Ref. Seg. & Rea. Seg. & \multicolumn{4}{c|}{Depth} & \multicolumn{3}{c}{Normal} \\
+            & mIoU $\uparrow$ & cIoU $\uparrow$ & gIoU $\uparrow$ & \multicolumn{4}{c|}{$\delta_1 \uparrow$} & \multicolumn{3}{c}{mean err. $\downarrow$} \\
+            \cmidrule(lr){2-2} \cmidrule(lr){3-3} \cmidrule(lr){4-4} \cmidrule(lr){5-8} \cmidrule(lr){9-11}
+            & Cityscapes & RefCOCOg & ReasonSeg & KITTI & NYUv2 & DIODE & ETH3D & NYUv2 & ScanNet & DIODE \\
+            \midrule
+            Vision Banana                     & 69.9 & 73.8 & 79.3$^\dagger$ & 91.5$^\ddagger$ & 94.8$^\ddagger$ & 91.7$^\ddagger$ & 93.5$^\ddagger$ & 17.8 & 15.1 & 13.8 \\
+            SenseNova-Vision                  & 71.2 & 80.3 & 63.2 & 95.9 & 98.1 & 76.4 & 97.4 & 14.4 & 12.8 & 15.3 \\
+            \bottomrule
+        \end{tabular}
+    }
+
+    \caption{
+        Quantitative comparison with recent generalist visual models under the metrics reported in their original papers.
+        For Vision Banana, $^\dagger$ denotes a Gemini-assisted ReasonSeg result,
+        and $^\ddagger$ marks depth scores reported under an absolute-depth protocol,
+        whereas SenseNova-Vision uses affine-invariant depth evaluation;
+        these entries are included only as reference comparisons.
+    }
+    \label{tab:generalist-visual-models}
+\end{table}
+
+The comparison shows that recent generalist visual models already go beyond single-task specialization, but their coverage remains shaped by their native output modality.
+SenseNova-Vision performs strongly against Youtu-VL on structured, semantic, and depth benchmarks, and remains competitive with Vision Banana on image-space segmentation and dense prediction benchmarks.
+This broader coverage comes from unified multimodal generation over text, image, and mixed outputs, which better matches the heterogeneous output forms required by computer vision tasks.
+
+Beyond comparisons with other generalist vision models, we further evaluate whether SenseNova-Vision retains the pretrained UMM's general multimodal abilities after mixed-task fine-tuning.
+For multimodal understanding, SenseNova-Vision obtains 79.0 on MMVP~\cite{mmvp}, compared with 83.3 for Bagel~\cite{bagel}.
+For text-to-image generation, SenseNova-Vision obtains 0.85 on GenEval~\cite{geneval}, compared with 0.82 for Bagel.
+Overall, SenseNova-Vision preserves core multimodal abilities while expanding to a broad range of visual tasks.
+
+\subsection{Qualitative Results and Additional Analysis}
+\label{sec:qualitative-behavioral-analysis}
+
+Beyond standard benchmark metrics, we further analyze training dynamics and qualitative behaviors of SenseNova-Vision, including convergence trends, a focused referring-style interactive segmentation variant, and broader free-form language-to-mask probes.
+
+\subsubsection{Convergence Analysis}
+\label{sec:convergence-analysis}
+
+\begin{wrapfigure}[20]{r}{0.50\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{assets/main_figures/fig6_convergence_curve.pdf}
+    \caption{
+        Normalized convergence curves across representative tasks.
+        Each metric is normalized by its final-step value to compare relative convergence trends during training.
+    }
+    \label{fig:convergence-curve}
+\end{wrapfigure}
+
+Figure~\ref{fig:convergence-curve} visualizes normalized metric curves throughout training to compare learning progress and convergence speed across diverse computer vision tasks.
+Depth and surface normal estimation converge fastest, likely because their targets are spatially aligned with the input image and may be close to image generation or editing patterns already seen during pretraining.
+Multi-view reconstruction is spatially similar to depth prediction but requires alignment across multiple views, leading to a more moderate convergence speed.
+Camera pose estimation converges more slowly because it requires cross-view alignment, newly introduced pose tokens, and deeper cross-modal understanding of geometric structure.
+Common detection and generic segmentation show intermediate convergence, as both rely on semantic recognition and spatial alignment; detection progresses slightly faster, possibly because object localization is already partly covered by the pretrained model's visual-language experience.
+Referring segmentation converges more slowly than generic segmentation because it places stronger demands on language-conditioned semantic grounding.
+Dense detection is the slowest task, suggesting that crowded small-object localization requires precise cross-modal discrimination and detailed image understanding when many regions must be serialized.
+Overall, these trends suggest that visual abilities do not converge uniformly but follow a staged learning pattern, with later convergence on tasks that require deeper alignment between fine-grained visual evidence, language intent, and spatial structure.
+
+\subsubsection{Overall Qualitative Results}
+\label{sec:overall-qualitative-analysis}
+
+Figure~\ref{fig:overall-qualitative-results} presents qualitative examples across the visual task families supported by SenseNova-Vision.
+Across structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry, the model follows the requested task prompts and produces outputs that can be parsed or decoded into the corresponding task representations.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.91\textheight,keepaspectratio]{assets/main_figures/fig7_overall_qualitative_results.pdf}
+    \caption{
+        Qualitative results of SenseNova-Vision across representative computer vision tasks.
+        All examples are generated through the same language-conditioned multimodal generation interface.
+    }
+    \label{fig:overall-qualitative-results}
+\end{figure}
+
+The examples show complete structured predictions in crowded, small-object, and document-like scenes.
+For dense and spatial outputs, the generated depth and normal maps preserve major scene structures, the predicted masks are semantically aligned with the requested targets, and the multi-view outputs show reasonable cross-view geometric consistency.
+These examples illustrate that SenseNova-Vision can preserve task-specific output structure across heterogeneous visual tasks within a unified generation framework.
+
+\subsubsection{Referring-Style Interactive Segmentation}
+\label{sec:text-prompted-interseg}
+
+Interactive segmentation is usually conditioned on visual prompts such as rendered points, boxes, scribbles, or masks.
+For a text-and-image generation interface, however, a sparse point cue can be expressed more compactly as text: a normalized coordinate specifies the location directly, whereas an image prompt encodes the same point through a full visual condition with substantial redundant information.
+We therefore examine a referring-style interactive segmentation task in which the model receives a text-encoded point coordinate and generates the corresponding binary mask.
+This task combines three training domains: image-conditioned interactive segmentation provides the mask-generation objective, referring segmentation provides the text-span interface for target specification, and structured visual understanding tasks such as detection, grounding, and pointing provide coordinate-level localization knowledge.
+
+Concretely, standard referring segmentation uses \texttt{<p>referring expression</p>} to specify the target region through language.
+We keep this referring-style span but replace the semantic expression with a normalized coordinate cue, written as \texttt{<p><point>[0.xxx, 0.xxx]</point></p>}.
+This exact coordinate-based segmentation prompt is not included in the segmentation training protocol, but its components are familiar from different domains: the \texttt{<p>} span follows referring segmentation, and the normalized coordinate follows structured localization annotations.
+Unlike an image prompt, which is already spatially aligned with the input image, a text-encoded point requires the model to convert numerical coordinates into image-space locations before generating the mask.
+Figure~\ref{fig:referring-style-interactive-segmentation} shows qualitative examples of this composed prompt format.
+Across the displayed cases, SenseNova-Vision follows the text-specified point accurately, selects the intended target among nearby or same-class objects, and generates binary masks even for small regions.
+
+These results suggest that coordinate understanding learned from structured prediction can be interpolated into mask generation through the unified text-and-image interface.
+The behavior is a concrete example of a language-defined task variant beyond the explicit training protocols, pointing toward the potential of unified multimodal models to recombine supervision from different computer vision domains.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{assets/main_figures/fig8_referring_style_interactive_segmentation.pdf}
+    \vspace{-10pt}
+    \caption{
+        Qualitative examples of referring-style interactive segmentation with text-encoded point cues.
+        SenseNova-Vision interprets normalized coordinates embedded in the referring span and generates binary masks for the indicated targets.
+    }
+    \label{fig:referring-style-interactive-segmentation}
+\end{figure}
+
+\subsubsection{Free-Form Language-to-Mask Generation}
+\label{sec:free_form_mask_generation}
+
+Beyond the focused coordinate-to-mask variant above, we use segmentation as a testbed for broader free-form multimodal generation.
+Dense geometric prediction tasks and multi-view visual geometry tasks are largely constrained by deterministic geometric targets, while structured visual understanding produces text outputs that may already benefit from the language flexibility of the pretrained UMM.
+Segmentation lies between these cases: it requires dense spatial outputs, yet the target type, region grouping, instance organization, and mask representation protocol can all be flexibly specified through language.
+During training, however, segmentation supervision still follows predefined task domains and fixed annotation protocols, as in conventional segmentation datasets.
+
+This setting differs from conventional open-vocabulary segmentation, which mainly expands the category vocabulary of segmentation targets.
+Here, the probes vary the data distribution, task definition, mask representation protocol, and target type.
+We construct them by adapting task instructions from detection, grounding, segmentation, and OCR into non-canonical mask-generation prompts.
+These probes test whether mask generation can move beyond fixed segmentation protocols and recombine capabilities learned from other task domains.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/dense_instance_segmentation_dense200.pdf}
+        \caption{Crowded scenes with compact objects from Dense200.}
+        \label{fig:dense-instance-segmentation-dense200}
+    \end{subfigure}
+    \vspace{-4pt}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/dense_instance_segmentation_visdrone.pdf}
+        \caption{Aerial scenes with tiny objects from VisDrone.}
+        \label{fig:dense-instance-segmentation-visdrone}
+    \end{subfigure}
+    \caption{
+        \textbf{Dense instance segmentation with adapted detection-task instructions.}
+        The prompts ask the model to enumerate visible instances of a target category and render different instances with distinct colors.
+        (a) Despite heavy overlap and occlusion in a crowded scene, SenseNova-Vision separates a large fraction of individual instances and assigns distinct regions to adjacent same-category objects.
+        (b) In the cluttered aerial night scene, the model recovers numerous tiny objects while distinguishing categories such as cars and trucks.
+        Separate colors are assigned to individual targets, enabling instance-level decoding from the generated mask image.
+        For comparison, X-SAM visualization is obtained by refilling the predicted masks for easier visual inspection.
+    }
+    \label{fig:dense-instance-segmentation-examples}
+\end{figure}
+
+The first probe focuses on dense instance segmentation using detection-task instructions adapted to request instance-level mask outputs.
+Dense and small-object scenes are common in detection data but remain costly to annotate with instance-level masks.
+On Dense200~\cite{rexomni} and VisDrone~\cite{du2019visdrone}, SenseNova-Vision extracts up to nearly one hundred compact or tiny objects in dense and aerial scenes, assigning each instance a distinct color that enables separate decoding of individual targets, as shown in Fig.~\ref{fig:dense-instance-segmentation-examples}.
+These examples suggest that unified training can broaden the data distribution of mask generation to include dense and small-object cases that are better covered by detection data.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.34\textheight,keepaspectratio]{assets/freeform_task_variants/vgd_segmentation_point_prompt.pdf}
+        \caption{VGD segmentation with point reference cue.}
+        \label{fig:vgd-segmentation-point-prompt}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth,height=0.34\textheight,keepaspectratio]{assets/freeform_task_variants/vgd_segmentation_box_prompt.pdf}
+        \caption{VGD segmentation with box reference cue.}
+        \label{fig:vgd-segmentation-box-prompt}
+    \end{subfigure}
+    \vspace{-8pt}
+    \caption{
+        \textbf{Visual Grounded (VGD) segmentation with text-specified reference cues.}
+        The prompt specifies a reference instance with a point or box written as textual coordinates and asks the model to segment other same-class instances.
+        (a) The point cue selects one bottle, and SenseNova-Vision segments matching bottles across different shapes and sizes.
+        (b) With a box cue on one elephant, the model separates nearby same-class instances despite overlap and occlusion.
+    }
+    \label{fig:vgd-segmentation-examples}
+\end{figure}
+
+Another probe follows the visual-prompt grounding setting, but uses text-specified reference cues for Visual Grounded (VGD) segmentation~\cite{xsam}.
+A reference point or box written as textual coordinates indicates one instance, and the model must infer the corresponding visual match and segment other same-class targets in the image.
+As shown in Fig.~\ref{fig:vgd-segmentation-examples}, SenseNova-Vision uses the text-specified point or box to identify the reference instance and generate masks for corresponding same-class targets.
+This extends the task definition by adapting nearby grounding supervision into a new segmentation task that is not explicitly enumerated in the training data.
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/freeform_color_mask_case1.pdf}
+        \label{fig:freeform-color-mask-case1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/freeform_color_mask_case2.pdf}
+        \label{fig:freeform-color-mask-case2}
+    \end{subfigure}
+    \vspace{-4pt}
+    \caption{
+        \textbf{Free-form color-coded mask generation.}
+        The prompt describes region-color correspondences in natural language, without relying on the fixed class-color tags or exact RGB values used in training data.
+        Both examples show mask-like outputs whose regions approximately follow the requested color assignments, illustrating language control over the mask representation protocol.
+    }
+    \label{fig:freeform-color-mask-generation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/text_segmentation_word.pdf}
+        \caption{Word-level text segmentation.}
+        \label{fig:text-segmentation-word}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{assets/freeform_task_variants/text_segmentation_letters.pdf}
+        \caption{Letter-level text segmentation.}
+        \label{fig:text-segmentation-letters}
+    \end{subfigure}
+    \vspace{-4pt}
+    \caption{
+        \textbf{Text segmentation from free-form language prompts.}
+        (a) A word-level prompt asks the model to segment the queried word ``coke'' as a text-shaped region.
+        (b) A letter-level prompt asks the model to segment all visible letters, requiring finer-grained localization and decomposition of text regions.
+        In both cases, the generated masks align with the requested text targets.
+    }
+    \label{fig:text-segmentation-examples}
+\end{figure}
+
+Free-form color-coded mask generation probes whether language can define the mask representation protocol itself.
+Here, color assignments are given through free-form language, which tests whether the model can handle user-described palettes after training on fixed class-color tags and exact RGB values.
+As shown in Fig.~\ref{fig:freeform-color-mask-generation}, SenseNova-Vision generates mask-like outputs whose regions roughly follow the requested color assignments, although the colors and boundaries are not always exact.
+This shows that language can control the mask representation protocol, not only the target regions to be segmented.
+
+Text segmentation treats textual content, such as words or characters, as spatial mask targets and has been studied in scene text segmentation~\cite{xu2021rethinking,yu2024eaformer}.
+Although SenseNova-Vision is not trained with text segmentation masks, OCR localization supervision can be recombined with mask generation to produce text-shaped regions.
+As shown in Fig.~\ref{fig:text-segmentation-examples}, the model segments the queried word ``coke'' and can also generate masks for individual visible letters.
+The target type of segmentation therefore broadens from conventional object or stuff regions to lexical units, including fine-grained or disconnected regions that jointly require recognition, localization, and mask rendering.
+
+Overall, these qualitative probes suggest that free-form language-to-mask generation can extend segmentation along several dimensions: data distribution, task definition, mask representation protocol, and target type.
+Although still qualitative and imperfect, these behaviors indicate that new mask-generation tasks can emerge from recombining recognition, localization, grounding, OCR, and rendering capabilities.
+
+More importantly, even when supervision is collected from separate task domains, joint training under our formulation strengthens cross-modal correspondences, allowing the same underlying information to be represented and used flexibly across modalities.
+Referring-style interactive segmentation and VGD segmentation show that spatial locations can be specified through either text or image cues and aligned with mask outputs.
+OCR localization and text segmentation represent textual-spatial information in complementary forms: symbolic text with locations and grid-based visual masks.
+Free-form color-coded mask generation shows that the model can generalize from RGB-specified mask protocols to natural-language color descriptions while connecting both to color-coded mask outputs, reflecting its ability to understand and use different expressions of color.
+Together, these cross-modal correspondences point to unified multimodal generation as a way to jointly organize visual, linguistic, and spatial information within one model.
+

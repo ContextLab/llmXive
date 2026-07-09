@@ -1,0 +1,13 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+In this work, we present unified multimodal generation as a formulation for computer vision, analogous to the role of GPT-style generative modeling in NLP.
+We present the SenseNova-Vision Corpus by casting heterogeneous computer vision annotations into text, image, and mixed text-and-image generation targets, and train SenseNova-Vision within the same formulation.
+This conversion enables large-scale training of a single UMM across structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry without task-specific heads.
+The resulting model matches leading task-specialized systems and supports language-defined task variants, suggesting a scalable route for absorbing computer vision supervision into general-purpose foundation models.
+The generative modeling of diverse 2D and 3D perception tasks may further cultivate implicit spatial understanding, connecting this paradigm naturally to the rapidly emerging frontiers of physical intelligence.
+
+This formulation opens several directions for future work.
+First, stronger in-context learning could further reduce the boundaries between task domains, enabling new visual tasks to be specified by examples, prompts, or mixed demonstrations beyond predefined datasets.
+Second, extending unified multimodal generation from images to video would bring temporal dynamics and web-scale video supervision into foundation-model training.
+Finally, scaling the corpus and model capacity, together with deeper integration with the strongest language models, may allow general-purpose foundation models to absorb richer visual and spatial knowledge from computer vision, moving toward world models that can perceive, reason about, and interact with the physical world.

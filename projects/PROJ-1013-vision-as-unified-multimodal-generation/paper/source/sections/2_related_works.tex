@@ -1,0 +1,43 @@
+\section{Related Works}
+\label{sec:related_works}
+
+\subsection{Early Unified Vision Models and Interfaces}
+
+Early unified vision models explore how diverse vision and vision-language tasks can be expressed through shared task formats.
+This line begins with casting structured visual predictions as sequences, as in Pix2Seq for object detection~\cite{pix2seq}, and then extends to broader task families in Pix2Seq v2~\cite{pix2seqv2} and text-box generation in UniTAB~\cite{unitab}.
+OFA~\cite{ofa} and Uni-Perceiver~\cite{uniperceiver,uniperceiverv2} further expand this idea to cross-modal and generalist vision-language modeling.
+Unified-IO~\cite{unifiedio} and Unified-IO 2~\cite{unifiedio2} broaden the direction by representing heterogeneous inputs and outputs in a common token space, while Florence-2~\cite{florence2} scales prompt-based sequence generation to a wide range of vision tasks.
+Yet their unification still relies heavily on shared sequence formats and task-specific encoding rules, making the interface less natural for dense maps and structurally diverse visual outputs.
+
+\subsection{Task-Family Generalization with Visual Foundation Models}
+
+Another line of work seeks generalization with visual foundation models and pretrained visual representations.
+Representative pretraining methods such as MAE~\cite{mae} and DINOv2~\cite{dinov2} provide reusable visual features for recognition, dense prediction, and geometry transfer.
+SAM~\cite{sam} shows that promptable segmentation can cover a broad family of mask prediction tasks, while Painter~\cite{painter} and SegGPT~\cite{seggpt} use visual in-context examples to specify different image-to-image perception tasks.
+In geometry, Depth Anything~\cite{depthanything} scales depth prediction with strong visual representations and large data, and VGGT~\cite{vggt} extends feed-forward visual modeling to cameras, point maps, reconstruction, and point tracking.
+These works generalize strongly within visually coherent task families, but the absence of a unified output space keeps their unification partial.
+They also provide limited support for understanding complex, compositional, or open-ended language instructions.
+
+\subsection{Image-Generative Models for Dense Perception}
+
+Diffusion and image generation models provide a generative alternative to conventional dense prediction by producing spatially aligned visual outputs.
+Marigold~\cite{ke2024marigold} adapts diffusion priors to monocular depth estimation, while Lotus, Lotus-2, and FE2E~\cite{lotus,lotus2,fe2e2025editor} adapt powerful image generative or editing models for geometric dense prediction such as depth and normal estimation.
+DICEPTION~\cite{diception} casts multiple perceptual tasks as conditional image generation in a shared RGB output space, and Visual Bridge~\cite{visualbridge} studies generative visual perception representations.
+Vision Banana~\cite{visionbanana} further scales this direction with a stronger image-generation foundation model and lightweight instruction tuning, enabling richer language-conditioned visual predictions while preserving generation capability.
+These methods make dense targets compatible with the native image space of generative models, but their unification remains largely image-side.
+Since symbolic records, task schemas, camera parameters, and decoding rules are naturally textual, image generation alone cannot cover the symbolic and mixed outputs required by many tasks.
+
+\subsection{MLLM-based Perception and Task Modules}
+
+As powerful foundation models that integrate language and vision, MLLMs bring new opportunities to visual perception.
+One line extends MLLMs to structured visual grounding: Kosmos-2~\cite{kosmos2}, Shikra~\cite{shikra}, and Ferret~\cite{ferret} connect language generation with boxes, coordinates, and regions, while Rex-Omni~\cite{rexomni} broadens this direction through next-point prediction.
+Another line represents dense spatial outputs through discrete token or logit spaces, as in Text4Seg~\cite{lan2025text4seg} and DenseMLLM~\cite{densemllm}, but preserving fine spatial details requires carefully designed tokenization and decoding schemes.
+Decoder-based systems instead attach task-specific modules to MLLMs: LISA~\cite{lisa}, PixelLM~\cite{pixellm}, and X-SAM~\cite{xsam} connect language reasoning to segmentation or mask decoders, while G$^2$VLM~\cite{g2vlm} and VisionLLM v2~\cite{visionllmv2} introduce downstream modules or connections for geometry and broader perception tasks.
+This preserves useful inductive biases but keeps output spaces fragmented across task-specific components.
+
+Recent UMMs~\cite{chameleon,showo,janus,bagel,sensenovau1} extend multimodal foundation models from understanding-centered MLLMs to models that natively support both text and image generation.
+They typically model language and visual content within shared or coupled generative spaces, allowing a single model to understand instructions, generate text, and synthesize images.
+This makes it timely to revisit the unification of computer vision tasks: heterogeneous visual supervision can be expressed as decodable targets in the same native spaces of a UMM.
+SenseNova-Vision follows this route by aligning symbolic records, dense spatial targets, and mixed responses with the native text-and-image input-output spaces of a UMM, turning them into decodable training targets for a single model.
+
+Complementary to this line of work, SenseNova-SI \cite{cai2026scaling} studies how curated spatial-intelligence supervision can scale spatial reasoning abilities in multimodal foundation models including UMM backbones. Our work builds on the same broader view that spatial and geometric abilities can be cultivated in foundation models, but focuses on a different question: how heterogeneous computer vision annotations can be converted into native text, image, and mixed generation targets for benchmark-decodable perception outputs.

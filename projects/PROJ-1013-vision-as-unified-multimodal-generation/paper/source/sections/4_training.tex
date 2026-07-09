@@ -1,0 +1,40 @@
+\section{Training}
+\label{sec:training}
+
+We train {SenseNova-Vision} by adapting Bagel-7B-MoT~\cite{bagel} to the unified vision-task corpus constructed in Sec.~\ref{sec:dataset_construction}.
+Instead of training a multimodal model from scratch, we aim to endow an existing UMM with benchmark-compatible computer vision abilities while mitigating the degradation of its open-ended capabilities, including image understanding, instruction following, and image generation.
+This section describes the mixed-task fine-tuning strategy, the high-resolution and multi-view training setup, and the training hyperparameters.
+
+\textbf{Mixed-task fine-tuning.}
+We perform supervised fine-tuning from the Bagel checkpoint on the SenseNova-Vision Corpus together with general-purpose multimodal data spanning visual question answering (VQA), text-to-image, and image-to-image tasks.
+In a unified understanding and generation framework, this data mixture allows our model to learn representations of benchmark-readable outputs for structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry, while mitigating degradation of the broad capabilities of the base UMM.
+
+We adopt a joint sampling strategy that draws mini-batches from a weighted mixture of converted computer vision samples and auxiliary multimodal samples; the realized training mixture is shown in Fig.~\ref{fig:training-mixture-composition}.
+Each mini-batch may contain samples drawn from multiple task categories and therefore produces a mixture of text and visual supervision targets.
+During training, text and visual targets are interleaved in the same optimization process despite their different objectives.
+Text-form outputs, including detection boxes, OCR strings, keypoints, and camera parameters, are tokenized and optimized with the standard cross-entropy (CE) loss under the next-token-prediction paradigm.
+Visual outputs, including masks, depth maps, normal maps, and point maps, are encoded into a VAE latent space and optimized with the rectified-flow training objective inherited from Bagel.
+In this way, heterogeneous computer vision targets are learned through the native text and image decoders of the base model, without introducing task-specific prediction heads.
+
+The mixed-task joint training strategy enables the model to learn shared parameters across interleaved task formats and output modalities, potentially improving its generalization to zero-shot task variants.
+Sec.~\ref{sec:text-prompted-interseg} gives further analysis.
+
+\textbf{High-resolution and multi-view training.}
+Compared with the VAE pathway, SigLIP2~\cite{siglip2} provides stronger semantic conditioning over input images, which benefits language-guided and region-level perception.
+For image-input tasks requiring fine spatial conditioning, especially segmentation, we keep the SigLIP2 input resolution up to 980 pixels for both understanding and image-conditioned generation.
+This preserves high-resolution conditioning whenever generation depends on an input image, whereas Bagel uses a lower SigLIP2 conditioning limit on the generation side.
+
+For multi-view visual geometry, each data sample corresponds to a multi-view scene.
+Due to memory constraints, each training sample is formed by randomly selecting at most 10 views from the corresponding scene.
+For point map reconstruction, the selected views are aligned to the first view, center-normalized, and invalid pixels are mapped to a distant sky box.
+For camera pose estimation, we reserve the final 2,009 vocabulary entries of the base model and repurpose them as a dedicated set of special tokens.
+Among these tokens, 2,001 encode quantized pose parameters, including quaternion-based rotations, unit translation vectors, and scales, while the remaining 8 act as structural placeholders, as detailed in Appendix Table~\ref{tab:pose_token_markers}.
+These special tokens are used exclusively for camera pose estimation, while other structured outputs remain serialized using ordinary text tokens.
+
+\textbf{Training setup.}
+We perform SFT with the VAE visual encoder frozen, while allowing all other modules and connectors to be updated.
+We use the AdamW optimizer with a learning rate of $2.5\times10^{-5}$ and no weight decay.
+We follow the method used in Bagel to pack training mini-batches, with 32K--36K tokens per rank and a maximum context window of 32K per sample.
+The dropout rates for text, ViT and VAE input tokens are set to 0.05, 0.1 and 0.1, respectively.
+The model is trained for 50K steps including 500 warm-up steps, and an EMA ratio of 0.995; the EMA checkpoint is used for evaluation.
+All other configurations remain the same as in the SFT stage of Bagel.

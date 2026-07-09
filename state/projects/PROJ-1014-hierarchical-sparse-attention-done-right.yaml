@@ -1,0 +1,18 @@
+artifact_hashes: {}
+assigned_agent: null
+created_at: '2026-07-09T01:40:16.267479Z'
+current_stage: paper_ingested
+failed_stage: null
+field: linguistics
+human_escalation_reason: null
+id: PROJ-1014-hierarchical-sparse-attention-done-right
+last_run_id: null
+last_run_status: null
+points_paper: {}
+points_research: {}
+revision_round: 0
+revision_spec_path: null
+speckit_paper_dir: null
+speckit_research_dir: null
+title: 'Hierarchical Sparse Attention Done Right: Toward Infinite Context Modeling'
+updated_at: '2026-07-09T01:40:16.447840Z'

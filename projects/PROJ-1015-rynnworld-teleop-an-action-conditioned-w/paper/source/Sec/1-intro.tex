@@ -1,0 +1,54 @@
+\section{Introduction}
+Recent advances in robotics, such as vision-language-action (VLA) models~\citep{black2024pi_0,brohan2022rt,kim2024openvla,li2026causal,zhao2026towards} and world models~\citep{agarwal2025cosmos,ali2025world}, show emerging promise for general-purpose autonomy, yet they remain significantly hindered by data scarcity~\citep{zhao2026high,lepert2025masquerade,zhao2023learning}. Access to such large-scale robot data would enable more straightforward training and potentially unlock a higher performance upper bound. While traditional teleoperation systems~\citep{li2025teleopbench,ze2025twist,zhao2025smap} provide high-quality expert data, they are often confined to fixed laboratory settings and specific objects~\cite{zhao2025physsplat,guo2026articulat3d,zhao2024hfgs}. The immense overhead of manual environment resets and the logistical challenge of procuring diverse real-world objects prevent these systems from capturing the long-tail distribution of interactions. Consequently, achieving the robust generalization required for unstructured environments remains an open challenge that physical platforms alone cannot solve.
+
+
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=\linewidth]{Fig/teasor.pdf}\\
+  \caption{\textbf{Physical vs. Digital Teleoperation.} 
+  (Top) Physical teleoperation binds every demonstration to a real robot and a fixed workspace, capping throughput at operator-hours $\times$ hardware availability. (Bottom) Digital teleoperation replaces the real robot with \our, a real-time action-conditioned world model that synthesizes the egocentric video the robot would have produced from a single reference image, and retargets the same gesture stream into embodiment-specific robot actions. Both pipelines emit synchronized (RGB observations, robotic actions) pairs, so digital teleoperation is drop-in compatible with downstream imitation learning, without ever moving a real robot.
+  } 
+  \label{fig:teaser}
+\end{figure}
+
+
+
+
+
+
+We propose to decouple operator time from physical infrastructure by replacing the real robot with a generative one. We call this paradigm \textbf{digital teleoperation}: an operator's real-time hand-pose stream is consumed by a generative world model that, conditioned on a single reference image of the target scene, synthesizes the egocentric video that the robot \emph{would have produced} if it had actually executed the gesture (Fig.~\ref{fig:teaser}).
+Crucially, because the generated video is grounded in the operator's joint-level hand poses, the recorded gesture itself serves as an embodiment-agnostic, ground-truth action label that can be transferred to any concrete robot embodiment via a standard retargeting pipeline. The generated video then provides the matching visual observations, and the resulting trajectories can be consumed directly by downstream imitation learning, without ever moving a real robot. If digital teleoperation works, robot data collection becomes bound only by operator imagination, not by physical infrastructure.
+
+
+
+Two threads of recent work touch on this goal but fail to bridge the gap. Human-to-robot video translation methods~\citep{lepert2025masquerade, li2025h2r, lepert2503phantom, song2025mitty} attempt to ``robotize''  human videos by rendering or translating a robot embodiment into human demonstration frames to bridge the visual gap. While they cross the visual gap, they are inherently passive and observation-only: the underlying robotic action is never produced, and the heavy DiT backbones rule out closed-loop interaction. 
+Action-conditioned egocentric world models~\citep{hao2026egosim,wang2026hand2world,wang2025precise,xie2026generated,tu2025playerone} go further by synthesizing future frames from human-controlled signals, but they remain human-centric. 
+The rendered hand is still a human hand, leaving the embodiment gap unbridged.
+A genuine digital teleoperation system must simultaneously (i) be robot-centric, so the operator can teleoperate a robot; (ii) be action-grounded, so every generated frame is tied to a recoverable joint-level action signal; and (iii) be real-time, so the operator stays in the control loop and can string complex skills together. No prior framework satisfies all three.
+
+
+To this end, we present \textbf{\our}, the first system that delivers digital teleoperation in this strict sense, as illustrated in Fig.~\ref{fig:teaser}. \our is a robot-centric, action-conditioned world model that streams high-fidelity interactive video from the egocentric viewpoint at frame rates compatible with real-time control. It is built around three core designs tailored to the requirements above:
+\begin{itemize}[nosep, labelsep=0.6em, leftmargin=1.2em,itemindent=0em]
+\item \textbf{Depth-aware action representation} (Sec.~\ref{sec:method:rep}, Fig.~\ref{fig:representation}): \our renders 21-joint hand poses with camera-distance-modulated color and radius, supplying explicit 3D cues via a 2D latent conditioning signal.
+\item \textbf{Progressive cross-domain training} (Sec.~\ref{sec:method:training}): \our is first pretrained on large-scale egocentric human videos to absorb manipulation priors, and then fine-tuned on paired human–robot data to bridge the embodiment gap.
+\item \textbf{Streaming autoregressive distillation} (Sec.~\ref{sec:method:distillation}): We distill a bidirectional teacher into a causal student using a rollout-consistent schedule, enabling stable, real-time, long-horizon generation.
+\end{itemize}
+\noindent We evaluate \our both as a generative model and, more importantly, as a digital teleoperation system whose output is robot training data. Crucially, policies trained exclusively on \our-generated data achieve effective zero-shot Sim2Real transfer across diverse real-world manipulation tasks, and augmenting real demonstrations with digitally teleoperated data consistently raises success rates. These results demonstrate that \our successfully turns digital teleoperation from an appealing concept into a scalable and efficient tool for the next generation of robot learning.
+In summary, our work makes the following contributions:
+\begin{itemize}[nosep, labelsep=0.6em, leftmargin=1.2em,itemindent=0em]
+\item We formalize \textbf{digital teleoperation} as a new paradigm for robot data generation, where operator hand-pose streams drive a robot-centric world model to generate videos for imitation learning, and identify the three requirements (robot-centric, action-grounded, real-time) that any practical instantiation must satisfy.
+\item We present an action-conditioned egocentric world model \textbf{\our} that meets all three requirements, combining a depth-aware skeletal representation, progressive human-to-robot training, and streaming autoregressive distillation into a single 40+ FPS interactive model.
+\item We further extend \our into a complete digital teleoperation system that instantiates an arbitrary manipulation scene from a single reference image, generating unbounded action-conditioned rollouts through retargeting, skeletal-conditioned synthesis, and chunked re-anchoring.
+\item We show that policies trained purely on data generated by our digital teleoperation system can transfer zero-shot to real robots, and that augmenting real demonstrations with such data further boosts success rates, providing the first empirical evidence that digital teleoperation can serve as a high-fidelity data engine that both substitutes for and amplifies physical teleoperation in robot learning.
+\end{itemize}
+
+
+
+\begin{figure}[t]
+  \centering
+    \includegraphics[width=0.8\linewidth]{Fig/representation.pdf}\\
+  \caption{\textbf{Depth-Aware Representation.} We bridge the gap between 2D projections and 3D dynamics by rendering hand skeletons with depth-modulated color and size.} 
+  \label{fig:representation}
+\end{figure}
+

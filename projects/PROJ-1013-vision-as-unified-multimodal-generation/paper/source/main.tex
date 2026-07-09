@@ -1,0 +1,93 @@
+ \documentclass[]{sensenova}
+
+% single-column: \documentclass[]{sensenova}
+% twocolumn: \documentclass[twocolumn]{sensenova}
+
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{verbatim}
+
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{floatrow}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{marvosym}
+
+\usepackage{mmstyles}
+\usepackage[toc,page,header]{appendix}
+
+
+%%%%%%%%%% Title %%%%%%%%%%
+
+\title{Vision as Unified Multimodal Generation}
+
+%%%%%%%%%% Author %%%%%%%%%%
+
+\author{%
+Xiaoyang Han$^{*,1}$, Jianhua Li$^{*,1}$, Kewang Deng$^{*,1}$,
+Zukai Chen$^{*,1}$, Xuanke Shi$^{*,1}$, Sihan Wang$^{*,1}$ \\
+Boxuan Li$^{*,1}$, Linyan Wang$^{*,1}$, Siyi Xie$^{1,4}$, Xin You$^{1,5}$,
+Jinsheng Quan$^{1,6}$, Zhongang Cai$^1$ \\
+Haiwen Diao$^{2}$, Ziwei Liu$^{\textrm{\Letter},2}$,
+Lei Yang$^{\textrm{\Letter},1}$,
+Dahua Lin$^{\textrm{\Letter},1,3}$, Quan Wang$^{*,\textrm{\Letter},1}$ \\[1pt]
+\parbox{\textwidth}{\centering\small
+    $*$ Core Contributors,
+    $\textrm{\Letter}$ Corresponding Authors \\
+    $^1$SenseTime Research,
+    $^2$Nanyang Technological University,
+    $^3$The Chinese University of Hong Kong \\
+    $^4$Peking University,
+    $^5$Shanghai Jiao Tong University,
+    $^6$Zhejiang University
+}
+}
+
+%%%%%%%%%% Draft Helpers %%%%%%%%%%
+
+\newcommand{\misscite}{\textcolor{red}{[C]~}}
+\newcommand{\missref}{\textcolor{red}{[R]~}}
+\newcommand{\missvalue}{\textcolor{red}{(V)}}
+
+%%%%%%%%%% Abstract %%%%%%%%%%
+
+\input{sections/0_abstract}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+    \vspace{-1pt}
+    \captionsetup{type=figure,hypcap=false,skip=2pt}
+    \includegraphics[width=\textwidth]{assets/main_figures/fig1_benchmark_overview.pdf}
+    \caption{
+        Benchmark overview across representative computer vision task families.
+        Despite using a single unified multimodal generation interface and no task-specific heads, SenseNova-Vision achieves competitive performance across heterogeneous output formats, including text-serialized records, dense image outputs, mixed text-mask responses, and multi-view geometric predictions.
+    }
+    \label{fig:benchmark-overview}
+    \vspace{-2pt}
+\end{center}
+
+\input{sections/1_introduction}
+\input{sections/2_related_works}
+\input{sections/3_data}
+\input{sections/4_training}
+\input{sections/5_experiments}
+\input{sections/6_conclusion}
+
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+
+%%%%%%%%%% Appendix %%%%%%%%%%
+
+\beginappendix
+\input{sections/appendix}
+
+\end{document}

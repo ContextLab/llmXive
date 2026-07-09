@@ -1,0 +1,961 @@
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    frame=single,
+    float=htbp,
+    breaklines=true,
+    sensitive=false, 
+    tabsize=2,
+    lineskip=-2pt,    
+    aboveskip=2pt,    
+    belowskip=2pt,    
+    xleftmargin=4pt   
+}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{5}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{8}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{2pt}
+\captionsetup[table]{skip=4pt}
+\section{SenseNova-Vision Corpus Construction Details}
+\label{app:data_protocol_construction}
+
+This appendix documents the construction details behind the SenseNova-Vision Corpus and expands the data protocol in Sec.~\ref{sec:data}.
+Each training example is organized as one or more visual inputs, a natural-language instruction, and a target response represented as text, an image, or a mixed text-and-image output.
+It then details data composition, processing pipelines, prompt design, and release resources for each task family.
+
+
+
+\subsection{Structured visual understanding}
+\textbf{Data Composition}
+Structured visual understanding includes bounding-box detection, point detection, visual-prompt detection, referring detection, OCR localization, layout analysis, GUI grounding, and keypoint detection.
+Because bounding-box, point, and visual-prompt detection share closely related source annotations, we summarize their integrated datasets in Table~\ref{tab:detection-visual-prompt-datasets}.
+Other structured tasks, including OCR, layout analysis, GUI grounding, keypoint detection, and referring detection, are constructed from dedicated datasets, as shown in Table~\ref{tab:other-detection-datasets}.
+The corresponding processing pipelines and data engines are described below.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \renewcommand{\arraystretch}{0.88}
+    \begin{tabular}{l|l|l|l}
+        \toprule
+        Dataset & Task & Frames & Source \\
+        \midrule
+        APTv2~\cite{yang2023aptv2benchmarkinganimalpose} & BBox/Point & 28.0K/14.7K & Public/B2PC \\
+        BDD100K~\cite{yu2020bdd100k} & BBox/Point/Visual & 70.0K/68.0K / 44.1K & Public/B2PC/Public \\
+        Blood Cell~\cite{blood-cell-detection-1ekwu_dataset} & BBox/Visual & 0.2K/0.1K & Public/Public \\
+        CARPK~\cite{Hsieh_2017_ICCV} & BBox/Visual & 1.0K/0.6K & Public/Public \\
+        CrowdHuman~\cite{shao2018crowdhumanbenchmarkdetectinghuman} & BBox/Visual & 3.4K/2.1K & Public/Public \\
+        DOTAv2~\cite{Ding_2022} & BBox/Point/Visual & 1.8K/1.7K/1.1K & Public/B2PC/Public \\
+        DeepFashion~\cite{liuLQWTcvpr16DeepFashion} & BBox/Point & 191.0K/112.6K & Public/B2PC \\
+        EgoObjects~\cite{zhu2023egoobjects} & BBox/Point & 78.0K/49.9K & Public/B2PC \\
+        FAIR1M~\cite{SUN2022116} & BBox/Point/Visual & 16.0K/16.0K/10.1K & Public/B2PC/Public \\
+        FSC147~\cite{amininaieni2023openworldtextspecifiedobjectcounting} & BBox/Point/Visual & 1.8K/3.6K/1.1K & GDE/Public/GDE \\
+        FiftyOne~\cite{shubh303_dense_object_detection_fiftyone_2026} & BBox/Visual & 8.0K/5.0K & Public/Public \\
+        Fish~\cite{solawetz_fish_dataset_2020} & Visual & 0.4K & Public \\
+        Football~\cite{football-player-detection-kucab_dataset} & BBox/Visual & 0.8K/0.5K & Public/Public \\
+        GroceryStore~\cite{klasson2019hierarchical} & BBox/Visual & 1.8K/1.1K & GDE/GDE \\
+        HomeObjects-3k~\cite{Jocher_Ultralytics_Datasets_2025} & BBox/Visual & 2.2K/1.4K & Public/Public \\
+        HumanParts~\cite{li2019detector} & BBox/Point & 12.0K/7.0K & Public/B2PC \\
+        ImageNetPart~\cite{he2022partimagenet} & BBox/Point & 16.0K/10.2K & Public/B2PC \\
+        Industrial Site Safety~\cite{chappieut_industrial_site_safety_detection_v1_2026} & BBox/Visual & 0.3K/0.2K & Public/Public \\
+        LVIS Fruits \& Vegetables~\cite{henningheyen_lvis_fruits_and_vegetables_2026} & BBox/Visual & 6.7K/6.9K & Public/Public \\
+        Locount~\cite{Cai2020Locount} & BBox/Visual & 34.0K/21.4K & Public/Public \\
+        METU-ALET~\cite{METU_ALET} & BBox/Visual & 2.0K/1.3K & Public/Public \\
+        NuImages~\cite{Fong2025nuScenesRP} & BBox/Point & 60.0K/55.0K & Public/B2PC \\
+        OWOD~\cite{open_world_dense_object_detection} & BBox/Visual & 8.0K/5.0K & Public/Public \\
+        Objects365~\cite{shao2019objects365} & BBox/Point/Visual & 1742.0K/1077.1K/1428.8K & Public/B2PC/Public \\
+        PACO-LVIS~\cite{ramanathan2023paco} & BBox/Point & 45.0K/26.9K & Public/B2PC \\
+        PixMo-Points~\cite{Deitke2024MolmoAP} & BBox/Point & 0.1K/1090.6K & GDE/Public \\
+        S2TLD~\cite{yang2022scrdet++} & BBox/Visual & 5.0K/3.2K & Public/Public \\
+        SA-1B~\cite{sam} & BBox/Point/Visual & 3119.0K/1949.4K/3116.6K & GDE/B2PC/GDE \\
+        SKU110K~\cite{goldman2019dense} & BBox/Visual & 28.0K/17.6K & Public/Public \\
+        Shoes~\cite{kukreti_shoe_dataset_2021} & BBox & 0.1K & Public \\
+        TinyPerson~\cite{yu2020scale} & BBox/Visual & 1.5K/0.4K & Public/Public \\
+        V3Det-OVD~\cite{wang2023v3det} & BBox/Point & 116.0K/60.8K & Public/B2PC \\
+        VisDrone~\cite{zhu2021detection} & BBox/Point/Visual & 6.4K/6.4K/4.0K & Public/B2PC/Public \\
+        WiderPerson~\cite{zhang2019widerperson} & BBox/Visual & 9.0K/5.7K & Public/Public \\
+        Pill~\cite{Jocher_Ultralytics_Datasets_2024} & BBox/Visual & 0.1K/0.1K & Public/Public \\
+        Sheep~\cite{aerial-sheep_dataset} & BBox/Visual & 3.6K/2.3K & Public/Public \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Datasets for bounding-box, point and visual-prompt detection.
+        Frames and sources follow the order of tasks.
+        “GDE” means annotations from our grounding data engine; “B2PC” stands for points converted from bounding boxes via our pipeline.
+    }
+    \label{tab:detection-visual-prompt-datasets}
+\end{table}
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \renewcommand{\arraystretch}{0.88}
+    \begin{tabular}{l|l|l|l||l|l|l|l}
+        \toprule
+        \multicolumn{4}{c||}{Task: Ref / OCR} & \multicolumn{4}{c}{Task: Keypoint / Layout / GUI} \\
+        \cmidrule(lr){1-4} \cmidrule(lr){5-8}
+        Dataset & Task & Frames & Source & Dataset & Task & Frames & Source \\
+        \midrule
+        HumanRef~\cite{zhang2024humanref} & Referring & 64.0K & Public
+        & AP-10K~\cite{yu2021ap} & Keypoint & 9.7K & Public \\
+        Objects365~\cite{shao2019objects365} & Referring & 3589.0K & RGDE
+        & APT36K~\cite{yang2022apt} & Keypoint & 35.0K & Public \\
+        OpenImages~\cite{OpenImages} & Referring & 4034.0K & RGDE
+        & COCO2017~\cite{lin2014microsoft} & Keypoint & 56.0K & Public \\
+        RefCOCO/+/g~\cite{yu2016modeling,kazemzadeh-etal-2014-referitgame} & Referring & 579.0K & Public
+        & CrowdPose~\cite{li2018crowdpose} & Keypoint & 10.0K & Public \\
+        RexVerse~\cite{jiang2024chatrextamingmultimodalllm} & Referring & 1632.0K & Public
+        & Human-Art~\cite{ju2023human} & Keypoint & 33.0K & Public \\
+        BLIP3-OCR-200M~\cite{Xue2024BLIP3AF} & OCR & 1582.0K & OCRE
+        & MPII~\cite{MPII} & Keypoint & 17.0K & Public \\
+        HierText~\cite{long2022towards,long2023icdar} & OCR & 32.8K & Public
+        & MacaquePose V1~\cite{labuguen2021macaquepose} & Keypoint & 1.3K & Public \\
+        ICDAR2013~\cite{ICDAR2013} & OCR & 0.2K & Public
+        & OCHuman~\cite{zhang2019pose2seg} & Keypoint & 3.2K & Public \\
+        ICDAR2015~\cite{ICDAR2015} & OCR & 1.8K & Public
+        & CDLA~\cite{buptlihang2021cdla} & Layout & 5.0K & Public \\
+        ICDAR2019~\cite{ICDAR2019} & OCR & 11.0K & Public
+        & DocLayNet Core~\cite{pfitzmann2022doclaynet} & Layout & 69.0K & Public \\
+        LSVT2019~\cite{sun2019lsvt} & OCR & 116.0K & Public
+        & PubLayNet~\cite{zhong2019publaynet} & Layout & 335.0K & Public \\
+        MTWI~\cite{he2018mtwi} & OCR & 40.0K & Public
+        & TabRecSet~\cite{yang2023large} & Layout & 32.0K & Public \\
+        RCTW~\cite{shi2017rctw} & OCR & 16.0K & Public
+        & TableBank~\cite{li2019tablebank} & Layout & 260.0K & Public \\
+        ReCTS~\cite{ReCTS} & OCR & 76.0K & Public
+        & OS-Atlas~\cite{wu2024atlas} & GUI & 3101.6K & Public \\
+        SROIE~\cite{SROIE} & OCR & 1.2K & Public
+        & ShowUI Desktop~\cite{lin2024showui} & GUI & 1.5K & Public \\
+        SynthText~\cite{Gupta16} & OCR & 1716.0K & Public & & & & \\
+        TextOCR~\cite{singh2021textocr} & OCR & 42.0K & Public & & & & \\
+        WildReceipt~\cite{sun2021spatial} & OCR & 2.4K & Public & & & & \\
+        \bottomrule
+    \end{tabular}
+    \caption{Datasets covering referring detection, OCR localization, keypoint detection, document layout analysis and GUI understanding. “RGDE” and “OCRE” refer to outputs from our referring grounding and OCR data engines.}
+    \label{tab:other-detection-datasets}
+\end{table}
+
+\textbf{Data Processing}
+We use relative image coordinates for all detection-related tasks, normalized by image width and height.
+Each coordinate is rounded to three decimal places, and values outside the image boundary are clipped, such that the final coordinates remain within $[0.000, 0.999]$.
+This unified representation is applied to bounding boxes, points and keypoints, reducing the discrepancy caused by different image resolutions and annotation formats.
+To enhance the diversity and quality of the training data, particularly for challenging scenarios and multi-task learning, we develop several data engines that generate large-scale, high-quality annotations and facilitate the learning of visual-spatial correspondences.
+The overall pipelines are illustrated in Figure~\ref{fig:structured-data-engine}.
+
+\textbf{Prompt Design}
+Following the prompt construction paradigm of InternVL~\cite{Chen2023InternVS}, each sample is organized as the dictionary structure template below.
+
+\begin{lstlisting}
+{
+    "id": Sample_id,
+    "image": [Input_image],
+    "conversations": [
+    {"from": "human", "value": "<image>Instruction"},
+    {"from": "gpt", "value": "Target_text"}
+  ]
+}
+\end{lstlisting}
+
+\texttt{Sample\_id} uniquely identifies each training sample, while \texttt{Input\_image} records the path to the input RGB image.
+The placeholder \texttt{<image>} marks where the data loader inserts the corresponding visual input, and \texttt{Instruction} specifies the task and the required output format.
+\texttt{Target\_text} denotes the textual result containing task-specific semantic labels and spatial annotations such as bounding boxes, points, polygons, or keypoints.
+For OCR-related samples, they additionally include the recognized text associated with each localized region.
+To better illustrate task types in \texttt{Instruction} and standardize \texttt{Target\_text} formats, we adopt several lightweight markers for auxiliary representation, as shown in Table~\ref{tab:structure_markers}.
+
+\begin{table}[!htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{l|l|p{0.52\textwidth}}
+    \toprule
+    Marker & Field & Function \\
+    \midrule
+    \texttt{\detokenize{<p>...</p>}} & Phrase or label & Object category, referring expression, OCR text, region description, or generated caption span. \\
+    \midrule
+    \texttt{\detokenize{<bbox>...</bbox>}} & Box & Normalized bounding-box coordinates. \\
+    \midrule
+    \texttt{\detokenize{<point>...</point>}} & Point & Normalized point coordinates. \\
+    \midrule
+    \texttt{\detokenize{<kpt>...</kpt>}} & Keypoint & Named keypoint coordinates. \\
+    \midrule
+    \texttt{\detokenize{<ins>...</ins>}} & Instance & Distinct individual identities. \\
+    \midrule
+    \texttt{\detokenize{<polygon>...</polygon>}} & Polygon & Polygon-based OCR result representation. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Representative delimiters used in structured instructions and target responses. }
+  \label{tab:structure_markers}
+\end{table}
+
+For the \texttt{Instruction} field, one template is randomly selected from the corresponding task-specific pool during dataset construction.
+We select a template for each distinct task, and the complete collection is summarized in Table~\ref{tab:detection-prompt-templates}.
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{0.88}
+\begin{tabular}{p{0.18\textwidth}|p{0.74\textwidth}}
+\toprule
+Task & Instruction \\
+\midrule
+BBox Detection
+& Identify objects from categories: \texttt{<p>category</p>}. Output detection results as text, each entry with category and bounding box coordinates. This format differs from depth/segmentation image outputs. \\
+\midrule
+Point Detection
+& Detect objects from categories: \texttt{<p>category</p>}. Instead of visual outputs like depth maps or segmentation masks, return text detection list with labels and point coordinates. \\
+\midrule
+Referring Detection
+& Detect all \texttt{<p>expression</p>} in the image. Instead of modified image outputs, return structured text with class labels and bounding box coordinates for each target. \\
+\midrule
+Visual Prompt Detection
+& Given reference objects \texttt{<p>object1</p><bbox>[x0,y0,x1,y1]</bbox>}, detect all matching instances. Output structured text with category labels and bounding boxes in $[x_0,y_0,x_1,y_1]$. \\
+\midrule
+OCR
+& Perform full text-line-level OCR on the whole image. Output structured list with each text line’s bounding box and extracted text content. \\
+\midrule
+Layout Analysis
+& Detect objects from categories: \texttt{<p>category</p>}. Return text detection list with labels and bounding coordinates, no visual mask/depth outputs. \\
+\midrule
+GUI Grounding
+& Detect all \texttt{<p>category</p>} instances. Output structured text with object class and precise location coordinates, distinct from image-format vision outputs. \\
+\midrule
+Keypoint Detection
+& Predict \texttt{<keypoint names>} for all \texttt{<p>category</p>} instances. Output structured list with category and keypoint coordinates in $[x,y]$. \\
+\bottomrule
+\end{tabular}
+\caption{Instruction templates for structured visual understanding tasks.}
+\label{tab:detection-prompt-templates}
+\end{table}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{assets/appendix_data/structured_data_engine.pdf}
+    \caption{Overview of the proposed data construction pipelines, including the grounding data engine, referring grounding data engine, BBox-to-Point data conversion and OCR data engine for generating large-scale, high-quality spatial annotations.}
+    \label{fig:structured-data-engine}
+\end{figure}
+
+\textbf{Released Datasets}
+Since most source datasets for structured visual understanding are publicly available, we release the generated or converted training examples produced by our data engines.
+
+\subsection{Dense geometric prediction}
+\textbf{Data Composition}
+Public depth and normal datasets often share the same underlying data sources.
+All datasets adopted in this task are summarized in Table~\ref{tab:depth-normal-datasets}.
+Our method requires dense supervision, which is natively provided by synthetic datasets.
+As LiDAR datasets typically contain sparse and imperfect annotations, we use MoGe-2~\cite{wang2025moge2} to generate dense pseudo labels.
+Extra public datasets from related domains are also introduced to strengthen generalization and real-world performance, with dense labels generated consistently by MoGe-2.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{0.88}
+  \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{l|l|l|l|l|l}
+      \toprule
+      Annotation & Dataset & Task & Domain & Frames & Source \\
+      \midrule
+      \multirow{6}{*}{Dense}
+        & Hypersim~\cite{roberts2021hypersimphotorealisticsyntheticdataset}       & Depth/Normal & Indoor      & 61K/73K     & Synthetic \\
+        & Virtual KITTI~\cite{gaidon2016virtualworldsproxymultiobject}  & Depth        & Outdoor     & 17K         & Synthetic \\
+        &  InteriorVerse~\cite{zhu2022learningbasedinverserenderingcomplex}  & Normal       & Indoor      & 27K         & Synthetic \\
+        & IRS~\cite{wang2021irslargenaturalisticindoor}            & Depth/Normal & Indoor      & 74K/103K    & Synthetic \\
+        & TartanAir~\cite{wang2020tartanairdatasetpushlimits}      & Depth/Normal & Outdoor     & 118K/118K   & Synthetic \\
+        & SceneNet RGB-D~\cite{mccormac2017scenenetrgbd5mphotorealistic} & Depth/Normal & Indoor      & 2273K/2380K & Synthetic \\
+      \midrule
+      \multirow{2}{*}{Sparse}
+        & Taskonomy~\cite{zamir2018taskonomydisentanglingtasktransfer} & Depth/Normal & Indoor & 2000K/2000K & LiDAR \\
+        & ScanNet++~\cite{yeshwanth2023scannethighfidelitydataset3d} & Depth/Normal & Indoor & 813K/813K   & LiDAR \\
+      \midrule
+      \multirow{3}{*}{None}
+        & COCO 2017~\cite{lin2015microsoftcococommonobjects}  & Depth/Normal & In-the-wild & 78K/79K     & -- \\
+        & SA-1B~\cite{sam}     & Depth/Normal & In-the-wild & 4442K/4462K & -- \\
+        & Objects365~\cite{shao2019objects365} & Depth/Normal & In-the-wild & 1317K/1317K & -- \\
+      \bottomrule
+    \end{tabular}
+  \caption{
+    Summary of datasets used for depth and normal estimation tasks.
+  }
+  \label{tab:depth-normal-datasets}
+\end{table}
+
+\textbf{Data Processing}
+For depth data processing, we set the valid range from 0.1\,m to 80\,m.
+Dense annotations containing over 1 percent invalid pixels are discarded, and a 10 percent threshold is adopted for pseudo labels generated by MoGe-2~\cite{wang2025moge2}.
+We employ inverse depth maps as supervision signals and convert all data to standardized three-channel RGB images for depth estimation.
+For surface-normal data, we perform filtering only on MoGe-2 pseudo labels and exclude images with sky coverage above 10 percent.
+The X, Y and Z components of valid normal values are assigned to the corresponding RGB channels to form the final training data.
+
+\textbf{Prompt Design}
+Dense geometric prediction is formulated as an image-to-image task, following the prompt construction paradigm of InternVL~\cite{chen2024internvl}.
+\noindent
+\begin{lstlisting}
+{
+    "id": Sample_id,
+    "image": [Input_image, Output_image],
+    "conversations": [
+      {"from": "human", "value": "<image>Instruction"},
+      {"from": "gpt", "value": "<image>"}
+    ]
+}
+\end{lstlisting}
+In contrast to structured visual understanding, dense geometric prediction uses image responses as target outputs.
+ \texttt{Output\_image} refers to the path of the encoded depth or surface-normal target image.
+Table~\ref{tab:depth-normal-prompt-templates} lists several illustrative examples of template instructions.
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.11\textwidth}|p{0.78\textwidth}}
+    \toprule
+    Task & Instruction \\
+    \midrule
+    Depth &
+    Estimate relative depth for each pixel in the image.
+    Closer objects should appear brighter and distant objects darker.
+    The output is a grayscale image with pixel values ranging from 0 to 255. \\
+    \midrule
+    Normal &
+    Estimate surface normals and encode them as an RGB image.
+    The R, G and B channels correspond to the X, Y and Z direction components, respectively. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Instruction templates for dense geometric prediction.}
+  \label{tab:depth-normal-prompt-templates}
+\end{table}
+
+\textbf{Released Datasets}
+Since densely annotated datasets can be easily converted via our provided processing pipeline, we only release the training examples generated by MoGe-2~\cite{wang2025moge2}, including datasets with sparse annotations or no annotations in Table~\ref{tab:depth-normal-datasets}.
+
+\subsection{Segmentation}
+\textbf{Data Composition}
+We split segmentation datasets into two groups according to their output representation formats.
+As listed in Table~\ref{tab:seg-datasets-bin}, the first group covers referring segmentation, reasoning segmentation, and interactive segmentation tasks, which output binary masks containing a single foreground target region per image.
+The second group, summarized in Table~\ref{tab:seg-datasets-pan}, consists of generic segmentation (semantic and panoptic segmentation) and grounded conversation generation (GCG) segmentation.
+These tasks produce comprehensive panoptic masks that assign dense semantic and instance labels to all spatial regions throughout the entire image.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.21\textwidth}|p{0.11\textwidth}|p{0.08\textwidth}||p{0.21\textwidth}|p{0.11\textwidth}|p{0.08\textwidth}}
+    \toprule
+    Dataset & Task & Frames & Dataset & Task & Frames \\
+    \midrule
+    RefCOCO/+/g~\cite{KazemzadehOrdonezMattenBergEMNLP14} & Referring & 545.7K
+    & CIHP~\cite{gong2018instance} & Referring & 15.0K \\
+    RefClef~\cite{liao2020realtimecrossmodalitycorrelationfiltering} & Referring & 220.7K
+    & ATR~\cite{CO-CNN} & Referring & 11.3K \\
+    GRefCOCO~\cite{GRES} & Referring & 353.3K
+    & LIP~\cite{Gong_2017_CVPR} & Referring & 14.3K \\
+    DOORS~\cite{article} & Referring & 6.5K
+    & FAT-single/mixed \cite{tremblay2018falling}& Referring & 19.5K \\
+    NDISPark~\cite{visapp21} & Referring & 0.1K
+    & Fashionpedia \cite{jia2020fashionpedia}& Referring & 13.3K \\
+    MinneApple~\cite{Hani_2020} & Referring & 0.5K
+    & PartImageNet/Whole~\cite{he2021partimagenet} & Referring & 34.8K \\
+    EYTH~\cite{Urooj_2018_CVPR} & Referring & 0.3K
+    & WaterOVS~\cite{waterovs_huggingface} & Referring & 2.8K \\
+    PST900~\cite{shivakumar2019pst900} & Referring & 0.3K
+    & RaidaR-rainy/sunny~\cite{jin2021raidarrichannotatedimage} & Referring & 2.4K \\
+    PSTRGB~\cite{Shivakumar2019PST900RC} & Referring & 1.4K
+    & FSS-1000~\cite{Li_2020} & Referring & 3.7K \\
+    SUIM~\cite{islam2020suim} & Referring & 2.5K
+    & DAVIS 2017 \cite{Caelles_arXiv_2019} & Referring & 2.4K \\
+    MyFood~\cite{aicrowd_food_recognition_challenge} & Referring & 1.0K
+    & OCID-VLG \cite{tziafas2023language} & Referring & 3.0K \\
+    CO-SKEL~\cite{8099896}& Referring & 0.3K
+    & PIC \cite{liu2022pic}& Referring & 8.7K \\
+    YouTube VOS 2022~\cite{xu2018youtubevoslargescalevideoobject} & Referring & 11.7K
+    & LaPa \cite{liu2020new}& Referring & 8.1K \\
+    MVTec D2S~\cite{10.1007/978-3-030-01249-6_35} & Referring & 2.5K
+    & DeepFashion2 \cite{DeepFashion2} & Referring & 20.8K \\
+    VizWiz-FewShot~\cite{tseng2022vizwizfewshotlocatingobjectsimages} & Referring & 3.0K
+    & MattingHumanHalf \cite{aisegment2019matting}& Referring & 6.9K \\
+    Trans10K~\cite{xie2020segmentingtransparentobjectswild} & Referring & 2.7K
+    & ReaSeg \cite{lisa,yang2023improved}& Reasoning & 132.6K \\
+    & & & Coco\_interactive\_psalm \cite{zhang2025psalm} & Interactive & 400.0K \\
+    \bottomrule
+  \end{tabular}
+  \caption{Binary-mask segmentation datasets used for training.}
+  \label{tab:seg-datasets-bin}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.21\textwidth}|p{0.11\textwidth}|p{0.1\textwidth}||p{0.21\textwidth}|p{0.11\textwidth}|p{0.1\textwidth}}
+    \toprule
+    Dataset & Task & Frames & Dataset & Task & Frames \\
+    \midrule
+    COCONut-XL~\cite{coconut2024cvpr} & Generic & 587.3K
+    & IDD-1/2~\cite{varma2019idd} & Generic & 14.0K \\
+    Cityscapes~\cite{Cordts2016Cityscapes, Cordts2015Cvprw} & Generic/GCG & 3.0K/2.1K
+    & IDDAv3~\cite{alberti2020idda} & Generic/GCG & 6.2K/1.1K \\
+    Hypersim~\cite{roberts:2021} & Generic/GCG & 46.8K/30.4K
+    & Mapillary Vistas~\cite{garg2025mapillaryvistasvalidationfinegrained} & Generic & 18.0K \\
+    EntityV2~\cite{Qi_2023_EntitySeg} & Generic/GCG & 31.7K/6.1K
+    & NuScenes~\cite{fong2021panoptic} & Generic & 65.5K \\
+    Trashcan~\cite{hong2020trashcansemanticallysegmenteddatasetvisual} & Generic & 5.9K
+    & 51WORLD~\cite{51world_dataone_synthetic_2025} & Generic/GCG & 11.6K/3.5K \\
+    Pidray~\cite{zhang2022pidraylargescalexraybenchmark} & Generic & 29.5K
+    & StreetHazards~\cite{hendrycks2019anomalyseg} & Generic/GCG & 6.2K/1.0K \\
+    ZeroWaste-f~\cite{Bashkirova_2022_CVPR} & Generic & 2.9K
+    & KITTI~\cite{step_2021} & Generic/GCG & 5.0K/3.5K \\
+    LVIS~\cite{gupta2019lvis} & Generic & 56.7K
+    & TAS500~\cite{metzger2021finegraineddatasetefficientsemantic} & Generic/GCG & 0.4K/0.3K \\
+    UDD5/6~\cite{chen2018large} & Generic/GCG & 0.2K/0.1K
+    & TTPLA~\cite{abdelfattah2020ttpla} & Generic & 1.2K \\
+    LoveDA~\cite{Wang2021LoveDAAR} & Generic/GCG & 2.5K/1.6K
+    & VIPSeg~\cite{miao2021vspw} & Generic/GCG & 66.8K/59.5K \\
+    GranDf~\cite{Rasheed_2024_CVPR} & GCG & 1.0K
+    & RefCOCOg~\cite{kazemzadeh-etal-2014-referitgame} & GCG & 19.3K \\
+    PSG~\cite{yang2022psg} & GCG & 27.8K
+    & Flickr30k~\cite{plummer2015flickr30k} & GCG & 148.2K \\
+    \bottomrule
+  \end{tabular}
+  \caption{Generic and GCG segmentation datasets used for training.}
+  \label{tab:seg-datasets-pan}
+\end{table}
+
+\textbf{Data Processing}
+For all datasets presented in Table~\ref{tab:seg-datasets-bin}, we standardize all segmentation annotations into binary masks.
+In these standardized binary masks, pixel values of $(255,255,255)$ denote foreground target regions, while pixels with $(0,0,0)$ correspond to image background areas.
+For datasets summarized in Table~\ref{tab:seg-datasets-pan}, we first parse instance-level segmentation annotations within each image to generate individual masks for all existing object instances.
+Each instance is then assigned a unique RGB color following a predefined color sampling strategy.
+All colored instance masks are finally blended onto a pure black background to construct the final panoptic segmentation mask.
+Specifically, we predefine 200 color anchors in the discrete RGB cube $[0,255]^3$ using greedy farthest-point sampling, which iteratively maximizes the minimum Euclidean distance from each new anchor to the previously selected anchors, thus improving visual distinguishability among instance colors.
+The resulting anchors are sorted by their RGB values and assigned sequential indices.
+For an image with $K$ annotated instances, we deterministically sample $K+1$ approximately evenly spaced colors from the ordered palette, assign the first $K$ colors to instances in processing order, and reserve the final black color $(0,0,0)$ for the background.
+
+\textbf{Prompt Design}
+For binary-mask segmentation tasks, including referring segmentation and reasoning segmentation, we employ the prompt template detailed below.
+Unlike the previous tasks, we adopt \texttt{Binary\_mask} to store the file paths of binary masks.
+
+\begin{lstlisting}
+{
+    "image": Input_image,
+    "seg": Binary_mask,
+    "conversations": [
+        {"from": "human",
+         "value": "<image>Instruction"},
+        {"from": "gpt",
+         "value": "Sure, <SEG>.",
+        }
+    ]
+}
+\end{lstlisting}
+
+For interactive segmentation in the binary-mask group, we extend the prompt template with an extra visual prompt image. \texttt{Prompt\_image} denotes the file path of the visual prompt image, and \texttt{Prompt\_type} specifies its category, where \texttt{<prompt\_type>} acts as the corresponding symbolic marker.
+
+\begin{lstlisting}
+{
+    "image": [Input_image, Prompt_image],
+    "seg": Binary_mask,
+    "visual_prompt_type": Prompt_type,
+    "conversations": [
+        {"from": "human",
+         "value": "<image>Instruction<prompt_type><image>"},
+        {"from": "gpt",
+         "value": "Sure, <SEG>.",
+        }
+    ]
+}
+\end{lstlisting}
+
+For generic segmentation and GCG segmentation, we employ a distinct prompt template as detailed below.
+
+\begin{lstlisting}
+{
+    "id": Sample_id,
+    "image": Input_image,
+    "caption": Description,
+    "seg": Panoptic_mask,
+    "num_instances": Instance_count, (Only for Generic Segmentation)
+    "conversations": [
+        {"from": "human",
+         "value": "<image>Instruction"},
+        {"from": "gpt",
+         "value": "Target_text<SEG>",}
+    ]
+}
+\end{lstlisting}
+
+\texttt{Panoptic\_mask} denotes the file path of the color-coded target mask.
+Optional \texttt{Instance\_count} records the number of instances in the mask. \texttt{Description} captures descriptive textual content for the input image. \texttt{Target\_text} holds the target textual outputs, which enumerate all individual instances alongside their assigned distinct colors.
+Inspired by ConsistCompose~\cite{Shi_2026_CVPR}, we adopt a color-instance binding format, where each instance is explicitly paired with a unique color.
+Specifically, we use lightweight markers to standardize input and output formatting, as shown in Table~\ref{tab:segment_markers}.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{l|l|p{0.52\textwidth}}
+    \toprule
+    Marker & Field & Function \\
+    \midrule
+    \texttt{\detokenize{<p>...</p>}} & Phrase or label & Instance category. \\
+    \midrule
+    \texttt{\detokenize{<box>}} & Prompt\_type & Bounding box visual prompt type. \\
+    \midrule
+    \texttt{\detokenize{<point>}} & Prompt\_type & Point visual prompt type. \\
+    \midrule
+    \texttt{\detokenize{<mask>}} & Prompt\_type & Mask visual prompt type. \\
+    \midrule
+    \texttt{\detokenize{<scribble>}} & Prompt\_type & Scribble visual prompt type. \\
+    \midrule
+    \texttt{\detokenize{<color>...</color>}} & Color & Instance-specific RGB color value. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Representative delimiters used in segmentation tasks.}
+  \label{tab:segment_markers}
+\end{table}
+
+Segmentation tasks are formulated with task-specific instructions that specify the segmentation target, output format, and interaction when required.
+For each distinct segmentation task, we extract one representative sample from its corresponding instruction pool for illustration, as shown in Table~\ref{tab:segmentation-prompt-templates}.
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.14\textwidth}|p{0.74\textwidth}}
+    \toprule
+    Task & Instruction \\
+    \midrule
+    Generic Seg &
+    Generate panoptic segmentation masks for categories: \texttt{<p>person</p>}, ..., \texttt{<p>rug</p>}. Locate all instances, assign colors strictly as \texttt{<p>instance-no<color>(R,G,B)</color></p>}, output panoptic masks. \\
+    \midrule
+    GCGSeg &
+    Briefly describe image content, return interleaved segmentation masks matching each part of your description. \\
+    \midrule
+    RefSeg &
+    Visualize binary segmentation of \texttt{<p>person standing</p>} in the image. \\
+    \midrule
+    ReaSeg &
+    Output segmentation mask for \texttt{<p>the ball that can only be hit into the hole at last</p>}. \\
+    \midrule
+    InterSeg &
+    Generate segmentation masks guided by reference regions \texttt{<point><image>}. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Instruction templates for segmentation tasks.}
+  \label{tab:segmentation-prompt-templates}
+\end{table}
+
+\textbf{Released Datasets}
+Since binary-mask datasets can be reconstructed from public annotations using our conversion pipeline, we release the generated and curated resources for generic and GCG segmentation.
+
+\subsection{Multi-view visual geometry}
+\textbf{Data Composition}
+Multi-view reconstruction and camera pose estimation are built from closely related multi-view geometric data sources.
+All adopted datasets are summarized in Table~\ref{tab:multiview-3d-datasets}.
+Similar to depth and surface-normal prediction, multi-view reconstruction requires dense geometric supervision.
+We leverage LingBot-Depth~\cite{lingbotdepth} to complete sparse depth data and generate dense point maps.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{0.88}
+  \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{l|l|l|l|l|l}
+      \toprule
+      Annotation & Dataset & Task & Domain & Frames & Source \\
+      \midrule
+      \multirow{12}{*}{Dense}
+        & Hypersim~\cite{roberts2021hypersimphotorealisticsyntheticdataset}        & Reconstruction/Camera pose & Indoor  & 44K/44K  & Synthetic  \\
+        & IRS~\cite{wang2021irslargenaturalisticindoor}             & Reconstruction/Camera pose & Indoor  & 66K/66K & Synthetic \\
+        & TartanAir~\cite{wang2020tartanairdatasetpushlimits}       & Reconstruction/Camera pose & Outdoor  & 246K/246K  & Synthetic \\
+        & SceneNet RGB-D~\cite{mccormac2017scenenetrgbd5mphotorealistic}  & Reconstruction/Camera pose & Indoor  & 5058K/5058K & Synthetic  \\
+        & AriaSyntheticENV~\cite{avetisyan2024scenescriptreconstructingscenesautoregressive} & Reconstruction            & Indoor  & 5919K & Synthetic  \\
+        & BlendedMVG~\cite{yao2020blendedmvslargescaledatasetgeneralized}      & Reconstruction             & Outdoor  & 115K & Synthetic \\
+        & MegaSynth~\cite{jiang2025megasynthscaling3dscene}       & Reconstruction/Camera pose & Outdoor  & 323K/323K & Synthetic \\
+        & MvsSynth~\cite{DeepMVS}        & Reconstruction / Camera pose & Outdoor  & 12K/12K & Synthetic \\
+        & OmniObject3D~\cite{wu2023omniobject3dlargevocabulary3dobject}      & Reconstruction/Camera pose & Object-centric  & 595K/595K  & Synthetic \\
+        & Objaverse~\cite{deitke2022objaverseuniverseannotated3d}       & Camera pose       & Indoor  & 1400K  & Synthetic \\
+        & CO3Dv2~\cite{reizenstein2021commonobjects3dlargescale}          & Camera pose       & Object-centric  & 1500K  & Colmap \\
+        & DeMoN-MVE~\cite{Ummenhofer_2017}       & Camera pose       & Outdoor  & 20K  & Synthetic \\
+      \midrule
+      \multirow{4}{*}{Sparse}
+        & ScanNetV2~\cite{dai2017scannetrichlyannotated3dreconstructions} & Reconstruction/Camera pose & Indoor  & 241K/241K & LiDAR \\
+        & ScanNet++~\cite{yeshwanth2023scannethighfidelitydataset3d} & Reconstruction/Camera pose & Indoor & 813K/813K & LiDAR \\
+        & DL3DV~\cite{ling2023dl3dv10klargescalescenedataset}     & Reconstruction/Camera pose & In-the-wild & 3462K/3462K & Colmap \\
+        & WildRGB-D~\cite{xia2024rgbdobjectswildscaling}  & Reconstruction/Camera pose & In-the-wild & 8026K/8026K & LiDAR \\
+      \bottomrule
+    \end{tabular}
+  \caption{
+    Summary of datasets used for multi-view visual geometry across reconstruction and camera pose estimation tasks.
+  }
+  \label{tab:multiview-3d-datasets}
+\end{table}
+
+\textbf{Data Processing}
+For multi-view reconstruction, we build data examples at the scene level.
+Each scene consists of a sequence of views stored in a format convertible to point maps in a shared coordinate frame, including RGB images, depth maps, and camera trajectory.
+To provide data suitable for supervision without relying on masking strategies, we ensure that all input views have dense depth maps.
+Specifically, we first filter out views whose depth maps contain more than two-thirds invalid pixels.
+We then use LingBot-Depth~\cite{lingbotdepth} to complete and refine sparse depth maps.
+Additionally, depth values exceeding a dataset-specific threshold are treated as invalid, where the threshold ranges from 30 to 80 meters depending on the source dataset.
+For camera pose estimation, we predict camera-to-world extrinsic parameters for all subsequent frames with respect to the initial reference frame.
+These parameters are decoupled into rotational and translational components.
+Specifically, rotation is represented via quaternions, while translation is formulated as a hybrid representation consisting of a unit direction vector and a scale magnitude.
+Furthermore, we adopt reserved numerical tokens from \texttt{<-1000>} to \texttt{<1000>} that span the numerical range of -1000 to 1000.
+Following this design, all quaternion components and unit direction vector elements are multiplied by a factor of 1000.
+For the scale term, we constrain its valid physical range to [0.01\,m, 10\,m], and define the token \texttt{<1>} to correspond to an actual length of 1\,cm.
+
+\textbf{Prompt Design}
+Distinct from other vision tasks, multi-view reconstruction produces training examples in an online manner.
+For this reason, we embed scene-level dataset metadata into the prompt, whose detailed structure is elaborated as follows.
+
+\begin{lstlisting}[float=htb]
+{
+    "id": Scene_id,
+    "image": [Image_sequence],
+    "depth": [Depth_sequence],
+    "trajectory": [Camera_trajectory],
+    "conversations": [
+      {"from": "human", "value": "Instruction"},
+      {"from": "human", "value": "Instruction"},
+      ...
+    ]
+}
+\end{lstlisting}
+
+\texttt{Scene\_id} denotes the unique identifier for each scene, while \texttt{Image\_sequence} stores all image paths in that scene.
+For paired geometric information, \texttt{Depth\_sequence} holds depth map paths matched to each image entry, and \texttt{Camera\_trajectory} provides frame-wise corresponding camera parameters.
+
+As a multi-image understanding task, camera pose estimation is defined via the prompt template presented below.
+
+\begin{lstlisting}
+{
+    "id": Sample_id,
+    "image": [Image_sequence],
+    "conversations": [
+      {"from": "human", "value": "<image>...<image>Instruction"},
+      {"from": "gpt", "value": "<camerapose_sequence>"}
+    ]
+}
+\end{lstlisting}
+
+ \texttt{Image\_sequence} holds the complete collection of image paths for all frames within the input image sequence.
+The repetition count of \texttt{<image>} placeholders in \texttt{<image>}...\texttt{<image>} aligns with the length of \texttt{Image\_sequence}. \texttt{Camerapose\_sequence} contains relative camera poses from the second frame to the final frame, and all entries follow the identical format below.
+\begin{lstlisting}
+<frame><quat><x><y><z><w></quat><offset><x><y><z></offset><scale><value></scale></frame>
+\end{lstlisting}
+To improve format consistency and numerical precision, we encode camera-pose records with reserved tokens following the rules specified in Table~\ref{tab:pose_token_markers}.
+
+We present partial instructions adopted for multi-view visual geometry in Table~\ref{tab:camera-pose-instruction-format}.
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.23\textwidth}|p{0.17\textwidth}|p{0.52\textwidth}}
+    \toprule
+    Marker & Field & Function \\
+    \midrule
+    \texttt{<-1000>}...\texttt{<1000>} & Numerical values & These dedicated special tokens encode all scalar values within the range $[-1000, 1000]$. \\
+    \midrule
+    \texttt{<frame>}...\texttt{</frame>} & View entry & Special token delimiting a per-view camera-pose record in multi-view visual geometry tasks. \\
+    \midrule
+    \texttt{<quat>}...\texttt{</quat>} & Rotation & Special token delimiting quaternion rotation parameters for camera pose. \\
+    \midrule
+    \texttt{<offset>}...\texttt{</offset>} & Translation & Special token delimiting camera translation or offset parameters. \\
+    \midrule
+    \texttt{<scale>}...\texttt{</scale>} & Scale & Special token delimiting scale metadata used to decode camera pose or geometry. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Reserved tokens for camera pose encoding.}
+  \label{tab:pose_token_markers}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{0.88}
+  \begin{tabular}{p{0.16\textwidth}|p{0.74\textwidth}}
+    \toprule
+    Task & Instruction \\
+    \midrule
+    Camera pose &
+    Use the first frame as the reference frame, and output the relative pose of all subsequent frames with respect to it, following the original input order.
+    Rotation is represented by a quaternion in the format \texttt{<quat>}[x,y,z,w]\texttt{</quat>}.
+    Translation direction is represented by a unit vector in the format \texttt{<offset>}[x,y,z]\texttt{</offset>}, which only encodes directional information and has no absolute physical meaning.
+    Translation scale is represented by a numerical value in the format \texttt{<scale>}value\texttt{</scale>}.
+    The result of each target frame is enclosed in \texttt{<frame>}...\texttt{</frame>} tags, with no extra characters, spaces, or line breaks outside the required tags. \\
+    \midrule
+    \multirow{2}{=}{Multi-view reconstruction}
+    & Reconstruct a scene from multiple input images and output one dense 3D coordinate map per view, all aligned to the first camera's perspective. \\
+    \cmidrule(lr){2-2}
+    & From RGB images, reconstruct a 3D scene and produce XYZ point maps aligned in a shared coordinate system. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Instruction templates for multi-view visual geometry.}
+  \label{tab:camera-pose-instruction-format}
+\end{table}
+
+\textbf{Released Datasets}
+Camera-pose examples can be assembled directly from public multi-view datasets with camera trajectories.
+For reconstruction, we publicly release the sparsely annotated datasets preprocessed with LingBot-Depth~\cite{lingbotdepth}, while densely annotated datasets can be reconstructed from the released conversion pipeline.
+
+\subsection{SN-VC-50M Release Summary}
+We summarize the released SN-VC-50M resources in Table~\ref{tab:open-source-datasets}.
+The release spans four task families and covers 73 dataset-task entries across 10 task types.
+Specifically, the released data includes 18.9M frames for structured visual understanding, 1.3M frames for segmentation, 17.3M frames for dense geometric prediction, and 12.5M frames for multi-view visual geometry.
+To avoid duplicating raw RGB images from public datasets, the released training examples retain image file paths instead of redistributing the original images.
+
+\begin{table}[htb]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{0.88}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{p{0.16\textwidth}|p{0.14\textwidth}|p{0.16\textwidth}||p{0.16\textwidth}|p{0.14\textwidth}|p{0.16\textwidth}}
+    \toprule
+    Dataset & Task & Frames & Dataset & Task & Frames \\
+    \midrule
+    \multicolumn{3}{c||}{\textbf{Structured visual understanding}} & \multicolumn{3}{c}{\textbf{Segmentation}} \\
+    \cmidrule(r){1-3}\cmidrule(l){4-6}
+    APTv2~\cite{yang2023aptv2benchmarkinganimalpose} & Point & 14.7K & COCONut-XL~\cite{coconut2024cvpr} & Generic & 587.3K \\
+    BDD100K~\cite{yu2020bdd100k} & Point & 68.0K & Cityscapes~\cite{Cordts2016Cityscapes, Cordts2015Cvprw} & Generic/GCG & 3.0K/2.1K \\
+    DOTAv2~\cite{Ding_2022} & Point & 1.7K & Hypersim~\cite{roberts:2021} & Generic/GCG & 46.8K/30.4K \\
+    DeepFashion~\cite{liuLQWTcvpr16DeepFashion} & Point & 112.6K & EntityV2~\cite{Qi_2023_EntitySeg} & Generic/GCG & 31.7K/6.1K \\
+    EgoObjects~\cite{zhu2023egoobjects} & Point & 49.9K & Trashcan~\cite{hong2020trashcansemanticallysegmenteddatasetvisual} & Generic & 5.9K \\
+    FAIR1M~\cite{SUN2022116} & Point & 16.0K & Pidray~\cite{zhang2022pidraylargescalexraybenchmark} & Generic & 29.5K \\
+    FSC147~\cite{amininaieni2023openworldtextspecifiedobjectcounting} & BBox/Visual & 1.8K/1.1K & ZeroWaste-f~\cite{Bashkirova_2022_CVPR} & Generic & 2.9K \\
+    GroceryStore~\cite{klasson2019hierarchical} & BBox/Visual & 1.8K/1.1K & LVIS~\cite{gupta2019lvis} & Generic & 56.7K \\
+    HumanParts~\cite{li2019detector} & Point & 7.0K & IDD-1/2~\cite{varma2019idd} & Generic & 14.0K \\
+    ImageNetPart~\cite{he2022partimagenet} & Point & 10.2K & IDDAv3~\cite{alberti2020idda} & Generic/GCG & 6.2K/1.1K \\
+    NuImages~\cite{Fong2025nuScenesRP} & Point & 55.0K & Mapillary Vistas~\cite{garg2025mapillaryvistasvalidationfinegrained} & Generic & 18.0K \\
+    Objects365~\cite{shao2019objects365} & Point/Referring & 1077.1K/3589.0K & NuScenes~\cite{fong2021panoptic} & Generic & 65.5K \\
+    PACO-LVIS~\cite{ramanathan2023paco} & Point & 26.9K & 51WORLD~\cite{51world_dataone_synthetic_2025} & Generic/GCG & 11.6K/3.5K \\
+    PixMo-Points~\cite{Deitke2024MolmoAP} & BBox & 0.1K & StreetHazards~\cite{hendrycks2019anomalyseg} & Generic/GCG & 6.2K/1.0K \\
+    SA-1B~\cite{sam} & BBox/Point/ & 3119.0K/1949.4K/ & KITTI~\cite{step_2021} & Generic/GCG & 5.0K/3.5K \\
+    & Visual & 3116.6K & TAS500~\cite{metzger2021finegraineddatasetefficientsemantic} & Generic/GCG & 0.4K/0.3K \\
+    V3Det-OVD~\cite{wang2023v3det} & Point & 60.8K & UDD5/6~\cite{chen2018large} & Generic/GCG & 0.2K/0.1K \\
+    VisDrone~\cite{zhu2021detection} & Point & 6.4K & TTPLA~\cite{abdelfattah2020ttpla} & Generic & 1.2K \\
+    OpenImages~\cite{OpenImages} & Referring & 4034.0K & LoveDA~\cite{Wang2021LoveDAAR} & Generic/GCG & 2.5K/1.6K \\
+    BLIP3-OCR~\cite{Xue2024BLIP3AF} & OCR & 1582.0K & VIPSeg~\cite{miao2021vspw} & Generic/GCG & 66.8K/59.5K \\
+    & & & GranDf~\cite{Rasheed_2024_CVPR} & GCG & 1.0K \\
+    & & & RefCOCOg~\cite{kazemzadeh-etal-2014-referitgame} & GCG & 19.3K \\
+    & & & PSG~\cite{yang2022psg} & GCG & 27.8K \\
+    & & & Flickr30k~\cite{plummer2015flickr30k} & GCG & 148.2K \\
+    \cmidrule{1-6}
+    \multicolumn{3}{c||}{\textbf{Dense geometric prediction}} & \multicolumn{3}{c}{\textbf{Multi-view visual geometry}} \\
+    \cmidrule(r){1-3}\cmidrule(l){4-6}
+    Taskonomy~\cite{zamir2018taskonomydisentanglingtasktransfer} & Depth/Normal & 2000.0K/2000.0K & ScanNetV2~\cite{dai2017scannetrichlyannotated3dreconstructions} & Reconstruction & 241.0K \\
+    ScanNet++~\cite{yeshwanth2023scannethighfidelitydataset3d} & Depth/Normal & 813.0K/813.0K & ScanNet++~\cite{yeshwanth2023scannethighfidelitydataset3d} & Reconstruction & 813.0K \\
+    COCO2017~\cite{lin2015microsoftcococommonobjects} & Depth/Normal & 78.0K/79.0K & DL3DV~\cite{ling2023dl3dv10klargescalescenedataset} & Reconstruction & 3462.0K \\
+    SA-1B~\cite{sam} & Depth/Normal & 4442.0K/4462.0K & WildRGB-D~\cite{xia2024rgbdobjectswildscaling} & Reconstruction & 8026.0K \\
+    Objects365~\cite{shao2019objects365} & Depth/Normal & 1317.0K/1317.0K & & & \\
+    \bottomrule
+  \end{tabular}
+  \caption{
+    Overview of the SN-VC-50M Corpus open-source release.
+    Datasets are grouped by task family, with each entry reporting the released task type and frame count.
+  }
+  \label{tab:open-source-datasets}
+\end{table}
+
+\section{Additional Qualitative Results}
+\label{app:additional_qualitative_results}
+
+This section provides additional qualitative examples that complement the main quantitative evaluation.
+The examples are intended to show the breadth of SenseNova-Vision across text, image, and mixed text-and-image tasks, including structured visual understanding, dense geometric prediction, segmentation, and multi-view visual geometry.
+They also illustrate how the same model follows different task instructions while keeping outputs decodable under the protocols described in Appendix~\ref{app:data_protocol_construction}.
+
+% structured visual understanding qualitative results
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{assets/appendix_additional_results/structured_visual_understanding.pdf}
+    \vspace{-3pt}
+    \caption{
+    Additional qualitative results of structured visual understanding tasks.
+    }
+    \label{fig:additional-structured-visual-understanding}
+\end{figure}
+
+% dense geometric prediction qualitative results
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.93\linewidth]{assets/appendix_additional_results/dense_geometric_prediction.pdf}
+    \vspace{-3pt}
+    \caption{
+    Additional qualitative results of dense geometric prediction tasks.
+    }
+    \label{fig:additional-dense-geometric-prediction}
+\end{figure}
+
+% segmentation qualitative results
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.86\linewidth]{assets/appendix_additional_results/segmentation.pdf}
+    \vspace{-3pt}
+    \caption{
+    Additional qualitative results of segmentation tasks.
+    }
+    \label{fig:additional-segmentation}
+\end{figure}
+
+\FloatBarrier
+
+% multi-view 3D additional qualitative results
+\begin{figure}[!htbp]
+  \centering
+  \small
+  \setlength{\tabcolsep}{0pt}
+  \renewcommand{\arraystretch}{0.5}
+  \resizebox{\textwidth}{!}{
+    \begin{tabular}{
+      m{0.025\linewidth}
+      m{0.20\linewidth}
+      m{0.28\linewidth}
+      @{\hspace{2pt}} m{0.20\linewidth}
+      m{0.28\linewidth}
+    }
+      &
+      \multicolumn{1}{c}{Input Views} &
+      \multicolumn{1}{c}{Reconstruction Output} &
+      \multicolumn{1}{c}{Input Views} &
+      \multicolumn{1}{c}{Reconstruction Output} \\
+      \noalign{\vskip 4pt} % a little row spacing after the header
+
+      \rotatebox{90}{Indoor} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/indoor_1_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/indoor_1_output.png} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/indoor_2_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/indoor_2_output.png} \\
+
+      \rotatebox{90}{Outdoor} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/outdoor_1_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/outdoor_1_output.png} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/outdoor_2_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/outdoor_2_output.png} \\
+
+      \rotatebox{90}{Object-Centric} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/object_2_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/object_2_output.png} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/object_1_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/object_1_output.png} \\
+
+      \rotatebox{90}{Gaming Env. (OOD)} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/gaming_1_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/gaming_1_output.png} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/gaming_2_input.jpg} &
+      \includegraphics[width=\linewidth]{assets/appendix_multiview_reconstruction/gaming_2_output.png}
+    \end{tabular}
+  }  % end resizebox
+  \caption{Additional qualitative results of multi-view reconstruction.}
+  \label{fig:additional-multiview-reconstruction}
+\end{figure}
+
+\section{Exploratory Results on Challenging and Language-Defined Vision Tasks}
+\label{app:language_defined_boundary_cases}
+
+This section presents exploratory qualitative results on challenging cases and language-defined vision tasks.
+In our framework, a vision task is specified by language instructions that define both the task objective and the expected output format.
+The examples here are exploratory tests beyond the main quantitative evaluation, covering composed dense prediction, specialized mask formats, fine-grained segmentation, and challenging dense geometry.
+
+Figure~\ref{fig:appendix-cfg-strength} shows composed depth and normal prediction under different classifier-free guidance (CFG) settings.
+Figures~\ref{fig:appendix-hex-color-segmentation} and~\ref{fig:appendix-dense-instance-segmentation} show examples with more specialized output requirements, including hexadecimal-color segmentation and dense instance segmentation with structured text-mask outputs.
+Figure~\ref{fig:appendix-vgd-segmentation} presents VGD segmentation results under fine-grained object queries.
+Figure~\ref{fig:appendix-dense-geometry-challenging-cases} presents dense geometric prediction results on challenging scenes, including visually ambiguous patterns and transparent or refractive surfaces.
+
+
+
+\begin{figure}[!t]
+    \centering
+
+    \includegraphics[height=0.23\textheight,keepaspectratio]{assets/appendix_challenging_cases/cfg_depth_1.pdf}
+
+
+    \includegraphics[height=0.23\textheight,keepaspectratio]{assets/appendix_challenging_cases/cfg_depth_2.pdf}
+
+
+    \includegraphics[height=0.23\textheight,keepaspectratio]{assets/appendix_challenging_cases/cfg_normal_3.pdf}
+
+
+    \includegraphics[height=0.23\textheight,keepaspectratio]{assets/appendix_challenging_cases/cfg_normal_4.pdf}
+
+    \caption{
+    Qualitative results of composed dense prediction under different CFG strengths.
+    With the input image and instruction fixed, some text-image CFG configurations produce outputs consistent with the composed visual task, while others bias the result toward depth-like, normal-like, or segmentation-like predictions.}
+    \label{fig:appendix-cfg-strength}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/hex_segmentation_1.pdf}
+    \vspace{6pt}
+
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/hex_segmentation_2.pdf}
+    \vspace{6pt}
+
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/hex_segmentation_3.pdf}
+    \vspace{6pt}
+
+    \caption{
+    Qualitative results of hexadecimal-color segmentation.
+    These examples test whether the model can jointly satisfy semantic segmentation and language-specified color formatting.
+    Although most target regions are correctly localized, the generated masks may deviate from the requested hexadecimal colors in their exact RGB values or assign incorrect colors to regions.
+    }
+    \label{fig:appendix-hex-color-segmentation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/dense_instance_segmentation_1.pdf}
+    \vspace{-2pt}
+
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/dense_instance_segmentation_2.pdf}
+
+    \includegraphics[width=0.77\linewidth,keepaspectratio]{assets/appendix_challenging_cases/dense_instance_segmentation_3.pdf}
+
+    \caption{
+    Qualitative results of dense instance segmentation.
+    These examples require the model to enumerate each instance with a color code in structured text and then render the corresponding color-coded masks.
+    The results show that structured text is critical for mask generation: the model may output detection-style records instead of instance color codes, or over-predict textual instances and include non-target regions in the masks; after manually repairing the instance list to include only the annotated target instances, the mask output becomes more focused and accurate.
+    }
+    \label{fig:appendix-dense-instance-segmentation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth,keepaspectratio]{assets/appendix_challenging_cases/vgd_segmentation_1.pdf}
+    \vspace{6pt}
+
+    \includegraphics[width=0.8\linewidth,keepaspectratio]{assets/appendix_challenging_cases/vgd_segmentation_2.pdf}
+
+    \caption{
+    Qualitative results of Visual Grounded (VGD) segmentation.
+    The visual prompt specifies the target category, and the model is expected to segment all same-category instances.
+    When the generated caption provides too few instance color slots, dense objects may be merged in the mask output; manually repairing the caption with sufficient color entries improves instance-level separation.
+    }
+    \label{fig:appendix-vgd-segmentation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.76\linewidth]{assets/appendix_challenging_cases/dense_geometry_challenging_cases.pdf}
+    \vspace{-3pt}
+    \caption{
+    Qualitative results of dense geometric prediction.
+    The examples cover visual-illusion patterns and transparent or reflective surfaces, where texture cues, reflections, and physical geometry can conflict.
+    These cases show that depth or normal predictions may follow misleading appearance cues or become ambiguous around reflective layers and distorted patterns.
+    }
+    \label{fig:appendix-dense-geometry-challenging-cases}
+\end{figure}

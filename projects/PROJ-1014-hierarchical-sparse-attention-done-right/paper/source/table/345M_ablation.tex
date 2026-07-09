@@ -1,0 +1,224 @@
+% \newsavebox{\hiddenbox}
+\newcolumntype{Y}{>{\begin{lrbox}{\hiddenbox}}c<{\end{lrbox}}}
+
+\begin{table}[tb]
+\centering
+\caption{Ablation perplexity (PPL) of 345M models trained on 8K context.}\label{tb:345M_ablation_ppl} 
+\vspace{0.1cm}
+\resizebox{0.9\textwidth}{!}{
+\begin{tabular}{l@{\hspace{\tabcolsep}}Y@{\hspace{\tabcolsep}}cccccccc}
+\toprule
+Models & \#steps & Extra \#Param & 64 & 128 & 512 & \textbf{8K} & 32K & 128K & 512K \\
+\midrule
+HiLS-Attn-HoPE \\
+\midrule
+~~~w/ Q-Cal ($r=64$)        &     30k &  0.6\%  &  33.97 & 26.91 & \underline{18.65} & \textbf{4.94} & 4.34 & \underline{4.71} & \underline{5.95} \\
+~~~w/ Q-Cal ($r=128$)        &     30k &  1.2\%  &  \underline{33.89} & \textbf{26.77} & \textbf{18.61} & \underline{4.95} & \textbf{4.26} & \textbf{4.54} & \textbf{5.85}  \\
+~~~w/ full-rank &     30k &  4.9\%  &  34.02 & 26.93 & 18.66 & \textbf{4.94} & 4.62 & 5.03 & 6.52 \\
+~~~w/o Q-Cal        &     30k &  0\%  &  34.04 & \underline{26.86}  & 18.68 & 4.97 & 7.21 & 12.40 & 16.93 \\
+~~~w/o Prop.~\ref{prop:logsumexp}        &     30k &  0.6\%  &  34.13 & 27.05 & 18.74 & 4.97 & \underline{4.28} & 4.73 & 6.61 \\
+~~~LMK-Attn        &     30k &  0\%  & 34.02 & 26.93 & 18.75 & 4.98 & 6.36 & 10.97 & 14.10 \\
+~~~w/ mean pooling       &     30k &  0.6\%  & \textbf{33.82}  & 27.14 & 19.03 & 5.04 & 4.85 & 5.55 & 8.00 \\
+% ~~~w/o lmk, shared  $\mathbf{q}_c$           &     30k &   0.6\%  &  \underline{33.84} & \underline{26.83} & \underline{18.62} & \textbf{4.94} & 4.78 & 5.86 & 8.88 \\
+
+~~~w/o lmk, shared  $\mathbf{q}_c$           &     30k &   0.6\%  &  34.02 & 26.92 & \underline{18.65} & \textbf{4.94} & 4.71 & 5.50 & 7.94 \\
+\midrule
+HiLS-Attn-RoPE \\
+\midrule
+~~~w/ Q-Cal ($r=64$)         &     30k &   0.6\% &  34.61 &  27.30&  18.89&  5.00&  $>10^2$ \\
+~~~w/ full-rank &     30k &  4.9\%  & 34.04 & 26.96 & 18.73 & 4.97 & $>10^2$ \\
+~~~w/o Q-Cal         &     30k &  0\%  &  34.10 & 26.97 & 18.76 & 5.03 & 9.66 & 10.46 & 24.94 \\
+
+\midrule
+HiLS-Attn-NoPE \\
+\midrule
+~~~w/ Q-Cal ($r=64$)         &     30k &  0.6\%  & 36.57 & 28.94 & 20.01 & 5.13 & 9.69 & 37.46 & 89.89 \\
+~~~w/ full-rank &     30k &  4.9\%  & 36.07 & 28.63 & 19.83 & 5.10 & 5.37 & 28.26 & 82.31 \\
+~~~w/o Q-Cal         &     30k &  0\%  &  36.78 & 29.10 & 20.09 & 5.17 & 29.02 & $>10^2$ \\
+\bottomrule
+\end{tabular}
+}
+
+\end{table}
+
+
+
+\begin{table}[tb]
+\centering
+\caption{
+Ablation RULER results for 345M models trained with an 8K context length.}
+\vspace{0.1cm}
+\label{tb:345M_ablation_ruler}
+\setlength{\tabcolsep}{1.pt} 
+
+\resizebox{0.9\textwidth}{!}{%
+\begin{tabular}{l ccc >{\columncolor{blue!10}}c>{\columncolor{blue!10}}c>{\columncolor{blue!10}}c ccc >{\columncolor{blue!10}}c>{\columncolor{blue!10}}c>{\columncolor{blue!10}}c ccc}
+\toprule
+& \multicolumn{3}{c}{\textbf{8K}}
+& \multicolumn{3}{c}{\textbf{16K}}
+& \multicolumn{3}{c}{\textbf{32K}}
+& \multicolumn{3}{c}{\textbf{128K}}
+& \multicolumn{3}{c}{\textbf{512K}}
+\\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13} \cmidrule(lr){14-16}
+
+\textbf{Models}
+& {\small S-N} & {\small MK-MQ} & {\small VT}
+& {\small S-N} & {\small MK-MQ} & {\small VT}
+& {\small S-N} & {\small MK-MQ} & {\small VT}
+& {\small S-N} & {\small MK-MQ} & {\small VT}
+& {\small S-N} & {\small MK-MQ} & {\small VT}
+\\
+\midrule
+\multicolumn{16}{l}{\textbf{HiLS-Attn-HoPE}} \\
+% \midrule
+% wQ-Cal64 wHp
+% \rowcolor{gray!20}
+\RulerRowHideLengths{~~~w/ Q-Cal ($r=64$)}{30k}{
+\textbf{100},\underline{95},\underline{72},18,12;
+\textbf{100},\textbf{94},\textbf{65},22,9;
+\textbf{100},\textbf{95},\textbf{68},\underline{24},12;
+\textbf{100},94,65,24,11;
+\textbf{99},\textbf{95},\underline{61},\underline{22},16;
+\textbf{100},97,68,20,15;
+\textbf{99},\textbf{91},\textbf{66},\underline{16},13
+}
+
+
+% wQ-Cal128 wHp
+\RulerRowHideLengths{~~~w/ Q-Cal ($r=128$)}{30k}{
+\textbf{100},94,64,22,9;
+\textbf{100},\underline{89},47,11,5;
+97,\underline{92},\underline{64},22,17;
+95,94,57,18,7;
+95,89,57,\textbf{27},13;
+99,93,56,13,12;
+91,\underline{86},\underline{56},\textbf{21},10
+}
+
+
+% \rowcolor{gray!10}
+\RulerRowHideLengths{~~~w/ full-rank}{30k}{
+\textbf{100},\textbf{98},\textbf{75},\textbf{27},8;
+96,88,57,12,9;
+97,89,\underline{64},17,12;
+96,97,62,9,12;
+92,\underline{91},54,18,12;
+91,91,66,15,13;
+\underline{92},77,\underline{56},14,11
+}
+
+% wolmkq wHp
+\RulerRowHideLengths{~~~w/o Q-Cal}{30k}{
+\underline{99},77,49,15,9;
+\underline{98},74,20,\underline{24},10;
+88,64,23,11,13;
+76,52,7,14,12;
+71,33,5,3,8;
+59,12,1,0,8;
+39,1,0,3,5
+}
+
+
+% wQ-Cal64 woHp
+\RulerRowHideLengths{~~~w/o Prop.~\ref{prop:logsumexp}}{30k}{
+\textbf{100},93,69,20,9;
+\textbf{100},\underline{89},\underline{60},19,12;
+\underline{98},91,57,14,8;
+97,89,63,19,11;
+\underline{97},\underline{91},\textbf{63},\underline{22},8;
+92,90,67,12,10;
+83,83,52,6,10
+}
+
+\RulerRowHideLengths{~~~LMK-Attn}{30k}{
+96,79,38,14,7;
+76,47,23,8,14;
+65,31,9,12,15;
+48,26,5,10,11;
+17,9,8,9,12;
+14,3,1,3,12;
+3,1,0,4,12
+}
+
+% wQ-Cal64 wHp
+\RulerRowHideLengths{~~~w/ mean pooling}{30k}{
+92,68,29,20,11;
+82,34,11,12,10;
+70,23,12,11,6;
+72,7,1,12,11;
+55,3,1,0,7;
+44,5,1,0,9;
+24,2,1,1,9
+}
+
+\RulerRowHideLengths{~~~w/o lmk, shared  $\mathbf{q}_c$ }{30k}{99,80,35,18,8;98,82,22,14,6;95,71,20,11,19;89,46,18,9,10;85,32,10,6,13;65,18,9,6,10;54,2,4,0,9}
+
+
+\midrule
+\multicolumn{16}{l}{\textbf{HiLS-Attn-RoPE}} \\
+\RulerRowHideLengths{~~~w/ Q-Cal ($r=64$)}{30k}{
+\underline{99},81,52,16,15;
+0,0,0,0,0;
+0,0,0,0,0;
+0,0,0,0,0;
+0,0,0,0,0;
+0,0,0,0,0;
+0,0,0,0,0
+}
+
+\RulerRowHideLengths{~~~w/ full-rank}{30k}{\textbf{100},90,57,16,13;
+0,0,0,0,7;
+0,0,0,0,1;
+0,0,0,0,4;
+0,0,0,0,0;
+0,0,0,0,9;
+0,0,0,0,10}
+
+\RulerRowHideLengths{~~~w/o Q-Cal}{30k}{
+84,74,29,22,11;
+39,20,1,10,6;
+1,0,0,2,7;
+0,1,0,0,10;
+0,0,0,0,10;
+0,0,0,0,9;
+0,0,0,0,4
+}
+
+\midrule
+\multicolumn{16}{l}{\textbf{HiLS-Attn-NoPE}} \\
+\RulerRowHideLengths{~~~w/ Q-Cal ($r=64$)}{30k}{
+\textbf{100},90,64,15,10;
+\underline{98},81,47,19,8;
+68,41,21,15,13;
+45,20,11,4,6;
+22,15,4,7,7;
+6,1,2,1,5;
+7,2,0,3,5
+}
+
+\RulerRowHideLengths{~~~w/ full-rank}{30k}{
+90,88,70,18,9;
+85,73,53,23,12;
+70,47,27,14,10;
+45,32,23,10,8;
+24,23,7,4,3;
+16,11,2,4,5;
+3,4,0,3,5
+}
+
+\RulerRowHideLengths{~~~w/o Q-Cal}{30k}{
+96,41,26,3,8;
+91,34,17,8,18;
+32,4,2,4,10;
+3,1,0,0,9;
+1,0,0,0,5;
+0,0,0,0,5;
+0,0,0,0,10
+}
+
+\bottomrule
+\end{tabular}
+}
+
+\end{table}

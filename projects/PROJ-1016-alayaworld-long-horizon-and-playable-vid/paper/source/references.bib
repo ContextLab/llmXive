@@ -1,0 +1,900 @@
+% =====================================================================
+%  AlayaWorld -- Related Work references (verified)
+%  Every entry below was checked against the official arXiv abstract page,
+%  project page, or GitHub repository. No fabricated IDs or authors.
+%  Venue macros follow the user's existing String-macro style.
+% =====================================================================
+
+% ---------- Venue string macros ----------
+@String{CVPR    = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}}
+@String{ICCV    = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)}}
+@String{ECCV    = {Proceedings of the European Conference on Computer Vision (ECCV)}}
+@String{ICLR    = {International Conference on Learning Representations (ICLR)}}
+@String{ICML    = {International Conference on Machine Learning (ICML)}}
+@String{NeurIPS = {Advances in Neural Information Processing Systems (NeurIPS)}}
+
+
+% =====================================================================
+%  AGENCY  (camera / viewpoint control)
+% =====================================================================
+
+@article{hou2024camtrol,
+  title={Training-free camera control for video generation},
+  author={Hou, Chen and Chen, Zhibo},
+  journal={arXiv preprint arXiv:2406.10126},
+  year={2024}
+}
+
+@inproceedings{zhou2025latentreframe,
+  title={Latent-reframe: Enabling camera control for video diffusion models without training},
+  author={Zhou, Zhenghong and An, Jie and Luo, Jiebo},
+  booktitle=ICCV,
+  pages={12779--12789},
+  year={2025}
+}
+
+@inproceedings{wang2024motionctrl,
+  title={Motionctrl: A unified and flexible motion controller for video generation},
+  author={Wang, Zhouxia and Yuan, Ziyang and Wang, Xintao and Li, Yaowei and Chen, Tianshui and Xia, Menghan and Luo, Ping and Shan, Ying},
+  booktitle={ACM SIGGRAPH 2024 Conference Papers},
+  pages={1--11},
+  year={2024}
+}
+
+@article{he2025cameractrl,
+  title={Cameractrl: Enabling camera control for text-to-video generation},
+  author={He, Hao and Xu, Yinghao and Guo, Yuwei and Wetzstein, Gordon and Dai, Bo and Li, Hongsheng and Yang, Ceyuan},
+  journal={arXiv preprint arXiv:2404.02101},
+  year={2024}
+}
+
+@article{zheng2024cami2v,
+  title={Cami2v: Camera-controlled image-to-video diffusion model},
+  author={Zheng, Guangcong and Li, Teng and Jiang, Rui and Lu, Yehao and Wu, Tao and Li, Xi},
+  journal={arXiv preprint arXiv:2410.15957},
+  year={2024}
+}
+
+@article{xu2024camco,
+  title={Camco: Camera-controllable 3d-consistent image-to-video generation},
+  author={Xu, Dejia and Nie, Weili and Liu, Chao and Liu, Sifei and Kautz, Jan and Wang, Zhangyang and Vahdat, Arash},
+  journal={arXiv preprint arXiv:2406.02509},
+  year={2024}
+}
+
+@inproceedings{he2025cameractrl2,
+  title={Cameractrl II: Dynamic scene exploration via camera-controlled video diffusion models},
+  author={He, Hao and Yang, Ceyuan and Lin, Shanchuan and Xu, Yinghao and Wei, Meng and Gui, Liangke and Zhao, Qi and Wetzstein, Gordon and Jiang, Lu and Li, Hongsheng},
+  booktitle=ICCV,
+  pages={13416--13426},
+  year={2025}
+}
+
+@article{mao2025yume,
+  title={Yume: An interactive world generation model},
+  author={Mao, Xiaofeng and Lin, Shaoheng and Li, Zhen and Li, Chuanhao and Peng, Wenshuo and He, Tong and Pang, Jiangmiao and Chi, Mingmin and Qiao, Yu and Zhang, Kaipeng},
+  journal={arXiv preprint arXiv:2507.17744},
+  year={2025}
+}
+
+@article{li2025prope,
+  title={Cameras as relative positional encoding},
+  author={Li, Ruilong and Yi, Brent and Liu, Junchen and Gao, Hang and Ma, Yi and Kanazawa, Angjoo},
+  journal=NeurIPS,
+  volume={38},
+  pages={15984--16009},
+  year={2026}
+}
+
+@inproceedings{zhang2025ucpe,
+  title={Unified camera positional encoding for controlled video generation},
+  author={Zhang, Cheng and Li, Boying and Wei, Meng and Cao, Yan-Pei and Gambardella, Camilo and Phung, Dinh and Cai, Jianfei},
+  booktitle=CVPR,
+  pages={38027--38037},
+  year={2026}
+}
+
+@inproceedings{wang2025bullettime,
+  title={Bullettime: Decoupled control of time and camera pose for video generation},
+  author={Wang, Yiming and Zhang, Qihang and Cai, Shengqu and Wu, Tong and Ackermann, Jan and Kuang, Zhengfei and Zheng, Yang and Raji{\v{c}}, Frano and Tang, Siyu and Wetzstein, Gordon},
+  booktitle=CVPR,
+  pages={18319--18330},
+  year={2026}
+}
+
+@inproceedings{ren2025gen3c,
+  title={Gen3c: 3d-informed world-consistent video generation with precise camera control},
+  author={Ren, Xuanchi and Shen, Tianchang and Huang, Jiahui and Ling, Huan and Lu, Yifan and Nimier-David, Merlin and M{\"u}ller, Thomas and Keller, Alexander and Fidler, Sanja and Gao, Jun},
+  booktitle=CVPR,
+  pages={6121--6132},
+  year={2025}
+}
+
+@inproceedings{yu2025trajectorycrafter,
+  title={Trajectorycrafter: Redirecting camera trajectory for monocular videos via diffusion models},
+  author={Yu, Mark and Hu, Wenbo and Xing, Jinbo and Shan, Ying},
+  booktitle=ICCV,
+  pages={100--111},
+  year={2025}
+}
+
+@inproceedings{bai2025recammaster,
+  title={Recammaster: Camera-controlled generative rendering from a single video},
+  author={Bai, Jianhong and Xia, Menghan and Fu, Xiao and Wang, Xintao and Mu, Lianrui and Cao, Jinwen and Liu, Zuozhu and Hu, Haoji and Bai, Xiang and Wan, Pengfei and others},
+  booktitle=ICCV,
+  pages={14834--14844},
+  year={2025}
+}
+
+@inproceedings{zhang2024recapture,
+  title={Recapture: Generative video camera controls for user-provided videos using masked video fine-tuning},
+  author={Zhang, David Junhao and Paiss, Roni and Zada, Shiran and Karnad, Nikhil and Jacobs, David E and Pritch, Yael and Mosseri, Inbar and Shou, Mike Zheng and Wadhwa, Neal and Ruiz, Nataniel},
+  booktitle=CVPR,
+  pages={2050--2062},
+  year={2025}
+}
+
+@inproceedings{luo2025camclonemaster,
+  title={Camclonemaster: Enabling reference-based camera control for video generation},
+  author={Luo, Yawen and Shi, Xiaoyu and Bai, Jianhong and Xia, Menghan and Xue, Tianfan and Wang, Xintao and Wan, Pengfei and Zhang, Di and Gai, Kun},
+  booktitle={SIGGRAPH Asia 2025 Conference Papers},
+  pages={1--10},
+  year={2025}
+}
+
+% --- Tencent Hunyuan video base model (8.3B T2V/I2V foundation model) ---
+@misc{hunyuanvideo2025,
+  title={HunyuanVideo 1.5 Technical Report},
+  author={{Tencent Hunyuan Foundation Model Team}},
+  year={2025},
+  eprint={2511.18870},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2511.18870}
+}
+
+% --- HY-World 1.5: interactive world model built on HunyuanVideo 1.5 ---
+% NOTE: arXiv ID still missing -- fill in before submission.
+@article{hyworld2025,
+  title={HY-World 1.5: A Systematic Framework for Interactive World Modeling with Real-Time Latency and Geometric Consistency},
+  author={{Team HunyuanWorld}},
+  journal={arXiv preprint},
+  year={2025}
+}
+
+
+% =====================================================================
+%  PERSISTENCE  (temporally- vs spatially-indexed memory)
+% =====================================================================
+
+@article{zhang2025framepack,
+  title={Frame context packing and drift prevention in next-frame-prediction video diffusion models},
+  author={Zhang, Lvmin and Cai, Shengqu and Li, Muyang and Wetzstein, Gordon and Agrawala, Maneesh},
+  journal=NeurIPS,
+  volume={38},
+  pages={30546--30566},
+  year={2026}
+}
+
+@article{zhang2025framepreservation,
+  title={Pretraining Frame Preservation in Autoregressive Video Memory Compression},
+  author={Zhang, Lvmin and Cai, Shengqu and Li, Muyang and Zeng, Chong and Lu, Beijia and Rao, Anyi and Han, Song and Wetzstein, Gordon and Agrawala, Maneesh},
+  journal={arXiv preprint arXiv:2512.23851},
+  year={2025}
+}
+
+@inproceedings{yu2025contextasmemory,
+  title={Context as memory: Scene-consistent interactive long video generation with memory retrieval},
+  author={Yu, Jiwen and Bai, Jianhong and Qin, Yiran and Liu, Quande and Wang, Xintao and Wan, Pengfei and Zhang, Di and Liu, Xihui},
+  booktitle={SIGGRAPH Asia 2025 Conference Papers},
+  pages={1--11},
+  year={2025}
+}
+
+@article{xiao2025worldmem,
+  title={Worldmem: Long-term consistent world simulation with memory},
+  author={Xiao, Zeqi and Lan, Yushi and Zhou, Yifan and Ouyang, Wenqi and Yang, Shuai and Zeng, Yanhong and Pan, Xingang},
+  journal=NeurIPS,
+  volume={38},
+  pages={49632--49652},
+  year={2026}
+}
+
+@article{wu2025longtermspatialmemory,
+  title={Video world models with long-term spatial memory},
+  author={Wu, Tong and Yang, Shuai and Po, Ryan and Xu, Yinghao and Liu, Ziwei and Lin, Dahua and Wetzstein, Gordon},
+  journal=NeurIPS,
+  volume={38},
+  pages={49371--49393},
+  year={2026}
+}
+
+@article{wang2025evoworld,
+  title={Evoworld: Evolving panoramic world generation with explicit 3d memory},
+  author={Wang, Jiahao and Ye, Luoxin and Lu, TaiMing and Xiao, Junfei and Zhang, Jiahan and Guo, Yuxiang and Liu, Xijun and Chellappa, Rama and Peng, Cheng and Yuille, Alan and others},
+  journal={arXiv preprint arXiv:2510.01183},
+  year={2025}
+}
+
+@inproceedings{zhao2025spatia,
+  title={Spatia: Video generation with updatable spatial memory},
+  author={Zhao, Jinjing and Wei, Fangyun and Liu, Zhening and Zhang, Hongyang and Xu, Chang and Lu, Yan},
+  booktitle=CVPR,
+  pages={4245--4257},
+  year={2026}
+}
+
+@article{shen2026lyra2,
+  title={Lyra 2.0: Explorable generative 3d worlds},
+  author={Shen, Tianchang and Bahmani, Sherwin and He, Kai and Srinivasan, Sangeetha Grama and Cao, Tianshi and Ren, Jiawei and Li, Ruilong and Wang, Zian and Sharp, Nicholas and Gojcic, Zan and others},
+  journal={arXiv preprint arXiv:2604.13036},
+  year={2026}
+}
+
+% NOTE: arXiv ID still missing -- fill in before submission.
+@article{hyworld22026,
+  title={HY-World 2.0: A Multi-Modal World Model for Reconstructing, Generating, and Simulating 3D Worlds},
+  author={{Team HY-World}},
+  journal={arXiv e-prints},
+  year={2026}
+}
+
+@article{chen2025recurrentdiffusion,
+  title={Recurrent autoregressive diffusion: Global memory meets local attention},
+  author={Chen, Taiye and Ding, Zihan and Li, Anjian and Zhang, Christina and Xiao, Zeqi and Wang, Yisen and Jin, Chi},
+  journal={arXiv preprint arXiv:2511.12940},
+  year={2025}
+}
+
+@inproceedings{po2025longcontextssm,
+  title={Long-context state-space video world models},
+  author={Po, Ryan and Nitzan, Yotam and Zhang, Richard and Chen, Berlin and Dao, Tri and Shechtman, Eli and Wetzstein, Gordon and Huang, Xun},
+  booktitle=ICCV,
+  pages={8733--8744},
+  year={2025}
+}
+
+@article{yu2025videossm,
+  title={Videossm: Autoregressive long video generation with hybrid state-space memory},
+  author={Yu, Yifei and Wu, Xiaoshan and Hu, Xinting and Hu, Tao and Sun, Yangtian and Lyu, Xiaoyang and Wang, Bo and Ma, Lin and Ma, Yuewen and Wang, Zhongrui and others},
+  journal={arXiv preprint arXiv:2512.04519},
+  year={2025}
+}
+
+
+% =====================================================================
+%  DURABILITY  (long-horizon / anti-drift)
+% =====================================================================
+
+@article{chen2026context,
+  title={Context Forcing: Consistent Autoregressive Video Generation with Long Context},
+  author={Chen, Shuo and Wei, Cong and Sun, Sun and Nie, Ping and Zhou, Kai and Zhang, Ge and Yang, Ming-Hsuan and Chen, Wenhu},
+  journal={arXiv preprint arXiv:2602.06028},
+  year={2026}
+}
+
+@article{wu2026infiniteworld,
+  title={Infinite-World: Scaling Interactive World Models to 1000-Frame Horizons via Pose-Free Hierarchical Memory},
+  author={Wu, Ruiqi and He, Xuanhua and Cheng, Meng and Yang, Tianyu and Zhang, Yong and Kang, Zhuoliang and Cai, Xunliang and Wei, Xiaoming and Guo, Chunle and Li, Chongyi and others},
+  journal={arXiv preprint arXiv:2602.02393},
+  year={2026}
+}
+
+@article{zhao2026relaxforcing,
+  title={Relax forcing: Relaxed kv-memory for consistent long video generation},
+  author={Zhao, Zengqun and Lu, Yanzuo and Liu, Ziquan and Song, Jifei and Deng, Jiankang and Patras, Ioannis},
+  journal={arXiv preprint arXiv:2603.21366},
+  year={2026}
+}
+
+@article{huang2025selfforcing,
+  title={Self forcing: Bridging the train-test gap in autoregressive video diffusion},
+  author={Huang, Xun and Li, Zhengqi and He, Guande and Zhou, Mingyuan and Shechtman, Eli},
+  journal=NeurIPS,
+  volume={38},
+  pages={167283--167308},
+  year={2026}
+}
+
+@article{li2025stablevideoinfinity,
+  title={Stable video infinity: Infinite-length video generation with error recycling},
+  author={Li, Wuyang and Pan, Wentao and Luan, Po-Chien and Gao, Yang and Alahi, Alexandre},
+  journal={arXiv preprint arXiv:2510.09212},
+  year={2025}
+}
+
+@article{yuan2026helios,
+  title={Helios: Real Real-Time Long Video Generation Model},
+  author={Yuan, Shenghai and Yin, Yuanyang and Li, Zongjian and Huang, Xinwei and Yang, Xiao and Yuan, Li},
+  journal={arXiv preprint arXiv:2603.04379},
+  year={2026}
+}
+
+@article{liu2025rollingforcing,
+  title={Rolling forcing: Autoregressive long video diffusion in real time},
+  author={Liu, Kunhao and Hu, Wenbo and Xu, Jiale and Shan, Ying and Lu, Shijian},
+  journal={arXiv preprint arXiv:2509.25161},
+  year={2025}
+}
+
+@article{bendel2026anchoredtreesampling,
+  title={Goodbye Drift: Anchored Tree Sampling for Long-Horizon Video-to-Video Generation},
+  author={Bendel, Matthew and Bailey, Stephen W and Vaidya, Mithilesh and Badam, Sumukh and He, Xingzhe},
+  journal={arXiv preprint arXiv:2605.20476},
+  year={2026}
+}
+
+@article{liu2025worldweaver,
+  title={Worldweaver: Generating long-horizon video worlds via rich perception},
+  author={Liu, Zhiheng and Deng, Xueqing and Chen, Shoufa and Wang, Angtian and Guo, Qiushan and Han, Mingfei and Xue, Zeyue and Chen, Mengzhao and Luo, Ping and Yang, Linjie},
+  journal=NeurIPS,
+  volume={38},
+  pages={46268--46293},
+  year={2026}
+}
+
+@inproceedings{zhang2025endlessworld,
+  title={Endless World: Real-Time 3D-Aware Long Video Generation},
+  author={Zhang, Ke and Xu, Jiacong and Mei, Yiqun and Patel, Vishal M},
+  booktitle=CVPR,
+  pages={18386--18395},
+  year={2026}
+}
+
+
+% =====================================================================
+%  RESPONSIVENESS  (real-time / interactive)
+% =====================================================================
+
+% ---- few-step distillation ----
+@article{salimans2022progressive,
+  title={Progressive distillation for fast sampling of diffusion models},
+  author={Salimans, Tim and Ho, Jonathan},
+  journal={arXiv preprint arXiv:2202.00512},
+  year={2022}
+}
+
+@inproceedings{song2023consistency,
+  title={Consistency Models},
+  author={Song, Yang and Dhariwal, Prafulla and Chen, Mark and Sutskever, Ilya},
+  booktitle=ICML,
+  year={2023}
+}
+
+@article{luo2023lcm,
+  title={Latent consistency models: Synthesizing high-resolution images with few-step inference},
+  author={Luo, Simian and Tan, Yiqin and Huang, Longbo and Li, Jian and Zhao, Hang},
+  journal={arXiv preprint arXiv:2310.04378},
+  year={2023}
+}
+
+@inproceedings{yin2024dmd,
+  title={One-step diffusion with distribution matching distillation},
+  author={Yin, Tianwei and Gharbi, Micha{\"e}l and Zhang, Richard and Shechtman, Eli and Durand, Fredo and Freeman, William T and Park, Taesung},
+  booktitle=CVPR,
+  pages={6613--6623},
+  year={2024}
+}
+
+@article{yin2024dmd2,
+  title={Improved distribution matching distillation for fast image synthesis},
+  author={Yin, Tianwei and Gharbi, Micha{\"e}l and Park, Taesung and Zhang, Richard and Shechtman, Eli and Durand, Fredo and Freeman, William T},
+  journal=NeurIPS,
+  volume={37},
+  pages={47455--47487},
+  year={2024}
+}
+
+@article{wang2023videolcm,
+  title={Videolcm: Video latent consistency model},
+  author={Wang, Xiang and Zhang, Shiwei and Zhang, Han and Liu, Yu and Zhang, Yingya and Gao, Changxin and Sang, Nong},
+  journal={arXiv preprint arXiv:2312.09109},
+  year={2023}
+}
+
+@inproceedings{wang2024animatelcm,
+  title={AnimateLCM: Accelerating the Animation of Personalized Diffusion Models and Adapters with Decoupled Consistency Learning},
+  author={Wang, Fu-Yun and Huang, Zhaoyang and Shi, Xiaoyu and Bian, Weikang and Song, Guanglu and Liu, Yu and Li, Hongsheng},
+  booktitle={SIGGRAPH Asia 2024 Technical Communications},
+  year={2024}
+}
+
+@article{li2024t2vturbo,
+  title={T2v-turbo: Breaking the quality bottleneck of video consistency model with mixed reward feedback},
+  author={Li, Jiachen and Feng, Weixi and Fu, Tsu-Jui and Wang, Xinyi and Basu, Sugato and Chen, Wenhu and Wang, William Yang},
+  journal=NeurIPS,
+  volume={37},
+  pages={75692--75726},
+  year={2024}
+}
+
+% ---- streaming / causal generation ----
+@article{gu2023reusediffuse,
+  title={Reuse and diffuse: Iterative denoising for text-to-video generation},
+  author={Gu, Jiaxi and Wang, Shicong and Zhao, Haoyu and Lu, Tianyi and Zhang, Xing and Wu, Zuxuan and Xu, Songcen and Zhang, Wei and Jiang, Yu-Gang and Xu, Hang},
+  journal={arXiv preprint arXiv:2309.03549},
+  year={2023}
+}
+
+@article{kim2024fifodiffusion,
+  title={Fifo-diffusion: Generating infinite videos from text without training},
+  author={Kim, Jihwan and Kang, Junoh and Choi, Jinyoung and Han, Bohyung},
+  journal=NeurIPS,
+  volume={37},
+  pages={89834--89868},
+  year={2024}
+}
+
+@inproceedings{henschel2024streamingt2v,
+  title={Streamingt2v: Consistent, dynamic, and extendable long video generation from text},
+  author={Henschel, Roberto and Khachatryan, Levon and Poghosyan, Hayk and Hayrapetyan, Daniil and Tadevosyan, Vahram and Wang, Zhangyang and Navasardyan, Shant and Shi, Humphrey},
+  booktitle=CVPR,
+  pages={2568--2577},
+  year={2025}
+}
+
+@inproceedings{kodaira2025streamdit,
+  title={Streamdit: Real-time streaming text-to-video generation},
+  author={Kodaira, Akio and Hou, Tingbo and Hou, Ji and Georgopoulos, Markos and Juefei-Xu, Felix and Tomizuka, Masayoshi and Zhao, Yue},
+  booktitle=CVPR,
+  pages={29200--29210},
+  year={2026}
+}
+
+@inproceedings{yin2025causvid,
+  title={From slow bidirectional to fast causal video generators},
+  author={Yin, Tianwei and Zhang, Qiang and Zhang, Richard and Freeman, William T. and Durand, Fr{\'e}do and Shechtman, Eli and Huang, Xun},
+  booktitle=CVPR,
+  year={2025}
+}
+
+@article{shin2025motionstream,
+  title={Motionstream: Real-time video generation with interactive motion controls},
+  author={Shin, Joonghyuk and Li, Zhengqi and Zhang, Richard and Zhu, Jun-Yan and Park, Jaesik and Shechtman, Eli and Huang, Xun},
+  journal={arXiv preprint arXiv:2511.01266},
+  year={2025}
+}
+
+@article{yang2025longlive,
+  title={Longlive: Real-time interactive long video generation},
+  author={Yang, Shuai and Huang, Wei and Chu, Ruihang and Xiao, Yicheng and Zhao, Yuyang and Wang, Xianbang and Li, Muyang and Xie, Enze and Chen, Yingcong and Lu, Yao and others},
+  journal={arXiv preprint arXiv:2509.22622},
+  year={2025}
+}
+
+% ---- runtime compute reuse ----
+@inproceedings{zhao2024pab,
+  title={Real-time video generation with pyramid attention broadcast},
+  author={Zhao, Xuanlei and Jin, Xiaolong and Wang, Kai and You, Yang},
+  booktitle=ICLR,
+  pages={3296--3319},
+  year={2025}
+}
+
+@inproceedings{lv2024fastercache,
+  title={Fastercache: Training-free video diffusion model acceleration with high quality},
+  author={Lyu, Zhengyao and Si, Chenyang and Song, Junhao and Yang, Zhenyu and Qiao, Yu and Liu, Ziwei and Wong, Kwan-Yee K},
+  booktitle=ICLR,
+  pages={33132--33156},
+  year={2025}
+}
+
+% ---- on-the-fly conditioning / prompt editing ----
+@article{hertz2022prompt2prompt,
+  title={Prompt-to-Prompt Image Editing with Cross Attention Control},
+  author={Hertz, Amir and Mokady, Ron and Tenenbaum, Jay and Aberman, Kfir and Pritch, Yael and Cohen-Or, Daniel},
+  journal={arXiv preprint arXiv:2208.01626},
+  year={2022}
+}
+
+@inproceedings{liu2024videop2p,
+  title={Video-P2P: Video Editing with Cross-attention Control},
+  author={Liu, Shaoteng and Zhang, Yuechen and Li, Wenbo and Lin, Zhe and Jia, Jiaya},
+  booktitle=CVPR,
+  pages={8599--8608},
+  year={2024}
+}
+
+
+% =====================================================================
+%  INTERACTIVE WORLD MODELS  (prior systems)
+% =====================================================================
+
+@article{he2025matrix,
+  title={Matrix-game 2.0: An open-source real-time and streaming interactive world model},
+  author={He, Xianglong and Peng, Chunli and Liu, Zexiang and Wang, Boyang and Zhang, Yifan and Cui, Qi and Kang, Fei and Jiang, Biao and An, Mengyin and Ren, Yangyang and others},
+  journal={arXiv preprint arXiv:2508.13009},
+  year={2025}
+}
+
+@article{kanervisto2025world,
+  title={World and human action models towards gameplay ideation},
+  author={Kanervisto, Anssi and Bignell, Dave and Wen, Linda Yilin and Grayson, Martin and Georgescu, Raluca and Valcarcel Macua, Sergio and Tan, Shan Zheng and Rashid, Tabish and Pearce, Tim and Cao, Yuhan and others},
+  journal={Nature},
+  volume={638},
+  number={8051},
+  pages={656--663},
+  year={2025},
+  publisher={Nature Publishing Group UK London}
+}
+
+@article{team2026advancing,
+  title={Advancing Open-source World Models},
+  author={Team, Robbyant and Gao, Zelin and Wang, Qiuyu and Zeng, Yanhong and Zhu, Jiapeng and Cheng, Ka Leong and Li, Yixuan and Wang, Hanlin and Xu, Yinghao and Ma, Shuailei and others},
+  journal={arXiv preprint arXiv:2601.20540},
+  year={2026}
+}
+
+@article{tang2025hunyuan,
+  title={Hunyuan-gamecraft-2: Instruction-following interactive game world model},
+  author={Tang, Junshu and Liu, Jiacheng and Li, Jiaqi and Wu, Longhuang and Yang, Haoyu and Zhao, Penghao and Gong, Siruis and Yuan, Xiang and Shao, Shuai and Zhang, Linfeng and others},
+  journal={arXiv preprint arXiv:2511.23429},
+  year={2025}
+}
+
+@article{wang2026matrix,
+  title={Matrix-game 3.0: Real-time and streaming interactive world model with long-horizon memory},
+  author={Wang, Zile and Liu, Zexiang and Li, Jiaxing and Huang, Kaichen and Xu, Baixin and Kang, Fei and An, Mengyin and Wang, Peiyu and Jiang, Biao and Wei, Yichen and others},
+  journal={arXiv preprint arXiv:2604.08995},
+  year={2026}
+}
+
+@article{li2025hunyuan,
+  title={Hunyuan-gamecraft: High-dynamic interactive game video generation with hybrid history condition},
+  author={Li, Jiaqi and Tang, Junshu and Xu, Zhiyong and Wu, Longhuang and Zhou, Yuan and Shao, Shuai and Yu, Tianbao and Cao, Zhiguo and Lu, Qinglin},
+  journal={arXiv preprint arXiv:2506.17201},
+  year={2025}
+}
+
+@inproceedings{Mao_2026_CVPR,
+  title={Yume1.5: A Text-Controlled Interactive World Generation Model},
+  author={Mao, Xiaofeng and Li, Zhen and Li, Chuanhao and Xu, Xiaojie and Ying, Kaining and Zhang, Kaipeng},
+  booktitle=CVPR,
+  pages={7752--7761},
+  year={2026}
+}
+
+@article{guo2025mineworld,
+  title={Mineworld: a real-time and open-source interactive world model on minecraft},
+  author={Guo, Junliang and Ye, Yang and He, Tianyu and Wu, Haoyu and Jiang, Yushu and Pearce, Tim and Bian, Jiang},
+  journal={arXiv preprint arXiv:2504.08388},
+  year={2025}
+}
+
+@inproceedings{yu2025gamefactory,
+  title={Gamefactory: Creating new games with generative interactive videos},
+  author={Yu, Jiwen and Qin, Yiran and Wang, Xintao and Wan, Pengfei and Zhang, Di and Liu, Xihui},
+  booktitle=ICCV,
+  pages={11590--11599},
+  year={2025}
+}
+
+@article{feng2026matrix,
+  title={The matrix: Infinite-horizon world generation with real-time moving control},
+  author={Feng, Ruili and Zhang, Han and Shu, Zhilei and Yang, Zhantao and Tang, Longxiang and Wang, Zhicai and Zheng, Andy and Xiao, Jie and Liu, Zhiheng and Chu, Ruihang and others},
+  journal=NeurIPS,
+  volume={38},
+  pages={87318--87344},
+  year={2026}
+}
+
+@inproceedings{che2025gamegen,
+  title={Gamegen-x: Interactive open-world game video generation},
+  author={Che, Haoxuan and He, Xuanhua and Liu, Quande and Jin, Cheng and Chen, Hao},
+  booktitle=ICLR,
+  pages={37546--37593},
+  year={2025}
+}
+
+@article{yang2024playable,
+  title={Playable game generation},
+  author={Yang, Mingyu and Li, Junyou and Fang, Zhongbin and Chen, Sheng and Yu, Yangbin and Fu, Qiang and Yang, Wei and Ye, Deheng},
+  journal={arXiv preprint arXiv:2412.00887},
+  year={2024}
+}
+
+@article{menapace2024promptable,
+  title={Promptable game models: Text-guided game simulation via masked diffusion models},
+  author={Menapace, Willi and Siarohin, Aliaksandr and Lathuili{\`e}re, St{\'e}phane and Achlioptas, Panos and Golyanik, Vladislav and Tulyakov, Sergey and Ricci, Elisa},
+  journal={ACM Transactions on Graphics},
+  volume={43},
+  number={2},
+  pages={1--16},
+  year={2024},
+  publisher={ACM New York, NY, USA}
+}
+
+@misc{decart2024oasis,
+  title={Oasis: A universe in a transformer},
+  author={Decart, Etched and McIntyre, Quinn and Campbell, Spruce and Chen, Xinlei and Wachen, Robert},
+  year={2024},
+  howpublished={\url{https://oasis-model.github.io}}
+}
+
+@article{alonso2024diffusion,
+  title={Diffusion for world modeling: Visual details matter in atari},
+  author={Alonso, Eloi and Jelley, Adam and Micheli, Vincent and Kanervisto, Anssi and Storkey, Amos and Pearce, Tim and Fleuret, Fran{\c{c}}ois},
+  journal=NeurIPS,
+  volume={37},
+  pages={58757--58791},
+  year={2024}
+}
+
+@inproceedings{valevski2025diffusion,
+  title={Diffusion models are real-time game engines},
+  author={Valevski, Dani and Leviathan, Yaniv and Arar, Moab and Fruchter, Shlomi},
+  booktitle=ICLR,
+  pages={73754--73776},
+  year={2025}
+}
+
+@misc{parker2024genie,
+  title={Genie 2: A large-scale foundation world model},
+  author={Parker-Holder, Jack and Ball, Philip and Bruce, Jake and Dasagi, Vibhavari and Holsheimer, Kristian and Kaplanis, Christos and Moufarek, Alexandre and Scully, Guy and Shar, Jeremy and Shi, Jimmy and others},
+  year={2024},
+  howpublished={\url{https://deepmind.google/discover/blog/genie-2-a-large-scale-foundation-world-model}}
+}
+
+@inproceedings{bruce2024genie,
+  title={Genie: Generative interactive environments},
+  author={Bruce, Jake and Dennis, Michael D and Edwards, Ashley and Parker-Holder, Jack and Shi, Yuge and Hughes, Edward and Lai, Matthew and Mavalankar, Aditi and Steigerwald, Richie and Apps, Chris and others},
+  booktitle=ICML,
+  year={2024}
+}
+
+
+% =====================================================================
+%  VIDEO FOUNDATION MODELS  (backbones)
+% =====================================================================
+
+@inproceedings{liu2025world,
+  title={World model on million-length video and language with blockwise ringattention},
+  author={Liu, Hao and Yan, Wilson and Zaharia, Matei and Abbeel, Pieter},
+  booktitle=ICLR,
+  pages={45953--45977},
+  year={2025}
+}
+
+@article{agarwal2025cosmos,
+  title={Cosmos world foundation model platform for physical ai},
+  author={Agarwal, Niket and Ali, Arslan and Bala, Maciej and Balaji, Yogesh and Barker, Erik and Cai, Tiffany and Chattopadhyay, Prithvijit and Chen, Yongxin and Cui, Yin and Ding, Yifan and others},
+  journal={arXiv preprint arXiv:2501.03575},
+  year={2025}
+}
+
+@article{polyak2024movie,
+  title={Movie gen: A cast of media foundation models},
+  author={Polyak, Adam and Zohar, Amit and Brown, Andrew and Tjandra, Andros and Sinha, Animesh and Lee, Ann and Vyas, Apoorv and Shi, Bowen and Ma, Chih-Yao and Chuang, Ching-Yao and others},
+  journal={arXiv preprint arXiv:2410.13720},
+  year={2024}
+}
+
+@article{teng2025magi,
+  title={Magi-1: Autoregressive video generation at scale},
+  author={Teng, Hansi and Jia, Hongyu and Sun, Lei and Li, Lingzhi and Li, Maolin and Tang, Mingqiu and Han, Shuai and Zhang, Tianning and Zhang, WQ and Luo, Weifeng and others},
+  journal={arXiv preprint arXiv:2505.13211},
+  year={2025}
+}
+
+@article{ma2025step,
+  title={Step-video-t2v technical report: The practice, challenges, and future of video foundation model},
+  author={Ma, Guoqing and Huang, Haoyang and Yan, Kun and Chen, Liangyu and Duan, Nan and Yin, Shengming and Wan, Changyi and Ming, Ranchen and Song, Xiaoniu and Chen, Xing and others},
+  journal={arXiv preprint arXiv:2502.10248},
+  year={2025}
+}
+
+@article{hacohen2024ltx,
+  title={Ltx-video: Realtime video latent diffusion},
+  author={HaCohen, Yoav and Chiprut, Nisan and Brazowski, Benny and Shalem, Daniel and Moshe, Dudu and Richardson, Eitan and Levin, Eran and Shiran, Guy and Zabari, Nir and Gordon, Ori and others},
+  journal={arXiv preprint arXiv:2501.00103},
+  year={2024}
+}
+
+@article{wan2025wan,
+  title={Wan: Open and advanced large-scale video generative models},
+  author={Wan, Team and Wang, Ang and Ai, Baole and Wen, Bin and Mao, Chaojie and Xie, Chen-Wei and Chen, Di and Yu, Feiwu and Zhao, Haiming and Yang, Jianxiao and others},
+  journal={arXiv preprint arXiv:2503.20314},
+  year={2025}
+}
+
+@inproceedings{yang2025cogvideox,
+  title={Cogvideox: Text-to-video diffusion models with an expert transformer},
+  author={Yang, Zhuoyi and Teng, Jiayan and Zheng, Wendi and Ding, Ming and Huang, Shiyu and Xu, Jiazheng and Yang, Yuanming and Hong, Wenyi and Zhang, Xiaohan and Feng, Guanyu and others},
+  booktitle=ICLR,
+  pages={83048--83077},
+  year={2025}
+}
+
+@article{kong2024hunyuanvideo,
+  title={Hunyuanvideo: A systematic framework for large video generative models},
+  author={Kong, Weijie and Tian, Qi and Zhang, Zijian and Min, Rox and Dai, Zuozhuo and Zhou, Jin and Xiong, Jiangfeng and Li, Xin and Wu, Bo and Zhang, Jianwei and others},
+  journal={arXiv preprint arXiv:2412.03603},
+  year={2024}
+}
+
+@article{lin2024open,
+  title={Open-sora plan: Open-source large video generation model},
+  author={Lin, Bin and Ge, Yunyang and Cheng, Xinhua and Li, Zongjian and Zhu, Bin and Wang, Shaodong and He, Xianyi and Ye, Yang and Yuan, Shenghai and Chen, Liuhan and others},
+  journal={arXiv preprint arXiv:2412.00131},
+  year={2024}
+}
+
+@article{zheng2024open,
+  title={Open-sora: Democratizing efficient video production for all},
+  author={Zheng, Zangwei and Peng, Xiangyu and Yang, Tianji and Shen, Chenhui and Li, Shenggui and Liu, Hongxin and Zhou, Yukun and Li, Tianyi and You, Yang},
+  journal={arXiv preprint arXiv:2412.20404},
+  year={2024}
+}
+
+@article{brooks2024video,
+  title={Video generation models as world simulators},
+  author={Brooks, Tim and Peebles, Bill and Holmes, Connor and DePue, Will and Guo, Yufei and Jing, Leo and Schnurr, David and Taylor, Joe and Luhman, Troy and Luhman, Eric and others},
+  journal={OpenAI Blog},
+  year={2024}
+}
+
+@inproceedings{peebles2023scalable,
+  title={Scalable diffusion models with transformers},
+  author={Peebles, William and Xie, Saining},
+  booktitle=ICCV,
+  pages={4195--4205},
+  year={2023}
+}
+
+@inproceedings{rombach2022high,
+  title={High-resolution image synthesis with latent diffusion models},
+  author={Rombach, Robin and Blattmann, Andreas and Lorenz, Dominik and Esser, Patrick and Ommer, Bj{\"o}rn},
+  booktitle=CVPR,
+  pages={10684--10695},
+  year={2022}
+}
+
+
+% =====================================================================
+%  CLOSED-SOURCE / WEB-CITED SYSTEMS
+%  (no formal paper; verify URLs before submission)
+% =====================================================================
+
+@misc{ball2025genie3,
+  title={Genie 3: A new frontier for world models},
+  author={Ball, Philip and Bauer, Jakob and others},
+  year={2025},
+  howpublished={\url{https://deepmind.google/discover/blog/genie-3-a-new-frontier-for-world-models/}}
+}
+
+@misc{microsoft2025whamm,
+  title={WHAMM! Real-time world modelling of interactive environments},
+  author={{Microsoft Research}},
+  year={2025},
+  howpublished={\url{https://www.microsoft.com/en-us/research/articles/whamm-real-time-world-modelling-of-interactive-environments/}}
+}
+
+@misc{google2024veo,
+  title={Veo},
+  author={{Google DeepMind}},
+  year={2024},
+  howpublished={\url{https://deepmind.google/models/veo/}}
+}
+
+@misc{kuaishou2024kling,
+  title={Kling},
+  author={{Kuaishou}},
+  year={2024},
+  howpublished={\url{https://klingai.com/}}
+}
+
+@misc{runway2024gen3,
+  title={Introducing Gen-3 Alpha},
+  author={{Runway}},
+  year={2024},
+  howpublished={\url{https://runwayml.com/research/introducing-gen-3-alpha}}
+}
+
+@article{ying2026wbench,
+  title={WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model Evaluation},
+  author={Ying, Kaining and Hu, Hengrui and Ren, Siyu and Li, Jiamu and Chen, Fengjiao and Wang, Ziwen and Cao, Xuezhi and Cai, Xunliang and Ding, Henghui},
+  journal={arXiv preprint arXiv:2605.25874},
+  year={2026}
+}
+
+@article{xu2026worldmark,
+  title={WorldMark: A Unified Benchmark Suite for Interactive Video World Models},
+  author={Xu, Xiaojie and Lin, Zhengyuan and He, Kang and Feng, Yukang and Mao, Xiaofeng and Yin, Yuanyang and Zhang, Kaipeng and Ge, Yongtao},
+  journal={arXiv preprint arXiv:2604.21686},
+  year={2026}
+}
+
+@misc{alibaba2026happyoyster,
+  title={Happy Oyster},
+  author={{Alibaba ATH}},
+  year={2026},
+  howpublished={\url{https://happyoyster.cn/}}
+}
+
+@article{bian2026echoinfinity,
+  title={Echo-Infinity: Learnable Evolving Memory for Real-Time Infinite Video Generation},
+  author={Bian, Yuxuan and Xue, Zeyue and Zhang, Songchun and Zhang, Shiyi and Jin, Weiyang and Li, Yaowei and Zhuang, Junhao and Li, Haoran and Huang, Jie and Huang, Haoyang and Duan, Nan and Xu, Qiang},
+  journal={arXiv preprint arXiv:2606.04527},
+  year={2026}
+}
+
+@article{zhu2026sana,
+  title={Sana-wm: Efficient minute-scale world modeling with hybrid linear diffusion transformer},
+  author={Zhu, Haoyi and Liu, Haozhe and Zhao, Yuyang and Ye, Tian and Chen, Junsong and Yu, Jincheng and He, Tong and Han, Song and Xie, Enze},
+  journal={arXiv preprint arXiv:2605.15178},
+  year={2026}
+}
+
+@techreport{echo2026joyai,
+  title        = {JoyAI-Echo: Pushing the Frontier of Long Video Generation},
+  author       = {{Echo Team @ Joy Future Academy, JD}},
+  institution  = {Joy Future Academy, JD},
+  year         = {2026},
+  month        = {May}
+}
+
+@article{agarwal2026cosmos,
+  title={Cosmos 3: Omnimodal world models for physical ai},
+  author={Agarwal, Niket and Ali, Arslan and Allen, Jon and Antolini, Martin and Aubame, Adeline and Azzolini, Alisson and Bai, Junjie and Bala, Maciej and Balaji, Yogesh and Bapst, Josh and others},
+  journal={arXiv preprint arXiv:2606.02800},
+  year={2026}
+}
+
+@article{huang2026generative,
+  title={Generative World Renderer},
+  author={Huang, Zheng-Hui and Wang, Zhixiang and Tan, Jiaming and Yu, Ruihan and Zhang, Yidan and Zheng, Bo and Liu, Yu-Lun and Chuang, Yung-Yu and Zhang, Kaipeng},
+  journal={arXiv preprint arXiv:2604.02329},
+  year={2026}
+}
+
+@inproceedings{liang2025diffusion,
+  title={Diffusion renderer: Neural inverse and forward rendering with video diffusion models},
+  author={Liang, Ruofan and Gojcic, Zan and Ling, Huan and Munkberg, Jacob and Hasselgren, Jon and Lin, Chih-Hao and Gao, Jun and Keller, Alexander and Vijaykumar, Nandita and Fidler, Sanja and others},
+  booktitle={Proceedings of the Computer Vision and Pattern Recognition Conference},
+  pages={26069--26080},
+  year={2025}
+}
+
+@article{beisswenger2025framediffuser,
+  title={FrameDiffuser: G-Buffer-Conditioned Diffusion for Neural Forward Frame Rendering},
+  author={Beisswenger, Ole and Dihlmann, Jan-Niklas and Lensch, Hendrik},
+  journal={arXiv preprint arXiv:2512.16670},
+  year={2025}
+}
+
+@article{zhang2026renderflow,
+  title={RenderFlow: Single-Step Neural Rendering via Flow Matching},
+  author={Zhang, Shenghao and Liu, Runtao and Schroers, Christopher and Zhang, Yang},
+  journal={arXiv preprint arXiv:2601.06928},
+  year={2026}
+}
+
+@article{lu2026germ,
+  title={GeRM: A Generative Rendering Model From Physically Realistic to Photorealistic},
+  author={Lu, Jiayuan and Xie, Rengan and Jin, Xuancheng and Wu, Zhizhen and Ye, Qi and Xie, Tian and Bao, Hujun and Huo, Rui Wang and others},
+  journal={arXiv preprint arXiv:2604.09304},
+  year={2026}
+}
+
+@article{wang2025embodiedgen,
+  title={Embodiedgen: Towards a generative 3d world engine for embodied intelligence},
+  author={Wang, Xinjie and Liu, Liu and Cao, Yu and Wu, Ruiqi and Qin, Wenkang and Wang, Dehui and Sui, Wei and Su, Zhizhong},
+  journal={arXiv preprint arXiv:2506.10600},
+  year={2025}
+}
+
+@article{park2024generative,
+  title={Generative agent simulations of 1,000 people},
+  author={Park, Joon Sung and Zou, Carolyn Q and Shaw, Aaron and Hill, Benjamin Mako and Cai, Carrie and Morris, Meredith Ringel and Willer, Robb and Liang, Percy and Bernstein, Michael S},
+  journal={arXiv preprint arXiv:2411.10109},
+  volume={52},
+  year={2024}
+}
+
+@inproceedings{xia2026sage,
+  title={Sage: Scalable agentic 3d scene generation for embodied ai},
+  author={Xia, Hongchi and Li, Xuan and Li, Zhaoshuo and Ma, Qianli and Xu, Jiashu and Liu, Ming-Yu and Cui, Yin and Lin, Tsung-Yi and Ma, Wei-Chiu and Wang, Shenlong and others},
+  booktitle=CVPR,
+  pages={22358--22368},
+  year={2026}
+}

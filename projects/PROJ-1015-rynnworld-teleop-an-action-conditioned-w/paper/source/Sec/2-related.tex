@@ -1,0 +1,26 @@
+\section{Related Work}
+\subsection{Action-Conditioned Egocentric World Models}
+The paradigm of world modeling has recently shifted from latent-space state prediction~\citep{ha2018world,assran2025v} to high-fidelity visual simulation, powered by the rapid progress of video diffusion models~\citep{kong2024hunyuanvideo,wang2025wan,yang2024cogvideox}.
+Foundation models such as Cosmos~\citep{agarwal2025cosmos} and Genie~\citep{bruce2024genie} demonstrate the potential for physical AI by training on massive video datasets. However, these models typically support only coarse-grained controls, which are insufficient for complex robotic tasks.
+
+To achieve nuanced control, a new class of action-conditioned egocentric world models~\citep{hao2026egosim,wang2026hand2world,xie2026generated,tu2025playerone,goswami2025world,pallotta2025egocontrol,gao2026lome} emerge, focusing on generating first-person videos driven by human action signals.
+For example, Hand2World~\citep{wang2026hand2world} distills~\citep{yin2025slow,huang2025self} a bidirectional video diffusion model into a causal autoregressive generator for monocular streaming synthesis.
+GeneratedReality~\citep{xie2026generated} conditions future-frame synthesis on hand actions to generate interactive videos. InterDyn~\citep{akkerman2025interdyn} conditions on binary hand masks via a ControlNet~\citep{zhang2023adding}-like branch, while CosHand~\citep{sudhakar2024controlling} generates single-frame hand-object interactions from mask inputs.
+Despite these advancements, existing simulators remain predominantly human-centric, primarily focusing on synthesizing human hand movements within virtual scenes. 
+\our extends this frontier to the robot-centric domain, bridging the gap between large-scale human motion priors and actionable, robot-specific world modeling.
+
+
+
+
+
+
+\subsection{Human-to-Robot Video Translation}
+Modern video generative models have evolved from text-to-video synthesis~\citep{kong2024hunyuanvideo,wang2025wan,yang2024cogvideox} to complex systems handling multi-modal prompts~\citep{bruce2024genie,jin2024pyramidal}. Within the robotics domain, early efforts~\citep{kling2024,runway2025} focused on visual Human-to-Robot translation.
+For example, Phantom~\citep{lepert2503phantom} and Masquerade~\citep{lepert2025masquerade} use inpainting and rendering techniques to overlay robot arms onto estimated human poses. X-Humanoid~\citep{yang2025x} and Mitty~\citep{song2025mitty} leverage Diffusion Transformers for video-to-video translation, while H2R~\citep{li2025h2r} proposes human-to-robot data augmentation for pretraining. 
+Although crossing the visual domain gap, these approaches are largely passive and observation-only. They perform visual retargeting on pre-recorded videos without providing a mechanism to control future states via actions. This lack of action-conditioning makes them unsuitable for interactive simulators. 
+\our distinguishes itself by shifting from passive visual translation to active, action-conditioned generation, effectively bridging the gap between human motion priors and actionable robotic data.
+
+
+
+
+

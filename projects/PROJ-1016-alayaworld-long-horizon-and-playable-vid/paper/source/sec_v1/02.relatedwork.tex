@@ -1,0 +1,22 @@
+\section{Related Work}
+
+We first review the video generation models that serve as backbones for world generation, and subsequently discuss interactive world models that formulate world generation as an end-to-end, playable system.
+A fine-grained, technique-level comparison is deferred to the corresponding subsections of \S\ref{sec:alayaworld}.
+
+\subsection{Video Genration Models}
+
+Modern video generation is built upon diffusion and latent-diffusion models~\cite{rombach2022high}, in which transformer-based denoisers (DiT)~\cite{peebles2023scalable} are scaled to large generators.
+Sora~\cite{brooks2024video} established the ``video as world simulator'' paradigm, and subsequent open-source backbones, including Open-Sora~\cite{zheng2024open}, Open-Sora-Plan~\cite{lin2024open}, HunyuanVideo~\cite{kong2024hunyuanvideo}, CogVideoX~\cite{yang2025cogvideox}, Wan~\cite{wan2025wan}, LTX-Video~\cite{hacohen2024ltx}, Step-Video-T2V~\cite{ma2025step}, and MAGI-1~\cite{teng2025magi}, have made large-scale text- and image-to-video synthesis broadly accessible, complemented by strong proprietary systems such as Veo~\cite{google2024veo}, Kling~\cite{kuaishou2024kling}, Gen-3~\cite{runway2024gen3}, and MovieGen~\cite{polyak2024movie}.
+A parallel line of work develops video foundation models for physical and embodied settings, including Cosmos~\cite{agarwal2025cosmos} and long-context video-language modeling~\cite{liu2025world}.
+These models synthesize high-fidelity, temporally coherent video along a \emph{predetermined} trajectory and thus provide a natural backbone for interactive world generation.
+These models provide the generative backbones upon which interactive world generation is built; how they are extended into interactive, user-driven worlds is the focus of the systems discussed below and of AlayaWorld.
+
+\subsection{Interactive World Models}
+
+An expanding line of research formulates world generation as an end-to-end, playable system.
+Action-conditioned world models such as Genie~\cite{bruce2024genie} learn controllable environments from large-scale unlabeled video, and Genie~2~\cite{parker2024genie} extends this formulation to explorable 3D scenes.
+A related direction employs diffusion or autoregressive models as neural game engines that directly simulate playable worlds, including GameNGen~\cite{valevski2025diffusion} on DOOM, DIAMOND~\cite{alonso2024diffusion}, Oasis~\cite{decart2024oasis} on Minecraft, and promptable or playable game models~\cite{menapace2024promptable,yang2024playable}; GameGen-X~\cite{che2025gamegen} further addresses open-world game video generation with a dedicated dataset.
+As many of these systems exhibit limited generalization beyond a single game, subsequent work seeks to improve controllability and generalization, exemplified by The Matrix~\cite{feng2026matrix}, GameFactory~\cite{yu2025gamefactory}, and the open-source real-time MineWorld~\cite{guo2025mineworld}.
+More aligned with free-exploration interactive world generation, Yume~\cite{mao2025yume} synthesizes an explorable world from a single image under keyboard-style action control, and its successor Yume~1.5~\cite{Mao_2026_CVPR} further enhances generation quality and interactive controllability.
+Recent systems increasingly target real-time, streaming interaction with extended consistency: Genie~3~\cite{ball2025genie3} generates navigable environments in real time with minute-level coherence but remains closed-source; Matrix-Game~\cite{he2025matrix} and Hunyuan-GameCraft~\cite{li2025hunyuan} integrate action conditioning, history-based consistency, and few-step distillation to achieve real-time generation with publicly released weights, and are further extended with long-horizon memory and instruction-based control~\cite{wang2026matrix,tang2025hunyuan}; and Lingbot-World~\cite{team2026advancing} improves long-horizon geometric consistency by scaling the context length of the diffusion model.
+In a complementary direction, gaming-oriented efforts such as Microsoft's WHAM/Muse~\cite{kanervisto2025world} and its real-time variant WHAMM~\cite{microsoft2025whamm} jointly model environments and human actions for playable generation.

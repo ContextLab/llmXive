@@ -1,0 +1,149 @@
+\section{Methodology}\label{sec:method}
+
+The above analysis motivates us to replace non-parametric chunk summaries with learnable summaries for chunk selection. 
+We propose HiLS-Attention, a fully differentiable sparse attention mechanism that replaces the chunk mass $Z_{i,c}$ with a surrogate $\hat{Z}_{i,c}$ computed from learned chunk summaries.
+This raises two key research questions:
+\begin{research_question}{}{}
+\begin{itemize}[leftmargin=*,itemsep=0.2em,topsep=0.3em]
+    \item \textbf{RQ1:} Can the LogSumExp chunk mass $\log Z_{i,c}$ be approximated in a tractable form using only the interaction between the query $\mathbf{q}_i$ and a compact chunk summary?
+    \item \textbf{RQ2:} How can we learn $\hat{Z}_{i,c}$ end-to-end so that chunk selection is optimized jointly with the language-modeling loss?
+\end{itemize}
+\end{research_question}
+\paragraph{Answering RQ1: A Linear Surrogate for Chunk Mass.}
+To identify a tractable surrogate for the LogSumExp chunk mass, we first examine its Taylor expansion. This reveals a useful affine structure for chunk-level scoring, as formalized in the following proposition.
+The detailed derivation is provided in Appendix~\ref{appdx:proof_of_logsumexp}.
+\begin{proposition} \label{prop:logsumexp} (LogSumExp Linearization). 
+For any chunk $c$, the LogSumExp of query-key logits can be linearized as:
+\begin{equation}
+\small
+    \log \sum_{j \in \mathcal{T}_c} 
+    \exp\left(\frac{\mathbf{q}^\top\mathbf{k}_j}{\sqrt d}\right) 
+    \approx 
+    \underbrace{\frac{\mathbf{q}^\top \mathbf{k}'_c}{\sqrt{d}} + b'_c}_{\mathrm{surrogate~score}},
+    \label{eq:attn_lhsa}
+\end{equation}
+where $\mathbf{k}'_c$ and $b'_c$ are computed from a learnable query $\mathbf{q}'_c$ and $\mathbf{k}_i$ in chunk $c$, where $i \in [cS,(c+1)S)$; the concatenation of $\mathbf{k}_i$ is denoted by $\mathbf{K}_c \in \mathbb{R}^{S\times d}$. Specifically,
+\begin{equation}
+\small
+    s_j=\frac{(\mathbf{q}'_{c})^{\top} \mathbf{k}_j}{\sqrt{d}},
+    \quad 
+    p_j = \frac{\exp(s_j)}{\sum_{k \in \mathcal{T}_c} \exp(s_k)},
+    \quad
+    \underbrace{\mathbf{k}'_c = \sum_{j \in \mathcal{T}_c} p_j \mathbf{k}_j}_{\mathrm{Attn}(\mathbf{q}'_c,\mathbf{K}_c,\mathbf{K}_c)},
+    \quad 
+    b'_c = 
+    \underbrace{-\sum_{j\in \mathcal{T}_c} p_j \log p_j}_{\mathrm{Entropy}}.
+    \label{eq:prop_q_c}
+\end{equation}
+\end{proposition}
+Eq.~\eqref{eq:attn_lhsa} expresses the chunk-level surrogate score as the sum of a relevance term and a bias term. The learnable query $\mathbf{q}'_c$ serves as a proxy for queries that may attend to chunk $c$, inducing an attention distribution over its keys. 
+The weighted sum of keys defines the chunk summary $\mathbf{k}'_c$, and $\mathbf{q}^{\top}\mathbf{k}'_c/\sqrt d$ measures its relevance to the current query. 
+The bias $b'_c$ is the entropy of this distribution, capturing token-level mass beyond the linear relevance term. Specifically, $b'_c$ adaptively interpolates between two regimes in Eq~\eqref{eq:two_regime}: it approaches $\log S$ for nearly uniform scores and $0$ when a single score dominates. 
+Both $\mathbf{k}'_c$ and $b'_c$ can be computed via $\mathrm{Attn}(\mathbf{q}'_c,\mathbf{K}_c,\mathbf{K}_c)$. 
+The computational cost is $O(S)$ per chunk; therefore, for a sequence of length $N$ with $N/S$ chunks, the total cost is $O(N)$.
+
+
+To instantiate $\mathbf{q}'_c$, we append a special \textit{landmark token}~\cite{mohtashami2023random} to the end of each chunk, and use its query vector as $\mathbf{q}'_c$. The resulting pair $(\mathbf{k}'_c,b'_c)$ serves as an entropy-calibrated compressed key for chunk-level routing: we score each chunk by the linear surrogate in Eq.~\eqref{eq:attn_lhsa}, select the top-$K$ chunks, and estimate the partition function as follows:
+\begin{equation}
+\label{eq:surrogate_topk}
+\small
+\begin{aligned}
+    &\hat{s}_{i,c} = \frac{\mathbf{q}_i^\top \mathbf{k}'_c}{\sqrt{d}} + b'_{c}, \quad \bm{\mathcal{I}}_i=\left\{
+    c \in \mathcal{C}_i
+    \mid
+    \operatorname{rank}_{\downarrow}(\hat{s}_{i,c}) < K
+    \right\},\\
+    &\hat{Z}_{i,c} = \exp(\hat{s}_{i,c}), \quad \hat{\mathcal{Z}}_i = \sum_{c \in {\mathcal{I}}_i} \hat{Z}_{i,c} + Z_{i,\text{swa}}, \\
+\end{aligned}
+\end{equation}
+This enables a native sparse-training implementation: each query routes over all $N/S$ chunk summaries, keeps the top-$K$ chunks, and attends only to constant selected tokens. Thus, the routing cost, $O(N/S)$ per token and $O(N^2/S)$ per sequence, is the only quadratic term.
+
+In conclusion, RQ1 is answered by showing that the LogSumExp chunk mass $\log Z_{i,c}$ can be expressed in the form of Eq.~\eqref{eq:attn_lhsa}, where each chunk is represented by a compact summary $(\mathbf{k}'_c,b'_c)$ derived from the learnable landmark query $\mathbf{q}'_c$.
+
+
+\paragraph{Answering RQ2: Hierarchical softmax.} 
+To make $\mathbf{q}'_c$ learnable, a core idea is to enable $\hat{Z}_{i,c}$ to participate in the forward pass of attention mass computation. Thus, we factorize the attention mass into an intra-chunk normalized term and an inter-chunk mass term, where the latter can be replaced by the learnable mass surrogate $\hat{Z}_{i,c}$. For tokens in selected chunks and the local sliding window, their normalized attention weight can be reformulated as
+\begin{equation}
+\label{eq:hils-attn-weights}
+\small
+w_{i,j}=\frac{\exp(s_{i,j})}{\mathcal{Z}_i}=\underbrace{\frac{\exp(s_{i,j})}{Z_{i,c(j)}}}_{\mathrm{intra-chunk}}\times \underbrace{\frac{Z_{i,c(j)}}{\mathcal{Z}_i}}_{\mathrm{inter-chunk}}\approx \frac{\exp(s_{i,j})}{Z_{i,c(j)}}\times \underbrace{\frac{\hat{Z}_{i,c(j)}}{\hat{\mathcal{Z}}_i}}_{\mathrm{surrogate}},
+\end{equation}
+where $\hat{Z}_{i,c(j)}=Z_{i,\mathrm{swa}}$ when $\ell(i)\le j \le i$. Intuitively, the model first aggregate relevant information within each selected chunk, then fuse chunk-level information according to the learned surrogate mass. Since $\hat{Z}_{i,c}$ impacts the final
+attention weights, gradients from the LM loss can supervise the landmark representation learning and encourage chunks more useful for prediction to receive a larger mass. Empirically, this self-supervised surrogate outperforms naive BSA (Tab.~\ref{tb:345M_main_ppl} and Tab.~\ref{tb:345M_main_ruler}), suggesting that end-to-end learning
+offers more effective allocation of attention mass.
+
+
+\section{Practical Design Choices}
+
+This section details our practical design choices on HiLS implementation across model architecture, GPU kernel design, and continuous training recipe.
+
+\subsection{Architectural Design}
+
+We follow mainstream open-source Transformer architectures such as Qwen3~\cite{yang2025qwen3} but replacing the standard full-attention with HiLS attention. In addition, we empirically find that slight architectural adjustments can better unleash the potential of HiLS attention, which we introduce below.
+\paragraph{Positional Encoding.} 
+
+Empirically, when training with an 8K context length, we find that HiLS attention performs worse than the full-attention baseline in perplexity with standard RoPE~\cite{su2024roformer}. Replacing RoPE with a partial RoPE variant, however, enables HiLS attention to outperform full attention in perplexity. Specifically, we adopt HoPE~\cite{chen-etal-2025-hope} positional encoding, which retains the RoPE dimensions whose rotation periods do not exceed the pre-training context length, and replaces the remaining dimensions with NoPE. 
+
+\paragraph{Low-Rank Query Calibration.} 
+In Eq.~\eqref{eq:surrogate_topk}, 
+$\hat{\mathcal{Z}}_i = \sum_{c} \hat{Z}_{i,c} + Z_{i,\text{swa}}$ 
+combines chunk-level mass surrogates with token-level attention mass. 
+Since the chunk representation $\mathbf{k}'_c$ is not a token key but a compressed summary of multiple tokens, the original token-level query $\mathbf{q}_i$ may not be optimal for estimating chunk-level mass. 
+To better calibrate chunk scores, we introduce a lightweight low-rank query calibration (Q-Cal) module for the chunk-level surrogate.
+Empirically, this module significantly improves perplexity and length extrapolation.
+Specifically, denoting the hidden state of $x_i$ as $\mathbf{h}_i \in \mathbb{R}^{d_{\text{model}}}$,
+the adapted query $\hat{\mathbf{q}}_i$ and chunk score $\hat{s}_{i,j}$ are formulated as:
+\begin{equation}
+\label{eq:lora_q}
+\small
+    \Delta \mathbf{q}_i = \mathbf{W}^{\text{up}}\mathbf{W}^{\text{down}}\mathbf{h}_i, \quad \hat{\mathbf{q}}_i = \mathbf{q}_i + \Delta \mathbf{q}_i,\quad \hat{s}_{i,c} = \frac{\hat{\mathbf{q}}_i^\top \mathbf{k}'_c}{\sqrt{d}} + b'_{c}
+\end{equation}
+where $\mathbf{W}^{\text{up}} \in \mathbb{R}^{d \times r}$ and $\mathbf{W}^{\text{down}} \in \mathbb{R}^{r \times d_{\text{model}}}$ represent the low-rank projection weights with $r \ll d_{\text{model}}$.
+
+\paragraph{HiLS-Attention in GQA.} 
+Modern LLMs often adopt grouped-query attention (GQA)~\cite{ainslie-etal-2023-gqa} to reduce KV cache memory, 
+where multiple query heads share the same key-value head. This requires adapting the chunk-selection procedure of HiLS-Attention from the standard MHA setting. In MHA, each query head can independently select its own top-$K$ chunks. In GQA, however, query heads within the same group should use the same retrieved chunk set, so that the selected tokens can be gathered once and processed efficiently with batched attention kernels. However, query heads in the same GQA group may attend to different chunks. To preserve head-level flexibility under the shared-retrieval constraint, we compute normalized chunk weights for each query head separately, aggregate them by taking the maximum over heads within the group, and select the top-$K$ chunks using these group-level scores. In this way, a chunk can be selected if it is important to any head in the group. We provide the full formalization of this GQA-aware chunk selection procedure in Appendix~\ref{appdx:hils-attn-gqa}.
+
+\paragraph{Landmark token free alternative.} To avoid the engineering and implementation overhead of landmark tokens, we propose an alternative implementation. Instead of computing a unique query per chunk via landmark tokens, we employ a shared learnable query for each layer. Empirically, this approach achieves comparable in-domain performance, though its extrapolation capability degrades significantly. More details are given in the experiments. 
+
+
+\subsection{Hardware-Efficient Kernel Design}
+An implementation challenge for sparse attention is that different tokens correspond to distinct chunk sets. Consequently, a naive implementation fails to achieve speedups and can cause memory explosion. In practice, efficient sparse attention requires hardware-software co-design.
+
+NSA~\cite{yuan-etal-2025-native} provides a representative kernel design. As shown in Fig.~\ref{fig:kernel_design_NSA}, NSA processes one query token at a time and loads its selected K/V chunks. For each selected chunk, the Tensor Core computation has shape $(G,d)\times(d,S),$
+where $G$ is the number of query heads sharing the same K/V head under GQA, $d$ is the head dimension, and $S$ is the chunk size. Since Tensor Cores are most efficient when the matrix tile dimension is at least $16$, MHA with $G=1$ leads to severe under-utilization, effectively padding the query-head dimension from $1$ to $16$. NSA mitigates this issue by relying on GQA with $G\geq16$. However, this implicitly requires a query-to-KV head ratio of at least $16$, which limits its applicability.
+
+Instead, HiLS-Attention batches computation across both query tokens and query heads. Since adjacent query tokens often retrieve highly overlapping chunks, with the top-$k$ overlap ratio reported to be as high as $80\%$~\citep{huang2026nosanativeoffloadablesparse}, we group $M$ adjacent query tokens and compute attention over the union of their selected chunks, as illustrated in Fig.~\ref{fig:kernel_design_hils}. This changes the Tensor Core computation to $(M\times G,d)\times(d,S),$
+so efficient Tensor Core utilization only requires $M\times G\geq16$, rather than $G\geq16$. Meanwhile, taking the union of selected chunks allows the packed queries to reuse loaded K/V chunks, reducing redundant memory access. This design does not require a large GQA group size and can also be applied to speculative decoding~\cite{leviathan2023fast}.
+
+\begin{figure}[htb!]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{data/kernel_design_NSA.pdf}
+        \caption{NSA kernel}
+        \label{fig:kernel_design_NSA}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{data/kernel_design_HiLS.pdf}
+        \caption{HiLS-Attention kernel}
+        \label{fig:kernel_design_hils}
+    \end{subfigure}
+    \caption{Kernel design of NSA and HiLS-Attention. 
+    Kernel design of NSA and HiLS-Attention.
+    (a) NSA handles one query token per tile and computes attention over its selected chunks. Each Tensor Core operation has shape $(G,d)\times(d,S)$, where $G$ is the GQA group size and $S$ is the chunk size.
+    (b) HiLS-Attention packs $M$ adjacent query tokens, attends to the union of their selected chunks, and enlarges the Tensor Core operation to $(M\times G,d)\times(d,S)$. This packing reuses overlapping K/V chunks across adjacent tokens.}
+    \label{fig:kernel_design}
+\end{figure}
+
+\subsection{Continuous Training Strategies}\label{sec:continue-training}
+To preserve the model's original capabilities, we evaluate two continued-training strategies: (1) a lightweight, nearly training-free setup that freezes the base model and updates only the newly introduced parameters, and (2) full-parameter tuning.
+
+\begin{itemize}[leftmargin=*,itemsep=0.2em,topsep=0.3em]
+\item \textbf{Landmark Token Tuning:}
+In this setting, all base model parameters are frozen. The only trainable parameters are the landmark token embeddings and the projection matrices $\mathbf{W}^{\text{up}}, \mathbf{W}^{\text{down}}$ in Eq.~\eqref{eq:hils-attn-weights}, accounting for less than 1\% of total parameters. Empirically, we find that training on no more than 5B tokens is sufficient to achieve performance comparable to the base model. 
+\item \textbf{Full-Parameter Tuning:}
+In this setting, the landmark token embeddings and low-rank query adapter parameters are randomly initialized, while all other parameters are inherited from the base model. All parameters are then jointly updated. This strategy is particularly effective when replacing the positional encoding with HoPE, thereby maximizing length generalization.
+\end{itemize}
+

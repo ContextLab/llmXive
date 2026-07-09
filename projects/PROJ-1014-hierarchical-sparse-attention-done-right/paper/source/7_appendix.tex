@@ -1,0 +1,192 @@
+\section{Justification of Equation~\ref{eq:two_regime}}\label{apdx:logsumexp_two_regime}
+Let $S=|\mathcal{T}_c|$ and write $s_j=s_{i,j}$.
+When the logits are nearly uniform, let
+$
+s_j=\bar{s}+\delta_j
+$
+where
+$
+\bar{s}=\frac{1}{S}\sum_j s_j
+$
+and
+$
+\sum_j\delta_j=0
+$.
+Then
+\begin{align}
+\log\sum_j \exp(s_j)
+&= \bar{s}+\log\sum_j\exp(\delta_j) \\
+&= \bar{s}+\log\left(S+\frac{1}{2}\sum_j\delta_j^2+O(\|\delta\|^3)\right) \\
+&= \bar{s}+\log S+O\left(\frac{1}{S}\sum_j\delta_j^2\right).
+\end{align}
+Hence, for small within-chunk logit variance,
+$
+\log\sum_j\exp(s_j)\approx \operatorname{mean}_j(s_j)+\log S
+$.
+
+When one logit dominates, let
+$
+M=\max_j s_j
+$
+and
+$
+j^\star=\arg\max_j s_j
+$.
+Then
+\begin{align}
+\log\sum_j\exp(s_j)
+&= M+\log\left(1+\sum_{j\neq j^\star}\exp(s_j-M)\right).
+\end{align}
+If $M-s_j$ is large for all $j\neq j^\star$, the second term is negligible, and therefore
+$
+\log\sum_j\exp(s_j)\approx M=\max_j s_j
+$.
+\section{Proof of Proposition~\ref{prop:logsumexp}}\label{appdx:proof_of_logsumexp}
+
+Given $\boldsymbol{q} \in \mathbb{R}^{d}$ and $\mathbf{K} \in \mathbb{R}^{S\times d}$, where $S$ is the block size, we explain how to estimate the Log-Sum-Exp function \footnote{We omit the scaling factor $s=\frac{1}{\sqrt{d}}$ here for simplicity} $f(\boldsymbol{q}) = \log\sum_{j=1}^{S} \exp({\boldsymbol{q}\mathbf{K}_j})$ through the first-order Taylor expansion at $\boldsymbol{q}_c$:
+\begin{equation}
+f(\boldsymbol{q}) \approx f(\boldsymbol{q}_c) + \nabla f(\boldsymbol{q}_c)^{\top} (\boldsymbol{q} - \boldsymbol{q}_c),\label{eq:f_q_taylor}
+\end{equation}
+where we have:
+\begin{align}
+\nabla f(\boldsymbol{q}_c) &= \nabla_{\boldsymbol{q}_c} \Big(\log\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} )\Big) \\
+&= \frac{1}{\sum_{j=1}^{S}\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}\nabla_{\boldsymbol{q}_c}\Big(\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} )\Big) \nonumber \\
+&= \frac{1}{\sum_{j=1}^{S}\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}\Big(\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} )\mathbf{K}_j\Big) \nonumber\\
+&= \sum_{j=1}^{S} \underbrace{\frac{\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}{\sum_{j=1}^{S}\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}}_{p_j}
+\mathbf{K}_j \label{eq:nabla_fq_pj} \\
+&= \boldsymbol{k}'_c.
+\end{align}
+Thus, we can re-formalize Eq.\ref{eq:f_q_taylor} as follows:
+\begin{align}
+    f(\boldsymbol{q}) &\approx \log\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} ) + {\boldsymbol{k}'_c}^{\top}(\boldsymbol{q} - \boldsymbol{q}_c) \\
+    &\overset{(i)}{=} {\boldsymbol{k}'_c}^{\top}\boldsymbol{q} + \Big(\log\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} ) - {\boldsymbol{k}'_c}^\top \boldsymbol{q}_c \Big) \nonumber \\
+    & \overset{(ii)}{=} {\boldsymbol{k}'_c}^{\top}\boldsymbol{q} + \Big(\log\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} ) - \sum_{j=1}^{S} p_j \boldsymbol{q}_c^\top\mathbf{K}_j\Big) \nonumber\\
+    & \overset{(iii)}{=} {\boldsymbol{k}'_c}^{\top}\boldsymbol{q} + \Big(\underbrace{\log\sum_{j=1}^{S} \exp({\boldsymbol{q}_c^\top\mathbf{K}_j} )}_{\textrm{Constant}} - \sum_{j=1}^{S} p_j \big(\log p_j + \underbrace{\log\sum_{j=1}^S\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}_{\textrm{Constant}}\big)\Big) \nonumber\\
+    & \overset{(iv)}{=} {\boldsymbol{k}'_c}^{\top}\boldsymbol{q}  - \sum_{j=1}^{S} p_j\log p_j 
+\end{align}
+where $(i)$ re-orders the equation with the second term be a bias value, $(ii)$ re-uses Eq. \ref{eq:nabla_fq_pj}, $(iii)$ re-formalizes $\boldsymbol{q}_c^\top\mathbf{K}_j$ as follows:
+\begin{align}
+    \boldsymbol{q}_c^\top\mathbf{K}_j &= \log\exp(\boldsymbol{q}_c^\top\mathbf{K}_j) \nonumber \\
+    &= \log\underbrace{\frac{\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}{\sum_{j=1}^{S}\exp({\boldsymbol{q}_c^\top\mathbf{K}_j})}}_{p_j} + \log\sum_{j=1}^{S}\exp({\boldsymbol{q}_c^\top\mathbf{K}_j}), \label{eq:qk_new_form}
+\end{align}
+and $(iv)$ cancels the constant terms. The final objective is the same as Eq. \ref{eq:attn_lhsa}  
+
+
+\section{HiLS-Atention in GQA}\label{appdx:hils-attn-gqa}
+Considering an arbitrary group in GQA, given $\mathbf{q}_i \in \mathbb{R}^{G \times d}$ and $\mathbf{k}_i, \mathbf{v}_i \in \mathbb{R}^{d}$, where $G$ query heads share one KV head.
+Note that in GQA mode, the shape of $\mathbf{k}'_c$ is consistent with that of the query, i.e., $\mathbf{k}'_c \in \mathbb{R}^{G \times d}$.
+We have:
+\begin{equation}
+\label{eq:hils_gqa}
+\small
+\begin{aligned}
+    &s_{i,j}^h = \frac{(\mathbf{q}_i^h)^\top \mathbf{k}_j}{\sqrt{d}},\quad
+    \hat{s}^h_{i,c} = \frac{(\hat{\mathbf{q}}_i^h)^\top \mathbf{k}'_c}{\sqrt{d}} + b'_{c}, \quad \hat{s}_{i,c} = \underset{h}{\text{argmax}}(\hat{s}^h_{i,c}), \\
+    & Z^h_{i,\text{swa}}=\sum_{j\in \mathcal{T}_c}{\exp(s^h_{i,j})},\quad \hat{Z}^h_{i,c}=\exp(\hat{s}_{i,c}^h),\\
+    &\bm{\mathcal{I}}_i = \left\{ c \in \mathcal{C}_i \mid \operatorname{rank}_{\downarrow}(\hat{s}_{i,c}) < K \right\}, \quad \hat{\mathbb{Z}}^h_i = \sum_{c \in \bm{\mathcal{I}}_i} \hat{Z}^h_{i,c} + Z^h_{i,\text{swa}}, \\
+    &w^h_{i,j} = \begin{cases}
+    \displaystyle \frac{\exp(s^h_{i,j})}{Z^h_{i,c(j)}} \cdot \frac{\hat{Z}^h_{i,c(j)}}{\hat{\mathbb{Z}}^h_i} & ,\text{if } j < \ell(i) \text{ and } c(j) \in \bm{\mathcal{I}}_i \\[1.2em]
+    \displaystyle \frac{\exp(s^h_{i,j})}{\hat{\mathbb{Z}}^h_i} & ,\text{if } \ell(i) \le j \le i \\[1.2em]
+    0 & ,\text{otherwise}
+    \end{cases}, \quad \mathbf{o}^h_i = \sum_j w^h_{i,j}\mathbf{v}^h_j.
+\end{aligned}
+\end{equation}
+
+
+\section{Hyper-parameters}\label{appdx:hyper-params}
+\begin{table}[h!]
+\centering
+\resizebox{0.65\textwidth}{!}{
+\begin{tabular}{l|c|c|c}
+\toprule
+Hyperparameter & Small scale & Medium scale & Large scale\\
+\midrule
+Parameters & 345M & 1.4B & 7B\\
+Layers & 16 & 22 & 32\\
+Hidden size & 1024 & 2048 & 4096\\
+FFN size & 4096 & 5632 & 11008\\
+Q/KV heads & 16/2 & 32/4 & 32/32\\
+HiLS layers & every layer & every layer & every 4 layers\\
+SWA window & 512 & 512 & 512\\
+Chunk size & 64 & 64 & 64\\
+HiLS top-$K$ & 32 & 32 & 32\\
+LoRA-Q bottleneck & 64 & 128 & 256\\
+Vocab size & $100278 + 1$ & $100278 + 1$ & $100278 + 1$\\
+\bottomrule
+\end{tabular}
+}
+\vspace{0.1cm}
+\caption{Model hyperparameters used in the small-, medium-, and large-scale experiments. The vocab size is the original OLMo3 vocabulary plus one additional landmark-token embedding. Chunk/Top-$k$ = 64/32 corresponds to retrieving 2048 tokens.}
+\end{table}
+
+\section{Training recipes}\label{apdx:training_recipe}
+\paragraph{Small-scale models.}
+The training data is based on OLMo/Dolma pre-training corpora~\citep{allenai_dolma3_mix_6t}, mixed with 5\% RULER-style synthetic examples to provide the instruction-following ability needed to answer RULER-style retrieval queries. The training context length is 8K, the global batch size is 128, and the models are trained for 30K optimizer steps, corresponding to approximately 30B training tokens. We use the AdamW optimizer with a constant learning-rate schedule of \(3\times10^{-4}\). Unless otherwise specified, all models share the same tokenizer, training data, training length, and optimization configuration. We evaluate the small-scale models from two perspectives: perplexity is used to measure language modeling ability, while RULER~\citep{hsieh2024ruler} is used to evaluate long-context random access and order-aware retrieval capability.
+
+\paragraph{7B continue pre-training recipe.} For continue pretraining, we use the OLMo3 pretraining corpus distribution. Specifically, we train from the tokenized OLMo3 500B-token~\citep{allenai_dolma3_mix_6t} pretraining pool and sample approximately 50B tokens for adaptation by drawing 8K sequences from this pool. We set the maximum sequence length to 8192, the global batch size to 512, and train for 13K optimizer steps. The learning rate warms up for 1K steps to $2\times10^{-4}$ and then follows a cosine decay to $2\times10^{-5}$.
+The original OLMo3-Base checkpoint is not instruction-tuned and therefore lacks the instruction-following ability needed to answer RULER-style retrieval queries at test time.
+To make long-context retrieval comparisons meaningful after CPT, we mix on-the-fly synthesized RULER examples into the training stream at a 5\% rate: with this probability, each sampled 8K pretraining sequence is converted into one of the three evaluation tasks---single needle-in-a-haystack, multi-query, and variable tracking---while the remaining 95\% of samples stay as plain corpus text.
+All continued-pretraining models in Table~\ref{tab:olmo3_indomain}, including Olmo3-512swa-CPT and the HiLS-Attn variants, follow this recipe; the \textbf{Olmo3-Base} row reports the original checkpoint without RULER-augmented CPT.
+
+\section{Downstream Evaluation Details}\label{apdx:benchmarks}
+\begin{itemize}[leftmargin=*,itemsep=0.2em,topsep=0.3em]
+    \item LAMBDA~\cite{paperno2016lambada}
+    \item HellaSwag~\cite{zellers2019hellaswag}
+    \item PIQA~\cite{bisk2020piqa}
+    \item WinoGrande~\cite{sakaguchi2021winogrande}
+    \item OpenBookQA~\cite{mihaylov2018can}
+    \item ARC-challenge~\cite{clark2018think}
+    \item ARC-esay: an easy subset of ARC-challenge
+    \item MMLU~\cite{hendryckstest2021}
+    \item GPQA~\cite{rein2024gpqa}
+    \item BoolQ~\cite{clark2019boolq}
+    \item RACE~\cite{lai-etal-2017-race}
+    \item CMATH~\cite{wei2023cmathlanguagemodelpass}
+    \item GSM8K~\cite{cobbe2021gsm8k}
+    \item CRUX~\cite{gu2024cruxevalbenchmarkcodereasoning}
+    \item HumanEval+~\cite{evalplus,evalperf}
+    \item MBPP+~\cite{evalplus,austin2021programsynthesislargelanguage}
+\end{itemize}
+
+\section{Perplexity at Different CPT Steps}\label{apdx:ppl_in_cpt}
+Table~\ref{tab:ppl_in_cpt} reports in-domain perplexity on the OLMo3 pretraining corpus at 128, 512, and 8K context lengths for CPT checkpoints from 6K to 13K.
+We define the signed gap as $\Delta\mathrm{PPL}=\mathrm{PPL}_{\mathrm{HiLS\text{-}Attn}}-\mathrm{PPL}_{\mathrm{Olmo3\text{-}512swa\text{-}CPT}}$ (positive = HiLS worse).
+The gap is largest at short context early in training (e.g., $+0.23$ at 128 tokens, 6K) and shrinks with more steps (down to $+0.02$--$+0.06$ at 128 and $+0.02$--$+0.03$ at 512 by 10K--13K), while staying within $\pm 0.01$ at 8K throughout.
+
+\begin{table}[h!]
+    \centering
+    \small
+    \setlength{\tabcolsep}{14pt}
+    \renewcommand{\arraystretch}{1.15}
+    \begin{tabular}{lccc}
+    \toprule
+    \multirow{2}{*}{CPT Step}
+    & \multicolumn{3}{c}{$\Delta\mathrm{PPL}$}
+    \\
+    \cmidrule(lr){2-4}
+    & \makecell{128\\tokens}
+    & \makecell{512\\tokens}
+    & \makecell{8K\\tokens}
+    \\
+    \midrule
+    6K  & $+0.23$ & $+0.07$ & $+0.01$ \\
+    7K  & $+0.13$ & $+0.07$ & $+0.00$ \\
+    8K  & $+0.19$ & $+0.06$ & $+0.01$ \\
+    9K  & $+0.02$ & $+0.04$ & $+0.00$ \\
+    10K & $+0.06$ & $+0.02$ & $-0.01$ \\
+    11K & $+0.06$ & $+0.02$ & $+0.00$ \\
+    12K & $+0.05$ & $+0.02$ & $+0.00$ \\
+    13K & $+0.05$ & $+0.03$ & $+0.01$ \\
+    \bottomrule
+    \end{tabular}
+    \caption{Signed perplexity gap across CPT steps:
+    $\Delta\mathrm{PPL}=\mathrm{PPL}_{\mathrm{HiLS\text{-}Attn\text{-}HoPE\text{-}LoRA}}-\mathrm{PPL}_{\mathrm{Olmo3\text{-}512swa\text{-}CPT}}$.
+    Positive $\Delta$ means HiLS-Attn has higher (worse) perplexity.}
+    \label{tab:ppl_in_cpt}
+\end{table}
+
+\section{Per-Step Results of the 1.4B Model}\label{apdx:1B_perstep}
+We provide the full per-step perplexity (Table~\ref{tb:1B_ppl_steps}) and RULER
+(Table~\ref{tb:1B_ruler_steps}) numbers of the 1.4B model across training steps.
+
+\input{table/1B_perstep}

@@ -1,0 +1,107 @@
+\section{Preliminary}
+
+In this section, we review the formulation of naive Block Sparse Attention (BSA) and analyze why existing methods fail to preserve the fidelity of chunk selection.
+
+\subsection{Naive Block Sparse Attention}\label{sec:naive_bsa}
+Given an input token sequence $\boldsymbol{x} = \{x_1, x_2, \ldots, x_N\}$, we partition it into non-overlapping chunks of a uniform size $S$, where the $j$-th token belongs to the $c(j)$-th chunk ($c(j) = \lfloor j / S \rfloor$). 
+With BSA, the query token attends to two distinct sequence segments: a local sliding window containing the corresponding token and $K$ globally selected distant chunks outside this window.
+
+To avoid overlap between the local window and the retrieved distant chunks, we align the local window with the chunk partition by rounding its left boundary down to the nearest chunk boundary: given a window size $W$, the aligned left boundary at position $i$ is $\ell(i)=\left\lfloor \frac{i-W+1}{S} \right\rfloor S$.
+Consequently, at time step i, the candidate chunks indices available for retrieval from the historical context form an indices set $\mathcal{C}_i = \{0, 1, \ldots, \frac{\ell(i)}{S}-1\}$. 
+
+Let $\mathbf{q}_i, \mathbf{k}_j, \mathbf{v}_j \in \mathbb{R}^d$ denote the standard query of $x_i$, and key and value vectors of $x_j$ with dimension $d$. The token-to-token attention logit is defined as $s_{i,j} = \frac{\mathbf{q}_i^\top \mathbf{k}_j}{\sqrt{d}}$. In the full-attention setting, 
+we define the \textit{chunk mass} of a token group as the sum of token-level exponentiated attention logits. 
+Thus, the chunk masses assigned to the local sliding-window attention (SWA)  region and to a distant chunk $c \in \mathcal{C}_i$ for token position $i$ are respectively given by
+\begin{equation}
+\small
+\label{eqn:z_bsa}
+ Z_{i, \text{swa}} = \sum_{j=\ell(i)}^{i} \exp(s_{i,j}), \quad 
+     Z_{i,c} = \sum_{j\in\mathcal{T}_c} \exp(s_{i,j}),
+\end{equation}
+Since selecting chunks according to normalized attention mass is equivalent to selecting them according to $Z_{i,c}$, naive BSA chooses
+\begin{equation}
+\small
+\label{eq:naive_bsa_select}
+    \bm{\mathcal{I}}_i
+    =
+    \left\{
+    c \in \mathcal{C}_i
+    \mid
+    \operatorname{rank}_{\downarrow}(
+    Z_{i,c} 
+    ) < K
+    \right\},
+\end{equation}
+where $\operatorname{rank}_{\downarrow}(Z_{i,c})$ ranks chunks in $\mathcal{C}_i$ in descending order of $Z_{i,c}$, so $\bm{\mathcal{I}}_i$ contains the top-$K$ chunk indices.
+The query then attends only to selected tokens, i.e., tokens from the selected chunks and the local sliding window. Thus, we have
+\begin{equation}
+\small
+\label{eq:naive_bsa_weight}
+\begin{aligned}
+    &\mathcal{Z}_i =
+    \sum_{c \in \mathcal{I}_i} Z_{i,c}
+    +
+    Z_{i,\mathrm{swa}}, \\
+    &w_{i,j} =
+    \begin{cases}
+    \displaystyle
+    \frac{\exp(s_{i,j})}{\mathcal{Z}_i},
+    & j \text{ is selected} \\
+    0,
+    & \text{otherwise}
+    \end{cases},\quad \mathbf{o}_{i} = \sum_{j \le i} w_{i,j} \mathbf{v}_j,
+\end{aligned}
+\end{equation}
+where the softmax weights are normalized only over the selected tokens, while all unselected tokens receive zero weight.
+
+\subsection{Expressiveness Limitations of Existing Methods}
+\label{sec:exp_limit}
+
+While naive BSA yields exact chunk selection, computing the precise $Z_{i,c}$ requires evaluating all token-level logits $s_{i,j}$ within chunk $c$, which diminishes the computational advantages of attention sparsity during training.
+Therefore, an ideal sparse attention mechanism should estimate the chunk mass without explicitly computing all token-to-token scores. In particular, if one could construct a chunk-level summary key $\mathbf{k}'_c$ such that
+\begin{equation}
+\exp\left(\frac{\mathbf{q}_i^\top \mathbf{k}'_c}{\sqrt{d}}\right)
+\approx
+Z_{i,c}
+=
+\sum_{j\in \mathcal{T}_c}\exp(s_{i,j})
+\Longleftrightarrow
+\frac{\mathbf{q}_i^\top \mathbf{k}'_c}{\sqrt{d}}
+\approx
+\log Z_{i,c},
+\end{equation}
+then chunk selection could be performed efficiently using only chunk-level representations. However, the target $\log Z_{i,c}$ is a LogSumExp function, whose behavior depends on the logit distribution within the chunk:
+\begin{equation}
+\small
+\label{eq:two_regime}
+\log Z_{i,c}
+=
+\log \sum_{j\in\mathcal{T}_c}\exp(s_{i,j})
+\approx
+\begin{cases}
+\operatorname{mean}_{j\in\mathcal{T}_c}(s_{i,j})+\log S,
+& \text{if logits are nearly uniform}, \\[2mm]
+\max_{j\in\mathcal{T}_c}(s_{i,j}),
+& \text{if one logit dominates the others}.
+\end{cases}
+\end{equation}
+A detailed derivation is provided in Appendix~\ref{apdx:logsumexp_two_regime}.
+
+Most sparse attention methods approximate such chunk-level representations using mean-pooled keys~\cite{yuan-etal-2025-native,DBLP:journals/corr/abs-2502-13189}. Specifically, by setting $\mathbf{k}'_c$ as the average key within chunk $c$, we have
+\begin{equation}
+\small
+\begin{aligned}
+&\mathbf{k}'_c=\frac{1}{S}\sum_{j\in\mathcal{T}_c}\mathbf{k}_j,\quad \frac{\mathbf{q}_i^\top\mathbf{k}'_c}{\sqrt{d}}
+=
+\frac{\mathbf{q}_i^\top\left(\frac{1}{S}\sum_{j\in\mathcal{T}_c}\mathbf{k}_j\right)}{\sqrt{d}}
+=
+\frac{1}{S}\sum_{j\in\mathcal{T}_c}
+\frac{\mathbf{q}_i^\top\mathbf{k}_j}{\sqrt{d}}
+=
+\operatorname{mean}_{j\in\mathcal{T}_c}(s_{i,j}).
+\end{aligned}
+\end{equation}
+Thus, the resulting chunk score corresponds to the mean of token-level logits.
+
+This reveals a fundamental limitation: mean logits are effective only when logits are nearly uniform, whereas max logits are accurate only when a single token dominates. Since logit distributions vary across queries, heads, and data, neither mean nor max logits~\cite{lai2026minimaxsparseattention} can consistently represent chunk mass faithfully. This mismatch may alter chunk rankings and cause important chunks to be missed.
+% As shown in Eq.~\eqref{eq:two_regime}, mean logits are effective only when logits are nearly uniform, whereas max logits are accurate only when a single token dominates. Since logit distributions vary across queries, heads, and data, neither mean nor max logits~\cite{lai2026minimaxsparseattention} can consistently represent chunk mass faithfully. This mismatch may alter chunk rankings and cause important chunks to be missed.

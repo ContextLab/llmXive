@@ -1,0 +1,59 @@
+\section{Qualitative Results}
+
+AlayaWorld is fine-tuned from LTX-2.3~\cite{hacohen2024ltx}, performing autoregressive generation at 720p 24fps, where each chunk is produced with four denoising steps and corresponds to roughly one second of video.
+For fairness, all baselines are evaluated under the same input conditioning and resolution as AlayaWorld whenever their public implementations permit.
+
+\subsection{Camera Control}
+Figure~\ref{fig:control} shows generated sequences under varied camera and action commands.
+AlayaWorld faithfully follows the requested viewpoint changes and translations while preserving scene identity and geometric plausibility, illustrating precise camera-controllable generation under interactive control.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig3.jpg}
+    \captionof{figure}{\textbf{Qualitative results of camera-control generation.}}
+    \label{fig:control}
+\end{figure}
+
+\subsection{Open-ended Action}
+Figure~\ref{fig:action} shows sequences in which the text prompt is switched on the fly during generation.
+By updating the text condition at chunk boundaries, AlayaWorld transitions to the new prompt within a short delay while preserving visual continuity across the switch, without regenerating the preceding sequence.
+This illustrates that AlayaWorld follows changing user intent at interactive latency, supporting responsive control beyond a single fixed prompt to achieve open-ended actions.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/action.jpg}
+    \captionof{figure}{\textbf{Qualitative results of prompt-driven actions.}}
+    \label{fig:action}
+\end{figure}
+
+\subsection{Consistency}
+Figure~\ref{fig:memory} presents leave-and-return trajectories in which the viewpoint departs from a region and later revisits it.
+The revisited regions remain consistent with their earlier appearance in geometry, layout, and texture, demonstrating that the explicit spatial cache and the compressed temporal history jointly support reliable loop closure.
+
+We also evaluate representative interactive world models under the same setting. Prior models exhibit characteristic failure modes: visual degradation, inaccurate camera control, and inconsistency when previously observed regions are revisited. In contrast, AlayaWorld produces visually plausible and temporally coherent results that remain faithful to the control inputs while preserving scene structure across the trajectory.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig6.jpg}
+    \captionof{figure}{\textbf{Consistency comparisons with existing method.}}
+    \label{fig:memory}
+\end{figure}
+
+
+\subsection{Long-Horizon Generation}
+Figure~\ref{fig:long} shows extended rollouts generated autoregressively over long horizons.
+AlayaWorld maintains visual quality, object identity, and motion continuity as the rollout grows, without pronounced accumulation of artifacts, indicating strong stability under purely forward exploration.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig7.jpg}
+    \captionof{figure}{\textbf{Qualitative results of one-minute generation.}}
+    \label{fig:long}
+\end{figure}
+
+\subsection{Diverse Styles}
+AlayaWorld maintains scene consistency across a wide range of visual styles. As shown in Figure~\ref{fig:style}, the same navigation trajectory is rendered in realistic, Minecraft, ink painting, oil painting, cyberpunk, pixel art, and Zelda-inspired styles. While the rendering style varies significantly, the scene geometry, camera trajectory, and semantic content are consistently preserved.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig2.jpg}
+    \captionof{figure}{\textbf{Qualitative results on diverse styles.}}
+    \label{fig:style}
+\end{figure}

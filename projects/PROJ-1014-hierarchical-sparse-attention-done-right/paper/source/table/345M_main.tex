@@ -1,0 +1,75 @@
+\newsavebox{\hiddenbox}
+\newcolumntype{Y}{>{\begin{lrbox}{\hiddenbox}}c<{\end{lrbox}}}
+
+\begin{table}[tb!]
+\centering
+\caption{Perplexity (PPL) of models with 345M parameters trained on 8K context and evaluated with different context lengths (from 64 to 512K). For fair comparison,  some baselines add the extra 0.6\% parameters introduced by HiLS-attention to their MLP modules, denoted as ``extra MLP''. Since the InfLLM v2 kernel only supports head dimensions $\geq 128$, it is not directly aligned with the other models using head dimension 64. We mark InfLLM v2 with an asterisk (*) to indicate that its results are reported for reference. \textbf{Bold} numbers indicate the best PPL at each context length, and \underline{underlined} numbers indicate the second-best PPL. Overall, HiLS-Attention achieves consistently strong performance across context lengths and demonstrates better long-context extrapolation.}
+\label{tb:345M_main_ppl}
+\vspace{0.1cm}
+\resizebox{1.\textwidth}{!}{
+\begin{tabular}{l@{\hspace{\tabcolsep}}Y@{\hspace{\tabcolsep}}cccccccc}
+\toprule
+Models & \#steps & Extra \#Param & 64 & 128 & 512 & \textbf{8K} & 32K & 128K & 512K \\
+\midrule
+Full-Attn RoPE & 30k & -- & 33.92 & 26.89 & 18.68 & 4.96 & $>10^2$ \\
+Full-Attn HoPE            &     30k &  --  &  34.15 & 26.97 & 18.73 & \underline{4.95} &  6.42 & $>10^2$   \\
+Full-Attn HoPE (extra MLP)        &     30k &  0.6\%  &  34.28 & 27.12 & 18.76  & \underline{4.95} &  5.85 & $>10^2$   \\
+SWA-RoPE                 &     30k &  --  &   35.38 & 27.94 & 19.30 & 8.95 & 9.01 & 8.44 & 8.47 \\
+NSA-RoPE   &   30k &  0.2\%  &  34.15 & 27.11 & 18.85 & 5.01 & 7.62 & 11.75 & 19.14 \\
+Dash-Attention-RoPE   &   30k &  0.006\%  &   \underline{33.70} & \underline{26.74} & \underline{18.67} & 5.00 &  $>10^2$ \\
+HSA-Ultralong         &     30k &   12.7\% &   \textbf{33.19} & \textbf{26.26} & 21.50 &  8.81 & 5.84 & \underline{4.99} &   \textbf{4.54} \\
+Naive-BSA-HoPE & & -- & 36.12 & 29.06 & 20.45 & \textbf{4.94} & \textbf{3.94} & 8.67 & OOM \\
+% \rowcolor{softgreenbg}
+\textbf{HiLS-Attn-HoPE}        &     30k &  0.6\%  &  33.97 & 26.91 & \textbf{18.65}  & \textbf{4.94} &  \underline{4.34} & \textbf{4.71}  & \underline{5.95} \\
+\textcolor{gray}{InfLLM v2$^*$}  &   \textcolor{gray}{30k} &  \textcolor{gray}{0.006\%}  &  \textcolor{gray}{33.71} & \textcolor{gray}{26.74} & \textcolor{gray}{18.55} & \textcolor{gray}{4.95} & \textcolor{gray}{13.68} & \textcolor{gray}{64.24} & \textcolor{gray}{OOM} \\
+\bottomrule
+\end{tabular}
+}
+
+\end{table}
+
+
+\begin{table}[htb!]
+\centering
+\footnotesize
+\caption{
+RULER results for 345M models trained with an 8K context length. 
+We additionally report ultra-long extrapolation results of HiLS-Attn-HoPE at 1M--4M context lengths. HiLS is the only native sparse attention method that achieves perfect in-domain NIAH performance, while also demonstrating remarkable extrapolation capability.
+}  
+\label{tb:345M_main_ruler}
+\setlength{\tabcolsep}{1.pt} 
+\vspace{2mm}
+
+\begin{tabular}{l ccc >{\columncolor{blue!10}}c>{\columncolor{blue!10}}c>{\columncolor{blue!10}}c ccc >{\columncolor{blue!10}}c>{\columncolor{blue!10}}c>{\columncolor{blue!10}}c ccc}
+\toprule
+& \multicolumn{3}{c}{\textbf{8K}} & \multicolumn{3}{c}{\textbf{16K}} & \multicolumn{3}{c}{\textbf{32K}} & \multicolumn{3}{c}{\textbf{128K}} & \multicolumn{3}{c}{\textbf{512K}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13} \cmidrule(lr){14-16}
+\textbf{Models} & S-N & MK-MQ & VT & S-N & MK-MQ & VT & S-N & MK-MQ & VT & S-N & MK-MQ & VT & S-N & MK-MQ & VT \\
+\midrule
+Full-Attn RoPE             & \textbf{100} & 97 & 34 &   0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 \\
+Full-Attn HoPE             & \textbf{100} & \underline{98} & 36 &  \underline{99} & 97 & \underline{21} & 72 & 11 & 11 &  0 &  0 &  0 &  0 &  0 &  0 \\
+Full-Attn HoPE (extra MLP) & \textbf{100} & \textbf{99} & \underline{39} & \textbf{100} & \textbf{97} & 13 & 83 & 19 &  1 &  0 &  0 &  0 &  0 &  0 &  0 \\
+SWA-RoPE                   &   18 &  8 & 22 &   4 &  1 & 11 &  8 &  2 &  7 &  2 &  1 & 12 &  0 &  1 &  8 \\
+NSA-RoPE                   &   49 & 17 & 16 &   6 &  5 &  4 &  5 &  0 &  0 &  0 &  0 &  0 &  0 &  0 &  0 \\
+Dash-Attention-RoPE        &   \underline{92} & 67 & 34 &   0 &  0 &  0 &  0 &  0 &  0 & -- & -- & -- & -- & -- & -- \\
+HSA-Ultralong              &   87 & 79 & 23 &  92 & 75 & 17 & 82 & 74 & \underline{15} & \underline{80} & \underline{60} & 21 & \underline{65} & \underline{42} &  \underline{8} \\
+Naive-BSA-HoPE             & \textbf{100} & 97 & 23 &  \underline{99} & 89 & 16 & \underline{98} & \underline{77} & 13 & 46 &  0 &  0 & -- & -- & -- \\
+\textbf{HiLS-Attn-HoPE}    & \textbf{100} & 95 & \textbf{72} & \textbf{100} & \underline{94} & \textbf{65} & \textbf{100} & \textbf{95} & \textbf{68} & \textbf{99} & \textbf{95} & \underline{61} & \textbf{99} & \textbf{91} & \textbf{66} \\
+% \midrule
+\textcolor{gray}{InfLLM v2*} &  \textcolor{gray}{77} & \textcolor{gray}{39} & \textcolor{gray}{25} &  \textcolor{gray}{21} &  \textcolor{gray}{0} &  \textcolor{gray}{1} &  \textcolor{gray}{1} &  \textcolor{gray}{0} &  \textcolor{gray}{0} &  \textcolor{gray}{0} &  \textcolor{gray}{0} &  \textcolor{gray}{0} & \textcolor{gray}{--} & \textcolor{gray}{--} & \textcolor{gray}{--} \\
+\bottomrule
+\end{tabular}
+
+\vspace{2mm} 
+
+\begin{tabular}{l ccc ccc ccc}
+\multicolumn{10}{l}{\textit{Results on longer context length}} \\
+\toprule
+& \multicolumn{3}{c}{\textbf{1M}} & \multicolumn{3}{c}{\textbf{2M}} & \multicolumn{3}{c}{\textbf{4M}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Models} & S-N & MK-MQ & VT & S-N & MK-MQ & VT & S-N & MK-MQ & VT \\
+\midrule
+HiLS-Attn-HoPE & 100 & 97 & 53 & 97 & 87 & 50 & 96 & 89 & 43 \\
+\bottomrule
+\end{tabular}
+\end{table}

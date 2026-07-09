@@ -1,0 +1,104 @@
+\section{Related Work}
+Existing sparse attention methods can be broadly categorized into token-wise~\cite{liu2025deepseek} and block-wise approaches.
+We focus on block-wise sparse attention, as it can potentially support native sparse training, which is essential for infinitely long context modeling. 
+We further distinguish block-wise methods by whether their chunk summaries are parameterized. This distinction is important because chunk selection relies on summaries as proxies for chunk relevance, and their fidelity directly affects whether relevant chunks can be accurately retrieved.
+\subparagraph{None-parametric summaries.}
+Many block-wise sparse attention methods, including NSA~\cite{yuan-etal-2025-native}, MoBA~\cite{DBLP:journals/corr/abs-2502-13189}, use mean-pooled chunk representations for efficient chunk selection. DashAttention~\cite{huang2026dashattentiondifferentiableadaptivesparse} introduces a learnable gate based on InfLLM v2~\cite{zhao2025infllmv2densesparseswitchableattention}. Nevertheless, as shown in Tab.~\ref{tb:345M_main_ruler}, these methods fail to achieve perfect needle retrieval even in the training length, suggesting inaccurate chunk selection.
+SeerAttention~\cite{gao2025seerattentionlearningintrinsicsparse} also uses mean pooling as the chunk summary, but the chunk selection is distilled from full-attention. Since the upper bound of a distillation-based method is full attention, we do not include it in our experiments.
+
+\subparagraph{Parametric summaries.}
+Landmark Attention (LMK-Attn)~\cite{mohtashami2023random} first introduced landmark tokens to learn chunk summaries, but requires dense attention during training and applies sparsification only at inference. 
+Moreover, its significant higher perplexity than the full-attention baseline makes it difficult to match full attention on downstream tasks.
+HSA series~\cite{hu2026hardware,hu2026everytoken} enables sparse training via specialized kernel design and empirically shows strong length generalization~\cite{leng2026understanding} by combining NoPE-based HSA with RoPE-based SWA. 
+However, HSA integrates with SWA as a cross-attention module, which introduces substantial parameter overhead. Furthermore, after prolonged training, the perplexity (PPL) becomes dominated by SWA, as demonstrated in Tab.~\ref{tb:345M_main_ppl}.
+
+Compared with LMK-Attn, our work enables native sparse training and provides a more accurate estimate of chunk mass. LMK-Attn lags behind the full-attention baseline because it uses only the landmark token key as the chunk summary. In contrast, our method, grounded in Proposition~\ref{prop:logsumexp}, achieves substantially better perplexity and extrapolation. Inspired by HSA’s use of NoPE, we adopt HoPE~\cite{chen-etal-2025-hope} to preserve in-domain positional awareness while enabling ultra-long context extrapolation. We provide an intuitive comparison with other sparse attention methods across multiple dimensions in Tab.~\ref{tab:attention_comparison}.
+
+
+
+\newcommand{\diff}[1]{\textcolor{softred}{#1}}
+\newcommand{\hilight}[1]{\textcolor{softgreen}{\textbf{#1}}}
+
+\begin{table}[htb!]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.18}
+
+\begin{threeparttable}
+\begin{tabular}{@{}lccccc}
+\toprule
+% \rowcolor{headergray}
+\textbf{Method}
+& \makecell{\textbf{Perfect}\\\textbf{NIAH}}
+& \makecell{\textbf{Full}\\\textbf{QK}}
+& \textbf{Extrapolation}
+& \makecell{\textbf{Training}\\\textbf{Strategy}}
+& \makecell{\textbf{Supports}\\\textbf{CPT}} \\
+\midrule
+
+Full-Attention
+& Yes
+& \diff{Yes}
+& \diff{$<2\times$}
+& End-to-End
+& Yes \\
+
+Seer-Attention
+& Yes
+& \diff{Yes}
+& \textemdash
+& \diff{Distillation}
+& Yes \\
+
+NSA
+& \diff{No}
+& No
+& \diff{$<2\times$}
+& End-to-End
+& Yes \\
+
+DSA
+& Yes
+& \diff{Yes}
+& \textemdash
+& \diff{Distillation}
+& Yes \\
+
+Dash-Attention
+& \diff{No}
+& No
+& \diff{$<2\times$}
+& End-to-End
+& Yes \\
+
+LMK-Attn
+& Yes
+& \diff{Yes}
+& \diff{$< 32\times$}
+& End-to-End
+& Yes \\
+
+HSA
+& \diff{No}
+& No
+& $>64\times$
+& End-to-End
+& \diff{No} \\
+
+\rowcolor{blue!10}
+{HiLS-Attention}
+& {Yes}
+& {No}
+& {$>64\times$}
+& {End-to-End}
+& {Yes} \\
+
+\bottomrule
+\end{tabular}
+
+\end{threeparttable}
+\vspace{0.1cm}
+\caption{Comparison of sparse-attention variants in terms of in-context retrieval capability, require full QK computation during training, extrapolation ability, training strategy, and compatibility with CPT. The weaknesses of each method are highlighted in \diff{red}.}
+\label{tab:attention_comparison}
+\end{table}

@@ -1,0 +1,27 @@
+\section{Introduction}
+
+\textbf{Alaya represents the foundation where intelligence, creativity, and new worlds are born.}
+
+Interactive virtual worlds lie at the core of 3D video games and are increasingly serving as experimental platforms beyond entertainment, including embodied agent, robotics simulation, and the study of human decision-making in controllable environments.
+The significance of these worlds stems not only from their visual realism but also from their interactivity: players or agents continuously issue actions, and the environment responds with coherent and persistent streams of observations.
+Consequently, constructing virtual worlds that are simultaneously rich, interactive, and persistent has long been a central objective in artificial intelligence.
+
+Conventional game world creation has relied on a labor-intensive production pipeline.
+While it provides high-quality game, it comes at substantial cost. Objects, animations, gameplay, interaction rules and others must all be explicitly specified in advance, resulting in worlds that are largely predefined and difficult to modify after deployment. Extending existing environments or introducing new content often requires re-engaging the entire production process, limiting both the scalability and adaptability of virtual worlds.
+
+Recent advances in Video world models~\cite{alibaba2026happyoyster, ball2025genie3, echo2026joyai, Mao_2026_CVPR, mao2025yume, team2026advancing, hunyuanvideo2025, wang2026matrix, yuan2026helios, zhu2026sana} have introduced a fundamentally different paradigm for interactive world creation.
+Rather than explicitly constructing the whole world, generative models can directly predict future observations and synthesize subsequent visual states conditioned on user interactions.
+Under this paradigm, a single model implicitly performs content generation, behavior modeling, and rendering, learning the underlying regularities of the world directly from data rather than relying on manually authored rules.
+Moreover, because these models can be trained on diverse videos, the environments they generate are no longer constrained by gaming.
+Instead, they can exhibit visual appearances and controllable dynamics and physics, moving from engineered worlds to generated worlds and benefiting embodied intelligence.
+
+However, building a playable world with video world models still suffers from challenges.
+The first is \textit{control}, which asks how much of the world is actually open to players. Whether navigation is endless and whether action is arbitrary, unbounded by preset physical laws.
+The second is \textit{consistency}, which asks how much of the world achieves spatial and temporal consistency with natural dynamics that remain physically plausible. 
+The third is \textit{stability}, which asks whether it can do long-horizon generation without visual drift.
+The fourth is \textit{runtime}, which asks whether it can achieve real-time generation at low latency.
+
+In this work, we first review the major challenges and representative approaches in interactive generative world modeling, providing a unified perspective on a rapidly emerging research area.
+Building upon this analysis, we introduce \textbf{AlayaWorld}, an autoregressive DiT integrated with a prompt-switching mechanism, an AdaLN-style camera-control module, a 3D cache, a history-compression module, an error bank, and few-step distillation for the above challenges.
+
+AlayaWorld is a full-stack, open-source, and long-term project intended to serve as a foundation for future work on video world models. The complete technical details, experimental results, and full codebase will be released in mid-July.

@@ -1,0 +1,11 @@
+\section{Conclusion}
+In this paper, we presented \our, a generative digital teleoperation framework that bridges the gap between unconstrained human gestures and precise robotic execution videos. By introducing a depth-aware hand pose representation and a progressive two-stage training paradigm, our model successfully transfers interaction priors from large-scale human datasets to specific robotic embodiments. To support real-time interactive use cases, we further distilled the bidirectional teacher model into a causal student via a novel streaming autoregressive distillation procedure, ensuring spatiotemporal consistency over extended horizons. Experimental results demonstrate that \our not only synthesizes high-fidelity, action-consistent interaction videos but also serves as a powerful generative data engine. Augmenting real-world robotic datasets with trajectories synthesized by \our significantly improves the success rate and generalization of manipulation policies. We believe this work provides a scalable path toward training general-purpose robotic agents by leveraging human intuition as a digital control signal, and we hope digital teleoperation will become a standard ingredient in scalable robot data pipelines.
+
+\noindent
+\textbf{Limitation.} 
+While \our successfully demonstrates digital teleoperation as a viable data engine, several limitations remain.
+First, while the depth-modulated rendering captures 3D spatial dynamics, the model occasionally struggles with complex physical phenomena such as fine-grained liquid dynamics or the manipulation of highly deformable objects. 
+Addressing these cases will likely require richer training data covering such interactions.
+Second, bridging the embodiment gap currently requires per-platform fine-tuning, which limits the paradigm's scalability across robot fleets. We view cross-embodiment foundation world models, possibly conditioned on robot kinematic descriptors, as a promising direction.
+
+
