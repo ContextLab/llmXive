@@ -1,0 +1,77 @@
+# Schema for Sensitivity Report artifact
+# Generated for PROJ-498-investigating-the-relationship-between-n
+# Task: T009
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Report
+description: >-
+  Report validating the stability of correlation results across different
+  pre-stimulus time windows as required by FR-005 and Task T034.
+type: object
+required:
+  - dataset_id
+  - primary_window
+  - sensitivity_windows
+  - stability_metrics
+  - timestamp
+properties:
+  dataset_id:
+    type: string
+    description: ID of the OpenNeuro dataset used for analysis.
+  primary_window:
+    type: object
+    description: Configuration of the primary analysis window.
+    required:
+      - start_ms
+      - end_ms
+      - correlation
+      - p_value
+    properties:
+      start_ms:
+        type: number
+        description: Start time in milliseconds relative to stimulus onset.
+      end_ms:
+        type: number
+        description: End time in milliseconds relative to stimulus onset.
+      correlation:
+        type: number
+        description: Pearson or Spearman correlation coefficient.
+      p_value:
+        type: number
+        description: P-value from the correlation test.
+  sensitivity_windows:
+    type: array
+    description: List of alternative windows tested for stability.
+    items:
+      type: object
+      required:
+        - start_ms
+        - end_ms
+        - correlation
+        - p_value
+      properties:
+        start_ms:
+          type: number
+        end_ms:
+          type: number
+        correlation:
+          type: number
+        p_value:
+          type: number
+  stability_metrics:
+    type: object
+    description: Metrics quantifying the stability of results across windows.
+    required:
+      - max_correlation_change
+      - all_significant
+    properties:
+      max_correlation_change:
+        type: number
+        description: Maximum absolute difference in correlation coefficient compared to primary window.
+      all_significant:
+        type: boolean
+        description: True if all sensitivity windows yielded p < 0.05.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation.
+additionalProperties: false

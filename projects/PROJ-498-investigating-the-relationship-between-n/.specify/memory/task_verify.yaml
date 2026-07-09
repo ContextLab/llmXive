@@ -1,0 +1,18 @@
+? T015 [US1] Implement `code/preprocess.py` ICA-based artifact removal (reject components
+  with kurtosis > 5 or spectral peak > 30 Hz)
+: 2
+? 'T015b [US1] Implement `code/preprocess.py` notch filter (50/60Hz) if line noise
+  detected; log intervention to `logs/processing.log` with specific format: "Notch
+  filter applied at {freq}Hz for subject {id}"'
+: 2
+T016 [US1] Implement `code/preprocess.py` epoching (-1000ms to +2000ms) around stimulus onset: 2
+? 'T017 [US1] Implement logic to exclude subjects with <10 valid trials/condition
+  (reason: "insufficient trials") or >50% artifact removal (reason: "excessive artifact
+  removal"); log to `data/exclusions.csv` with columns: `subject_id`, `reason`'
+: 2
+"T018 [US1] Implement memory monitoring to ensure peak RSS \u2264 6.5 GB during sequential subject processing": 2
+? T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total
+  pipeline execution time; immediately log a timeout violation to `logs/processing.log`
+  and `data/metrics/runtime_log.json` if total runtime exceeds several hours, then
+  halt.
+: 1
