@@ -1,0 +1,261 @@
+resolved_at: '2026-07-09T05:28:34.504406+00:00'
+datasets:
+- intent: NIMS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Nimsi2613/MedQuad/resolve/main/data/test-00000-of-00001-8774c1c24084ffa9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nimsdaz/Combined_QA_dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Nimsprod/my-instruction-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1867
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Nimsi2613/MedQuad/resolve/main/data/test-00000-of-00001-8774c1c24084ffa9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/678ca1fd70768ae96e381259/3e2a71feb1fd6b13655316875917ae4a2dae711e94152c21a3a599f4998b46ab?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train.jsonl%3B+filename%3D%22train.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783578394&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4Y2ExZmQ3MDc2OGFlOTZlMzgxMjU5LzNlMmE3MWZlYjFmZDZiMTM2NTUzMTY4NzU5MTdhZTRhMmRhZTcxMWU5NDE1MmMyMWEzYTU5OWY0OTk4YjQ2YWJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4uanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJ0cmFpbi5qc29ubCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTc4Mzk0fX19XX0_&Signature=MEUCIFi5mQHXoB6KwBWWHzqOPYsrwrB8oATv5lSX7awo6sA8AiEA3TPs9IbRdDpN2FAvDeNUXMCn8THink2zG28~NdIQV98_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/nimsdaz/Combined_QA_dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Nimsprod/my-instruction-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Analisis_Komparatif_Algoritma_Decision_Tree_dan_Random_Forest_dalam_Prediksi_Kesesuaian_Lahan_Pertanian_Berbasis_Machine_Learning_/32944688
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Why_pharmacogenomic_biomarkers_for_chemotherapy-induced_peripheral_neuropathy_fail_a_systematic_review_of_genetic_associations_replication_and_clinical_translation_zip/32944793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Suppressing_Portevin-Le_Chatelier_effect_and_enhancing_mechanical_properties_in_nanoparticles-modified_high-Mg_aluminum_crossover_alloy/32944744
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Hybrid_quantum-inspired_robot_localization_in_indoor_environments/32944783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Leveraging_existing_high-throughput_HIV_platforms_for_molecular_i_Mycobacterium_tuberculosis_i_testing_in_Busia_Kenya_Cost_and_operational_insights/32944780
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6660680/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/nprot.2008.110
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://brain.edusoft.ro/index.php/brain/article/view/1871
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17096938
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.prr4xgz2p
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Seamless_integration_of_legacy_robotic_systems_into_a_self-driving_laboratory_via_NIMO_a_case_study_on_liquid_handler_automation/30196478/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Seamless_integration_of_legacy_robotic_systems_into_a_self-driving_laboratory_via_NIMO_a_case_study_on_liquid_handler_automation/30196478
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/NIMS_polymer_database_PoLyInfo_III_modularizing_ShEx_schemas_for_descriptors_and_properties_in_PoLyInfoRDF/30104840/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/NIMS_polymer_database_PoLyInfo_III_modularizing_ShEx_schemas_for_descriptors_and_properties_in_PoLyInfoRDF/30104840
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_xlsx/32944832
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_tif/32944826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_tif/32944829
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Emergence_of_ST1076_as_a_dominant_high-risk_clone_carrying_blaKPC_2_in_carbapenem-resistant_Pseudomonas_aeruginosa_from_Deqing_Zhejiang_China_a_5-year_genomic_epidemiology_study_docx/32944811
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Physical_activity_mental-health_symptoms_sleep_quality_and_health-related_quality_of_life_among_physical_education_teacher_education_students_a_cross-sectional_study_docx/32944808
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21272372
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21272372
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21271474
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SHAP
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ShapeNet/ShapeNetCore/resolve/main/02691156.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/ShapeNetSem-archive/resolve/main/ShapeNetSem.zip
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/shapenetcore-gltf/resolve/main/taxonomy.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/ShapeNet/shapenetcore-glb/resolve/main/taxonomy.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944859
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_5_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_The_associations_of_the_triglyceride_glucose_index_and_estimated_glucose_disposal_rate_with_incident_cardiometabolic_multimorbidity_vary_across_obesity_phenotypes_a_longitudinal_cohort_study_jpeg/32944853
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Metabolic_reprogramming_networks_in_the_gastric_cancer_tumor_microenvironment_an_integrated_axis_of_nutrient_competition_metabolic_crosstalk_and_immunosuppression_docx/32944850
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Smartphone-measured_tremor_and_tacrolimus_trough_levels_in_kidney_transplant_recipients_an_exploratory_prospective_study_pdf/32944835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19967496
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5092866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16147484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/29923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://www.techno-press.org/content/?page=article&journal=sss&volume=29&num=1&ordernum=21
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21272790
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21272790
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17615/n5xc-d836
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/ms35ts36g (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f1f2df8ee90>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+  - url: https://springernature.figshare.com/collections/One_year_quality_of_life_outcomes_in_critically_ill_children_a_multicenter_prospective_cohort_study/8583832
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/One_year_quality_of_life_outcomes_in_critically_ill_children_a_multicenter_prospective_cohort_study/8583832/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

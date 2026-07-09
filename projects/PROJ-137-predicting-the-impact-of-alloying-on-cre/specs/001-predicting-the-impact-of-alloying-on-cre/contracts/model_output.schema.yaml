@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelEvaluationOutput"
+description: "Schema for the model evaluation results including metrics and statistical tests."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'Thermodynamic', 'CompositionOnly', 'PolynomialBaseline')."
+  mean_r2:
+    type: "number"
+    description: "Mean R² score from Cross-Validation."
+  mean_rmse:
+    type: "number"
+    description: "Mean RMSE score from Cross-Validation."
+  std_r2:
+    type: "number"
+    description: "Standard deviation of R² scores."
+  std_rmse:
+    type: "number"
+    description: "Standard deviation of RMSE scores."
+  statistical_test:
+    type: "object"
+    description: "Results of the statistical comparison."
+    properties:
+      test_type:
+        type: "string"
+        description: "Type of test used (e.g., 'CorrectedResampledTTest', 'BootstrapCI')."
+      p_value:
+        type: "number"
+        description: "P-value (null if Bootstrap)."
+        nullable: true
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        description: "95% Confidence Interval for the difference (null if t-test)."
+        nullable: true
+        minItems: 2
+        maxItems: 2
+    required:
+      - test_type
+  top_features:
+    type: "array"
+    description: "Top 5 features by SHAP importance."
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        shap_value:
+          type: "number"
+      required:
+        - feature_name
+        - shap_value
+    minItems: 1
+    maxItems: 5
+required:
+  - model_name
+  - mean_r2
+  - mean_rmse
+  - statistical_test
+  - top_features

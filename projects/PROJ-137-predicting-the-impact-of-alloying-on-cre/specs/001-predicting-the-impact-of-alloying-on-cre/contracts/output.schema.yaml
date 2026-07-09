@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance and SHAP Results"
+description: "Schema for the final output metrics and feature importance."
+type: "object"
+properties:
+  model_comparison:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_type:
+          type: "string"
+          enum:
+            - "Thermodynamic"
+            - "Composition-Only"
+            - "Polynomial-Baseline"
+        fold:
+          type: "integer"
+        r2_score:
+          type: "number"
+        rmse:
+          type: "number"
+        hyperparams:
+          type: "object"
+      required:
+        - model_type
+        - fold
+        - r2_score
+        - rmse
+  statistical_test:
+    type: "object"
+    properties:
+      test_name:
+        type: "string"
+        const: "CorrectedResampledTTest"
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+      iterations:
+        type: "integer"
+        description: "Number of permutation iterations (e.g., 10000)."
+    required:
+      - test_name
+      - p_value
+      - significant
+      - iterations
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        mean_abs_shap:
+          type: "number"
+        shap_sign:
+          type: "string"
+          enum:
+            - "Positive"
+            - "Negative"
+      required:
+        - feature_name
+        - mean_abs_shap
+        - shap_sign
+required:
+  - model_comparison
+  - statistical_test
+  - feature_importance
