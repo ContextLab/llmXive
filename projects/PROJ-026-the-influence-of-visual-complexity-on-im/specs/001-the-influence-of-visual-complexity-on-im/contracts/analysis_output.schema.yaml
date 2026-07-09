@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for Permutation Test and sensitivity analysis results."
+type: "object"
+properties:
+  permutation_results:
+    type: "object"
+    description: "Main Permutation Test results."
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from the Permutation Test."
+      cohen_d:
+        type: "number"
+        description: "Cohen's d effect size."
+      n_participants:
+        type: "integer"
+        description: "Number of participants included in the analysis."
+      dimensionality_method:
+        type: "string"
+        description: "Method used: 'PC1' or 'Multivariate'."
+      pc1_variance:
+        type: "number"
+        description: "Variance explained by PC1 (if PC1 method used)."
+    required:
+      - "p_value"
+      - "cohen_d"
+      - "n_participants"
+      - "dimensionality_method"
+  sensitivity_results:
+    type: "array"
+    description: "Results of the sensitivity analysis across threshold shifts and LOIO."
+    items:
+      type: "object"
+      properties:
+        threshold_shift:
+          type: "number"
+          description: "Shift in standard deviations from the median split (for threshold sweep)."
+        removed_image_id:
+          type: ["string", "null"]
+          description: "Image ID removed (for LOIO sweep)."
+        p_value:
+          type: ["number", "null"]
+          description: "P-value at this threshold. Null if invalid."
+        valid_sweep:
+          type: "boolean"
+          description: "True if n >= 15 per condition."
+        reason:
+          type: ["string", "null"]
+          description: "Reason for invalidity if valid_sweep is false."
+        method:
+          type: "string"
+          description: "Type of sensitivity: 'threshold_sweep' or 'loio'."
+      required:
+        - "valid_sweep"
+        - "method"
+    minItems: 1
+required:
+  - "permutation_results"
+  - "sensitivity_results"
