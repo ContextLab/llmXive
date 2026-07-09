@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionErrorMetricSchema"
+description: "Schema for extracted prediction error metrics (latency, amplitude)."
+type: object
+properties:
+  modality:
+    type: string
+    enum: ["auditory", "visual"]
+    description: "The sensory modality."
+  peak_latency_ms:
+    type: number
+    description: "Peak latency in milliseconds."
+  mean_amplitude_uV:
+    type: number
+    description: "Mean amplitude in microvolts."
+  time_window_ms:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Time window [start, end] in ms."
+  electrode_region:
+    type: string
+    description: "Region of electrodes used (e.g., 'fronto-central')."
+  reliability_alpha:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Cronbach's alpha for split-half reliability."
+required:
+  - modality
+  - peak_latency_ms
+  - mean_amplitude_uV
+  - time_window_ms
+  - electrode_region
+  - reliability_alpha
+additionalProperties: false

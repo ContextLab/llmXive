@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessedSignalSchema"
+description: "Schema for preprocessed EEG/MEG data artifacts."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject."
+  modality:
+    type: string
+    enum: ["auditory", "visual"]
+    description: "The sensory modality of the paradigm."
+  sampling_rate:
+    type: number
+    minimum: 500.0
+    description: "Sampling rate in Hz. Must be >= 500."
+  n_trials:
+    type: object
+    properties:
+      oddball:
+        type: integer
+        minimum: 100
+        description: "Number of oddball trials. Must be >= 100."
+      standard:
+        type: integer
+        minimum: 300
+        description: "Number of standard trials. Must be >= 300."
+    required:
+      - oddball
+      - standard
+  electrodes:
+    type: array
+    items:
+      type: string
+    description: "List of electrode labels."
+  artifact_rejected:
+    type: boolean
+    description: "True if ICA artifact removal was successful."
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the data file."
+  preprocessing_steps:
+    type: array
+    items:
+      type: string
+    description: "List of preprocessing steps applied (e.g., 'bandpass', 'ica')."
+required:
+  - subject_id
+  - modality
+  - sampling_rate
+  - n_trials
+  - electrodes
+  - artifact_rejected
+  - checksum
+  - preprocessing_steps
+additionalProperties: false

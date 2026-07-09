@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResultSchema"
+description: "Schema for statistical comparison results."
+type: object
+properties:
+  test_type:
+    type: string
+    enum: ["mixed-effects-permutation", "tost"]
+    description: "Type of statistical test used."
+  p_value_raw:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Uncorrected p-value (if applicable)."
+  p_value_corrected:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg corrected p-value."
+  decision:
+    type: string
+    enum: ["reject", "fail_to_reject", "equivalent"]
+    description: "Statistical decision based on alpha=0.05 or TOST equivalence."
+  effect_size:
+    type: number
+    description: "Cohen's d or equivalent effect size."
+  source_overlap_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Dice coefficient of suprathreshold source clusters."
+  tost_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the Two One-Sided Tests (TOST) for equivalence."
+  localization_uncertainty_cv:
+    type: number
+    description: "Coefficient of Variation of source strength across the smoothing sweep (FR-014)."
+required:
+  - test_type
+  - p_value_corrected
+  - decision
+  - effect_size
+  - source_overlap_score
+  - tost_p_value
+  - localization_uncertainty_cv
+additionalProperties: false
+
