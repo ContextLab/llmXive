@@ -1,0 +1,8 @@
+'T001 Create directory structure: `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`': 1
+'T006 Create base data entities: `Subject`, `ConnectivityMatrix`, `GraphMetrics` classes in `code/entities.py`': 2
+? T008a [P] Implement synthetic data generator (`code/synthetic_data.py`) for "Methodology
+  Validation Mode" with seeded random states.
+: 1
+? T011 [US1] Implement `code/data_ingestion.py` to download OpenNeuro data (e.g.,
+  `ds000006` or similar mTBI dataset) and generate `data/results/manifest.csv`
+: 1

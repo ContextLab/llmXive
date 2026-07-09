@@ -1,0 +1,12 @@
+# Existing dependencies
+nilearn
+networkx
+statsmodels
+pandas
+numpy
+scikit-learn
+pyyaml
+huggingface_hub
+requests
+pytest
+# New dependencies (if any, none strictly needed for time_monitor as it uses stdlib)

@@ -1,0 +1,26 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | figures
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+known_first_party = ["code"]
+known_third_party = ["nilearn", "networkx", "statsmodels", "pandas", "numpy", "sklearn", "yaml", "huggingface_hub"]
+skip = ["data", "figures", ".venv", "build", "dist"]
