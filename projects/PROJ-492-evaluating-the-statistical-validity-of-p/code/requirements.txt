@@ -12,4 +12,6 @@ ruff
 black
 pre-commit
 pytest
-pytest-cov
+pydantic
+matplotlib
+seaborn

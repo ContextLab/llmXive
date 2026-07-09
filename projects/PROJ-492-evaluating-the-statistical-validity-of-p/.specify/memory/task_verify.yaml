@@ -527,11 +527,6 @@
   \ c_958e12aa \u2014 status=not_enough_info] per FR\u2011032 (verify JSON output\
   \ contains required fields including sensitivity analysis results)."
 : 1
-? "T042 Implement binomial prevalence test, Wilson CI, **and sensitivity analysis**\
-  \ (FR\u2011005a & FR\u2011005b) in `src/audit/prevalence.py` including dynamic Bonferroni\
-  \ correction (\u03B1 = 0.05\u202F/\u202Fnumber_of_subgroups) per FR\u2011032 (verify\
-  \ JSON output contains required fields including sensitivity analysis results)."
-: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
@@ -551,9 +546,6 @@
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10 [UNRESOLVED-CLAIM: c_e3a7e8b9\
   \ \u2014 status=not_enough_info] (tests/unit/test_prevalence.py) (verify test passes)."
 : 1
-? "T043 Unit tests for binomial test and CI width \u2264 0.10. (1807.00365, https://arxiv.org/abs/1807.00365)\
-  \ (tests/unit/test_prevalence.py) (verify test passes)."
-: 2
 ? "T043 Unit tests for binomial test and CI width \u2264 0.10. (1807.00365, https://arxiv.org/abs/1807.00365)\
   \ [UNRESOLVED-CLAIM: c_d27d69f0 \u2014 status=not_enough_info] (tests/unit/test_prevalence.py)\
   \ (verify test passes)."
