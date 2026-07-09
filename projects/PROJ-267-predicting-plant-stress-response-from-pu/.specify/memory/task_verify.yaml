@@ -1,0 +1,9 @@
+? 'T001a [P] Create project directory structure: `mkdir -p code/data_ingestion code/modeling
+  code/reporting code/utils tests data/raw data/processed results logs docs`.'
+: 1
+T001b [P] Verify directory structure exists and is writable.: 1
+T003 [P] Configure linting (flake8) and formatting (black) tools: 1
+? T004 Setup `code/utils/config.py` for random seeds, paths, species/stress constants,
+  and **Reference-Validator threshold** (default 0.7, configurable).
+: 1
+T005 [P] Implement data schema validation using Pydantic or simple dict checks for `data/raw/` and `data/processed/`.: 1

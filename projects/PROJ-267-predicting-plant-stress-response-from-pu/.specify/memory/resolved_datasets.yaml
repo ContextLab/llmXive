@@ -1,26 +1,26 @@
-resolved_at: '2026-07-06T04:27:06.802980+00:00'
+resolved_at: '2026-07-08T23:52:12.648713+00:00'
 datasets:
 - intent: RandomForestRegressor
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_jpeg/32905124
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905133
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
+  - url: https://acs.figshare.com/articles/journal_contribution/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942787
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
+  - url: https://acs.figshare.com/articles/media/Superparamagnetic_Biomembranes_for_Dynamic_Nanoparticle_and_Molecular_Patterning/32942784
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -44,7 +44,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20657586
+  - url: https://zenodo.org/records/21214709
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21214709
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -57,46 +61,35 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20346943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/HDGGS_vs_Lat-Lon_Grid/30751268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: SVR
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/SVRL2/general-reasoner-v2-data-fineweb-megamath/resolve/main/test.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/SVRL2/general-reasoner-v2-data-fineweb-megamath/resolve/main/test.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_jpeg/32905124
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905133
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
+  - url: https://acs.figshare.com/articles/journal_contribution/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942787
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
+  - url: https://acs.figshare.com/articles/media/Superparamagnetic_Biomembranes_for_Dynamic_Nanoparticle_and_Molecular_Patterning/32942784
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6476890
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8158897
@@ -104,10 +97,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6410505
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6476890
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -119,23 +108,23 @@ datasets:
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 404'
-  - url: https://osf.io/rdp4j/
+  - url: https://zenodo.org/records/21265309
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/168734
+  - url: https://zenodo.org/records/21265309
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21202211
+  - url: https://zenodo.org/records/21262278
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21202211
+  - url: https://zenodo.org/records/21262278
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21193342
+  - url: https://www.hydroshare.org:443/resource/ed81b766ae6a4c949b902935fc2ee05f/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,23 +143,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_jpeg/32905124
+  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905133
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
+  - url: https://acs.figshare.com/articles/journal_contribution/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942787
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -178,15 +167,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1407162
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/1158314
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3236561
+  - url: https://zenodo.org/records/1407162
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -194,19 +179,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Analysis_scripts_for_the_iCLIP2_RNA-interaction_atlas_of_Arabidopsis_thaliana_TUDOR_STAPHYLOCOCCAL_NUCLEASE1_TSN1_/31175845/1
+  - url: https://zenodo.org/records/844050
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270123
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Analysis_scripts_for_the_iCLIP2_RNA-interaction_atlas_of_Arabidopsis_thaliana_TUDOR_STAPHYLOCOCCAL_NUCLEASE1_TSN1_/31175845
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211328
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21211328
+  - url: https://zenodo.org/records/21270123
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -214,25 +195,32 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269186
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: GEO
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
-      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
     source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 14725
-      parsed: true
-  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
-    source: huggingface
-    format: zip
+    format: parquet
     relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -240,16 +228,19 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
-      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+  - url: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet
     source: huggingface
     status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/georghess/pandaset/resolve/main/pandaset.zip
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/truemanv5666/GeoText1652_Dataset/5d32fdcf69ebea22005782a9f78fee27062c79e2/test_24G_version.json?%2Fdatasets%2Ftruemanv5666%2FGeoText1652_Dataset%2Fresolve%2Fmain%2Ftest_24G_version.json=&etag=%22b875bed32b0e42e03cee0b2c7eefb7986857ad9f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CaraJ/MAVIS-Geometry/resolve/main/visualization.parquet
     source: huggingface
     status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/hiyouga/geometry3k/resolve/main/data/test-00000-of-00001.parquet
+    format: parquet
+  - url: https://huggingface.co/datasets/Guizhen/geo170k_reasoning/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
@@ -257,27 +248,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/geoskyr/COCO-Counterfactual/resolve/main/data/train-00000-of-00013.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_jpeg/32905124
+  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905133
+  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_Establishment_of_a_loop-mediated_isothermal_amplification-lateral_flow_dipstick_assay_for_the_point-of-care_testing_of_feline_herpesvirus-1_jpeg/32905052
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905184
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Protocol_for_a_clinical_practice_guideline_on_acupuncture_for_chronic_non-specific_low_back_pain_pdf/32905139
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -293,31 +280,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16736158
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20798419
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21199223
+  - url: https://zenodo.org/records/19603782
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270125
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21199223
+  - url: https://zenodo.org/records/21270125
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Establishment_of_prognostic_prediction_model_based_on_lipid_metabolism_related_genes_in_esophageal_squamous_cell_carcinoma_by_machine_learning_algorithms/8576397/1
+  - url: https://osf.io/ahz58/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21212389
+  - url: https://zenodo.org/records/21269037
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21212389
+  - url: https://zenodo.org/records/21269037
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -325,23 +312,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_A_multimodal_fusion_model_integrating_Vision_Transformer_radiomics_and_clinical_features_for_predicting_bone_metastasis_in_prostate_cancer_doc/32905265
+  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_A_multimodal_fusion_model_integrating_Vision_Transformer_radiomics_and_clinical_features_for_predicting_bone_metastasis_in_prostate_cancer_doc/32905256
+  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_docx/32905316
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_4_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_docx/32905292
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_The_effects_of_brain_radiotherapy_combined_with_immunotherapy_and_chemotherapy_for_driver_gene-negative_non-small-cell_lung_cancer_with_brain_metastases_docx/32905262
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -357,48 +344,45 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15640883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6603909
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.15640883
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.21168693
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://doi.org/10.5281/zenodo.21168692
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/21044820
+  - url: https://tandf.figshare.com/articles/dataset/Circadian-rhythm-based_dynamics_of_the_secretome_in_molecular_subtypes_of_pancreatic_ductal_adenocarcinoma/31376455/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21044820
+  - url: https://tandf.figshare.com/articles/dataset/Circadian-rhythm-based_dynamics_of_the_secretome_in_molecular_subtypes_of_pancreatic_ductal_adenocarcinoma/31376455
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g4f4qrg49
+  - url: https://tandf.figshare.com/articles/dataset/Circadian-rhythm-based_dynamics_of_the_secretome_in_molecular_subtypes_of_pancreatic_ductal_adenocarcinoma/31376455/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168693
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168693
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: AND
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
     source: huggingface
-    format: parquet
+    format: gzip
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 230721
+      downloaded_bytes: 108629
       parsed: true
-  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     format: parquet
     relevance: 0.0
@@ -413,11 +397,11 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_titlebody_best_and_down_voted_answer_jsonl/resolve/main/3dprinting.stackexchange.com.jsonl.gz
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    format: gzip
+  - url: https://huggingface.co/datasets/andersonbcdefg/github_issues_markdown/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
@@ -425,51 +409,148 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+  - url: https://huggingface.co/datasets/Gopher-Lab/laurashin_How_Satoshi_Nakamoto_and_Vitalik_Buterin_Inspired_Key_Parts_of_Celestia_-_Ep__672/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    format: parquet
+  - url: https://huggingface.co/datasets/Derur/all-portable-apps-and-ai-in-one-url/resolve/main/AINetSD/styles.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_From_proteome-wide_Mendelian_randomization_and_multi-omics_integration_to_functional_validation_TGFB3_as_a_prioritized_candidate_in_gastric_adenocarcinoma_xlsx/32905367
+  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_3_From_proteome-wide_Mendelian_randomization_and_multi-omics_integration_to_functional_validation_TGFB3_as_a_prioritized_candidate_in_gastric_adenocarcinoma_pdf/32905352
+  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_2_From_proteome-wide_Mendelian_randomization_and_multi-omics_integration_to_functional_validation_TGFB3_as_a_prioritized_candidate_in_gastric_adenocarcinoma_pdf/32905340
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_From_proteome-wide_Mendelian_randomization_and_multi-omics_integration_to_functional_validation_TGFB3_as_a_prioritized_candidate_in_gastric_adenocarcinoma_pdf/32905319
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_4_From_proteome-wide_Mendelian_randomization_and_multi-omics_integration_to_functional_validation_TGFB3_as_a_prioritized_candidate_in_gastric_adenocarcinoma_pdf/32905295
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://link.springer.com/article/10.1007/BF01977446
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7714657
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3365586
+  - url: https://link.springer.com/article/10.1007/BF01977446
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14531811
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336216
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336182
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: UniProt
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/damlab/uniprot/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/wesleywt/uniprot_sprot/resolve/main/data/test-00000-of-00001-8ac8dbd0650934e1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonghyunlee/UniProt_function_text_descriptions/resolve/main/prepared_uniprot.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/damlab/uniprot/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/wesleywt/uniprot_sprot/resolve/main/data/test-00000-of-00001-8ac8dbd0650934e1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jonghyunlee/UniProt_function_text_descriptions/resolve/main/prepared_uniprot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942793
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Context-Aware_Multilevel_Classification_of_Semantic_Relations_in_Drug-Adverse_Drug_Reaction_ADR_Networks_Predicting_Drug-Induced_Liver_Injury_DILI_as_a_Case_Study/32942790
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16351177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1146070
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18886960
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11217596
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10680335
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21267778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.mendeley.com/datasets/v3vpnpwhyk/2
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://data.mendeley.com/datasets/v3vpnpwhyk
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://ctmd.psypharma.ru/index.php/ctmd/article/view/589
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,100 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Evaluation Output Schema"
-description: "Schema for the JSON output containing model performance metrics."
-type: object
+title: "Model Output Schema"
+description: "Schema for the JSON report containing model performance metrics and feature importance."
+type: "object"
 properties:
   model_type:
-    type: string
+    type: "string"
     enum:
-      - "RandomForest"
+      - "RandomForestRegressor"
       - "SVR"
-    description: "Type of model used"
+    description: "Type of model trained."
   validation_strategy:
-    type: string
+    type: "string"
     enum:
-      - "within_stress_loocv"
-      - "cross_stress"
-      - "null_model"
-      - "target_permutation"
-      - "stress_blind_baseline"
-    description: "Validation strategy applied"
-  train_stress:
-    type: string
-    enum:
-      - "Drought"
-      - "Salinity"
-      - "Heat"
-    description: "Stress type used for training"
-  test_stress:
-    type: string
-    enum:
-      - "Drought"
-      - "Salinity"
-      - "Heat"
-    description: "Stress type used for testing"
+      - "within_stress_cv"
+      - "cross_stress_test"
+    description: "Validation strategy used."
   metrics:
-    type: object
+    type: "object"
     properties:
-      r2_score:
-        type: number
-        description: "Coefficient of determination"
+      r_squared:
+        type: "number"
+        description: "R² score of the model."
       rmse:
-        type: number
-        description: "Root Mean Squared Error"
-      n_samples:
-        type: integer
-        description: "Number of samples in the test set"
-      r2_confidence_interval:
-        type: object
-        description: "95% Confidence Interval for R². If derived from LOOCV standard error due to small n, this field may contain 'approximate' flag or standard error instead."
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
-          method:
-            type: string
-            enum:
-              - "bootstrap"
-              - "loocv_standard_error"
-            description: "Method used to derive the interval"
-        required:
-          - lower
-          - upper
-          - method
+        type: "number"
+        description: "Root Mean Squared Error."
+      null_model_r_squared:
+        type: "number"
+        description: "R² of the null model (mean prediction)."
+      r_squared_drop:
+        type: "number"
+        description: "Difference in R² between within-stress and cross-stress (if applicable)."
     required:
-      - r2_score
-      - rmse
-      - n_samples
-      - r2_confidence_interval
+      - "r_squared"
+      - "rmse"
   feature_importance:
-    type: array
+    type: "array"
+    description: "Top 20 proteins by importance."
     items:
-      type: object
+      type: "object"
       properties:
-        feature_name:
-          type: string
-          description: "Protein ID or name"
+        protein_id:
+          type: "string"
         importance_score:
-          type: number
-          description: "Absolute importance score"
+          type: "number"
       required:
-        - feature_name
-        - importance_score
+        - "protein_id"
+        - "importance_score"
+    maxItems: 20
   runtime_metrics:
-    type: object
+    type: "object"
     properties:
-      total_runtime_seconds:
-        type: number
+      total_time_seconds:
+        type: "number"
       peak_memory_mb:
-        type: number
+        type: "number"
     required:
-      - total_runtime_seconds
-      - peak_memory_mb
+      - "total_time_seconds"
+      - "peak_memory_mb"
 required:
-  - model_type
-  - validation_strategy
-  - train_stress
-  - test_stress
-  - metrics
-  - runtime_metrics
+  - "model_type"
+  - "validation_strategy"
+  - "metrics"
+  - "feature_importance"
+additionalProperties: false

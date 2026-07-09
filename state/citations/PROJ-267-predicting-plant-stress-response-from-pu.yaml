@@ -1,11 +1,22 @@
-- artifact_hash: 068fe9cc9a500604fd1107ae59fe715f6bd79232c03f4acb3ecfcbabd524bad5
+- artifact_hash: 706f84fb791311852d312f5e41881ae03b5a2f7e2d60f152f81a7b304f4716c7
   artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test.parquet
+  fetched_title: dummy_data.zip
   kind: url
-  value: https://huggingface.co/datasets/SVRL2/general-reasoner-v2-data-fineweb-megamath/resolve/main/test.parquet`
+  value: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6901a1902426fe3019d52f98/57c16f53540edb6a849eb571870b02589f6be4ee9e22d67ae1434659652caf20?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test.parquet%3B+filename%3D%22test.parquet%22%3B&Expires=1783316828&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkwMWExOTAyNDI2ZmUzMDE5ZDUyZjk4LzU3YzE2ZjUzNTQwZWRiNmE4NDllYjU3MTg3MGIwMjU4OWY2YmU0ZWU5ZTIyZDY3YWUxNDM0NjU5NjUyY2FmMjBcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzMTY4Mjh9fX1dfQ__&Signature=MEUCIQDSPEg4l2ZAyU71Uqlyj9saZ-pXxjzFWyV79ZReo4h5XAIgbnTTWmkzU2DjlAzolsQMzM3lW2eu0Jck6g4%7E8LeI7jo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-06T04:47:08.657043Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6275496b8507f986f6480114/ce4ae5c22c401a4ebaf1e89e08db60871201e4313474a571639c8f4ff2171ee1?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dummy_data.zip%3B+filename%3D%22dummy_data.zip%22%3B&response-content-type=application%2Fzip&Expires=1783559042&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3NTQ5NmI4NTA3Zjk4NmY2NDgwMTE0L2NlNGFlNWMyMmM0MDFhNGViYWYxZTg5ZTA4ZGI2MDg3MTIwMWU0MzEzNDc0YTU3MTYzOWM4ZjRmZjIxNzFlZTFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZHVtbXlfZGF0YS56aXAlM0IrZmlsZW5hbWUlM0QlMjJkdW1teV9kYXRhLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1OTA0Mn19fV19&Signature=MEYCIQDD9-KwwAF1xUox4WwliLgXnAAifaQGoEPG4rzTcT6KRQIhAInFJp03%7Epau1BFdcMgZztmzApqzRK2QujRiB5KfenEw&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-09T00:04:02.702201Z'
+- artifact_hash: 706f84fb791311852d312f5e41881ae03b5a2f7e2d60f152f81a7b304f4716c7
+  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: alignment-00000-of-00001-911d6b30d63b88ae.parquet
+  kind: url
+  value: https://huggingface.co/datasets/Luckyjhg/Geo170K/resolve/main/data/alignment-00000-of-00001-911d6b30d63b88ae.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6584f957b476868782d1a52f/e126003e5fec37cc865b920b0a481fc1c78ac451c42f511a4b9e6c41d396a296?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alignment-00000-of-00001-911d6b30d63b88ae.parquet%3B+filename%3D%22alignment-00000-of-00001-911d6b30d63b88ae.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783559043&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4NGY5NTdiNDc2ODY4NzgyZDFhNTJmL2UxMjYwMDNlNWZlYzM3Y2M4NjViOTIwYjBhNDgxZmMxYzc4YWM0NTFjNDJmNTExYTRiOWU2YzQxZDM5NmEyOTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxpZ25tZW50LTAwMDAwLW9mLTAwMDAxLTkxMWQ2YjMwZDYzYjg4YWUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmFsaWdubWVudC0wMDAwMC1vZi0wMDAwMS05MTFkNmIzMGQ2M2I4OGFlLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1OTA0M319fV19&Signature=MEUCIFiO1nzfjaz6gPNKfZwYh2K4VcnZH26xga2BVvAeFnSMAiEA8dT19ZT%7E73A9ZcM4HOeO9ZsvacwonDIh3vgYH2ITCUQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-09T00:04:02.702201Z'

@@ -1,81 +1,67 @@
-# Data Model: Predicting Plant Stress Response
+# Data Model: Predicting Plant Stress Response from Publicly Available Proteomic Data
 
-## 1. Overview
+## 1. Entity Relationship Overview
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to model output. All data is stored in CSV/Parquet format to ensure reproducibility and ease of inspection.
+The data model supports the ingestion of raw proteomic and transcriptomic data, their harmonization via identifier mapping, and the creation of a unified training matrix.
 
-## 2. Entity Definitions
+### 1.1 Key Entities
 
-### 2.1 Raw Dataset Metadata
-Represents the source of the data before processing.
+-   **ProteomicSample**: A measurement of protein abundance for a specific sample.
+-   **TranscriptomicSample**: A measurement of gene expression for a specific sample.
+-   **StressCondition**: The environmental stress applied (Drought, Salinity, Heat).
+-   **UnifiedMatrix**: The final dataset where rows are samples, columns are protein features, and the target is gene expression.
 
-| Field | Type | Description |
+## 2. Data Flow
+
+1.  **Raw Ingestion**: Downloaded files (GEO/ProteomeXchange) -> `data/raw/`.
+2.  **Preprocessing**:
+    -   Filter low-abundance proteins.
+    -   Impute missing values (LCM).
+    -   Map IDs (Protein -> Gene).
+    -   Merge Proteomic + Transcriptomic.
+    -   Output -> `data/processed/unified_matrix.csv`.
+3.  **Modeling**:
+    -   Split by Stress Condition.
+    -   Train/Test split.
+    -   Output -> `results/model_artifacts/`.
+
+## 3. Schema Definitions
+
+### 3.1 Raw Data Schema (Proteomic)
+
+| Column | Type | Description |
 | :--- | :--- | :--- |
-| `accession_id` | string | Unique ID (e.g., GSE12345, PXD000123) |
-| `source` | string | "NCBI_GEO" or "ProteomeXchange" |
-| `species` | string | "Arabidopsis", "Oryza_sativa", "Triticum_aestivum" |
-| `stress_type` | string | "Drought", "Salinity", "Heat" |
-| `download_date` | date | ISO 8601 date of fetch |
-| `checksum` | string | SHA-256 of the raw file |
-| `sample_size` | integer | Number of samples in the dataset (for FR-001 selection) |
-| `publication_date` | date | Date of publication (for FR-001 tie-breaking) |
+| `sample_id` | string | Unique sample identifier. |
+| `protein_id` | string | Protein accession (e.g., UniProt). |
+| `abundance` | float | Raw abundance value. |
+| `stress` | string | Stress condition (Drought, Salinity, Heat). |
+| `species` | string | Plant species (Arabidopsis, Rice, Wheat). |
 
-### 2.2 Processed Sample (Unified Matrix)
-The core analysis unit after merging proteomic and transcriptomic data.
+### 3.2 Raw Data Schema (Transcriptomic)
 
-| Field | Type | Description |
+| Column | Type | Description |
 | :--- | :--- | :--- |
-| `sample_id` | string | Unique identifier for the sample |
-| `species` | string | Plant species |
-| `stress_type` | string | Stress condition |
-| `protein_1` | float | Normalized abundance of Protein 1 (imputed) |
-| `protein_2` | float | Normalized abundance of Protein 2 |
-| ... | ... | ... |
-| `gene_1` | float | Normalized expression of Gene 1 (target) |
-| `gene_2` | float | Normalized expression of Gene 2 |
-| ... | ... | ... |
-| `is_training` | boolean | True if in training set |
-| `protein_residual_1` | float | Residualized protein abundance (Stress-Blind Baseline) |
-| ... | ... | ... |
+| `sample_id` | string | Unique sample identifier (must match Proteomic). |
+| `gene_id` | string | Gene accession (e.g., Ensembl). |
+| `expression` | float | Raw expression count (TPM/FPKM). |
+| `stress` | string | Stress condition. |
+| `species` | string | Plant species. |
 
-*Note: The actual number of protein/gene columns is dynamic based on the intersection of identifiers. Residualized features are generated during the Stress-Blind Baseline step.*
+### 3.3 Unified Matrix Schema (Processed)
 
-### 2.3 Model Output
-Results from the training and evaluation phase.
-
-| Field | Type | Description |
+| Column | Type | Description |
 | :--- | :--- | :--- |
-| `model_type` | string | "RandomForest" or "SVR" |
-| `train_stress` | string | Stress type used for training |
-| `test_stress` | string | Stress type used for testing (can be same or different) |
-| `r2_score` | float | Coefficient of determination |
-| `rmse` | float | Root Mean Squared Error |
-| `n_samples` | integer | Number of samples in the test set |
-| `feature_importance` | list | List of (protein_name, score) tuples |
-| `validation_strategy` | string | "within_stress_cv", "cross_stress", "target_permutation", "stress_blind_baseline" |
+| `sample_id` | string | Unique sample ID. |
+| `stress` | string | Stress condition. |
+| `species` | string | Plant species. |
+| `protein_1` | float | Normalized abundance of Protein 1. |
+| `protein_2` | float | Normalized abundance of Protein 2. |
+| ... | float | ... |
+| `target_gene_expression` | float | Mapped gene expression (Target). |
 
-### 2.4 Data Completeness Metric
-Calculated metric for SC-004.
+## 4. Constraints & Rules
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `query_species` | string | Species queried |
-| `query_stress` | string | Stress queried |
-| `initial_datasets` | integer | Total datasets found matching query |
-| `retained_datasets` | integer | Datasets successfully merged and retained |
-| `completeness_percentage` | float | (retained / initial) * 100 |
-
-## 3. Data Flow
-
-1.  **Ingestion**: Raw files (CSV/TSV) -> `RawDatasetMetadata` -> `download.py` -> `data/raw/`.
-2.  **Normalization**: `data/raw/*` -> `normalize.py` -> `data/processed/normalized.csv` (proteins only).
-3.  **Merging**: `data/processed/normalized.csv` + Transcriptomic data -> `merge.py` -> `data/processed/unified_matrix.csv`.
-4.  **Modeling**: `data/processed/unified_matrix.csv` -> `train.py` (with Stress-Blind Baseline) -> `results/metrics.json`.
-5.  **Reporting**: `results/metrics.json` -> `plots.py` -> `results/figures/*.png`.
-
-## 4. Constraints & Validation
-
-*   **Missing Values**: No `NaN` allowed in the final `unified_matrix.csv` after MinProb imputation.
-*   **Identifier Consistency**: All protein IDs must be UniProt; all gene IDs must be Ensembl.
-*   **Stress Labels**: Must be one of: `Drought`, `Salinity`, `Heat`.
-*   **Preprocessing**: All normalization and imputation must be performed within CV folds to prevent data leakage (SC-005).
+-   **Uniqueness**: `sample_id` + `protein_id` must be unique in raw proteomic data.
+-   **Completeness**: Samples without a matching transcriptomic counterpart are dropped.
+-   **Imputation**: Missing values in `abundance` are filled using LCM; missing values in `expression` are dropped (if >10% missing) or imputed (if <10%).
+-   **Mapping**: Only rows where `protein_id` successfully maps to a `gene_id` are retained.

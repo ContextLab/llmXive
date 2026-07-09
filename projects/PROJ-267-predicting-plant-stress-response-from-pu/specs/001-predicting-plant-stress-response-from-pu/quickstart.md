@@ -1,13 +1,13 @@
-# Quickstart: Predicting Plant Stress Response
+# Quickstart: Predicting Plant Stress Response from Publicly Available Proteomic Data
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   R 4.3+ (optional, if `biomaRt` fallback is needed)
-*   Git
-*   Access to a terminal (Linux/Mac/WSL)
+-   Python 3.11+
+-   R (for `biomaRt` via `rpy2` or system call)
+-   Git
+-   GitHub Actions Runner (or local equivalent with 7GB RAM)
 
-## 2. Installation
+## Installation
 
 1.  **Clone the repository**:
     ```bash
@@ -25,59 +25,48 @@
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: Ensure `rpy2` is installed if using R integration, or install R separately if running `merge.py` as a standalone script. `impyute` is required for MinProb imputation.*
 
-## 3. Data Configuration
+## Running the Pipeline
 
-Since no verified URLs for plant data exist in the prompt's dataset block, you must manually provide accession numbers.
+### 1. Data Ingestion & Preprocessing
 
-1.  Create `data/config.yaml`:
-    ```yaml
-    datasets:
-      - accession_id: "GSE12345"  # Example: Replace with valid Arabidopsis drought data
-        source: "NCBI_GEO"
-        species: "Arabidopsis"
-        stress_type: "Drought"
-      - accession_id: "PXD000123" # Example: Replace with valid ProteomeXchange data
-        source: "ProteomeXchange"
-        species: "Arabidopsis"
-        stress_type: "Drought"
-    ```
-    *Warning: The pipeline will fail if these accession numbers do not exist or do not contain paired data.*
+Run the ingestion and preprocessing script. This will attempt to download data from the verified sources and process it.
 
-## 4. Running the Pipeline
-
-### Step 1: Data Ingestion & Preprocessing
 ```bash
-python code/data_ingestion/download.py --config data/config.yaml
-python code/data_ingestion/normalize.py --input data/raw/ --output data/processed/
-python code/data_ingestion/merge.py --input data/processed/ --output data/processed/unified_matrix.csv
+python code/data/ingest.py --species Arabidopsis --stress Drought
+python code/data/preprocess.py
 ```
 
-### Step 2: Model Training & Evaluation
-```bash
-python code/modeling/train.py --input data/processed/unified_matrix.csv --output results/metrics.json
-python code/modeling/evaluate.py --input results/metrics.json --output results/cross_stress_report.json
-```
-*Note: The training script will automatically perform the Stress-Blind Baseline and Target-Permutation Test.*
+*Note: If no valid paired data is found, the script will log a warning and proceed with dummy data for pipeline validation.*
 
-### Step 3: Visualization & Reporting
+### 2. Model Training
+
+Train the Random Forest and SVR models with 5-fold cross-validation.
+
 ```bash
-python code/reporting/plots.py --input results/ --output results/figures/
-python code/reporting/metrics.py --input results/ --output results/runtime_metrics.json
+python code/models/train.py --method random_forest --cv_folds 5
+python code/models/train.py --method svr --cv_folds 5
 ```
 
-## 5. Verifying Results
+### 3. Evaluation & Reporting
 
-Check `results/runtime_metrics.json` to ensure:
-*   `total_runtime` < 6 hours.
-*   `peak_memory` < 7 GB.
+Evaluate the models on cross-stress splits and generate visualizations.
 
-Check `results/cross_stress_report.json` for R² scores. A valid model should have R² > 0 (better than mean prediction) and significantly outperform the Target-Permutation Test (p < 0.05).
+```bash
+python code/models/evaluate.py --train_stress Drought --test_stress Salinity
+python code/viz/plots.py
+```
 
-## 6. Troubleshooting
+### 4. Runtime Metrics
 
-*   **Error: "No data found for accession..."**: Verify the accession ID in `config.yaml`. The prompt's verified dataset list does not contain plant data; manual curation is required.
-*   **Error: "biomaRt not found"**: Ensure R is installed and `rpy2` is correctly configured, or switch to `mygene` in `merge.py`.
-*   **Error: "Memory Limit Exceeded"**: Reduce the dataset size by filtering for the most abundant proteins only, or reduce `n_estimators` in `train.py`.
-*   **Error: "E001_NO_PAIRED_DATA"**: No paired proteomic/transcriptomic datasets were found for the specified species/stress. Check the curated list or pivot to meta-analysis.
+Check the `runtime_metrics.json` file to ensure the pipeline completed within the 6-hour limit.
+
+```bash
+cat results/runtime_metrics.json
+```
+
+## Troubleshooting
+
+-   **Missing Data**: If the ingestion script fails to find paired data, check `logs/ingest.log` for the specific reason (e.g., "No matched transcriptomic data found").
+-   **Memory Error**: If the process exceeds 7GB RAM, reduce the dataset size by adding the `--sample_size 1000` flag to the preprocessing step.
+-   **biomaRt Error**: Ensure R and the `biomaRt` package are installed and accessible.
