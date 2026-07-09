@@ -3,9 +3,11 @@ Assignment Generator Module
 Implements Latin-square design assignment logic for balanced task conditions.
 """
 import random
+import json
 from typing import List, Dict, Any
 from pathlib import Path
 from utils.config_manager import get_config
+from utils.hash_artifacts import hash_file
 
 # Condition constants
 CONDITION_BASELINE = "baseline"
@@ -96,22 +98,64 @@ def generate_cohort_assignments(participant_ids: List[str], task_ids: List[str])
     
     return assignments
 
-def save_assignments(assignments: List[Dict[str, Any]], output_path: str) -> None:
+def save_assignments(assignments: List[Dict[str, Any]], output_path: str) -> str:
     """
     Save assignments to a JSON file.
     
     Args:
         assignments: List of assignment records
         output_path: Path to output JSON file
+    
+    Returns:
+        SHA-256 hash of the generated file
     """
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(path, 'w') as f:
-        import json
         json.dump(assignments, f, indent=2)
     
-    # Also generate hashes for versioning
-    from utils.hash_artifacts import hash_file
+    # Generate hash for versioning
     hash_value = hash_file(path)
     return hash_value
+
+def main():
+    """
+    Main entry point to generate and save cohort assignments.
+    Reads configuration from .env or defaults.
+    """
+    config = get_config()
+    
+    # Default cohort size and task list if not configured
+    cohort_size = config.get('cohort_size', 30)
+    
+    # Generate synthetic participant IDs for demonstration
+    # In a real study, these would be loaded from a participant registry
+    participant_ids = [f"P{i:03d}" for i in range(1, cohort_size + 1)]
+    
+    # Load task IDs from a predefined list or config
+    # For this implementation, we assume 3 tasks to match 3 conditions
+    task_ids = config.get('task_ids', ["TASK_001", "TASK_002", "TASK_003"])
+    
+    if len(task_ids) > len(CONDITIONS):
+        print(f"Warning: {len(task_ids)} tasks requested, but only {len(CONDITIONS)} conditions available. "
+              f"Truncating to first {len(CONDITIONS)} tasks.")
+        task_ids = task_ids[:len(CONDITIONS)]
+    
+    # Generate assignments
+    assignments = generate_cohort_assignments(participant_ids, task_ids)
+    
+    # Define output path
+    output_path = config.get('assignment_output_path', 'data/analysis_results/condition_assignments.json')
+    
+    # Save and get hash
+    file_hash = save_assignments(assignments, output_path)
+    
+    print(f"Generated {len(assignments)} assignments for {cohort_size} participants.")
+    print(f"Output saved to: {output_path}")
+    print(f"File hash (SHA-256): {file_hash}")
+    
+    return output_path
+
+if __name__ == "__main__":
+    main()

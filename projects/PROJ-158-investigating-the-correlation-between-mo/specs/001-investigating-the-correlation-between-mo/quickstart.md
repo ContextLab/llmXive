@@ -1,62 +1,50 @@
 # Quickstart: Investigating the Correlation Between Molecular Structure and Dye‑Sensitized Solar Cell Performance
 
 ## Prerequisites
-- Python 3.10+
-- pip
+- Python +
 - Git
+- GB+ RAM available
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-158-investigating-the-correlation-between-mo
-   ```
-
+1. **Clone the repository** and navigate to the project directory.
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
-   *Note: `torch-geometric` installation may require specific version matching with `torch`. The `requirements.txt` will pin compatible versions for CPU.*
+   *Note: `requirements.txt` includes `torch` (CPU version), `torch-geometric`, `rdkit`, and `scikit-learn`.*
 
 ## Running the Pipeline
 
-### Step 1: Data Download and Preprocessing
-Download the dataset and standardize molecules.
-```bash
-python code/data/download.py
-python code/data/preprocess.py
-```
-*Output*: `data/processed/graph_data.pt`, `data/failed_molecules.log`
+The entire pipeline can be executed via the main orchestration script:
 
-### Step 2: Training and Evaluation
-Train GCN and Random Forest models with scaffold-aware CV.
 ```bash
-python code/models/train.py
+python code/main.py
 ```
-*Output*: `results/metrics.json`, `results/model_artifacts/`
 
-### Step 3: Interpretability
-Extract motifs from the trained GCN.
-```bash
-python code/analysis/interpret.py
-```
-*Output*: `results/motifs.json`
+This script performs the following steps in order:
+1. **Download & Verify**: Fetches the dataset from the verified HuggingFace URL and checks the checksum.
+2. **Preprocess**: Standardizes SMILES, removes salts, canonicalizes tautomers, and generates graph features.
+3. **Train**: Executes scaffold-aware cross-validation for both GCN and Random Forest.
+4. **Evaluate**: Computes MAE, RMSE, R², and performs the paired t-test.
+5. **Interpret**: Extracts top motifs using Integrated Gradients.
 
-## Verification
-To verify the pipeline on a fresh runner:
-1. Delete `data/processed/` and `results/`.
-2. Run the commands above sequentially.
-3. Check `results/metrics.json` for valid MAE/R² values.
-4. Ensure `data/failed_molecules.log` exists (even if empty).
+## Expected Outputs
+
+Upon successful completion, the following files will be generated in `data/outputs/`:
+
+- `metrics.json`: Performance metrics for all folds and models.
+- `motifs.csv`: List of top recurring motifs with importance scores.
+- `failed_molecules.log`: Log of any molecules that could not be parsed.
+- `training_stats.json`: Runtime and resource usage statistics.
 
 ## Troubleshooting
-- **CUDA Error**: Ensure `CUDA_VISIBLE_DEVICES=""` is set or remove any `device='cuda'` calls. The code defaults to CPU.
-- **Memory Error**: Reduce `batch_size` in `train.py` if OOM occurs (unlikely on this dataset size).
-- **Invalid SMILES**: Check `data/failed_molecules.log` for the problematic strings.
+
+- **Timeout**: If the job exceeds 5h 30m, the script will exit with a "Time Limit Exceeded" status. Check `training_stats.json` for partial results.
+- **Dataset Error**: If the dataset download fails or checksum mismatch occurs, the script will exit with a clear error message citing the URL and expected hash.
+- **Memory Error**: If OOM occurs, reduce the `hidden_size` in `code/models/gcn.py` (though the upper bound is constrained by the specification).

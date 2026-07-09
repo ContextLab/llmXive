@@ -1,50 +1,47 @@
 # Data Model: Investigating the Correlation Between Molecular Structure and Dye‑Sensitized Solar Cell Performance
 
-## 1. Domain Entities
+## Entity Definitions
 
-### Molecule
-Represents a chemical entity in the dataset.
-- **Attributes**:
-  - `smiles` (str): Canonicalized SMILES string.
-  - `pce` (float): Power Conversion Efficiency in percent (%).
-  - `scaffold` (str): Bemis-Murcko scaffold string.
-  - `status` (str): `valid`, `invalid_smiles`, `missing_pce`.
-  - `graph_features` (dict): Computed atom/bond features (if processed).
+### 1. Molecule
+Represents a single chemical entity in the dataset.
+- **`smiles`**: (string) Canonical SMILES string after standardization (salt removal, tautomerization).
+- **`pce`**: (float) Experimental Power Conversion Efficiency in percentage (%).
+- **`scaffold`**: (string) Bemis-Murcko scaffold string (used for splitting).
+- **`molecular_weight`**: (float) Calculated molecular weight (used for confounding control).
+- **`atom_count`**: (int) Total number of atoms (used for confounding control).
+- **`graph_data`**: (dict) Pre-computed graph features:
+  - `node_features`: (list of lists) Atomic features [atomic_num, hybridization, aromaticity, ...].
+  - `edge_index`: (2, num_edges) Tensor of edge connections.
+  - `edge_features`: (list of lists) Bond features [bond_type, aromaticity, ...].
 
-### ModelArtifact
+### 2. ModelArtifact
 Represents a trained model instance.
-- **Attributes**:
-  - `model_type` (str): `GCN` or `RandomForest`.
-  - `fold_id` (int): Cross-validation fold index (0-4).
-  - `metrics` (dict): `mae`, `rmse`, `r2`.
-  - `weights_path` (str): Path to saved model weights.
-  - `hyperparameters` (dict): Configuration used for training.
+- **`model_type`**: (string) "GCN" or "RandomForest".
+- **`fold_id`**: (int) Cross-validation fold index (0-4).
+- **`metrics`**: (dict) Performance metrics:
+  - `mae`: (float) Mean Absolute Error.
+  - `rmse`: (float) Root Mean Square Error.
+  - `r2`: (float) Coefficient of Determination.
+- **`weights_path`**: (string) Path to saved model weights.
 
-### Motif
-Represents a recurring substructure identified by the interpretability module.
-- **Attributes**:
-  - `subgraph` (str): Canonical SMILES of the substructure.
-  - `frequency` (int): Count of occurrences in high-PCE predictions.
-  - `importance_score` (float): Average contribution to PCE prediction.
-  - `is_non_isomorphic` (bool): True if unique from other top motifs.
+### 3. Motif
+Represents a recurring substructure identified as predictive.
+- **`subgraph_smiles`**: (string) SMILES of the substructure.
+- **`frequency`**: (int) Number of times this motif appeared in high-PCE predictions.
+- **`importance_score`**: (float) Average Integrated Gradient/GNNExplainer score for this motif.
+- **`description`**: (string) Textual description (e.g., "Donor-π-Acceptor").
+- **`validation_pce_diff`**: (float) Difference in average PCE between molecules with/without the motif (counterfactual check).
 
-## 2. Data Flow
+## Data Flow
 
-1. **Raw Input**: `dssc_dataset.csv` (or JSONL) -> `download.py`.
-2. **Standardization**: `preprocess.py` -> `graph_data.pt` (PyTorch Geometric `Data` objects).
-3. **Splitting**: `split.py` -> `train_idx`, `val_idx`, `test_idx` (scaffold-aware).
-4. **Training**: `train.py` -> `model_weights.pt`, `metrics.json`.
-5. **Analysis**: `interpret.py` -> `motifs.json`.
+1. **Raw Input**: `DSSC-Final-Datasets.jsonl` (SMILES, PCE) or `DSSC2024.parquet`.
+2. **Preprocessed**: `data/processed/graphs.pkl` (Molecule entities with graph features, MW, atom count).
+3. **Model Output**: `data/outputs/metrics.json` (ModelArtifact entities).
+4. **Interpretation**: `data/outputs/motifs.csv` (Motif entities with validation scores).
 
-## 3. File Formats
+## Constraints
 
-- **Raw Data**: CSV or JSONL (UTF-8).
-- **Processed Graphs**: PyTorch Geometric `.pt` (binary).
-- **Metrics**: JSON (UTF-8).
-- **Logs**: `.log` (UTF-8).
-
-## 4. Constraints
-
-- **PCE**: Must be > 0 and < 30 (physical limits for DSSC). Values outside this range trigger a warning.
-- **SMILES**: Must be parseable by RDKit.
-- **Scaffold**: Must be non-empty string.
+- **PCE Range**: Must be > 0 and ≤ 30. Entries outside this range are flagged for manual review.
+- **SMILES Validity**: Must be parsable by RDKit. Invalid SMILES are excluded.
+- **Scaffold Uniqueness**: No scaffold in test fold may exist in training fold (unless fallback to stratified split is triggered).
+- **Confounding Control**: Molecular Weight and Atom Count must be computed and stored for all molecules.

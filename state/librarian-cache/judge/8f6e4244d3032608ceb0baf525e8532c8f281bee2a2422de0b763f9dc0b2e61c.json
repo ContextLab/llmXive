@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.16864",
+  "judged_at": "2026-07-09T01:15:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"leveraging verifier-based reinforcement learning in image editing\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the user's domain of instruction-based image editing and explicitly implements \"Reinforcement Learning\" (specifically GRPO-based RL) to improve model performance, which is the core mechanism and variable of interest in the user's follow-up question regarding verifier-based RL extensions.",
+  "relevant": true
+}

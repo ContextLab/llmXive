@@ -49,7 +49,7 @@
 
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
 
-- [ ] T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ---
 
@@ -75,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Download and preprocess paired multiomic data (Priority: P1) 🎯 MVP
 
-**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines, preprocess accessibility signal within ±50kb windows, and filter genes.
+**Goal**: Download paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines [UNRESOLVED-CLAIM: c_b10721a0 — status=not_enough_info], preprocess accessibility signal within ±50kb windows [UNRESOLVED-CLAIM: c_8d09be0c — status=not_enough_info], and filter genes.
 
 **Independent Test**: Verify pipeline produces matching gene matrices (accessibility features and expression values) that fit within 7GB RAM.
 
@@ -86,23 +86,23 @@
 
 ### Implementation for User Story 1
 
-- [~] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 with dimensions ≤10,000 peaks × 5 cell lines, ≥10,000 genes for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, HepG2 [UNRESOLVED-CLAIM: c_f760ea31 — status=not_enough_info] with dimensions ≤10,000 peaks × 5 cell lines, ≥10,000 genes [UNRESOLVED-CLAIM: c_798e6ece — status=not_enough_info] for CI validation. **Note**: This is for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
-- [~] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py` to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for ≥5 human cell lines from the ENCODE portal [UNRESOLVED-CLAIM: c_06689843 — status=not_enough_info]. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
 
 - [ ] T012.2 [US1] Validate Python implementation logic against a small synthetic bedtools test set to ensure the Python fallback matches `bedtools coverage` output. **Input**: Synthetic coordinates. **Deliverable**: `logs/validation_report.txt` confirming match. **Dependency**: Must pass before T012.1 is considered production-ready.
 
-- [ ] T012.1 [US1] Execute `bedtools coverage` to aggregate accessibility signal within ±50kb of TSS using the synthetic peak and gene coordinate files. **Command**: `bedtools coverage -a genes.bed -b peaks.bed -f 0.01 -s`. **Deliverable**: `data/processed/tss_aggregated_features.csv`. **Checksum**: Run `utils.checksum_file()` on output and record in `logs/checksums.txt`. **Note**: This is the production artifact.
+- [ ] T012.1 [US1] Execute `bedtools coverage` to aggregate accessibility signal within ±50kb of TSS using the synthetic peak and gene coordinate files [UNRESOLVED-CLAIM: c_c2882f2b — status=not_enough_info]. **Command**: `bedtools coverage -a genes.bed -b peaks.bed -f 0.01 -s`. **Deliverable**: `data/processed/tss_aggregated_features.csv`. **Checksum**: Run `utils.checksum_file()` on output and record in `logs/checksums.txt`. **Note**: This is the production artifact.
 
-- [~] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation (log(counts + 1)) to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation (log(counts + 1)) to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
 - [~] T015 [US1] Select top N variable peaks based on variance across samples in `code/preprocess.py`, where N=1000 (configurable via CLI). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/variable_peaks.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T016 [US1] Define housekeeping genes (500 genes, CV ≤ 0.2) in `code/preprocess.py` by calculating the coefficient of variation across all cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [~] T016 [US1] {{claim:c_912ac751}} in `code/preprocess.py` by calculating the coefficient of variation across all cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
-- [~] T017 [US1] Define cell-type-specific genes (500 genes, variance > 0.5) in `code/preprocess.py` by calculating expression variance across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [~] T017 [US1] Define 500 cell-type-specific genes with variance > 0.5 [UNRESOLVED-CLAIM: c_eb7ac52d — status=not_enough_info] in `code/preprocess.py` by calculating expression variance across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -156,7 +156,7 @@
 
 - [~] T031 [US3] Map peak coordinates to genomic location relative to nearest TSS in `code/interpret.py` (FR-008). **Deliverable**: `data/processed/peak_annotations.csv`.
 
-- [~] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS in `code/interpret.py` (SC-003). **Deliverable**: `data/processed/tss_proximity_stats.json`.
+- [~] T032 [US3] Calculate percentage of top-100 features within ±10kb of TSS [UNRESOLVED-CLAIM: c_a9fbb53c — status=not_enough_info] in `code/interpret.py` (SC-003). **Deliverable**: `data/processed/tss_proximity_stats.json`.
 
 - [~] T033 [US3] Calculate and report performance gap (ΔR²) between housekeeping and cell-type-specific genes in `code/interpret.py` (FR-010, SC-004). **Inputs**: R² values from T025 and gene lists from T016/T017. **Deliverable**: `data/processed/performance_gap.json`.
 
@@ -301,5 +301,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies), but production pipeline must implement FR-001 (T011b).
-- **Constraint**: No GPU/CUDA; all models run on 2 CPU cores, ≤7GB RAM.
+- **Constraint**: No GPU/CUDA; all models run on 2 CPU cores, ≤7GB RAM [UNRESOLVED-CLAIM: c_7efccda4 — status=not_enough_info].
 - **Revision Note**: Phase 7 tasks are mandatory to address standard limitations and documentation, replacing the previous hallucinated reviewer tasks.

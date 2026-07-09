@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.05037",
+  "judged_at": "2026-07-09T01:15:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"leveraging verifier-based reinforcement learning in image editing\" computer science",
+  "rationale": "The paper focuses on Bayesian Inverse Reinforcement Learning (BIRL) for modeling human planning hierarchies, which is a distinct methodological construct from the user's specific interest in \"Verifier-Based Reinforcement Learning\" for \"Image Editing.\" While both involve reinforcement learning, the paper does not measure the same mechanism (verifier-based reward shaping), operate in the same domain (image generation/editing), or provide a canonical baseline for the specific verifier-based approac",
+  "relevant": false
+}

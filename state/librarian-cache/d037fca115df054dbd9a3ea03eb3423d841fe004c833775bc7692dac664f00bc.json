@@ -1,0 +1,609 @@
+{
+  "fetched_at": "2026-07-09T01:15:35Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\"",
+      "target_n": 5
+    },
+    "duration_seconds": 80.477,
+    "ended_at": "2026-07-09T01:15:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "verifier-based reinforcement learning for image generation"
+        ],
+        [
+          2,
+          "reward modeling for diffusion-based image editing"
+        ],
+        [
+          3,
+          "reinforcement learning with human feedback for image synthesis"
+        ],
+        [
+          4,
+          "automated verification in generative adversarial networks"
+        ],
+        [
+          5,
+          "iterative refinement of image edits using RL"
+        ],
+        [
+          6,
+          "learning to verify visual consistency in image editing"
+        ],
+        [
+          7,
+          "reward-guided diffusion models for image manipulation"
+        ],
+        [
+          8,
+          "self-correcting generative models for image editing"
+        ],
+        [
+          9,
+          "fine-tuning image generators with verifier feedback"
+        ],
+        [
+          10,
+          "policy optimization for visual content generation"
+        ],
+        [
+          11,
+          "consistency verification in text-to-image editing"
+        ],
+        [
+          12,
+          "iterative image editing with learned reward signals"
+        ],
+        [
+          13,
+          "adversarial verification in generative image models"
+        ],
+        [
+          14,
+          "feedback loops in diffusion-based image synthesis"
+        ],
+        [
+          15,
+          "quality assessment driven reinforcement learning for images"
+        ],
+        [
+          16,
+          "multi-modal reward functions for image editing tasks"
+        ],
+        [
+          17,
+          "optimizing image fidelity via reinforcement learning"
+        ],
+        [
+          18,
+          "verifier-guided generation in computer vision"
+        ],
+        [
+          19,
+          "automated evaluation metrics for reinforcement learning in vision"
+        ],
+        [
+          20,
+          "closed-loop image editing with learned critics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\" computer science": 0,
+        "verifier-based reinforcement learning for image generation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "verifier-based reward model image synthesis",
+      "diffusion model editing instruction following",
+      "human preference learning visual generation",
+      "image manipulation fidelity perceptual evaluation",
+      "reinforcement learning from AI feedback RLHF"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2512.16864"
+      ]
+    },
+    "per_query_hit_count": {
+      "diffusion model editing instruction following": 3,
+      "human preference learning visual generation": 3,
+      "image manipulation fidelity perceptual evaluation": 3,
+      "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\" computer science": 3,
+      "reinforcement learning from AI feedback RLHF": 3,
+      "verifier-based reward model image synthesis": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models, which is a distinct methodological domain from the user's specific question about \"Verifier-Based Reinforcement Learning\" for \"Image Editing.\" While both involve reinforcement learning, the candidate paper does not address the verifier mechanism, the image editing application, or the specific follow-up context of the user's cited work, failing to meet the criteria for same-mechanism evidenc",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1807.05037",
+          "rationale": "The paper focuses on Bayesian Inverse Reinforcement Learning (BIRL) for modeling human planning hierarchies, which is a distinct methodological construct from the user's specific interest in \"Verifier-Based Reinforcement Learning\" for \"Image Editing.\" While both involve reinforcement learning, the paper does not measure the same mechanism (verifier-based reward shaping), operate in the same domain (image generation/editing), or provide a canonical baseline for the specific verifier-based approac",
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2503.05546",
+          "rationale": "The paper focuses on optimizing image encoders (specifically replacing flattening with average pooling) for general deep reinforcement learning tasks in the Procgen benchmark, which is a distinct domain and mechanism from the user's specific question about \"Verifier-Based Reinforcement Learning\" for \"Image Editing.\" It does not measure the same biological/algorithmic mechanism, share the same dependent variable (image editing quality via verifiers), or serve as a foundational reference for the s",
+          "title": "Impoola: The Power of Average Pooling for Image-Based Deep Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-09T01:14:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"leveraging verifier-based reinforcement learning in image editing\" computer science",
+      "raw": "llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning in Image Editing\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite technological and medical advances, the detection, interpretation, and treatment of cancer based on imaging data continue to pose significant challenges. These include inter-observer variability, class imbalance, dataset shifts, inter- and intra-tumour heterogeneity, malignancy determination, and treatment effect uncertainty. Given the recent advancements in Generative Adversarial Networks (GANs), data synthesis, and adversarial training, we assess the potential of these technologies to address a number of key challenges of cancer imaging. We categorise these challenges into (a) data scarcity and imbalance, (b) data access and privacy, (c) data annotation and segmentation, (d) cancer detection and diagnosis, and (e) tumour profiling, treatment planning and monitoring. Based on our analysis of 164 publications that apply adversarial training techniques in the context of cancer imaging, we highlight multiple underexplored solutions with research potential. We further contribute the Synthesis Study Trustworthiness Test (SynTRUST), a meta-analysis framework for assessing the validation rigour of medical image synthesis studies. SynTRUST is based on 26 concrete measures of thoroughness, reproducibility, usefulness, scalability, and tenability. Based on SynTRUST, we analyse 16 of the most promising cancer imaging challenge solutions and observe a high validation rigour in general, but also several desirable improvements. With this work, we strive to bridge the gap between the needs of the clinical cancer imaging community and the current and prospective research on data synthesis and adversarial networks in the artificial intelligence community.",
+          "claimed_authors": [
+            "Richard Osuala",
+            "Kaisar Kushibar",
+            "Lidia Garrucho",
+            "Akis Linardos",
+            "Zuzanna Szafranowska",
+            "Stefan Klein",
+            "Ben Glocker",
+            "Oliver Diaz",
+            "Karim Lekadir"
+          ],
+          "claimed_title": "Data synthesis and adversarial networks: A review and meta-analysis in cancer imaging",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.09543"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Data synthesis and adversarial networks: A review and meta-analysis in cancer imaging')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nonlinear inter-modality registration is often challenging due to the lack of objective functions that are good proxies for alignment. Here we propose a synthesis-by-registration method to convert this problem into an easier intra-modality task. We introduce a registration loss for weakly supervised image translation between domains that does not require perfectly aligned training data. This loss capitalises on a registration U-Net with frozen weights, to drive a synthesis CNN towards the desired translation. We complement this loss with a structure preserving constraint based on contrastive learning, which prevents blurring and content shifts due to overfitting. We apply this method to the registration of histological sections to MRI slices, a key step in 3D histology reconstruction. Results on two different public datasets show improvements over registration based on mutual information (13% reduction in landmark error) and synthesis-based algorithms such as CycleGAN (11% reduction), and are comparable to a registration CNN with label supervision. Code and data are publicly available at \\url{https://github.com/acasamitjana/SynthByReg}",
+          "claimed_authors": [
+            "Adrià Casamitjana",
+            "Matteo Mancini",
+            "Juan Eugenio Iglesias"
+          ],
+          "claimed_title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.14449"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
+          "claimed_authors": [
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "claimed_title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.12244"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='WizardLM: Empowering large pre-trained language models to follow complex instructions')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate Reinforcement Learning from Human Feedback (RLHF) in the context of a general preference oracle. In particular, we do not assume the existence of a reward function and an oracle preference signal drawn from the Bradley-Terry model as most of the prior works do. We consider a standard mathematical formulation, the reverse-KL regularized minimax game between two LLMs for RLHF under general preference oracle. The learning objective of this formulation is to find a policy so that it is consistently preferred by the KL-regularized preference oracle over any competing LLMs. We show that this framework is strictly more general than the reward-based one, and propose sample-efficient algorithms for both the offline learning from a pre-collected preference dataset and online learning where we can query the preference oracle along the way of training. Empirical studies verify the effectiveness of the proposed framework.",
+          "claimed_authors": [
+            "Chenlu Ye",
+            "Wei Xiong",
+            "Yuheng Zhang",
+            "Hanze Dong",
+            "Nan Jiang",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Online Iterative Reinforcement Learning from Human Feedback with General Preference Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07314"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Online Iterative Reinforcement Learning from Human Feedback with General Preference Model')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Aligning language models with human preferences through reinforcement learning from human feedback is crucial for their safe and effective deployment. The human preference is typically represented through comparison where one response is chosen over another for a given prompt. However, standard preference datasets often lack explicit information on why a particular choice was made, presenting an ambiguity that can hinder efficient learning and robust alignment, especially given the high cost of acquiring extensive human annotations. While many studies focus on algorithmic improvements, this work adopts a data-centric perspective, exploring how to enhance learning from existing preference data. We propose augmenting standard preference pairs with rationales that explain the reasoning behind the human preference. Specifically, we introduce a simple and principled framework that leverages machine-generated rationales to enrich preference data for preference optimization algorithms. Our comprehensive analysis demonstrates that incorporating rationales improves learning efficiency. Extensive experiments reveal some advantages: rationale-augmented learning accelerates convergence and can achieve higher final model performance. Furthermore, this approach is versatile and compatible with various direct preference optimization algorithms. Our findings showcase the potential of thoughtful data design in preference learning, demonstrating that enriching existing datasets with explanatory rationales can help unlock improvements in model alignment and annotation efficiency.",
+          "claimed_authors": [
+            "Hoang Anh Just",
+            "Ming Jin",
+            "Anit Sahu",
+            "Huy Phan",
+            "Ruoxi Jia"
+          ],
+          "claimed_title": "Data-Centric Human Preference with Rationales for Direct Preference Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.14477"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Data-Centric Human Preference with Rationales for Direct Preference Alignment')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "User preference learning is generally a hard problem. Individual preferences are typically unknown even to users themselves, while the space of choices is infinite. Here we study user preference learning from information-theoretic perspective. We model preference learning as a system with two interacting sub-systems, one representing a user with his/her preferences and another one representing an agent that has to learn these preferences. The user with his/her behaviour is modeled by a parametric preference function. To efficiently learn the preferences and reduce search space quickly, we propose the agent that interacts with the user to collect the most informative data for learning. The agent presents two proposals to the user for evaluation, and the user rates them based on his/her preference function. We show that the optimum agent strategy for data collection and preference learning is a result of maximin optimization of the normalized weighted Kullback-Leibler (KL) divergence between true and agent-assigned predictive user response distributions. The resulting value of KL-divergence, which we also call remaining system uncertainty (RSU), provides an efficient performance metric in the absence of the ground truth. This metric characterises how well the agent can predict user and, thus, the quality of the underlying learned user (preference) model. Our proposed agent comprises sequential mechanisms for user model inference and proposal generation. To infer the user model (preference function), Bayesian approximate inference is used in the agent. The data collection strategy is to generate proposals, responses to which help resolving uncertainty associated with prediction of the user responses the most. The efficiency of our approach is validated by numerical simulations. Also a real-life example of preference learning application is provided.",
+          "claimed_authors": [
+            "Tanya Ignatenko",
+            "Kirill Kondrashov",
+            "Marco Cox",
+            "Bert de Vries"
+          ],
+          "claimed_title": "On Preference Learning Based on Sequential Bayesian Optimization with Pairwise Comparison",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13192"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='On Preference Learning Based on Sequential Bayesian Optimization with Pairwise Comparison')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reports on the 2018 PIRM challenge on perceptual super-resolution (SR), held in conjunction with the Perceptual Image Restoration and Manipulation (PIRM) workshop at ECCV 2018. In contrast to previous SR challenges, our evaluation methodology jointly quantifies accuracy and perceptual quality, therefore enabling perceptual-driven methods to compete alongside algorithms that target PSNR maximization. Twenty-one participating teams introduced algorithms which well-improved upon the existing state-of-the-art methods in perceptual SR, as confirmed by a human opinion study. We also analyze popular image quality measures and draw conclusions regarding which of them correlates best with human opinion scores. We conclude with an analysis of the current trends in perceptual SR, as reflected from the leading submissions.",
+          "claimed_authors": [
+            "Yochai Blau",
+            "Roey Mechrez",
+            "Radu Timofte",
+            "Tomer Michaeli",
+            "Lihi Zelnik-Manor"
+          ],
+          "claimed_title": "The 2018 PIRM Challenge on Perceptual Image Super-resolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.07517"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='The 2018 PIRM Challenge on Perceptual Image Super-resolution')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Manipulation and re-use of images in scientific publications is a concerning problem that currently lacks a scalable solution. Current tools for detecting image duplication are mostly manual or semi-automated, despite the availability of an overwhelming target dataset for a learning-based approach. This paper addresses the problem of determining if, given two images, one is a manipulated version of the other by means of copy, rotation, translation, scale, perspective transform, histogram adjustment, or partial erasing. We propose a data-driven solution based on a 3-branch Siamese Convolutional Neural Network. The ConvNet model is trained to map images into a 128-dimensional space, where the Euclidean distance between duplicate images is smaller than or equal to 1, and the distance between unique images is greater than 1. Our results suggest that such an approach has the potential to improve surveillance of the published and in-peer-review literature for image manipulation.",
+          "claimed_authors": [
+            "M. Cicconet",
+            "H. Elliott",
+            "D. L. Richmond",
+            "D. Wainstock",
+            "M. Walsh"
+          ],
+          "claimed_title": "Image Forensics: Detecting duplication of scientific images with manipulation-invariant image similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.06515"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Image Forensics: Detecting duplication of scientific images with manipulation-invariant image similarity')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Determining whether two sets of images belong to the same or different distributions or domains is a crucial task in modern medical image analysis and deep learning; for example, to evaluate the output quality of image generative models. Currently, metrics used for this task either rely on the (potentially biased) choice of some downstream task, such as segmentation, or adopt task-independent perceptual metrics (e.g., Fréchet Inception Distance/FID) from natural imaging, which we show insufficiently capture anatomical features. To this end, we introduce a new perceptual metric tailored for medical images, FRD (Fréchet Radiomic Distance), which utilizes standardized, clinically meaningful, and interpretable image features. We show that FRD is superior to other image distribution metrics for a range of medical imaging applications, including out-of-domain (OOD) detection, the evaluation of image-to-image translation (by correlating more with downstream task performance as well as anatomical consistency and realism), and the evaluation of unconditional image generation. Moreover, FRD offers additional benefits such as stability and computational efficiency at low sample sizes, sensitivity to image corruptions and adversarial attacks, feature interpretability, and correlation with radiologist-perceived image quality. Additionally, we address key gaps in the literature by presenting an extensive framework for the multifaceted evaluation of image similarity metrics in medical imaging -- including the first large-scale comparative study of generative models for medical image translation -- and release an accessible codebase to facilitate future research. Our results are supported by thorough experiments spanning a variety of datasets, modalities, and downstream tasks, highlighting the broad potential of FRD for medical image analysis.",
+          "claimed_authors": [
+            "Nicholas Konz",
+            "Richard Osuala",
+            "Preeti Verma",
+            "Yuwen Chen",
+            "Hanxue Gu",
+            "Haoyu Dong",
+            "Yaqian Chen",
+            "Andrew Marshall",
+            "Lidia Garrucho",
+            "Kaisar Kushibar",
+            "Daniel M. Lang",
+            "Gene S. Kim",
+            "Lars J. Grimm",
+            "John M. Lewin",
+            "James S. Duncan",
+            "Julia A. Schnabel",
+            "Oliver Diaz",
+            "Karim Lekadir",
+            "Maciej A. Mazurowski"
+          ],
+          "claimed_title": "Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.01496"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Fréchet Radiomic Distance (FRD): A Versatile Metric for Comparing Medical Imaging Datasets')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To use reinforcement learning from human feedback (RLHF) in practical applications, it is crucial to learn reward models from diverse sources of human feedback and to consider human factors involved in providing feedback of different types. However, the systematic study of learning from diverse types of feedback is held back by limited standardized tooling available to researchers. To bridge this gap, we propose RLHF-Blender, a configurable, interactive interface for learning from human feedback. RLHF-Blender provides a modular experimentation framework and implementation that enables researchers to systematically investigate the properties and qualities of human feedback for reward learning. The system facilitates the exploration of various feedback types, including demonstrations, rankings, comparisons, and natural language instructions, as well as studies considering the impact of human factors on their effectiveness. We discuss a set of concrete research opportunities enabled by RLHF-Blender. More information is available at https://rlhfblender.info/.",
+          "claimed_authors": [
+            "Yannick Metz",
+            "David Lindner",
+            "Raphaël Baur",
+            "Daniel Keim",
+            "Mennatallah El-Assady"
+          ],
+          "claimed_title": "RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.04332"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='RLHF-Blender: A Configurable Interactive Interface for Learning from Diverse Human Feedback')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dispatch in three-sided marketplaces provides a natural setting for reinforcement learning from world feedback: decisions are evaluated by delayed operational outcomes such as delivery speed, courier utilization, and merchant congestion. We present a deployed reinforcement learning system at DoorDash that adapts dispatch objective weights in a large-scale food-delivery marketplace using delayed signals. Rather than replacing the combinatorial assignment optimizer, a store-level policy learned from logged marketplace data selects a discrete multiplier that shifts the dispatch optimizer's tradeoff between delivery quality and batching efficiency. This interface enables offline policy learning under noisy, delayed, and coupled feedback while preserving production feasibility constraints and operational safeguards. We train a shared value function using centralized offline data and decentralized store-level execution, with Double Q-learning targets and a conservative regularizer to reduce out-of-distribution value overestimation. In a production switchback experiment, the offline-trained policy increases batching and reduces courier-side time costs without degrading customer-facing delivery quality. Results illustrate how world feedback from a live economic and logistics system can be used to safely adapt decision policies online.",
+          "claimed_authors": [
+            "Haochen Wu",
+            "Yi Hou",
+            "Shiguang Xie"
+          ],
+          "claimed_title": "Multi-Agent Reinforcement Learning from Delayed Marketplace Feedback for Objective-Weight Adaptation in Three-Sided Dispatch",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.13604"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Leveraging Verifier-Based Reinforcement Learning i', candidate_title='Multi-Agent Reinforcement Learning from Delayed Marketplace Feedback for Objective-Weight Adaptation in Three-Sided Dispatch')",
+        "failed_at": "2026-07-09T01:14:53Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tianyuan Qu",
+            "Lei Ke",
+            "Xiaohang Zhan",
+            "Longxiang Tang",
+            "Yuqi Liu",
+            "Bohao Peng",
+            "Bei Yu",
+            "Dong Yu",
+            "Jiaya Jia"
+          ],
+          "title": "RePlan: Reasoning-guided Region Planning for Complex Instruction-based Image Editing",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.16864",
+        "summary": "Instruction-based image editing enables natural-language control over visual modifications, yet existing models falter under Instruction-Visual Complexity (IV-Complexity), where intricate instructions meet cluttered or ambiguous scenes. We introduce RePlan (Region-aligned Planning), a plan-then-execute framework that couples a vision-language planner with a diffusion editor. The planner decomposes instructions via step-by-step reasoning and explicitly grounds them to target regions; the editor then applies changes using a training-free attention-region injection mechanism, enabling precise, parallel multi-region edits without iterative inpainting. To strengthen planning, we apply GRPO-based reinforcement learning using 1K instruction-only examples, yielding substantial gains in reasoning fidelity and format reliability. We further present IV-Edit, a benchmark focused on fine-grained grounding and knowledge-intensive edits. Across IV-Complex settings, RePlan consistently outperforms strong baselines trained on far larger datasets, improving regional precision and overall fidelity. Our project page: https://replan-iv-edit.github.io",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.16864",
+          "http_status": 200,
+          "pdf_sample_score": 0.2422,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T01:14:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T01:15:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthieu Geist",
+            "Bruno Scherrer"
+          ],
+          "title": "Anderson Acceleration for Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1809.09501",
+        "summary": "Anderson acceleration is an old and simple method for accelerating the computation of a fixed point. However, as far as we know and quite surprisingly, it has never been applied to dynamic programming or reinforcement learning. In this paper, we explain briefly what Anderson acceleration is and how it can be applied to value iteration, this being supported by preliminary experiments showing a significant speed up of convergence, that we critically discuss. We also discuss how this idea could be applied more generally to (deep) reinforcement learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1809.09501",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T01:15:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"leveraging verifier-based reinforcement learning in image editing\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

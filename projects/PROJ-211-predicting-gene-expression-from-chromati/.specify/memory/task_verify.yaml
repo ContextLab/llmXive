@@ -13,13 +13,44 @@
   in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
   FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
 : 2
+? 'T004b [P] Fix corrupted SC-005 text in `spec.md` by replacing the unrelated text
+  with the measurable resource thresholds (Several CPU, sufficient RAM, 6h) defined
+  in the Constitution. **Deliverable**: Valid `spec.md` with corrected SC-005. <!--
+  FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+  <!-- FAILED: unspecified -->'
+: 1
 ? 'T006 [P] Create base utility module `code/utils.py` for logging, checksumming,
   and config loading. **Function**: `checksum_file(path)` must be implemented and
   tested.'
-: 1
+: 2
 T007 Setup directory structure for `data/raw/`, `data/processed/`, `data/models/`, `logs/`: 1
 ? T008 Configure error handling and retry logic (multiple attempts, fixed time intervals)
   for data fetching in `code/utils.py`
 : 1
 T009 [P] [US1] Contract test for synthetic data schema validation in `tests/contract/test_data_schema.py`: 1
 T010 [P] [US1] Integration test for data download and filtering pipeline in `tests/integration/test_data_pipeline.py`: 1
+? "T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts\
+  \ for GM12878, K562, HMEC, IMR90, HepG2 [UNRESOLVED-CLAIM: c_f760ea31 \u2014 status=not_enough_info]\
+  \ with dimensions \u226410,000 peaks \xD7 5 cell lines, \u226510,000 genes [UNRESOLVED-CLAIM:\
+  \ c_798e6ece \u2014 status=not_enough_info] for CI validation. **Note**: This is\
+  \ for CI only. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`.\
+  \ **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`."
+: 1
+? "T011b [US1] Implement FR-001: ENCODE download logic in `code/download_encode.py`\
+  \ to fetch real paired RNA-seq and DNase-seq/ATAC-seq count data for \u22655 human\
+  \ cell lines from the ENCODE portal [UNRESOLVED-CLAIM: c_06689843 \u2014 status=not_enough_info].\
+  \ **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`\
+  \ (or equivalent). **Checksum**: Run `utils.checksum_file()` on outputs and record\
+  \ in `logs/checksums.txt`."
+: 1
+? 'T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with
+  zero expression in all samples and apply a logarithmic pseudocount transformation
+  (log(counts + 1)) to handle zero values. **Input**: `data/processed/tss_aggregated_features.csv`.
+  **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()`
+  on output.'
+: 1
+? 'T014 [US1] Implement missing value imputation in `code/preprocess.py` using median
+  imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**:
+  `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()`
+  on output.'
+: 1

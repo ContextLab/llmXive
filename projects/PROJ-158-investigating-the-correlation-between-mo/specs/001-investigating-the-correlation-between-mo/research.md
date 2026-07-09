@@ -1,62 +1,63 @@
 # Research: Investigating the Correlation Between Molecular Structure and Dye‑Sensitized Solar Cell Performance
 
-## 1. Dataset Strategy
+## Dataset Strategy
 
-The project relies on the **Nazeer et al. DSSC Dataset**, a curated collection of experimental Dye-Sensitized Solar Cell performance data.
+The project relies on the **Nazeer et al. DSSC dataset** as the primary source of SMILES and PCE values. The spec assumes the dataset contains all necessary variables. Based on the "Verified datasets" block, the following sources are available. The plan selects the most appropriate verified source that aligns with the "Nazeer et al." description and contains both SMILES and PCE, with explicit provenance checks.
 
-### Verified Sources
-The following datasets have been verified for availability and format. The implementation will prioritize the source containing **experimental** PCE values.
-
-| Dataset Name | Description | Verified URL | Selection Rationale |
+| Dataset Name | Verified URL | Selection Rationale | Variable Fit Check |
 |:--- |:--- |:--- |:--- |
-| **Nazeer et al. DSSC Dataset** | Curated experimental DSSC data (SMILES + PCE). | ` (Placeholder for actual DOI) | **Primary Source**. Contains verified experimental PCE values required for the study. |
-| **DSSC-Final-Datasets** | JSONL format containing DSSC performance data. | ` | **Excluded**. This is a chatbot training corpus likely containing synthetic/hallucinated PCE values. Not suitable for experimental correlation studies. |
-| **DSSC2024** | Parquet format test data. | ` | **Excluded**. Generic test set without clear provenance or experimental verification. |
-| **SMILES (Transformers)** | General SMILES dataset. | ` | **NOT USED** (Lacks PCE). |
-| **PCE (Evaluation)** | JSON format PCE data. | ` | **NOT USED** (Lacks SMILES). |
+| **DSSC-Final-Datasets** | ` | **Primary Candidate.** Contains SMILES and PCE. **Provenance Check:** Must verify if it contains the specific Nazeer et al. data points or is a derivative. If PCE values are synthetic/chatbot-generated without scientific grounding, this dataset will be rejected. | **Verified.** Expected to contain SMILES and PCE. Immediate schema validation (smiles, pce columns) and PCE range check required. |
+| **DSSC2024** | ` | **Secondary Candidate.** If DSSC-Final-Datasets lacks scientific metadata or provenance, this dataset will be used. The "test-00000" naming is ignored; content will be inspected for Nazeer alignment. | **Pending.** Requires inspection. |
+| **mke-novel-druglike-smiles** | ` | **Rejected.** Contains only SMILES, no PCE values. | **Fail.** Missing target variable. |
+| **pcee** | ` | **Rejected.** Likely a different domain (PCE Eval) without the specific DSSC molecular context required. | **Fail.** Likely missing DSSC-specific metadata. |
 
-**Decision**: The pipeline will download the **Nazeer et al. Zenodo dataset**. If the Zenodo link is unavailable, the pipeline will halt with a clear error. No fallback to synthetic/chatbot datasets will be used, as they violate the requirement for experimental PCE values.
+**Dataset Strategy Decision**: The implementation will attempt to load `DSSC-Final-Datasets.jsonl` first. A **Schema Validation** step will immediately check for `smiles` and `pce` columns and verify PCE values are within a plausible range (0-30%). A **Provenance Verification** step will cross-reference a subset of SMILES/PCE pairs with the known Nazeer et al. publication values (if metadata allows). If validation fails or provenance is weak (e.g., clearly synthetic chatbot data), the pipeline will switch to `DSSC2024`. If neither is suitable, the study will halt with a "Data Unavailable" error.
 
-### Dataset Variable Fit
-- **Required Variables**: SMILES (predictor), PCE (outcome).
-- **Potential Gaps**: The spec assumes all PCE values are normalized to % under AM1.5G. The dataset may contain raw current/voltage values or different illumination conditions.
-- **Mitigation**: FR-009 requires a verification step. If PCE units are inconsistent, entries will be flagged for manual review or excluded if conversion is impossible. No imputation will be performed for missing PCE.
+## Methodology & Statistical Rigor
 
-## 2. Methodological Rigor
+### Model Architecture
+- **GCN**: 2 layers, hidden size 128. This is a minimal architecture chosen specifically to ensure CPU feasibility within the 6-hour limit while retaining sufficient capacity to learn local graph patterns (FR-003).
+- **Baseline**: Random Forest with Morgan Fingerprints (radius 2, 2048 bits). This provides a strong, interpretable baseline that is computationally cheap.
 
-### Statistical Rigor (Quantitative Analysis)
-- **Multiple Comparisons**: The primary comparison is between GCN and RF. Since only one primary hypothesis (GCN > RF) is tested per metric (MAE, R²), family-wise error correction (e.g., Bonferroni) is applied if multiple metrics are jointly tested.
-- **Sample Size & Power**:
- - **Analysis**: The study uses k-fold cross-validation. The comparison of fold-wise MAE involves N=5 data points.
- - **Power Limitation**: A parametric t-test on N=5 is underpowered and assumes normality which cannot be verified.
- - **Decision**: The plan adopts a **Wilcoxon signed-rank test** (non-parametric) for comparing fold-wise MAE. This is the methodologically sound choice for small N (N < 30).
- - **Exploratory Framing**: If the total dataset size (N_molecules) is < 30, the study will explicitly state that statistical power is limited and interpret results as exploratory. The Minimum Detectable Effect Size (MDES) will be calculated for the Wilcoxon test given N=5 folds.
-- **Causal Inference**: This is an **observational** study. The plan will frame all claims as **associational**. No causal claims (e.g., "Motif X *causes* higher PCE") will be made. Confounding variables (electrolyte type, fabrication method) are acknowledged as potential sources of bias.
-- **Collinearity**: Molecular descriptors (e.g., molecular weight, number of atoms) are often correlated. The GCN learns these implicitly. The RF baseline uses Morgan fingerprints which are also highly correlated. The plan will not claim "independent effects" of specific atoms but rather "contributions" to the prediction.
+### Validation Strategy
+- **Scaffold-Aware Split**: Standard k-fold CV is insufficient due to molecular similarity. We will use **Bemis-Murcko scaffolds** to group molecules. Folds will be constructed such that no scaffold in the test set appears in the training set (FR-004). This prevents data leakage and ensures the model generalizes to *new* chemical scaffolds.
+- **Scaffold Diversity Risk**: If the dataset has low scaffold diversity, some folds may have <5 samples. In such cases, we will fall back to a **stratified random split** for that specific fold and flag the result as "Low Diversity".
+- **Statistical Testing**: Due to the small number of folds (n=5), a **Wilcoxon signed-rank test** (non-parametric) will be used to compare fold-wise MAE of the GCN vs. Random Forest (FR-006). This avoids the normality assumption required by a t-test. We will also report **Cohen's d** (effect size) and a **permutation test** p-value as robustness checks.
 
-### Measurement Validity
-- **SMILES**: Validated via RDKit canonicalization.
-- **PCE**: Validated against the assumption of % units.
-- **Motifs**: Extracted via Integrated Gradients. **Validation**: Motifs will be subjected to a statistical enrichment test against a null distribution of random subgraphs to ensure they are not artifacts of the model's bias.
+### Power Analysis and Statistical Limitations
+- **Power**: The dataset size is likely small (<500 molecules, <100 unique scaffolds). This severely limits statistical power. The study is **exploratory** in nature. We will report the effect size (Cohen's d) and confidence intervals to contextualize the significance. If the dataset is too small to detect a meaningful effect, we will explicitly state this limitation rather than claiming a null result.
+- **Causality**: The study is observational. We **do not** claim that specific motifs *cause* higher PCE. Claims will be framed as "correlational" or "predictive associations."
+- **Collinearity**: Molecular descriptors (e.g., number of atoms vs. molecular weight) are often collinear. The GCN handles this via graph convolution, but the RF baseline may suffer. We will not claim "independent effects" of specific atoms without controlling for the whole graph context.
 
-## 3. Computational Constraints & Feasibility
+### Confounding Variable Control
+- **Molecular Size**: Larger molecules often have higher PCE due to more light-absorbing units. To prevent identified motifs from being mere proxies for size, we will:
+ 1. Include **Molecular Weight (MW)** and **Number of Atoms** as features in the Random Forest baseline.
+ 2. Stratify the scaffold split by MW bins (if possible) or include MW as a covariate in the analysis.
+ 3. Perform a sensitivity analysis: re-run the model with MW normalized to ensure motifs are not size artifacts.
 
-- **Hardware**: GitHub Actions Free Tier (limited CPU, 7GB RAM, No GPU).
-- **Model Choice**:
- - **GCN**: Restricted to 2 layers, hidden size 128. This ensures the graph convolution operations remain lightweight.
- - **RF**: Efficient on CPU for tabular/fingerprint data.
-- **Training**: 5-fold CV. Total epochs = 200 * 5 = 1000 per model.
- - *Rationale*: 200 epochs is sufficient for convergence on small datasets. If training exceeds a predefined time limit, the loop will be interrupted, and the best checkpoint saved.
-- **Memory**: Data is loaded into memory once, then processed fold-by-fold to minimize peak RAM usage.
+## Compute Feasibility Analysis
 
-## 4. Risk Assessment
+- **Memory**: The dataset is <1GB. Graph generation (RDKit) and GCN training (PyTorch Geometric CPU) for a moderate number of layers and 128 hidden units will easily fit in 7GB RAM.
+- **Time**:
+ - Data loading/preprocessing: ~ mins.
+ - Training (multiple folds, multiple epochs, 2 models): ~2-3 hours on 2 CPU cores.
+ - Interpretability (Integrated Gradients/GNNExplainer): A dedicated time allocation.
+ - Total estimated time: < 4 hours.
+- **Strategy**: A hard timeout wrapper (5h 30m) will be implemented and integrated directly into the training loop to prevent hanging if the dataset is larger than expected or if the CI environment is slow.
+
+## Interpretability Plan
+
+- **Method**: **GNNExplainer** or **Integrated Gradients (IG)** will be applied to the GCN to attribute the prediction to input nodes (atoms).
+- **Motif Extraction**: High-attribution nodes will be extracted as subgraphs. We will use a **frequent subgraph mining** approach on these high-importance subgraphs to identify recurring motifs (FR-008).
+- **Independent Motif Validation**: To avoid circular validation (motifs derived from overfit models), we will perform a **counterfactual check**: compare the average PCE of molecules containing the identified motif vs. those without, in a held-out subset (or via bootstrapping). If the motif does not correlate with higher PCE in this independent check, it will be discarded.
+- **Validation**: Motifs will be visualized and compared against known donor-π-acceptor structures in literature (manual check).
+
+## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |:--- |:--- |:--- |
-| Dataset lacks PCE/SMILES | Fatal | Explicit check in `download.py`; fail fast with error message referencing Zenodo source. |
-| Invalid SMILES | Data Loss | Log to `failed_molecules.log`; exclude from training; report count. |
-| Runtime > 6h | Job Fail | Hard timeout at 5.5h; save partial results. |
-| Scaffold Leakage | Invalid Metrics | Strict implementation of Bemis-Murcko splitting; verify no overlap. |
-| GPU Dependency | Fatal | Explicitly disable CUDA in code; use `device='cpu'`. |
-| Low Statistical Power (N=5) | Invalid p-values | Use Wilcoxon signed-rank test; report effect size (Cliff's Delta) and acknowledge limitations. |
-| Synthetic Data Contamination | Invalid Results | Primary source restricted to Zenodo (Nazeer); synthetic datasets excluded. |
+| Dataset lacks PCE column or is synthetic | Fatal | Immediate schema validation and provenance check. Fallback to DSSC2024. |
+| SMILES invalid/unparseable | Data Loss | RDKit error handling logs failed molecules to `failed_molecules.log`. |
+| Training exceeds 6h | Job Failure | Hard timeout wrapper (5h 30m) triggers graceful shutdown and saves partial artifacts. |
+| Scaffold split yields 0 test samples | Fatal | Minimum fold size check; if too few unique scaffolds, fallback to stratified random split with warning. |
+| Low statistical power (n=5 folds) | Inconclusive | Report effect sizes (Cohen's d) and use non-parametric tests (Wilcoxon). Frame as exploratory. |

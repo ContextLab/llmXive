@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p code/data_prep code/analysis code/utils code/tests data/defects4j data/summaries data/interaction_logs data/analysis_results data/consent state/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz`
+- [X] T001 Create project structure per implementation plan: `mkdir -p code/data_prep code/analysis code/utils code/tests data/defects4j data/summaries data/interaction_logs data/analysis_results data/consent state/projects/PROJ-140-evaluating-the-efficacy-of-code-summariz`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -51,11 +51,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/defects4j`, `data/summaries`, `data/interaction_logs`, `data/analysis_results`, `data/consent`)
-- [ ] T005 [P] Implement `code/utils/hash_artifacts.py` for versioning discipline (SHA-256 generation)
-- [ ] T006 [P] Setup environment configuration management (`.env` for paths, seeds)
-- [ ] T007 Create base data models (Participant, Task, Summary, AnalysisResult) in `code/utils/models.py`
-- [ ] T008 Configure error handling and logging infrastructure (`code/utils/logging_utils.py`)
+- [X] T004 Setup data directory structure (`data/defects4j`, `data/summaries`, `data/interaction_logs`, `data/analysis_results`, `data/consent`)
+- [X] T005 [P] Implement `code/utils/hash_artifacts.py` for versioning discipline (SHA-256 generation)
+- [X] T006 [P] Setup environment configuration management (`.env` for paths, seeds)
+- [X] T007 Create base data models (Participant, Task, Summary, AnalysisResult) in `code/utils/models.py`
+- [X] T008 Configure error handling and logging infrastructure (`code/utils/logging_utils.py`)
 - [~] T009 [P] Setup CI resource monitor `code/utils/resource_monitor.py` to assert ≤7GB RAM and ≤6h runtime via in-script assertions as per FR-007's CI test procedure
 - [~] T018a [P] [US1] Define API contract for participant interaction data collection in `contracts/api_participant.md` (endpoints, request/response bodies, session management)
 - [~] T018b [US1] Implement `frontend/src/ParticipantForm.jsx` (or equivalent) based on the API contract defined in T018a (`contracts/api_participant.md`) to collect interaction data
@@ -93,9 +93,9 @@
 - [~] T014a [US1] Implement `code/data_prep/generate_summaries_real_llm.py` for Real LLM generation path (HuggingFace `codellama/CodeLlama-7b-hf` with 8-bit quantization) for non-CI environments. **Requires GPU/CUDA**. If generation fails (timeout, empty output), fall back to rule-based summary (FR-002).
 - [~] T015 [US1] Implement `code/utils/interaction_logger.py` to record CSV logs (participant_id, task_id, condition, timestamp_ms, selected_line, ground_truth_line) to `data/interaction_logs/raw_logs.csv` (FR-003)
 - [~] T016 [US1] Implement data anonymization script `code/utils/anonymize_logs.py` to generate `data/interaction_logs/anonymized_logs.csv` (VI) - creates new file, does not overwrite raw logs
-- [ ] T017 [US1] Implement dropout handling logic in `code/utils/interaction_logger.py` to flag partial data (Edge Case)
-- [ ] T019 [US1] Implement secure storage logic for raw consent forms in non-public `data/consent/` directory with `.gitignore` exclusion and access control (Constitution Principle VI). **Implementation**: Set file permissions to `chmod 600` for all files in `data/consent/` and add explicit `.gitignore` rule.
-- [ ] T020 [US1] Implement Latin-square design assignment logic in `code/utils/assignment_generator.py` to generate balanced task conditions for a cohort of participants (US-1, Assumptions)
+- [~] T017 [US1] Implement dropout handling logic in `code/utils/interaction_logger.py` to flag partial data (Edge Case)
+- [~] T019 [US1] Implement secure storage logic for raw consent forms in non-public `data/consent/` directory with `.gitignore` exclusion and access control (Constitution Principle VI). **Implementation**: Set file permissions to `chmod 600` for all files in `data/consent/` and add explicit `.gitignore` rule.
+- [~] T020 [US1] Implement Latin-square design assignment logic in `code/utils/assignment_generator.py` to generate balanced task conditions for a cohort of participants (US-1, Assumptions)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,14 +109,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for McNemar's test implementation in `code/tests/test_statistics.py`
-- [ ] T022 [P] [US2] Unit test for LME model and bootstrapping in `code/tests/test_bootstrap_utils.py`
+- [~] T021 [P] [US2] Unit test for McNemar's test implementation in `code/tests/test_statistics.py`
+- [~] T022 [P] [US2] Unit test for LME model and bootstrapping in `code/tests/test_bootstrap_utils.py`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Define sensitivity analysis range in `code/analysis/config.py` to specify the "standard cutoffs" for the sweep. **Mandatory values**: `[0.01, 0.05, 0.10]`. **Note**: This task must be completed before T024 to ensure config exists.
-- [ ] T023 [US2] Implement `code/analysis/bootstrap_utils.py` for bootstrapping (A substantial number of resamples, fixed seed) to compute confidence intervals (FR-005)
-- [ ] T023a [US2] Implement `code/analysis/correction_utils.py` for multiple-comparison correction logic (Holm-Bonferroni) (FR-006)
+- [~] T025 [US2] Define sensitivity analysis range in `code/analysis/config.py` to specify the "standard cutoffs" for the sweep. **Mandatory values**: `[0.01, 0.05, 0.10]`. **Note**: This task must be completed before T024 to ensure config exists.
+- [~] T023 [US2] Implement `code/analysis/bootstrap_utils.py` for bootstrapping (A substantial number of resamples, fixed seed) to compute confidence intervals (FR-005)
+- [~] T023a [US2] Implement `code/analysis/correction_utils.py` for multiple-comparison correction logic (Holm-Bonferroni) (FR-006)
 - [ ] T024a [US2] Implement `code/analysis/run_statistics.py` to:
  - Load `data/interaction_logs/anonymized_logs.csv` and summary data
  - Compute **Top-K accuracy** (e.g., Top-5) and speed (time-to-decision) metrics (Complexity Tracking)

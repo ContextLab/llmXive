@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Motif Schema"
+description: "Schema for the extracted substructure motifs."
+type: "object"
+properties:
+  motifs:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        subgraph_smiles:
+          type: "string"
+          description: "SMILES representation of the motif."
+        frequency:
+          type: "integer"
+          minimum: 1
+          description: "Count of occurrences in high-PCE predictions."
+        importance_score:
+          type: "number"
+          description: "Average Integrated Gradient score."
+        description:
+          type: "string"
+          description: "Human-readable description of the motif."
+      required:
+        - subgraph_smiles
+        - frequency
+        - importance_score
+        - description
+required:
+  - motifs
+additionalProperties: false

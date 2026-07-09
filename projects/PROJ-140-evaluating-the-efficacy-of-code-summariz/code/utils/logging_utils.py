@@ -1,177 +1,274 @@
+"""
+Logging and Error Handling Infrastructure for PROJ-140.
+
+Provides centralized logging configuration, structured loggers, and
+an ErrorHandler class to manage exceptions and ensure consistent
+error reporting across the pipeline.
+"""
+
 import logging
 import sys
 import os
+import traceback
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any
-import traceback
+from typing import Optional, Dict, Any, Callable
+import json
 
-# Ensure the logger is configured exactly once globally to prevent handler duplication
-_logger_initialized = False
+from utils.config_manager import get_config
 
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    log_dir: Optional[str] = None,
-    project_name: str = "llmXive"
-) -> logging.Logger:
+# Constants for log levels and formats
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
+DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+LOG_LEVEL = logging.INFO
+
+# Singleton logger instance
+_logger_instance: Optional[logging.Logger] = None
+_logging_setup_done: bool = False
+
+
+def setup_logging(log_file: Optional[str] = None, level: int = LOG_LEVEL) -> logging.Logger:
     """
-    Configures and returns a project logger with file and console handlers.
-    
-    This function sets up the logging infrastructure for the project, creating
-    a directory for logs if necessary, configuring a console handler, and
-    optionally a file handler. It ensures handlers are not added multiple times
-    if called repeatedly.
-    
+    Configures the root logger and returns the project logger.
+
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Optional specific filename for the log. If None, a timestamped file is created.
-        log_dir: Optional directory for log files. Defaults to 'logs' in project root.
-        project_name: Name to include in log prefixes.
-        
+        log_file: Optional path to a log file. If None, logs to stderr only.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+
     Returns:
-        logging.Logger: Configured logger instance.
+        The configured root logger instance.
     """
-    global _logger_initialized
-    
-    logger = logging.getLogger(project_name)
-    logger.setLevel(log_level)
-    
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-    
+    global _logger_instance, _logging_setup_done
+
+    if _logging_setup_done and _logger_instance is not None:
+        return _logger_instance
+
+    # Load config if available for dynamic settings
+    config = get_config()
+    if config:
+        log_level_str = config.get("logging", {}).get("level", "INFO")
+        level = getattr(logging, log_level_str.upper(), logging.INFO)
+
+    # Create project log directory if logging to file
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        # Default log file if none provided
+        default_log_dir = Path("data/interaction_logs")
+        default_log_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = str(default_log_dir / f"pipeline_{timestamp}.log")
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
     # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
+    formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
+
     # Console Handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
+    console_handler.setLevel(level)
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
+    root_logger.addHandler(console_handler)
+
     # File Handler
-    if log_dir:
-        log_path = Path(log_dir)
-        log_path.mkdir(parents=True, exist_ok=True)
-    else:
-        # Default to a 'logs' directory relative to the script location (utils) -> project root
-        # Assuming structure: code/utils/logging_utils.py -> project root is 2 levels up
-        script_path = Path(__file__).resolve()
-        log_path = script_path.parent.parent / "logs"
-        log_path.mkdir(parents=True, exist_ok=True)
-    
-    if log_file:
-        file_name = log_file
-    else:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name = f"{project_name}_{timestamp}.log"
-    
-    file_handler = logging.FileHandler(log_path / file_name)
-    file_handler.setLevel(log_level)
+    file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
+    file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    
-    _logger_initialized = True
-    logger.info(f"Logging infrastructure initialized. Logs written to: {log_path / file_name}")
-    return logger
+    root_logger.addHandler(file_handler)
+
+    _logger_instance = root_logger
+    _logging_setup_done = True
+
+    # Log initialization
+    root_logger.info(f"Logging infrastructure initialized. Log file: {log_file}")
+    return root_logger
+
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Retrieves a logger instance. If a name is provided, it returns a child logger.
-    If no logger has been set up yet, it initializes a default one.
-    
+    Retrieves a logger instance. Initializes logging if not already done.
+
     Args:
-        name: Optional name for a child logger.
-        
+        name: Name for the logger (e.g., module name). If None, uses root logger.
+
     Returns:
-        logging.Logger: The logger instance.
+        A configured logger instance.
     """
-    logger_name = "llmXive"
-    if name:
-        logger_name = f"llmXive.{name}"
-        
-    logger = logging.getLogger(logger_name)
-    
-    # If no handlers exist, set up default logging
-    if not logger.handlers:
+    global _logger_instance
+
+    if not _logging_setup_done:
+        # Auto-initialize if not explicitly set up
         setup_logging()
-        
-    return logger
+
+    if name is None:
+        return _logger_instance if _logger_instance else logging.getLogger()
+
+    return _logger_instance.getChild(name) if _logger_instance else logging.getLogger(name)
+
 
 class ErrorHandler:
     """
-    Utility class for handling and logging errors consistently.
-    Provides structured error capture including stack traces and context.
+    Centralized error handling utility.
+
+    Provides methods to log exceptions, format error messages,
+    and optionally re-raise or swallow exceptions based on context.
     """
-    
-    @staticmethod
-    def handle_error(e: Exception, context: str = "", level: int = logging.ERROR) -> None:
-        """
-        Logs an error with context and full stack trace.
-        
-        Args:
-            e: The exception to log.
-            context: Additional context string to prepend to the log message.
-            level: The logging level to use.
-        """
-        logger = get_logger()
-        msg = f"Error in {context}" if context else "An error occurred"
-        logger.log(level, f"{msg}: {str(e)}", exc_info=True)
 
-    @staticmethod
-    def handle_critical_error(e: Exception, context: str = "") -> None:
+    def __init__(self, logger: Optional[logging.Logger] = None):
         """
-        Logs a critical error and optionally performs cleanup or exit.
-        
-        Args:
-            e: The exception to log.
-            context: Additional context string.
-        """
-        logger = get_logger()
-        msg = f"CRITICAL ERROR in {context}" if context else "CRITICAL ERROR occurred"
-        logger.critical(f"{msg}: {str(e)}", exc_info=True)
-        # In a script context, we might want to re-raise or exit, 
-        # but for a library utility, logging is the primary action.
-        # Re-raising ensures the caller knows execution is compromised.
-        raise e
+        Initializes the ErrorHandler with a specific logger.
 
-    @staticmethod
-    def log_warning(message: str, context: str = "") -> None:
-        """
-        Logs a warning message with optional context.
-        
         Args:
-            message: The warning message.
-            context: Additional context string.
+            logger: Logger instance to use. Defaults to get_logger().
         """
-        logger = get_logger()
-        msg = f"{context}: {message}" if context else message
-        logger.warning(msg)
+        self.logger = logger or get_logger("ErrorHandler")
 
-    @staticmethod
-    def log_info(message: str, context: str = "") -> None:
+    def handle_exception(
+        self,
+        exception: Exception,
+        context: Optional[Dict[str, Any]] = None,
+        raise_on_error: bool = False,
+        error_code: Optional[str] = None
+    ) -> None:
         """
-        Logs an info message with optional context.
-        
+        Logs an exception with detailed context and stack trace.
+
         Args:
-            message: The info message.
-            context: Additional context string.
+            exception: The exception object to handle.
+            context: Optional dictionary of contextual data (e.g., input values, state).
+            raise_on_error: If True, re-raises the exception after logging.
+            error_code: Optional custom error code for identification.
         """
-        logger = get_logger()
-        msg = f"{context}: {message}" if context else message
-        logger.info(msg)
+        error_msg = f"{type(exception).__name__}: {str(exception)}"
+        log_level = logging.ERROR
 
-# Initialize default logger on import if needed, or wait for explicit setup
-# We avoid auto-setup on import to prevent file creation before config is loaded,
-# but we ensure the root logger exists.
-if not logging.getLogger("llmXive").handlers:
-    # We don't auto-create files here to respect config loading order,
-    # but we ensure the logger object is valid.
-    pass
-    
-# Export public API
-__all__ = ['setup_logging', 'get_logger', 'ErrorHandler']
+        # Construct structured log message
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "error_code": error_code,
+            "exception_type": type(exception).__name__,
+            "message": str(exception),
+            "context": context or {},
+            "traceback": traceback.format_exc()
+        }
+
+        # Log the JSON structure for machine parsing if supported, otherwise standard log
+        try:
+            self.logger.log(log_level, json.dumps(log_data, default=str))
+        except (TypeError, ValueError):
+            # Fallback if JSON serialization fails
+            self.logger.log(log_level, f"Error: {error_msg}")
+            self.logger.log(log_level, f"Context: {context}")
+            self.logger.log(log_level, f"Traceback:\n{traceback.format_exc()}")
+
+        if raise_on_error:
+            raise exception
+
+    def log_error(
+        self,
+        message: str,
+        context: Optional[Dict[str, Any]] = None,
+        error_code: Optional[str] = None
+    ) -> None:
+        """
+        Logs a manual error message without an exception object.
+
+        Args:
+            message: Error message.
+            context: Optional context data.
+            error_code: Optional error code.
+        """
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "error_code": error_code,
+            "message": message,
+            "context": context or {}
+        }
+        try:
+            self.logger.error(json.dumps(log_data, default=str))
+        except (TypeError, ValueError):
+            self.logger.error(f"Error: {message}")
+            if context:
+                self.logger.error(f"Context: {context}")
+
+    def log_warning(
+        self,
+        message: str,
+        context: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Logs a warning message.
+
+        Args:
+            message: Warning message.
+            context: Optional context data.
+        """
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "message": message,
+            "context": context or {}
+        }
+        try:
+            self.logger.warning(json.dumps(log_data, default=str))
+        except (TypeError, ValueError):
+            self.logger.warning(f"Warning: {message}")
+            if context:
+                self.logger.warning(f"Context: {context}")
+
+    def log_info(
+        self,
+        message: str,
+        context: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Logs an informational message.
+
+        Args:
+            message: Info message.
+            context: Optional context data.
+        """
+        log_data = {
+            "timestamp": datetime.now().isoformat(),
+            "message": message,
+            "context": context or {}
+        }
+        try:
+            self.logger.info(json.dumps(log_data, default=str))
+        except (TypeError, ValueError):
+            self.logger.info(f"Info: {message}")
+            if context:
+                self.logger.info(f"Context: {context}")
+
+
+def main():
+    """
+    Entry point for testing the logging infrastructure.
+    Demonstrates setup, logging, and error handling.
+    """
+    # Initialize logging
+    logger = setup_logging()
+    logger.info("Logging infrastructure test started.")
+
+    # Test ErrorHandler
+    handler = ErrorHandler(logger)
+
+    try:
+        # Simulate an error
+        raise ValueError("Simulated error for testing")
+    except Exception as e:
+        handler.handle_exception(e, context={"test_step": "simulation"}, raise_on_error=False)
+
+    handler.log_warning("This is a test warning", context={"source": "main"})
+    handler.log_info("Logging test completed successfully.")
+
+    logger.info("Logging infrastructure test finished.")
+
+
+if __name__ == "__main__":
+    main()

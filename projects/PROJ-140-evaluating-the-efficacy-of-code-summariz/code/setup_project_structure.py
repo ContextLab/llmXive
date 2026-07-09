@@ -4,10 +4,10 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the project directory structure as defined in T001.
-    This script ensures all required folders exist on disk.
+    Creates the project directory structure as specified in the implementation plan.
+    This includes code subdirectories, data subdirectories, and state directories.
     """
-    base_path = Path.cwd()
+    base_path = Path(__file__).resolve().parent.parent
     
     # Define all required directories relative to the project root
     directories = [
@@ -24,25 +24,33 @@ def create_directories():
     ]
     
     created_count = 0
-    skipped_count = 0
-    
-    print(f"Creating project structure in: {base_path}")
-    
     for dir_path in directories:
         full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {dir_path}")
             created_count += 1
+            print(f"Created directory: {full_path}")
         else:
-            print(f"Exists:  {dir_path}")
-            skipped_count += 1
+            print(f"Directory already exists: {full_path}")
     
-    print(f"\nProject structure setup complete.")
-    print(f"Directories created: {created_count}")
-    print(f"Directories skipped (already exist): {skipped_count}")
-    
+    print(f"Project structure setup complete. Created {created_count} new directories.")
     return True
 
+def main():
+    """
+    Entry point for the script.
+    """
+    try:
+        success = create_directories()
+        if success:
+            print("SUCCESS: Project structure created successfully.")
+            sys.exit(0)
+        else:
+            print("ERROR: Failed to create project structure.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"CRITICAL ERROR: {e}")
+        sys.exit(1)
+
 if __name__ == "__main__":
-    create_directories()
+    main()
