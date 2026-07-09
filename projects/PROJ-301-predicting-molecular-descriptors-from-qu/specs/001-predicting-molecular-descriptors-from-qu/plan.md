@@ -1,47 +1,47 @@
 # Implementation Plan: Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning
 
-**Branch**: `001-predict-molecular-descriptors` | **Date**: 2026-06-25 | **Spec**: `specs/001-predict-molecular-descriptors/spec.md`
+**Branch**: `001-predict-molecular-descriptors` | **Date**: 2026-07-08 | **Spec**: `specs/001-predict-molecular-descriptors/spec.md`
+**Input**: Feature specification from `/specs/001-predict-molecular-descriptors/spec.md`
 
 ## Summary
 
-This project implements a comparative machine learning pipeline to predict molecular descriptors (dipole moment, HOMO, LUMO) from the QM9 dataset. The system generates two distinct feature representations—D Morgan fingerprints and 3D graph features derived from DFT-optimized geometries—and trains separate Random Forest Regressors to quantify the "failure boundary" where 2D topological representations lose predictive power compared to 3D geometric representations. The implementation is strictly constrained to CPU-only execution (GitHub Actions free tier: limited CPU and RAM resources) and includes robust downsampling strategies to ensure runtime < 6 hours.
-
-**Note on Data Source**: While FR-001 cites the Harvard Dataverse URL (doi:10.7910/DVN/28075), the implementation uses the verified HuggingFace Parquet source (`lisn519010/QM9`) to satisfy reproducibility and format constraints, as the Harvard source is unverified in the provided block and requires local XYZ parsing. This deviation is documented in the Technical Context and Constitution Check.
+This feature implements a comparative machine learning pipeline to predict molecular descriptors (dipole moment, HOMO, LUMO) from the QM9 dataset. The approach contrasts 2D topological representations (Morgan fingerprints) against 3D geometric representations (graph features derived from DFT-optimized coordinates) using Random Forest Regressors. The plan ensures strict adherence to the project's computational constraints (CPU-only, 7GB RAM, 6h runtime) and addresses the specific "failure boundary" hypothesis by quantifying relative error increases between the two model families.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `tqdm`  
-**Storage**: Ephemeral runner filesystem (data downloaded fresh per CI run; no persistent local artifacts across jobs).  
-**Testing**: `pytest` (unit tests for feature extraction, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions Free Tier Runner)  
-**Project Type**: Data Science / Computational Chemistry Pipeline  
-**Performance Goals**: 
-- Feature extraction: < 2 hours for [deferred] subset (with memory monitoring)
-- Model training (5-fold CV): < 4 hours total for both models
-- Peak memory: ≤ 7 GB (graceful downsampling at a high data volume)
-**Constraints**: 
-- No GPU/CUDA usage.
-- No deep learning frameworks (PyTorch/TensorFlow training).
-- Strict adherence to a fixed CI timeout duration.
-- All random seeds pinned for reproducibility.
-**Scale/Scope**: Subset of QM (target size dynamically adjusted based on memory while preserving chemical diversity distribution).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`, `huggingface_hub`, `matplotlib`, `seaborn`, `scipy`
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `artifacts`)
+**Testing**: `pytest` (unit tests for feature extraction logic, integration tests for pipeline flow)
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)
+**Project Type**: Data Science / Computational Chemistry Pipeline
+**Performance Goals**: Complete end-to-end pipeline (download -> extract -> train -> evaluate) within 6 hours; peak memory < 7 GB.
+**Constraints**: No GPU; no heavy deep learning; strict downsampling if memory exceeds available capacity.; all random seeds pinned.
+**Scale/Scope**: Subset of QM9 (target a representative scale for tractability).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+## Spec Amendments & Overrides
+
+**T009.1 - Data Source Amendment (Supersedes FR-001)**:
+FR-001 mandates downloading from Harvard Dataverse (doi:10.7910/DVN/28075). Due to verified accuracy constraints and CI compatibility, this plan **amends FR-001** to use the verified HuggingFace mirror (`) as the canonical source. This amendment is recorded here to satisfy the "Single Source of Truth" principle. The HuggingFace dataset is a verified, direct mirror of the QM9 data structure and contains the required DFT properties.
+
+**FR-007 Interpretation**:
+The Spec refers to "theoretical lower bound". Scientifically, the true theoretical lower bound is the Bayes error rate. For this project, we interpret FR-007 as requiring the **Mean Predictor Error (Zero-Order Baseline)** (predicting the mean of the training set) to contextualize the 3D model's performance against a trivial baseline. This is explicitly documented as such.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Implementation Strategy |
-|-----------|-------------------|-------------------------|
-| **I. Reproducibility** | PASS | Random seeds (`np.random.seed`, `random.seed`) pinned in `code/`. Dataset source locked to verified HuggingFace URLs. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | PASS | Dataset URLs restricted to the "Verified datasets" block in the spec. The Harvard Dataverse URL (FR-001) is cited but the *verified* HuggingFace URL is used for execution to ensure reproducibility. Citations will be validated against primary sources (QM9 paper) before final report generation. |
-| **III. Data Hygiene** | PASS | Raw data downloaded to `data/raw` (immutable). Checksums recorded in `state/`. Derived features written to `data/processed` with new filenames. |
-| **IV. Single Source of Truth** | PASS | All metrics (MAE, RMSE, relative error) generated by scripts in `code/` and stored in `data/results/`. No manual entry in reports. |
-| **V. Versioning Discipline** | PASS | Artifacts (models, feature matrices) will be associated with content hashes in the project state file upon completion. |
-| **VI. Representation Fidelity Traceability** | PASS | The plan explicitly mandates paired comparison (2D vs 3D) on the *identical* test set (after intersection filtering) to calculate relative error increase, directly addressing the "failure boundary" hypothesis. |
-| **VII. Computational Resource Discipline** | PASS | The plan includes a "Memory Watchdog" step (FR-006) that triggers downsampling if memory > 6.5 GB, ensuring the 7 GB limit and 6-hour runtime are respected. The downsampling strategy explicitly preserves chemical diversity distribution as mandated by the Constitution. |
+| Principle | Status | Rationale / Action |
+|-----------|--------|--------------------|
+| **I. Reproducibility** | PASS | Plan mandates `random_state` pinning, explicit dataset versioning via HuggingFace commit hash, and isolated `requirements.txt`. |
+| **II. Verified Accuracy** | PASS | Plan explicitly amends FR-001 (T009.1) to use the verified HuggingFace URL. All citations are restricted to this verified source. |
+| **III. Data Hygiene** | PASS | Plan includes checksumming of raw downloads and separation of raw vs. processed data. |
+| **IV. Single Source of Truth** | PASS | Metrics (MAE, RMSE) will be generated programmatically and stored in JSON/CSV artifacts; no hand-typed numbers in reports. |
+| **V. Versioning Discipline** | PASS | Content hashes for artifacts will be recorded in the project state file upon completion. |
+| **VI. Representation Fidelity Traceability** | PASS | The plan explicitly defines the "relative error increase" metric (SC-002) and maps it to the Failure Boundary task (T023). |
+| **VII. Computational Resource Discipline** | PASS | The plan enforces a hard memory limit check and downsampling strategy before training begins. |
 
 ## Project Structure
 
@@ -49,89 +49,143 @@ This project implements a comparative machine learning pipeline to predict molec
 
 ```text
 specs/001-predict-molecular-descriptors/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+└── tasks.md # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── 01_data_download.py       # Downloads QM9 parquet, validates checksums
-├── 02_feature_extraction.py  # Generates 2D fingerprints and 3D graph features
-├── 03_model_training.py      # Trains RF models with 5-fold CV
-├── 04_analysis.py            # Computes error metrics, parity plots, failure boundaries
-├── utils/
-│   ├── memory_monitor.py     # Tracks RAM usage, triggers downsampling
-│   └── parsers.py            # XYZ parsing (if needed), SMILES conversion
-└── tests/
-    ├── test_feature_extraction.py
-    └── test_model_training.py
-
-data/
-├── raw/                      # Downloaded QM9 parquet (ephemeral)
-├── processed/                # Feature matrices (.npy), Labels (.csv)
-└── results/                  # Model artifacts (.pkl), Plots (.png), Metrics (.json)
+projects/PROJ-301-predicting-molecular-descriptors-from-qu/
+├── data/
+│ ├── raw/ # Downloaded QM9 parquet files
+│ ├── processed/ # Extracted features (npy/csv), labels
+│ └── checksums.json # Artifact integrity records
+├── code/
+│ ├── __init__.py
+│ ├── requirements.txt
+│ ├── download.py # FR-001 (Amended): Data acquisition
+│ ├── extract.py # FR-002: Feature extraction (2D/3D)
+│ ├── train.py # FR-003: RF Training + CV
+│ ├── analyze.py # FR-004, FR-005, FR-007: Metrics & Plots
+│ └── utils/
+│ ├── memory_monitor.py # FR-006: Memory enforcement + logging
+│ └── parsers.py # XYZ/SMILES parsing
+├── tests/
+│ ├── unit/
+│ │ ├── test_extract.py
+│ │ └── test_parsers.py
+│ └── integration/
+│ └── test_pipeline.py
+├── artifacts/
+│ ├── models/ #.pkl files
+│ ├── metrics/ #.json,.csv
+│ └── plots/ #.png (parity plots)
+└── README.md
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `tests/`) selected to simplify data pipeline orchestration and ensure atomic execution of the feature extraction -> training -> analysis flow.
+**Structure Decision**: Single-project structure (`code/`, `data/`, `tests/`) selected to minimize overhead and simplify CI/CD configuration for the data science pipeline.
+
+## Contract Mapping
+
+Every contract schema is exercised by a specific plan element:
+
+| Contract Schema | Functional Requirement | Plan Element (Task) |
+|-----------------|------------------------|---------------------|
+| `dataset.schema.yaml` | FR-001 (Data Acquisition) | T009: Download & Verify |
+| `feature_schema.schema.yaml` | FR-002 (Feature Extraction) | T011: Generate 2D/3D Features |
+| `model_result.schema.yaml` | FR-003 (Model Training) | T015/T016: Train RF Models |
+| `evaluation_result.schema.yaml` | FR-004, FR-005, FR-007 | T021/T023: Analysis & Failure Boundary |
+| `molecule.schema.yaml` | FR-002 (Data Validation) | T010: Parse & Validate Molecules |
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **3D Graph Feature Engineering** | Essential for testing the hypothesis that 3D geometry is required for directional properties (dipole). | 2D-only models cannot test the "failure boundary" for geometric descriptors. |
-| **Memory Watchdog** | Required to guarantee CI success on 7GB RAM. | Static downsampling risks either OOM (if too large) or under-sampling (if too small). Dynamic monitoring ensures optimal use of resources while preserving chemical diversity. |
-| **Paired Comparison Design** | Required by Constitution Principle VI. | Independent model evaluation would not isolate the error increase attributable solely to representation loss. |
-| **Strict Intersection Filter** | Required to ensure valid paired t-test (methodology concern). | Imputation strategies risk introducing bias; dropping failed 3D cases ensures statistical validity. |
+| **N/A** | The Constitution Check passed all gates. The computational constraints (7GB RAM) are handled by the downsampling strategy in `utils/memory_monitor.py` and the choice of Random Forest (CPU-tractable) rather than deep learning, which would violate resource constraints. | |
 
-## Implementation Phases
+## Phase 1: Data Acquisition & Preparation
 
-### Phase 0: Data Acquisition & Cleaning
-- **Task 0.1**: Download QM9 Parquet from verified HuggingFace source.
-- **Task 0.2**: Validate checksums and data integrity.
-- **Task 0.3**: **Strict Intersection Filter**: Drop molecules where 3D feature extraction (graph construction) fails or labels are missing. Ensure 2D and 3D feature sets are perfectly aligned.
-- **Task 0.4**: Apply memory watchdog; if RAM > 6.5 GB, downsample to a subset of [deferred] molecules while preserving chemical diversity distribution (e.g., stratified by atom count).
+### Task T009: Download & Verify (Amended FR-001)
+**Description**: Download the QM9 dataset from the verified HuggingFace source (T009.1 Amendment). Compute checksums and verify integrity.
+**Dependencies**: None.
+**Output**: `data/raw/qm9_full.parquet`, `data/checksums.json`, `artifacts/metrics/resource_usage.json` (logging memory/time).
+**Success Criteria**: File exists; checksum matches; `resource_usage.json` logs peak memory < 7GB.
 
-### Phase 1: Feature Engineering
-- **Task 1.1**: Generate 2D Morgan fingerprints (radius=2, nBits=2048) from SMILES.
-- **Task 1.2**: Generate 3D graph features (atomic number, hybridization, pairwise distances, bond angles, dihedral angles) from XYZ coordinates in Parquet.
-- **Task 1.3**: Save feature matrices and labels to `data/processed/`.
+### Task T010: Parse & Validate
+**Description**: Parse the parquet file, validate molecule structures, and drop rows with missing DFT labels (mu, homo, lumo) or invalid geometry.
+**Dependencies**: T009.
+**Output**: `data/processed/molecules_cleaned.parquet`.
 
-### Phase 2: Model Training
-- **Task 2.1**: Train Random Forest Regressors (multi-dimensional) using k-fold cross-validation.
-- **Task 2.2**: Use fixed hyperparameter grid: `n_estimators` ∈ {100, 500}, `max_depth` ∈ {10, 20, None} (as per FR-003).
-- **Task 2.3**: Record MAE, RMSE, and std_mae per fold.
+### Task T011: Generate Features (FR-002)
+**Description**: Generate 2D Morgan fingerprints and 3D graph features.
+**Memory Constraint**: Monitor memory. If > 6.5 GB, perform **Stratified Random Sampling** (strata: atom count, polarity) to reduce sample size by [deferred] and re-run. This ensures chemical diversity is preserved while satisfying SC-004.
+**Dependencies**: T010.
+**Output**: `data/processed/2d_features.npy`, `data/processed/3d_graphs.pkl`, `data/processed/labels.npy`.
 
-### Phase 3: Comparative Analysis
-- **Task 3.1**: Calculate Mean Absolute Error (MAE) and RMSE for both models on the test set.
-- **Task 3.2**: Compute Relative Error Increase (REI) = (MAE_2D - MAE_3D) / MAE_3D.
-- **Task 3.3**: **Stratified Failure Mapping**: Bin results by molecular size (atom count) and polarity (dipole magnitude) to identify specific regions where 2D fails.
-- **Task 3.4**: Perform non-parametric Wilcoxon signed-rank test on absolute errors (with Benjamini-Hochberg correction for multiple comparisons).
-- **Task 3.5**: Define "Failure Boundary" as REI ≥ 5% (MESI) AND p < 0.05.
+## Phase 2: Model Training & Validation
 
-### Phase 4: Baseline & Stability
-- **Task 4.1**: **Calculate Identity Mapping Error**: Train a "Mean Predictor" (predicts training mean for all inputs) to establish the theoretical lower bound (FR-007).
-- **Task 4.2**: **Calculate CV Stability**: Compute std_mae / mean_mae and verify it is ≤ 5% (SC-005).
-- **Task 4.3**: Generate parity plots and final report.
+### Task T015: Train 2D Model (FR-003)
+**Description**: Train Random Forest on low-dimensional features with k-fold cross-validation.
+**Dependencies**: T011.
+**Output**: `artifacts/models/2d_model.pkl`, `artifacts/metrics/cv_2d.json`.
 
-## FR/SC Traceability
+### Task T016: Train 3D Model (FR-003)
+**Description**: Train Random Forest on multi-dimensional spatial features with k-fold cross-validation.
+**Dependencies**: T011.
+**Output**: `artifacts/models/3d_model.pkl`, `artifacts/metrics/cv_3d.json`.
 
-| ID | Description | Plan Phase/Task |
-|----|-------------|-----------------|
-| FR-001 | Download QM9 dataset | Phase 0, Task 0.1 (Note: Uses verified HuggingFace source) |
-| FR-002 | Generate 2D/3D features | Phase 1, Tasks 1.1, 1.2 |
-| FR-003 | Train RF models with fixed grid | Phase 2, Task 2.2 |
-| FR-004 | Calculate MAE/RMSE | Phase 3, Task 3.1 |
-| FR-005 | Compute REI and parity plots | Phase 3, Tasks 3.2, 3.3 |
-| FR-006 | Memory monitoring & downsampling | Phase 0, Task 0.4 |
-| FR-007 | Calculate theoretical lower bound | Phase 4, Task 4.1 |
-| SC-001 | Measure prediction error vs DFT | Phase 3, Task 3.1 |
-| SC-002 | Measure REI for failure boundary | Phase 3, Task 3.2 |
-| SC-003 | Measure runtime vs 6h limit | Phase 2, Task 2.1 |
-| SC-004 | Measure memory vs 7GB limit | Phase 0, Task 0.4 |
-| SC-005 | Measure CV stability (≤5%) | Phase 4, Task 4.2 |
+### Task T017: Aggregate Metrics
+**Description**: Calculate mean MAE, RMSE, and std MAE per fold. Generate `stability_report.json`.
+**Dependencies**: T015, T016.
+**Output**: `artifacts/metrics/cv_metrics.json`, `artifacts/metrics/stability_report.json`.
+**Note on SC-005**: The pipeline **measures** the stability ratio (std/mean). If > 5%, a flag is set in the report, but the pipeline **continues** to generate downstream artifacts (T021-T024) to allow for analysis of *why* stability failed. SC-005 is a success criterion for the *model*, not a hard gate for the *pipeline*.
+
+## Phase 3: Analysis & Reporting
+
+### Task T021: Compute Baselines (FR-007)
+**Description**: Calculate the **Mean Predictor Error** (predicting the mean of the training set) for each descriptor. This serves as the practical lower bound (Zero-Order Baseline) to contextualize model performance.
+**Dependencies**: T011.
+**Output**: `artifacts/metrics/baseline_error.json`.
+
+### Task T022: Generate Predictions
+**Description**: Generate predictions for the test set (out-of-fold) for both models. Store per-molecule errors.
+**Dependencies**: T015, T016.
+**Output**: `artifacts/metrics/test_predictions.json` (includes `error_2d`, `error_3d` arrays per molecule).
+
+### Task T023: Failure Boundary Report (FR-005, SC-002)
+**Description**:
+1. Calculate Relative Error Increase (REI) = (MAE_2D - MAE_3D) / MAE_3D for each descriptor.
+2. Perform statistical testing on **per-molecule errors** (N~2000) using **Wilcoxon signed-rank test** (if normality violated) or **paired t-test**.
+3. Apply **Bonferroni correction** (α = 0.05 / 3 ≈ 0.0167).
+4. Determine "Failure Boundary": **REI ≥ 10% OR p-value < 0.0167**.
+5. **Scope Qualification**: Explicitly state that this boundary applies to **DFT-optimized geometries** and may not generalize to noisy experimental geometries.
+**Dependencies**: T022, T017.
+**Output**: `artifacts/metrics/comparison_table.csv`, `artifacts/plots/parity_*.png`, `artifacts/metrics/failure_boundary.json`.
+
+### Task T024: Generate Final Report
+**Description**: Compile all metrics, plots, and logs into a final summary.
+**Dependencies**: T021, T023.
+**Output**: `artifacts/report.md`.
+
+## Success Criteria Measurement Plan
+
+| ID | Measurement | Source Artifact | Threshold/Action |
+|----|-------------|-----------------|------------------|
+| SC-001 | Prediction Error (MAE/RMSE) | `comparison_table.csv` | Measured against DFT. |
+| SC-002 | Relative Error Increase | `comparison_table.csv` | Measured; triggers Failure Boundary flag if ≥ 10% or p < 0.0167. |
+| SC-003 | Runtime | `resource_usage.json` | Must be ≤ 6 hours. |
+| SC-004 | Peak Memory | `resource_usage.json` | Must be ≤ 7 GB (enforced by T011). |
+| SC-005 | CV Stability | `stability_report.json` | Measured (std/mean). Flag if > 5%. Pipeline continues. |
+
+## Limitations & Scope
+
+- **DFT Self-Consistency**: The 3D model uses DFT-optimized geometries to predict DFT properties. The "Failure Boundary" identified is specific to this DFT-consistent context and may not hold for noisy experimental geometries.
+- **Statistical Power**: The use of per-molecule errors (N~2000) ensures high power for the statistical test, unlike fold-aggregate tests (N=5).
+- **Baseline Interpretation**: The "Theoretical Lower Bound" is implemented as the Mean Predictor Error (Zero-Order Baseline), not the Bayes error rate, due to data limitations.

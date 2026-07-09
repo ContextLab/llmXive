@@ -65,7 +65,7 @@ The system must compute the relative error increase between the D and D models f
 
 - **FR-001**: System MUST download the QM9 dataset from the Harvard Dataverse URL (doi:10.7910/DVN/28075) and extract `.xyz` files containing 3D coordinates and DFT properties. (See US-1)
 - **FR-002**: System MUST generate 2D Morgan fingerprints (radius=2, nBits=2048) and 3D graph features (atomic number, hybridization, distance bins, bond angles, dihedral angles) for a subset of [deferred] molecules. (See US-1)
-- **FR-003**: System MUST train two separate Random Forest Regressors (scikit-learn) on the D and multi-dimensional feature sets using identical hyperparameter grids (n_estimators spanning a range of values, max_depth ∈ {10, 20, None}) and 5-fold cross-validation. (See US-2)
+- **FR-003**: System MUST train two separate Random Forest Regressors (scikit-learn) on the D and multi-dimensional feature sets using identical hyperparameter grids (n_estimators spanning a range of values, max_depth ∈ {selected discrete values, None}) and 5-fold cross-validation. (See US-2)
 - **FR-004**: System MUST calculate Mean Absolute Error (MAE) and Root Mean Square Error (RMSE) for each model against the DFT reference values (dipole moment, HOMO, LUMO). (See US-3)
 - **FR-005**: System MUST compute the relative error increase (2D vs 3D) for each descriptor and generate parity plots (Predicted vs. DFT) to visualize performance differences, explicitly noting that the 3D model uses DFT-optimized geometries as input. (See US-3)
 - **FR-006**: System MUST monitor memory usage during execution and enforce a hard limit of sufficient RAM, downsampling the dataset if the limit is ≥ 6.5 GB. (See US-1)

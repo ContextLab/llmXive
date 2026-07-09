@@ -3,68 +3,63 @@
 ## Prerequisites
 
 - Python 3.11+
-- Access to a GitHub Actions runner (or local environment with sufficient RAM)
+- `pip`
 - Git
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd <project-dir>
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyarrow`.*
+1. **Clone the repository** (or navigate to the project directory).
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed sequentially. Each step handles data download, feature generation, training, and analysis.
+The pipeline is executed in four sequential stages. Ensure you have sufficient disk space and RAM.
 
-### Step 1: Download and Validate Data
+### Step 1: Data Download & Verification
+Downloads the QM9 dataset from the verified HuggingFace source and computes checksums.
 ```bash
-python code/01_data_download.py
+python code/download.py
 ```
-*Output*: `data/raw/qm9_subset.parquet` (Checksum verified).
+*Output*: `data/raw/qm9_full.parquet`
 
 ### Step 2: Feature Extraction
+Generates 2D fingerprints and 3D graph features. Includes memory monitoring.
 ```bash
-python code/02_feature_extraction.py
+python code/extract.py
 ```
-*Output*: `data/processed/features_2d.npy`, `data/processed/features_3d.npy`, `data/processed/labels.csv`.
-*Note*: This step includes a memory monitor. If RAM usage > 6.5 GB, it will automatically reduce the subset size.
+*Output*: `data/processed/2d_features.npy`, `data/processed/3d_graphs.pkl`, `data/processed/labels.npy`
 
-### Step 3: Model Training
+### Step 3: Model Training & Cross-Validation
+Trains Random Forest models with 5-fold CV.
 ```bash
-python code/03_model_training.py
+python code/train.py
 ```
-*Output*: `models/model_2d.pkl`, `models/model_3d.pkl`, `results/cv_2d.json`, `results/cv_3d.json`.
-*Duration*: ~2-4 hours on a standard CPU.
+*Output*: `artifacts/models/*.pkl`, `artifacts/metrics/cv_results.json`
 
-### Step 4: Analysis and Visualization
+### Step 4: Analysis & Reporting
+Computes relative error increase, generates parity plots, and checks stability.
 ```bash
-python code/04_analysis.py
+python code/analyze.py
 ```
-*Output*: `results/metrics.json`, `results/parity_plots.png` (2D vs 3D), `results/failure_boundary_report.md`.
+*Output*: `artifacts/metrics/comparison_table.csv`, `artifacts/plots/*.png`
 
 ## Verification
 
-To verify the pipeline:
-1.  Check `results/metrics.json` for the presence of `relative_error_increase` for `mu`, `homo`, and `lumo`.
-2.  Ensure `results/parity_plots.png` exists and shows distinct clusters for 2D vs 3D predictions.
-3.  Run `pytest tests/` to validate unit tests.
+To verify the installation and pipeline integrity:
+```bash
+pytest tests/ -v
+```
+Ensure all tests pass, particularly `test_memory_monitor` and `test_feature_alignment`.
 
 ## Troubleshooting
 
-- **OOM Error**: The script should auto-downsample. If it fails, manually reduce the `SUBSET_SIZE` in `code/02_feature_extraction.py`.
-- **Missing Dependencies**: Ensure `rdkit` is installed via `conda` or `pip` (sometimes requires `conda install -c rdkit rdkit` for full functionality).
-- **Dataset Download Failure**: The script retries a limited number of times. If it fails, check internet connectivity or the HuggingFace source status.
+- **Memory Error**: If the process is killed due to OOM, the `extract.py` script automatically downsamples the dataset. Check `data/processed/downsample_log.txt` for details.
+- **Download Failure**: If the HuggingFace URL is unreachable, the script retries 3 times. If it fails, check your internet connection or proxy settings.

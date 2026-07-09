@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Dataset Schema"
+description: "Schema for the raw and processed QM9 dataset used in the pipeline."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  smiles:
+    type: "string"
+    description: "SMILES string representation."
+  coordinates:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "3D Cartesian coordinates (Angstroms)."
+  properties:
+    type: "object"
+    properties:
+      dipole_moment:
+        type: "number"
+        description: "Dipole moment in Debye."
+      homo:
+        type: "number"
+        description: "HOMO energy in eV."
+      lumo:
+        type: "number"
+        description: "LUMO energy in eV."
+    required:
+      - dipole_moment
+      - homo
+      - lumo
+  status:
+    type: "object"
+    properties:
+      valid_3d:
+        type: "boolean"
+        description: "True if 3D coordinates are valid."
+      valid_2d:
+        type: "boolean"
+        description: "True if SMILES is valid."
+    required:
+      - valid_3d
+      - valid_2d
+required:
+  - molecule_id
+  - smiles
+  - coordinates
+  - properties
+  - status
+additionalProperties: false

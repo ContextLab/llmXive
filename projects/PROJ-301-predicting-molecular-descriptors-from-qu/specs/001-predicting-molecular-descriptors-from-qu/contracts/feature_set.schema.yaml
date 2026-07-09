@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Set Schema"
+description: "Schema for the generated 2D or 3D feature matrices."
+type: "object"
+properties:
+  feature_type:
+    type: "string"
+    enum:
+      - "2D_Morgan"
+      - "3D_Graph"
+    description: "Type of feature set."
+  shape:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Shape of the feature matrix (N_samples, N_features)."
+  molecule_ids:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of molecule IDs corresponding to the rows."
+  labels:
+    type: "object"
+    properties:
+      dipole_moment:
+        type: "array"
+        items:
+          type: "number"
+      homo:
+        type: "array"
+        items:
+          type: "number"
+      lumo:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - dipole_moment
+      - homo
+      - lumo
+    description: "Target labels aligned with molecule_ids."
+required:
+  - feature_type
+  - shape
+  - molecule_ids
+  - labels
+additionalProperties: false

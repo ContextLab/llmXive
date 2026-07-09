@@ -1,26 +1,26 @@
-resolved_at: '2026-07-07T16:53:15.677424+00:00'
+resolved_at: '2026-07-09T18:43:56.092507+00:00'
 datasets:
 - intent: 10.7910/DVN/28075
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Stability_of_Metal_Organic_Framework-Supported_Amines_under_Exposure_to_Ozone_Generated_from_Air/32952088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+  - url: https://acs.figshare.com/articles/journal_contribution/Unraveling_Structural_Changes_and_the_Reaction_Mechanism_in_Urease_upon_Infrared_Physical_Inactivation/32952087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -32,11 +32,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4377471
+  - url: https://zenodo.org/records/6926898
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6926898
+  - url: https://zenodo.org/records/4377471
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -93,23 +93,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Stability_of_Metal_Organic_Framework-Supported_Amines_under_Exposure_to_Ozone_Generated_from_Air/32952088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+  - url: https://acs.figshare.com/articles/journal_contribution/Unraveling_Structural_Changes_and_the_Reaction_Mechanism_in_Urease_upon_Infrared_Physical_Inactivation/32952087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -121,16 +121,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8274793
+  - url: https://zenodo.org/records/11583221
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11583221
+  - url: https://zenodo.org/records/8274793
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20634091
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05736
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://arxiv.org/abs/2606.15220
@@ -142,10 +146,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21146361
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21120378
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -168,23 +168,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+  - url: https://acs.figshare.com/articles/journal_contribution/Stability_of_Metal_Organic_Framework-Supported_Amines_under_Exposure_to_Ozone_Generated_from_Air/32952088
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -208,15 +208,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/BFCWDK
+  - url: https://osf.io/m8kaz/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spectrum_Outage_Reports_Dataset/32840483
+  - url: https://zenodo.org/records/21265262
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Spectrum_Outage_Reports_Dataset/32840483/1
+  - url: https://zenodo.org/records/21265262
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -274,23 +274,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -310,23 +310,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15478832
+  - url: https://zenodo.org/records/14186325
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-c-000801155
+  - url: https://zenodo.org/records/21282521
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21282521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/941624
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://usiena-air.unisi.it//handle/11365/1127348
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/215538
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/150083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -379,23 +379,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Supplementary_Figures_1-9_for_Gupta_et_al_Insulin_Regulated_Actin_Dynamics_is_Disrupted_in_a_Keratinocyte_Model_of_Hailey_Hailey_Disease/32925317
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -411,31 +411,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20558464
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18423267
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.20347/wias.preprint.3012
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: TooManyRedirects: Exceeded 30 redirects.'
-  - url: https://osf.io/w394t/
+  - url: https://zenodo.org/records/17396154
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284119
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/tk9dc/
+  - url: https://zenodo.org/records/21284119
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1235337
+  - url: https://zenodo.org/records/21283867
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.iuav.it/handle/11578/286424
+  - url: https://zenodo.org/records/21283867
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283742
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -484,23 +484,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://rochester.figshare.com/articles/conference_contribution/Linear_spectrotemporal_tuning_accounts_for_much_of_phonetic_feature_encoding_in_the_human_auditory_cortex/32900540
+  - url: https://figshare.com/articles/journal_contribution/Acompa_amiento_medico_integrativo_de_paciente_con_linfoma_Hodgkin_cl_sico_tipo_esclerosis_nodular_ESTUDIO_DE_CASO_/32952065
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Linking_names_with_frames_the_interplay_of_moral_entities_and_moral_frames_in_Chinese_online_gender_debates/32925373
+  - url: https://figshare.com/articles/dataset/Supplementary_material_for_Identification_of_novel_inhibitors_of_Mycobacterium_smegmatis_growth_through_genome-wide_overexpression_of_Cluster_P3_mycobacteriophage_Xavia_genes_/32952071
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/An_in_silico_bioactivity_screening_of_Petasites_hybridus_oil_extracted_by_hydrodistillation_from_leaves/32925161
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbon-Confined_FeCo_Pt_Nanocatalysts_Derived_from_Metal_Organic_Frameworks_for_Pt-Economical_High-Performance_and_CO-Tolerant_Methanol_Electrooxidation/32952097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Staff_experience_of_Open_Dialogue_OD_training_in_planned_acute_and_urgent_care_services_in_a_mental_health_NHS_Trust_a_thematic_analysis/32925367
+  - url: https://acs.figshare.com/articles/journal_contribution/Total_Synthesis_and_Structural_Revision_of_Bonnevillamides_B_and_C/32952094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Supplementary_Materials_for_b_b_b_i_We_had_to_learn_by_trial_and_error_i_b_b_Perceptions_and_attitudes_of_early_adopters_of_dam-calf_contact_in_the_USA_and_Canada_b_/31333585
+  - url: https://acs.figshare.com/articles/journal_contribution/Atomically_Dispersed_Ru-Supported_Cu-Ceria_Catalysts_for_Selective_1_Octanol_Ammoxidation/32952091
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -508,11 +508,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rn867
+  - url: https://zenodo.org/records/7858696
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7858696
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rn867
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -524,23 +524,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.20347/wias.preprint.3012
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: TooManyRedirects: Exceeded 30 redirects.'
-  - url: https://tandf.figshare.com/articles/journal_contribution/Photoresponsive_fluoro-substituted_azo-ester_liquid_crystals_with_2_6-dimethyl_lateral_groups_mesomorphic_and_DFT_studies/32920529
+  - url: https://zenodo.org/records/21281646
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Photoresponsive_fluoro-substituted_azo-ester_liquid_crystals_with_2_6-dimethyl_lateral_groups_mesomorphic_and_DFT_studies/32920529/1
+  - url: https://zenodo.org/records/21281646
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://infoscience.epfl.ch/entities/publication/76da347d-f5df-4eb2-a11f-b137d0f94a9d
+  - url: https://zenodo.org/records/21278264
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ualberta.scholaris.ca/handle/123456789/106068
+  - url: https://zenodo.org/records/21278264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

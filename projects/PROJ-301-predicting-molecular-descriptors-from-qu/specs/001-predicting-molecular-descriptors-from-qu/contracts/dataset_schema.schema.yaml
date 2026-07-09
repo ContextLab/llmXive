@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Dataset Schema"
+description: "Schema for the processed QM9 dataset containing molecular descriptors and geometry."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string."
+  mu:
+    type: "number"
+    description: "Dipole moment in Debye."
+  homo:
+    type: "number"
+    description: "HOMO energy in eV."
+  lumo:
+    type: "number"
+    description: "LUMO energy in eV."
+  coordinates:
+    type: "array"
+    description: "List of atomic coordinates."
+    items:
+      type: "object"
+      properties:
+        element:
+          type: "string"
+        x:
+          type: "number"
+        y:
+          type: "number"
+        z:
+          type: "number"
+required:
+  - molecule_id
+  - smiles
+  - mu
+  - homo
+  - lumo
+  - coordinates
+additionalProperties: false

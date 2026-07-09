@@ -9,9 +9,20 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.7910/DVN/28075
   verified_at: '2026-07-07T16:48:52.107334Z'
-- artifact_hash: cbf6d01fee44581fe3aee29c66de66480fc9797b82657ffccb80fc16d13eba20
+- artifact_hash: 7f3647e87810ea72656d6f97cae02c79f709f51e421553c28d654e1ea0393aea
   artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/plan.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "lisn519010/QM9 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/lisn519010/QM9/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/lisn519010/QM9
+  verified_at: '2026-07-09T18:52:03.922837Z'
+- artifact_hash: 7f3647e87810ea72656d6f97cae02c79f709f51e421553c28d654e1ea0393aea
+  artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/plan.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -19,19 +30,19 @@
   value: 10.7910/DVN/28075
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.7910/DVN/28075
-  verified_at: '2026-07-07T17:03:11.307777Z'
-- artifact_hash: 9e0083fbba60254f9ebfa2f9bf242b3a3b1d75b1754b725c5b80db43cb7dc1c9
+  verified_at: '2026-07-09T18:52:03.922837Z'
+- artifact_hash: e148f12a93023f2276f43b594cda4294cdeda3df82135d186ef3f7967813a5a2
   artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: full-00000-of-00001-e217b6ecfbeb7149.parquet
   kind: url
-  value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`
+  value: https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783447416&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxNmExZWU5Yjg1ZWU2YjM5NDZhY2FlLzg5MTMyYjBkNTA0ZGE1OGZhMTBjODczNGQ0OTFlNzE5ZmY2MWRjZjBmZjdjMjA1MTQzNTRhZjExMGMyNzZkNTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbC0wMDAwMC1vZi0wMDAwMS1lMjE3YjZlY2ZiZWI3MTQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJmdWxsLTAwMDAwLW9mLTAwMDAxLWUyMTdiNmVjZmJlYjcxNDkucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNDQ3NDE2fX19XX0_&Signature=MEUCIE%7E0cbenWOSvSGM-h9phk8UbkLQ9yhnfxUr3ZJap7k5bAiEAjsAhJaVoR6YZmibaBbXV9arKBgwrP1y2EfOvBz715Xg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-07T17:03:36.603466Z'
-- artifact_hash: 9e0083fbba60254f9ebfa2f9bf242b3a3b1d75b1754b725c5b80db43cb7dc1c9
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6416a1ee9b85ee6b3946acae/89132b0d504da58fa10c8734d491e719ff61dcf0ff7c20514354af110c276d54?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27full-00000-of-00001-e217b6ecfbeb7149.parquet%3B+filename%3D%22full-00000-of-00001-e217b6ecfbeb7149.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1783626747&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxNmExZWU5Yjg1ZWU2YjM5NDZhY2FlLzg5MTMyYjBkNTA0ZGE1OGZhMTBjODczNGQ0OTFlNzE5ZmY2MWRjZjBmZjdjMjA1MTQzNTRhZjExMGMyNzZkNTRcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZnVsbC0wMDAwMC1vZi0wMDAwMS1lMjE3YjZlY2ZiZWI3MTQ5LnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJmdWxsLTAwMDAwLW9mLTAwMDAxLWUyMTdiNmVjZmJlYjcxNDkucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNjI2NzQ3fX19XX0_&Signature=MEUCIC3wnEKVRsTyGZwbNAQC7dsU7Nvsya0v2-jM0v%7EFr-gcAiEA5qihpjRRrOfPzwmCRgshNZZ0SjTl6gfgxe24YPDPRvc_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-09T18:52:27.659714Z'
+- artifact_hash: e148f12a93023f2276f43b594cda4294cdeda3df82135d186ef3f7967813a5a2
   artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/research.md
   cite_id: c-002
   cited_authors: []
@@ -41,15 +52,4 @@
   value: 10.7910/DVN/28075
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.7910/DVN/28075
-  verified_at: '2026-07-07T17:03:36.603466Z'
-- artifact_hash: 117499f9b1305c300c1ca4a738ea9816424f97efb7f264b36a959cc91dfed356
-  artifact_path: projects/PROJ-301-predicting-molecular-descriptors-from-qu/specs/001-predicting-molecular-descriptors-from-qu/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.7910/DVN/28075
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.7910/DVN/28075
-  verified_at: '2026-07-07T17:14:35.187649Z'
+  verified_at: '2026-07-09T18:52:27.659714Z'

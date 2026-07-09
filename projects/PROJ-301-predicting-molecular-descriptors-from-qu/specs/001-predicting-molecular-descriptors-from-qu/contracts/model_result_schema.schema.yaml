@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Schema"
+description: "Schema for storing model training metrics and paths."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique model identifier."
+  feature_type:
+    type: "string"
+    enum:
+      - "2D_morgan"
+      - "3D_graph"
+  target:
+    type: "string"
+    enum:
+      - "mu"
+      - "homo"
+      - "lumo"
+  fold_metrics:
+    type: "array"
+    description: "Metrics for each cross-validation fold."
+    items:
+      type: "object"
+      properties:
+        fold:
+          type: "integer"
+        mae:
+          type: "number"
+        rmse:
+          type: "number"
+  mean_mae:
+    type: "number"
+  std_mae:
+    type: "number"
+  model_path:
+    type: "string"
+    description: "Relative path to the saved model pickle file."
+required:
+  - model_id
+  - feature_type
+  - target
+  - fold_metrics
+  - mean_mae
+  - model_path
+additionalProperties: false

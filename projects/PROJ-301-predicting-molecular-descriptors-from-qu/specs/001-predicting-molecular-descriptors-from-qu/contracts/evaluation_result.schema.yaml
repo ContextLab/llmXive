@@ -53,14 +53,35 @@ properties:
         description: "Relative increase in error for 2D vs 3D (MAE_2D - MAE_3D) / MAE_3D."
       p_value:
         type: "number"
-        description: "P-value from Wilcoxon signed-rank test (primary) or paired t-test (secondary)."
+        description: "P-value from Wilcoxon signed-rank test or paired t-test on per-molecule errors."
       is_significant:
         type: "boolean"
-        description: "True if p_value < 0.05 (after correction) AND relative_error_increase >= 0.05 (MESI)."
+        description: "True if p_value < 0.0167 (Bonferroni adjusted) AND relative_error_increase >= 0.10."
     required:
       - relative_error_increase
       - p_value
       - is_significant
+  failure_boundary:
+    type: "object"
+    description: "Definition of the failure boundary threshold."
+    properties:
+      threshold:
+        type: "number"
+        description: "The REI threshold for failure (e.g., 0.10)."
+      alpha_threshold:
+        type: "number"
+        description: "The p-value threshold for failure (Bonferroni adjusted, e.g., 0.0167)."
+      logic:
+        type: "string"
+        description: "The logic used: 'OR' (REI >= threshold OR p < alpha)."
+      source_spec_reference:
+        type: "string"
+        description: "Reference to the spec requirement (e.g., 'US-3 Acceptance Scenario 3')."
+    required:
+      - threshold
+      - alpha_threshold
+      - logic
+      - source_spec_reference
   cv_stability:
     type: "number"
     description: "Standard deviation of MAE divided by mean MAE (SC-005)."
@@ -95,14 +116,37 @@ properties:
               type: "number"
   mean_predictor_error:
     type: "number"
-    description: "Theoretical lower bound (Mean Predictor Error)."
+    description: "Theoretical lower bound (Mean Predictor Error / Zero-Order Baseline)."
+  error_distributions:
+    type: "object"
+    description: "Per-molecule absolute errors for statistical testing."
+    properties:
+      error_2d:
+        type: "array"
+        items:
+          type: "number"
+        description: "Absolute errors for 2D model per molecule."
+      error_3d:
+        type: "array"
+        items:
+          type: "number"
+        description: "Absolute errors for 3D model per molecule."
+    required:
+      - error_2d
+      - error_3d
+  scope_qualification:
+    type: "string"
+    description: "Note on the scope of the failure boundary (e.g., 'Specific to DFT-optimized geometries')."
 required:
   - descriptor
   - model_2d
   - model_3d
   - comparative
+  - failure_boundary
   - cv_stability
   - cv_stability_pass
   - stratification
   - mean_predictor_error
+  - error_distributions
+  - scope_qualification
 additionalProperties: false

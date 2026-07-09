@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Result Schema"
+description: "Schema for the output of the Random Forest training and evaluation."
+type: "object"
+properties:
+  model_path:
+    type: "string"
+    description: "Relative path to the saved .pkl model file."
+  metrics:
+    type: "object"
+    properties:
+      fold_mae:
+        type: "array"
+        items:
+          type: "number"
+        description: "MAE for each of the 5 folds."
+      fold_rmse:
+        type: "array"
+        items:
+          type: "number"
+        description: "RMSE for each of the 5 folds."
+      mean_mae:
+        type: "number"
+      mean_rmse:
+        type: "number"
+      std_mae:
+        type: "number"
+        description: "Standard deviation of MAE across folds."
+    required:
+      - fold_mae
+      - fold_rmse
+      - mean_mae
+      - mean_rmse
+      - std_mae
+  predictions:
+    type: "object"
+    properties:
+      y_pred:
+        type: "array"
+        items:
+          type: "number"
+        description: "Predicted values for the test set."
+      y_true:
+        type: "array"
+        items:
+          type: "number"
+        description: "True values for the test set."
+    required:
+      - y_pred
+      - y_true
+required:
+  - model_path
+  - metrics
+  - predictions
+additionalProperties: false
