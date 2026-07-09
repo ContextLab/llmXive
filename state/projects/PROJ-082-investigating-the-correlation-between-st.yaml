@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T10:38:02.017701Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-082-investigating-the-correlation-between-st
-last_run_id: 3c5eeea8-a57a-406d-b3ca-d0045f6297e2
+last_run_id: 6acc7edc-663d-4284-8bcf-502a5538ac89
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st
 title: Investigating the Correlation Between Structural Brain Connectivity and Individual
   Music Preferences
-updated_at: '2026-07-01T08:13:11.242861Z'
+updated_at: '2026-07-09T08:51:13.788469Z'

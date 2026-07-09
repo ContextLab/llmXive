@@ -1,0 +1,309 @@
+resolved_at: '2026-07-09T08:07:54.678985+00:00'
+datasets:
+- intent: SKIP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/umm-maybe/Skip_NoClip_Data/resolve/main/data/test-00000-of-00001-e16cdfe0f96065a2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 178596
+      parsed: true
+  - url: https://huggingface.co/datasets/solarbench/SKIPPD/resolve/main/ERA5/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 138296
+      parsed: true
+  - url: https://huggingface.co/datasets/torchgeo/skippd/resolve/main/2017_2019_images_pv_processed_forecast.hdf5
+    source: huggingface
+    format: hdf5
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/solarbench/SKIPPD/resolve/main/ERA5/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/torchgeo/skippd/resolve/main/2017_2019_images_pv_processed_forecast.hdf5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://huggingface.co/datasets/umm-maybe/Skip_NoClip_Data/resolve/main/data/test-00000-of-00001-e16cdfe0f96065a2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/BangumiBase/skipbeat/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Dicerium_IV_Nitride_Complex_with_a_Linear_CeNCe_Core_Stabilized_by_Bulky_Cyclohexyltriamide_Ligands/32946563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Electronic_Structure_and_Orbital_Filling_in_2D_YCl_Electride_Single-Atom_Catalysts_A_Combined_First-Principles_and_Machine-Learning_Study/32946554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1064809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1064805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14827996
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7957141
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1416196
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21274517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21274517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21274176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PubMed
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/MedRAG/pubmed/resolve/main/chunk/pubmed23n0001.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bigbio/pubmed_qa/resolve/main/pqaa.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/MRAGDATASET/Pubmed-MHQA/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/MedRAG/pubmed/resolve/main/chunk/pubmed23n0001.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/qiaojin/PubMedQA/resolve/main/pqa_artificial/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bigbio/pubmed_qa/resolve/main/pqaa.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/openlifescienceai/pubmedqa/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/MRAGDATASET/Pubmed-MHQA/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Dicerium_IV_Nitride_Complex_with_a_Linear_CeNCe_Core_Stabilized_by_Bulky_Cyclohexyltriamide_Ligands/32946563
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Electronic_Structure_and_Orbital_Filling_in_2D_YCl_Electride_Single-Atom_Catalysts_A_Combined_First-Principles_and_Machine-Learning_Study/32946554
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/pai.13484
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2021.652029/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/ppul.24798
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/ppul.25506
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/12783759
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Humanized_mouse_models_for_drug_metabolism_and_drug_transport_a_systematic_review/32946551/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2j3zb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26262/heal.auth.ir.374830
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
+      port=80): Max retries exceeded with url: /record/374830 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
+      port=80) at 0x7f5ad90961d0>, ''Connection to ikee.lib.auth.gr timed out. (connect
+      timeout=20.0)''))'
+- intent: MRI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/KRMayD/Brain_MRI_Dataset/resolve/main/Brain_MRI_Used_Data_SD/metadata/base_caption_templates_100.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 10689
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO50K/resolve/main/FOMO50K_300K_mapping.tsv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO300K/resolve/main/PT001_ClevelandCCF/mapping.tsv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/KRMayD/Brain_MRI_Dataset/resolve/main/Brain_MRI_Used_Data_SD/metadata/base_caption_templates_100.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/arjundd/mridata-stanford-knee-3d-fse/386707653616d0f84850b6d8f09efcfa5433e964/metadata.csv?%2Fdatasets%2Farjundd%2Fmridata-stanford-knee-3d-fse%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%225ad19715d7b1b1d0422cc932384b6c216526bfed%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/report/KZN_economic_review_final_report/32868911
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Supplementary_information_b_-_b_Indicator_species_of_predatory_wasps_Hymenoptera_Pemphredonini_and_their_biogeographic_regionalization_in_China_b_/29321240
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16198518
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16199032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7717571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16307763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16202753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405694
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/403554
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/147852
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/86962
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://juser.fz-juelich.de/record/1059282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
