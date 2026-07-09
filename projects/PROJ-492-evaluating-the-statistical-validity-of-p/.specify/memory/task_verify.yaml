@@ -159,6 +159,11 @@
   \ c_26bd3e2b \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration [UNRESOLVED-CLAIM:\
+  \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
+  \ runs and respects limits) [DEPENDS ON: T010]."
+: 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
@@ -465,13 +470,6 @@
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
   \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
-  \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) ** (constraint\u2011\
-  preservation\u2011ba913176) (verify JSON file exists, contains numeric N, and satisfies\
-  \ condition). **DEPENDS ON:** T010. <!-- FAILED: unspecified -->"
-: 2
-? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
-  025) that computes the minimum N given baseline, detectable effect, \u03B1 and power,\
-  \ writes result to `output/power_analysis.json`, **and asserts audited corpus meets\
   \ {{claim:c_21f3e400}} (2510.17487, https://arxiv.org/abs/2510.17487) [UNRESOLVED-CLAIM:\
   \ c_3921ca49 \u2014 status=not_enough_info] ** (constraint\u2011preservation\u2011\
   ba913176) (verify JSON file exists, contains numeric N, and satisfies condition).\
@@ -614,6 +612,10 @@
   \ c_e0252683 \u2014 status=not_enough_info] and records the runner environment.\
   \ (depends on T049)"
 : 1
+? "T050b **[P]** Verify that the publication year is extracted for each summary during\
+  \ extraction (T020c) [UNRESOLVED-CLAIM: c_c1bc8ba5 \u2014 status=not_enough_info]\
+  \ and present in the input to `subgroup_analysis.py`. (depends on T020c)"
+: 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
   \ that runs 10\u202F000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
@@ -648,6 +650,12 @@
   \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
   \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
   \ c_1fead734 \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
+  e62a0df4) (verify module exits with status 0)."
+: 1
+? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
+  \ that runs 10\u202F10000 replicates for each statistical test (z-test, Fisher's,\
+  \ Welch's, binomial) and checks the absolute difference \u2264 0.005 [UNRESOLVED-CLAIM:\
+  \ c_318109fe \u2014 status=not_enough_info] (constraint\u2011preservation\u2011\
   e62a0df4) (verify module exits with status 0)."
 : 1
 ? "T062 Implement Monte\u2011Carlo validation module (FR\u2011026) in `src/audit/monte_carlo_validation.py`\
