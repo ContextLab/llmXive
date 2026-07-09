@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.02000",
+  "judged_at": "2026-07-09T16:10:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "The paper focuses on pathological hubs in epilepsy patients and their relationship to surgical outcomes, which constitutes an off-domain study relative to the user's specific question about \"hub resilience\" in \"healthy connectomes.\" While it discusses brain networks and hubs, it does not measure the specific mechanism of parcellation sensitivity on resilience in healthy populations, nor does it serve as a foundational baseline for healthy connectome properties, failing to meet criteria (a), (b),",
+  "relevant": false
+}

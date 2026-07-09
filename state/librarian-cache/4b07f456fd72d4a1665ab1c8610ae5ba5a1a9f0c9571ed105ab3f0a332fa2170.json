@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-29T18:46:24Z",
+  "fetched_at": "2026-07-09T16:10:50Z",
   "field": "neuroscience",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,106 +9,105 @@
       "idea_body_excerpt": "Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes",
       "target_n": 5
     },
-    "duration_seconds": 63.092,
-    "ended_at": "2026-06-29T18:46:24Z",
+    "duration_seconds": 74.215,
+    "ended_at": "2026-07-09T16:10:50Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "impact of brain parcellation schemes on hub identification in connectomes"
+          "robustness of brain network hubs to parcellation schemes"
         ],
         [
           2,
-          "sensitivity of network hubs to atlas resolution in healthy brains"
+          "sensitivity of connectome hubs to atlas definition"
         ],
         [
           3,
-          "robustness of connectome hubs across different parcellation methods"
+          "impact of brain parcellation on network resilience metrics"
         ],
         [
           4,
-          "influence of cortical parcellation on hub resilience metrics"
+          "variability of hub identification across structural connectome atlases"
         ],
         [
           5,
-          "variability of structural hub detection due to parcellation choice"
+          "stability of rich club organization under different parcellations"
         ],
         [
           6,
-          "parcellation dependency of rich-club organization in healthy connectomes"
+          "effect of spatial resolution on hub resilience in healthy connectomes"
         ],
         [
           7,
-          "stability of hub nodes under varying brain atlas definitions"
+          "parcellation-dependent variability in brain network topology"
         ],
         [
           8,
-          "effect of regional granularity on network resilience in healthy connectomes"
+          "influence of tractography parcellation on hub detection"
         ],
         [
           9,
-          "comparison of hub resilience across multi-scale brain parcellations"
+          "consistency of hub resilience across multimodal brain atlases"
         ],
         [
           10,
-          "methodological sensitivity of connectome hub analysis to atlas selection"
+          "graph theoretical robustness of healthy connectomes to segmentation changes"
         ],
         [
           11,
-          "parcellation-induced variability in structural connectivity hubs"
+          "atlas selection bias in brain network hub analysis"
         ],
         [
           12,
-          "robustness of high-degree nodes to parcellation changes in healthy brains"
+          "reproducibility of hub metrics across connectome parcellations"
         ],
         [
           13,
-          "influence of ROI definition on hub resilience in human connectomes"
+          "sensitivity of small-world properties to parcellation granularity"
         ],
         [
           14,
-          "sensitivity of network topology to parcellation in healthy subjects"
+          "structural connectivity hub stability across different brain atlases"
         ],
         [
           15,
-          "parcellation effects on the identification of connector hubs"
+          "parcellation-induced artifacts in network resilience assessment"
         ],
         [
           16,
-          "reliability of hub metrics across different structural brain atlases"
+          "role of cortical parcellation in defining connectome hub resilience"
         ],
         [
           17,
-          "impact of parcellation scale on the resilience of connectome hubs"
+          "comparative analysis of hub resilience across multiple parcellation schemes"
         ],
         [
           18,
-          "consistency of hub detection across varying parcellation resolutions"
+          "impact of region definition on brain network robustness"
         ],
         [
           19,
-          "atlas selection bias in assessing connectome hub resilience"
+          "variability of central nodes in healthy connectomes due to parcellation"
         ],
         [
           20,
-          "sensitivity of small-world properties and hubs to parcellation in healthy connectomes"
+          "parcellation sensitivity of core-periphery structure in connectomes"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neuroscience": 0,
-        "impact of brain parcellation schemes on hub identification in connectomes": 3,
-        "robustness of connectome hubs across different parcellation methods": 1,
-        "sensitivity of network hubs to atlas resolution in healthy brains": 1
+        "robustness of brain network hubs to parcellation schemes": 4,
+        "sensitivity of connectome hubs to atlas definition": 3
       },
-      "total_queries_issued": 3
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "atlas granularity brain network topology",
-      "Human Connectome Project HCP multimodal parcellation",
-      "modular organization network segregation integration",
-      "hub vulnerability edge removal node degree",
-      "small-world architecture rich club coefficient"
+      "parcellation scheme atlas granularity resolution",
+      "functional connectivity HCP UK Biobank resting-state fMRI",
+      "network efficiency small-world topology modular organization",
+      "hub identification node degree participation coefficient resilience",
+      "parcellation bias topological variability connectome stability"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -122,36 +121,51 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2006.10357"
+        "1909.13834"
       ]
     },
     "per_query_hit_count": {
       "Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neuroscience": 3,
-      "Human Connectome Project HCP multimodal parcellation": 3,
-      "atlas granularity brain network topology": 3,
-      "hub vulnerability edge removal node degree": 2,
-      "modular organization network segregation integration": 3,
-      "small-world architecture rich club coefficient": 3
+      "functional connectivity HCP UK Biobank resting-state fMRI": 3,
+      "hub identification node degree participation coefficient resilience": 2,
+      "network efficiency small-world topology modular organization": 3,
+      "parcellation bias topological variability connectome stability": 3,
+      "parcellation scheme atlas granularity resolution": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
+      "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "1310.4010",
-          "rationale": "The paper focuses on using connectomes as biomarkers for brain disease and discusses variability within healthy subjects as a confounding factor, but it does not measure or analyze \"hub resilience,\" \"parcellation sensitivity,\" or the specific mechanism of how network topology changes with different brain parcellations. It fails to satisfy criteria (a) or (b) because it lacks the specific variables (resilience, parcellation sensitivity) and does not provide the foundational methodology (d) or emp",
-          "title": "The Potential of the Human Connectome as a Biomarker of Brain Disease"
+          "primary_pointer": "2601.02000",
+          "rationale": "The paper focuses on pathological hubs in epilepsy patients and their relationship to surgical outcomes, which constitutes an off-domain study relative to the user's specific question about \"hub resilience\" in \"healthy connectomes.\" While it discusses brain networks and hubs, it does not measure the specific mechanism of parcellation sensitivity on resilience in healthy populations, nor does it serve as a foundational baseline for healthy connectome properties, failing to meet criteria (a), (b),",
+          "title": "Neighbourhood topology unveils pathological hubs in the brain networks of epilepsy-surgery patients"
         },
         {
-          "primary_pointer": "1406.7690",
-          "rationale": "The paper is rejected because it belongs to a completely different domain (high-energy particle physics and detector hardware) and shares no measurable connection to the user's variables (brain parcellation, hub resilience, or connectomes) or mechanism, despite the superficial keyword overlap of \"neural network\" and \"clustering.\"",
-          "title": "A neural network clustering algorithm for the ATLAS silicon pixel detector"
+          "primary_pointer": "2011.11052",
+          "rationale": "The paper focuses on deep learning architectures for brain tumor segmentation, which is an off-domain application distinct from the user's question regarding the sensitivity of hub resilience in healthy connectomes to parcellation schemes. It does not measure the same biological mechanism, variables, or empirical population (healthy vs. tumor) required for inclusion in the literature review.",
+          "title": "Efficient embedding network for 3D brain tumor segmentation"
+        },
+        {
+          "primary_pointer": "2403.02455",
+          "rationale": "The paper is entirely off-domain, focusing on high-energy particle physics (supersymmetry at the ATLAS experiment) rather than neuroscience or brain connectomes. It shares no measurable connection to the user's variables (parcellation, hub resilience, healthy connectomes) or mechanism, failing all inclusion criteria and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "The quest to discover supersymmetry at the ATLAS experiment"
+        },
+        {
+          "primary_pointer": "2009.04986",
+          "rationale": "The paper focuses on high-energy particle physics (ATLAS detector, jet reconstruction, proton-proton collisions) and shares no measurable connection to the user's neuroscience domain (brain connectomes, hub resilience, parcellation). This falls under the rejection rule for being \"off-domain entirely,\" where the shared term \"resilience\" or \"optimization\" is coincidental and refers to distinct physical constructs.",
+          "title": "Optimisation of large-radius jet reconstruction for the ATLAS detector in 13 TeV proton-proton collisions"
+        },
+        {
+          "primary_pointer": "2304.12867",
+          "rationale": "The paper focuses on particle physics track reconstruction at the Large Hadron Collider (ATLAS detector), which is an entirely different domain from neuroscience and brain connectomes. It shares no measurable connection to the user's variables (parcellation, hub resilience, healthy connectomes) or mechanisms, failing the \"off-domain entirely\" rejection rule.",
+          "title": "Performance of the reconstruction of large impact parameter tracks in the inner detector of ATLAS"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-29T18:45:21Z",
+    "started_at": "2026-07-09T16:09:36Z",
     "term_input": {
       "normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
       "raw": "Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neuroscience"
@@ -173,7 +187,7 @@
           "primary_pointer": "2101.08123"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Technological Competence is a Precondition for Effective Implementation of Virtual Reality Head Mounted Displays in Human Neuroscience: A Technological Review and Meta-analysis')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +220,7 @@
           "primary_pointer": "2502.00265"
         },
         "details": "query-relevance 0.125 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='RADx Data Hub: A Cloud Platform for FAIR, Harmonized COVID-19 Data')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -225,94 +239,198 @@
           "primary_pointer": "2412.11188"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Assessing the Robustness and Resilience of U.S. Strategic Highways: A Network Science Perspective')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "During LHC Run 2 (2015-2018) the ATLAS Level-1 topological trigger allowed efficient data-taking by the ATLAS experiment at luminosities up to 2.1x10$^{34}$ cm$^{-2}$s$^{-1}$, which exceeds the design value by a factor of two. The system was installed in 2016 and operated in 2017 and 2018. It uses Field Programmable Gate Array processors to select interesting events by placing kinematic and angular requirements on electromagnetic clusters, jets, $τ$-leptons, muons and the total energy. It significantly improves the background event rejection and signal event acceptance, in particular for Higgs boson and $B$-physics measurements.",
+          "claimed_abstract": "The momentum measurement capability of the ATLAS muon spectrometer relies fundamentally on the intrinsic single-hit spatial resolution of the monitored drift tube precision tracking chambers. Optimal resolution is achieved with a dedicated calibration program that addresses the specific operating conditions of the 354000 high-pressure drift tubes in the spectrometer. The calibrations consist of a set of timing offsets and drift time to drift distance transfer relations, and result in chamber resolution functions. This paper describes novel algorithms to obtain precision calibrations from data collected by ATLAS in LHC Run 2 and from a gas monitoring chamber, deployed in a dedicated gas facility. The algorithm output consists of a pair of correction constants per chamber which are applied to baseline calibrations, and determined to be valid for the entire ATLAS Run 2. The final single-hit spatial resolution, averaged over 1172 monitored drift tube chambers, is $81.7 \\pm 2.2 μ$m.",
           "claimed_authors": [
             " ATLAS Collaboration"
           ],
-          "claimed_title": "Performance of the ATLAS Level-1 topological trigger in Run 2",
+          "claimed_title": "Resolution of the ATLAS muon spectrometer monitored drift tubes in LHC Run 2",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2105.01416"
+          "claimed_year": 2019,
+          "primary_pointer": "1906.12226"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Performance of the ATLAS Level-1 topological trigger in Run 2')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Resolution of the ATLAS muon spectrometer monitored drift tubes in LHC Run 2')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The reconstruction of the signal from hadrons and jets emerging from the proton-proton collisions at the Large Hadron Collider (LHC) and entering the ATLAS calorimeters is based on a three-dimensional topological clustering of individual calorimeter cell signals. The cluster formation follows cell signal-significance patterns generated by electromagnetic and hadronic showers. In this, the clustering algorithm implicitly performs a topological noise suppression by removing cells with insignificant signals which are not in close proximity to cells with significant signals. The resulting topological cell clusters have shape and location information, which is exploited to apply a local energy calibration and corrections depending on the nature of the cluster. Topological cell clustering is established as a well-performing calorimeter signal definition for jet and missing transverse momentum reconstruction in ATLAS.",
+          "claimed_abstract": "A measurement of correction factors for the hadronic jet energy scale and resolution in the ATLAS detector is presented. These correction factors account for differences between simulated and observed data. They are obtained by analysing a selection of top quark events collected in proton-proton collisions by ATLAS between the years 2015 and 2018 at a centre-of-mass energy $\\sqrt{s} = 13$ TeV as well as in 2022 and 2023 at $\\sqrt{s} = 13.6$ TeV. The forward-folding technique is used to quantify the impact of different jet energy scale or resolution corrections on the reconstructed mass of the hadronically decaying $W$ boson from top-quark decays in simulation. The correction factors are extracted from a fit to the parameterised reconstructed $W$-boson mass distribution to data. The energy scale and resolution corrections are measured as a function of the jet transverse momentum between 20 GeV and 200 GeV and absolute pseudorapidity less than 0.8. The uncertainties in the energy scale range from about 0.93% to about 1.7% for jets between 35 and 200 GeV, while for the energy resolution the uncertainties range from about 14% to 28%. The method presented will be used in conjunction with other techniques to further improve ATLAS jet energy scale and resolution precision.",
           "claimed_authors": [
             " ATLAS Collaboration"
           ],
-          "claimed_title": "Topological cell clustering in the ATLAS calorimeters and its performance in LHC Run 1",
+          "claimed_title": "Calibration of the jet energy scale and resolution of small-radius jets using semileptonic $t\\bar{t}$ events with the ATLAS detector",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1603.02934"
+          "claimed_year": 2025,
+          "primary_pointer": "2512.17482"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Topological cell clustering in the ATLAS calorimeters and its performance in LHC Run 1')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Calibration of the jet energy scale and resolution of small-radius jets using semileptonic $t\\\\bar{t}$ events with the ATLAS detector')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A novel technique to identify and split clusters created by multiple charged particles in the ATLAS pixel detector using a set of artificial neural networks is presented. Such merged clusters are a common feature of tracks originating from highly energetic objects, such as jets. Neural networks are trained using Monte Carlo samples produced with a detailed detector simulation. This technique replaces the former clustering approach based on a connected component analysis and charge interpolation. The performance of the neural network splitting technique is quantified using data from proton--proton collisions at the LHC collected by the ATLAS detector in 2011 and from Monte Carlo simulations. This technique reduces the number of clusters shared between tracks in highly energetic jets by up to a factor of three. It also provides more precise position and error estimates of the clusters in both the transverse and longitudinal impact parameter resolution.",
+          "claimed_abstract": "A measurement of the Higgs boson mass is presented based on the combined data samples of the ATLAS and CMS experiments at the CERN LHC in the $H \\rightarrow γγ$ and $H \\rightarrow ZZ\\rightarrow 4\\ell$ decay channels. The results are obtained from a simultaneous fit to the reconstructed invariant mass peaks in the two channels and for the two experiments. The measured masses from the individual channels and the two experiments are found to be consistent among themselves. The combined measured mass of the Higgs boson is $m_{H} = 125.09\\pm0.21\\,\\mathrm{(stat.)}\\pm0.11\\,\\mathrm{(syst.)}~\\mathrm{GeV}$.",
           "claimed_authors": [
-            " ATLAS collaboration"
+            " ATLAS",
+            "CMS Collaborations"
           ],
-          "claimed_title": "A neural network clustering algorithm for the ATLAS silicon pixel detector",
+          "claimed_title": "Combined Measurement of the Higgs Boson Mass in $pp$ Collisions at $\\sqrt{s}=7$ and 8 TeV with the ATLAS and CMS Experiments",
           "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1406.7690"
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07589"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='A neural network clustering algorithm for the ATLAS silicon pixel detector')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Combined Measurement of the Higgs Boson Mass in $pp$ Collisions at $\\\\sqrt{s}=7$ and 8 TeV with the ATLAS and CMS Experiments')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The book consists of a number of short articles that present achievements of the Araucaria members, collaborators, and friends, in various aspects of distance determinations and related topics. It celebrates the 20-year anniversary of the Araucaria Project, acknowledges the people who worked for its success, and popularises our methods and results among broader readership.\n  This book is a part of a project that has received funding from the European Union's Horizon 2020 research and innovation programme under grant agreement No 695099.",
+          "claimed_abstract": "Fractals are self-similar and scale-invariant patterns found ubiquitously in nature. A lot of evidences implying fractal properties such as 1/f power spectrums have been also observed in resting state fMRI time series. To explain the fractal behavior in rs-fMRI, we have proposed the fractal-based model of resting state hemodynamic response function (rs-HRF) whose properties can be summarized by a fractal exponent. Here we show, through a simulation studies, that the fractal behavior of cerebral hemodynamics may cause significant distortion of network properties between neuronal activities and BOLD signals. We simulated neuronal population activities based on the stochastic neural field model from the Macaque brain network, and then obtained their corresponding BOLD signals by convolving them with the rs-HRF filter. The precision of centrality estimated in each node was deteriorated overall in three networks based on transfer entropy, mutual information, and Pearson correlation; particularly the distortion of transfer entropy was more sensitive to the standard deviation of fractal exponents. A node with high centrality was resilient to desynchronized fractal dynamics over all frequencies while a node with small centrality exhibited huge distortion of both wavelet correlation and centrality over low frequencies. This theoretical expectation indicates that the difference of fractal exponents between brain regions leads to discrepancy of statistical network properties, especially at nodes with small centrality, between neuronal activities and BOLD signals, and that the traditional definitions of resting state functional connectivity may not effectively reflect the dynamics of spontaneous neuronal activities.",
           "claimed_authors": [
-            "The Araucaria Project",
-            " :",
-            "G. Pietrzyński",
-            "W. Gieren",
-            "P. Karczmarek",
-            "M. Górski",
-            "B. Zgirski",
-            "P. Wielgórski",
-            "L. Breuval",
-            "K. Suchomska",
-            "A. Gallenne",
-            "P. Kervella",
-            "G. Hajdu",
-            "B. Pilecki",
-            "J. Storm",
-            "N. Nardetto",
-            "R. P. Kudritzki",
-            "M. Taormina",
-            "F. Bresolin",
-            "R. Smolec",
-            "W. Narloch",
-            "C. Gałan",
-            "M. Lewis",
-            "R. Chini"
+            "Wonsang You",
+            "Jörg Stadler"
           ],
-          "claimed_title": "The Araucaria Project: Improving the cosmic distance scale",
+          "claimed_title": "Fractal-driven distortion of resting state functional networks in fMRI: a simulation study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1208.0924"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Fractal-driven distortion of resting state functional networks in fMRI: a simulation study')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The most studies on functional connectivity have been done by analyzing the brain's hemodynamic response to a stimulation. On the other hand, the low-frequency spontaneous fluctuations in the blood oxygen level dependent (BOLD) signals of functional MRI have been observed in the resting state. However, the BOLD signals in resting state are significantly corrupted by huge noises arising from cardiac pulsation, respiration, subject motion, scanner, and so forth. Especially, the noise compounds are stronger in the rat brain than in the human brain. To overcome such an artifact, we assumed that fractal behavior in BOLD signals reflects low frequency neural activity, and applied the theorem such that the wavelet correlation spectrum between long memory processes is scale-invariant over low frequency scales. Here, we report an experiment that shows special correlation patterns not only in correlation of scaling coefficients in very low-frequency band (less than 0.0078Hz) but also in asymptotic wavelet correlation. In addition, we show the distribution of the Hurst exponents in the rat brain.",
+          "claimed_authors": [
+            "Wonsang You",
+            "Joerg Stadler"
+          ],
+          "claimed_title": "Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4751"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Fractal-based Correlation Analysis for Resting State Functional Connectivity of the Rat Brain in Functional MRI')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose: Functional magnetic resonance imaging (fMRI) and functional connectivity (FC) have been used to follow aging in both children and older adults. Robust changes have been observed in children, where high connectivity among all brain regions changes to a more modular structure with maturation. In this work, we examine changes in FC in older adults after two years of aging in the UK Biobank longitudinal cohort. Approach: We process data using the Power264 atlas, then test whether FC changes in the 2,722-subject longitudinal cohort are statistically significant using a Bonferroni-corrected t-test. We also compare the ability of Power264 and UKB-provided, ICA-based FC to determine which of a longitudinal scan pair is older. Results: We find a 6.8\\% average increase in SMT-VIS connectivity from younger to older scan (from $ρ=0.39$ to $ρ=0.42$) that occurs in male, female, older subject ($>65$ years old), and younger subject ($<55$ years old) groups. Among all inter-network connections, this average SMT-VIS connectivity is the best predictor of relative scan age, accurately predicting which scan is older 57\\% of the time. Using the full FC and a training set of 2,000 subjects, one is able to predict which scan is older 82.5\\% of the time using either the full Power264 FC or the UKB-provided ICA-based FC. Conclusions: We conclude that SMT-VIS connectivity increases in the longitudinal cohort, while resting state FC increases generally with age in the cross-sectional cohort. However, we consider the possibility of a change in resting state scanner task between UKB longitudinal data acquisitions.",
+          "claimed_authors": [
+            "Anton Orlichenko",
+            "Kuan-Jui Su",
+            "Qing Tian",
+            "Hui Shen",
+            "Hong-Wen Deng",
+            "Yu-Ping Wang"
+          ],
+          "claimed_title": "Somatomotor-Visual Resting State Functional Connectivity Increases After Two Years in the UK Biobank Longitudinal Cohort",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2305.17247"
+          "primary_pointer": "2308.07992"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='The Araucaria Project: Improving the cosmic distance scale')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Somatomotor-Visual Resting State Functional Connectivity Increases After Two Years in the UK Biobank Longitudinal Cohort')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The small-world phenomenon is found in many self-organising systems. Systems configured in small-world networks spread information more easily than in random or regular lattice-type networks. Whilst it is a known fact that small-world networks have short average path length and high clustering coefficient in self-organising systems, the ego centralities that maintain the cohesiveness of small-world network have not been formally defined. Here we show that instantaneous events such as the release of news items via Twitter, coupled with active community arguments related to the news item form a particular type of small-world network. Analysis of the centralities in the network reveals that community arguments maintain the small-world network whilst actively maintaining the cohesiveness and boundary of the group. The results demonstrate how an active Twitter community unconsciously forms a small-world network whilst interacting locally with a bordering community. Over time, such local interactions brought about the global emergence of the small-world network, connecting media channels with human activities. Understanding the small-world phenomenon in relation to online social or civic movement is important, as evident in the spate of online activists that tipped the power of governments for the better or worst in recent times. The support, or removal of high centrality nodes in such networks has important ramifications in the self-expression of society and civic discourses. The presentation in this article anticipates further exploration of man-made self-organising systems where a larger cluster of ad-hoc and active community maintains the overall cohesiveness of the network.",
+          "claimed_authors": [
+            "Eugene Ch'ng"
+          ],
+          "claimed_title": "Local Interactions and the Emergence of a Twitter Small-World Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.03594"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Local Interactions and the Emergence of a Twitter Small-World Network')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the past two decades, tools from network science have been leveraged to characterize the organization of both structural and functional networks of the brain. One such measure of network organization is hub node identification. Hubs are specialized nodes within a network that link distinct brain units corresponding to specialized functional processes. Conventional methods for identifying hub nodes utilize different types of centrality measures and participation coefficient to profile various aspects of nodal importance. These methods solely rely on the functional connectivity networks constructed from functional magnetic resonance imaging (fMRI), ignoring the structure-function coupling in the brain. In this paper, we introduce a graph signal processing (GSP) based hub detection framework that utilizes both the structural connectivity and the functional activation to identify hub nodes. The proposed framework models functional activity as graph signals on the structural connectivity. Hub nodes are then detected based on the premise that hub nodes are sparse, have higher level of activity compared to their neighbors, and the non-hub nodes' activity can be modeled as the output of a graph-based filter. Based on these assumptions, an optimization framework, GraFHub, is formulated to learn the coefficients of the optimal polynomial graph filter and detect the hub nodes. The proposed framework is evaluated on both simulated data and resting state fMRI (rs-fMRI) data from Human Connectome Project (HCP).",
+          "claimed_authors": [
+            "Meiby Ortiz-Bouza",
+            "Duc Vu",
+            "Abdullah Karaaslanli",
+            "Selin Aviyente"
+          ],
+          "claimed_title": "Learning Graph Filters for Structure-Function Coupling based Hub Node Identification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.17410"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Learning Graph Filters for Structure-Function Coupling based Hub Node Identification')",
+        "failed_at": "2026-07-09T16:10:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We attempt to identify the different node hubs of a road network using PageRank for preparation for possible random terrorist attacks. The robustness of a road network against such attack is crucial to be studied because it may cripple its connectivity by simply shutting down these hubs. We show the important hubs in a road network based on network structure and propose a model for robustness analysis. By identifying important hubs in a road network, possible preparation schemes may be done earlier to mitigate random terrorist attacks, including defense reinforcement and transportation security. A case study of the Metro Manila road network is also presented. The case study shows that the most important hubs in the Metro Manila road network are near airports, piers, major highways and expressways",
+          "claimed_authors": [
+            "Jacob Chan",
+            "Kardi Teknomo"
+          ],
+          "claimed_title": "Hub Identification of the Metro Manila Road Network Using PageRank",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.01464"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Hub Identification of the Metro Manila Road Network Using PageRank')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
@@ -330,179 +448,42 @@
           "primary_pointer": "2103.03478"
         },
         "details": "query-relevance 0.250 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='PPA: Principal Parcellation Analysis for Brain Connectomes and Multiple Traits')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The combination of increased life expectancy and falling birth rates is resulting in an aging population. Wearable Sensor-based Human Activity Recognition (WSHAR) emerges as a promising assistive technology to support the daily lives of older individuals, unlocking vast potential for human-centric applications. However, recent surveys in WSHAR have been limited, focusing either solely on deep learning approaches or on a single sensor modality. In real life, our human interact with the world in a multi-sensory way, where diverse information sources are intricately processed and interpreted to accomplish a complex and unified sensing system. To give machines similar intelligence, multimodal machine learning, which merges data from various sources, has become a popular research area with recent advancements. In this study, we present a comprehensive survey from a novel perspective on how to leverage multimodal learning to WSHAR domain for newcomers and researchers. We begin by presenting the recent sensor modalities as well as deep learning approaches in HAR. Subsequently, we explore the techniques used in present multimodal systems for WSHAR. This includes inter-multimodal systems which utilize sensor modalities from both visual and non-visual systems and intra-multimodal systems that simply take modalities from non-visual systems. After that, we focus on current multimodal learning approaches that have applied to solve some of the challenges existing in WSHAR. Specifically, we make extra efforts by connecting the existing multimodal literature from other domains, such as computer vision and natural language processing, with current WSHAR area. Finally, we identify the corresponding challenges and potential research direction in current WSHAR area for further improvement.",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
           "claimed_authors": [
-            "Jianyuan Ni",
-            "Hao Tang",
-            "Syed Tousiful Haque",
-            "Yan Yan",
-            "Anne H. H. Ngu"
+            "Fabian Haak",
+            "Philipp Schaer"
           ],
-          "claimed_title": "A Survey on Multimodal Wearable Sensor-based Human Action Recognition",
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.15349"
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='A Survey on Multimodal Wearable Sensor-based Human Action Recognition')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Most methods proposed to uncover communities in complex networks rely on combinatorial graph properties. Usually an edge-counting quality function, such as modularity, is optimized over all partitions of the graph compared against a null random graph model. Here we introduce a systematic dynamical framework to design and analyze a wide variety of quality functions for community detection. The quality of a partition is measured by its Markov Stability, a time-parametrized function defined in terms of the statistical properties of a Markov process taking place on the graph. The Markov process provides a dynamical sweeping across all scales in the graph, and the time scale is an intrinsic parameter that uncovers communities at different resolutions.\n  This dynamic-based community detection leads to a compound optimization, which favours communities of comparable centrality (as defined by the stationary distribution), and provides a unifying framework for spectral algorithms, as well as different heuristics for community detection, including versions of modularity and Potts model. Our dynamic framework creates a systematic link between different stochastic dynamics and their corresponding notions of optimal communities under distinct (node and edge) centralities. We show that the Markov Stability can be computed efficiently to find multi-scale community structure in large networks.",
+          "claimed_abstract": "What can we learn from a connectome? We constructed a simplified model of the first two stages of the fly visual system, the lamina and medulla. The resulting hexagonal lattice convolutional network was trained using backpropagation through time to perform object tracking in natural scene videos. Networks initialized with weights from connectome reconstructions automatically discovered well-known orientation and direction selectivity properties in T4 neurons and their inputs, while networks initialized at random did not. Our work is the first demonstration, that knowledge of the connectome can enable in silico predictions of the functional properties of individual neurons in a circuit, leading to an understanding of circuit function from structure alone.",
           "claimed_authors": [
-            "Renaud Lambiotte",
-            "Jean-Charles Delvenne",
-            "Mauricio Barahona"
+            "Fabian David Tschopp",
+            "Michael B. Reiser",
+            "Srinivas C. Turaga"
           ],
-          "claimed_title": "Random Walks, Markov Processes and the Multiscale Modular Organization of Complex Networks",
+          "claimed_title": "A Connectome Based Hexagonal Lattice Convolutional Network Model of the Drosophila Visual System",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1502.04381"
+          "claimed_year": 2018,
+          "primary_pointer": "1806.04793"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Random Walks, Markov Processes and the Multiscale Modular Organization of Complex Networks')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Segregation is a widely recognised phenomenon with profound implications for societies worldwide. From political science and gender studies to anthropology and urban studies, it has garnered considerable attention across numerous scientific fields due to its multifaceted nature. However, what makes segregation such a far-reaching phenomenon? In fact, how many forms of segregation exist? Have different disciplines engaged in segregation research uncovered all its facets? This article systematically explores the landscape of segregation research spanning over a century. We analyzed 10,754 documents from the Scopus database to unveil the dynamics of the discovery of segregation forms through several findings. We identify (1) the exponential growth and increasing diversification of segregation forms, driven by combinatorial and exploratory work and increasing transdisciplinarity and intersectionality in research; (2) the evolution and structure of the field in hierarchies and clusters of segregation forms, revealing trends, persistence, and shifts over time; (3) the timing and geographical distribution of first publications on segregation forms, along with contextual variations across world regions and countries; (4) path dependencies in the historical and geographical shaping of segregation research; and (5) the structure of knowledge production. Aiming to contribute semantic organization to an increasingly complex field, we explore these findings to introduce a bottom-up ontology of segregation, marking the first comprehensive effort of its kind.",
-          "claimed_authors": [
-            "Vini Netto",
-            "Kimon Krenz",
-            "Maria Fiszon",
-            "Otávio Peres",
-            "Desirée Rosalino"
-          ],
-          "claimed_title": "Decoding Segregation: Navigating a century of segregation research across disciplines and introducing a bottom-up ontology",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2410.08374"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Decoding Segregation: Navigating a century of segregation research across disciplines and introducing a bottom-up ontology')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce an easily computable topological measure which locates the effective crossover between segregation and integration in a modular network. Segregation corresponds to the degree of network modularity, while integration is expressed in terms of the algebraic connectivity of an associated hyper-graph. The rigorous treatment of the simplified case of cliques of equal size that are gradually rewired until they become completely merged, allows us to show that this topological crossover can be made to coincide with a dynamical crossover from cluster to global synchronization of a system of coupled phase oscillators. The dynamical crossover is signaled by a peak in the product of the measures of intra-cluster and global synchronization, which we propose as a dynamical measure of complexity. This quantity is much easier to compute than the entropy (of the average frequencies of the oscillators), and displays a behavior which closely mimics that of the dynamical complexity index based on the latter. The proposed toplogical measure simultaneously provides information on the dynamical behavior, sheds light on the interplay between modularity vs total integration and shows how this affects the capability of the network to perform both local and distributed dynamical tasks.",
-          "claimed_authors": [
-            "A. Ajdari Rad",
-            "I. Sendiña-Nadal",
-            "D. Papo",
-            "M. Zanin",
-            "J. M. Buldú",
-            "F. del Pozo",
-            "S. Boccaletti"
-          ],
-          "claimed_title": "Topological Measure Locating the Effective Crossover between Segregation and Integration in a Modular Network",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2012,
-          "primary_pointer": "1206.3403"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Topological Measure Locating the Effective Crossover between Segregation and Integration in a Modular Network')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The use of container technology has skyrocketed during the last few years, with Docker as the leading container platform. Docker's online repository for publicly available container images, called Docker Hub, hosts over 3.5 million images at the time of writing, making it the world's largest community of container images. We perform an extensive vulnerability analysis of 2500 Docker images. It is of particular interest to perform this type of analysis because the vulnerability landscape is a rapidly changing category, the vulnerability scanners are constantly developed and updated, new vulnerabilities are discovered, and the volume of images on Docker Hub is increasing every day. Our main findings reveal that (1) the number of newly introduced vulnerabilities on Docker Hub is rapidly increasing; (2) certified images are the most vulnerable; (3) official images are the least vulnerable; (4) there is no correlation between the number of vulnerabilities and image features (i.e., number of pulls, number of stars, and days since the last update); (5) the most severe vulnerabilities originate from two of the most popular scripting languages, JavaScript and Python; and (6) Python 2.x packages and jackson-databind packages contain the highest number of severe vulnerabilities. We perceive our study as the most extensive vulnerability analysis published in the open literature in the last couple of years.",
-          "claimed_authors": [
-            "Katrine Wist",
-            "Malene Helsem",
-            "Danilo Gligoroski"
-          ],
-          "claimed_title": "Vulnerability Analysis of 2500 Docker Hub Images",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2006.02932"
-        },
-        "details": "query-relevance 0.125 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Vulnerability Analysis of 2500 Docker Hub Images')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Quantum walks on translation invariant regular graphs spread quadratically faster than their classical counterparts. The same coherence that gives them this quantum speedup inhibits, or even stops their spread in the presence of disorder. We ask how to create an efficient transport channel from a fixed source site (A) to fixed target site (B) in a disordered 2-dimensional discrete-time quantum walk by cutting some of the links. We show that the somewhat counterintuitive strategy of cutting links along a single line connecting A to B creates such a channel. The efficient transport along the cut is due to topologically protected chiral edge states, which exist even though the bulk Chern number in this system vanishes. We give a realization of the walk as a periodically driven lattice Hamiltonian, and identify the bulk topological invariant responsible for the edge states as the quasienergy winding of this Hamiltonian.",
-          "claimed_authors": [
-            "Janos K. Asboth",
-            "Jonathan M. Edge"
-          ],
-          "claimed_title": "Edge-state enhanced transport in a 2-dimensional quantum walk",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1411.3958"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Edge-state enhanced transport in a 2-dimensional quantum walk')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
-          "claimed_authors": [
-            "Zhihui Zhang",
-            "Jingwen Leng",
-            "Lingxiao Ma",
-            "Youshan Miao",
-            "Chao Li",
-            "Minyi Guo"
-          ],
-          "claimed_title": "Architectural Implications of Graph Neural Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2009.00804"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Architectural Implications of Graph Neural Networks')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Applications with low data reuse and frequent irregular memory accesses, such as graph or sparse linear algebra workloads, fail to scale well due to memory bottlenecks and poor core utilization. While prior work with prefetching, decoupling, or pipelining can mitigate memory latency and improve core utilization, memory bottlenecks persist due to limited off-chip bandwidth. Approaches doing processing in-memory (PIM) with Hybrid Memory Cube (HMC) overcome bandwidth limitations but fail to achieve high core utilization due to poor task scheduling and synchronization overheads. Moreover, the high memory-per-core ratio available with HMC limits strong scaling.\n  We introduce Dalorex, a hardware-software co-design that achieves high parallelism and energy efficiency, demonstrating strong scaling with >16,000 cores when processing graph and sparse linear algebra workloads. Over the prior work in PIM, both using 256 cores, Dalorex improves performance and energy consumption by two orders of magnitude through (1) a tile-based distributed-memory architecture where each processing tile holds an equal amount of data, and all memory operations are local; (2) a task-based parallel programming model where tasks are executed by the processing unit that is co-located with the target data; (3) a network design optimized for irregular traffic, where all communication is one-way, and messages do not contain routing metadata; (4) novel traffic-aware task scheduling hardware that maintains high core utilization; and (5) a data placement strategy that improves work balance.\n  This work proposes architectural and software innovations to provide the greatest scalability to date for running graph algorithms while still being programmable for other domains.",
-          "claimed_authors": [
-            "Marcelo Orenes-Vera",
-            "Esin Tureci",
-            "David Wentzlaff",
-            "Margaret Martonosi"
-          ],
-          "claimed_title": "Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.13219"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Dalorex: A Data-Local Program Execution and Architecture for Memory-bound Applications')",
-        "failed_at": "2026-06-29T18:45:51Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In complex networks the rich nodes are the subset of nodes with high degree. These well connected nodes tend to dominate the organisation of the network's structure. In non-evolving networks, a reference network has been used to detect if the connectivity between the rich nodes is due to chance or caused by an unknown mechanism. Chance is represented as a reference network obtained from an ensemble of networks. When compared with the original network the reference network discounts suggests the existence of a well connected rich club beyond structural constraints. Here we revise some of the properties of the ensemble obtained by conserving only the degree distribution and introduce two new reference networks to study the importance of the rich nodes as organisers of the network structure. The first reference network is obtained from an ensemble of networks where all the members of the ensemble have the same rich--club coefficient. The reference network obtained from the ensemble is assortative. We propose that this reference network can be used to study networks where assortativness is a fundamental property, a common case in many social networks. The second reference network is obtained from an ensemble where the members of the ensemble all have the same probability degree distribution and rich-club coefficient. The reference network obtained from this ensemble has a very similar structure to the original network. This ensemble can be used to quantify correlations between the rich nodes and pinpoint which links are the backbone of the network's structure.",
-          "claimed_authors": [
-            "R. J. Mondragon",
-            "S. Zhou"
-          ],
-          "claimed_title": "Ensembles related to the rich-club coefficient for non-evolving networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2008,
-          "primary_pointer": "0808.4062"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='Ensembles related to the rich-club coefficient for non-evolving networks')",
-        "failed_at": "2026-06-29T18:45:51Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes neur', candidate_title='A Connectome Based Hexagonal Lattice Convolutional Network Model of the Drosophila Visual System')",
+        "failed_at": "2026-07-09T16:10:23Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -510,80 +491,53 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Rongjie Liu",
-            "Meng Li",
-            "David B. Dunson"
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
           ],
-          "title": "PPA: Principal Parcellation Analysis for Brain Connectomes and Multiple Traits",
+          "title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
           "venue": "arXiv",
-          "year": 2021
+          "year": 2024
         },
-        "primary_pointer": "2103.03478",
-        "summary": "Our understanding of the structure of the brain and its relationships with human traits is largely determined by how we represent the structural connectome. Standard practice divides the brain into regions of interest (ROIs) and represents the connectome as an adjacency matrix having cells measuring connectivity between pairs of ROIs. Statistical analyses are then heavily driven by the (largely arbitrary) choice of ROIs. In this article, we propose a novel tractography-based representation of brain connectomes, which clusters fiber endpoints to define a data adaptive parcellation targeted to explain variation among individuals and predict human traits. This representation leads to Principal Parcellation Analysis (PPA), representing individual brain connectomes by compositional vectors building on a basis system of fiber bundles that captures the connectivity at the population level. PPA reduces subjectivity and facilitates statistical analyses. We illustrate the proposed approach through applications to data from the Human Connectome Project (HCP) and show that PPA connectomes improve power in predicting human traits over state-of-the-art methods based on classical connectomes, while dramatically improving parsimony and maintaining interpretability. Our PPA package is publicly available on GitHub, and can be implemented routinely for diffusion image data.",
+        "primary_pointer": "2408.03023",
+        "summary": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2103.03478",
+          "final_url": "https://arxiv.org/abs/2408.03023",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-29T18:45:58Z"
+          "verified_at": "2026-07-09T16:10:29Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Miroslav Andjelkovic",
-            "Bosiljka Tadic",
-            "Roderick Melnik"
+            "Wen Zhang",
+            "Yalin Wang"
           ],
-          "title": "The topology of higher-order complexes associated with brain-function hubs in human connectomes",
+          "title": "Geometric Brain Surface Network For Brain Cortical Parcellation",
           "venue": "arXiv",
-          "year": 2020
+          "year": 2019
         },
-        "primary_pointer": "2006.10357",
-        "summary": "Higher-order connectivity in complex systems described by simplexes of different orders provides a geometry for simplex-based dynamical variables and interactions. Simplicial complexes that constitute a functional geometry of the human connectome can be crucial for the brain complex dynamics. In this context, the best-connected brain areas, designated as hub nodes, play a central role in supporting integrated brain function. Here, we study the structure of simplicial complexes attached to eight global hubs in the female and male connectomes and identify the core networks among the affected brain regions. These eight hubs (Putamen, Caudate, Hippocampus and Thalamus-Proper in the left and right cerebral hemisphere) are the highest-ranking according to their topological dimension, defined as the number of simplexes of all orders in which the node participates. Furthermore, we analyse the weight-dependent heterogeneity of simplexes. We demonstrate changes in the structure of identified core networks and topological entropy when the threshold weight is gradually increased. These results highlight the role of higher-order interactions in human brain networks and provide additional evidence for (dis)similarity between the female and male connectomes.",
+        "primary_pointer": "1909.13834",
+        "summary": "A large number of surface-based analyses on brain imaging data adopt some specific brain atlases to better assess structural and functional changes in one or more brain regions. In these analyses, it is necessary to obtain an anatomically correct surface parcellation scheme in an individual brain by referring to the given atlas. Traditional ways to accomplish this goal are through a designed surface-based registration or hand-crafted surface features, although both of them are time-consuming. A recent deep learning approach depends on a regular spherical parameterization of the mesh, which is computationally prohibitive in some cases and may also demand further post-processing to refine the network output. Therefore, an accurate and fully-automatic cortical surface parcellation scheme directly working on the original brain surfaces would be highly advantageous. In this study, we propose an end-to-end deep brain cortical parcellation network, called \\textbf{DBPN}. Through intrinsic and extrinsic graph convolution kernels, DBPN dynamically deciphers neighborhood graph topology around each vertex and encodes the deciphered knowledge into node features. Eventually, a non-linear mapping between the node features and parcellation labels is constructed. Our model is a two-stage deep network which contains a coarse parcellation network with a U-shape structure and a refinement network to fine-tune the coarse results. We evaluate our model in a large public dataset and our work achieves superior performance than state-of-the-art baseline methods in both accuracy and efficiency",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2006.10357",
+          "final_url": "https://arxiv.org/abs/1909.13834",
           "http_status": 200,
-          "pdf_sample_score": 0.2548,
+          "pdf_sample_score": 0.331,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-29T18:45:59Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Salim Arslan"
-          ],
-          "title": "Connectivity-Driven Parcellation Methods for the Human Cerebral Cortex",
-          "venue": "arXiv",
-          "year": 2018
-        },
-        "primary_pointer": "1802.06772",
-        "summary": "In this thesis, we present robust and fully-automated methods for the subdivision of the entire human cerebral cortex based on connectivity information. Our contributions are four-fold: First, we propose a clustering approach to delineate a cortical parcellation that provides a reliable abstraction of the brain's functional organisation. Second, we cast the parcellation problem as a feature reduction problem and make use of manifold learning and image segmentation techniques to identify cortical regions with distinct structural connectivity patterns. Third, we present a multi-layer graphical model that combines within- and between-subject connectivity, which is then decomposed into a cortical parcellation that can represent the whole population, while accounting for the variability across subjects. Finally, we conduct a large-scale, systematic comparison of existing parcellation methods, with a focus on providing some insight into the reliability of brain parcellations in terms of reflecting the underlying connectivity, as well as, revealing their impact on network analysis.\n  We evaluate the proposed parcellation methods on publicly available data from the Human Connectome Project and a plethora of quantitative and qualitative evaluation techniques investigated in the literature. Experiments across multiple resolutions demonstrate the accuracy of the presented methods at both subject and group levels with regards to reproducibility and fidelity to the data. The neuro-biological interpretation of the proposed parcellations is also investigated by comparing parcel boundaries with well-structured properties of the cerebral cortex. Results show the advantage of connectivity-driven parcellations over traditional approaches in terms of better fitting the underlying connectivity.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1802.06772",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-29T18:46:08Z"
+          "verified_at": "2026-07-09T16:10:30Z"
         }
       }
     ]

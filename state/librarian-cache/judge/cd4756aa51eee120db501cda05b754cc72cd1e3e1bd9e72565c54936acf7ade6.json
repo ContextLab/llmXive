@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.12867",
+  "judged_at": "2026-07-09T16:10:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "The paper focuses on particle physics track reconstruction at the Large Hadron Collider (ATLAS detector), which is an entirely different domain from neuroscience and brain connectomes. It shares no measurable connection to the user's variables (parcellation, hub resilience, healthy connectomes) or mechanisms, failing the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

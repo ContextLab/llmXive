@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.13834",
+  "judged_at": "2026-07-09T16:10:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "This paper satisfies criterion (b) as it directly measures the independent variable of \"cortical parcellation\" (specifically proposing a new parcellation scheme and evaluating its accuracy) within the user's domain of brain connectomes. It also aligns with criterion (f) by addressing the \"parcellation sensitivity\" aspect of the user's question through the development and benchmarking of a parcellation method, which is a necessary foundational step for assessing how parcellation choices impact hu",
+  "relevant": true
+}

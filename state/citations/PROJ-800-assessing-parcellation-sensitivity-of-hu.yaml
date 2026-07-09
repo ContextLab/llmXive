@@ -1,0 +1,11 @@
+- artifact_hash: 7216f02753a796e791a8984ec5e9c3996393d7f0027c6e50647291360287a95f
+  artifact_path: projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/specs/001-assessing-parcellation-sensitivity-of-hu/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000224`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000224
+  verified_at: '2026-07-09T16:37:20.800067Z'

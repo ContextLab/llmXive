@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.11052",
+  "judged_at": "2026-07-09T16:10:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "The paper focuses on deep learning architectures for brain tumor segmentation, which is an off-domain application distinct from the user's question regarding the sensitivity of hub resilience in healthy connectomes to parcellation schemes. It does not measure the same biological mechanism, variables, or empirical population (healthy vs. tumor) required for inclusion in the literature review.",
+  "relevant": false
+}

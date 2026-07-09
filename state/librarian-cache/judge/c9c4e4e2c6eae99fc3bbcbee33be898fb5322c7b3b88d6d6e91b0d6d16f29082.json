@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.03023",
+  "judged_at": "2026-07-09T16:10:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing parcellation sensitivity of hub resilience in healthy connectomes neuroscience",
+  "rationale": "This paper satisfies criterion (b) by measuring node importance (a proxy for hub status) and evaluating the stability/dependence of these metrics on network parameters (terminal time) within the specific domain of brain networks, which directly informs the sensitivity of hub identification to methodological choices in connectome analysis. Additionally, it serves as a foundational methodological reference (criterion d) for applying control-theoretic centrality measures to brain networks, a key al",
+  "relevant": true
+}

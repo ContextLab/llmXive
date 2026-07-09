@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hub Analysis Output Schema"
+description: "Schema for the final statistical results of the hub overlap analysis, including cardinality-normalized metrics."
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: "Unique identifier for the analysis run."
+  resolution_pair:
+    type: string
+    description: "Pair of resolutions compared (e.g., 'AAL-90_vs_Schaefer-200')."
+  metric_type:
+    type: string
+    description: "Type of centrality metric used (e.g., 'degree', 'betweenness')."
+  observed_jaccard:
+    type: number
+    description: "Observed Jaccard index between hub sets."
+  observed_dice:
+    type: number
+    description: "Observed Dice coefficient between hub sets."
+  expected_jaccard:
+    type: number
+    description: "Expected Jaccard index for random sets of the given sizes (cardinality normalization)."
+  excess_overlap:
+    type: number
+    description: "Excess overlap (observed_jaccard - expected_jaccard), the primary stability metric."
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient between centrality scores (post-aggregation)."
+  p_value:
+    type: number
+    description: "P-value from the Spatial Spin Test."
+  n_permutations:
+    type: integer
+    description: "Number of permutations performed."
+  significant:
+    type: boolean
+    description: "True if p_value < 0.05 (or Bonferroni corrected threshold)."
+  hub_count_res1:
+    type: integer
+    description: "Number of hubs in the first resolution."
+  hub_count_res2:
+    type: integer
+    description: "Number of hubs in the second resolution."
+  fixed_cardinality_analysis:
+    type: boolean
+    description: "True if this result was derived from a fixed-cardinality comparison (e.g., top 9 hubs across all)."
+required:
+  - analysis_id
+  - resolution_pair
+  - metric_type
+  - observed_jaccard
+  - observed_dice
+  - expected_jaccard
+  - excess_overlap
+  - spearman_rho
+  - p_value
+  - n_permutations
+  - significant
+  - hub_count_res1
+  - hub_count_res2
+  - fixed_cardinality_analysis
+additionalProperties: false

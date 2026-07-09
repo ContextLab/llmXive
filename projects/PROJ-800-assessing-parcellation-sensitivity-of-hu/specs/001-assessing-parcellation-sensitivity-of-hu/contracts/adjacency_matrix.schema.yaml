@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Adjacency Matrix Output Schema"
+description: "Schema for the processed adjacency matrices generated for each subject and resolution."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject (e.g., 'sub-001')."
+  atlas_name:
+    type: string
+    description: "Name of the atlas used (e.g., 'AAL', 'Schaefer')."
+  resolution:
+    type: integer
+    description: "Number of nodes in the parcellation (e.g., 90, 200, 400)."
+  matrix_path:
+    type: string
+    description: "Relative path to the .npz file containing the adjacency matrix."
+  checksum:
+    type: string
+    description: "MD5 or SHA256 checksum of the matrix file for integrity verification."
+  edge_count:
+    type: integer
+    description: "Number of non-zero edges in the matrix (excluding diagonal)."
+  is_symmetric:
+    type: boolean
+    description: "True if the matrix is symmetric (expected for Pearson correlation)."
+required:
+  - subject_id
+  - atlas_name
+  - resolution
+  - matrix_path
+  - checksum
+  - edge_count
+  - is_symmetric
+additionalProperties: false
