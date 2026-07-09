@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-09T01:40:23.895681Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1017-rynnworld-4d-4d-embodied-world-models-fo
-last_run_id: null
+last_run_id: d0247249-4dfa-4cfd-a908-59e7947fb26c
 last_run_status: null
 points_paper: {}
 points_research: {}
