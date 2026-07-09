@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Alignment Results Schema
+description: Schema for the alignment of NMF component weights with behavioral metadata.
+type: object
+properties:
+  alignment_timestamps:
+    type: array
+    items:
+      type: number
+  component_weights_aligned:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+  behavioral_metrics_aligned:
+    type: array
+    items:
+      type: object
+  error_metric:
+    type: number
+    description: Alignment error in frames
+  threshold_passed:
+    type: boolean
+required:
+  - alignment_timestamps
+  - component_weights_aligned
+  - behavioral_metrics_aligned
+  - error_metric
+  - threshold_passed

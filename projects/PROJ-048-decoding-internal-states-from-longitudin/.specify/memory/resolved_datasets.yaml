@@ -1,0 +1,231 @@
+resolved_at: '2026-07-09T04:59:23.253681+00:00'
+datasets:
+- intent: NMF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16756
+      parsed: true
+  - url: https://huggingface.co/datasets/NMFS-OSI/noaa-pacific-benthic-cover-t1/resolve/main/data/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-filter-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NMFS-OSI/noaa-pacific-benthic-cover-t1/resolve/main/data/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/NMFS-OSI/noaa-pacific-benthic-cover-t1-all/resolve/main/data/all.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Role_of_Cyber-Physical-Social_Systems_in_Smart_Energy_Future/32918927
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Alineaci_n/32944580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7167645
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7167651
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7167641
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7167643
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7167649
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/dg2wh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qb59g/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.csuc.cat/dataset.xhtml?persistentId=doi:10.34810/DATA3421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.07109
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://archaeology.datastations.nl/dataset.xhtml?persistentId=doi:10.17026/AR/OB7CMI
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MemoryExceededError
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://jstagedata.jst.go.jp/articles/dataset/Origin_of_the_Semi-circles_Observed_in_Nyquist_Plots_of_Porous_Lithium-ion_Battery_Composite_Electrodes_Obtained_with_a_Four-electrode_Cell_Supporting_Information_/32819897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Role_of_Cyber-Physical-Social_Systems_in_Smart_Energy_Future/32918927
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Alineaci_n/32944580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dragosnicolae555/RoITD/resolve/main/final_dataset_clean.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Chaymaa/roi_donut/resolve/main/data/test-00000-of-00001-5bc4803f5339d8ed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Chaymaa/roi_counters/resolve/main/data/test-00000-of-00001-2fbc0f95fa10338e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ROIM/temporal-alignment-qa/resolve/main/data/dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://jstagedata.jst.go.jp/articles/dataset/Origin_of_the_Semi-circles_Observed_in_Nyquist_Plots_of_Porous_Lithium-ion_Battery_Composite_Electrodes_Obtained_with_a_Four-electrode_Cell_Supporting_Information_/32819897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/journal_contribution/The_Role_of_Cyber-Physical-Social_Systems_in_Smart_Energy_Future/32918927
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Alineaci_n/32944580
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944668
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Discovery_of_Novel_Isoxazole-Based_FXR_Agonists_Containing_a_1_2_4-Oxadiazol-5_4H_-one_Ring/32944665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/25981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/23744
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.31866/2410-1176.49.2023.293297
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPConnectionPool(host=''arts-series-knukim.pp.ua'',
+      port=80): Max retries exceeded with url: /article/view/293297 (Caused by NameResolutionError("HTTPConnection(host=''arts-series-knukim.pp.ua'',
+      port=80): Failed to resolve ''arts-series-knukim.pp.ua'' ([Errno -2] Name or
+      service not known)"))'
+  - url: https://zenodo.org/records/14027304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14287862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.24060.50568
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141162
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7vp4h/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07077
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

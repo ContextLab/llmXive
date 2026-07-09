@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Schema
+description: Schema for the results of the NMF decomposition and correlation analysis.
+type: object
+properties:
+  nmf_results:
+    type: object
+    properties:
+      components:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+      weights:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+      k:
+        type: integer
+      stability_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+    required:
+      - components
+      - weights
+      - k
+  correlation_results:
+    type: array
+    items:
+      type: object
+      properties:
+        component_id:
+          type: integer
+        behavioral_metric:
+          type: string
+        correlation:
+          type: number
+        p_value:
+          type: number
+        significant:
+          type: boolean
+      required:
+        - component_id
+        - behavioral_metric
+        - correlation
+        - p_value
+        - significant
+required:
+  - nmf_results
+  - correlation_results

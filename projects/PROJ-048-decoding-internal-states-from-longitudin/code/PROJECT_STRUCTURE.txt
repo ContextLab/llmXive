@@ -1,0 +1,15 @@
+# Project Structure for PROJ-048
+# This file documents the directory tree established by T001.
+# Execute: mkdir -p code/data code/analysis code/utils code/tests specs/001-decoding-internal-states/contracts
+
+code/
+├── data/
+├── analysis/
+├── utils/
+└── tests/
+
+specs/
+└── 001-decoding-internal-states/
+    └── contracts/
+
+# The directories listed above have been created to satisfy the project setup requirements.

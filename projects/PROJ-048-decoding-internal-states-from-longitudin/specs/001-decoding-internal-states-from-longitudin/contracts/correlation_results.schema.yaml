@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Results Schema
+description: Schema for the statistical correlation results between NMF components and behavior.
+type: object
+properties:
+  method:
+    type: string
+    enum: [spearman]
+  permutation_iterations:
+    type: integer
+  fdr_corrected:
+    type: boolean
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        component_id:
+          type: integer
+        behavioral_metric:
+          type: string
+        correlation_coefficient:
+          type: number
+        p_value_raw:
+          type: number
+        p_value_corrected:
+          type: number
+        is_significant:
+          type: boolean
+      required:
+        - component_id
+        - behavioral_metric
+        - correlation_coefficient
+        - p_value_raw
+        - p_value_corrected
+        - is_significant
+required:
+  - method
+  - permutation_iterations
+  - fdr_corrected
+  - results
