@@ -2,23 +2,22 @@
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.11+
+- pip
 - Git
-- Access to a Linux environment (GitHub Actions runner or local Linux VM).
-- **Real NPPN Root Images**: Place root images in `data/raw/nppn_images/`. The pipeline will fail if this directory is empty.
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
    git clone <repo-url>
-   cd projects/PROJ-464-predicting-plant-drought-tolerance-from-/code
+   cd projects/PROJ-464-predicting-plant-drought-tolerance-from-
    ```
 
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
@@ -26,58 +25,44 @@
    pip install -r requirements.txt
    ```
 
-## Data Preparation
-
-### Option A: Using Verified Datasets (Recommended)
-The pipeline will automatically download the TRY traits and the RSA benchmark dataset (for unit tests only) if raw images are missing.
-
-1. **Run the download script**:
-   ```bash
-   python scripts/download_data.py
-   ```
-   *Note: This script checks for raw images. If none are found, it downloads the `RSA (Parquet)` and `TRY` datasets to `data/raw/` for format validation, but the main pipeline will halt if no real images are present.*
-
-### Option B: Using Local Images
-1. Place root images in `data/raw/nppn_images/`.
-2. Ensure filenames follow the pattern: `{species_name}_{id}.png`.
-3. Run the download script (it will skip downloading if images exist).
-
 ## Running the Pipeline
 
-Execute the full pipeline in sequence:
+The pipeline is executed via a single entry point script.
 
-```bash
-# 0. Fetch Phylogeny (Mandatory, with PVR fallback)
-python scripts/fetch_phylogeny.py
+1. **Run the full pipeline**:
+   ```bash
+   python code/run_pipeline.py
+   ```
+   This script will:
+   - Download data from verified sources (MGB3, TRY).
+   - Extract RSA metrics.
+   - Merge and clean data.
+   - Run PCA, PGLS/PVR, Regression, and Classification.
+   - Perform sensitivity analysis.
+   - Generate reports in `results/reports/`.
 
-# 1. Extract RSA metrics
-python scripts/extract_rsa.py
+2. **Run specific modules** (for debugging):
+   ```bash
+   # Extract RSA metrics only
+   python code/extract_rsa.py --input data/raw/mgb3.parquet --output data/derived/rsametrics.csv
 
-# 2. Merge data
-python scripts/merge_data.py
+   # Run statistical analysis
+   python code/analysis.py --input data/derived/merged_data.csv --output results/analysis_results.json
+   ```
 
-# 3. Analyze collinearity & run PCA
-python scripts/analyze_collinearity.py
+## Verifying Results
 
-# 4. Fit models & run sensitivity analysis (if proxy exists)
-python scripts/fit_models.py
+1. **Check Data Integrity**:
+   ```bash
+   python tests/contract/test_schemas.py
+   ```
+   This validates that all output CSVs match the defined schemas in `contracts/`.
 
-# 5. Generate report
-python scripts/generate_report.py
-```
+2. **Review Reports**:
+   Open `results/reports/final_report.md` for the complete analysis, including correlation matrices, model performance, and sensitivity curves.
 
-## Verification
+## Troubleshooting
 
-To verify the pipeline on a small scale (format validation only):
-
-```bash
-pytest tests/ -v
-```
-
-This runs unit tests on image extraction (using a mock image) and data merging logic. **Note:** These tests do not validate biological predictions.
-
-## Output
-
-- **Results**: `results/reports/summary_report.md`
-- **Figures**: `results/figures/`
-- **Data**: `data/derived/merged_data.csv`, `data/derived/model_results.json`
+- **Memory Error**: If you encounter a MemoryError, ensure you are not running other heavy processes. The pipeline is designed for moderate RAM requirements.; if the dataset is too large, it will automatically sample.
+- **Phylogenetic Tree Fetch Failed**: If the PGLS tree fetch fails, the pipeline will automatically switch to PVR. Check `results/logs/pipeline.log` for details.
+- **No Species Overlap**: If the pipeline halts with "No species overlap," verify that the MGB3 and TRY datasets contain matching species names.

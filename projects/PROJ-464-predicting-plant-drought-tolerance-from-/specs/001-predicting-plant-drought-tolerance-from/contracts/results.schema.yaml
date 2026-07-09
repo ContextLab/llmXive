@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for statistical model outputs and sensitivity analysis."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model (e.g., 'Random Forest', 'PGLS', 'OLS')."
+  metric_name:
+    type: "string"
+    description: "Name of the predictor metric (e.g., 'depth', 'branching_density')."
+  coefficient:
+    type: "number"
+    description: "Model coefficient (for regression models)."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: "number"
+    description: "Multiple-comparison corrected p-value (Bonferroni or FDR)."
+    minimum: 0
+    maximum: 1
+  r_squared:
+    type: "number"
+    description: "R-squared value for regression models."
+    minimum: 0
+    maximum: 1
+  f1_score:
+    type: "number"
+    description: "F1-score for classification models."
+    minimum: 0
+    maximum: 1
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor for collinearity check."
+    minimum: 1
+  cross_validation_score:
+    type: "number"
+    description: "Mean cross-validation score."
+  sensitivity_sweep:
+    type: "object"
+    description: "Results of the sensitivity analysis sweep."
+    properties:
+      threshold_range:
+        type: "array"
+        description: "List of probability thresholds tested."
+        items:
+          type: "number"
+      fpr_values:
+        type: "array"
+        description: "False Positive Rate at each probability threshold."
+        items:
+          type: "number"
+      fnr_values:
+        type: "array"
+        description: "False Negative Rate at each probability threshold."
+        items:
+          type: "number"
+    required:
+      - threshold_range
+      - fpr_values
+      - fnr_values
+  correction_method:
+    type: "string"
+    description: "Phylogenetic correction method used (e.g., 'PGLS', 'None')."
+  cv_method:
+    type: "string"
+    description: "Cross-validation method used (e.g., 'GroupKFold')."
+required:
+  - model_type
+  - metric_name
+  - p_value
+  - adjusted_p_value
+  - cv_method

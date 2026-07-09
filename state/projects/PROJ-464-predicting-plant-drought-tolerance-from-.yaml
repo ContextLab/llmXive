@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T23:26:50.236559Z'
-current_stage: clarified
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-464-predicting-plant-drought-tolerance-from-
-last_run_id: 7b0d1443-097e-49a4-8dfc-f406f5b9ac3e
+last_run_id: d552bf54-35b8-4f46-8cd9-6b662d75f5df
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from
 title: Predicting Plant Drought Tolerance from Publicly Available Root System Architecture
   Data
-updated_at: '2026-07-07T00:17:54.547178Z'
+updated_at: '2026-07-09T10:08:12.833561Z'

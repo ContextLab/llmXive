@@ -1,14 +1,23 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Merged Dataset Schema"
-description: "Schema for the merged RSA and Physiological dataset."
+title: "RSA Metrics Schema"
+description: "Schema for extracted Root System Architecture metrics."
 type: "object"
 properties:
   image_id:
     type: "string"
     description: "Unique identifier for the root image."
+  file_path:
+    type: "string"
+    description: "Path to the raw image file."
   species_name:
     type: "string"
     description: "Scientific name of the plant species."
+  source_dataset:
+    type: "string"
+    enum:
+      - "MGB3"
+      - "NPPN"
+    description: "Source dataset name."
   depth_px:
     type: "number"
     description: "Root depth in pixels."
@@ -21,31 +30,23 @@ properties:
     type: "number"
     description: "Surface area in pixels."
     minimum: 0
-  stomatal_conductance:
+  total_length_px:
     type: "number"
-    description: "Stomatal conductance value (mol m-2 s-1)."
+    description: "Total root length in pixels."
     minimum: 0
-  photosynthetic_rate:
-    type: "number"
-    description: "Photosynthetic rate value (µmol m-2 s-1)."
-    minimum: 0
-  drought_tolerance_class:
+  extraction_status:
     type: "string"
     enum:
-      - "High"
-      - "Low"
-    description: "Binarized drought tolerance class based on median threshold."
-  phylogenetic_eigenvectors:
-    type: "array"
-    description: "Phylogenetic eigenvectors for PVR (if used)."
-    items:
-      type: "number"
+      - "success"
+      - "failed"
+    description: "Status of the extraction process."
 required:
   - image_id
+  - file_path
   - species_name
+  - source_dataset
   - depth_px
   - branching_density
   - surface_area_px
-  - stomatal_conductance
-  - photosynthetic_rate
-  - drought_tolerance_class
+  - total_length_px
+  - extraction_status

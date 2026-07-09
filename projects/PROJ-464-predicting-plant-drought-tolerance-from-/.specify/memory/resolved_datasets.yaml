@@ -1,26 +1,26 @@
-resolved_at: '2026-07-06T23:28:55.196701+00:00'
+resolved_at: '2026-07-09T09:23:22.139015+00:00'
 datasets:
 - intent: NPPN
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
+  - url: https://figshare.com/articles/online_resource/Appendix_Judge_Prompt_-_Java_Academic_Benchmark_Exam-Based_Evaluation_of_LLMs_on_Object-Oriented_Programming/32946536
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
+  - url: https://figshare.cardiffmet.ac.uk/articles/figure/Feminism/32935394
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
+  - url: https://figshare.com/articles/dataset/General_Statistics_for_lapillus_and_asteriscus_of_i_Squalius_squalus_i_/32946788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
+  - url: https://figshare.com/articles/dataset/Data_Redesign_Glemo_App/32946938
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
+  - url: https://figshare.com/articles/dataset/ShapeR_analysis_lapillus_otolith_of_i_Squalius_squalus_i_/32946608
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -79,35 +79,38 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
+  - url: https://figshare.com/articles/dataset/ShapeR_analysis_for_the_asteriscus_otolith_of_i_Squalius_squalus_i_/32946815
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
+  - url: https://figshare.com/articles/online_resource/Appendix_Judge_Prompt_-_Java_Academic_Benchmark_Exam-Based_Evaluation_of_LLMs_on_Object-Oriented_Programming/32946536
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
+  - url: https://figshare.cardiffmet.ac.uk/articles/figure/Feminism/32935394
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
+  - url: https://figshare.com/articles/dataset/General_Statistics_for_lapillus_and_asteriscus_of_i_Squalius_squalus_i_/32946788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
+  - url: https://figshare.com/articles/dataset/Data_Redesign_Glemo_App/32946938
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
     status: unreachable
-    reason: 'reachability failed: HTTP 415'
-  - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7fed3a2c1e90>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -115,27 +118,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21221705
+  - url: https://zenodo.org/records/18672036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21221705
+  - url: https://zenodo.org/records/18672036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228087
+  - url: https://unige.iris.cineca.it/handle/11567/929442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21228087
+  - url: https://zenodo.org/records/21273489
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21227751
+  - url: https://zenodo.org/records/21273489
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,23 +157,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Self-produced_signs_in_decision-making_and_contextual_correlations_docx/32946983
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
+  - url: https://figshare.com/articles/dataset/ShapeR_analysis_for_the_asteriscus_otolith_of_i_Squalius_squalus_i_/32946815
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
+  - url: https://figshare.com/articles/online_resource/Appendix_Judge_Prompt_-_Java_Academic_Benchmark_Exam-Based_Evaluation_of_LLMs_on_Object-Oriented_Programming/32946536
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_0_7047903330_Kwararafa_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915885
+  - url: https://figshare.cardiffmet.ac.uk/articles/figure/Feminism/32935394
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/Standards/32904449
+  - url: https://figshare.com/articles/dataset/General_Statistics_for_lapillus_and_asteriscus_of_i_Squalius_squalus_i_/32946788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -194,84 +197,66 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187760
+  - url: https://unige.iris.cineca.it/handle/11567/929536
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21187760
+  - url: https://zenodo.org/records/21274713
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/zjtwx/
+  - url: https://zenodo.org/records/21274713
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21089111
+  - url: https://digital.csic.es/handle/10261/410502
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21019536
+  - url: https://digital.csic.es/handle/10261/410500
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: TRY
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/xcll/Try-Any-Bench/resolve/main/test.tar.gz
-    source: huggingface
-    format: gzip
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
   - url: https://huggingface.co/datasets/met/Meti_try/resolve/main/try.csv
     source: huggingface
     format: csv
     relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-IMAGE/resolve/main/test.zip
-    source: huggingface
-    format: zip
-    relevance: 0.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-IMAGE/resolve/main/test.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/TryOnVirtual/VITON-HD-Captions/resolve/main/data/train-00000-of-00012.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/xcll/Try-Any-Bench/resolve/main/test.tar.gz
-    source: huggingface
-    status: verified
-    format: gzip
   - url: https://huggingface.co/datasets/met/Meti_try/resolve/main/try.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/Anchor_College_of_Nursing_Science_Asaba_Delta_State_2026_2027_Admission_Form/32916374
+  - url: https://huggingface.co/api/resolve-cache/datasets/IsaMaks/try_connll/651a3884c54ceac558631d299d4fe8fa836fc60d/sample_test.txt?%2Fdatasets%2FIsaMaks%2Ftry_connll%2Fresolve%2Fmain%2Fsample_test.txt=&etag=%223bb642e44c6c157dffd68ae733849a1d4ee84ac7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/IsaMaks/tryconnl2/73c8253679dec655d7e19276dbac1cb09a5a9447/sample_test.txt?%2Fdatasets%2FIsaMaks%2Ftryconnl2%2Fresolve%2Fmain%2Fsample_test.txt=&etag=%22ead5dd00d9731cbf403f2bdefdeb71167e60f9c5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Self-produced_signs_in_decision-making_and_contextual_correlations_docx/32946983
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_0_7047903330_Crawford_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916377
+  - url: https://figshare.com/articles/dataset/ShapeR_analysis_for_the_asteriscus_otolith_of_i_Squalius_squalus_i_/32946815
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
+  - url: https://figshare.com/articles/online_resource/Appendix_Judge_Prompt_-_Java_Academic_Benchmark_Exam-Based_Evaluation_of_LLMs_on_Object-Oriented_Programming/32946536
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
+  - url: https://figshare.cardiffmet.ac.uk/articles/figure/Feminism/32935394
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
+  - url: https://figshare.com/articles/dataset/General_Statistics_for_lapillus_and_asteriscus_of_i_Squalius_squalus_i_/32946788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -279,39 +264,39 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8154705
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/10022085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5788732
+  - url: https://zenodo.org/records/8154705
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7354564
+  - url: https://zenodo.org/records/3855588
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/9uj2h/
+  - url: https://zenodo.org/records/7354560
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19446164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/ycjz3/
+  - url: https://zenodo.org/records/19446164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/keq72/
+  - url: https://aisberg.unibg.it//handle/10446/77282
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/wpcze/
+  - url: https://aisberg.unibg.it//handle/10446/77217
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/t3nwe/
+  - url: https://aisberg.unibg.it//handle/10446/128736
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -319,23 +304,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/figure/Anchor_College_of_Nursing_Science_Asaba_Delta_State_2026_2027_Admission_Form/32916374
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Self-produced_signs_in_decision-making_and_contextual_correlations_docx/32946983
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_0_7047903330_Crawford_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32916377
+  - url: https://figshare.com/articles/dataset/ShapeR_analysis_for_the_asteriscus_otolith_of_i_Squalius_squalus_i_/32946815
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/_0_7047903330_Crescent_University_2026_2027_ADMISSION_FORM_Now_OPEN_Call_0_7047903330_Dr_Mrs_Anita_A_A_For_More_Information_on_how_to_apply_Applications_call_07047903330_hereby/32915987
+  - url: https://figshare.com/articles/online_resource/Appendix_Judge_Prompt_-_Java_Academic_Benchmark_Exam-Based_Evaluation_of_LLMs_on_Object-Oriented_Programming/32946536
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_code_for_Alternative_life_history_strategies_of_a_marine_parasitic_dinoflagellate_/30600737
+  - url: https://figshare.cardiffmet.ac.uk/articles/figure/Feminism/32935394
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/College_of_Nursing_Sciences_Sapele_Delta_State_2026_2027_Admission_Form/32915888
+  - url: https://figshare.com/articles/dataset/General_Statistics_for_lapillus_and_asteriscus_of_i_Squalius_squalus_i_/32946788
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -359,6 +344,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21275427
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://datadryad.org/dataset/doi:10.5061/dryad.7d7wm387k
     source: datacite
     status: wrong_format
@@ -368,14 +361,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20466302
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/journal_contribution/Information_on_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881479
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://rs.figshare.com/articles/journal_contribution/Information_on_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881479/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

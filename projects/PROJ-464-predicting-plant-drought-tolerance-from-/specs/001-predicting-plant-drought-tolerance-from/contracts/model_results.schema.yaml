@@ -21,7 +21,7 @@ properties:
         type: "object"
         description: "Mapping of predictor names to coefficients."
   classification:
-    type: "object"
+    type: ["object", "null"]
     properties:
       model_type:
         type: "string"
@@ -67,6 +67,22 @@ properties:
         type: "string"
         enum: ["PGLS", "PVR"]
         description: "Method used for phylogenetic correction."
+  sensitivity_fpr_fnr:
+    type: "object"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+      fpr_values:
+        type: "array"
+        items:
+          type: "number"
+      fnr_values:
+        type: "array"
+        items:
+          type: "number"
+    description: "False Positive and False Negative rates at each threshold."
 required:
   - "regression"
   - "collinearity"

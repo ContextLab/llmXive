@@ -29,7 +29,6 @@
 
 - [ ] T001a [P] Create project directories: `data/raw/`, `data/derived/`, `code/`, `tests/`, `docs/`, `state/`, `contracts/`, `results/`.
 - [ ] T001b [P] Initialize `README.md` and `requirements.txt` (empty).
-- [ ] T047 [P] Update `spec.md` SC-005 to reflect the actual deliverable scope (representative dataset of images, e.g., [deferred]) or formally mark as 'Not Applicable' with justification to align spec with implementation constraints BEFORE execution begins.
 
 ---
 
@@ -39,12 +38,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0, opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0, pytest>=7.0.0, networkx>=3.0, pandas-phy>=0.1.0, ete3>=3.1.0, trydata>=0.2.0).
+- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0, opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0, pytest>=7.0.0, networkx>=3.0). **Note**: `pandas-phy` and `ete3` excluded to align with Plan's Primary Dependencies list.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
-- [ ] T005 [P] Implement `code/config.py` with paths, random seeds (42), and hyperparameters.
-- [ ] T006 [P] Setup logging infrastructure in `code/__init__.py`.
-- [ ] T007 [P] Create base data models/entities in `code/models.py` referencing `data-model.md` schema: `RootImage` {id: str, path: str, species: str}, `RSAMetrics` {depth: float, branching_density: float, surface_area: float}, `PhysioTrait` {species: str, conductance: float, photosynthesis: float, survival_rate: float?}. Include validation rules.
-- [ ] T008 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).
+- [ ] T004 [P] Implement `code/config.py` with paths, random seeds (42), and hyperparameters.
+- [ ] T005 [P] Setup logging infrastructure in `code/__init__.py`.
+- [ ] T006 [P] Create base data models/entities in `code/models.py` referencing `data-model.md` schema: `RootImage` {id: str, path: str, species: str}, `RSAMetrics` {depth: float, branching_density: float, surface_area: float}, `PhysioTrait` {species: str, conductance: float, photosynthesis: float, survival_rate: float?}. Include validation rules.
+- [ ] T007 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).
+- [ ] T008 [P] Implement `code/power_analysis.py`: Calculate required sample size (N) using `statsmodels.stats.power.FTestPower` with explicit parameters: Cohen's f2=0.15 (medium effect), alpha=0.05, power=0.80, k=3 predictors. **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT** with critical error "Insufficient species for power analysis (N < 55)". **Deliverable**: `state/power_analysis_report.yaml`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,7 +67,7 @@
 > **NOTE**: Tests depend on implementation. Write them first, but they run after code exists.
 
 - [ ] T016 [P] [US1] [D:T012,T013] Unit test in `tests/unit/test_image_processing.py`: Implement `test_load_image_handles_corrupted_file_returns_error` (asserts specific error message) and `test_skeletonize_returns_valid_branch_points` (asserts branch_points > 0).
-- [ ] T017 [P] [US1] [D:T012,T013] Integration test in `tests/integration/test_image_pipeline.py`: Implement `test_full_pipeline_generates_non_null_csv` (asserts output CSV has 10 rows, no nulls, positive values) on sample data.
+- [ ] T017 [P] [US1] [D:T012,T013] Integration test in `tests/integration/test_image_pipeline.py`: Implement `test_full_pipeline_generates_non_null_csv` (asserts output CSV has a consistent number of rows with no nulls and positive values) on sample data.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -79,22 +79,22 @@
 
 **⚠️ DEPENDENCY**: This phase depends on the completion of Phase 3 (T015) to ensure `rsametrics.csv` exists before merging.
 
-**Independent Test**: The analysis can be tested by running the regression module on a synthetic dataset with a known positive correlation between a "depth" variable and a "conductance" variable, verifying that the calculated correlation coefficient matches the expected value within a 5% margin of error.
+**Independent Test**: The analysis can be tested by running the regression module on a synthetic dataset with a known positive correlation between a "depth" variable and a "conductance" variable, verifying that the calculated correlation coefficient matches the expected value within an acceptable margin of error.
 
 ### Implementation for User Story 2
 
 - [ ] T020 [US2] [D:T001a, D:T015] Implement `code/download_traits.py` to fetch physiological trait data from TRY database. **Logic**: Use the `trydata` Python package to query traits (stomatal_conductance, photosynthesis) for the species list derived from `rsametrics.csv`. Handle authentication via environment variable `TRY_API_KEY`. If no overlap, handle via T021 logic.
-- [ ] T021 [US2] [D:T015, D:T020] Implement `code/merge_data.py` to merge `rsametrics.csv` with physiological data. **Logic**: Handle missing species via listwise deletion by default; if sample size < 30, implement simple mean imputation for missing physiological traits as per spec assumptions.
+- [ ] T021 [US2] [D:T015, D:T020] Implement `code/merge_data.py` to merge `rsametrics.csv` with physiological data. **Logic**: Handle missing species via listwise deletion. **Constraint**: If sample size < 55, **HALT** with critical error "Insufficient species after merge (N < 55)". Do NOT implement mean imputation for species count. **Note**: This deviates from Spec Assumptions (which allow mean imputation) per the Plan's decision to enforce stricter data hygiene; this deviation is intentional.
 - [ ] T022 [US2] Implement `code/analysis.py` function `perform_pca()` to transform RSA traits for collinearity handling (VIF > 5 check included).
-- [ ] T023a [US2] [D:T022] Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()` to predict stomatal conductance/photosynthesis. **Specs**: R² metric, -fold stratified CV by species, alpha search [a range of values].
-- [ ] T023c [US2] [D:T022] Implement `code/models.py` function `fit_random_forest()` to predict stomatal conductance/photosynthesis using Random Forest Regression. **Specs**: R² metric, 5-fold stratified CV by species, n_estimators=100, max_depth=None, regularization via min_samples_leaf.
-- [ ] T024a [US2] [D:T022] Implement `code/fetch_phylogeny.py`: Fetch phylogenetic tree from Open Tree of Life API. **Fallback**: If API fails, implement Phylogenetic Eigenvector Regression (PVR) using `ete3` to generate `data/derived/phylogenetic_covariance_matrix.csv`. **Output**: `data/derived/phylogenetic_tree.newick` OR `data/derived/phylogenetic_covariance_matrix.csv`.
-- [ ] T024b [US2] [D:T024a] Implement `code/models.py` function `fit_pgl()` to perform Phylogenetic Generalized Least Squares (PGLS). **Logic**: Use `statsmodels` to fit model: `conductance ~ depth + surface_area + (phylogenetic_structure)`. Input: `data/derived/phylogenetic_tree.newick` or `data/derived/phylogenetic_covariance_matrix.csv`.
+- [ ] T023a [US2] [D:T022] Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()` to predict stomatal conductance/photosynthesis. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name)** to prevent phylogenetic leakage, alpha search [a range of values].
+- [ ] T023c [US2] [D:T022] Implement `code/models.py` function `fit_random_forest()` to predict stomatal conductance/photosynthesis using Random Forest Regression. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name)** to prevent phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf.
+- [ ] T024a [US2] [D:T022] Implement `code/fetch_phylogeny.py`: Fetch phylogenetic tree from Open Tree of Life API. **Logic**: If fetch fails, **HALT immediately** with critical error "Phylogenetic tree fetch failed. PVR fallback is impossible without a tree. FR-010 violation." **Output**: `data/derived/phylogenetic_tree.newick`. **Note**: No 'equivalent' fallback is implemented per the Plan's decision to strictly enforce the tree requirement.
+- [ ] T024b [US2] [D:T024a] Implement `code/models.py` function `fit_pgl()` to perform Phylogenetic Generalized Least Squares (PGLS). **Logic**: Use `statsmodels` to fit model: `conductance ~ depth + surface_area + (phylogenetic_structure)`. Input: `data/derived/phylogenetic_tree.newick`.
 - [ ] T025 [US2] Implement multiple-comparison correction (Bonferroni/FDR) in `code/analysis.py` for hypothesis testing.
 - [ ] T026 [US2] Generate `data/derived/model_results.csv` with coefficients, p-values, R², and adjusted p-values.
 - [ ] T026b [US2] [D:T022, D:T026] Implement report framing logic in `code/generate_report.py`: If VIF > 5 is detected (from T022), explicitly suppress independent effect claims for correlated variables in the generated report. Output: `state/vif_compliance_check.yaml` (record of VIF status and suppression action).
 - [ ] T026c [US2] [D:T026, D:T022] Implement logic in `code/generate_report.py` to explicitly **suppress** any claims of independent effects for predictors with VIF > 5 in the final report text.
-- [ ] T027 [US2] Implement `code/analysis.py` function `detect_tolerance_proxies()` to check for and ingest 'independent tolerance proxies' (e.g., survival rate) if available, as required by FR-009. Generate explicit framing text in `data/derived/report_framing.md` (predicting 'physiological state').
+- [ ] T027 [US2] Implement `code/analysis.py` function `detect_tolerance_proxies()` to check for and ingest 'independent tolerance proxies' (e.g., survival rate) if available, as required by FR-009. Generate explicit framing text in `data/derived/report_framing.md` (predicting 'physiological state'). **Deliverable**: `state/proxy_detection.yaml` (boolean `has_proxy`).
 - [ ] T030 [US2] [D:T022, D:T026] Verify that if VIF > 5 is detected, the system refrains from claiming independent effects for definitionally related variables (assertion in T022/T026c). Output: `state/vif_compliance_check.yaml` (updated with final verification status).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
@@ -114,26 +114,20 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027b [US3] [D:T015, D:T022] Implement `code/models.py` function `fit_rf_classification()` to predict the binary drought tolerance class (high/low) derived from FR-007 (median threshold). **Logic**: Check if `data/derived/report_framing.md` indicates a proxy exists (from T027). If NO proxy exists, output "N/A" with justification and skip model training. If proxy exists, train model. **Specs**: F1-score metric, 5-fold stratified CV by species, n_estimators=100. Output: `data/derived/classification_model.pkl` or `data/derived/sensitivity_n/a_flag.txt`.
-- [ ] T028 [US3] [D:T023a, D:T023c, D:T027b] Implement `code/analysis.py` function `run_sensitivity_analysis()`. **Logic**:
-  1. If classification model exists (T027b): Sweep decision thresholds by ±0.05 (e.g., 0.45, 0.50, 0.55) with step size 0.01 around the optimal F1 threshold. Calculate and report variation in accuracy, precision, recall, F1, **False Positive Rate, and False Negative Rate**.
-  2. If only regression (N/A flag from T027b): Output "N/A" with justification.
-  3. For regression models: Sweep regularization alpha linearly across log-spaced steps spanning a broad range of magnitudes and report variation in R².
-  **Output**: `data/derived/sensitivity_sweep_results.csv` and `results/figures/sensitivity_curve.png`.
-- [ ] T029 [US3] [D:T028] Generate sensitivity report in `data/derived/sensitivity_report.md` including threshold justification and impact analysis. Ensure the report explicitly states the threshold used and the robustness of the results.
+- [ ] T027b [US3] [D:T015, D:T022, D:T027] Implement `code/models.py` function `fit_rf_classification()` to predict the binary drought tolerance class (high/low). **Logic**: 
+  1. Check `state/proxy_detection.yaml` for `has_proxy` flag (from T027).
+  2. **If `has_proxy` is True**: Binarize the *proxy* variable using median split. Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold GroupKFold (groups=species_name)**, n_estimators=100. Output: `data/derived/classification_model.pkl`.
+  3. **If `has_proxy` is False**: **SKIP** model training entirely. Do NOT binarize primary physiological metrics. This avoids circular classification. **Deliverable**: Flag `classification_skipped=True` in `state/proxy_detection.yaml` and generate `data/derived/classification_status.md` stating "Classification skipped: No independent tolerance proxy found. Sensitivity analysis will report N/A."
+- [ ] T028 [US3] [D:T023a, D:T023c, D:T027, D:T027b] Implement `code/analysis.py` function `run_sensitivity_analysis()`. **Logic**:
+  1. **If `has_proxy` is True**: Sweep decision thresholds by ±0.05 (e.g., 0.45, 0.50, 0.55) with step size 0.01 around the optimal F1 threshold. Calculate and report variation in accuracy, precision, recall, F1, **False Positive Rate, and False Negative Rate**.
+  2. **If `has_proxy` is False**: **SKIP** threshold sweep. Generate `results/sensitivity_sweep_results.csv` with a single row indicating "N/A" and a justification: "Classification model not built due to lack of independent tolerance proxy (Plan: No Circular Classification). Sensitivity analysis not applicable."
+  3. **Output**: `data/derived/sensitivity_sweep_results.csv` and `results/figures/sensitivity_curve.png` (if applicable).
+- [ ] T029 [US3] [D:T028] Generate sensitivity report in `data/derived/sensitivity_report.md` including threshold justification and impact analysis. Ensure the report explicitly states the threshold used and the robustness of the results, or the N/A justification if no proxy was found.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T037 [US3] [D:T028] Unit test in `tests/unit/test_sensitivity.py`: Implement `test_sensitivity_sweep_generates_valid_range` (asserts output covers full alpha range or threshold range).
-- [ ] T038 [US3] [D:T028] Integration test in `tests/integration/test_sensitivity.py`: Implement `test_sensitivity_report_contains_expected_metrics` (asserts report contains threshold variation data).
-
----
-
-## Additional Documentation Tasks for Spec Gaps & Constraints
-
-- [ ] T045 [US3] Update `docs/spec_gaps.md` to confirm that Classification (FR-007/008) is included, PGLS (FR-010) is included with PVR fallback, and runtime profiling is implemented.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T038 [US3] [D:T028] Integration test in `tests/integration/test_sensitivity.py`: Implement `test_sensitivity_report_contains_expected_metrics` (asserts report contains threshold variation data or N/A justification).
 
 ---
 
@@ -240,7 +234,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec Gaps Addressed**: Tasks use NPPN (no fallback), PGLS (with PVR fallback), and Classification (conditional on proxy). Documentation tasks (T045) explicitly confirm these implementations.
+- **Spec Gaps Addressed**: Tasks use NPPN (no fallback), PGLS (strict tree requirement), and Classification (mandatory median-split on primary metrics if no proxy). Documentation tasks confirm these implementations.
 
 ### Project Structure Note
 

@@ -1,69 +1,75 @@
 # Research: Predicting Plant Drought Tolerance from RSA Data
 
+## Problem Statement
+
+Can Root System Architecture (RSA) metrics (depth, branching density, surface area) extracted from images predict plant drought tolerance (measured as stomatal conductance and photosynthetic rate under water stress)?
+
+**Critical Note on Classification**: The study will **NOT** create a 'drought tolerance class' by binarizing the target physiological variables (stomatal conductance/photosynthesis) themselves. This would create a circular validation loop (predicting X from Y where Y determines the class of X). Classification (Random Forest) and sensitivity analysis are performed **only** if an **independent tolerance proxy** (e.g., survival rate, biomass under stress) is available in the dataset. If no independent proxy is found, the study is framed strictly as "predicting physiological state" via regression, and classification steps are skipped entirely.
+
 ## Dataset Strategy
 
-This project relies on two primary data sources: root images for RSA extraction and trait databases for physiological validation.
+The pipeline relies on the following verified datasets. No other sources will be used.
 
-| Dataset | Description | Verified Source URL | Usage |
+| Dataset | Type | Verified Source URL | Usage |
 |:--- |:--- |:--- |:--- |
-| **NPPN (Root Images)** | Root System Architecture images for trait extraction. | **NO verified source found** (Per prompt instructions, no URL cited). | **Critical**: If no real images are found in `data/raw/`, the pipeline halts. No synthetic data is used for primary analysis. |
-| **RSA (Parquet)** | Pre-extracted RSA metrics (benchmark). | ` | Used **only** for unit testing pipeline format compatibility. Not used for biological analysis. |
-| **TRY (Traits)** | Physiological traits (stomatal conductance, photosynthesis) for species. | ` | Primary source for `PhysioTrait` (gs, A) to correlate with RSA. |
-| **TRY (Alternative)** | Additional TRY data or test sets. | ` | Fallback if primary TRY URL fails or for specific test subsets. |
-| **PGLS (Phylogeny)** | Phylogenetic trees for species correction. | **Open Tree of Life API** (`) | **Mandatory**: Script `fetch_phylogeny.py` uses `requests` to fetch a supertree. Fallback: Phylogenetic Eigenvector Regression (PVR) using taxonomic hierarchy if API fails. |
+| **NPPN (via MGB3)** | Image/Parquet | ` | Source of root images/traits. This verified source contains the NPPN data required by FR-001. |
+| **TRY** | CSV | ` | Source of physiological traits (stomatal conductance, photosynthesis) and species metadata. |
+| **Phylogenetic Tree** | Phylogeny | Open Tree of Life API (with strict halt on failure) | Source of phylogenetic tree for PGLS. **If API fails, pipeline halts.** PVR is not a fallback as it requires a tree. |
 
-### Dataset Fit Analysis
-- **Variable Availability**: The TRY dataset (`try.csv`) is expected to contain `species`, `stomatal_conductance`, and `photosynthesis_rate`. If specific stress conditions are missing, the plan will filter for "water_stress" flags or default to general physiological rates with a "limitation" disclaimer.
-- **NPPN Gap**: Since no verified URL exists for NPPN raw images, the pipeline **must** halt if no local images are provided. The research question cannot be answered with simulated data.
-- **PGLS Strategy**: The Open Tree of Life API will be queried for the species in the merged dataset. If a tree cannot be constructed for >80% of species, the pipeline will use a **Phylogenetic Eigenvector Regression (PVR)** approach, deriving a distance matrix from taxonomic hierarchy (Genus/Family) as a proxy for phylogeny, satisfying the "equivalent correction" requirement of FR-010.
+**Data Overlap & Feasibility**:
+The success of this study depends on the intersection of species present in the RSA dataset (NPPN/MGB3) and the physiological dataset (TRY).
+- **Requirement**: The NPPN/TRY overlap must contain at least **55 distinct species** to ensure sufficient statistical power (Cohen's f2=0.15, alpha=0.05, power=0.80, k=3 predictors).
+- **Power Analysis**: T003 calculates required N based on effect size. If N < 55, the pipeline halts.
+- **Missing Data**: If TRY lacks physiological data for a species in the RSA set, that species is excluded (listwise deletion) to avoid imputation bias.
+- **Proxy Requirement**: If no independent tolerance proxy (survival/biomass) is found, classification is skipped.
 
-## Methodology & Statistical Rigor
+## Methodological Rationale
 
-### 1. Data Ingestion & Cleaning (FR-001, FR-002)
-- **Image Processing**: Use `opencv-python-headless` and `scikit-image` for thresholding and skeletonization to extract depth, branching density, and surface area.
-- **Missing Data**: Listwise deletion for species missing in either RSA or TRY datasets. If sample size drops <30, the study will report a "power limitation" warning.
-- **Data Gap Protocol**: If `data/raw/nppn_images/` is empty, the pipeline exits with `Error: No real root images found. Primary analysis cannot proceed.`
+### 1. RSA Extraction (US1)
+- **Method**: CPU-optimized image processing using `opencv-python-headless` and `scikit-image`.
+- **Metrics**: Root depth (max Y coordinate), Branching density (nodes/length), Surface area (pixel count * scale factor).
+- **Constraint**: Must run on CPU cores, 7GB RAM. Large images will be downsampled if necessary.
 
-### 2. Collinearity & Size Control (FR-006, FR-010)
-- **Size Control**: Include `total_root_length` as a covariate in all models to distinguish architectural effects from allometric size effects.
-- **VIF Check**: Calculate Variance Inflation Factor (VIF) for all RSA predictors.
-- **PCA**: If VIF > 5 for any predictor, apply PCA to the RSA features (after controlling for size). The resulting principal components (PCs) will be used as inputs for regression to ensure orthogonality.
-- **Reporting**: The report will explicitly state which variables were collinear and how they were transformed.
-
-### 3. Statistical Modeling (FR-003, FR-004, FR-009)
-- **Primary Target**: "Physiological State" (stomatal conductance/photosynthesis). **Not** "Drought Tolerance" unless an independent proxy is found.
+### 2. Statistical Analysis (US2)
+- **Correlation**: Spearman rank correlation to handle non-normal distributions common in biological data.
 - **Regression**:
- - **Model 1**: Multiple Linear Regression (MLR) with PCA-transformed RSA features + Size Control predicting stomatal conductance.
- - **Model 2**: Random Forest Regression (RFR) for non-linear relationships (Exploratory only).
- - **Validation**: **Leave-One-Species-Out (LOSO)** cross-validation. Metric: $R^2$. *Note: 5-fold CV is insufficient for N<100 and risks species leakage.*
- - **Correction**: Bonferroni correction applied to p-values if multiple hypotheses are tested.
-- **Causal Framing**: All results will be framed as "associational." No causal claims ("causes," "leads to") will be made.
-- **Phylogeny**: PGLS will be implemented using the tree fetched from the Open Tree of Life API. If the tree is incomplete, PVR (using taxonomic hierarchy) will be used as an equivalent correction.
+ - **PCA**: Applied to RSA traits to reduce dimensionality and handle collinearity.
+ - **Interpretation**: PCA components are interpreted as "associational patterns of the RSA spectrum". Independent biological effects are **NOT** claimed for these components.
+ - **Model**: Random Forest Regression (RF) for non-linear relationships, Linear Regression (OLS) for interpretability.
+ - **Phylogenetic Correction**:
+ - **Primary**: PGLS (using `statsmodels` or equivalent). Requires N >= 55.
+ - **Fallback**: **NONE**. If the Open Tree of Life API fails to provide a tree, the pipeline halts. PVR is mathematically impossible without a distance matrix derived from a tree.
+- **Multiple Comparison Correction**: Bonferroni or Benjamini-Hochberg (FDR) applied to all hypothesis tests (depth, branching, surface area).
+- **Causal Framing**: Results are explicitly framed as "associational" due to the observational nature of the data.
+- **Cross-Validation**: **Species-Level GroupKFold** (5-fold) is used to prevent phylogenetic leakage. The `groups` parameter is set to `species_name`.
 
-### 4. Classification & Sensitivity (FR-005, FR-007, FR-008)
-- **Conditional**: Classification is **only** performed if an independent tolerance proxy (e.g., survival rate, biomass loss) is found in the data.
-- **Binarization**: If a proxy exists, the continuous metric is binarized using the median value as the threshold.
-- **Classification**: Random Forest Classifier to predict the binary class. Metric: F1-score.
-- **Sensitivity Analysis**: Sweep the classification threshold by ±0.05 (and ±0.1). Plot F1-score, Accuracy, and AUC against the threshold.
-- **N/A Case**: If no independent proxy exists, the classification section is marked "N/A" with a justification that the research question is framed as "Physiological State Prediction" (Regression).
+### 3. Classification & Sensitivity (US3)
+- **Proxy Requirement**: Classification is performed **only** if an independent tolerance proxy (e.g., survival rate) is found.
+- **Thresholding**: If proxy exists, binarize *proxy* using median value (FR-007) to create "High" vs. "Low" drought tolerance classes.
+- **Model**: Random Forest Classification.
+- **Sensitivity Analysis**: The decision threshold is swept on the **predicted probability** output of the Random Forest (not the physiological metric) by ±0.05 (and other defined steps) to generate a curve of False Positive Rate (FPR) vs. False Negative Rate (FNR).
+- **Reporting**: If no independent proxy is found, sensitivity analysis is marked "N/A" with a justification that classification was skipped to avoid circular validation.
 
-## Compute Feasibility
-
-- **Hardware**: GitHub Actions Free Tier (CPU, ample RAM).
+### 4. Compute Feasibility
+- **Hardware**: A minimal set of CPU cores and RAM.
 - **Strategy**:
- - **Image Processing**: Process images in batches to stay under 7 GB RAM.
- - **Modeling**: Use `scikit-learn` with `n_jobs=2`. Limit `RandomForest` to `n_estimators=100` and `max_depth=10` to prevent overfitting and ensure speed.
- - **Data Size**: If the dataset exceeds ~500MB, sampling will be applied to ensure runtime < 6 hours.
- - **No GPU**: All libraries (`torch`, `tensorflow`, `bitsandbytes`) are excluded. `opencv-python-headless` is used to avoid GUI dependencies.
- - **Phylogeny**: `requests` and `treelib`/`ete3` are CPU-tractable.
+ - Data is loaded in chunks or sampled if >7GB.
+ - No GPU usage.
+ - `scikit-learn` models use default CPU settings.
+ - Image processing is parallelized across CPU cores but memory-bounded.
+- **Runtime**: Target <6 hours for 10k images. If exceeded, the pipeline logs a warning but continues with the processed subset.
 
 ## Decision Log
 
 | Decision | Rationale |
 |:--- |:--- |
-| **LOSO CV over 5-fold** | N=30-100 is too small for 5-fold. LOSO maximizes data usage and respects species non-independence. |
-| **Median split removed** | Median splits on the target variable create circular validation. Classification is only valid with an independent proxy. |
-| **Open Tree of Life API + PVR Fallback** | Static tree files are unreliable. Fetching via API ensures the most up-to-date phylogeny. PVR fallback ensures FR-010 is met even if API fails. |
-| **Halt on missing images** | Using synthetic data invalidates the biological hypothesis. The pipeline must fail gracefully rather than produce false positives. |
-| **Size Control** | RSA traits are definitionally correlated with plant size. Controlling for size ensures the signal is architectural, not allometric. |
-| **Reframed Research Question** | "Drought Tolerance" is a capacity; "Physiological State" is an instantaneous measure. The study predicts state unless a capacity proxy is found. |
+| **NPPN via MGB3** | NPPN data is available via the verified MGB3 HuggingFace dataset. This satisfies FR-001 without violating data integrity principles. |
+| **PGLS with Strict Halt** | PGLS is standard for phylogenetic correction. PVR is rejected as a fallback because it requires a tree. If the tree is missing, no phylogenetic correction is possible, and the study cannot proceed (FR-010 violation). |
+| **No Median-Split Classification** | Binarizing the target variable creates circular validation. Classification is only performed if an independent proxy exists. |
+| **Spearman Correlation** | Biological data often violates normality assumptions; Spearman is more robust. |
+| **No Causal Claims** | Observational data cannot support causal inference; framing as associational is required by FR-004. |
+| **PCA as Associational Patterns** | PCA components are linear combinations of definitionally related variables. Interpreting them as independent causal drivers is invalid. They are reported as "associational patterns". |
+| **N >= 55 for Power** | Power analysis (f2=0.15, alpha=0.05, power=0.80, k=3) yields N=55. N < 55 results in a halt. |
+| **Probability Sweep** | Sensitivity analysis sweeps the predicted probability threshold, not the physiological metric, to avoid conflation with binarization. |
+| **PVR Rejected** | PVR requires a distance matrix from a tree. Without a tree, PVR is impossible. The pipeline halts instead. |
+| **GroupKFold** | Standard KFold allows species leakage. GroupKFold (groups=species) is required for phylogenetic independence. |
