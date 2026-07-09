@@ -88,3 +88,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ravindrakinagi/pcee/7ce5b1c62571ddff8ddddb57808aa0129e9a87c1/new1.json?%2Fdatasets%2Fravindrakinagi%2Fpcee%2Fresolve%2Fmain%2Fnew1.json=&etag=%22bb7dbee39e1c77895318989fd3556e176c4ff89f%22
   verified_at: '2026-07-09T01:13:11.539304Z'
+- artifact_hash: f5c8aeadf8edf7cd931be7b8686a16cebed0f6c03ff734cafb40e03b72e9690d
+  artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.4921127
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4921127
+  verified_at: '2026-07-09T22:23:39.059609Z'

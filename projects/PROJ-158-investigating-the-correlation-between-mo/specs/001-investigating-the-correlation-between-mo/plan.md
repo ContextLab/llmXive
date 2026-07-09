@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a machine learning pipeline to predict the Power Conversion Efficiency (PCE) of Dye-Sensitized Solar Cells (DSSCs) based on molecular structure. The approach utilizes a Graph Convolutional Network (GCN) with ≤2 layers, trained on CPU, compared against a Random Forest baseline using Morgan fingerprints. The workflow strictly adheres to scaffold-aware cross-validation to prevent data leakage and includes an interpretability phase to identify structural motifs driving high performance. All steps are constrained to run within the GitHub Actions free-tier limits (limited CPU, 7GB RAM, 6h runtime).
+This project implements a machine learning pipeline to predict the Power Conversion Efficiency (PCE) of Dye-Sensitized Solar Cells (DSSCs) based on molecular structure. The approach utilizes a Graph Convolutional Network (GCN) with ≤2 layers, trained on CPU, compared against a Random Forest baseline using Morgan fingerprints. The workflow strictly adheres to scaffold-aware cross-validation to prevent data leakage and includes an interpretability phase to identify structural motifs driving high performance. All steps are constrained to run within the GitHub Actions free-tier limits (limited CPU, limited RAM, 6h runtime).
 
 **Key Methodological Updates**:
 - Statistical testing updated to **Wilcoxon signed-rank test** (non-parametric) to handle small sample sizes (n=5 folds).

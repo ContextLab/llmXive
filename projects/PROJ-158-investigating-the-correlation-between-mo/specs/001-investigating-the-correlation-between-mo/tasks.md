@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: Execute `mkdir -p code/data code/models code/analysis code/utils data/raw data/processed results tests` and create empty `__init__.py` files in each `code/` subdirectory.
-- [ ] T002 Initialize Python 3.10 project: Create `code/requirements.txt` with pinned versions for `torch==2.1.0`, `torch-geometric==2.4.0`, `rdkit==2023.9.5`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `pyyaml==6.0.1`, `requests==2.31.0`. Verify installation with `pip install -r code/requirements.txt --dry-run`.
+- [ ] T002 Initialize Python 3.11 project: Create `code/requirements.txt` with pinned versions for `torch==2.1.0 `, `torch-geometric==2.4.0 `, `rdkit==2023.9.5 `, `scikit-learn==1.3.2 `, `pandas==2.1.4 `, `pyyaml==6.0.1 `, `requests==2.31.0 `. Verify installation with `pip install -r code/requirements.txt --dry-run`. Ensure the environment uses Python.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` (for black) with standard configuration.
 
 ---
@@ -58,10 +58,10 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 [P] Implement `code/utils/config.py`: Define `SEED`, `DEVICE` (force 'cpu'), and path constants.
-- [ ] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
-- [ ] T006 [P] Implement `code/utils/data_loader.py`: Define `load_csv(path: str) -> pd.DataFrame` and `save_csv(df: pd.DataFrame, path: str) -> None`.
-- [ ] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
-- [ ] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
+- [X] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
+- [X] T006 [P] Implement `code/utils/data_loader.py`: Define `load_csv(path: str) -> pd.DataFrame` and `save_csv(df: pd.DataFrame, path: str) -> None`.
+- [~] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
+- [~] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,26 +75,28 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `code/data/download.py` (Download Only): 
-    1. Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127) to `data/raw/dssc_dataset.csv`.
-    2. Implement retry logic with exponential backoff (max 3 retries) on failure.
-    3. Do NOT perform checksum verification in this task; ensure file is written to disk.
-- [ ] T010 [US1] Implement `code/data/download.py` (Verification): 
-    1. Fetch checksum from Zenodo API metadata endpoint for `dssc_dataset.csv`.
-    2. Compare local file checksum with Zenodo metadata.
-    3. Raise `ChecksumMismatchError` if mismatch.
-    4. Verify PCE units (%): Check that PCE column values are expressed as percentages within the standard range.
-    5. If deviant, append entry to `data/processed/review_queue.json` with format `{"smiles": <s>, "value": <v>, "unit": <u>, "status": "flagged_for_review"}`.
-    6. Raise `PCEAnomalyError` if any anomalies are found to ensure manual review is triggered.
-    *(Depends on T009)*
-- [ ] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
-    *(Depends on T010)*
-- [ ] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
-    *(Depends on T011)*
+- [~] T009 [US1] Implement `code/data/download.py` (Download Only):
+ 1. Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127) to `data/raw/dssc_dataset.csv`.
+ 2. Implement retry logic with exponential backoff on failure.
+ 3. On failure after retries, fail gracefully with a clear error message indicating the source URL and expected format.
+ 4. Do NOT perform checksum verification in this task; ensure file is written to disk.
+ 5. This task must complete successfully before T010 can run.
+- [~] T010 [US1] Implement `code/data/download.py` (Verification):
+ 1. Read the file `data/raw/dssc_dataset.csv` (produced by T009) to confirm existence.
+ 2. Verify the file checksum against a **static, hardcoded expected checksum value** (to be provided by the researcher in `code/utils/config.py`). **Do NOT fetch from Zenodo API**.
+ 3. If the checksum is missing or mismatched, log to `data/processed/review_queue.json` and proceed to allow downstream processing (do not halt).
+ 4. Verify PCE units (%): Check that PCE column values are expressed as percentages within the standard range.
+ 5. If deviant, append entry to `data/processed/review_queue.json` with format `{"smiles": <s>, "value": <v>, "unit": <u>, "status": "flagged_for_review"}`.
+ 6. **Do NOT raise an error or halt the pipeline** for PCE anomalies; simply log them to the review queue and proceed.
+ *(Depends on T009)*
+- [~] T011 [US1] Implement `code/data/preprocess.py`: Load raw CSV, remove salts, canonicalize tautomers, and generate canonical SMILES using RDKit (FR-002).
+ *(Depends on T010)*
+- [~] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
+ *(Depends on T011)*
 - [ ] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
-    *(Depends on T012)*
+ *(Depends on T012)*
 - [ ] T014 [US1] Implement `code/data/preprocess.py`: Export standardized data to `data/processed/graph_data.pt` (PyTorch Geometric format) and `data/processed/cleaned_data.csv`.
-    *(Depends on T013)*
+ *(Depends on T013)*
 - [ ] T015 [P] [US1] Unit test: Verify salt removal and tautomer canonicalization on known edge cases in `tests/unit/test_preprocess.py` (use mock/static test data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -111,28 +113,36 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T016 [P] [US2] Implement `code/data/split.py`: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation split (FR-004).
 - [ ] T017 [P] [US2] Implement `code/models/gcn.py`: Define GCN architecture (≤2 layers, hidden size 128) optimized for CPU execution (FR-003).
-- [ ] T018 [P] [US2] Implement `code/models/rf_baseline.py`: Generate Morgan fingerprints and train Random Forest baseline (FR-005).
-- [ ] T019 [US2] Implement `code/models/train.py`: 
-    1. Implement the core GCN training loop logic (forward/backward pass) for a sufficient number of epochs per fold to ensure model convergence.
-    2. Wrap the training loop with a hard timeout of a fixed duration.
-    3. If timeout is reached, save partial weights to `results/model_artifacts/` and raise `TimeLimitExceeded` (do NOT reduce epochs).
-    4. Implement CPU-only device enforcement.
-    5. Integrate scaffold split (T016) and models (T017, T018).
-    6. Aggregate all metrics (MAE, RMSE, R²) and save to `results/metrics.json` (FR-005, FR-006).
-    *(Note: This task consolidates the core loop, timeout wrapper, and integration into a single executable unit.)*
-- [ ] T021 [US2] Implement `code/analysis/stats.py`: Compute fold-wise MAE, RMSE, and R² for both models.
-    *(Note: Aligns with plan.md's statistical methodology)*
-- [ ] T022 [US2] Implement `code/analysis/stats.py`: 
-    1. Perform **paired t-test** (PRIMARY) on fold-wise MAE between GCN and RF as required by FR-006.
-    2. Calculate **Cohen's d** (PRIMARY) effect size as required by SC-003.
-    3. (Optional) Also compute Wilcoxon signed-rank test and Cliff's Delta for robustness check, but ensure t-test/Cohen's d are the primary reported metrics.
-    4. Output p-value and effect sizes to `results/metrics.json`.
-    *(Note: Primary method follows Spec FR-006 and SC-003 which mandate t-test/Cohen's d).*
-    *(Depends on T021)*
-- [ ] T023 [US2] Implement `code/models/train.py`: Aggregate all metrics and save to `results/metrics.json` (FR-005, FR-006).
-    *(Depends on T022)*
+- [ ] T018 [P] [US2] Implement `code/models/rf.py`: Generate Morgan fingerprints and train Random Forest baseline (FR-005).
+ *(Note: File name corrected to match plan.md structure)*
+- [ ] T019 [US2] Implement `code/models/train.py`:
+ 1. Implement the core GCN training loop logic (forward/backward pass) for a sufficient number of epochs per fold to ensure model convergence.
+ 2. Wrap the training loop with a hard timeout of a predefined duration..
+ 3. If timeout is reached, save partial weights to `results/model_artifacts/` and exit with status code "Time Limit Exceeded" (do NOT reduce epochs).
+ 4. Implement CPU-only device enforcement.
+ 5. Integrate scaffold split (T016) and models (T017, T018).
+ 6. **Save intermediate fold-wise metrics (MAE, RMSE, R²) to `results/fold_metrics.json` as the final step of this task.** (Do NOT perform final aggregation here).
+ *(Note: This task saves intermediate fold data; final aggregation happens in T023.)*
+ *(Depends on T016, T017, T018)*
+- [ ] T021 [US2] Implement `code/analysis/stats.py`: Compute fold-wise MAE, RMSE, and R² for both models from the results generated in T019.
+ *(Note: Aligns with plan.md's statistical methodology)*
+ *(Depends on T019)*
+- [ ] T022 [US2] Implement `code/analysis/stats.py`:
+ 1. Perform **paired t-test** (PRIMARY) on fold-wise MAE between GCN and RF as required by **FR-006** and **SC-003**.
+ 2. Calculate **Cohen's d** (PRIMARY) effect size as required by SC-003.
+ 3. (Optional) Also compute Wilcoxon signed-rank test and Cliff's Delta for robustness check, but ensure t-test/Cohen's d are the primary reported metrics.
+ 4. Output p-value and effect sizes to `results/stats_summary.json`.
+ *(Note: Primary method follows Spec FR-006 and SC-003 which mandate t-test/Cohen's d.)*
+ *(Depends on T021)*
+- [ ] T023 [US2] Implement `code/analysis/merge.py`:
+ 1. Read `results/fold_metrics.json` (from T019) and `results/stats_summary.json` (from T022).
+ 2. Merge these artifacts into a single comprehensive report.
+ 3. Save the final merged report to `data/outputs/metrics.json` (per Constitution Principle IV).
+ *(Depends on T019, T022)*
 - [ ] T024 [P] [US2] Integration test: Verify scaffold split ensures no scaffold overlap between train/test sets in `tests/integration/test_scaffold_split.py`.
+ *(Depends on T023)*
 - [ ] T025 [P] [US2] Integration test: Verify training completes within 6-hour limit on simulated CPU environment in `tests/integration/test_training_timeout.py`.
+ *(Depends on T023)*
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -147,14 +157,20 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [ ] T026 [P] [US3] Implement `code/analysis/interpret.py`: Apply Integrated Gradients (or attention weights) to GCN predictions to generate node-level importance scores (FR-007).
+ *Note: If Integrated Gradients fails due to CPU constraints (timeout or memory error), automatically switch to Random Forest feature importance (Spec Assumptions).*
+ *Critical Verification: If the fallback method is used, verify that it produces at least 5 distinct (non-isomorphic) substructures. If it fails to produce 5, log a CRITICAL error and halt execution to satisfy SC-005.*
 - [ ] T027 [US3] Implement `code/analysis/interpret.py`: Extract subgraphs from high-importance nodes and aggregate recurring motifs across the dataset.
-- [ ] T028 [US3] Implement `code/analysis/interpret.py`: Perform graph isomorphism check to ensure identified motifs are distinct (non-isomorphic) (SC-005). Save unique motifs to `results/motifs_unique.pt` and update `metrics.json` with `unique_motif_count`.
-- [ ] T029 [US3] Implement `code/analysis/interpret.py`: 
-    1. Perform a statistical enrichment test of identified motifs against a null distribution of random subgraphs to distinguish signal from bias (Plan Phase 3 Validation Step).
-    2. Generate summary report of top motifs with frequency counts and textual descriptions (FR-008).
-    *(Depends on T028)*
-- [ ] T030 [US3] Implement `code/analysis/interpret.py`: Update `results/metrics.json` to include the `motifs` key with the extracted data.
-    *(Depends on T029)*
+- [ ] T028 [US3] Implement `code/analysis/interpret.py`: Perform graph isomorphism check to ensure identified motifs are distinct (non-isomorphic) (SC-005). Save unique motifs to `results/motifs_unique_temp.pt`.
+ *(Note: Do NOT update metrics.json here; T030 will handle the update.)*
+ *(Depends on T027)*
+- [ ] T029 [US3] Implement `code/analysis/interpret.py`:
+ 1. Perform a statistical enrichment test of identified motifs against a null distribution of random subgraphs to distinguish signal from bias (Plan Phase 3 Validation Step).
+ 2. Generate summary report of top motifs with frequency counts and textual descriptions (FR-008).
+ *(Depends on T028)*
+- [ ] T030 [US3] Implement `code/analysis/interpret.py`:
+ 1. Read `results/motifs_unique_temp.pt` (from T028) and the summary from T029.
+ 2. Atomically update `data/outputs/metrics.json` to include the `motifs` key and `unique_motif_count`.
+ *(Depends on T028, T029)*
 - [ ] T031 [US3] Unit test: Verify motif extraction logic on a molecule with a known high-importance substructure in `tests/unit/test_interpret.py`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -165,9 +181,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Handle edge cases and fallback mechanisms required by spec assumptions
 
-- [ ] T032 [US3] Implement `code/analysis/interpret.py` fallback: If Integrated Gradients fails due to CPU constraints (timeout or memory error) (triggered by T023 failure), automatically switch to Random Forest feature importance (Spec Assumptions).
-    *(Note: Explicitly defines the conditional path: if IG fails -> switch to RF).*
-    *(Depends on T026, T031)*
+*(Note: Fallback logic for interpretability has been integrated into T026. No separate task required.)*
 
 ---
 
@@ -180,7 +194,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T035 [P] Performance: Implement batch processing in `code/models/train.py` to ensure peak memory usage < 6GB.
 - [ ] T036 [P] Testing: Add `tests/unit/test_stats.py::test_ttest` and `test_cohens_d` to verify robustness checks in T022.
 - [ ] T037 Run `quickstart.md` validation to ensure full pipeline reproducibility.
-- [ ] T038 Verify `results/metrics.json` schema compliance with `contracts/model_output.schema.yaml`.
+- [ ] T038 Verify `data/outputs/metrics.json` schema compliance with `contracts/model_output.schema.yaml`.
 
 ---
 
@@ -191,8 +205,8 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -224,7 +238,6 @@ Examples of foundational tasks (adjust based on your project):
 
 ```bash
 # Launch all tasks for User Story 1 that are independent:
-Task: "Download DSSC dataset from Zenodo in code/data/download.py"
 Task: "Unit test for salt removal using mock data in tests/unit/test_preprocess.py"
 ```
 
@@ -254,9 +267,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Modeling)
-   - Developer C: User Story 3 (Interpretability)
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Modeling)
+ - Developer C: User Story 3 (Interpretability)
 3. Stories complete and integrate independently
 
 ---

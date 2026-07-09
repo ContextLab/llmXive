@@ -25,7 +25,7 @@ The system must successfully ingest the Nazeer et al. DSSC dataset, parse SMILES
 
 ### User Story 2 - Model Training and Evaluation on CPU (Priority: P2)
 
-The system must train a Graph Convolutional Network (GCN) and a baseline Random Forest model on the pre-processed data using scaffold-aware k-fold cross-validation, executing entirely on a CPU-only environment within the 6-hour time limit.
+The system must train a Graph Convolutional Network (GCN) and a baseline Random Forest model on the pre-processed data using scaffold-aware k-fold cross-validation, executing entirely on a CPU-only environment within a practical time limit..
 
 **Why this priority**: This delivers the core predictive capability and comparative analysis required to answer the research question. It validates whether the proposed ML approach is feasible on the target hardware and produces the metrics (MAE, R²) needed for evaluation.
 
@@ -97,7 +97,7 @@ The system must extract and rank substructures (motifs) contributing to high pre
 
 - The Nazeer et al. Zenodo dataset contains all necessary variables (SMILES strings and experimental PCE values) to perform the analysis; if specific metadata (e.g., electrolyte type) is missing, it will be treated as a constant or ignored, as the primary focus is molecular structure.
 - The dataset size is small enough (< 1 GB) to fit entirely into the 7 GB RAM limit of the GitHub Actions free-tier runner without requiring chunking or sampling.
-- The GCN implementation in PyTorch Geometric can run efficiently on CPU with the specified hyperparameters (multiple layers, appropriate hidden size, 200 epochs) within the 6-hour time limit for the given dataset size.
+- The GCN implementation in PyTorch Geometric can run efficiently on CPU with the specified hyperparameters (multiple layers, appropriate hidden size, a sufficient number of training epochs) within the 6-hour time limit. for the given dataset size.
 - The "scaffold" definition for the cross-validation split is based on the Bemis-Murcko scaffold framework, which is the standard in cheminformatics for ensuring structural diversity between folds.
 - The experimental PCE values in the dataset are reported in consistent units (%), requiring no unit conversion. *Note: FR-009 adds a verification step to handle cases where this assumption may not hold.*
 - The interpretability method (integrated gradients) is computationally feasible on CPU for the model size and dataset; if not, the method will fall back to simpler feature importance from the Random Forest baseline.
