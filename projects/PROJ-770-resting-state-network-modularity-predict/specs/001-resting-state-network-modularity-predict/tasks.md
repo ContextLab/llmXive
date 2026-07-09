@@ -105,7 +105,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement `code/build_graphs.py` to threshold Fisher-z correlation matrices at the top percentage of strongest positive edges as defined in `code/config.py` to ensure comparable density
+- [X] T018 [P] [US2] Implement `code/build_graphs.py` to threshold Fisher-z correlation matrices at the top percentage of strongest positive edges as defined in `code/config.py` to ensure comparable density
 - [ ] T019 [US2] Implement `code/build_graphs.py` to apply the Louvain algorithm (via `python-louvain`) with retry logic (seeds) for convergence, recording modularity Q and community assignments
 - [ ] T020 [US2] Add sanity check in `code/build_graphs.py` to flag and log subjects with Q > 1.0 or Q < 0.0
 - [ ] T021 [US2] Generate `data/processed/subject_modularity.csv` containing subject IDs and computed Q values
