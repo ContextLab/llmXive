@@ -1,3 +1,2 @@
-# Logs directory
-# Store execution logs, exclusion logs, and runtime metrics here.
+# Placeholder for execution logs and exclusion records
 pass

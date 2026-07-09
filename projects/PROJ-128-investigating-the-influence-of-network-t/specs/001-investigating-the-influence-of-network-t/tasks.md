@@ -55,8 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters (30 TR window, 20 TR sensitivity, k=5).
-- [ ] T005 [P] Implement `code/config.py` hyperparameters section for density thresholds and statistical alpha levels.
+- [X] T004 [P] Implement `code/config.py` for paths, seeds, and baseline parameters (30 TR window, 20 TR sensitivity, k=5).
+- [X] T005 [P] Implement `code/config.py` hyperparameters section for density thresholds and statistical alpha levels.
 - [ ] T006 [P] Create `code/preprocess/__init__.py` and data loading utilities for HCP OpenNeuro data (dMRI/fMRI).
 - [~] T007 [P] Implement `code/preprocess/structural.py` skeleton with placeholder for graph metric calculation.
 - [~] T008 [P] Implement `code/preprocess/functional.py` skeleton for sliding-window and state extraction.
@@ -84,10 +84,10 @@
 
 - [~] T015 [US1] Implement structural graph metric calculation (global efficiency, clustering, modularity) in `code/preprocess/structural.py` using NetworkX. Handle sparsity >90% exclusion.
 - [~] T016 [US1] Implement sliding-window correlation in `code/preprocess/functional.py` with **strict parameters**: 30 TR window, 1 TR step, and **concatenating these windowed matrices across all subjects** before k-means clustering.
-- [ ] T017 [US1] Implement **Leave-One-Out (LOO) K-Means (k=5)** clustering for dynamic states in `code/preprocess/functional.py`. **Algorithm**: For each subject `i`, centroids must be calculated by clustering the windowed matrices of **all subjects j != i** (excluding the target subject) to derive centroids, then assign subject `i`'s windows to these centroids. **Must run sequentially** to ensure strict subject isolation during centroid derivation and prevent circular correlation (Constitution Principle VI).
-- [ ] T018 [US1] Implement per-subject dynamic metric calculation (number of visited states, mean dwell time) in `code/preprocess/functional.py`.
-- [ ] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
-- [ ] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
+- [~] T017 [US1] Implement **Leave-One-Out (LOO) K-Means (k=5)** clustering for dynamic states in `code/preprocess/functional.py`. **Algorithm**: For each subject `i`, centroids must be calculated by clustering the windowed matrices of **all subjects j != i** (excluding the target subject) to derive centroids, then assign subject `i`'s windows to these centroids. **Must run sequentially** to ensure strict subject isolation during centroid derivation and prevent circular correlation (Constitution Principle VI).
+- [~] T018 [US1] Implement per-subject dynamic metric calculation (number of visited states, mean dwell time) in `code/preprocess/functional.py`.
+- [~] T019 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: This task relies on the schema defined in `contracts/output.schema.yaml` (set up in Task T011 in Phase 2) to ensure correct CSV structure.
+- [~] T020 [US1] Implement subject exclusion logging (convergence failure, sparsity) to `data/logs/exclusion_log.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,17 +101,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for normality check (Shapiro-Wilk) and correlation selection in `tests/unit/test_correlation.py`.
-- [ ] T022 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_correlation.py`.
-- [ ] T023 [P] [US2] Integration test for end-to-end correlation analysis in `tests/integration/test_correlation.py`.
+- [~] T021 [P] [US2] Unit test for normality check (Shapiro-Wilk) and correlation selection in `tests/unit/test_correlation.py`.
+- [~] T022 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_correlation.py`.
+- [~] T023 [P] [US2] Integration test for end-to-end correlation analysis in `tests/integration/test_correlation.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement normality testing (Shapiro-Wilk, α=0.05) in `code/analysis/correlation.py` to select Pearson vs. Spearman.
-- [ ] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
-- [ ] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
-- [ ] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
-- [ ] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
+- [~] T024 [US2] Implement normality testing (Shapiro-Wilk, α=0.05) in `code/analysis/correlation.py` to select Pearson vs. Spearman.
+- [~] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
+- [~] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
+- [~] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
+- [~] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,12 +125,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`.
-- [ ] T030 [P] [US3] Integration test for full robustness report generation in `tests/integration/test_robustness.py`.
+- [~] T029 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`.
+- [~] T030 [P] [US3] Integration test for full robustness report generation in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement sensitivity analysis for window length in `code/analysis/robustness.py`. This must explicitly compare the **30 TR baseline** against a **20 TR sensitivity check** as mandated by FR-006 and SC-002.
+- [~] T031 [US3] Implement sensitivity analysis for window length in `code/analysis/robustness.py`. This must explicitly compare the **30 TR baseline** against a **20 TR sensitivity check** as mandated by FR-006 and SC-002.
 - [ ] T032 [US3] Implement sensitivity analysis for structural threshold density (±5% variation) in `code/analysis/robustness.py`.
 - [ ] T033 [US3] Implement resource usage monitoring (peak RAM, runtime) in `code/main.py` to verify CPU-only constraints (GB/h).
 - [ ] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display the "absolute difference between 30 TR and 20 TR correlation coefficients" to satisfy SC-002.

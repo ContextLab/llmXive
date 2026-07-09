@@ -79,7 +79,7 @@
 ### Implementation for User Story 1
 
 - [ ] T009 [US1] Implement `code/download.py` to fetch the 'Sleep-EDF' dataset (PhysioNet ID: `sleep-edf`, URL: `) as primary candidate. Validate presence of both resting-state EEG and paired pre/post fatigue ratings per FR-001. If Sleep-EDF lacks required variables or yields N < 30, attempt fallback 'SHHS' dataset. If no source with both variables and N≥30 is found, halt with exit code 1 and log `validation_report.json` listing available variables and N count.
-- [ ] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
+- [X] T010 [US1] Implement `code/preprocess.py` to apply a 1-40 Hz bandpass filter using MNE-Python per FR-002.
 - [ ] T011 [US1] Implement artifact rejection logic in `code/preprocess.py` to exclude epochs >±100µV and segments <120 seconds per FR-002 and Edge Cases. Log exclusion counts and reasons.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -94,7 +94,7 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`.
+- [ ] T012 [P] [US2] Unit test for LZC calculation on known signal in `tests/unit/test_features.py`. <!-- FAILED: unspecified -->
 - [ ] T013 [P] [US2] Unit test for permutation entropy on known signal in `tests/unit/test_features.py`.
 
 ### Implementation for User Story 2

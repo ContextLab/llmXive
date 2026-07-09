@@ -4,3 +4,8 @@
   source_id: Band-stop filter
   url: https://en.wikipedia.org/wiki/Band-stop_filter
   value: "49\u201351 Hz"
+'|global permutation run significance testing':
+  quote: 1000 7919
+  source_id: A000040
+  url: https://oeis.org/A000040
+  value: '1000'

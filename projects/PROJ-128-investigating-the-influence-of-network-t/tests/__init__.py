@@ -1,3 +1,3 @@
-# Test suite root
-# Contains unit and integration tests for the research pipeline.
+# llmXive Project: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
+# Package: tests
 pass

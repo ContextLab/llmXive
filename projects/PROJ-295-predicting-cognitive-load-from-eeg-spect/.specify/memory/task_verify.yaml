@@ -2,9 +2,27 @@
   and verify dataset URL, version, and checksums from the source to satisfy Constitution
   Principle VI. **After completion, update `state/` YAML with checksums and `updated_at`
   timestamp.**
-: 1
+: 2
 ? 'T008 [P] Implement `code/data/download.py` with a strict verification gate: fetch
   `ds000246`, check for `gaze.tsv`; if missing, raise a `FileNotFoundError` with a
   clear message and flag spec for `ds003465` fallback. **After completion, update
   `state/` YAML with checksums and `updated_at` timestamp.**'
+: 2
+T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB): 1
+T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data): 1
+? T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py`
+  (verify ICA removal and epoch retention > 70%)
+: 1
+? "T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply\
+  \ a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) [UNRESOLVED-CLAIM:\
+  \ c_fb816e8a \u2014 status=not_enough_info] to remove DC offset and drift, (2) Apply\
+  \ a 50 (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics))\
+  \ Hz notch filter to remove line noise (FR-001), (3) {{claim:c_a6915f96}} (1712.02859,\
+  \ https://arxiv.org/abs/1712.02859) (FR-001), (4) Apply ICA for eye-blink artifact\
+  \ removal [UNRESOLVED-CLAIM: c_f8827a05 \u2014 status=not_enough_info] (FR-002),\
+  \ (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly\
+  \ exclude subjects with > 50% rejected epochs to prevent bias [UNRESOLVED-CLAIM:\
+  \ c_24463296 \u2014 status=not_enough_info] (Edge Case), (7) Calculate and log epoch\
+  \ retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count.\
+  \ **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**"
 : 1

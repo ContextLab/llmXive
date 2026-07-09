@@ -76,13 +76,13 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
-- [~] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
-- [~] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
+- [ ] T010 [P] [US1] Unit test for chunked loading logic in `tests/unit/test_loader.py` (verify memory peak < 7GB)
+- [ ] T011 [P] [US1] Unit test for dataset verification gate in `tests/unit/test_download.py` (verify halt on missing gaze data)
+- [ ] T012 [P] [US1] Integration test for full preprocessing pipeline in `tests/integration/test_preprocess.py` (verify ICA removal and epoch retention > 70%)
 
 ### Implementation for User Story 1
 
-- [~] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) to remove DC offset and drift, (2) Apply a 50 (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics)) Hz notch filter to remove line noise (FR-001), (3) {{claim:c_a6915f96}} (1712.02859, https://arxiv.org/abs/1712.02859) (FR-001), (4) Apply ICA for eye-blink artifact removal (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [ ] T014 [US1] Implement `code/data/preprocess.py` with full module logic: (1) Apply a Butterworth bandpass filter (1 Hz high-pass, 45 Hz low-pass, order=4) [UNRESOLVED-CLAIM: c_fb816e8a — status=not_enough_info] to remove DC offset and drift, (2) Apply a 50 (Wikipedia: Noise (electronics), https://en.wikipedia.org/wiki/Noise_(electronics)) Hz notch filter to remove line noise (FR-001), (3) {{claim:c_a6915f96}} (1712.02859, https://arxiv.org/abs/1712.02859) (FR-001), (4) Apply ICA for eye-blink artifact removal [UNRESOLVED-CLAIM: c_f8827a05 — status=not_enough_info] (FR-002), (5) Segment data into epochs aligned with behavioral events (FR-002), (6) Explicitly exclude subjects with > 50% rejected epochs to prevent bias [UNRESOLVED-CLAIM: c_24463296 — status=not_enough_info] (Edge Case), (7) Calculate and log epoch retention rate; halt if < 70% (SC-004), and (8) Log the final exclusion count. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,17 +98,17 @@
 
 > **NOTE: Write these tests FIRST (Pre-implementation TDD) to ensure they FAIL before implementation**
 
-- [ ] T020 [P] [US2] Unit test for Welch's PSD calculation in `tests/unit/test_extract.py` (verify band limits)
-- [ ] T021 [P] [US2] Unit test for gaze variance calculation in `tests/unit/test_labels.py` (verify min-max scaling)
-- [ ] T022 [P] [US2] Unit test for missing value flagging in `tests/unit/test_validity.py` (verify > 5% threshold)
+- [~] T020 [P] [US2] Unit test for Welch's PSD calculation in `tests/unit/test_extract.py` (verify band limits)
+- [~] T021 [P] [US2] Unit test for gaze variance calculation in `tests/unit/test_labels.py` (verify min-max scaling)
+- [~] T022 [P] [US2] Unit test for missing value flagging in `tests/unit/test_validity.py` (verify > 5% threshold)
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `code/features/extract.py` to compute PSDusing Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
-- [ ] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
-- [ ] T026 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004). **Must run only after `data/processed/clean_epochs` artifact is produced.**
-- [ ] T027 [US2] Implement `code/features/labels.py` to normalize labels via min-max scaling per subject (FR-004). **Must run after T026.**
-- [ ] T030 [US2] Implement `code/features/validity.py` to identify epochs with > 5% missing sensor data and **EXCLUDE them** from the final dataset (FR-003)
+- [~] T023 [P] [US2] Implement `code/features/extract.py` to compute PSDusing Welch's method (FR-003) with built-in **chunked loading logic** to ensure memory safety during PSD computation on the full dataset (SC-002), extracting mean power for theta (4–7 Hz) and alpha (8–12 Hz (Wikipedia: Alpha wave, https://en.wikipedia.org/wiki/Alpha_wave)) bands per channel. **After completion, update `state/` YAML with checksums and `updated_at` timestamp.**
+- [~] T024 [US2] Implement `code/features/extract.py` function `compute_theta_alpha_ratio` to handle division-by-zero using `EPSILON = 1e-9` with logic `alpha_power + EPSILON` (Edge Case). **Must run after T023.**
+- [~] T026 [US2] Implement `code/features/labels.py` to derive continuous cognitive load score from gaze variance per epoch (FR-004). **Must run only after `data/processed/clean_epochs` artifact is produced.**
+- [~] T027 [US2] Implement `code/features/labels.py` to normalize labels via min-max scaling per subject (FR-004). **Must run after T026.**
+- [~] T030 [US2] Implement `code/features/validity.py` to identify epochs with > 5% missing sensor data and **EXCLUDE them** from the final dataset (FR-003)
 - [ ] T031 [US2] Implement `code/features/validity.py` to flag missing sensors.
 - [ ] T031b [US2] Implement `code/features/validity.py` to explicitly **measure and report** the stability and non-zero nature of extracted power values across subjects (SC-005). **Must run after T024.**
 

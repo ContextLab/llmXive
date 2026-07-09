@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T19:18:25.716878Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-890-llmxive-follow-up-extending-when-vision
-last_run_id: null
+last_run_id: 4adbd838-0cfb-4a28-9a1b-32bb45fb71e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "When Vision Speaks for Sound"'
-updated_at: '2026-07-02T19:18:25.716878Z'
+updated_at: '2026-07-09T13:13:21.019650Z'

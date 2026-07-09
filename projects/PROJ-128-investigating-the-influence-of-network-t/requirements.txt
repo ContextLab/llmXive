@@ -1,21 +1,12 @@
-# Core dependencies
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
-scikit-learn>=1.2.0
-networkx>=3.1.0
-nilearn>=0.10.0
-pyyaml>=6.0.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-statsmodels>=0.14.0
-tqdm>=4.65.0
-
-# Testing
-pytest>=7.3.0
-pytest-cov>=4.1.0
-
-# Linting and formatting
-flake8>=6.0.0
-black>=23.3.0
-pre-commit>=3.3.0
+nilearn==0.10.4
+networkx==3.2.1
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==1.26.4
+statsmodels==0.14.4
+scipy==1.14.1
+pyyaml==6.0.2
+matplotlib==3.9.2
+seaborn==0.13.2
+nibabel==5.3.2
+tqdm==4.66.5

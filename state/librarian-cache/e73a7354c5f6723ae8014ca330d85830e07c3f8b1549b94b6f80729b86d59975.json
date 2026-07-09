@@ -1,0 +1,626 @@
+{
+  "fetched_at": "2026-07-09T13:13:04Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"When Vision Speaks for Sound\"",
+      "target_n": 5
+    },
+    "duration_seconds": 46.033,
+    "ended_at": "2026-07-09T13:13:04Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "vision-to-sound synthesis"
+        ],
+        [
+          2,
+          "audio generation from visual input"
+        ],
+        [
+          3,
+          "cross-modal audio synthesis"
+        ],
+        [
+          4,
+          "image-to-audio generation models"
+        ],
+        [
+          5,
+          "visual-driven sound synthesis"
+        ],
+        [
+          6,
+          "multimodal generative models for audio"
+        ],
+        [
+          7,
+          "deep learning for vision-audio translation"
+        ],
+        [
+          8,
+          "automatic sound generation from images"
+        ],
+        [
+          9,
+          "video-to-audio synthesis networks"
+        ],
+        [
+          10,
+          "semantic audio generation from visual features"
+        ],
+        [
+          11,
+          "cross-modal representation learning for audio"
+        ],
+        [
+          12,
+          "generative adversarial networks for image-to-sound"
+        ],
+        [
+          13,
+          "transformer-based vision-to-audio models"
+        ],
+        [
+          14,
+          "audio synthesis conditioned on visual data"
+        ],
+        [
+          15,
+          "machine hearing from visual cues"
+        ],
+        [
+          16,
+          "visual context for audio generation"
+        ],
+        [
+          17,
+          "neural audio synthesis from images"
+        ],
+        [
+          18,
+          "cross-modal generative adversarial networks"
+        ],
+        [
+          19,
+          "multimodal pre-training for vision and audio"
+        ],
+        [
+          20,
+          "unsupervised vision-to-sound mapping"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science": 0,
+        "vision-to-sound synthesis": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "audio-visual representation learning cross-modal",
+      "AVSpeech VGGish audio-visual speech recognition",
+      "audio-visual homophily cross-modal alignment",
+      "cross-modal retrieval audio-visual benchmark evaluation",
+      "modality collapse cross-modal pretraining contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2107.14449"
+      ]
+    },
+    "per_query_hit_count": {
+      "AVSpeech VGGish audio-visual speech recognition": 3,
+      "audio-visual homophily cross-modal alignment": 2,
+      "audio-visual representation learning cross-modal": 3,
+      "cross-modal retrieval audio-visual benchmark evaluation": 1,
+      "llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science": 3,
+      "modality collapse cross-modal pretraining contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "1004.4609",
+          "rationale": "The paper focuses on reversible logic synthesis and quantum circuit optimization metrics (gate count, quantum cost, NNC), which is a distinct domain from the user's question regarding Large Language Models (LLMs) and vision-sound multimodal research. There is no overlap in mechanism, variables, empirical population, or methodology, and the shared term \"computer science\" is too broad to establish a relevant connection.",
+          "title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost"
+        },
+        {
+          "primary_pointer": "2107.14449",
+          "rationale": "The paper focuses on medical image registration (aligning histology and MRI) using contrastive learning, which is a distinct domain and mechanism from the user's question regarding \"When Vision Speaks for Sound\" (a cross-modal audio-visual LLM framework). There is no overlap in the empirical population, the specific cross-modal mechanism (sound-to-vision vs. vision-to-sound), or the canonical vocabulary clusters for either task.",
+          "title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images"
+        },
+        {
+          "primary_pointer": "2104.12292",
+          "rationale": "The paper focuses on adapting Text-to-Speech (TTS) techniques for MIDI-to-audio synthesis, which is a distinct domain (music generation) from the user's implied focus on \"Vision Speaks for Sound\" (cross-modal audio-visual learning). While both involve audio synthesis, the paper does not measure the same biological pathway, physical observable, or causal mechanism regarding vision-to-sound translation, nor does it address the specific empirical population or variables of the user's question, fail",
+          "title": "Text-to-Speech Synthesis Techniques for MIDI-to-Audio Synthesis"
+        },
+        {
+          "primary_pointer": "2011.05538",
+          "rationale": "The paper is a general survey of sound synthesis and propagation in computer graphics and virtual reality, which does not address the specific mechanism of \"vision speaking for sound\" (audio-visual correspondence or cross-modal generation) or the specific \"llmXive\" follow-up context implied by the user's question. It fails to meet criteria (a) or (b) as it lacks the specific cross-modal or LLM-driven focus required, and it is not a foundational reference (d) for the specific niche of vision-to-s",
+          "title": "Sound Synthesis, Propagation, and Rendering: A Survey"
+        },
+        {
+          "primary_pointer": "2404.14700",
+          "rationale": "The paper focuses on efficient zero-shot speech synthesis using latent consistency models, which addresses a different technical problem (inference speed and training efficiency) than the user's question regarding the \"When Vision Speaks for Sound\" framework (which typically involves cross-modal alignment between vision and audio). While both involve speech synthesis, the candidate paper does not measure the specific cross-modal mechanism, visual-to-audio causal pathway, or the \"Vision Speaks fo",
+          "title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-09T13:12:18Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+      "raw": "llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sight and hearing are two senses that play a vital role in human communication and scene understanding. To mimic human perception ability, audio-visual learning, aimed at developing computational approaches to learn from both audio and visual modalities, has been a flourishing field in recent years. A comprehensive survey that can systematically organize and analyze studies of the audio-visual field is expected. Starting from the analysis of audio-visual cognition foundations, we introduce several key findings that have inspired our computational studies. Then, we systematically review the recent audio-visual learning studies and divide them into three categories: audio-visual boosting, cross-modal perception and audio-visual collaboration. Through our analysis, we discover that, the consistency of audio-visual data across semantic, spatial and temporal support the above studies. To revisit the current development of the audio-visual learning field from a more macro view, we further propose a new perspective on audio-visual scene understanding, then discuss and analyze the feasible future direction of the audio-visual learning area. Overall, this survey reviews and outlooks the current audio-visual learning field from different aspects. We hope it can provide researchers with a better understanding of this area. A website including constantly-updated survey is released: \\url{https://gewu-lab.github.io/audio-visual-learning/}.",
+          "claimed_authors": [
+            "Yake Wei",
+            "Di Hu",
+            "Yapeng Tian",
+            "Xuelong Li"
+          ],
+          "claimed_title": "Learning in Audio-visual Context: A Review, Analysis, and New Perspective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.09579"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Learning in Audio-visual Context: A Review, Analysis, and New Perspective')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_authors": [
+            "Qing Wang",
+            "Chong-Wah Ngo",
+            "Ee-Peng Lim"
+          ],
+          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.15201"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reverberation not only degrades the quality of speech for human perception, but also severely impacts the accuracy of automatic speech recognition. Prior work attempts to remove reverberation based on the audio modality only. Our idea is to learn to dereverberate speech from audio-visual observations. The visual environment surrounding a human speaker reveals important cues about the room geometry, materials, and speaker location, all of which influence the precise reverberation effects. We introduce Visually-Informed Dereverberation of Audio (VIDA), an end-to-end approach that learns to remove reverberation based on both the observed monaural sound and visual scene. In support of this new task, we develop a large-scale dataset SoundSpaces-Speech that uses realistic acoustic renderings of speech in real-world 3D scans of homes offering a variety of room acoustics. Demonstrating our approach on both simulated and real imagery for speech enhancement, speech recognition, and speaker identification, we show it achieves state-of-the-art performance and substantially improves over audio-only methods.",
+          "claimed_authors": [
+            "Changan Chen",
+            "Wei Sun",
+            "David Harwath",
+            "Kristen Grauman"
+          ],
+          "claimed_title": "Learning Audio-Visual Dereverberation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.07732"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Learning Audio-Visual Dereverberation')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Variational auto-encoders (VAEs) are deep generative latent variable models that can be used for learning the distribution of complex data. VAEs have been successfully used to learn a probabilistic prior over speech signals, which is then used to perform speech enhancement. One advantage of this generative approach is that it does not require pairs of clean and noisy speech signals at training. In this paper, we propose audio-visual variants of VAEs for single-channel and speaker-independent speech enhancement. We develop a conditional VAE (CVAE) where the audio speech generative process is conditioned on visual information of the lip region. At test time, the audio-visual speech generative model is combined with a noise model based on nonnegative matrix factorization, and speech enhancement relies on a Monte Carlo expectation-maximization algorithm. Experiments are conducted with the recently published NTCD-TIMIT dataset as well as the GRID corpus. The results confirm that the proposed audio-visual CVAE effectively fuses audio and visual information, and it improves the speech enhancement performance compared with the audio-only VAE model, especially when the speech signal is highly corrupted by noise. We also show that the proposed unsupervised audio-visual speech enhancement approach outperforms a state-of-the-art supervised deep learning method.",
+          "claimed_authors": [
+            "Mostafa Sadeghi",
+            "Simon Leglaive",
+            "Xavier Alameda-PIneda",
+            "Laurent Girin",
+            "Radu Horaud"
+          ],
+          "claimed_title": "Audio-visual Speech Enhancement Using Conditional Variational Auto-Encoders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1908.02590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Audio-visual Speech Enhancement Using Conditional Variational Auto-Encoders')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate recognition of cocktail party speech containing overlapping speakers, noise and reverberation remains a highly challenging task to date. Motivated by the invariance of visual modality to acoustic signal corruption, an audio-visual multi-channel speech separation, dereverberation and recognition approach featuring a full incorporation of visual information into all system components is proposed in this paper. The efficacy of the video input is consistently demonstrated in mask-based MVDR speech separation, DNN-WPE or spectral mapping (SpecM) based speech dereverberation front-end and Conformer ASR back-end. Audio-visual integrated front-end architectures performing speech separation and dereverberation in a pipelined or joint fashion via mask-based WPD are investigated. The error cost mismatch between the speech enhancement front-end and ASR back-end components is minimized by end-to-end jointly fine-tuning using either the ASR cost function alone, or its interpolation with the speech enhancement loss. Experiments were conducted on the mixture overlapped and reverberant speech data constructed using simulation or replay of the Oxford LRS2 dataset. The proposed audio-visual multi-channel speech separation, dereverberation and recognition systems consistently outperformed the comparable audio-only baseline by 9.1% and 6.2% absolute (41.7% and 36.0% relative) word error rate (WER) reductions. Consistent speech enhancement improvements were also obtained on PESQ, STOI and SRMR scores.",
+          "claimed_authors": [
+            "Guinan Li",
+            "Jiajun Deng",
+            "Mengzhe Geng",
+            "Zengrui Jin",
+            "Tianzi Wang",
+            "Shujie Hu",
+            "Mingyu Cui",
+            "Helen Meng",
+            "Xunying Liu"
+          ],
+          "claimed_title": "Audio-visual End-to-end Multi-channel Speech Separation, Dereverberation and Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.02909"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Audio-visual End-to-end Multi-channel Speech Separation, Dereverberation and Recognition')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Audio-Visual Speech Recognition (AVSR) enhances speech recognition robustness by leveraging visual cues, while real-world scenarios remain challenging due to viewpoint variation, audio distortion, and visual occlusion, which degrade modality quality and increase audio-visual asynchrony. In this paper, we propose a novel Modality-aware Multi-view Self-supervised representation framework for robust Audio-Visual Speech Recognition (M2S-AVSR). First, we introduce a multi-view representation learning encoder to learn view-invariant visual speech representations. Next, we employ a modality-aware module that explicitly models modality quality and cross-modal synchrony to perform fine-grained modality-aware fusion, enabling fine-grained visual information injection during decoding. In addition, we release AISHELL8-RealScene, a public multi-scenario, multi-view conversational audio-visual dataset recorded in real-world environments, and establish a speech recognition benchmark on it. Experiments on English and Mandarin benchmarks demonstrate the effectiveness of the proposed method under challenging conditions. On LRS3, M2S-AVSR achieves up to 29.4% relative improvement under viewpoint perturbation and visual degradation settings. Our method also achieves new state-of-the-art performance on the MISP2021-AVSR test set. On AISHELL8-RealScene, it achieves the best result in outdoor scenes. The proposed method and dataset provide useful support for future research on robust speech and multimodal tasks under realistic conditions.",
+          "claimed_authors": [
+            "Fei Su",
+            "Cancan Li",
+            "Ming Li",
+            "Juan Liu"
+          ],
+          "claimed_title": "M2S-AVSR: Modality-aware Multi-view Self-supervised Representation for Robust Audio-Visual Speech Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05763"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='M2S-AVSR: Modality-aware Multi-view Self-supervised Representation for Robust Audio-Visual Speech Recognition')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Speech Recognition (VSR) aims to recognize corresponding text by analyzing visual information from lip movements. Due to the high variability and weak information of lip movements, VSR tasks require effectively utilizing any information from any source and at any level. In this paper, we propose a VSR method based on audio-visual cross-modal alignment, named AlignVSR. The method leverages the audio modality as an auxiliary information source and utilizes the global and local correspondence between the audio and visual modalities to improve visual-to-text inference. Specifically, the method first captures global alignment between video and audio through a cross-modal attention mechanism from video frames to a bank of audio units. Then, based on the temporal correspondence between audio and video, a frame-level local alignment loss is introduced to refine the global alignment, improving the utility of the audio information. Experimental results on the LRS2 and CNVSRC.Single datasets consistently show that AlignVSR outperforms several mainstream VSR methods, demonstrating its superior and robust performance.",
+          "claimed_authors": [
+            "Zehua Liu",
+            "Xiaolou Li",
+            "Chen Chen",
+            "Li Guo",
+            "Lantian Li",
+            "Dong Wang"
+          ],
+          "claimed_title": "AlignVSR: Audio-Visual Cross-Modal Alignment for Visual Speech Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.16438"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='AlignVSR: Audio-Visual Cross-Modal Alignment for Visual Speech Recognition')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent work on audio-visual navigation assumes a constantly-sounding target and restricts the role of audio to signaling the target's position. We introduce semantic audio-visual navigation, where objects in the environment make sounds consistent with their semantic meaning (e.g., toilet flushing, door creaking) and acoustic events are sporadic or short in duration. We propose a transformer-based model to tackle this new semantic AudioGoal task, incorporating an inferred goal descriptor that captures both spatial and semantic properties of the target. Our model's persistent multimodal memory enables it to reach the goal even long after the acoustic event stops. In support of the new task, we also expand the SoundSpaces audio simulations to provide semantically grounded sounds for an array of objects in Matterport3D. Our method strongly outperforms existing audio-visual navigation methods by learning to associate semantic, acoustic, and visual cues.",
+          "claimed_authors": [
+            "Changan Chen",
+            "Ziad Al-Halah",
+            "Kristen Grauman"
+          ],
+          "claimed_title": "Semantic Audio-Visual Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.11583"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Semantic Audio-Visual Navigation')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-modal retrieval is to utilize one modality as a query to retrieve data from another modality, which has become a popular topic in information retrieval, machine learning, and database. How to effectively measure the similarity between different modality data is the major challenge of cross-modal retrieval. Although several reasearch works have calculated the correlation between different modality data via learning a common subspace representation, the encoder's ability to extract features from multi-modal information is not satisfactory. In this paper, we present a novel variational autoencoder (VAE) architecture for audio-visual cross-modal retrieval, by learning paired audio-visual correlation embedding and category correlation embedding as constraints to reinforce the mutuality of audio-visual information. On the one hand, audio encoder and visual encoder separately encode audio data and visual data into two different latent spaces. Further, two mutual latent spaces are respectively constructed by canonical correlation analysis (CCA). On the other hand, probabilistic modeling methods is used to deal with possible noise and missing information in the data. Additionally, in this way, the cross-modal discrepancy from intra-modal and inter-modal information are simultaneously eliminated in the joint embedding subspace. We conduct extensive experiments over two benchmark datasets. The experimental outcomes exhibit that the proposed architecture is effective in learning audio-visual correlation and is appreciably better than the existing cross-modal retrieval methods.",
+          "claimed_authors": [
+            "Jiwei Zhang",
+            "Yi Yu",
+            "Suhua Tang",
+            "Jianming Wu",
+            "Wei Li"
+          ],
+          "claimed_title": "Variational Autoencoder with CCA for Audio-Visual Cross-Modal Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.02601"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Variational Autoencoder with CCA for Audio-Visual Cross-Modal Retrieval')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Robust segmentation of clinically significant prostate cancer (csPCa) on multi-parametric MRI must tolerate frequent degradation of its most informative diffusion sequences. Multi-modal fusion commonly employs learned modality gating under the assumption that gates implement per-sample modality quality routing -- rarely tested directly. We ask how gating behaves across backbone architectures. We systematically analyze modality-isolated gated fusion (MIGF) for csPCa segmentation on two backbones (nnU-Net and Mamba) using PI-CAI (n=1500), with cross-cohort validation on Prostate158 (n=158): a factorial ablation over gating, modality dropout, and deep supervision under 5-fold cross-validation (180 trained models), plus a gate-weight and counterfactual analysis of 30 trained gating models. Modality gating is backbone-conditional. On nnU-Net, adding gating reduces the ranking score (marginal effect -0.037; gating configurations p<0.05), whereas on Mamba the gating-plus-dropout configuration improves it (+0.024, p=0.037). Gate-weight analysis explains this: nnU-Net gates collapse into a near-static modality prior (across-case SD 0.0033), while Mamba gates retain sample-dependent variation (0.0365, ~11x larger, non-overlapping); replacing per-sample gates with their training-set mean leaves nnU-Net unchanged but degrades Mamba. Modality dropout is the only component beneficial on both backbones. Under cross-cohort shift, convolutional backbones collapse to case-level specificity near zero, whereas Mamba retains it (MIGF-Mamba highest, 0.31). Learned modality gates do not universally perform per-sample quality routing; their effective behavior is conditional on the backbone's inherent modality awareness. Among tested configurations, MIGF-Mamba is the most cross-cohort robust, and training-time modality dropout is the only component beneficial across both backbones.",
+          "claimed_authors": [
+            "Yongbo Shu",
+            "Wenzhao Xie",
+            "Shanhu Yao",
+            "Zirui Xin",
+            "Luo Lei",
+            "Kewen Chen",
+            "Aijing Luo"
+          ],
+          "claimed_title": "Backbone-Conditional Behavior of Modality Gating in Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.10702"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Backbone-Conditional Behavior of Modality Gating in Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism Analysis')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Current cross-modal retrieval systems are evaluated using R@K measure which does not leverage semantic relationships rather strictly follows the manually marked image text query pairs. Therefore, current systems do not generalize well for the unseen data in the wild. To handle this, we propose a new measure, SemanticMap, to evaluate the performance of cross-modal systems. Our proposed measure evaluates the semantic similarity between the image and text representations in the latent embedding space. We also propose a novel cross-modal retrieval system using a single stream network for bidirectional retrieval. The proposed system is based on a deep neural network trained using extended center loss, minimizing the distance of image and text descriptions in the latent space from the class centers. In our system, the text descriptions are also encoded as images which enabled us to use a single stream network for both text and images. To the best of our knowledge, our work is the first of its kind in terms of employing a single stream network for cross-modal retrieval systems. The proposed system is evaluated on two publicly available datasets including MSCOCO and Flickr30K and has shown comparable results to the current state-of-the-art methods.",
+          "claimed_authors": [
+            "Shah Nawaz",
+            "Muhammad Kamran Janjua",
+            "Ignazio Gallo",
+            "Arif Mahmood",
+            "Alessandro Calefati",
+            "Faisal Shafait"
+          ],
+          "claimed_title": "Do Cross Modal Systems Leverage Semantic Relationships?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.01976"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"When Vision Speaks for Sound\" computer science', candidate_title='Do Cross Modal Systems Leverage Semantic Relationships?')",
+        "failed_at": "2026-07-09T13:12:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1004.4609",
+        "summary": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1004.4609",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T13:12:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adrià Casamitjana",
+            "Matteo Mancini",
+            "Juan Eugenio Iglesias"
+          ],
+          "title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2107.14449",
+        "summary": "Nonlinear inter-modality registration is often challenging due to the lack of objective functions that are good proxies for alignment. Here we propose a synthesis-by-registration method to convert this problem into an easier intra-modality task. We introduce a registration loss for weakly supervised image translation between domains that does not require perfectly aligned training data. This loss capitalises on a registration U-Net with frozen weights, to drive a synthesis CNN towards the desired translation. We complement this loss with a structure preserving constraint based on contrastive learning, which prevents blurring and content shifts due to overfitting. We apply this method to the registration of histological sections to MRI slices, a key step in 3D histology reconstruction. Results on two different public datasets show improvements over registration based on mutual information (13% reduction in landmark error) and synthesis-based algorithms such as CycleGAN (11% reduction), and are comparable to a registration CNN with label supervision. Code and data are publicly available at \\url{https://github.com/acasamitjana/SynthByReg}",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2107.14449",
+          "http_status": 200,
+          "pdf_sample_score": 0.2325,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T13:12:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Erica Cooper",
+            "Xin Wang",
+            "Junichi Yamagishi"
+          ],
+          "title": "Text-to-Speech Synthesis Techniques for MIDI-to-Audio Synthesis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2104.12292",
+        "summary": "Speech synthesis and music audio generation from symbolic input differ in many aspects but share some similarities. In this study, we investigate how text-to-speech synthesis techniques can be used for piano MIDI-to-audio synthesis tasks. Our investigation includes Tacotron and neural source-filter waveform models as the basic components, with which we build MIDI-to-audio synthesis systems in similar ways to TTS frameworks. We also include reference systems using conventional sound modeling techniques such as sample-based and physical-modeling-based methods. The subjective experimental results demonstrate that the investigated TTS components can be applied to piano MIDI-to-audio synthesis with minor modifications. The results also reveal the performance bottleneck -- while the waveform model can synthesize high quality piano sound given natural acoustic features, the conversion from MIDI to acoustic features is challenging. The full MIDI-to-audio synthesis system is still inferior to the sample-based or physical-modeling-based approaches, but we encourage TTS researchers to test their TTS models for this new task and improve the performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2104.12292",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T13:12:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shiguang Liu",
+            "Dinesh Manocha"
+          ],
+          "title": "Sound Synthesis, Propagation, and Rendering: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.05538",
+        "summary": "Sound, as a crucial sensory channel, plays a vital role in improving the reality and immersiveness of a virtual environment, following only vision in importance. Sound can provide important clues such as sound directionality and spatial size. This paper gives a broad overview of research works on sound simulation in virtual reality, games, multimedia, computer-aided design. We first survey various sound synthesis methods, including harmonic synthesis, texture synthesis, spectral analysis, and physics-based synthesis. Then, we summarize popular sound propagation techniques, namely wave-based methods, geometric-based methods, and hybrid methods. Next, the sound rendering methods are reviewed. We further demonstrate the latest deep learning based sound simulation approaches. Finally, we point to some future directions of this field. To the best of our knowledge, this is the first attempt to provide a comprehensive summary of sound research in the field of computer graphics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.05538",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T13:12:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.14700",
+        "summary": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.14700",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T13:12:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

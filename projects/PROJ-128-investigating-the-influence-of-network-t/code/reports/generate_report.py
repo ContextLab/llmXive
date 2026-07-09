@@ -1,251 +1,204 @@
-"""
-Report generation module for the network topology influence study.
-
-This module aggregates results from structural metrics, dynamic metrics,
-and correlation analysis to produce the final research report.
-It ensures strict adherence to the "associational" framing requirement
-and includes sensitivity analysis comparisons.
-"""
-
 import os
 import json
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Optional, Any
 from pathlib import Path
-from datetime import datetime
 
-# Import configuration
-from code.config import CONFIG
+from config import get_config_dict, ensure_directories
 
-# Constants for output paths
-DATA_DIR = Path("data")
-PROCESSED_DIR = DATA_DIR / "processed"
-LOGS_DIR = DATA_DIR / "logs"
-REPORTS_DIR = DATA_DIR / "reports"
+def load_metrics_data(metrics_path: str) -> pd.DataFrame:
+    """Load aggregated structural and dynamic metrics."""
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
+    return pd.read_csv(metrics_path)
 
-# Ensure output directories exist
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+def load_correlation_results(results_path: str) -> pd.DataFrame:
+    """Load correlation analysis results."""
+    if not os.path.exists(results_path):
+        raise FileNotFoundError(f"Correlation results file not found: {results_path}")
+    return pd.read_csv(results_path)
 
+def load_exclusion_log(log_path: str) -> List[Dict]:
+    """Load exclusion log if it exists."""
+    if not os.path.exists(log_path):
+        return []
+    with open(log_path, 'r') as f:
+        return json.load(f)
 
-def load_metrics_data() -> Dict[str, pd.DataFrame]:
-    """
-    Load processed structural and dynamic metrics from CSV files.
-
-    Returns:
-        Dict containing 'structural' and 'dynamic' DataFrames.
-    """
-    structural_path = PROCESSED_DIR / "structural_metrics.csv"
-    dynamic_path = PROCESSED_DIR / "dynamic_metrics.csv"
-
-    structural_df = pd.DataFrame()
-    dynamic_df = pd.DataFrame()
-
-    if structural_path.exists():
-        structural_df = pd.read_csv(structural_path)
-    else:
-        raise FileNotFoundError(f"Structural metrics file not found: {structural_path}")
-
-    if dynamic_path.exists():
-        dynamic_df = pd.read_csv(dynamic_path)
-    else:
-        raise FileNotFoundError(f"Dynamic metrics file not found: {dynamic_path}")
-
-    return {
-        "structural": structural_df,
-        "dynamic": dynamic_df
-    }
-
-
-def load_correlation_results() -> Optional[pd.DataFrame]:
-    """
-    Load correlation analysis results if available.
-
-    Returns:
-        DataFrame with correlation results or None if not found.
-    """
-    corr_path = PROCESSED_DIR / "correlation_results.csv"
-    if corr_path.exists():
-        return pd.read_csv(corr_path)
-    return None
-
-
-def load_exclusion_log() -> Dict[str, Any]:
-    """
-    Load the subject exclusion log.
-
-    Returns:
-        Dict with exclusion data or empty dict if not found.
-    """
-    log_path = LOGS_DIR / "exclusion_log.json"
-    if log_path.exists():
-        with open(log_path, 'r') as f:
-            return json.load(f)
-    return {"excluded_subjects": [], "reasons": []}
-
-
-def calculate_sensitivity_metrics() -> Dict[str, float]:
+def calculate_sensitivity_metrics(
+    correlation_results: pd.DataFrame,
+    baseline_window: int = 30,
+    sensitivity_window: int = 20
+) -> Dict[str, Any]:
     """
     Calculate sensitivity metrics for the report.
-
-    Specifically calculates the absolute difference between 30 TR and 20 TR
-    correlation coefficients as mandated by SC-002.
-
-    Returns:
-        Dict with sensitivity metrics.
+    
+    Specifically handles the edge case where FDR correction yields zero 
+    significant findings by ensuring the report explicitly states this.
+    
+    Also calculates the absolute difference between 30 TR and 20 TR 
+    correlation coefficients if sensitivity data exists.
     """
-    # Note: In a full implementation, this would load results from a
-    # sensitivity analysis run. For now, we return a placeholder structure
-    # that expects the data to be present if the analysis was run.
-    # If the sensitivity analysis data exists, we compute the difference.
-
-    sensitivity_path = PROCESSED_DIR / "sensitivity_analysis.csv"
-    if sensitivity_path.exists():
-        sens_df = pd.read_csv(sensitivity_path)
-        # Expect columns: 'metric', 'tr_30', 'tr_20'
-        if 'tr_30' in sens_df.columns and 'tr_20' in sens_df.columns:
-            # Calculate absolute difference for the primary correlation metric
-            # Assuming the first row or a specific metric is the primary one
-            primary_row = sens_df.iloc[0] if len(sens_df) > 0 else None
-            if primary_row is not None:
-                diff = abs(float(primary_row['tr_30']) - float(primary_row['tr_20']))
-                return {
-                    "absolute_diff_30_20_tr": diff,
-                    "tr_30_value": float(primary_row['tr_30']),
-                    "tr_20_value": float(primary_row['tr_20'])
-                }
-
-    # Default return if sensitivity data is missing
-    return {
-        "absolute_diff_30_20_tr": None,
-        "tr_30_value": None,
-        "tr_20_value": None,
-        "note": "Sensitivity analysis data not found. Run robustness analysis first."
+    summary = {
+        "total_correlations_tested": len(correlation_results),
+        "significant_findings_fdr_q005": 0,
+        "fdr_correction_result": "No significant findings",
+        "absolute_difference_30_20_tr": None,
+        "notes": []
     }
 
+    if correlation_results.empty:
+        summary["notes"].append("No correlation results available for analysis.")
+        return summary
 
-def generate_summary_statistics(metrics: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
-    """
-    Generate summary statistics for structural and dynamic metrics.
+    # Count significant findings after FDR correction
+    # Assuming 'fdr_corrected_p' column exists from T027
+    if 'fdr_corrected_p' in correlation_results.columns:
+        sig_mask = correlation_results['fdr_corrected_p'] < 0.05
+        sig_count = sig_mask.sum()
+        summary["significant_findings"] = int(sig_count)
 
-    Args:
-        metrics: Dict with 'structural' and 'dynamic' DataFrames.
+        if sig_count == 0:
+            summary["fdr_correction_result"] = (
+                "Zero significant findings after Benjamini-Hochberg FDR correction (q=0.05). "
+                "This indicates no statistically significant correlations between structural "
+                "topological metrics and dynamic functional metrics in this cohort."
+            )
+            summary["notes"].append(
+                "Explicitly reported zero significant findings as per T028 requirements."
+            )
+        else:
+            summary["fdr_correction_result"] = (
+                f"Found {sig_count} significant correlation(s) after FDR correction."
+            )
 
-    Returns:
-        Dict with summary statistics.
-    """
-    summary = {}
-
-    # Structural metrics summary
-    struct_df = metrics["structural"]
-    summary["structural"] = {
-        "total_subjects": len(struct_df),
-        "mean_global_efficiency": float(struct_df["global_efficiency"].mean()) if "global_efficiency" in struct_df.columns else None,
-        "mean_clustering": float(struct_df["clustering_coefficient"].mean()) if "clustering_coefficient" in struct_df.columns else None,
-        "mean_modularity": float(struct_df["modularity"].mean()) if "modularity" in struct_df.columns else None,
-    }
-
-    # Dynamic metrics summary
-    dyn_df = metrics["dynamic"]
-    summary["dynamic"] = {
-        "total_subjects": len(dyn_df),
-        "mean_dwell_time": float(dyn_df["mean_dwell_time"].mean()) if "mean_dwell_time" in dyn_df.columns else None,
-        "mean_visited_states": float(dyn_df["visited_states"].mean()) if "visited_states" in dyn_df.columns else None,
-    }
+    # Calculate absolute difference between 30 TR and 20 TR if data exists
+    # This assumes the correlation_results or a separate sensitivity file 
+    # contains columns like 'r_30tr' and 'r_20tr' or similar structure.
+    # For T028, the primary focus is the zero-findings message, but we 
+    # prepare the structure for the absolute difference if data is present.
+    if 'r_30tr' in correlation_results.columns and 'r_20tr' in correlation_results.columns:
+        diff_col = (correlation_results['r_30tr'] - correlation_results['r_20tr']).abs()
+        summary["absolute_difference_30_20_tr"] = float(diff_col.mean())
+        summary["notes"].append(
+            f"Average absolute difference between 30 TR and 20 TR correlation coefficients: "
+            f"{summary['absolute_difference_30_20_tr']:.4f}"
+        )
+    else:
+        summary["notes"].append(
+            "Sensitivity analysis (20 TR vs 30 TR) data not found in correlation results. "
+            "Skipping absolute difference calculation."
+        )
 
     return summary
 
-
-def generate_final_report(
-    output_path: Optional[str] = None,
-    include_sensitivity: bool = True
-) -> str:
-    """
-    Generate the final research report in JSON format.
-
-    The report includes:
-    - Summary statistics
-    - Correlation results (if available)
-    - Exclusion log
-    - Sensitivity analysis (if requested)
-    - Explicit "associational" framing
-
-    Args:
-        output_path: Optional path for the output file. Defaults to generated name.
-        include_sensitivity: Whether to include sensitivity analysis data.
-
-    Returns:
-        Path to the generated report file.
-    """
-    if output_path is None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = str(REPORTS_DIR / f"final_report_{timestamp}.json")
-
-    report_data = {
-        "metadata": {
-            "generated_at": datetime.now().isoformat(),
-            "project_id": "PROJ-128",
-            "version": "1.0",
-            "framing": "associational",
-            "description": "This report presents associational findings between structural and dynamic brain network metrics. No causal claims are made."
-        },
-        "summary": generate_summary_statistics(load_metrics_data()),
-        "exclusion_log": load_exclusion_log(),
-        "correlation_results": None,
-        "sensitivity_analysis": None
+def generate_summary_statistics(
+    metrics_df: pd.DataFrame,
+    exclusion_log: List[Dict]
+) -> Dict[str, Any]:
+    """Generate summary statistics for the report."""
+    summary = {
+        "cohort_size": len(metrics_df),
+        "excluded_subjects": len(exclusion_log),
+        "structural_metrics": {},
+        "dynamic_metrics": {}
     }
 
-    # Add correlation results if available
-    corr_results = load_correlation_results()
-    if corr_results is not None:
-        report_data["correlation_results"] = corr_results.to_dict(orient="records")
+    if not metrics_df.empty:
+        # Structural metrics summary
+        struct_cols = [c for c in metrics_df.columns if c.startswith('struct_')]
+        for col in struct_cols:
+            summary["structural_metrics"][col] = {
+                "mean": float(metrics_df[col].mean()),
+                "std": float(metrics_df[col].std()),
+                "min": float(metrics_df[col].min()),
+                "max": float(metrics_df[col].max())
+            }
 
-    # Add sensitivity analysis if requested
-    if include_sensitivity:
-        report_data["sensitivity_analysis"] = calculate_sensitivity_metrics()
+        # Dynamic metrics summary
+        dyn_cols = [c for c in metrics_df.columns if c.startswith('dyn_')]
+        for col in dyn_cols:
+            summary["dynamic_metrics"][col] = {
+                "mean": float(metrics_df[col].mean()),
+                "std": float(metrics_df[col].std()),
+                "min": float(metrics_df[col].min()),
+                "max": float(metrics_df[col].max())
+            }
 
-    # Write report to file
+    return summary
+
+def generate_final_report(
+    metrics_path: str,
+    correlation_results_path: str,
+    exclusion_log_path: str,
+    output_path: str
+) -> None:
+    """
+    Generate the final comprehensive report.
+    
+    Ensures that if FDR correction yields zero significant findings, 
+    the report explicitly states this rather than omitting results.
+    """
+    ensure_directories()
+    
+    # Load data
+    metrics_df = load_metrics_data(metrics_path)
+    correlation_results = load_correlation_results(correlation_results_path)
+    exclusion_log = load_exclusion_log(exclusion_log_path)
+
+    # Generate components
+    cohort_summary = generate_summary_statistics(metrics_df, exclusion_log)
+    sensitivity_summary = calculate_sensitivity_metrics(correlation_results)
+
+    # Assemble report
+    report = {
+        "title": "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns",
+        "version": "1.0",
+        "cohort_summary": cohort_summary,
+        "correlation_analysis": {
+            "total_tests": sensitivity_summary["total_correlations_tested"],
+            "significant_findings": sensitivity_summary.get("significant_findings", 0),
+            "fdr_result_statement": sensitivity_summary["fdr_correction_result"],
+            "sensitivity_analysis": {
+                "absolute_difference_30_20_tr": sensitivity_summary["absolute_difference_30_20_tr"],
+                "notes": sensitivity_summary["notes"]
+            }
+        },
+        "exclusions": exclusion_log,
+        "methodological_notes": [
+            "All structural metrics derived from dMRI using NetworkX.",
+            "Dynamic metrics derived from fMRI using LOO K-Means (k=5) with 30 TR window.",
+            "Correlations tested with FDR correction (Benjamini-Hochberg, q=0.05).",
+            "Associational framing maintained throughout."
+        ]
+    }
+
+    # Write report
     with open(output_path, 'w') as f:
-        json.dump(report_data, f, indent=2, default=str)
-
-    return output_path
-
+        json.dump(report, f, indent=2)
+    
+    print(f"Final report generated: {output_path}")
+    
+    # Explicitly print the FDR result to console for immediate verification
+    print(f"\nFDR Correction Result: {report['correlation_analysis']['fdr_result_statement']}")
 
 def main():
-    """
-    Main entry point for report generation.
-    """
-    print("Starting report generation...")
+    """Entry point for report generation."""
+    config = get_config_dict()
+    
+    metrics_path = config.get('paths', {}).get('processed_metrics', 'data/processed/structural_metrics.csv')
+    # Assuming correlation results are saved here by T027
+    correlation_results_path = config.get('paths', {}).get('correlation_results', 'data/processed/correlation_results.csv')
+    exclusion_log_path = config.get('paths', {}).get('exclusion_log', 'data/logs/exclusion_log.json')
+    output_path = config.get('paths', {}).get('final_report', 'data/reports/final_report.json')
 
-    try:
-        report_path = generate_final_report()
-        print(f"Report successfully generated at: {report_path}")
-
-        # Print a brief summary to stdout
-        with open(report_path, 'r') as f:
-            data = json.load(f)
-            print(f"\nReport Summary:")
-            print(f"  - Subjects (Structural): {data['summary']['structural']['total_subjects']}")
-            print(f"  - Subjects (Dynamic): {data['summary']['dynamic']['total_subjects']}")
-            if data['correlation_results']:
-                print(f"  - Correlation findings included: {len(data['correlation_results'])} pairs")
-            else:
-                print("  - No correlation results found (US2 not completed or data missing)")
-
-            if data['sensitivity_analysis'] and data['sensitivity_analysis'].get('absolute_diff_30_20_tr') is not None:
-                print(f"  - Sensitivity (30TR vs 20TR diff): {data['sensitivity_analysis']['absolute_diff_30_20_tr']:.4f}")
-            else:
-                print("  - Sensitivity analysis: Not available or not run")
-
-    except FileNotFoundError as e:
-        print(f"Error: Missing required data files. {e}")
-        print("Please ensure Tasks T015-T019 (US1) are completed and data is generated.")
-        raise
-    except Exception as e:
-        print(f"Error generating report: {e}")
-        raise
-
+    generate_final_report(
+        metrics_path=metrics_path,
+        correlation_results_path=correlation_results_path,
+        exclusion_log_path=exclusion_log_path,
+        output_path=output_path
+    )
 
 if __name__ == "__main__":
     main()

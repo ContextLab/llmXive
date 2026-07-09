@@ -104,3 +104,200 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T09:09:15Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sleep-EDF dataset is primary candidate for EEG data
+  claim_id: c_86575e3e
+  context: 'Implement code/download.py to fetch the ''Sleep-EDF'' dataset (PhysioNet
+    ID: sleep-edf, URL: ) as primary candidate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sleep-EDF_dataset_is_primary_candidate_for_EEG_data
+  kind: entity_fact
+  raw_text: 'The ''Sleep-EDF'' dataset (PhysioNet ID: sleep-edf) is the primary candidate
+    for fetching resting-state EEG data.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:28:48Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: SHHS dataset used as fallback if Sleep-EDF fails N>=30 check
+  claim_id: c_55f8c487
+  context: If Sleep-EDF lacks required variables or yields N < 30, attempt fallback
+    'SHHS' dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fallback to the 'SHHS' dataset is attempted if Sleep-EDF lacks required
+    variables or yields N < 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:28:48Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Pipeline halts with exit code 1 if no source has N>=30
+  claim_id: c_ceb3c5f0
+  context: "If no source with both variables and N\u226530 is found, halt with exit\
+    \ code 1 and log validation_report.json listing available variables and N count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline halts with exit code 1 if no source with both variables\
+    \ and N\u226530 is found."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:30:21Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 1-40 Hz bandpass filter applied using MNE-Python
+  claim_id: c_d1ef6e14
+  context: Implement code/preprocess.py to apply a 1-40 Hz bandpass filter using MNE-Python
+    per FR-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A 1-40 Hz bandpass filter is applied using MNE-Python for preprocessing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:30:39Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: "Epochs >\xB1100\xB5V excluded during artifact rejection"
+  claim_id: c_313a2bb4
+  context: "Implement artifact rejection logic in code/preprocess.py to exclude epochs\
+    \ >\xB1100\xB5V and segments <120 seconds per FR-002 and Edge Cases."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Epochs_%3E%C2%B1100%C2%B5V_excluded_during_artifact_rejection
+  kind: magnitude
+  raw_text: "Epochs with amplitudes greater than \xB1100\xB5V are excluded during\
+    \ artifact rejection."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:30:53Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Segments <120 seconds excluded during artifact rejection
+  claim_id: c_003247ba
+  context: "Implement artifact rejection logic in code/preprocess.py to exclude epochs\
+    \ >\xB1100\xB5V and segments <120 seconds per FR-002 and Edge Cases."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Segments shorter than 120 seconds are excluded during artifact rejection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:31:29Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak attenuated by >20dB
+  claim_id: c_338c1efe
+  context: Run preprocessing on a single sample file; verify 50Hz line noise peak
+    is attenuated by >20dB in output spectrum.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_attenuated_by_%3E20dB
+  kind: magnitude
+  raw_text: The preprocessing test verifies that the 50Hz line noise peak is attenuated
+    by more than 20dB in the output spectrum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:31:45Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied for multiple comparisons across
+    electrodes
+  claim_id: c_f195fbc1
+  context: Implement Benjamini-Hochberg correction for multiple comparisons across
+    electrodes per FR-005.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_for_multiple_compariso
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction is applied for multiple comparisons
+    across electrodes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:32:19Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis implemented at p<=0.05 and p<=0.01 thresholds
+  claim_id: c_3630c331
+  context: "Implement sensitivity analysis at p\u22640.05 and p\u22640.01 thresholds\
+    \ with result table per FR-006."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis is implemented at p\u22640.05 and p\u22640.01 thresholds."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:32:19Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics require VIF < 5
+  claim_id: c_49c51206
+  context: Add collinearity diagnostics (VIF < 5) check if metrics are combined per
+    SC-004.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostics_require_VIF_%3C_5
+  kind: magnitude
+  raw_text: Collinearity diagnostics require a Variance Inflation Factor (VIF) of
+    less than 5 if metrics are combined.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:33:15Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Peak memory usage kept under 6GB via streaming
+  claim_id: c_d650e7cb
+  context: Implement streaming data loading in code/preprocess.py to ensure peak memory
+    usage < 6GB (targeting DC-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_kept_under_6GB_via_streaming
+  kind: entity_fact
+  raw_text: Streaming data loading is implemented to ensure peak memory usage remains
+    under 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T13:33:54Z'

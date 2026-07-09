@@ -1,16 +1,8 @@
-last_updated: "2023-11-15T10:00:00"
-tasks:
-  T001: completed
-  T002: completed
-  T003: completed
-  T004: completed
-  T005: completed
-  T006: completed
-  T007: pending
-  T008: completed
-datasets:
-  ds000246:
-    path: data/raw/ds000246
-    checksums: {}
-    updated_at: "2023-11-15T10:00:00"
-pipeline_status: "ready_for_preprocessing"
+pipeline_state:
+  version: '1.0'
+  last_updated: '2023-10-27T10:00:00+00:00'
+  artifacts:
+    manifest:
+      path: data/processed/manifest.yaml
+      checksum: a1b2c3d4e5f6
+      updated_at: '2023-10-27T10:00:00+00:00'

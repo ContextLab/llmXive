@@ -2,141 +2,247 @@ import numpy as np
 import mne
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
+import os
+import sys
+import hashlib
+import datetime
+import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Constants
 EPSILON = 1e-9
+THETA_BAND = (4, 7)
+ALPHA_BAND = (8, 12)
 
-def compute_psd_welch(
-    epochs: mne.Epochs,
-    fmin: float,
-    fmax: float,
-    n_fft: Optional[int] = None,
-    n_overlap: Optional[int] = None,
-    n_cycles: float = 2.0,
-    average: bool = True
-) -> np.ndarray:
+def load_epochs_chunked(epoch_file_pattern: str, chunk_size: int = 100):
     """
-    Compute Power Spectral Density (PSD) using Welch's method.
+    Load epochs from files in chunks to manage memory.
+    This is a helper to ensure memory safety during PSD computation on large datasets.
+    """
+    files = sorted(glob.glob(epoch_file_pattern))
+    if not files:
+        raise FileNotFoundError(f"No epoch files found matching pattern: {epoch_file_pattern}")
+    
+    current_epochs = None
+    
+    for i in range(0, len(files), chunk_size):
+        chunk_files = files[i:i+chunk_size]
+        logger.info(f"Loading chunk {i//chunk_size + 1}/{(len(files)+chunk_size-1)//chunk_size}...")
+        
+        chunk_epochs = []
+        for f in chunk_files:
+            try:
+                epochs = mne.read_epochs(f)
+                chunk_epochs.append(epochs)
+            except Exception as e:
+                logger.warning(f"Failed to load {f}: {e}")
+                continue
+        
+        if chunk_epochs:
+            # Concatenate epochs in the chunk
+            combined = mne.concatenate_epochs(chunk_epochs)
+            if current_epochs is None:
+                current_epochs = combined
+            else:
+                current_epochs = mne.concatenate_epochs([current_epochs, combined])
+        
+        # Yield processed chunk or accumulate for final return if needed
+        # For this task, we assume the caller handles chunking or we return the full accumulated set
+        # if memory permits. For T024, we assume the data is already loaded or handled by caller.
+        
+    return current_epochs
+
+def compute_psd_welch(epochs: mne.Epochs, picks: Optional[List[str]] = None, 
+                      fmin: float = 1.0, fmax: float = 45.0, n_fft: int = 256) -> np.ndarray:
+    """
+    Compute Power Spectral Density using Welch's method for the given epochs.
     
     Args:
         epochs: MNE Epochs object.
-        fmin: Minimum frequency to consider.
-        fmax: Maximum frequency to consider.
+        picks: List of channel names to include. If None, uses all data channels.
+        fmin: Minimum frequency.
+        fmax: Maximum frequency.
         n_fft: FFT window size.
-        n_overlap: Number of points to overlap between segments.
-        n_cycles: Number of cycles for multitaper.
-        average: If True, average across epochs.
         
     Returns:
-        Array of PSD values (shape: [n_epochs, n_channels, n_freqs] or [n_channels, n_freqs]).
+        psd: Array of shape (n_epochs, n_channels, n_freqs)
+        freqs: Array of frequencies.
     """
-    # Use MNE's built-in psd_welch
+    if picks is None:
+        picks = mne.pick_types(epochs.info, eeg=True, exclude='bads')
+        
     psd, freqs = mne.time_frequency.psd_welch(
-        epochs,
-        fmin=fmin,
-        fmax=fmax,
-        n_fft=n_fft,
-        n_overlap=n_overlap,
-        n_cycles=n_cycles,
-        average=False
+        epochs, picks=picks, fmin=fmin, fmax=fmax, n_fft=n_fft, verbose=False
     )
-    
-    if average:
-        psd = np.mean(psd, axis=0)
-    
     return psd, freqs
 
-def extract_band_power(
-    psd: np.ndarray,
-    freqs: np.ndarray,
-    band: Tuple[float, float]
-) -> np.ndarray:
+def extract_band_power(psd: np.ndarray, freqs: np.ndarray, band: Tuple[float, float]) -> np.ndarray:
     """
     Extract mean power within a specific frequency band.
     
     Args:
-        psd: Power spectral density values.
-        freqs: Frequency values corresponding to psd.
-        band: Tuple of (fmin, fmax) for the band.
+        psd: Power spectral density array.
+        freqs: Frequency array.
+        band: Tuple (fmin, fmax).
         
     Returns:
-        Mean power in the specified band.
+        mean_power: Mean power per epoch and channel.
     """
     fmin, fmax = band
-    band_mask = (freqs >= fmin) & (freqs <= fmax)
-    if not np.any(band_mask):
-        return np.zeros(psd.shape[:-1])
+    mask = (freqs >= fmin) & (freqs <= fmax)
+    if not np.any(mask):
+        raise ValueError(f"No frequencies found in band {band} for range {freqs[0]}-{freqs[-1]}")
     
-    return np.mean(psd[..., band_mask], axis=-1)
+    band_psd = psd[:, :, mask]
+    mean_power = np.mean(band_psd, axis=2)
+    return mean_power
 
-def compute_theta_alpha_ratio(
-    theta_power: np.ndarray,
-    alpha_power: np.ndarray
-) -> np.ndarray:
+def compute_theta_alpha_ratio(theta_power: np.ndarray, alpha_power: np.ndarray) -> np.ndarray:
     """
-    Compute the theta/alpha power ratio.
+    Compute the Theta/Alpha Ratio (TAR) to handle division-by-zero safely.
     
-    Handles division by zero by adding a small epsilon to the denominator.
+    This function implements the edge case logic:
+    ratio = theta_power / (alpha_power + EPSILON)
     
     Args:
-        theta_power: Theta band power values.
-        alpha_power: Alpha band power values.
+        theta_power: Array of mean theta power (4-7 Hz).
+        alpha_power: Array of mean alpha power (8-12 Hz).
         
     Returns:
-        Theta/Alpha ratio.
+        tar: Array of Theta/Alpha Ratios.
     """
-    return theta_power / (alpha_power + EPSILON)
+    if theta_power.shape != alpha_power.shape:
+        raise ValueError(f"Shape mismatch: theta_power {theta_power.shape} != alpha_power {alpha_power.shape}")
+    
+    # Apply the epsilon to prevent division by zero
+    # Using EPSILON = 1e-9 as specified in the task
+    denominator = alpha_power + EPSILON
+    tar = theta_power / denominator
+    
+    return tar
 
-def extract_features(
-    epochs: mne.Epochs,
-    theta_band: Tuple[float, float] = (4.0, 7.0),
-    alpha_band: Tuple[float, float] = (8.0, 12.0),
-    fmin: float = 1.0,
-    fmax: float = 45.0
-) -> pd.DataFrame:
+def extract_features(epochs: mne.Epochs, picks: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Extract spectral power features from epochs.
+    Extract spectral features (Theta, Alpha, TAR) for all epochs and channels.
     
     Args:
         epochs: MNE Epochs object.
-        theta_band: Theta frequency band.
-        alpha_band: Alpha frequency band.
-        fmin: Minimum frequency for PSD calculation.
-        fmax: Maximum frequency for PSD calculation.
+        picks: List of channel names.
         
     Returns:
-        DataFrame with features per epoch and channel.
+        df: DataFrame with columns: epoch_id, channel, theta_power, alpha_power, tar
     """
-    # Compute PSD
-    psd, freqs = compute_psd_welch(epochs, fmin=fmin, fmax=fmax, average=False)
+    psd, freqs = compute_psd_welch(epochs, picks=picks)
     
-    # Extract band powers
-    theta_power = extract_band_power(psd, freqs, theta_band)
-    alpha_power = extract_band_power(psd, freqs, alpha_band)
+    theta_power = extract_band_power(psd, freqs, THETA_BAND)
+    alpha_power = extract_band_power(psd, freqs, ALPHA_BAND)
     
-    # Compute ratio
     tar = compute_theta_alpha_ratio(theta_power, alpha_power)
     
-    # Create DataFrame
-    n_epochs, n_channels = theta_power.shape
-    feature_data = []
+    n_epochs, n_channels, _ = psd.shape
+    channel_names = [epochs.ch_names[i] for i in mne.pick_types(epochs.info, eeg=True, exclude='bads') if picks is None or epochs.ch_names[i] in picks]
     
-    for i in range(n_epochs):
-        for j, ch_name in enumerate(epochs.ch_names):
-            feature_data.append({
-                'epoch_idx': i,
-                'channel': ch_name,
-                'theta_power': float(theta_power[i, j]),
-                'alpha_power': float(alpha_power[i, j]),
-                'theta_alpha_ratio': float(tar[i, j])
+    records = []
+    for ep_idx in range(n_epochs):
+        for ch_idx in range(n_channels):
+            records.append({
+                'epoch_id': ep_idx,
+                'channel': channel_names[ch_idx],
+                'theta_power': float(theta_power[ep_idx, ch_idx]),
+                'alpha_power': float(alpha_power[ep_idx, ch_idx]),
+                'tar': float(tar[ep_idx, ch_idx])
             })
     
-    return pd.DataFrame(feature_data)
+    return pd.DataFrame(records)
+
+def calculate_file_checksum(filepath: str) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def update_state_checksums(output_path: str, state_file: str = "state/pipeline_state.yaml"):
+    """
+    Update the pipeline state file with the checksum of the output artifact.
+    """
+    import yaml
+    
+    if not os.path.exists(state_file):
+        logger.warning(f"State file {state_file} not found. Skipping update.")
+        return
+
+    checksum = calculate_file_checksum(output_path)
+    
+    with open(state_file, 'r') as f:
+        state = yaml.safe_load(f)
+        
+    if 'artifacts' not in state:
+        state['artifacts'] = {}
+        
+    state['artifacts']['feature_extraction'] = {
+        'path': output_path,
+        'checksum': checksum,
+        'updated_at': datetime.datetime.now().isoformat()
+    }
+    
+    with open(state_file, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False)
+    logger.info(f"Updated state file with checksum for {output_path}")
+
+def main():
+    """
+    Main entry point for feature extraction.
+    Expects preprocessed epochs to be available in data/processed/
+    """
+    import glob
+    
+    # Configuration paths (adjust based on project structure)
+    epoch_pattern = "data/processed/clean_epochs/*.fif"
+    output_path = "data/processed/feature_matrix.csv"
+    
+    if not os.path.exists("data/processed/clean_epochs"):
+        logger.error("Preprocessed epochs directory not found. Please run preprocessing first.")
+        sys.exit(1)
+        
+    files = glob.glob(epoch_pattern)
+    if not files:
+        logger.error(f"No epoch files found at {epoch_pattern}")
+        sys.exit(1)
+        
+    logger.info(f"Found {len(files)} epoch files.")
+    
+    # Load and process
+    # Note: In a real scenario, we might process chunk by chunk if memory is tight.
+    # For this implementation, we assume the dataset fits in memory or is small enough for the demo.
+    # If memory is an issue, the load_epochs_chunked function should be integrated here.
+    
+    try:
+        all_epochs = mne.read_epochs(files[0]) # Load first to check structure
+        # Concatenate all if needed, or process one by one
+        if len(files) > 1:
+            for f in files[1:]:
+                all_epochs = mne.concatenate_epochs([all_epochs, mne.read_epochs(f)])
+        
+        logger.info(f"Loaded {len(all_epochs)} epochs.")
+        
+        df = extract_features(all_epochs)
+        
+        # Save to CSV
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Features saved to {output_path}")
+        
+        # Update state
+        update_state_checksums(output_path)
+        
+    except Exception as e:
+        logger.error(f"Error during feature extraction: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1:
-        # This is a placeholder for testing
-        print("Feature extraction module loaded successfully.")
-        print(f"EPSILON constant: {EPSILON}")
-    else:
-        print("Usage: python extract.py [data_dir]")
+    main()
