@@ -1,0 +1,10 @@
+requests==2.32.3
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+astropy==6.0.1
+matplotlib==3.9.0
+pyyaml==6.0.1
+astroquery==0.4.7
+pytest==8.2.2
+pingouin==0.5.4

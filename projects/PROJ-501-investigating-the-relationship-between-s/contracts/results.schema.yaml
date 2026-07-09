@@ -1,0 +1,118 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Results Schema
+description: >
+  Schema for the output of the statistical analysis phase (US3).
+  Defines the structure for partial Spearman correlation results,
+  p-values, and sensitivity analysis data as specified in FR-006 and FR-010.
+type: object
+required:
+  - correlation
+  - sensitivity
+  - metadata
+properties:
+  correlation:
+    type: object
+    description: Primary partial Spearman rank correlation results between cumulative XUV flux and retention fraction.
+    required:
+      - rho_partial
+      - p_value
+      - method
+      - variables
+      - controls
+    properties:
+      rho_partial:
+        type: number
+        description: The partial Spearman rank correlation coefficient (ρ).
+        minimum: -1
+        maximum: 1
+      p_value:
+        type: number
+        description: The two-tailed p-value for the correlation test.
+        minimum: 0
+        maximum: 1
+      method:
+        type: string
+        const: "partial_spearman_rank"
+        description: The specific statistical method used.
+      variables:
+        type: object
+        description: The primary variables being correlated.
+        required:
+          - x
+          - y
+        properties:
+          x:
+            type: string
+            const: "cumulative_flux"
+            description: Name of the independent variable.
+          y:
+            type: string
+            const: "retention_fraction"
+            description: Name of the dependent variable.
+      controls:
+        type: array
+        description: List of control variables used in the partial correlation.
+        items:
+          type: string
+        example:
+          - mass
+          - semi_major_axis
+      sample_size:
+        type: integer
+        description: Number of data points used in the correlation.
+        minimum: 1
+  sensitivity:
+    type: object
+    description: Results from the sensitivity analysis varying atmospheric mass baselines (FR-010).
+    required:
+      - baselines
+      - correlations
+      - variation
+    properties:
+      baselines:
+        type: array
+        description: List of M_atm_initial baseline values tested (as fraction of planet mass).
+        items:
+          type: number
+        minItems: 1
+      correlations:
+        type: array
+        description: List of ρ_partial values corresponding to each baseline.
+        items:
+          type: number
+          minimum: -1
+          maximum: 1
+        minItems: 1
+      variation:
+        type: number
+        description: The range (max - min) or standard deviation of the correlation coefficients across baselines.
+  metadata:
+    type: object
+    description: Provenance and execution context.
+    required:
+      - generated_at
+      - input_file
+      - software_versions
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation.
+      input_file:
+        type: string
+        description: Relative path to the input data file (derived_physics.csv).
+      software_versions:
+        type: object
+        description: Versions of key libraries used.
+        properties:
+          python:
+            type: string
+          scipy:
+            type: string
+          numpy:
+            type: string
+          pingouin:
+            type: string
+additionalProperties: false

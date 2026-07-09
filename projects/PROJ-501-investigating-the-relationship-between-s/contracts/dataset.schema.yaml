@@ -1,0 +1,70 @@
+%YAML 1.2
+---
+name: merged_filtered_dataset
+description: >
+  Schema for the processed dataset resulting from merging stellar flare
+  catalogs with exoplanet parameters, filtered for M-dwarfs with >= 10 flares.
+  Used as input for physics modeling and statistical analysis.
+source_file: data/processed/merged_filtered.csv
+version: 1.0.0
+columns:
+  - name: star_id
+    type: string
+    description: Unique identifier for the host star (e.g., TIC ID or Gaia ID)
+    nullable: false
+    constraints:
+      - not_empty
+  - name: flare_count
+    type: integer
+    description: Total number of flare events detected for this star
+    nullable: false
+    constraints:
+      - minimum: 10
+        reason: "Filter applied: Exclude systems with < 10 flare events"
+  - name: radius
+    type: float
+    description: Stellar radius in solar units (R_sun)
+    nullable: false
+    unit: R_sun
+    constraints:
+      - positive
+  - name: mass
+    type: float
+    description: Stellar mass in solar units (M_sun)
+    nullable: false
+    unit: M_sun
+    constraints:
+      - positive
+  - name: semi_major_axis
+    type: float
+    description: Planet semi-major axis in astronomical units (AU)
+    nullable: false
+    unit: AU
+    constraints:
+      - positive
+  - name: density
+    type: float
+    description: Planet bulk density in g/cm^3
+    nullable: true
+    unit: g/cm^3
+    constraints:
+      - positive
+        allow_null: true
+  - name: age
+    type: float
+    description: System age in Gyr. If missing in source, populated with DEFAULT_M_DWARF_AGE
+    nullable: true
+    unit: Gyr
+    constraints:
+      - positive
+        allow_null: false
+        default_source: "config.DEFAULT_M_DWARF_AGE"
+metadata:
+  filtering_criteria:
+    - "Host star must be an M-dwarf (mass < 0.6 M_sun)"
+    - "Flare count >= 10"
+    - "No missing values in mass, radius, or semi_major_axis"
+  imputation_policy:
+    age: "If missing, set to DEFAULT_M_DWARF_AGE and log warning"
+  generated_by: "code/data_ingestion.py::filter_and_impute"
+...

@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResultsSchema"
+description: "Schema for the final correlation statistics and sensitivity analysis (Residual-based)"
+type: "object"
+properties:
+  primary_correlation:
+    type: "object"
+    description: "Residual-based Spearman correlation results"
+    properties:
+      coefficient:
+        type: "number"
+        description: "Spearman rank correlation coefficient between Flux and AEI Residuals"
+      p_value:
+        type: "number"
+        description: "P-value for the correlation test"
+      model_coefficients:
+        type: "object"
+        description: "Coefficients from the AEI ~ Mass + Distance regression"
+        properties:
+          intercept:
+            type: "number"
+          mass_coeff:
+            type: "number"
+          distance_coeff:
+            type: "number"
+        required:
+          - intercept
+          - mass_coeff
+          - distance_coeff
+    required:
+      - coefficient
+      - p_value
+      - model_coefficients
+  sensitivity_analysis:
+    type: "array"
+    description: "Results for different uncertainty flags and efficiency factors"
+    items:
+      type: "object"
+      properties:
+        filter_condition:
+          type: "string"
+          description: "Condition applied (e.g., 'exclude_age_uncertain', 'epsilon=0.1')"
+        coefficient:
+          type: "number"
+          description: "Correlation coefficient for this condition"
+        p_value:
+          type: "number"
+          description: "P-value for this condition"
+      required:
+        - filter_condition
+        - coefficient
+        - p_value
+  metadata:
+    type: "object"
+    properties:
+      dataset_size:
+        type: "integer"
+        description: "Number of valid records in the final dataset"
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of the analysis run"
+      assumptions:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of key assumptions (e.g., epsilon=0.15, AEI metric)"
+    required:
+      - dataset_size
+      - timestamp
+      - assumptions
+required:
+  - primary_correlation
+  - sensitivity_analysis
+  - metadata
+additionalProperties: false

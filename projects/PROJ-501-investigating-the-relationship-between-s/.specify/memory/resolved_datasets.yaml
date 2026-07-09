@@ -1,0 +1,399 @@
+resolved_at: '2026-07-09T09:25:50.911795+00:00'
+datasets:
+- intent: MAST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/comet-team/mastodon-instances/resolve/main/data/train-00000-of-00001-7ef4a11205a87de5.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Efferbach/lane_master/resolve/main/data/test-00000-of-00001-ac65be1ddc978dd9.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AnanthZeke/tamil_sentences_master_raw/resolve/main/data/train-00000-of-00021-c326119d216a407e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/DepositorOP/masterstack/resolve/main/data/test-00000-of-00001-d7bb876eedae95e8.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/comet-team/mastodon-instances/resolve/main/data/train-00000-of-00001-7ef4a11205a87de5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Efferbach/lane_master/resolve/main/data/test-00000-of-00001-ac65be1ddc978dd9.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/AnanthZeke/tamil_sentences_master_raw/resolve/main/data/train-00000-of-00021-c326119d216a407e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946998
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3691960
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4381774
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://login.wolterskluwer.com/as/authorization.oauth2?client_id=HLRP.Ovid&redirect_uri=https%3A%2F%2Foce.ovid.com%2Fsignin-oidc&response_type=code&scope=openid%20profile%20email&code_challenge=TPWeTMybDnEMdlJ4I9LHjmt9SFfGjD6gtuzuXp1L_4w&code_challenge_method=S256&response_mode=form_post&nonce=639191857976383875.ZmY1YWI2MTQtZjZkYS00Y2IyLTk1MGEtMmMxMjZmOTExNjE5ODhmOGY3NzQtZTE5OC00NTU3LWEwMGQtYzQ3ZDgxNmIzMDhj&validator_id=OCEPasswordValidator&pfidpadapterid=HLRPGenericCompositeAdapter&prompt=none&state=CfDJ8F3KMvDONZ1HvaYIE32KnscvePE6NQQr9vj4ERCFE14ObxrXTnVKKmGasNrl3ZThGw-PJPWpjf6gtT0_AevbpSIrJIGp5qrwZR7xeo95R0T3YflwhOFVxEdcUZCIOth0aPxCDhWDG8px48DglXl28LnhGz2vg4eK9Ul-3LR2ggbL5S4FUwES8_3s8BL282zFVoKXWNpZW7rxcTVcNhOQcLqUz7v4_gaVJsq5FpzVpqYTW6xRivkHBp_ZlwG_7szwtPi_AHusq50uquNkJRTMHyeS940vMcLMYXZw7uuKygXXk3sPumj-9Ohcabkl3cakV-Qbmh40KpifYxwaZs0AIkxpDpUlILuFBW5A5ftQqz4FEPGcvkrvYhmDBzRb4gAQ6hQIVJH959ILzfxYQPdZxsg&x-client-SKU=ID_NET8_0&x-client-ver=7.1.2.0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18539
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17249618
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://archive.stsci.edu/doi/resolve/resolve.html?doi=10.17909/57es-ve88
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000108177
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140898
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vm4er/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.24406/publica-8278
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''publica.fraunhofer.de'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: TESS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AIIT-Threshold/Tessera-SFT-Gold/resolve/main/proto_buddy_gold_531.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 189837
+      parsed: true
+  - url: https://huggingface.co/datasets/fimu-docproc-research/CIVQA-TesseractOCR/resolve/main/data/train-00000-of-00004-feceb4772e5dc512.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AIIT-Threshold/Tessera-SFT-Gold/resolve/main/proto_buddy_gold_531.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/AIIT-Threshold/AIIT-Tessera24B-dataset/53697389ac6f115c6537fc79706c85752533e505/tessera_tokenizer.json?%2Fdatasets%2FAIIT-Threshold%2FAIIT-Tessera24B-dataset%2Fresolve%2Fmain%2Ftessera_tokenizer.json=&etag=%22ecbf537a913889dd42081ace6b9ccfb89f6c1147%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/fimu-docproc-research/CIVQA-TesseractOCR/resolve/main/data/train-00000-of-00004-feceb4772e5dc512.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946998
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18604466
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19697668
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5130883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17655090
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3831586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17863/cam.18134
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.repository.cam.ac.uk'',
+      port=443): Max retries exceeded with url: /handle/1810/271158 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.repository.cam.ac.uk'',
+      port=443) at 0x7f75b2f6af10>, ''Connection to www.repository.cam.ac.uk timed
+      out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/21176106
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176106
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/entities/publication/8fb732eb-c756-492d-80a3-4df95ea72c44
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.4tu.nl/datasets/bb15c958-de94-497b-8eb3-8a4a3cb5b1b6/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NASA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16577
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_nasal_possessive_pron/resolve/main/data/dev_matched-00000-of-00001-f5c89bab96bb3fae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jiang12/nasa/resolve/main/diff-svc-v0.1.1-alpha.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/nasa-cisto-data-science-group/legacy-satvision-sr-pretrain-small/resolve/main/metadata/training_0/A2001013_h11v10_dataset_metadata.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946995
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946998
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_xlsx/32946986
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Discovery_of_peptide_biomarkers_in_male_Eupolyphaga_sinensis_Walker_Tubiechong_by_dimethyl_labeling-based_quantitative_peptidomics_analysis_jpeg/32946992
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18287732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18307252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2628412
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15544360
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7655414
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=05ee966e38b84e6784f11fede7408076
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XUV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ShauryaSinghh/white-xuv700/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2256
+      parsed: true
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dreambooth-dataset-jsonl/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2240
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ShauryaSinghh/white-xuv700/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dreambooth-dataset-jsonl/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dreambooth2-dataset-jsonl/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ShauryaSinghh/xuv700-sdxl-dreambooth3-dataset-jsonl/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Preparation_characterization_and_preventive_effects_of_ginseng_polysaccharide-stabilized_selenium_nanoparticles_against_DSS-induced_colitis/32947016
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Reclassification_of_the_genera_b_b_i_Kuraishia_i_b_b_and_b_b_i_Martiniozyma_i_b_b_i_i_b_b_in_b_b_i_Pichiales_i_b_b_b_b_i_Pichiomycetes_i_b_b_b_b_i_Saccharomycotina_i_b_b_b_b_i_i_b_b_based_on_genome-scale_analyses_b_/31898119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Evaluating_and_predicting_of_the_cardiac_function_class_and_re-hospitalization_in_CHD_with_HF_using_IVC_diameter_and_collapsibility_index/32936623
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_troglobiotic_oribatid_mite_Acari_Oribatida_in_European_caves_cryptic_diversity_and_a_Late_Miocene_origin_of_its_phyletic_lineages/32947013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Multidimensional_menopausal_symptom_burden_in_Singapore_MARIE_work_package_2a_population_analysis/32947010
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/800640
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4449519
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4266670
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.6078/D1Z11P
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5571158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249231
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:633972363/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:671609998/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tib.eu/en/search/id/TIBKAT:668866926/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

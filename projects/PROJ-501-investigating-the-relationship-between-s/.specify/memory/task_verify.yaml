@@ -1,0 +1,10 @@
+'T001 Create project directory structure: `code/`, `tests/`': 2
+'T002 Create project directory structure: `data/raw/`, `data/processed/`, `data/results/`, `data/logs/`, `contracts/`': 2
+? 'T004 [P] Create `requirements.txt` with pinned versions: `requests`, `pandas`,
+  `numpy`, `scipy`, `astropy`, `matplotlib`, `pyyaml`, `astroquery`, `pytest`, `pingouin`'
+: 2
+T005 [P] Create virtual environment and install dependencies from `requirements.txt`: 2
+? T006 [P] Create `contracts/dataset.schema.yaml` defining the input/output schema
+  specifically for `data/processed/merged_filtered.csv` (star_id, flare_count, radius,
+  mass, semi_major_axis, density, age)
+: 2

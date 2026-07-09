@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResultSchema"
+description: "Schema for the derived analysis results CSV/JSON (Atmospheric Erosion Index)"
+type: "object"
+properties:
+  star_id:
+    type: "string"
+    description: "Unique identifier for the host star"
+  cumulative_flux:
+    type: "number"
+    description: "Total XUV flux in erg/s/cm²"
+  mass_loss_rate:
+    type: "number"
+    description: "Atmospheric mass loss rate in kg/s"
+  aei:
+    type: "number"
+    description: "Atmospheric Erosion Index (mass lost / binding energy proxy)"
+  is_valid:
+    type: "boolean"
+    description: "True if mass loss is physically plausible (<10% mass/Gyr)"
+  age_uncertain:
+    type: "boolean"
+    description: "True if system age was imputed/defaulted"
+  flux_uncertain:
+    type: "boolean"
+    description: "True if quiescent flux was estimated via proxy"
+required:
+  - star_id
+  - cumulative_flux
+  - mass_loss_rate
+  - aei
+  - is_valid
+  - age_uncertain
+  - flux_uncertain
+additionalProperties: false
