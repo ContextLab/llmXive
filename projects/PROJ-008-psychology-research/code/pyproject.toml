@@ -1,0 +1,55 @@
+[project]
+name = "llmxive-psychology-research"
+version = "0.1.0"
+description = "Meta-analysis of mindfulness interventions for ASD social skills"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "requests",
+    "pyyaml",
+    "pytest",
+    "bayesmeta",
+    "pdfplumber",
+    "pytesseract",
+    "pydantic",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Inherit settings from code/.ruff.toml if we want a single source of truth,
+# but explicit config here ensures CI works without relative path issues.
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "I", "W", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

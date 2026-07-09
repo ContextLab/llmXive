@@ -1,0 +1,133 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Cleaned Study Schema
+description: >-
+  Schema for validated study records extracted from ClinicalTrials.gov and OSF.
+  Enforces inclusion criteria: Age 6-12, ASD diagnosis, Social Skill outcomes.
+  Used for contract testing (T011) and data integrity validation (T042).
+type: object
+required:
+  - study_id
+  - source
+  - title
+  - population_age_min
+  - population_age_max
+  - asd_diagnosis_confirmed
+  - intervention_components
+  - delivery_format
+  - social_skill_domains
+  - n_total
+  - n_intervention
+  - n_control
+  - outcome_measure
+  - effect_size_available
+properties:
+  study_id:
+    type: string
+    description: Unique identifier from source (e.g., NCT number or OSF ID)
+    pattern: "^[A-Za-z0-9_-]+$"
+  source:
+    type: string
+    enum:
+      - ClinicalTrials.gov
+      - OSF
+    description: Origin registry per Constitution Principle VI
+  title:
+    type: string
+    minLength: 1
+  description:
+    type: string
+    nullable: true
+  publication_year:
+    type: integer
+    minimum: 1900
+    maximum: 2099
+    nullable: true
+  population_age_min:
+    type: integer
+    minimum: 6
+    maximum: 12
+    description: Minimum age of participants (Inclusion Criteria: 6-12)
+  population_age_max:
+    type: integer
+    minimum: 6
+    maximum: 12
+    description: Maximum age of participants
+  asd_diagnosis_confirmed:
+    type: boolean
+    description: True if all participants had confirmed ASD diagnosis
+  intervention_components:
+    type: array
+    items:
+      $ref: "#/$defs/MindfulnessComponent"
+    minItems: 1
+    description: Specific mindfulness components extracted (e.g., Breathing, Body Scan)
+  delivery_format:
+    $ref: "#/$defs/DeliveryFormat"
+    description: Format of intervention delivery (Individual, Group, etc.)
+  social_skill_domains:
+    type: array
+    items:
+      $ref: "#/$defs/SocialSkillDomain"
+    minItems: 1
+    description: Targeted social skill domains
+  n_total:
+    type: integer
+    minimum: 2
+    description: Total sample size
+  n_intervention:
+    type: integer
+    minimum: 1
+    description: Number of participants in intervention group
+  n_control:
+    type: integer
+    minimum: 1
+    description: Number of participants in control group
+  outcome_measure:
+    type: string
+    description: Name of the primary social skill outcome measure
+  effect_size_available:
+    type: boolean
+    description: Indicates if sufficient statistics exist for Hedges' g calculation
+  raw_data_link:
+    type: string
+    format: uri
+    nullable: true
+    description: Link to raw data if available
+  notes:
+    type: string
+    nullable: true
+    description: Extraction notes or limitations
+$defs:
+  MindfulnessComponent:
+    type: string
+    enum:
+      - Breathing
+      - Body Scan
+      - Mindful Movement
+      - Loving Kindness
+      - Open Monitoring
+      - Focused Attention
+      - Acceptance
+      - Other
+    description: Standardized mindfulness component taxonomy
+  DeliveryFormat:
+    type: string
+    enum:
+      - Individual
+      - Group
+      - Parent-mediated
+      - School-based
+      - Hybrid
+      - Online
+    description: Delivery format taxonomy
+  SocialSkillDomain:
+    type: string
+    enum:
+      - Communication
+      - Social Interaction
+      - Emotional Regulation
+      - Peer Relationships
+      - Theory of Mind
+      - Adaptive Behavior
+      - Other
+    description: Targeted social skill domain taxonomy

@@ -1,0 +1,29 @@
+# Ruff configuration for llmXive psychology research project
+# Aligns with black formatting and enforces strict type safety hints
+
+[lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W", "UP"]
+
+# Ignore specific rules that are too strict for research scripts
+# or conflict with common scientific computing patterns
+ignore = [
+    "E501", # Line too long (handled by black)
+    "F403", # 'from module import *' used (sometimes needed for dynamic imports in research)
+]
+
+# Allow magic numbers in analysis code (common in stats)
+# but enforce naming conventions
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["code", "tests", "scripts"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[format]
+# Enforce black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

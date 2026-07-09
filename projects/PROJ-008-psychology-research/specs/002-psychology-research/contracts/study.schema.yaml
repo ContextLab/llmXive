@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Study Schema"
+description: "Schema for the cleaned study dataset used in meta-analysis."
+type: "object"
+properties:
+  study_id:
+    type: "string"
+    description: "Unique identifier for the study."
+  source:
+    type: "string"
+    enum:
+      - "ClinicalTrials.gov"
+      - "OSF"
+    description: "Origin of the study data."
+  intervention_component:
+    type: "string"
+    enum:
+      - "breath"
+      - "body_scan"
+      - "loving_kindness"
+      - "combined"
+      - "unknown"
+    description: "Tagged mindfulness component."
+  delivery_format:
+    type: "string"
+    enum:
+      - "caregiver_mediated"
+      - "child_led"
+      - "unknown"
+    description: "Tagged delivery format."
+  social_skill_domain:
+    type: "string"
+    enum:
+      - "peer_interaction"
+      - "emotional_recognition"
+      - "reciprocal_communication"
+      - "unknown"
+    description: "Target social skill domain."
+  n_intervention:
+    type: "integer"
+    minimum: 1
+    description: "Sample size of intervention group."
+  n_control:
+    type: "integer"
+    minimum: 1
+    description: "Sample size of control group."
+  pre_mean_int:
+    type: "number"
+    description: "Mean pre-intervention score (intervention)."
+  pre_sd_int:
+    type: "number"
+    minimum: 0
+    description: "SD pre-intervention (intervention)."
+  post_mean_int:
+    type: "number"
+    description: "Mean post-intervention score (intervention)."
+  post_sd_int:
+    type: "number"
+    minimum: 0
+    description: "SD post-intervention (intervention)."
+  pre_mean_ctrl:
+    type: "number"
+    description: "Mean pre-intervention score (control)."
+  pre_sd_ctrl:
+    type: "number"
+    minimum: 0
+    description: "SD pre-intervention (control)."
+  post_mean_ctrl:
+    type: "number"
+    description: "Mean post-intervention score (control)."
+  post_sd_ctrl:
+    type: "number"
+    minimum: 0
+    description: "SD post-intervention (control)."
+  follow_up_months:
+    type:
+      - "integer"
+      - "null"
+    description: "Follow-up duration in months (can be null)."
+  exclusion_reason:
+    type:
+      - "string"
+      - "null"
+    description: "Reason for exclusion if study was dropped."
+required:
+  - study_id
+  - source
+  - intervention_component
+  - delivery_format
+  - n_intervention
+  - n_control
+  - pre_mean_int
+  - pre_sd_int
+  - post_mean_int
+  - post_sd_int
+  - pre_mean_ctrl
+  - pre_sd_ctrl
+  - post_mean_ctrl
+  - post_sd_ctrl
+additionalProperties: false

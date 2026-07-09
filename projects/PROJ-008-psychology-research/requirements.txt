@@ -1,0 +1,12 @@
+pandas
+scikit-learn
+statsmodels
+matplotlib
+requests
+pyyaml
+pytest
+bayesmeta
+pdfplumber
+pytesseract
+pydantic
+urllib3

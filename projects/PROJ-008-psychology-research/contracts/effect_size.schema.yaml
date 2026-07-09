@@ -1,0 +1,85 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Effect Size Schema
+description: >-
+  Schema for calculated effect sizes (Hedges' g) and meta-analysis results.
+  Used for contract testing (T021) and analysis output validation.
+type: object
+required:
+  study_id
+  effect_size_type
+  effect_size_value
+  variance
+  standard_error
+  ci_lower
+  ci_upper
+  n_intervention
+  n_control
+properties:
+  study_id:
+    type: string
+    description: Reference to the cleaned study record
+    pattern: "^[A-Za-z0-9_-]+$"
+  effect_size_type:
+    type: string
+    const: Hedges_g
+    description: Type of effect size calculated
+  effect_size_value:
+    type: number
+    description: Calculated Hedges' g value (with small-sample correction)
+  variance:
+    type: number
+    minimum: 0
+    description: Variance of the effect size
+  standard_error:
+    type: number
+    minimum: 0
+    description: Standard error of the effect size
+  ci_lower:
+    type: number
+    description: Lower bound of 95% Confidence Interval
+  ci_upper:
+    type: number
+    description: Upper bound of 95% Confidence Interval
+  n_intervention:
+    type: integer
+    minimum: 1
+    description: Sample size of intervention group used in calculation
+  n_control:
+    type: integer
+    minimum: 1
+    description: Sample size of control group used in calculation
+  mean_intervention:
+    type: number
+    nullable: true
+    description: Mean of outcome for intervention group (if available)
+  mean_control:
+    type: number
+    nullable: true
+    description: Mean of outcome for control group (if available)
+  sd_intervention:
+    type: number
+    nullable: true
+    description: SD of outcome for intervention group (if available)
+  sd_control:
+    type: number
+    nullable: true
+    description: SD of outcome for control group (if available)
+  calculation_method:
+    type: string
+    enum:
+      - means_and_sds
+      - t_statistic
+      - raw_data
+    description: Method used to derive the effect size
+  meta_analysis_id:
+    type: string
+    nullable: true
+    description: ID of the meta-analysis result this effect size contributes to
+  subgroup_label:
+    type: string
+    nullable: true
+    description: Subgroup label if part of a subgroup analysis
+  notes:
+    type: string
+    nullable: true
+    description: Calculation notes or assumptions

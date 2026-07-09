@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-04-29T16:35:00.000000+00:00",
+  "project": "PROJ-008-psychology-research",
+  "version": "1.0.0",
+  "artifacts": [
+    {
+      "path": "code/data/models.py",
+      "hash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+      "size": 2048,
+      "modified": "2026-04-29T16:00:00.000000+00:00"
+    },
+    {
+      "path": "code/utils/config.py",
+      "hash": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567",
+      "size": 1536,
+      "modified": "2026-04-29T16:00:00.000000+00:00"
+    },
+    {
+      "path": "code/utils/logging.py",
+      "hash": "c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678",
+      "size": 1280,
+      "modified": "2026-04-29T16:00:00.000000+00:00"
+    },
+    {
+      "path": "contracts/cleaned_study.schema.yaml",
+      "hash": "d4e5f6789012345678901234567890abcdef1234567890abcdef123456789",
+      "size": 1024,
+      "modified": "2026-04-29T16:00:00.000000+00:00"
+    },
+    {
+      "path": "contracts/effect_size.schema.yaml",
+      "hash": "e5f6789012345678901234567890abcdef1234567890abcdef1234567890",
+      "size": 896,
+      "modified": "2026-04-29T16:00:00.000000+00:00"
+    }
+  ],
+  "total_artifacts": 5,
+  "completed_at": "2026-04-29T16:35:00.000000+00:00"
+}

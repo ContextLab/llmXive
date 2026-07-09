@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Effect Size Schema"
+description: "Schema for calculated effect sizes per study."
+type: "object"
+properties:
+  study_id:
+    type: "string"
+    description: "Foreign key to study_id."
+  hedges_g:
+    type: "number"
+    description: "Calculated Hedges' g effect size."
+  se:
+    type: "number"
+    minimum: 0
+    description: "Standard error of the effect size."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  weight:
+    type: "number"
+    minimum: 0
+    description: "Weight assigned in meta-analysis."
+required:
+  - study_id
+  - hedges_g
+  - se
+  - ci_lower
+  - ci_upper
+  - weight
+additionalProperties: false
