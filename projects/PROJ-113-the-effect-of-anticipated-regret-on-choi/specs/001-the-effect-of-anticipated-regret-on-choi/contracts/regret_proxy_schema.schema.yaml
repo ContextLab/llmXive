@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Regret Proxy Analysis Dataset Schema"
+description: "Schema for the processed dataset used in the mixed-effects regression analysis."
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the decision trial."
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant (random effect grouping)."
+  deferral:
+    type: integer
+    description: "Binary flag: 1 if choice was deferred, 0 otherwise."
+    minimum: 0
+    maximum: 1
+  option_count:
+    type: integer
+    description: "Number of options presented in the trial."
+    minimum: 1
+  regret_proxy:
+    type: number
+    description: "Min-Max Regret: max(EU) - EU_chosen."
+    minimum: 0
+  normalized_regret:
+    type: number
+    description: "Regret normalized by the range of EU (regret / (max_EU - min_EU))."
+    minimum: 0
+    maximum: 1
+  perceived_risk:
+    type: number
+    description: "Perceived risk score or price variance proxy."
+    nullable: true
+  time_pressure:
+    type: number
+    description: "Time pressure metric (normalized)."
+    nullable: true
+  decision_style:
+    type: string
+    description: "Categorical decision style (e.g., maximizing, satisficing)."
+    nullable: true
+  stakes:
+    type: number
+    description: "Global magnitude of attributes (for interaction with regret)."
+    nullable: true
+required:
+  - trial_id
+  - participant_id
+  - deferral
+  - option_count
+  - regret_proxy
+  - normalized_regret
+additionalProperties: false

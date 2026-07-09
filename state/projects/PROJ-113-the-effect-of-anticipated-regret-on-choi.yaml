@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T22:24:01.690391Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-113-the-effect-of-anticipated-regret-on-choi
-last_run_id: f250e687-2ca2-47e5-8049-3926e3a23ca8
+last_run_id: c5ddc797-5026-40a3-9d81-b45c6208b455
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-113-the-effect-of-anticipated-regret-on-choi/specs/001-the-effect-of-anticipated-regret-on-choi
 title: The Effect of Anticipated Regret on Choice Deferral
-updated_at: '2026-07-05T15:51:31.717675Z'
+updated_at: '2026-07-09T02:10:20.884373Z'

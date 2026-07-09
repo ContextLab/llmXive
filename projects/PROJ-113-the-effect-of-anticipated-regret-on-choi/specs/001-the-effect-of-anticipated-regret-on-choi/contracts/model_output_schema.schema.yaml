@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Model Output Schema"
+description: "Schema for the regression coefficients and VIF report."
+type: object
+properties:
+  term:
+    type: string
+    description: "Name of the regression term (e.g., regret_proxy, option_count)."
+  coef:
+    type: number
+    description: "Estimated coefficient value."
+  std_err:
+    type: number
+    description: "Standard error of the coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value."
+  p_value_corrected:
+    type: number
+    description: "P-value after multiple-comparison correction (Bonferroni or FDR)."
+  vif:
+    type: number
+    description: "Variance Inflation Factor for the term. Null for random effects."
+    nullable: true
+  significance:
+    type: string
+    description: "Significance flag after correction (e.g., 'significant', 'ns')."
+    enum:
+      - significant
+      - ns
+required:
+  - term
+  - coef
+  - std_err
+  - p_value
+additionalProperties: false

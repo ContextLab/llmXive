@@ -1,0 +1,214 @@
+resolved_at: '2026-07-09T01:33:03.786185+00:00'
+datasets:
+- intent: DecisionMaking
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/zhehuderek/textual_decisionmaking_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/vnovaai/DECISION_MAKING_ASSISTANT_DATASET_V1_JSONL/resolve/main/DECISION-MAKING
+      ASSISTANT DATASET.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 101055
+      parsed: true
+  - url: https://huggingface.co/datasets/PhillyMac/Decision_Making_Content_1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/zhehuderek/textual_decisionmaking_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arg-tech/decisionmaking_alternative_components/resolve/main/posts_meta/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/vnovaai/DECISION_MAKING_ASSISTANT_DATASET_V1_JSONL/resolve/main/DECISION-MAKING
+      ASSISTANT DATASET.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/PhillyMac/Decision_Making_Content_1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/PhillyMac/Decision_Making_Content_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Westland_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_fees_p/32943053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09060973758_Abubakar_Tafawa_Balewa_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Topfaith_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_fees_p/32943050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Thomas_Adewumi_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_/32943044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Compositional_Tunability_and_Framework-Charge_Modulation_in_Pore-Space-Partitioned_Metal_Organic_Frameworks/32943045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15290171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15290145
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20751054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7646970
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8079469
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/djy34/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/65wkp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20750274
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/k63cy/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21214161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Westland_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_fees_p/32943053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Call_09060973758_Abubakar_Tafawa_Balewa_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Topfaith_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_fees_p/32943050
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Thomas_Adewumi_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_DR_MRS_ANITA_A_A_For_admission_list_confirmation_clearance_school_/32943044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Compositional_Tunability_and_Framework-Charge_Modulation_in_Pore-Space-Partitioned_Metal_Organic_Frameworks/32943045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

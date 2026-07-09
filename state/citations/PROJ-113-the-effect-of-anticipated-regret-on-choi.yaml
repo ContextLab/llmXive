@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 083421291aeb32a12f9dc107b04d4adc37fb55df201fe1add1ffdb7b85a4f8e7
+  artifact_path: projects/PROJ-113-the-effect-of-anticipated-regret-on-choi/specs/001-the-effect-of-anticipated-regret-on-choi/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.kaggle.com/datasets/uciml/online-shopping-behavior
+  verification_status: mismatch
+  verified_against_url: https://www.kaggle.com/datasets/uciml/online-shopping-behavior
+  verified_at: '2026-07-09T01:32:13.501232Z'

@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Robustness Report Schema"
+description: "Schema for the sensitivity analysis and secondary dataset results."
+type: object
+properties:
+  analysis_type:
+    type: string
+    description: "Type of analysis: 'primary', 'secondary', or 'sensitivity'."
+    enum:
+      - primary
+      - secondary
+      - sensitivity
+  proxy_variation:
+    type: string
+    description: "The proxy definition used (e.g., 'min_max_regret', 'price_variance', 'attribute_entropy')."
+    enum:
+      - min_max_regret
+      - price_variance
+      - attribute_entropy
+    nullable: true
+  dataset_source:
+    type: string
+    description: "Source dataset identifier."
+  regret_coef:
+    type: number
+    description: "Coefficient for the regret proxy."
+  regret_p_value:
+    type: number
+    description: "P-value for the regret proxy."
+  direction_match:
+    type: boolean
+    description: "True if the coefficient direction matches the primary analysis."
+  significance:
+    type: string
+    description: "Significance status."
+    enum:
+      - significant
+      - ns
+required:
+  - analysis_type
+  - dataset_source
+  - regret_coef
+  - regret_p_value
+  - direction_match
+additionalProperties: false
