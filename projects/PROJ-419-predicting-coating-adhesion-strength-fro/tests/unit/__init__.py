@@ -1,3 +1,1 @@
-"""
-Unit tests for individual components.
-"""
+"""Unit tests package for llmXive project."""

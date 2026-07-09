@@ -11,10 +11,10 @@ properties:
     description: "Standard error of the measured slope."
   p_value_photoevaporation:
     type: number
-    description: "Z-test p-value vs photoevaporation model (Owen & Wu)."
+    description: "Permutation test p-value vs photoevaporation model (Owen & Wu)."
   p_value_core_powered:
     type: number
-    description: "Z-test p-value vs core-powered mass loss model (Ginzburg et al.)."
+    description: "Permutation test p-value vs core-powered mass loss model (Ginzburg et al.)."
   synthetic_validation_status:
     type: string
     enum:

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PeriodBin"
+description: "Schema for a single period bin with derived gap metrics."
+type: object
+properties:
+  bin_id:
+    type: integer
+    description: "Sequential index of the period bin."
+  bin_center_log_period:
+    type: number
+    description: "Center of the log-period bin."
+  weighted_mean_log_period:
+    type: number
+    description: "Weighted mean log period of planets in the bin."
+  planet_count:
+    type: integer
+    description: "Number of planets in the bin."
+    minimum: 30
+  gap_location:
+    type: number
+    description: "Estimated gap radius in Earth radii (R_earth)."
+  gap_uncertainty:
+    type: number
+    description: "Half-width of the 95% confidence interval from bootstrap."
+    minimum: 0
+  validation_status:
+    type: string
+    description: "Status of the GMM/KDE validation."
+    enum:
+      - "PASS"
+      - "FAIL"
+      - "UNRESOLVED"
+  kde_gap_location:
+    type: number
+    description: "Gap location estimated via KDE validation."
+  kde_gap_uncertainty:
+    type: number
+    description: "Uncertainty of the KDE gap estimate."
+    minimum: 0
+required:
+  - bin_id
+  - bin_center_log_period
+  - weighted_mean_log_period
+  - planet_count
+  - gap_location
+  - gap_uncertainty
+  - validation_status
+  - kde_gap_location
+  - kde_gap_uncertainty
+additionalProperties: false

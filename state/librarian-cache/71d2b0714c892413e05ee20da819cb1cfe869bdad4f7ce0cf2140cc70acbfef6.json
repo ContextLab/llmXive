@@ -1,0 +1,552 @@
+{
+  "fetched_at": "2026-07-09T16:10:42Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Amine Reactivity Using Graph Neural Networks and Public Databases",
+      "target_n": 5
+    },
+    "duration_seconds": 77.01,
+    "ended_at": "2026-07-09T16:10:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Graph neural networks for amine reaction prediction"
+        ],
+        [
+          2,
+          "Machine learning models for amine nucleophilicity"
+        ],
+        [
+          3,
+          "Deep learning prediction of amine chemical reactivity"
+        ],
+        [
+          4,
+          "GNN-based reaction outcome prediction for amines"
+        ],
+        [
+          5,
+          "Computational prediction of amine reaction rates"
+        ],
+        [
+          6,
+          "Graph representation learning for amine chemistry"
+        ],
+        [
+          7,
+          "Data-driven modeling of amine nucleophilic substitution"
+        ],
+        [
+          8,
+          "Predicting amine basicity and reactivity with AI"
+        ],
+        [
+          9,
+          "Neural network approaches to amine reaction mechanisms"
+        ],
+        [
+          10,
+          "Automated synthesis planning for amine derivatives"
+        ],
+        [
+          11,
+          "Quantitative structure-reactivity relationship for amines"
+        ],
+        [
+          12,
+          "Graph convolutional networks for organic reaction prediction"
+        ],
+        [
+          13,
+          "Predicting amine pKa and reactivity using machine learning"
+        ],
+        [
+          14,
+          "Reaction yield prediction for amine-containing compounds"
+        ],
+        [
+          15,
+          "Data-efficient learning for amine chemical properties"
+        ],
+        [
+          16,
+          "Graph-based molecular property prediction for amines"
+        ],
+        [
+          17,
+          "Predicting amine participation in cross-coupling reactions"
+        ],
+        [
+          18,
+          "Machine learning for amine functionalization reactions"
+        ],
+        [
+          19,
+          "Reaction condition optimization for amines using neural networks"
+        ],
+        [
+          20,
+          "Large-scale mining of amine reaction data for predictive modeling"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Graph neural networks for amine reaction prediction": 5,
+        "Predicting Amine Reactivity Using Graph Neural Networks and Public Databases chemistry": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "amine nucleophilicity electrophilicity reaction propensity",
+      "QM9 MD17 reaction energy barrier dataset",
+      "homophily heterophily molecular graph topology",
+      "reaction rate prediction held-out test set",
+      "training data leakage molecular fingerprint contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2209.06177"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Amine Reactivity Using Graph Neural Networks and Public Databases chemistry": 3,
+      "QM9 MD17 reaction energy barrier dataset": 3,
+      "amine nucleophilicity electrophilicity reaction propensity": 3,
+      "homophily heterophily molecular graph topology": 3,
+      "reaction rate prediction held-out test set": 3,
+      "training data leakage molecular fingerprint contamination": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2502.12908",
+          "rationale": "The paper focuses on applying Graph Neural Networks to improve database *systems* (e.g., query optimization, performance prediction) rather than using GNNs to predict chemical properties like amine reactivity. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the term \"databases\" here refers to information management systems, not the chemical data repositories or molecular graph structures implied in the user's chemistry question.",
+          "title": "Graph Neural Networks for Databases: A Survey"
+        },
+        {
+          "primary_pointer": "2211.14523",
+          "rationale": "The paper focuses on the general architectural challenge of handling homophily and heterophily in Graph Neural Networks across generic datasets, without addressing the specific domain of amine reactivity, chemical properties, or the use of public chemistry databases. While it is a foundational methodology paper for GNNs (category d), it lacks the necessary domain connection (chemistry) or specific application to molecular reactivity to be included in a literature review for this specific researc",
+          "title": "VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily"
+        },
+        {
+          "primary_pointer": "2212.06370",
+          "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks using neural networks but does not address the specific domain of amine reactivity, graph neural networks, or chemical databases. It fails to meet any inclusion criteria as it lacks the specific biological/chemical mechanism, domain variables, or canonical chemical methodology required for the user's question, representing an off-domain application of a generic technique.",
+          "title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper proposes a theoretical architecture for deep neural networks based on polynomial chaos theory but does not address the specific domain of chemistry, amine reactivity, or the application of Graph Neural Networks to molecular property prediction. It fails to meet any inclusion criteria as it lacks the necessary chemical context, specific target variables (amine reactivity), or the specific graph-based methodology required for the user's question.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper proposes a general machine learning method using Radial Basis Function Neural Networks for interpretability and feature selection on tabular data, but it does not address the specific domain of chemistry, amine reactivity, or the use of Graph Neural Networks (GNNs) on molecular graphs. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for the user's specific chemical prediction task.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        },
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general heterogeneous graph neural network architecture (MECCH) for node classification and link prediction on generic datasets, but it does not address the specific domain of amine reactivity, chemical properties, or the use of public chemistry databases. While it falls under the broad category of GNNs, it fails to satisfy the criteria for inclusion as it does not measure the specific biological/chemical mechanism, apply the method to the chemical domain, or serve as a foun",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "The paper focuses on document classification using natural language processing techniques, which is an off-domain application of neural networks compared to the user's question about predicting chemical amine reactivity using Graph Neural Networks on molecular data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (neural networks) and \"Off-domain entirely\" (text processing vs. computational chemistry).",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-09T16:09:25Z",
+    "term_input": {
+      "normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+      "raw": "Predicting Amine Reactivity Using Graph Neural Networks and Public Databases chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a framework for estimating the remaining useful life (RUL) of mechanical systems. The framework consists of a multi-layer perceptron and an evolutionary algorithm for optimizing the data-related parameters. The framework makes use of a strided time window to estimate the RUL for mechanical components. Tuning the data-related parameters can become a very time consuming task. The framework presented here automatically reshapes the data such that the efficiency of the model is increased. Furthermore, the complexity of the model is kept low, e.g. neural networks with few hidden layers and few neurons at each layer. Having simple models has several advantages like short training times and the capacity of being in environments with limited computational resources such as embedded systems. The proposed method is evaluated on the publicly available C-MAPSS dataset, its accuracy is compared against other state-of-the art methods for the same dataset.",
+          "claimed_authors": [
+            "David Laredo",
+            "Zhaoyin Chen",
+            "Oliver Schütze",
+            "Jian-Qiao Sun"
+          ],
+          "claimed_title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.05918"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conduct molecular dynamics simulations of a bidisperse Kob-Andersen (KA) glass former, modified to add in additional polydispersity. The original KA system is known to exhibit dynamical heterogeneity. Prior work defined propensity, the mean motion of a particle averaged over simulations reconstructing the initial positions of all particles but with randomized velocities. The existence of propensity shows that structure and dynamics are connected. In this paper, we study systems which mimic problems that would be encountered in measuring propensity in a colloidal glass former, where particles are polydisperse (they have slight size variations). We mimic polydispersity by altering the bidisperse KA system into a quartet consisting of particles both slightly larger and slightly smaller than the parent particles in the original bidisperse system. We then introduce errors into the reconstruction of the initial positions that mimic mistakes one might make in a colloidal experiment. The mistakes degrade the propensity measurement, in some cases nearly completely; one no longer has an isoconfigurational ensemble in any useful sense. Our results show that a polydisperse sample is suitable for propensity measurements provided one avoids reconstruction mistakes.",
+          "claimed_authors": [
+            "Cordell J. Donofrio",
+            "Eric R. Weeks"
+          ],
+          "claimed_title": "Neglecting polydispersity degrades propensity measurements in supercooled liquids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.09025"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Neglecting polydispersity degrades propensity measurements in supercooled liquids')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An understanding of the precise nature of a chemical reactivity descriptor is of utmost interest to quantum chemists. In the present investigation an attempt has been made to analyze whether the electrophilicity index is a reliable descriptor of the kinetic behaviour. Relative experimental rates of Friedel- Crafts benzylation, acetylation and benzoylation reactions correlate well with the corresponding calculated electrophilicity values. Chlorination of various substituted ethylenes and nitration of toluene and chlorobenzene are studied as representative examples of electrophilic addition and substitution reactions respectively. The correlation is not very good to assess that which, however, improves drastically by removing a few data points to show that the electrophilicity is a kinetic quantity with inherent thermodynamic information. The correlation between the experimental and the calculated activation energies is studied for some Markovnikov and anti-Markovnikov addition reactions and is turned out to be reasonably well. Reaction electrophilicity, local electrophilicity and activation hardness are used together to provide a transparent picture of reaction rates as well as the orientation of aromatic electrophilic substitution reactions. Ambiguity in the definition of the electrophilicity is highlighted.",
+          "claimed_authors": [
+            "P. K. Chattaraj",
+            "U. Sarkar",
+            "M. Elango",
+            "R. Parthasarathi",
+            "V. Subramanian"
+          ],
+          "claimed_title": "Electrophilicity as a Possible Descriptor of the Kinetic Behaviour",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0509089"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Electrophilicity as a Possible Descriptor of the Kinetic Behaviour')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In observational study, the propensity score has the central role to estimate causal effects. Since the propensity score is usually unknown, estimating by appropriate procedures is an indispensable step. A point to note that a causal effect estimator might have some bias if a propensity score model was misspecified; valid model construction is important. To overcome the problem, a variety of interesting methods has been proposed. In this paper, we review four methods: using ordinary logistic regression approach; CBPS proposed by Imai and Ratkovic; boosted CART proposed by McCaffrey and colleagues; a semiparametric strategy proposed by Liu and colleagues. Also, we propose the novel robust two step strategy: estimating each candidate model in the first step and integrating them in the second step. We confirm the performance of these methods through simulation examples by estimating the ATE and ATO proposed by Li and colleagues. From the results of the simulation examples, the boosted CART and CBPS with higher-order balancing condition have good properties; both the estimate of the ATE and ATO has the small variance and the absolute value of bias. The boosted CART and CBPS are useful for a variety of estimands and estimating procedures.",
+          "claimed_authors": [
+            "Shunichiro Orihara"
+          ],
+          "claimed_title": "Robust Estimating Method for Propensity Score Models and its Application to Some Causal Estimands: A review and proposal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.05640"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Robust Estimating Method for Propensity Score Models and its Application to Some Causal Estimands: A review and proposal')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Convolutional Networks (GCNs) have been widely applied in various fields due to their significant power on processing graph-structured data. Typical GCN and its variants work under a homophily assumption (i.e., nodes with same class are prone to connect to each other), while ignoring the heterophily which exists in many real-world networks (i.e., nodes with different classes tend to form edges). Existing methods deal with heterophily by mainly aggregating higher-order neighborhoods or combing the immediate representations, which leads to noise and irrelevant information in the result. But these methods did not change the propagation mechanism which works under homophily assumption (that is a fundamental part of GCNs). This makes it difficult to distinguish the representation of nodes from different classes. To address this problem, in this paper we design a novel propagation mechanism, which can automatically change the propagation and aggregation process according to homophily or heterophily between node pairs. To adaptively learn the propagation process, we introduce two measurements of homophily degree between node pairs, which is learned based on topological and attribute information, respectively. Then we incorporate the learnable homophily degree into the graph convolution framework, which is trained in an end-to-end schema, enabling it to go beyond the assumption of homophily. More importantly, we theoretically prove that our model can constrain the similarity of representations between nodes according to their homophily degree. Experiments on seven real-world datasets demonstrate that this new approach outperforms the state-of-the-art methods under heterophily or low homophily, and gains competitive performance under homophily.",
+          "claimed_authors": [
+            "Tao Wang",
+            "Rui Wang",
+            "Di Jin",
+            "Dongxiao He",
+            "Yuxiao Huang"
+          ],
+          "claimed_title": "Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.13562"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily')",
+        "failed_at": "2026-07-09T16:10:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a state-space-based path integral method to calculate the rate of electron transfer (ET) in multi-state, multi-electron condensed-phase processes. We employ an exact path integral in discrete electronic states and continuous Cartesian nuclear variables to obtain a transition state theory (TST) estimate to the rate. A dynamic recrossing correction to the TST rate is then obtained from real-time dynamics simulations using mean field ring polymer molecular dynamics. We employ two different reaction coordinates in our simulations and show that, despite the use of mean field dynamics, the use of an accurate dividing surface to compute TST rates allows us to achieve remarkable agreement with Fermi's golden rule rates for nonadiabatic ET in the normal regime of Marcus theory. Further, we show that using a reaction coordinate based on electronic state populations allows us to capture the turnover in rates for ET in the Marcus inverted regime.",
+          "claimed_authors": [
+            "Jessica Ryan Duke",
+            "Nandini Ananth"
+          ],
+          "claimed_title": "State Space Path Integrals for Electronically Nonadiabatic Reaction Rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.01394"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='State Space Path Integrals for Electronically Nonadiabatic Reaction Rates')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+          "claimed_authors": [
+            "Sivaram Ambikasaran"
+          ],
+          "claimed_title": "A simple way to speedup Gauss Elimination",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.4081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='A simple way to speedup Gauss Elimination')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_authors": [
+            "Oscar Sainz",
+            "Iker García-Ferrero",
+            "Alon Jacovi",
+            "Jon Ander Campos",
+            "Yanai Elazar",
+            "Eneko Agirre",
+            "Yoav Goldberg",
+            "Wei-Lin Chen",
+            "Jenny Chim",
+            "Leshem Choshen",
+            "Luca D'Amico-Wong",
+            "Melissa Dell",
+            "Run-Ze Fan",
+            "Shahriar Golchin",
+            "Yucheng Li",
+            "Pengfei Liu",
+            "Bhavish Pahwa",
+            "Ameya Prabhu",
+            "Suryansh Sharma",
+            "Emily Silcock",
+            "Kateryna Solonko",
+            "David Stap",
+            "Mihai Surdeanu",
+            "Yu-Min Tseng",
+            "Vishaal Udandarao",
+            "Zengzhi Wang",
+            "Ruijie Xu",
+            "Jinglin Yang"
+          ],
+          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21530"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Amine Reactivity Using Graph Neural Networks and Public Databases che', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
+        "failed_at": "2026-07-09T16:10:14Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Oleg Platonov",
+            "Denis Kuznedelev",
+            "Artem Babenko",
+            "Liudmila Prokhorenkova"
+          ],
+          "title": "Characterizing Graph Datasets for Node Classification: Homophily-Heterophily Dichotomy and Beyond",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2209.06177",
+        "summary": "Homophily is a graph property describing the tendency of edges to connect similar nodes; the opposite is called heterophily. It is often believed that heterophilous graphs are challenging for standard message-passing graph neural networks (GNNs), and much effort has been put into developing efficient methods for this setting. However, there is no universally agreed-upon measure of homophily in the literature. In this work, we show that commonly used homophily measures have critical drawbacks preventing the comparison of homophily levels across different datasets. For this, we formalize desirable properties for a proper homophily measure and verify which measures satisfy which properties. In particular, we show that a measure that we call adjusted homophily satisfies more desirable properties than other popular homophily measures while being rarely used in graph machine learning literature. Then, we go beyond the homophily-heterophily dichotomy and propose a new characteristic that allows one to further distinguish different sorts of heterophily. The proposed label informativeness (LI) characterizes how much information a neighbor's label provides about a node's label. We prove that this measure satisfies important desirable properties. We also observe empirically that LI better agrees with GNN performance compared to homophily measures, which confirms that it is a useful characteristic of the graph structure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2209.06177",
+          "http_status": 200,
+          "pdf_sample_score": 0.3333,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T16:10:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

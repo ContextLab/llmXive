@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.05639",
+  "judged_at": "2026-07-09T16:10:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper proposes a general machine learning method using Radial Basis Function Neural Networks for interpretability and feature selection on tabular data, but it does not address the specific domain of chemistry, amine reactivity, or the use of Graph Neural Networks (GNNs) on molecular graphs. It fails to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for the user's specific chemical prediction task.",
+  "relevant": false
+}

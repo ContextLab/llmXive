@@ -70,13 +70,13 @@
 
 - [X] T005 [P] Implement `code/utils.py` with logging, exponential backoff retry logic for API calls, and memory monitoring helpers (Plan Phase 1)
 - [X] T006 [P] Create `code/__init__.py` and define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
-- [ ] T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)
-- [ ] T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)
+- [X] T007 [P] Setup `pytest` configuration and directory structure (`tests/unit`, `tests/integration`) (Plan Phase 1)
+- [X] T008 [P] Implement logic to generate/update `state/` YAML file with checksums for raw data files (Constitution Principle III) (Plan Phase 1)
 - [X] T009 [P] Implement `code/preprocessing.py` skeleton with functions for one-hot encoding and standardization (no data yet) (Plan Phase 1)
 - [ ] T010 [P] Implement `code/utils.py` power analysis function to check sample size N ≥ 1,000 (Plan Phase 1.6)
 - [ ] T011 [P] Implement `code/utils.py` function to calculate exclusion ratio (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
 - [ ] T012 [P] Implement `code/utils.py` function to calculate processing success rate and enforce ≥95% threshold (Plan Phase 1.5, SC-001)
-- [~] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
+- [ ] T013 [P] Implement `code/modeling.py` skeleton with placeholder for nested CV and SHAP (Plan Phase 2)
 - [~] T014 [P] Implement `code/evaluation.py` skeleton for statistical testing (Plan Phase 3)
 - [~] T015 [P] Implement `code/preprocessing.py` function to perform **Construct Validity Check** on derived proxies: compare proxy correlation against target; **exclude proxy if |r| < 0.3 or R² < 0.05** (Plan Phase 1.8, T040 moved here)
 
@@ -173,8 +173,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Performance optimization: Ensure full pipeline runtime < 4 hours (SC-004) by profiling and optimizing SHAP/CV (Plan Phase 4)
-- [ ] T052 [P] Refactor: Remove duplicate logging calls and clean up `code/utils.py` (Addressing executability-4c0ea998)
+- [~] T051 [P] Performance optimization: Ensure full pipeline runtime < 4 hours (SC-004) by profiling and optimizing SHAP/CV (Plan Phase 4)
+- [~] T052 [P] Refactor: Remove duplicate logging calls and clean up `code/utils.py` (Addressing executability-4c0ea998)
 - [ ] T053 [P] Documentation updates in `docs/` (including `quickstart.md` and `data-model.md`)
 - [ ] T054 [P] Run full pipeline integration test on CI
 - [ ] T055 [P] Security hardening (sanitize API inputs)

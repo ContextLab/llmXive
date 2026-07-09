@@ -11,6 +11,8 @@ required:
   - sensitivity_status
   - run_timestamp
   - power_analysis_status
+  - theoretical_dist_photoevaporation
+  - theoretical_dist_core_powered
 properties:
   measured_slope:
     type: number
@@ -21,17 +23,17 @@ properties:
     minimum: 0
   p_value_photoevaporation:
     type: number
-    description: "LRT p-value vs photoevaporation theory"
+    description: "Permutation test p-value vs photoevaporation theory"
     minimum: 0
     maximum: 1
   p_value_core_powered:
     type: number
-    description: "LRT p-value vs core-powered mass loss theory"
+    description: "Permutation test p-value vs core-powered mass loss theory"
     minimum: 0
     maximum: 1
   validation_status:
     type: string
-    description: "Status of BCPD validation"
+    description: "Status of Synthetic Ground Truth validation"
     enum:
       - "valid"
       - "unresolved"
@@ -53,4 +55,14 @@ properties:
       - "sufficient"
       - "insufficient"
       - "inconclusive"
+  theoretical_dist_photoevaporation:
+    type: array
+    description: "Sampled theoretical slope distribution for photoevaporation."
+    items:
+      type: number
+  theoretical_dist_core_powered:
+    type: array
+    description: "Sampled theoretical slope distribution for core-powered mass loss."
+    items:
+      type: number
 additionalProperties: false

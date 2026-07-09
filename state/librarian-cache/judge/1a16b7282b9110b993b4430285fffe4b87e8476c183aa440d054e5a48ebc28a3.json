@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2212.06370",
+  "judged_at": "2026-07-09T16:10:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper proposes a general method for generating prediction intervals in regression tasks using neural networks but does not address the specific domain of amine reactivity, graph neural networks, or chemical databases. It fails to meet any inclusion criteria as it lacks the specific biological/chemical mechanism, domain variables, or canonical chemical methodology required for the user's question, representing an off-domain application of a generic technique.",
+  "relevant": false
+}

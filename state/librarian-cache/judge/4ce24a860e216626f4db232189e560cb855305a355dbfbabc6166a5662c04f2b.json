@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2104.13230",
+  "judged_at": "2026-07-09T16:48:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of algorithmic recommendations on exploration vs. exploitation in online learning psychology",
+  "rationale": "The paper focuses on adversarial data poisoning and robustness in machine learning systems, which is a distinct technical construct from the psychological study of human exploration-exploitation trade-offs under algorithmic recommendation. While both use the term \"online learning,\" the former refers to sequential data processing in algorithms, whereas the user's question concerns human behavioral psychology, making this an off-domain match sharing only homonym keywords.",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2401.12917",
+  "judged_at": "2026-07-09T16:48:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of algorithmic recommendations on exploration vs. exploitation in online learning psychology",
+  "rationale": "This paper satisfies criteria (a) and (d) by providing a canonical theoretical framework (Active Inference) that explicitly models the mechanism of the exploration-exploitation dilemma in biological and algorithmic agents, which is the core construct of the user's question regarding the psychological underpinnings of these behaviors. Although it focuses on a normative model rather than specific \"algorithmic recommendations\" in an online platform, it establishes the foundational mechanism for how",
+  "relevant": true
+}

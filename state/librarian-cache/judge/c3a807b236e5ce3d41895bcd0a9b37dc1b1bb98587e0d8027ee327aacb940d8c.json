@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-07-09T16:10:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper proposes a theoretical architecture for deep neural networks based on polynomial chaos theory but does not address the specific domain of chemistry, amine reactivity, or the application of Graph Neural Networks to molecular property prediction. It fails to meet any inclusion criteria as it lacks the necessary chemical context, specific target variables (amine reactivity), or the specific graph-based methodology required for the user's question.",
+  "relevant": false
+}

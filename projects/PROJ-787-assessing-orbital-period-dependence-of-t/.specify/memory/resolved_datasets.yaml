@@ -1,26 +1,26 @@
-resolved_at: '2026-07-08T06:30:05.789707+00:00'
+resolved_at: '2026-07-09T16:23:33.689146+00:00'
 datasets:
 - intent: DR25
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_Ibeju-Lekki_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949080
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+  - url: https://figshare.com/articles/software/Retinex-Guided_Underwater_3D_Gaussian_Splatting_with_Pixel-Driven_Split_ting_and_Distractor_Suppression/32528268
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -141,31 +141,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1012627
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20229535
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32930585/1
+  - url: https://zenodo.org/records/1012627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/1197324
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_set/32930585
+  - url: https://zenodo.org/records/21222237
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://infoscience.epfl.ch/entities/publication/6ebfef2f-8b55-4f89-a462-4319d6dc632a
+  - url: https://zenodo.org/records/21222237
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.05860
+  - url: https://zenodo.org/records/21279842
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21251278
+  - url: https://zenodo.org/records/21279842
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,23 +184,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/_b_SI_of_Sun_et_al_2026_b_/32932628
+  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Caleb_University_Imota_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949083
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/High-Fidelity_Synthetic_Dataset_for_Heart_Failure_Clinical_Records/32934095
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://icon.suss.edu.sg/articles/report/_b_Where_psychiatry_meets_the_law_Duties_on_legal_practitioners_and_psychiatrists_when_adducing_psychiatric_evidence_in_criminal_proceedings_b_/32904317
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/Who_is_Prompting_Whom_Designing_a_Voice-Only_Anthropomorphic_Sparring_Partner_for_Sustainable_Dialogic_Reasoning/32932913
+  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/Traditional_male_circumcision_associated_risks_of_HIV_transmission_and_the_impacts_on_men_and_their_families_in_West_Timor_Indonesia/32933729
+  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -212,11 +212,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -224,23 +224,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20878734
+  - url: https://zenodo.org/records/21280016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20878734
+  - url: https://zenodo.org/records/21280016
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21250896
+  - url: https://zenodo.org/records/21280255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21250896
+  - url: https://zenodo.org/records/21280255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.04415
+  - url: https://zenodo.org/records/21279842
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

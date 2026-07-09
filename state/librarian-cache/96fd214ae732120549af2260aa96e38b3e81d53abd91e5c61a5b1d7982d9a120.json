@@ -1,0 +1,505 @@
+{
+  "fetched_at": "2026-07-09T16:48:14Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 61.012,
+    "ended_at": "2026-07-09T16:48:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "algorithmic curation effects on learner curiosity"
+        ],
+        [
+          2,
+          "recommender systems and exploratory behavior in education"
+        ],
+        [
+          3,
+          "exploitation bias in adaptive learning platforms"
+        ],
+        [
+          4,
+          "filter bubbles and knowledge exploration in students"
+        ],
+        [
+          5,
+          "algorithmic nudging versus self-directed learning"
+        ],
+        [
+          6,
+          "impact of personalized feeds on cognitive exploration"
+        ],
+        [
+          7,
+          "reinforcement learning trade-offs in educational technology"
+        ],
+        [
+          8,
+          "algorithmic determinism in online course navigation"
+        ],
+        [
+          9,
+          "recommendation algorithms and serendipity in learning"
+        ],
+        [
+          10,
+          "confirmation bias induced by educational recommenders"
+        ],
+        [
+          11,
+          "passive versus active learning with algorithmic support"
+        ],
+        [
+          12,
+          "diversity of content exposure in adaptive tutoring"
+        ],
+        [
+          13,
+          "algorithmic influence on information seeking strategies"
+        ],
+        [
+          14,
+          "narrowing of learning paths due to predictive analytics"
+        ],
+        [
+          15,
+          "user agency in algorithmically mediated learning environments"
+        ],
+        [
+          16,
+          "exploration-exploitation dilemma in digital pedagogy"
+        ],
+        [
+          17,
+          "algorithmic homogenization of student knowledge acquisition"
+        ],
+        [
+          18,
+          "effects of feed-based learning on critical thinking"
+        ],
+        [
+          19,
+          "computational personalization and learner autonomy"
+        ],
+        [
+          20,
+          "algorithmic feedback loops in educational decision making"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning psychology": 0,
+        "algorithmic curation effects on learner curiosity": 0,
+        "recommender systems and exploratory behavior in education": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "recommender systems exploration exploitation tradeoff",
+      "bandit algorithms contextual bandits online learning",
+      "algorithmic curation choice architecture user agency",
+      "click-through rate dwell time novelty seeking metrics",
+      "feedback loops confirmation bias filter bubbles"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2401.12917"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning psychology": 3,
+      "algorithmic curation choice architecture user agency": 3,
+      "bandit algorithms contextual bandits online learning": 3,
+      "click-through rate dwell time novelty seeking metrics": 3,
+      "feedback loops confirmation bias filter bubbles": 3,
+      "recommender systems exploration exploitation tradeoff": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2104.13230",
+          "rationale": "The paper focuses on adversarial data poisoning and robustness in machine learning systems, which is a distinct technical construct from the psychological study of human exploration-exploitation trade-offs under algorithmic recommendation. While both use the term \"online learning,\" the former refers to sequential data processing in algorithms, whereas the user's question concerns human behavioral psychology, making this an off-domain match sharing only homonym keywords.",
+          "title": "Influence Based Defense Against Data Poisoning Attacks in Online Learning"
+        },
+        {
+          "primary_pointer": "2411.07569",
+          "rationale": "The paper focuses on the technical optimization of recommender system architectures (AutoML, hardware co-design, and efficiency) rather than the psychological mechanisms of user behavior (exploration vs. exploitation) or the influence of recommendations on learning outcomes. It falls under the \"off-domain entirely\" rejection rule as it addresses engineering constraints in model design rather than the social-psychological constructs specified in the user's question.",
+          "title": "Towards Automated Model Design on Recommender Systems"
+        },
+        {
+          "primary_pointer": "2009.12192",
+          "rationale": "The paper focuses on technical hyperparameter optimization for Word2vec in recommendation systems to improve hit rates, which is distinct from the user's question regarding the psychological mechanisms of exploration vs. exploitation in online learning. It fails to measure the relevant psychological constructs, user behaviors, or causal mechanisms (exploration/exploitation trade-offs) and instead addresses an engineering efficiency problem in a different domain (NLP-based system tuning).",
+          "title": "Tuning Word2vec for Large Scale Recommendation Systems"
+        },
+        {
+          "primary_pointer": "2211.16366",
+          "rationale": "The paper focuses on the engineering architecture and performance metrics (retention, engagement) of a specific fashion recommender system, rather than investigating the psychological mechanisms of \"exploration vs. exploitation\" or the behavioral influence of algorithms on user learning. It falls under the \"off-domain entirely\" rejection rule because it addresses system optimization in e-commerce rather than the cognitive or behavioral science constructs central to the user's question.",
+          "title": "Reusable Self-Attention-based Recommender System for Fashion"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-09T16:47:13Z",
+    "term_input": {
+      "normalized": "the influence of algorithmic recommendations on exploration vs. exploitation in online learning psychology",
+      "raw": "The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in Online Learning psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-07-09T16:47:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing popularity of deep learning models has created new opportunities for developing AI-based recommender systems. Designing recommender systems using deep neural networks requires careful architecture design, and further optimization demands extensive co-design efforts on jointly optimizing model architecture and hardware. Design automation, such as Automated Machine Learning (AutoML), is necessary to fully exploit the potential of recommender model design, including model choices and model-hardware co-design strategies. We introduce a novel paradigm that utilizes weight sharing to explore abundant solution spaces. Our paradigm creates a large supernet to search for optimal architectures and co-design strategies to address the challenges of data multi-modality and heterogeneity in the recommendation domain. From a model perspective, the supernet includes a variety of operators, dense connectivity, and dimension search options. From a co-design perspective, it encompasses versatile Processing-In-Memory (PIM) configurations to produce hardware-efficient models. Our solution space's scale, heterogeneity, and complexity pose several challenges, which we address by proposing various techniques for training and evaluating the supernet. Our crafted models show promising results on three Click-Through Rates (CTR) prediction benchmarks, outperforming both manually designed and AutoML-crafted models with state-of-the-art performance when focusing solely on architecture search. From a co-design perspective, we achieve 2x FLOPs efficiency, 1.8x energy efficiency, and 1.5x performance improvements in recommender models.",
+          "claimed_authors": [
+            "Tunhou Zhang",
+            "Dehua Cheng",
+            "Yuchen He",
+            "Zhengxing Chen",
+            "Xiaoliang Dai",
+            "Liang Xiong",
+            "Yudong Liu",
+            "Feng Cheng",
+            "Yufan Cao",
+            "Feng Yan",
+            "Hai Li",
+            "Yiran Chen",
+            "Wei Wen"
+          ],
+          "claimed_title": "Towards Automated Model Design on Recommender Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.07569"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Towards Automated Model Design on Recommender Systems')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Word2vec is a powerful machine learning tool that emerged from Natural Lan-guage Processing (NLP) and is now applied in multiple domains, including recom-mender systems, forecasting, and network analysis. As Word2vec is often used offthe shelf, we address the question of whether the default hyperparameters are suit-able for recommender systems. The answer is emphatically no. In this paper, wefirst elucidate the importance of hyperparameter optimization and show that un-constrained optimization yields an average 221% improvement in hit rate over thedefault parameters. However, unconstrained optimization leads to hyperparametersettings that are very expensive and not feasible for large scale recommendationtasks. To this end, we demonstrate 138% average improvement in hit rate with aruntime budget-constrained hyperparameter optimization. Furthermore, to makehyperparameter optimization applicable for large scale recommendation problemswhere the target dataset is too large to search over, we investigate generalizinghyperparameters settings from samples. We show that applying constrained hy-perparameter optimization using only a 10% sample of the data still yields a 91%average improvement in hit rate over the default parameters when applied to thefull datasets. Finally, we apply hyperparameters learned using our method of con-strained optimization on a sample to the Who To Follow recommendation serviceat Twitter and are able to increase follow rates by 15%.",
+          "claimed_authors": [
+            "Benjamin P. Chamberlain",
+            "Emanuele Rossi",
+            "Dan Shiebler",
+            "Suvash Sedhain",
+            "Michael M. Bronstein"
+          ],
+          "claimed_title": "Tuning Word2vec for Large Scale Recommendation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.12192"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Tuning Word2vec for Large Scale Recommendation Systems')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial behavioral agents are often evaluated based on their consistent behaviors and performance to take sequential actions in an environment to maximize some notion of cumulative reward. However, human decision making in real life usually involves different strategies and behavioral trajectories that lead to the same empirical outcome. Motivated by clinical literature of a wide range of neurological and psychiatric disorders, we propose here a more general and flexible parametric framework for sequential decision making that involves a two-stream reward processing mechanism. We demonstrated that this framework is flexible and unified enough to incorporate a family of problems spanning multi-armed bandits (MAB), contextual bandits (CB) and reinforcement learning (RL), which decompose the sequential decision making process in different levels. Inspired by the known reward processing abnormalities of many mental disorders, our clinically-inspired agents demonstrated interesting behavioral trajectories and comparable performance on simulated tasks with particular reward distributions, a real-world dataset capturing human decision-making in gambling tasks, and the PacMan game across different reward stationarities in a lifelong learning setting.",
+          "claimed_authors": [
+            "Baihan Lin",
+            "Guillermo Cecchi",
+            "Djallel Bouneffouf",
+            "Jenna Reinen",
+            "Irina Rish"
+          ],
+          "claimed_title": "Unified Models of Human Behavioral Agents in Bandits, Contextual Bandits and RL",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.04544"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Unified Models of Human Behavioral Agents in Bandits, Contextual Bandits and RL')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the significant interest and progress in reinforcement learning (RL) problems with adversarial corruption, current works are either confined to the linear setting or lead to an undesired $\\tilde{O}(\\sqrt{T}ζ)$ regret bound, where $T$ is the number of rounds and $ζ$ is the total amount of corruption. In this paper, we consider the contextual bandit with general function approximation and propose a computationally efficient algorithm to achieve a regret of $\\tilde{O}(\\sqrt{T}+ζ)$. The proposed algorithm relies on the recently developed uncertainty-weighted least-squares regression from linear contextual bandit and a new weighted estimator of uncertainty for the general function class. In contrast to the existing analysis that heavily relies on the linear structure, we develop a novel technique to control the sum of weighted uncertainty, thus establishing the final regret bounds. We then generalize our algorithm to the episodic MDP setting and first achieve an additive dependence on the corruption level $ζ$ in the scenario of general function approximation. Notably, our algorithms achieve regret bounds either nearly match the performance lower bound or improve the existing methods for all the corruption levels and in both known and unknown $ζ$ cases.",
+          "claimed_authors": [
+            "Chenlu Ye",
+            "Wei Xiong",
+            "Quanquan Gu",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Corruption-Robust Algorithms with Uncertainty Weighting for Nonlinear Contextual Bandits and Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.05949"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Corruption-Robust Algorithms with Uncertainty Weighting for Nonlinear Contextual Bandits and Markov Decision Processes')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper considers a contextual bandit problem involving multiple agents, where a learner sequentially observes the contexts and the agent's reported arms, and then selects the arm that maximizes the system's overall reward. Existing work in contextual bandits assumes that agents truthfully report their arms, which is unrealistic in many real-life applications. For instance, consider an online platform with multiple sellers; some sellers may misrepresent product quality to gain an advantage, such as having the platform preferentially recommend their products to online users. To address this challenge, we propose an algorithm, COBRA, for contextual bandit problems involving strategic agents that disincentivize their strategic behavior without using any monetary incentives, while having incentive compatibility and a sub-linear regret guarantee. Our experimental results also validate the different performance aspects of our proposed algorithm.",
+          "claimed_authors": [
+            "Arun Verma",
+            "Indrajit Saha",
+            "Makoto Yokoo",
+            "Bryan Kian Hsiang Low"
+          ],
+          "claimed_title": "COBRA: Contextual Bandit Algorithm for Ensuring Truthful Strategic Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.23720"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='COBRA: Contextual Bandit Algorithm for Ensuring Truthful Strategic Agents')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Curated databases have become important sources of information across scientific disciplines, and due to the manual work of experts, often become important reference works. Features such as provenance tracking, archiving, and data citation are widely regarded as important features for curated databases, but implementing such features is challenging, and small database projects often lack the resources to do so. A scientific database application is not just the database itself, but also an ecosystem of web applications to display the data, and applications supporting data curation. Supporting advanced curation features requires changing all of these components, and there is currently no way to provide such capabilities in a reusable way. Cross-tier programming languages have been proposed to simplify the creation of web applications, where developers write an application in a single, uniform language. Consequently, database queries and updates can be written in the same language as the rest of the program, and at least in principle, it should be possible to provide curation features reusably via program transformations. As a first step, it is important to establish that realistic curated databases can be implemented in a cross-tier programming language. In this paper, we describe such a case study: reimplementing the web frontend of a real-world scientific database, the IUPHAR/BPS Guide to Pharmacology (GtoPdb), in the Links programming language. We show how features such as language-integrated query simplify the development process, and rule out common errors. We show that the Links implementation performs fewer database queries, while the time needed to handle the queries is comparable to the Java version. While there is some overhead to using Links because of its comparative immaturity compared to Java, the Links version is viable as a proof-of-concept case study.",
+          "claimed_authors": [
+            "Simon Fowler",
+            "Simon D. Harding",
+            "Joanna Sharman",
+            "James Cheney"
+          ],
+          "claimed_title": "Cross-tier web programming for curated databases: A case study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.03845"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Cross-tier web programming for curated databases: A case study')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+          "claimed_authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "claimed_title": "Architectural Implications of Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.00804"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Architectural Implications of Graph Neural Networks')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As was shown in quant-ph/0405028, the state of a tunneling particle can be uniquely presented as a coherent superposition of two states to describe alternative sub-processes, transmission and reflection. In this paper, on the basis of the stationary wave functions for these sub-processes, we give new definitions of the dwell times for transmission and reflection. In the case of rectangular potential barriers the dwell times are obtained explicitly. In contrast with the well-known Büttiker's dwell-time, our dwell time for transmission increases exponentially, for the under-barrier tunneling, with increasing the barrier's width. By our approach the well-known Hartman effect is rather an artifact resulted from an improper interpretation of the wave-packet tunneling and experimental data, but not a real physical effect accompanying the tunneling phenomenon.",
+          "claimed_authors": [
+            "N. L. Chuprikov"
+          ],
+          "claimed_title": "Dwell times for transmission and reflection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "quant-ph/0502073"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Dwell times for transmission and reflection')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Space-time distributions')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sentence level novelty detection aims at reducing redundant sentences from a sentence list. In the task, sentences appearing later in the list with no new meanings are eliminated. Aiming at a better accuracy for detecting redundancy, this paper reveals the nature of the novelty detection task currently overlooked by the Novelty community $-$ Novelty as a combination of the partial overlap (PO, two sentences sharing common facts) and complete overlap (CO, the first sentence covers all the facts of the second sentence) relations. By formalizing novelty detection as a combination of the two relations between sentences, new viewpoints toward techniques dealing with Novelty are proposed. Among the methods discussed, the similarity, overlap, pool and language modeling approaches are commonly used. Furthermore, a novel approach, selected pool method is provided, which is immediate following the nature of the task. Experimental results obtained on all the three currently available novelty datasets showed that selected pool is significantly better or no worse than the current methods. Knowledge about the nature of the task also affects the evaluation methodologies. We propose new evaluation measures for Novelty according to the nature of the task, as well as possible directions for future study.",
+          "claimed_authors": [
+            "Le Zhao",
+            "Min Zhang",
+            "Shaoping Ma"
+          ],
+          "claimed_title": "The Nature of Novelty Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cs/0510054"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='The Nature of Novelty Detection')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This Note investigates the bias of the sampling importance resampling (SIR) filter in estimation of the state transition noise in the state space model. The SIR filter may suffer from sample impoverishment that is caused by the resampling and therefore will benefit from a sampling proposal that has a heavier tail, e.g. the state transition noise simulated for particle preparation is bigger than the true noise involved with the state dynamics. This is because a comparably big transition noise used for particle propagation can spread overlapped particles to counteract impoverishment, giving better approximation of the posterior. As such, the SIR filter tends to yield a biased (bigger-than-the-truth) estimate of the transition noise if it is unknown and needs to be estimated, at least, in the forward-only filtering estimation. The bias is elaborated via the direct roughening approach by means of both qualitative logical deduction and quantitative numerical simulation.",
+          "claimed_authors": [
+            "Tiancheng Li"
+          ],
+          "claimed_title": "Bias of the SIR filter in estimation of the state transition noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.2426"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Bias of the SIR filter in estimation of the state transition noise')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Domain Adaptation of Black-box Predictors (DABP) aims to learn a model on an unlabeled target domain supervised by a black-box predictor trained on a source domain. It does not require access to both the source-domain data and the predictor parameters, thus addressing the data privacy and portability issues of standard domain adaptation. Existing DABP approaches mostly rely on model distillation from the black-box predictor, \\emph{i.e.}, training the model with its noisy target-domain predictions, which however inevitably introduces the confirmation bias accumulated from the prediction noises. To mitigate such bias, we propose a new method, named BETA, to incorporate knowledge distillation and noisy label learning into one coherent framework. This is enabled by a new divide-to-adapt strategy. BETA divides the target domain into an easy-to-adapt subdomain with less noise and a hard-to-adapt subdomain. Then it deploys mutually-teaching twin networks to filter the predictor errors for each other and improve them progressively, from the easy to hard subdomains. As such, BETA effectively purifies the noisy labels and reduces error accumulation. We theoretically show that the target error of BETA is minimized by decreasing the noise ratio of the subdomains. Extensive experiments demonstrate BETA outperforms existing methods on all DABP benchmarks, and is even comparable with the standard domain adaptation methods that use the source-domain data.",
+          "claimed_authors": [
+            "Jianfei Yang",
+            "Xiangyu Peng",
+            "Kai Wang",
+            "Zheng Zhu",
+            "Jiashi Feng",
+            "Lihua Xie",
+            "Yang You"
+          ],
+          "claimed_title": "Divide to Adapt: Mitigating Confirmation Bias for Domain Adaptation of Black-Box Predictors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.14467"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Divide to Adapt: Mitigating Confirmation Bias for Domain Adaptation of Black-Box Predictors')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we relate a feedback channel with any finite-order autoregressive moving-average (ARMA) Gaussian noises to a variant of the Kalman filter. In light of this, we obtain relatively explicit lower bounds on the feedback capacity for such colored Gaussian noises, and the bounds are seen to be consistent with various existing results in the literature. Meanwhile, this variant of the Kalman filter also leads to explicit recursive coding schemes with clear structures to achieve the lower bounds. In general, our results provide an alternative perspective while pointing to potentially tighter bounds for the feedback capacity problem.",
+          "claimed_authors": [
+            "Song Fang",
+            "Quanyan Zhu"
+          ],
+          "claimed_title": "Feedback Capacity and a Variant of the Kalman Filter with ARMA Gaussian Noises: Explicit Bounds and Feedback Coding Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2001.03108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Influence of Algorithmic Recommendations on Exploration vs. Exploitation in ', candidate_title='Feedback Capacity and a Variant of the Kalman Filter with ARMA Gaussian Noises: Explicit Bounds and Feedback Coding Design')",
+        "failed_at": "2026-07-09T16:47:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhenbo Cheng",
+            "Xingguang Liu",
+            "Leilei Zhang",
+            "Hangcheng Meng",
+            "Qin Li",
+            "Xiao Gang"
+          ],
+          "title": "Improved cooperation by balancing exploration and exploitation in intertemporal social dilemma tasks",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.09152",
+        "summary": "When an individual's behavior has rational characteristics, this may lead to irrational collective actions for the group. A wide range of organisms from animals to humans often evolve the social attribute of cooperation to meet this challenge. Therefore, cooperation among individuals is of great significance for allowing social organisms to adapt to changes in the natural environment. Based on multi-agent reinforcement learning, we propose a new learning strategy for achieving coordination by incorporating a learning rate that can balance exploration and exploitation. We demonstrate that agents that use the simple strategy improve a relatively collective return in a decision task called the intertemporal social dilemma, where the conflict between the individual and the group is particularly sharp. We also explore the effects of the diversity of learning rates on the population of reinforcement learning agents and show that agents trained in heterogeneous populations develop particularly coordinated policies relative to those trained in homogeneous populations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.09152",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T16:47:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lancelot Da Costa",
+            "Samuel Tenka",
+            "Dominic Zhao",
+            "Noor Sajid"
+          ],
+          "title": "Active Inference as a Model of Agency",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.12917",
+        "summary": "Is there a canonical way to think of agency beyond reward maximisation? In this paper, we show that any type of behaviour complying with physically sound assumptions about how macroscopic biological agents interact with the world canonically integrates exploration and exploitation in the sense of minimising risk and ambiguity about states of the world. This description, known as active inference, refines the free energy principle, a popular descriptive framework for action and perception originating in neuroscience. Active inference provides a normative Bayesian framework to simulate and model agency that is widely used in behavioural neuroscience, reinforcement learning (RL) and robotics. The usefulness of active inference for RL is three-fold. \\emph{a}) Active inference provides a principled solution to the exploration-exploitation dilemma that usefully simulates biological agency. \\emph{b}) It provides an explainable recipe to simulate behaviour, whence behaviour follows as an explainable mixture of exploration and exploitation under a generative world model, and all differences in behaviour are explicit in differences in world model. \\emph{c}) This framework is universal in the sense that it is theoretically possible to rewrite any RL algorithm conforming to the descriptive assumptions of active inference as an active inference algorithm. Thus, active inference can be used as a tool to uncover and compare the commitments and assumptions of more specific models of agency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.12917",
+          "http_status": 200,
+          "pdf_sample_score": 0.2672,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T16:47:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the influence of algorithmic recommendations on exploration vs. exploitation in online learning psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

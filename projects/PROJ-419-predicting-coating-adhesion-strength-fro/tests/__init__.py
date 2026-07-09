@@ -1,3 +1,3 @@
 """
-Test suite for the coating adhesion strength prediction pipeline.
+Test suite for the Coating Adhesion Strength Prediction pipeline.
 """

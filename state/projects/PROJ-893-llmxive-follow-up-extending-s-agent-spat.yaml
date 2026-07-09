@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T20:00:16.351248Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-893-llmxive-follow-up-extending-s-agent-spat
-last_run_id: 6b361afa-d6e6-4cc9-98b0-66f264a9346c
+last_run_id: 9d3ba28c-296e-4027-9551-e8438260a6b0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "S-Agent: Spatial Tool-Use Elicits Reasoning
   for Spatial Intelligence"'
-updated_at: '2026-07-07T07:26:27.906160Z'
+updated_at: '2026-07-09T16:49:03.762846Z'

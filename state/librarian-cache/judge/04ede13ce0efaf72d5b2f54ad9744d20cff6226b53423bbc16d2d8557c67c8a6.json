@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.12908",
+  "judged_at": "2026-07-09T16:10:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting amine reactivity using graph neural networks and public databases chemistry",
+  "rationale": "The paper focuses on applying Graph Neural Networks to improve database *systems* (e.g., query optimization, performance prediction) rather than using GNNs to predict chemical properties like amine reactivity. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" as the term \"databases\" here refers to information management systems, not the chemical data repositories or molecular graph structures implied in the user's chemistry question.",
+  "relevant": false
+}

@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GapAnalysisResult"
+description: "Schema for the final aggregated analysis results."
+type: object
+properties:
+  measured_slope:
+    type: number
+    description: "Slope of the gap radius vs log(period) relationship."
+  slope_uncertainty:
+    type: number
+    description: "95% confidence interval half-width for the slope."
+    minimum: 0
+  p_value_photoevaporation:
+    type: number
+    description: "Permutation test p-value comparing measured slope to photoevaporation theory."
+    minimum: 0
+    maximum: 1
+  p_value_core_powered:
+    type: number
+    description: "Permutation test p-value comparing measured slope to core-powered mass loss theory."
+    minimum: 0
+    maximum: 1
+  theoretical_dist_photoevaporation:
+    type: array
+    description: "Sampled theoretical slope distribution for photoevaporation (Monte Carlo)."
+    items:
+      type: number
+  theoretical_dist_core_powered:
+    type: array
+    description: "Sampled theoretical slope distribution for core-powered mass loss (Monte Carlo)."
+    items:
+      type: number
+  validation_status:
+    type: string
+    description: "Overall validation status (Synthetic Ground Truth)."
+    enum:
+      - "PASS"
+      - "FAIL"
+  sensitivity_status:
+    type: string
+    description: "Sensitivity analysis result."
+    enum:
+      - "PASS"
+      - "FAIL"
+  vif_max:
+    type: number
+    description: "Maximum Variance Inflation Factor among predictors."
+required:
+  - measured_slope
+  - slope_uncertainty
+  - p_value_photoevaporation
+  - p_value_core_powered
+  - theoretical_dist_photoevaporation
+  - theoretical_dist_core_powered
+  - validation_status
+  - sensitivity_status
+  - vif_max
+additionalProperties: false

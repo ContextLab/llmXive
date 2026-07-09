@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.09152",
+  "judged_at": "2026-07-09T16:48:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the influence of algorithmic recommendations on exploration vs. exploitation in online learning psychology",
+  "rationale": "This paper satisfies criterion (a) by measuring the same core mechanism (balancing exploration vs. exploitation) within a social decision-making context, even though it uses multi-agent reinforcement learning agents rather than human subjects directly. It also aligns with criterion (f) as it belongs to the canonical literature on the exploration-exploitation trade-off in social dilemmas, providing foundational evidence for how this balance influences collective outcomes in online learning enviro",
+  "relevant": true
+}
