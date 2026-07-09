@@ -1,6 +1,8 @@
 """
-Project structure setup script for llmXive research pipeline.
-Creates the required directory hierarchy for data, code, and tests.
+Script to create the project directory structure for llmXive PROJ-409.
+
+This script implements Task T001 by creating all required directories
+under the project root as specified in the implementation plan.
 """
 import os
 import sys
@@ -8,64 +10,60 @@ from pathlib import Path
 
 def create_directory_structure():
     """
-    Creates the standard directory structure for the project.
-    Returns a list of created paths.
+    Creates the full project directory structure required for the pipeline.
+    
+    Directories created:
+    - code/, code/extraction/, code/inference/, code/analysis/, code/utils/
+    - data/raw/, data/extracted/, data/aggregated/, data/results/, data/models/
+    - tests/unit/, tests/integration/
     """
-    # Define the root directory (current working directory or project root)
-    # We assume this script is run from the project root
-    root = Path.cwd()
-
-    # Define all required directories relative to root
+    # Define all required directories relative to the project root
+    # We assume the script is run from the project root or the code directory
+    # The base path is the parent of this file's location (project root)
+    base_path = Path(__file__).resolve().parent.parent
+    
     directories = [
-        # Code directories
         "code",
         "code/extraction",
         "code/inference",
         "code/analysis",
         "code/utils",
-        
-        # Data directories
         "data/raw",
         "data/extracted",
         "data/aggregated",
         "data/results",
         "data/models",
-        
-        # Test directories
         "tests/unit",
-        "tests/integration",
+        "tests/integration"
     ]
-
-    created_paths = []
+    
+    created_count = 0
+    existing_count = 0
+    
+    print(f"Creating project structure in: {base_path}")
+    
     for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
-            print(f"Created directory: {full_path}")
+        full_path = base_path / dir_path
+        if full_path.exists():
+            existing_count += 1
+            print(f"  [SKIP] {dir_path} (already exists)")
         else:
-            print(f"Directory already exists: {full_path}")
-
-    return created_paths
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"  [CREATE] {dir_path}")
+    
+    print(f"\nSummary: {created_count} directories created, {existing_count} already existed.")
+    return created_count == len(directories) or all((base_path / d).exists() for d in directories)
 
 def main():
-    """Main entry point for the script."""
-    print("Setting up project directory structure...")
-    created = create_directory_structure()
-    print(f"\nTotal directories created/verified: {len(created)}")
-    
-    # Verify the structure by listing the root contents
-    root = Path.cwd()
-    print("\nCurrent project structure:")
-    for item in sorted(root.iterdir()):
-        if item.is_dir():
-            print(f"  {item.name}/")
-            # List immediate subdirectories
-            for subitem in sorted(item.iterdir()):
-                if subitem.is_dir():
-                    print(f"    {subitem.name}/")
-                    
-    return 0
+    """Entry point for the script."""
+    success = create_directory_structure()
+    if success:
+        print("\nProject structure verification: PASSED")
+        sys.exit(0)
+    else:
+        print("\nProject structure verification: FAILED")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

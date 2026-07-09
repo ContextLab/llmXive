@@ -1,0 +1,2 @@
+# This directory stores final results (JSON, CSV summaries)
+# Do not commit large files; use .gitkeep to track directory

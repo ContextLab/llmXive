@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T03:17:58.914259Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-841-llmxive-follow-up-extending-shuttermuse
-last_run_id: dc22a91d-41a0-4e63-a899-f94ead3c8fe1
+last_run_id: f6c72d51-5634-4369-b41b-9ccc93deb7be
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "ShutterMuse: Capture-Time Photography Guidance
   with MLLMs"'
-updated_at: '2026-07-07T16:03:21.160687Z'
+updated_at: '2026-07-09T04:37:20.116794Z'

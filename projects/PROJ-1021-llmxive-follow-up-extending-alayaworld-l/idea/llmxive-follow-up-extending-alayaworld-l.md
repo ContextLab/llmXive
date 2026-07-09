@@ -6,13 +6,23 @@ submitter: llmxive-preprint-followup
 # llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
 ## Summary of the prior work
-AlayaWorld presents a full-stack open-source framework for generating long-horizon, playable video worlds by autoregressively synthesizing future observations conditioned on user actions and current states. It unifies data preparation, model training, and inference acceleration to support diverse interactive scenarios like combat and spell-casting across real-world and synthetic domains. The core contribution is a modular system that enables real-time, open-ended interaction without the need for labor-intensive traditional game asset pipelines.
+AlayaWorld presents a full-stack, open-source framework for generating long-horizon, interactive video worlds by training autoregressive models on mixed gameplay and real-world video data. Its core innovation lies in unifying data preparation, model architecture, and inference acceleration to enable real-time, open-ended user interactions like combat and spell-casting within a synthesized environment. The paper demonstrates that such models can capture diverse visual dynamics and physical laws, moving beyond static generation to playable, dynamic simulations.
 
 ## Proposed extension
-Can we decouple the semantic consistency of long-horizon world generation from the high computational cost of autoregressive video diffusion by formulating a "semantic trajectory planner" that predicts high-level state transitions using only CPU-tractable text-based logic models before rendering? This matters because current world models struggle with long-term consistency due to error accumulation in pixel-space autoregression, and a hybrid approach could enable complex, coherent world simulations on edge devices or standard CPUs where GPU acceleration is unavailable.
+**Research Question:** Can a lightweight, CPU-tractable symbolic logic layer be integrated with a pre-trained AlayaWorld video model to enforce strict semantic consistency in long-horizon interactions without requiring additional GPU-based fine-tuning?
+
+This extension matters because current video world models often suffer from "semantic drift" over long horizons (e.g., a summoned monster disappearing or physics breaking), and while AlayaWorld addresses this via scale, a CPU-efficient method to guarantee logical coherence would democratize deployment on edge devices and enable verifiable, safe AI agents in resource-constrained environments.
 
 ## Methodology sketch
-We will construct a synthetic dataset of 10,000 short gameplay episodes where each frame is paired with a structured, textual "state description" (e.g., "Player at (x,y), Enemy HP=50, Spell active") to serve as a latent representation. The procedure involves training a lightweight, non-neural or small-Transformer logic model on a standard CPU to predict the sequence of these state descriptions for a given action sequence over a 10-minute horizon, effectively acting as a "planner" that bypasses pixel generation. We expect this semantic planner to achieve near-perfect consistency in object permanence and rule adherence (e.g., health depletion) compared to AlayaWorld's native video generation, while reducing inference time by an order of magnitude and eliminating the need for GPU memory.
+**Data:** Utilize the existing AlayaWorld dataset but filter for sequences containing specific, countable object interactions (e.g., "summon monster," "hit monster," "monster dies") to create a ground-truth event log.
+
+**Procedure:** 
+1. Freeze the AlayaWorld video generation weights and run inference on a standard CPU to generate a 60-second interaction sequence.
+2. Simultaneously, run a lightweight, rule-based symbolic engine (implemented in pure Python/C) that tracks object states based on user action inputs (e.g., "if action=hit, decrement HP").
+3. Implement a "consistency checker" that compares the symbolic engine's state trajectory against the visual output of the video model frame-by-frame using simple computer vision primitives (e.g., template matching or optical flow) rather than deep learning, calculating a "Semantic Drift Score."
+4. Iterate by injecting "correction tokens" into the video model's context window based on the symbolic engine's error flags, measuring if this reduces drift without retraining the model.
+
+**Expected Result:** The study should demonstrate that the hybrid symbolic-visual approach significantly reduces long-horizon semantic drift (e.g., >30% improvement in object permanence) compared to the vanilla AlayaWorld model, while maintaining inference speeds viable for CPU-only deployment.
 
 ## Motivated by (source preprint — reviewed, not authored, by llmXive)
 

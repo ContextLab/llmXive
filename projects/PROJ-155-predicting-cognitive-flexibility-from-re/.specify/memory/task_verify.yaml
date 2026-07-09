@@ -1,0 +1,15 @@
+T001 Create project structure per `plan.md` (`code/`, `data/`, `docs/`, `tests/`): 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn,
+  statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest)
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+? 'T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s,
+  step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution''s
+  30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md`
+  is referenced as the source of this deviation.'
+: 1
+? 'T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation
+  and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold`
+  config.'
+: 1
+T006 [P] Setup `code/data/__init__.py` and base data loading utilities: 1

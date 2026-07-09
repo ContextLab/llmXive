@@ -13,7 +13,7 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-09T04:23:03.797290Z'
+reviewed_at: '2026-07-09T04:49:04.090706Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.0

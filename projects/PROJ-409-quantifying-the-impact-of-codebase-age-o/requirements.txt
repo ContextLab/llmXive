@@ -1,21 +1,13 @@
-# llmXive Project: Quantifying the Impact of Codebase Age on LLM Code Understanding
-# Python 3.11+
-
-# Core ML & Transformers
-huggingface_hub>=0.20.0
-transformers>=4.37.0
-torch>=2.1.0
-bitsandbytes>=0.42.0
-
-# Git & Data Handling
-gitpython>=3.1.40
-pandas>=2.1.0
-
-# Scientific Computing
-scipy>=1.11.0
-
-# Tokenization & Graph Analysis
-tokenizers>=0.15.0
-networkx>=3.2.0
-
-# Note: 'ast' is part of Python standard library and does not need to be listed here.
+huggingface_hub
+transformers
+torch
+bitsandbytes
+gitpython
+pandas
+scipy
+ast
+tokenizers
+networkx
+pytest
+ruff
+black

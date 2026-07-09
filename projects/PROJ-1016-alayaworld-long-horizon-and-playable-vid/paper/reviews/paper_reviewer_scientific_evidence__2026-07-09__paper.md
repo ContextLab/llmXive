@@ -16,7 +16,7 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-09T04:24:08.988049Z'
+reviewed_at: '2026-07-09T04:50:10.320774Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_scientific_evidence
 score: 0.0
@@ -27,4 +27,4 @@ The paper's central claims regarding AlayaWorld's capabilities in long-horizon g
 
 Specifically, the claim of "strong stability under purely forward exploration" (Section 4.4) is illustrated by a single figure of a one-minute rollout. Without a quantitative metric for drift (e.g., Fréchet Video Distance over time, object identity preservation scores) or a comparison against a standard autoregressive baseline, it is impossible to determine if the observed stability is a genuine effect of the proposed error bank and training strategy or simply a result of the specific scene or random seed chosen. Similarly, the "Consistency" claim (Section 4.3) relies on visual inspection of loop-closing trajectories. The design fails to rule out that the consistency is due to the static nature of the specific test scenes rather than the proposed spatial memory mechanism, as no quantitative loop-closure error is reported.
 
-Furthermore, the "Open-ended Action" claim (Section 4.2) is backed only by a few hand-picked examples of prompt switching. There is no systematic measurement of semantic latency or visual continuity across a diverse set of actions, leaving the claim vulnerable to cherry-picking. To support these headline claims, the authors must provide quantitative metrics for drift, consistency, and latency, report results across multiple random seeds to establish variance, and include comparisons against strong, tuned baselines (e.g., Yume 1.5, Matrix-Game) under identical conditions.
+Furthermore, the "Open-ended Action" claim (Section 4.2) is backed only by a few hand-picked examples of prompt switching. There is no systematic evaluation of the semantic latency (time from command to visual change) or the visual continuity across switches, leaving the claim that the system supports "responsive control" unverified. The absence of any numerical results, seed counts, or confidence intervals means the reported effects could plausibly arise from luck or cherry-picked examples. To support these claims, the authors must provide quantitative metrics for drift, consistency, and latency, along with comparisons to strong baselines (e.g., Yume 1.5, Matrix-Game) across multiple random seeds.

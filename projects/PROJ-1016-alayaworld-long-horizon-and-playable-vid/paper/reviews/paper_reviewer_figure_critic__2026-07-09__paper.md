@@ -1,74 +1,62 @@
 ---
 action_items:
-- id: e26b9063bd4c
+- id: 85c9f79a976e
   severity: fatal
-  text: 'Figure 1: The figure has no caption (stated as ''(no caption) [fig1.pdf]''),
-    making it impossible to understand the context, content, or claims supported by
-    this collage of images.'
-- id: 41a7d28474ec
+  text: 'Figure 1: The caption is empty (''no caption''), providing no context for
+    the four rows of images, the overlaid control icons, or the specific scenes depicted.'
+- id: 163d94097653
   severity: science
-  text: 'Figure 1: Without a caption or labels, it is unclear what specific aspects
-    of ''Alaya World'' are being demonstrated (e.g., diversity of scenes, specific
-    generation capabilities, or comparison to baselines).'
-- id: 27805b9f355a
+  text: 'Figure 1: The figure lacks a clear legend or labels explaining the overlaid
+    ''WASD'' and arrow icons, making it impossible to determine if they represent
+    user inputs, generated actions, or navigation paths.'
+- id: 1ca50df54d3f
   severity: fatal
-  text: 'Figure 2: The caption is empty (''no caption''), providing no context for
-    the visual content, which appears to be a grid of video generation results with
-    control overlays.'
-- id: 7879772fd29f
+  text: 'Figure 2: The figure contains no caption text, making it impossible to determine
+    the claims it supports, the meaning of the visual elements (e.g., the ''First
+    Frame'' label, the icons, the grid structure), or the context of the generated
+    scenes.'
+- id: d36e09882579
   severity: science
-  text: 'Figure 2: The image displays a grid of 16 video frames (4x4) with control
-    overlays, but without a caption or labels, it is impossible to determine the specific
-    conditions, inputs, or comparisons being demonstrated.'
-- id: c088ae20ba9e
+  text: 'Figure 2: The visual content appears to be a collage of fantasy-themed image
+    generation results (e.g., pyramids with magical effects, various landscapes) but
+    lacks any scientific data, axes, quantitative comparisons, or methodological indicators
+    required for a scientific preprint figure.'
+- id: 2c5f86da229d
   severity: fatal
-  text: 'Figure 3: The figure has no caption text to explain the content, methodology,
-    or context of the displayed images.'
-- id: 82ec4baf27ec
-  severity: fatal
-  text: 'Figure 3: The image contains no axis labels, units, legends, or scale bars,
-    making it impossible to interpret the data or parameters shown.'
-- id: 213a242b0d83
+  text: 'Figure 3: The figure has no caption text; it is labeled only as ''(no caption)
+    [fig6.jpg]'', making it impossible to understand the figure''s purpose, what the
+    rows/columns represent, or how to interpret the visual content.'
+- id: 5c4b95d5165f
   severity: science
-  text: 'Figure 3: The figure displays a collage of unrelated fantasy and landscape
-    images without any labels or keys to identify the specific actions or conditions
-    being demonstrated.'
-- id: 630d62e19871
+  text: 'Figure 3: Without a caption, the relationship between the row labels (HY-World,
+    LingBot-Fest, Dreax-World, Ours) and the column labels (First Frame, Turn 1, etc.)
+    is unclear, and the meaning of the overlaid control icons is undefined.'
+- id: 54851c7e8a41
   severity: writing
-  text: 'Figure 4: The caption is empty (''no caption''), providing no context for
-    the datasets (HY-World, LingBot-Fest, etc.) or the specific task (navigation vs.
-    gallery viewing) shown in the grid.'
-- id: dc5fae4d7a68
+  text: 'Figure 4: The figure lacks a descriptive caption explaining the content,
+    methodology, or significance of the generated video sequences shown.'
+- id: c0c37402cf2a
   severity: writing
-  text: 'Figure 4: The column headers (''First Frame'', ''Turn 1'', etc.) are not
-    aligned with the image columns, creating ambiguity about which images correspond
-    to which time step.'
-- id: 470220f3e41d
-  severity: writing
-  text: 'Figure 5: The figure lacks a descriptive caption explaining the content,
-    methodology, or significance of the displayed video frames.'
-- id: ee058091e899
-  severity: writing
-  text: 'Figure 5: The image contains no internal labels, legends, or annotations
-    to identify the specific scenes or the nature of the generation process shown.'
-- id: 389f82d1259f
+  text: 'Figure 4: The image filename [fig7.jpg] in the caption metadata contradicts
+    the label ''Figure 4'', creating potential confusion regarding file organization.'
+- id: ec0679023721
   severity: fatal
-  text: 'Figure 6: The caption is empty (''no caption''), providing no context for
-    the visual content, which appears to be a grid of generated video frames with
-    UI overlays.'
-- id: ea414621576b
+  text: 'Figure 5: The figure is completely devoid of a descriptive caption, axis
+    labels, or legends, making it impossible to determine the experimental conditions,
+    variables, or specific claims being illustrated by the image grid.'
+- id: 9b7374e8666b
   severity: science
-  text: 'Figure 6: The image displays a grid of 18 distinct scenes (3 rows x 6 columns)
-    with no labels, axes, or legend to explain the variables being compared (e.g.,
-    time steps, different prompts, or model variants).'
+  text: 'Figure 5: The visual content (gameplay screenshots with UI overlays) does
+    not match the filename ''fig2.jpg'' referenced in the caption, suggesting a rendering
+    or file mapping error in the preprint.'
 artifact_hash: 456b0753feb55b79d2f45eedee834cad3ccdc7eaa1bc7c70927e38c96e9a86c8
 artifact_path: projects/PROJ-1016-alayaworld-long-horizon-and-playable-vid/paper/metadata.json
 backend: dartmouth
-feedback: Vision review of 6 figure(s) via qwen.qwen3.5-122b.
+feedback: Vision review of 5 figure(s) via qwen.qwen3.5-122b.
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-09T04:24:49.787177Z'
+reviewed_at: '2026-07-09T04:50:53.857710Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_figure_critic
 score: 0.0
@@ -77,24 +65,20 @@ verdict: major_revision_science
 
 ### Figure 1
 
-Figure 1 is a collage of generated scenes with the title 'Alaya World' overlaid, but it lacks any caption or descriptive text, rendering its scientific purpose and content ambiguous.
+The figure displays a grid of video generation results with overlaid control icons, but the empty caption and lack of a legend for the icons render the visual data uninterpretable.
 
 ### Figure 2
 
-The figure consists of a grid of video frames with control overlays but lacks a caption entirely, making it impossible to understand the scientific context or claims being illustrated.
+Figure 2 is a visual collage of generated images without any caption or scientific context, rendering it impossible to assess its relevance or claims within the paper.
 
 ### Figure 3
 
-Figure 3 is a collage of fantasy-style images that lacks a caption, axis labels, legends, or any explanatory text, rendering it scientifically unintelligible and failing to support any specific claims.
+Figure 3 is a grid of images showing video generation results but lacks any descriptive caption, making it impossible to understand what is being presented or how to interpret the visual data.
 
 ### Figure 4
 
-The figure displays a grid of video generation results across different datasets, but the lack of a descriptive caption and misaligned column headers makes it difficult to interpret the specific claims or comparisons being made.
+The figure displays a grid of generated video frames with time-step labels, but it lacks a descriptive caption to explain the context or results, and the metadata filename contradicts the figure number.
 
 ### Figure 5
 
-Figure 5 displays a grid of video frames demonstrating scene generation but fails to provide a descriptive caption or internal labels to explain the context or specific examples shown.
-
-### Figure 6
-
-Figure 6 is a grid of generated images with UI overlays but lacks a descriptive caption and any labels or legends to explain the experimental setup or the differences between the displayed samples.
+Figure 5 is a grid of gameplay images that lacks any descriptive caption, labels, or context, rendering it scientifically useless for peer review. Additionally, the filename in the caption contradicts the figure number, indicating a likely error in the manuscript's figure assembly.

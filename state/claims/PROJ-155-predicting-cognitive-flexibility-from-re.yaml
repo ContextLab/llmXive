@@ -1,0 +1,419 @@
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 60s window deviation from 30s default justified in research.md
+  claim_id: c_1eb95db3
+  context: 'T004 Create code/config.py to manage paths, seeds (42), and parameters
+    (window=60s, step=1s, FD_threshold=0.2). Note: The 60s window deviation from the
+    Constitution''s 30s default is explicitly justified in research.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60s_window_deviation_from_30s_default_justified_in_research.
+  kind: entity_fact
+  raw_text: The 60s window deviation from the Constitution's 30s default is explicitly
+    justified in research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:38:26Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 60s window deviation from 30s default justified in research.md
+  claim_id: c_4012bdd3
+  context: 'T021 [P] [US2] Implement code/features/connectivity.py sliding-window
+    Pearson correlation (window=60s, step=1s). Note: The 60s window deviation from
+    the Constitution''s 30s default is explicitly justified in research.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60s_window_deviation_from_30s_default_justified_in_research.
+  kind: entity_fact
+  raw_text: The 60s window deviation from the Constitution's 30s default is explicitly
+    justified in research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:38:28Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_383e1996
+  context: 'References: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models,
+    no deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-09T04:38:32Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 1200 subjects processed within 6 hours
+  claim_id: c_d2459744
+  context: 'T039b [P] Profile and optimize memory usage in code/main.py to ensure
+    1200 subjects processed within 6 hours. Deliverable: A benchmark script that runs
+    the full pipeline and asserts execution time < 6h on CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process 1200 subjects within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:38:58Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: execution time less than 6 hours
+  claim_id: c_505e4be1
+  context: 'T039b [P] Profile and optimize memory usage in code/main.py to ensure
+    1200 subjects processed within 6 hours. Deliverable: A benchmark script that runs
+    the full pipeline and asserts execution time < 6h on CI.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_less_than_6_hours
+  kind: magnitude
+  raw_text: The benchmark script must assert execution time less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:39:24Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: peak RAM less than 7GB
+  claim_id: c_0abea3b2
+  context: T025 [US2] Add batch processing logic to handle memory constraints (peak
+    RAM < 7GB) for a cohort of subjects
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: The pipeline must handle memory constraints with peak RAM less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:39:43Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: batch size of 50
+  claim_id: c_226b905b
+  context: T039a [P] Implement batch processing in code/features/connectivity.py with
+    batch_size=50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a batch size of 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:40:06Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: 10000-iteration permutation test
+  claim_id: c_e670cd09
+  context: T031 [P] [US3] Implement code/analysis/permutation.py for 10,000-iteration
+    permutation test to generate null distribution
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs for 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:40:23Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: FD threshold 0.2mm
+  claim_id: c_0a6d69c5
+  context: T015 [US1] Implement motion filtering in code/utils/motion.py to exclude
+    subjects with Mean FD > 0.2mm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FD threshold for motion exclusion is 0.2mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:40:44Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: FDR correction q less than or equal to 0.05
+  claim_id: c_d5870697
+  context: "T033 [US3] Implement FDR correction logic for any post-hoc network-specific\
+    \ analyses (q \u2264 0.05)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_q_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "The FDR correction threshold for post-hoc network-specific analyses is\
+    \ q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:41:04Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: sliding window step size 1 second
+  claim_id: c_49d3e7d3
+  context: T021 [P] [US2] Implement code/features/connectivity.py sliding-window Pearson
+    correlation (window=60s, step=1s).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding window step size is 1 second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:41:28Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345 constraints on low-bit models deep
+    net training large LLMs
+  claim_id: c_266b01fa
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:43:03Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Benchmark script execution time less than 6 hours on CI
+  claim_id: c_35e019ef
+  context: 'Profile and optimize memory usage in code/main.py to ensure 1200 subjects
+    processed within 6 hours. Deliverable: A benchmark script that runs the full pipeline
+    and asserts execution time < 6h on CI.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_script_execution_time_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: The benchmark script must assert execution time < 6h on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:43:24Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Pipeline process 1200 subjects
+  claim_id: c_f5b6d10a
+  context: Profile and optimize memory usage in code/main.py to ensure 1200 subjects
+    processed within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process 1200 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:43:46Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: System constraint 7GB RAM
+  claim_id: c_a5d5e923
+  context: 'Constraint: All tasks must run on CPU-only CI (limited cores, 7GB RAM,
+    no GPU).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_constraint_7GB_RAM
+  kind: entity_fact
+  raw_text: The system operates under a constraint of 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:44:11Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Permutation test 10000 iterations
+  claim_id: c_210ea04a
+  context: Implement code/analysis/permutation.py for 10,000-iteration permutation
+    test to generate null distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test uses 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:44:27Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Sliding window Pearson correlation window 60s step 1s
+  claim_id: c_760bb3f2
+  context: Implement code/features/connectivity.py sliding-window Pearson correlation
+    (window=60s, step=1s).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sliding_window_Pearson_correlation_window_60s_step_1s
+  kind: entity_fact
+  raw_text: The sliding-window Pearson correlation uses a window of 60s and step of
+    1s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:44:54Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with Mean FD greater than 0.2mm
+  claim_id: c_dabdfd77
+  context: Implement motion filtering in code/utils/motion.py to exclude subjects
+    with Mean FD > 0.2mm.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_Mean_FD_greater_than_0.2mm
+  kind: magnitude
+  raw_text: Subjects with Mean FD > 0.2mm are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:45:20Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: FDR correction q less than or equal to 0.05 for post-hoc analyses
+  claim_id: c_40971b34
+  context: "Implement FDR correction logic for any post-hoc network-specific analyses\
+    \ (q \u2264 0.05)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_q_less_than_or_equal_to_0.05_for_post-hoc_ana
+  kind: magnitude
+  raw_text: "FDR correction is applied for post-hoc network-specific analyses with\
+    \ q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:45:41Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 2
+  canonical: 60s window deviation from 30s default justified in research.md
+  claim_id: c_9b71e3e7
+  context: 'Create code/config.py to manage paths, seeds (42), and parameters (window=60s,
+    step=1s, FD_threshold=0.2). Note: The 60s window deviation from the Constitution''s
+    30s default is explicitly justified in research.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60s_window_deviation_from_30s_default_justified_in_research.
+  kind: entity_fact
+  raw_text: The 60s window deviation from the Constitution's 30s default is explicitly
+    justified in research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:46:25Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv 2301.12345 no low-bit models no deep net training
+    no large LLMs
+  claim_id: c_20ebb5cf
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:46:27Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_273a114d
+  context: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net
+    training, no large LLMs.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-09T04:47:00Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 paper at arXiv:2301.12345 states no low-bit models,
+    no deep net training, no large LLMs
+  claim_id: c_252e418d
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-09T04:47:25Z'

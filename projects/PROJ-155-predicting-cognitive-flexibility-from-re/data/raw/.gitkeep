@@ -1,0 +1,2 @@
+# This directory stores raw downloaded data (HCP NIfTI, CSVs)
+# Do not commit large files; use .gitkeep to track directory

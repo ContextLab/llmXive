@@ -39,8 +39,8 @@
 - [ ] T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s, step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md` is referenced as the source of this deviation.
 - [ ] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
 - [ ] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
-- [ ] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
-- [ ] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
+- [~] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
+- [~] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
 - [ ] T009 Setup environment configuration and `code/__init__.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -148,8 +148,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -215,9 +215,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -235,5 +235,5 @@ With multiple developers:
 
 The research question remains: What is the impact of computational constraints on model performance?
 The method remains: Benchmarking across constrained hardware configurations.
-References: Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net training, no large LLMs.
+Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_252e418d — status=not_enough_info]
 - **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".

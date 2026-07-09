@@ -1,6 +1,6 @@
 artifact_hashes: {}
 assigned_agent: null
-created_at: '2026-07-09T04:25:16.799581Z'
+created_at: '2026-07-09T04:51:01.449138Z'
 current_stage: brainstormed
 failed_stage: null
 field: computer science
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video
   World Generation"'
-updated_at: '2026-07-09T04:25:16.799581Z'
+updated_at: '2026-07-09T04:51:01.449138Z'

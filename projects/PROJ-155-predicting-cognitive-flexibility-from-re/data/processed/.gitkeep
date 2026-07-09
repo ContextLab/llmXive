@@ -1,0 +1,2 @@
+# This directory stores processed data (parcellated, metrics, logs)
+# Do not commit large files; use .gitkeep to track directory

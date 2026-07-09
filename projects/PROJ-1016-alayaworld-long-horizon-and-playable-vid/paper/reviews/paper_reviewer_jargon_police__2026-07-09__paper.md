@@ -6,29 +6,29 @@ action_items:
     module'' and ''AdaLN-style modulation'' without definition. While common in DiT
     literature, it is not expanded (Adaptive Layer Normalization) for an adjacent-field
     reader. Add ''(Adaptive Layer Normalization, AdaLN)'' at first use.'
-- id: 963b64f807ee
+- id: 44b0b0b101ac
   severity: writing
   text: 'Section 3.1 (Interaction): The acronym ''DiT'' appears in ''autoregressive
-    DiT'' (Section 3) and ''DiT features'' (Section 3.1) without being defined as
-    ''Diffusion Transformer''. Expand at first occurrence in Section 3.'
-- id: c2afef1d1df7
+    DiT'' (Section 3) and ''DiT features'' (Section 3.1) without being spelled out
+    as ''Diffusion Transformer''. Define at first occurrence in Section 3.'
+- id: 06be81eef01f
   severity: writing
   text: "Section 3.1 (Interaction): The term 'Pl\xFCcker ray embeddings' is used without\
     \ a brief gloss. An adjacent-field reader may not know this refers to a specific\
-    \ 6D representation of lines in 3D space. Add a short clause, e.g., 'Pl\xFCcker\
-    \ ray embeddings (a 6D line representation)'."
-- id: 8c68b942f080
+    \ 6D representation of lines in 3D space. Add a short parenthetical explanation,\
+    \ e.g., 'Pl\xFCcker ray embeddings (a 6D line representation)'."
+- id: 9370cf92cacd
   severity: writing
-  text: 'Section 3.2 (Consistency): The phrase ''sink, tail, and selected history''
-    (referencing Relax Forcing) is used as a functional role classification without
-    defining what a ''sink'' token is in this context. Add a brief explanation of
-    the ''sink'' mechanism.'
-- id: 5a1d157ac6e1
+  text: 'Section 3.2 (Consistency): The term ''loop-closing'' is used repeatedly (e.g.,
+    ''loop-closing trajectories'') without definition. While standard in SLAM/robotics,
+    it is not explicitly defined here as ''returning to a previously visited location
+    to verify consistency''. Add a brief definition at first use.'
+- id: 297c8ad7240c
   severity: writing
-  text: 'Section 3.4 (Runtime): The term ''KV-recache'' is introduced as a mechanism
-    in LongLive without definition. It is not standard vocabulary outside specific
-    attention-cache optimization subfields. Define it as ''key-value cache recomputation''
-    or similar at first use.'
+  text: 'Section 3.4 (Runtime): The acronym ''KV-recache'' is introduced in the context
+    of ''LongLive'' without expansion. It likely refers to ''Key-Value cache recalculation''.
+    Define this acronym at first use to ensure clarity for readers unfamiliar with
+    specific inference optimization jargon.'
 artifact_hash: 456b0753feb55b79d2f45eedee834cad3ccdc7eaa1bc7c70927e38c96e9a86c8
 artifact_path: projects/PROJ-1016-alayaworld-long-horizon-and-playable-vid/paper/metadata.json
 backend: dartmouth
@@ -36,17 +36,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-09T04:24:31.666912Z'
+reviewed_at: '2026-07-09T04:50:34.121911Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_jargon_police
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper is generally well-structured for a technical audience, but it relies on several acronyms and subfield-specific terms that are not defined at their first occurrence, creating minor barriers for a competent reader from an adjacent field (e.g., a computer vision researcher not specializing in diffusion transformers or a robotics researcher new to generative world models).
+The paper is generally well-structured for a technical audience, but it relies on several acronyms and specialized terms that are undefined at their first occurrence, creating minor barriers for a competent reader from an adjacent field (e.g., computer vision or robotics).
 
-Specifically, the term "DiT" (Diffusion Transformer) is used repeatedly in Section 3 without expansion. While standard in the immediate subfield of generative modeling, it is not universal across all of AI. Similarly, "AdaLN" (Adaptive Layer Normalization) is used to describe the camera control mechanism but is never spelled out. The use of "Plücker ray embeddings" assumes familiarity with a specific geometric representation that, while standard in computer vision, benefits from a brief parenthetical gloss for clarity.
+Specifically, the term "DiT" (Diffusion Transformer) is used in Section 3 without expansion, despite being central to the method. Similarly, "AdaLN" (Adaptive Layer Normalization) appears in Section 3.1 without definition. While these are standard in the specific subfield of diffusion transformers, they are not universal enough to assume knowledge from a general ML or robotics PhD.
 
-In the discussion of stability and runtime, the paper references specific mechanisms like "sink" tokens (in the context of Relax Forcing) and "KV-recache" (in LongLive) without defining them. These are operational details of specific prior works that are not self-explanatory to a generalist. Defining these terms at their first mention would significantly improve the paper's self-containment without diluting its technical precision.
+Additionally, "Plücker ray embeddings" in Section 3.1 is a specific geometric representation that would benefit from a brief parenthetical explanation for non-graphics specialists. The term "loop-closing" in Section 3.2 is used frequently but never explicitly defined as the act of revisiting a location to check for consistency, which is a core concept in SLAM but might be opaque to a pure video-generation researcher. Finally, "KV-recache" in Section 3.4 is an in-group shorthand for a specific caching mechanism that should be expanded to "Key-Value cache recalculation" or similar upon first mention.
 
-No standard field vocabulary (e.g., "autoregressive," "diffusion," "latent") was flagged, as these are foundational to the discipline. The issues identified are strictly regarding undefined acronyms and specific methodological shorthand.
+Addressing these five points by adding brief expansions or definitions at first use will significantly improve the paper's accessibility without diluting its technical precision.

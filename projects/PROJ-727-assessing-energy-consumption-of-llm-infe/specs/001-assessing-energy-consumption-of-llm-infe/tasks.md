@@ -58,10 +58,10 @@
 - [X] T005a [AMEND] Update `spec.md` (FR-001, US-1) and `plan.md` to explicitly replace 'StarCoder-base' with 'StarCoder-1B' and authorize this substitution due to RAM constraints. Ensure the spec text is updated BEFORE any code implementation begins (FR-001, Plan Feasibility Note).
 - [X] T004 Create `code/config.py` with constants: seeds, model IDs (GPT2-small, CodeBERT, StarCoder-1B), parameter counts, max tokens, temperature=0.0. Ensure data/raw/ directory exists.
 - [X] T005 [P] Create `code/download.py` to fetch HumanEval dataset from ` and save to `data/raw/human_eval_data.jsonl`. Ensure data/raw/ directory exists before saving (FR-001).
-- [ ] T006 Create `code/calibration.py` implementing a CPU-bound load loop (not matrix multiply) to validate `codecarbon` power draw detection. The script must exit with code 1 or raise an exception if deviation > 10% (FR-010).
-- [~] T007 Create `code/versioning.py` to hash artifacts and update project state YAML (Constitution Principle V)
-- [~] T008 Create `run.sh` entry point that verifies environment by importing `human_eval`, running a specific trivial dummy test case (e.g., `def add(a,b): return a+b`), and exiting with code 1 on failure (FR-007)
-- [~] T009 Create `data/raw/` directory structure and checksum verification logic for HumanEval <!-- ATOMIZE: requested -->
+- [X] T006 Create `code/calibration.py` implementing a CPU-bound load loop (not matrix multiply) to validate `codecarbon` power draw detection. The script must exit with code 1 or raise an exception if deviation > 10% (FR-010).
+- [ ] T007 Create `code/versioning.py` to hash artifacts and update project state YAML (Constitution Principle V)
+- [ ] T008 Create `run.sh` entry point that verifies environment by importing `human_eval`, running a specific trivial dummy test case (e.g., `def add(a,b): return a+b`), and exiting with code 1 on failure (FR-007)
+- [ ] T009 Create `data/raw/` directory structure and checksum verification logic for HumanEval <!-- ATOMIZE: requested -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,8 +75,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T013 [US1] Implement `code/inference.py`: Load models sequentially (GPT2 -> CodeBERT -> StarCoder-1B) with explicit unload logic to free RAM; run `codecarbon` context; generate completions (temp=0.0); write results to `data/processed/energy_results_raw.csv` with schema: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`, `pass_fail_status` (FR-002, FR-003, FR-009). T013 is the exclusive producer of this raw file.
-- [~] T014 [US1] Implement `code/evaluation.py`: Evaluate generated completions against HumanEval test suite, record `pass_fail_status` (0/1), handle timeouts/OOMs gracefully (FR-004)
+- [ ] T013 [US1] Implement `code/inference.py`: Load models sequentially (GPT2 -> CodeBERT -> StarCoder-1B) with explicit unload logic to free RAM; run `codecarbon` context; generate completions (temp=0.0); write results to `data/processed/energy_results_raw.csv` with schema: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`, `pass_fail_status` (FR-002, FR-003, FR-009). T013 is the exclusive producer of this raw file.
+- [ ] T014 [US1] Implement `code/evaluation.py`: Evaluate generated completions against HumanEval test suite, record `pass_fail_status` (0/1), handle timeouts/OOMs gracefully (FR-004)
 - [~] T015 [US1] Implement logic in `code/inference.py` to handle edge cases: record `null` energy if calibration fails, record `null` tokens if 0 tokens generated (FR-009)
 - [~] T016 [US1] Implement data aggregation in `code/main.py` to read `energy_results_raw.csv`, filter out rows where `energy_kwh` is `null` or `tokens_generated` is 0 (FR-011), and write the clean dataset to `data/processed/energy_results_aggregated.csv` with columns: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`, `pass_fail_status`.
 - [~] T017 [US1] Add logging for energy metrics and model unload events in `code/inference.py`

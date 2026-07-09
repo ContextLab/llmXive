@@ -1,56 +1,69 @@
 """
-Unit tests to verify the project directory structure was created correctly.
+Unit tests to verify the project directory structure exists.
+
+This test file validates that T001 has been successfully implemented
+by checking for the existence of all required directories.
 """
 import os
-import pytest
 import sys
+from pathlib import Path
+import unittest
 
-# Add the parent directory to the path to import setup script logic if needed,
-# though we primarily test the filesystem state.
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add the project root to the path to allow imports if needed
+# (though this test primarily uses os/pathlib directly)
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-REQUIRED_DIRS = [
-    "code",
-    "code/extraction",
-    "code/inference",
-    "code/analysis",
-    "code/utils",
-    "data/raw",
-    "data/extracted",
-    "data/aggregated",
-    "data/results",
-    "data/models",
-    "tests/unit",
-    "tests/integration"
-]
+class TestProjectStructure(unittest.TestCase):
+    """Tests for verifying the project directory structure."""
 
-@pytest.fixture(scope="module")
-def base_path():
-    return project_root
+    def setUp(self):
+        """Set up the test environment."""
+        self.base_path = project_root
+        self.required_dirs = [
+            "code",
+            "code/extraction",
+            "code/inference",
+            "code/analysis",
+            "code/utils",
+            "data/raw",
+            "data/extracted",
+            "data/aggregated",
+            "data/results",
+            "data/models",
+            "tests/unit",
+            "tests/integration"
+        ]
 
-@pytest.mark.parametrize("dir_name", REQUIRED_DIRS)
-def test_directory_exists(base_path, dir_name):
-    """Assert that each required directory exists."""
-    full_path = os.path.join(base_path, dir_name)
-    assert os.path.isdir(full_path), f"Directory {dir_name} does not exist at {full_path}"
+    def test_all_directories_exist(self):
+        """Verify that all required directories exist."""
+        missing_dirs = []
+        for dir_path in self.required_dirs:
+            full_path = self.base_path / dir_path
+            if not full_path.exists():
+                missing_dirs.append(dir_path)
+            elif not full_path.is_dir():
+                missing_dirs.append(f"{dir_path} (exists but is not a directory)")
 
-def test_code_subdirs_exist(base_path):
-    """Assert specific subdirectories under code/ exist."""
-    code_subdirs = ["extraction", "inference", "analysis", "utils"]
-    for subdir in code_subdirs:
-        path = os.path.join(base_path, "code", subdir)
-        assert os.path.isdir(path), f"Subdirectory code/{subdir} is missing"
+        self.assertEqual(len(missing_dirs), 0, f"Missing directories: {missing_dirs}")
 
-def test_data_subdirs_exist(base_path):
-    """Assert specific subdirectories under data/ exist."""
-    data_subdirs = ["raw", "extracted", "aggregated", "results", "models"]
-    for subdir in data_subdirs:
-        path = os.path.join(base_path, "data", subdir)
-        assert os.path.isdir(path), f"Subdirectory data/{subdir} is missing"
+    def test_code_directory_is_writable(self):
+        """Verify that the code directory and its subdirectories are writable."""
+        code_dir = self.base_path / "code"
+        self.assertTrue(code_dir.exists(), "code/ directory does not exist")
+        self.assertTrue(os.access(code_dir, os.W_OK), "code/ directory is not writable")
 
-def test_tests_subdirs_exist(base_path):
-    """Assert specific subdirectories under tests/ exist."""
-    tests_subdirs = ["unit", "integration"]
-    for subdir in tests_subdirs:
-        path = os.path.join(base_path, "tests", subdir)
-        assert os.path.isdir(path), f"Subdirectory tests/{subdir} is missing"
+    def test_data_directory_is_writable(self):
+        """Verify that the data directory and its subdirectories are writable."""
+        data_dir = self.base_path / "data"
+        self.assertTrue(data_dir.exists(), "data/ directory does not exist")
+        self.assertTrue(os.access(data_dir, os.W_OK), "data/ directory is not writable")
+
+    def test_tests_directory_is_writable(self):
+        """Verify that the tests directory and its subdirectories are writable."""
+        tests_dir = self.base_path / "tests"
+        self.assertTrue(tests_dir.exists(), "tests/ directory does not exist")
+        self.assertTrue(os.access(tests_dir, os.W_OK), "tests/ directory is not writable")
+
+if __name__ == "__main__":
+    unittest.main()

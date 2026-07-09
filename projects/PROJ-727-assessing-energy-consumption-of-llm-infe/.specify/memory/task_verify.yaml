@@ -1,4 +1,17 @@
-? T006 Create `code/calibration.py` implementing a CPU-bound load loop (not matrix
-  multiply) to validate `codecarbon` power draw detection. The script must exit with
-  code 1 or raise an exception if deviation > 10% (FR-010).
-: 2
+T007 Create `code/versioning.py` to hash artifacts and update project state YAML (Constitution Principle V): 1
+? 'T008 Create `run.sh` entry point that verifies environment by importing `human_eval`,
+  running a specific trivial dummy test case (e.g., `def add(a,b): return a+b`), and
+  exiting with code 1 on failure (FR-007)'
+: 1
+'T009 Create `data/raw/` directory structure and checksum verification logic for HumanEval <!-- ATOMIZE: requested -->': 1
+? 'T013 [US1] Implement `code/inference.py`: Load models sequentially (GPT2 -> CodeBERT
+  -> StarCoder-1B) with explicit unload logic to free RAM; run `codecarbon` context;
+  generate completions (temp=0.0); write results to `data/processed/energy_results_raw.csv`
+  with schema: `model_id`, `problem_id`, `tokens_generated`, `energy_kwh`, `runtime_seconds`,
+  `pass_fail_status` (FR-002, FR-003, FR-009). T013 is the exclusive producer of this
+  raw file.'
+: 1
+? 'T014 [US1] Implement `code/evaluation.py`: Evaluate generated completions against
+  HumanEval test suite, record `pass_fail_status` (0/1), handle timeouts/OOMs gracefully
+  (FR-004)'
+: 1

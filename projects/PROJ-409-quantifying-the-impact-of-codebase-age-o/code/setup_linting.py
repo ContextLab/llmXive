@@ -1,46 +1,55 @@
+"""
+Script to configure linting (ruff) and formatting (black) tools for the project.
+This script updates requirements.txt, creates configuration files, and installs tools.
+"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
+REQUIREMENTS_FILE = PROJECT_ROOT / "requirements.txt"
+PYPROJECT_FILE = PROJECT_ROOT / "pyproject.toml"
+RUFF_CONFIG_FILE = PROJECT_ROOT / "ruff.toml"
+
 def ensure_requirements_updated():
-    """Ensure ruff and black are listed in requirements.txt."""
-    requirements_path = Path("requirements.txt")
-    if not requirements_path.exists():
-        print("requirements.txt not found. Creating it...")
-        requirements_path.write_text("# Project dependencies\n")
+    """Ensure ruff and black are present in requirements.txt."""
+    if not REQUIREMENTS_FILE.exists():
+        print(f"Error: {REQUIREMENTS_FILE} not found. Run T002 first.")
+        sys.exit(1)
 
-    content = requirements_path.read_text()
-    missing = []
-    if "ruff" not in content:
-        missing.append("ruff")
-    if "black" not in content:
-        missing.append("black")
+    content = REQUIREMENTS_FILE.read_text()
+    lines = content.splitlines()
+    new_lines = []
+    added_ruff = False
+    added_black = False
 
-    if missing:
-        with requirements_path.open("a") as f:
-            for pkg in missing:
-                f.write(f"{pkg}\n")
-        print(f"Added missing dependencies to requirements.txt: {missing}")
-    else:
-        print("requirements.txt already contains ruff and black.")
+    for line in lines:
+        new_lines.append(line)
+        stripped = line.strip().lower()
+        if stripped.startswith("ruff"):
+            added_ruff = True
+        elif stripped.startswith("black"):
+            added_black = True
+
+    if not added_ruff:
+        new_lines.append("ruff>=0.1.0")
+        print("Added 'ruff>=0.1.0' to requirements.txt")
+
+    if not added_black:
+        new_lines.append("black>=23.0.0")
+        print("Added 'black>=23.0.0' to requirements.txt")
+
+    new_content = "\n".join(new_lines) + "\n"
+    REQUIREMENTS_FILE.write_text(new_content)
+    print("Updated requirements.txt")
 
 def create_ruff_config():
-    """Create a ruff.toml configuration file."""
-    config_path = Path("ruff.toml")
-    if config_path.exists():
-        print("ruff.toml already exists. Skipping creation.")
-        return
-
+    """Create ruff.toml configuration file."""
     config_content = """# Ruff configuration for llmXive project
-
-# Target Python version
 target-version = "py311"
-
-# Line length
 line-length = 88
-
-# Exclude directories
 exclude = [
     ".git",
     "__pycache__",
@@ -48,53 +57,57 @@ exclude = [
     "*.egg-info",
     "build",
     "dist",
-    ".venv",
     "venv",
+    ".venv",
+    "data",
 ]
 
 [lint]
-# Select specific rules
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+    "SIM",  # flake8-simplify
 ]
-
-# Ignore specific rules if needed
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
 ]
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Ignore unused imports in init files
+"__init__.py" = ["F401"]
 
 [lint.isort]
 known-first-party = ["utils", "extraction", "inference", "analysis", "models"]
+force-single-line = true
+lines-between-types = 1
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 """
-    config_path.write_text(config_content)
-    print(f"Created ruff configuration at {config_path}")
+    RUFF_CONFIG_FILE.write_text(config_content)
+    print(f"Created {RUFF_CONFIG_FILE}")
 
 def create_black_config():
-    """Create a pyproject.toml with Black configuration if not present."""
-    config_path = Path("pyproject.toml")
-    
-    content = ""
-    if config_path.exists():
-        content = config_path.read_text()
+    """Create Black configuration in pyproject.toml."""
+    # Read existing pyproject.toml if it exists
+    if PYPROJECT_FILE.exists():
+        content = PYPROJECT_FILE.read_text()
         # Check if [tool.black] section already exists
         if "[tool.black]" in content:
-            print("Black configuration already exists in pyproject.toml.")
+            print(f"[tool.black] section already exists in {PYPROJECT_FILE}")
             return
-    
-    # Append Black configuration
+    else:
+        content = ""
+
     black_section = """
 [tool.black]
 line-length = 88
@@ -103,55 +116,45 @@ include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
+  | \.eggs
   | \.mypy_cache
-  | \.tox
   | \.venv
-  | _build
-  | buck-out
+  | venv
   | build
   | dist
+  | data
 )/
 '''
 """
-    
-    if config_path.exists():
-        with config_path.open("a") as f:
-            f.write(black_section)
-    else:
-        config_path.write_text(black_section)
-        
-    print(f"Updated Black configuration at {config_path}")
+    if content and not content.endswith("\n"):
+        content += "\n"
+    content += black_section
+    PYPROJECT_FILE.write_text(content)
+    print(f"Updated {PYPROJECT_FILE} with Black configuration")
 
 def install_tools():
-    """Install ruff and black using pip."""
+    """Install ruff and black."""
     print("Installing linting and formatting tools...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black"])
-        print("Successfully installed ruff and black.")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", str(REQUIREMENTS_FILE)])
+        print("Tools installed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error installing tools: {e}")
         sys.exit(1)
 
 def main():
-    """Main entry point for setting up linting and formatting."""
-    print("Setting up linting (ruff) and formatting (black) tools...")
-    
-    # Step 1: Install tools
-    install_tools()
-    
-    # Step 2: Update requirements.txt
+    """Main entry point for setup_linting."""
+    print("Setting up linting and formatting tools...")
     ensure_requirements_updated()
-    
-    # Step 3: Create configuration files
     create_ruff_config()
     create_black_config()
-    
-    print("Linting and formatting setup complete!")
-    print("\nYou can now run:")
-    print("  ruff check .        # Check for linting issues")
-    print("  ruff check --fix .  # Automatically fix fixable issues")
-    print("  black .             # Format code with Black")
+    install_tools()
+    print("Linting and formatting setup complete.")
+    print("\nTo use:")
+    print("  Format code: black code/")
+    print("  Check format: black --check code/")
+    print("  Lint code: ruff check code/")
+    print("  Fix lint issues: ruff check --fix code/")
 
 if __name__ == "__main__":
     main()

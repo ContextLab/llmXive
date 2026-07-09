@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T15:22:32.596125Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-155-predicting-cognitive-flexibility-from-re
-last_run_id: ad673919-4dd9-4229-9b79-3792e9b7ae37
+last_run_id: 55a7b9f1-a7d1-4d83-b588-01cc4f4c4e29
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re
 title: Predicting Cognitive Flexibility from Resting-State Functional Connectivity
   Variability
-updated_at: '2026-07-08T01:20:54.445922Z'
+updated_at: '2026-07-09T04:47:36.555914Z'
