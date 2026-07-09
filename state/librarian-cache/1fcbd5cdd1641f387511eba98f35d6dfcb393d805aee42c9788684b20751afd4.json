@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-29T18:48:11Z",
+  "fetched_at": "2026-07-09T19:39:21Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "Evaluating the Impact of Code Style on LLM Code Generation Diversity",
       "target_n": 5
     },
-    "duration_seconds": 54.871,
-    "ended_at": "2026-06-29T18:48:11Z",
+    "duration_seconds": 40.171,
+    "ended_at": "2026-07-09T19:39:21Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "LLM code generation stylistic variations"
+          "code style influence on LLM output diversity"
         ],
         [
           2,
-          "impact of coding conventions on model output diversity"
+          "impact of coding conventions on generative AI code variability"
         ],
         [
           3,
-          "stylistic prompting for code generation"
+          "LLM code generation stylistic variance"
         ],
         [
           4,
-          "code formatting influence on LLM performance"
+          "effect of formatting on neural code synthesis diversity"
         ],
         [
           5,
-          "semantic equivalence in generated code styles"
+          "code style constraints and LLM generation entropy"
         ],
         [
           6,
-          "LLM code synthesis diversity metrics"
+          "stylistic preferences in large language model code completion"
         ],
         [
           7,
-          "effect of coding style on model exploration"
+          "relationship between code style and LLM solution diversity"
         ],
         [
           8,
-          "style-guided code generation with large language models"
+          "LLM code generation robustness to style variations"
         ],
         [
           9,
-          "diversity of LLM-generated code under style constraints"
+          "coding style as a prompt for LLM code diversity"
         ],
         [
           10,
-          "stylistic bias in code generation models"
+          "stylistic bias in large language model code generation"
         ],
         [
           11,
-          "impact of indentation and naming on code diversity"
+          "code style normalization effects on LLM outputs"
         ],
         [
           12,
-          "controlling output variability in code LLMs"
+          "measuring diversity in LLM-generated code under style constraints"
         ],
         [
           13,
-          "code style transfer in generative models"
+          "impact of programming style on neural program synthesis"
         ],
         [
           14,
-          "stylistic robustness of code generation systems"
+          "LLM code generation sensitivity to stylistic cues"
         ],
         [
           15,
-          "variation in LLM code outputs across style prompts"
+          "stylistic control in generative models for software"
         ],
         [
           16,
-          "relationship between code aesthetics and generation diversity"
+          "code style transfer and LLM generation diversity"
         ],
         [
           17,
-          "style-agnostic code generation evaluation"
+          "variability in LLM code outputs based on formatting"
         ],
         [
           18,
-          "stylistic generalization in neural code generation"
+          "influence of source code aesthetics on LLM generation"
         ],
         [
           19,
-          "measuring stylistic diversity in AI-generated software"
+          "code style guidelines and LLM output heterogeneity"
         ],
         [
           20,
-          "coding standard adherence vs generation diversity in LLMs"
+          "stylistic conditioning for diverse code generation with LLMs"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science": 0,
-        "LLM code generation stylistic variations": 3
+        "code style influence on LLM output diversity": 4
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "code formatting normalization stylistic variation",
-      "PEP8 Google style guide code generation",
-      "stylistic homogeneity code clone detection deduplication",
-      "token entropy sampling temperature code diversity",
-      "training data preprocessing style transfer contamination"
+      "code formatting stylization token entropy",
+      "code style transfer formatting constraints",
+      "syntactic variation canonicalization normalization",
+      "generation diversity temperature sampling distribution",
+      "training data deduplication code contamination bias"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,26 +115,26 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success_after_expansion",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2303.12869"
+        "0809.5096"
       ]
     },
     "per_query_hit_count": {
       "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science": 3,
-      "PEP8 Google style guide code generation": 2,
-      "code formatting normalization stylistic variation": 3,
-      "stylistic homogeneity code clone detection deduplication": 3,
-      "token entropy sampling temperature code diversity": 2,
-      "training data preprocessing style transfer contamination": 3
+      "code formatting stylization token entropy": 3,
+      "code style transfer formatting constraints": 3,
+      "generation diversity temperature sampling distribution": 3,
+      "syntactic variation canonicalization normalization": 3,
+      "training data deduplication code contamination bias": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": true,
-      "rejected_count": 6,
+      "rejected_count": 4,
       "rejections": [
         {
           "primary_pointer": "2505.21514",
@@ -147,29 +147,19 @@
           "title": "Diversity Analysis of Bit-Interleaved Coded Multiple Beamforming"
         },
         {
-          "primary_pointer": "2511.10555",
-          "rationale": "The paper focuses on \"code-to-style image generation\" where \"code\" refers to numerical style embeddings for artistic image synthesis, which is a distinct construct from the user's question about \"code style\" (programming syntax and formatting) affecting LLM code generation. This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"code\" in the context of programming vs. \"code\" as a numerical identifier for visual style).",
-          "title": "A Style is Worth One Code: Unlocking Code-to-Style Image Generation with Discrete Style Space"
+          "primary_pointer": "2406.07545",
+          "rationale": "The paper focuses on evaluation methodologies (shifting from multiple-choice to open-style questions) to mitigate selection bias and random guessing in LLM benchmarks, which is distinct from the user's question about how \"code style\" influences \"code generation diversity.\" While both involve LLMs, the candidate paper does not measure code style, code generation diversity, or the specific mechanism linking them, nor does it establish a baseline for these specific variables.",
+          "title": "Open-LLM-Leaderboard: From Multi-choice to Open-style Questions for LLMs Evaluation, Benchmark, and Arena"
         },
         {
-          "primary_pointer": "2303.12869",
-          "rationale": "The paper focuses on improving the accuracy of code generation from natural language using a Java-specific model, but it does not measure, analyze, or discuss the impact of \"code style\" on \"generation diversity,\" nor does it establish a baseline for these specific variables. It fails to satisfy any inclusion criteria (a-f) as it addresses a different research goal (state-of-the-art performance on a translation task) rather than the mechanism or variables of the user's question.",
-          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
-        },
-        {
-          "primary_pointer": "2508.08322",
-          "rationale": "The paper focuses on improving code generation accuracy and reliability through multi-agent context engineering, which is a distinct construct from the user's specific question about the impact of \"code style\" on \"generation diversity.\" While both involve LLM code generation, the paper does not measure code style as an independent variable nor generation diversity as a dependent variable, failing to satisfy the criteria for same-mechanism evidence or shared variables.",
-          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
-        },
-        {
-          "primary_pointer": "2402.12317",
-          "rationale": "The paper focuses on retrieval-augmented generation (RAG) pipelines and knowledge base evolution to improve execution accuracy, which is a distinct mechanism from the user's question about the impact of \"code style\" on \"generation diversity.\" While both involve code generation, the paper does not measure code style as an independent variable nor generation diversity as a dependent variable, failing to satisfy the criteria for same-mechanism evidence, variable overlap, or foundational methodology",
-          "title": "EVOR: Evolving Retrieval for Code Generation"
+          "primary_pointer": "2502.11228",
+          "rationale": "The paper focuses on optimizing retrieval diversity in Retrieval-Augmented Generation (RAG) for question-answering tasks using the Vendi Score, which is a distinct mechanism and domain from the user's question about how *code style* (e.g., formatting, naming conventions) affects the *generation diversity* of code by LLMs. While both involve \"diversity\" and \"LLMs,\" the paper does not measure code style as an independent variable, nor does it study code generation as the dependent variable, failin",
+          "title": "Vendi-RAG: Adaptively Trading-Off Diversity And Quality Significantly Improves Retrieval Augmented Generation With LLMs"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-29T18:47:16Z",
+    "started_at": "2026-07-09T19:38:41Z",
     "term_input": {
       "normalized": "evaluating the impact of code style on llm code generation diversity computer science",
       "raw": "Evaluating the Impact of Code Style on LLM Code Generation Diversity computer science"
@@ -191,173 +181,58 @@
           "primary_pointer": "2303.12869"
         },
         "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
-        "failed_at": "2026-06-29T18:47:45Z",
+        "failed_at": "2026-07-09T19:39:08Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Social media features substantial stylistic variation, raising new challenges for syntactic analysis of online writing. However, this variation is often aligned with author attributes such as age, gender, and geography, as well as more readily-available social network metadata. In this paper, we report new evidence on the link between language and social networks in the task of part-of-speech tagging. We find that tagger error rates are correlated with network structure, with high accuracy in some parts of the network, and lower accuracy elsewhere. As a result, tagger accuracy depends on training from a balanced sample of the network, rather than training on texts from a narrow subcommunity. We also describe our attempts to add robustness to stylistic variation, by building a mixture-of-experts model in which each expert is associated with a region of the social network. While prior work found that similar approaches yield performance improvements in sentiment analysis and entity linking, we were unable to obtain performance improvements in part-of-speech tagging, despite strong evidence for the link between part-of-speech error rates and social network structure.",
+          "claimed_abstract": "We present Instant Neural Radiance Fields Stylization, a novel approach for multi-view image stylization for the 3D scene. Our approach models a neural radiance field based on neural graphics primitives, which use a hash table-based position encoder for position embedding. We split the position encoder into two parts, the content and style sub-branches, and train the network for normal novel view image synthesis with the content and style targets. In the inference stage, we execute AdaIN to the output features of the position encoder, with content and style voxel grid features as reference. With the adjusted features, the stylization of novel view images could be obtained. Our method extends the style target from style images to image sets of scenes and does not require additional network training for stylization. Given a set of images of 3D scenes and a style target(a style image or another set of 3D scenes), our method can generate stylized novel views with a consistent appearance at various view angles in less than 10 minutes on modern GPU hardware. Extensive experimental results demonstrate the validity and superiority of our method.",
           "claimed_authors": [
-            "Murali Raghu Babu Balusu",
-            "Taha Merghani",
-            "Jacob Eisenstein"
+            "Shaoxu Li",
+            "Ye Pan"
           ],
-          "claimed_title": "Stylistic Variation in Social Media Part-of-Speech Tagging",
+          "claimed_title": "Instant Photorealistic Neural Radiance Fields Stylization",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1804.07331"
+          "claimed_year": 2023,
+          "primary_pointer": "2303.16884"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Stylistic Variation in Social Media Part-of-Speech Tagging')",
-        "failed_at": "2026-06-29T18:47:46Z",
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Instant Photorealistic Neural Radiance Fields Stylization')",
+        "failed_at": "2026-07-09T19:39:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Many of the creative and figurative elements that make language exciting are lost in translation in current natural language generation engines. In this paper, we explore a method to harvest templates from positive and negative reviews in the restaurant domain, with the goal of vastly expanding the types of stylistic variation available to the natural language generator. We learn hyperbolic adjective patterns that are representative of the strongly-valenced expressive language commonly used in either positive or negative reviews. We then identify and delexicalize entities, and use heuristics to extract generation templates from review sentences. We evaluate the learned templates against more traditional review templates, using subjective measures of \"convincingness\", \"interestingness\", and \"naturalness\". Our results show that the learned templates score highly on these measures. Finally, we analyze the linguistic categories that characterize the learned positive and negative templates. We plan to use the learned templates to improve the conversational style of dialogue systems in the restaurant domain.",
+          "claimed_abstract": "Convolutional Neural Networks (CNNs) show impressive performance in the standard classification setting where training and testing data are drawn i.i.d. from a given domain. However, CNNs do not readily generalize to new domains with different statistics, a setting that is simple for humans. In this work, we address the Domain Generalization problem, where the classifier must generalize to an unknown target domain. Inspired by recent works that have shown a difference in biases between CNNs and humans, we demonstrate an extremely simple yet effective method, namely correcting this bias by augmenting the dataset with stylized images. In contrast with existing stylization works, which use external data sources such as art, we further introduce a method that is entirely in-domain using no such extra sources of data. We provide a detailed analysis as to the mechanism by which the method works, verifying our claim that it changes the shape/texture bias, and demonstrate results surpassing or comparable to the state of the arts that utilize much more complex methods.",
           "claimed_authors": [
-            "Shereen Oraby",
-            "Sheideh Homayon",
-            "Marilyn Walker"
+            "Nathan Somavarapu",
+            "Chih-Yao Ma",
+            "Zsolt Kira"
           ],
-          "claimed_title": "Harvesting Creative Templates for Generating Stylistically Varied Restaurant Reviews",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1709.05308"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Harvesting Creative Templates for Generating Stylistically Varied Restaurant Reviews')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Texts exhibit considerable stylistic variation. This paper reports an experiment where a corpus of documents (N= 75 000) is analyzed using various simple stylistic metrics. A subset (n = 1000) of the corpus has been previously assessed to be relevant for answering given information retrieval queries. The experiment shows that this subset differs significantly from the rest of the corpus in terms of the stylistic metrics studied.",
-          "claimed_authors": [
-            "Jussi Karlgren"
-          ],
-          "claimed_title": "Stylistic Variation in an Information Retrieval Experiment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 1996,
-          "primary_pointer": "cmp-lg/9608003"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Stylistic Variation in an Information Retrieval Experiment')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
-          "claimed_authors": [
-            "Hongjin Su",
-            "Shuyang Jiang",
-            "Yuhang Lai",
-            "Haoyuan Wu",
-            "Boao Shi",
-            "Che Liu",
-            "Qian Liu",
-            "Tao Yu"
-          ],
-          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.12317"
-        },
-        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automated production systems (aPS) are highly customized systems that consist of hardware and software. Such aPS are controlled by a programmable logic controller (PLC), often in accordance with the IEC 61131-3 standard that divides system implementation into so-called program organization units (POUs) as the smallest software unit and is comprised of multiple textual and graphical programming languages that can be arbitrarily nested. A common practice during the development of such systems is reusing implementation artifacts by copying, pasting, and then modifying code. This approach is referred to as code cloning. It is used on a fine-granular level where a POU is cloned within a system variant. It is also applied on the coarse-granular system level, where the entire system is cloned and adapted to create a system variant, for example for another customer. This ad hoc practice for the development of variants is commonly referred to as clone-and-own. It allows the fast development of variants to meet varying customer requirements or altered regulatory guidelines. However, clone-and-own is a non-sustainable approach and does not scale with an increasing number of variants. It has a detrimental effect on the overall quality of a software system, such as the propagation of bugs to other variants, which harms maintenance. In order to support the effective development and maintenance of such systems, a detailed code clone analysis is required. On the one hand, an analysis of code clones within a variant (i.e., clone detection in the classical sense) supports experts in refactoring respective code into library components. On the other hand, an analysis of commonalities and differences between cloned variants (i.e., variability analysis) supports the maintenance and further reuse and facilitates the migration of variants into a software product line (SPL).",
-          "claimed_authors": [
-            "Kamil Rosiak",
-            "Alexander Schlie",
-            "Lukas Linsbauer",
-            "Birgit Vogel-Heuser",
-            "Ina Schaefer"
-          ],
-          "claimed_title": "Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2108.09753"
-        },
-        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Custom-Tailored Clone Detection for IEC 61131-3 Programming Languages')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "There are a great many clone detection tools proposed in the literature. In this paper, we investigate the state of clone detection tool evaluation. We begin by surveying the clone detection benchmarks, and performing a multi-faceted evaluation and comparison of their features and capabilities. We then survey the existing clone detection tool and technique publications, and evaluate how the authors of these works evaluate their own tools/techniques. We rank the individual works by how well they measure recall, precision, execution time and scalability. We select the works the best evaluate all four metrics as exemplars that should be considered by future researchers publishing clone detection tools/techniques when designing the empirical evaluation of their tool/technique. We measure statistics on tool evaluation by the authors, and find that evaluation is poor amongst the authors. We finish our investigation into clone detection evaluation by surveying the existing tool comparison studies, including both the qualitative and quantitative studies.",
-          "claimed_authors": [
-            "Jeffrey Svajlenko",
-            "Chanchal K. Roy"
-          ],
-          "claimed_title": "A Survey on the Evaluation of Clone Detection Performance and Benchmarking",
+          "claimed_title": "Frustratingly Simple Domain Generalization via Image Stylization",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2006.15682"
+          "primary_pointer": "2006.11207"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='A Survey on the Evaluation of Clone Detection Performance and Benchmarking')",
-        "failed_at": "2026-06-29T18:47:46Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Frustratingly Simple Domain Generalization via Image Stylization')",
+        "failed_at": "2026-07-09T19:39:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Code cloning negatively affects industrial software and threatens intellectual property. This paper presents a novel approach to detecting cloned software by using a bijective matching technique. The proposed approach focuses on increasing the range of similarity measures and thus enhancing the precision of the detection. This is achieved by extending a well-known stable-marriage problem (SMP) and demonstrating how matches between code fragments of different files can be expressed. A prototype of the proposed approach is provided using a proper scenario, which shows a noticeable improvement in several features of clone detection such as scalability and accuracy.",
+          "claimed_abstract": "The entropy for a black hole in a de Sitter space is approached within the framework of spacetime foam. A simple model, made by $N$ wormholes in a semiclassical approximation, is taken under examination to compute the entropy for such a case. An extension to the extreme case when the black hole and cosmological horizons are equal is discussed.",
           "claimed_authors": [
-            "Hosam AlHakami",
-            "Feng Chen",
-            "Helge Janicke"
+            "Remo Garattini"
           ],
-          "claimed_title": "An Extended Stable Marriage Problem Algorithm for Clone Detection",
+          "claimed_title": "A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy",
           "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1408.2969"
+          "claimed_year": 2000,
+          "primary_pointer": "gr-qc/0003089"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='An Extended Stable Marriage Problem Algorithm for Clone Detection')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Information theory provides a spectrum of nonlinear methods capable of grasping an internal structure of a signal together with an insight into its complex nature. In this work, we discuss the usefulness of the selected entropy techniques for a description of the information carried by the surface electromyography signals during colorectal cancer treatment. The electrical activity of the external anal sphincter can serve as a potential source of knowledge of the actual state of the patient who underwent a common surgery for rectal cancer in the form of anterior or lower anterior resection. The calculation of Sample entropy parameters has been extended to multiple time scales in terms of the Multiscale Sample Entropy. The specific values of the entropy measures and their dependence on the time scales were analyzed with regard to the time elapsed since the operation, the type of surgical treatment and also the different depths of the rectum canal. The Mann Whithney U test and Anova Friedman statistics indicate the statistically significant differences among all of stages of treatment and for all consecutive depths of rectum area for the estimated Sample Entropy. The further analysis at the multiple time scales signify the substantial differences among compared stages of treatment in the group of patients who underwent the lower anterior resection.",
-          "claimed_authors": [
-            "Paulina Trybek",
-            "Michal Nowakowski",
-            "Jerzy Salowka",
-            "Jakub Spiechowicz",
-            "Lukasz Machura"
-          ],
-          "claimed_title": "Sample entropy of sEMG signals at different stages of rectal cancer treatment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1811.02956"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Sample entropy of sEMG signals at different stages of rectal cancer treatment')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We investigate the time evolution of the temperature and entropy of gravitationally collapsing domain walls as seen by an asymptotic observer. In particular, we seek to understand how topology and the addition of a cosmological constant affect the gravitational collapse. Previous work has shown that the entropy of a spherically symmetric collapsing domain approaches a constant. In this paper, we reproduce these results, using both a fully quantum and a semi-classical approach, then we repeat the process for a de Sitter Schwarzschild domain wall (spherical with cosmological constant) and a (3+1) BTZ domain wall (cylindrical). We do this by coupling a scalar field to the background of the domain wall and analyzing the spectrum of radiation as a function of time. We find that the spectrum is quasi-thermal, with the degree of thermality increasing as the domain wall approaches the horizon. The thermal distribution allows for the determination of the temperature as a function of time, and we find that the late time temperature is very close to the Hawking temperature and that it also exhibits the proper scaling with the mass. From the temperature we find the entropy. Since the collapsing domain wall is what forms a black hole, we can compare the results to those of the standard entropy-area relation. We find that the entropy does in fact approach a constant that is close to the Hawking entropy. However, both the de Sitter Schwarzschild domain wall and the (3+1) BTZ domain wall show periods of decreasing entropy, which suggests that spontaneous collapse may be prevented.",
-          "claimed_authors": [
-            "Evan Halstead"
-          ],
-          "claimed_title": "Time Evolution of Temperature and Entropy of Various Collapsing Domain Walls",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1106.2279"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Time Evolution of Temperature and Entropy of Various Collapsing Domain Walls')",
-        "failed_at": "2026-06-29T18:47:46Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='A Spacetime Foam Approach to the Schwarzschild-de Sitter Entropy')",
+        "failed_at": "2026-07-09T19:39:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -374,25 +249,7 @@
           "primary_pointer": "1702.06762"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Style Transfer Generative Adversarial Networks: Learning to Play Chess Differently')",
-        "failed_at": "2026-06-29T18:47:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
-          "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
-          ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-06-29T18:47:46Z",
+        "failed_at": "2026-07-09T19:39:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -411,7 +268,213 @@
           "primary_pointer": "2203.02574"
         },
         "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Style-ERD: Responsive and Coherent Online Motion Style Transfer')",
-        "failed_at": "2026-06-29T18:47:46Z",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Style transfer aims to reproduce content images with the styles from reference images. Existing universal style transfer methods successfully deliver arbitrary styles to original images either in an artistic or a photo-realistic way. However, the range of 'arbitrary style' defined by existing works is bounded in the particular domain due to their structural limitation. Specifically, the degrees of content preservation and stylization are established according to a predefined target domain. As a result, both photo-realistic and artistic models have difficulty in performing the desired style transfer for the other domain. To overcome this limitation, we propose a unified architecture, Domain-aware Style Transfer Networks (DSTN) that transfer not only the style but also the property of domain (i.e., domainness) from a given reference image. To this end, we design a novel domainness indicator that captures the domainness value from the texture and structural features of reference images. Moreover, we introduce a unified framework with domain-aware skip connection to adaptively transfer the stroke and palette to the input contents guided by the domainness indicator. Our extensive experiments validate that our model produces better qualitative results and outperforms previous methods in terms of proxy metrics on both artistic and photo-realistic stylizations.",
+          "claimed_authors": [
+            "Kibeom Hong",
+            "Seogkyu Jeon",
+            "Huan Yang",
+            "Jianlong Fu",
+            "Hyeran Byun"
+          ],
+          "claimed_title": "Domain-Aware Universal Style Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2108.04441"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Domain-Aware Universal Style Transfer')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans exhibit garden path effects: When reading sentences that are temporarily structurally ambiguous, they slow down when the structure is disambiguated in favor of the less preferred alternative. Surprisal theory (Hale, 2001; Levy, 2008), a prominent explanation of this finding, proposes that these slowdowns are due to the unpredictability of each of the words that occur in these sentences. Challenging this hypothesis, van Schijndel & Linzen (2021) find that estimates of the cost of word predictability derived from language models severely underestimate the magnitude of human garden path effects. In this work, we consider whether this underestimation is due to the fact that humans weight syntactic factors in their predictions more highly than language models do. We propose a method for estimating syntactic predictability from a language model, allowing us to weigh the cost of lexical and syntactic predictability independently. We find that treating syntactic predictability independently from lexical predictability indeed results in larger estimates of garden path. At the same time, even when syntactic predictability is independently weighted, surprisal still greatly underestimate the magnitude of human garden path effects. Our results support the hypothesis that predictability is not the only factor responsible for the processing cost associated with garden path sentences.",
+          "claimed_authors": [
+            "Suhas Arehalli",
+            "Brian Dillon",
+            "Tal Linzen"
+          ],
+          "claimed_title": "Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12187"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Syntactic Surprisal From Neural Models Predicts, But Underestimates, Human Processing Difficulty From Syntactic Ambiguities')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a joint multitask model for the UniDive 2025 Morpho-Syntactic Parsing shared task, where systems predict both morphological and syntactic analyses following novel UD annotation scheme. Our system uses a shared XLM-RoBERTa encoder with three specialized decoders for content word identification, dependency parsing, and morphosyntactic feature prediction. Our model achieves the best overall performance on the shared task's leaderboard covering nine typologically diverse languages, with an average MSLAS score of 78.7 percent, LAS of 80.1 percent, and Feats F1 of 90.3 percent. Our ablation studies show that matching the task's gold tokenization and content word identification are crucial to model performance. Error analysis reveals that our model struggles with core grammatical cases (particularly Nom-Acc) and nominal features across languages.",
+          "claimed_authors": [
+            "Demian Inostroza",
+            "Mel Mistica",
+            "Ekaterina Vylomova",
+            "Chris Guest",
+            "Kemal Kurniawan"
+          ],
+          "claimed_title": "A Joint Multitask Model for Morpho-Syntactic Parsing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.14307"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='A Joint Multitask Model for Morpho-Syntactic Parsing')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Noun phrases and Relation phrases in open knowledge graphs are not canonicalized, leading to an explosion of redundant and ambiguous subject-relation-object triples. Existing approaches to solve this problem take a two-step approach. First, they generate embedding representations for both noun and relation phrases, then a clustering algorithm is used to group them using the embeddings as features. In this work, we propose Canonicalizing Using Variational Autoencoders (CUVA), a joint model to learn both embeddings and cluster assignments in an end-to-end approach, which leads to a better vector representation for the noun and relation phrases. Our evaluation over multiple benchmarks shows that CUVA outperforms the existing state-of-the-art approaches. Moreover, we introduce CanonicNell, a novel dataset to evaluate entity canonicalization systems.",
+          "claimed_authors": [
+            "Sarthak Dash",
+            "Gaetano Rossiello",
+            "Nandana Mihindukulasooriya",
+            "Sugato Bagchi",
+            "Alfio Gliozzo"
+          ],
+          "claimed_title": "Open Knowledge Graphs Canonicalization using Variational Autoencoders",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.04780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Open Knowledge Graphs Canonicalization using Variational Autoencoders')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An algorithm for sampling exactly from the normal distribution is given. The algorithm reads some number of uniformly distributed random digits in a given base and generates an initial portion of the representation of a normal deviate in the same base. Thereafter, uniform random digits are copied directly into the representation of the normal deviate. Thus, in contrast to existing methods, it is possible to generate normal deviates exactly rounded to any precision with a mean cost that scales linearly in the precision. The method performs no extended precision arithmetic, calls no transcendental functions, and, indeed, uses no floating point arithmetic whatsoever; it uses only simple integer operations. It can easily be adapted to sample exactly from the discrete normal distribution whose parameters are rational numbers.",
+          "claimed_authors": [
+            "Charles F. F. Karney"
+          ],
+          "claimed_title": "Sampling exactly from the normal distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.6257"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Sampling exactly from the normal distribution')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sampling technique has become one of the recent research focuses in the graph-related fields. Most of the existing graph sampling algorithms tend to sample the high degree or low degree nodes in the complex networks because of the characteristic of scale-free. Scale-free means that degrees of different nodes are subject to a power law distribution. So, there is a significant difference in the degrees between the overall sampling nodes. In this paper, we propose an idea of approximate degree distribution and devise a stratified strategy using it in the complex networks. We also develop two graph sampling algorithms combining the node selection method with the stratified strategy. The experimental results show that our sampling algorithms preserve several properties of different graphs and behave more accurately than other algorithms. Further, we prove the proposed algorithms are superior to the off-the-shelf algorithms in terms of the unbiasedness of the degrees and more efficient than state-of-the-art FFS and ES-i algorithms.",
+          "claimed_authors": [
+            "Junpeng Zhu",
+            "Hui Li",
+            "Mei Chen",
+            "Zhenyu Dai",
+            "Ming Zhu"
+          ],
+          "claimed_title": "Enhancing Stratified Graph Sampling Algorithms based on Approximate Degree Distribution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.04624"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Enhancing Stratified Graph Sampling Algorithms based on Approximate Degree Distribution')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We make the first data release (DR1) of the ongoing ESO Public Survey SAMPLING (http://dx.doi.org/10.7910/DVN/0L8NHX). DR1 comprises of 124 fields distributed in $70^\\circ < l < 216^\\circ$, $-35^\\circ < b < 25^\\circ$. The 12CO and 13CO (2-1) cubes are gridded in $8\"$ pixels, with an effective resolution of $36\"$. The channel width is 0.33 km/s and the RMS noise is $T_{\\rm mb}<0.2$ K. Once completed, SAMPLING and complementary surveys will initiate the first major step forward to characterize molecular clouds and star formation on truly Galactic scales.",
+          "claimed_authors": [
+            "Ke Wang",
+            "Sarolta Zahorecz",
+            "Maria R. Cunningham",
+            "L. Viktor Toth",
+            "Tie Liu",
+            "Xing Lu",
+            "Yuan Wang",
+            "Giuliana Cosentino",
+            "Ren-Shiang Sung",
+            "Vlsa Sokolov",
+            "Shen Wang",
+            "Yuwei Wang",
+            "Zhiyu Zhang",
+            "Di Li",
+            "Kee-Tae Kim",
+            "Ken'ichi Tatematsu",
+            "Leonardo Testi",
+            "Yuefang Wu",
+            "Ji Yang",
+            "SAMPLING Collaboration"
+          ],
+          "claimed_title": "First Data Release of the ESO-ARO Public Survey SAMPLING --- SMT \"All-sky\" Mapping of PLanck Interstellar Nebulae in the Galaxy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.09993"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='First Data Release of the ESO-ARO Public Survey SAMPLING --- SMT \"All-sky\" Mapping of PLanck Interstellar Nebulae in the Galaxy')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-09T19:39:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Style on LLM Code Generation Diversity computer sc', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-09T19:39:09Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -442,7 +505,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:45Z"
+          "verified_at": "2026-07-09T19:39:08Z"
         }
       },
       {
@@ -463,132 +526,68 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/0809.5096",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2457,
           "query_relevance_score": 0.4286,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:45Z"
+          "verified_at": "2026-07-09T19:39:09Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Huijie Liu",
-            "Shuhao Cui",
-            "Haoxiang Cao",
-            "Shuai Ma",
-            "Kai Wu",
-            "Guoliang Kang"
+            "Aidar Myrzakhan",
+            "Sondos Mahmoud Bsharat",
+            "Zhiqiang Shen"
           ],
-          "title": "A Style is Worth One Code: Unlocking Code-to-Style Image Generation with Discrete Style Space",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2511.10555",
-        "summary": "Innovative visual stylization is a cornerstone of artistic creation, yet generating novel and consistent visual styles remains a significant challenge. Existing generative approaches typically rely on lengthy textual prompts, reference images, or parameter-efficient fine-tuning to guide style-aware image generation, but often struggle with style consistency, limited creativity, and complex style representations. In this paper, we affirm that a style is worth one numerical code by introducing the novel task, code-to-style image generation, which produces images with novel, consistent visual styles conditioned solely on a numerical style code. To date, this field has only been primarily explored by the industry (e.g., Midjourney), with no open-source research from the academic community. To fill this gap, we propose CoTyle, the first open-source method for this task. Specifically, we first train a discrete style codebook from a collection of images to extract style embeddings. These embeddings serve as conditions for a text-to-image diffusion model (T2I-DM) to generate stylistic images. Subsequently, we train an autoregressive style generator on the discrete style embeddings to model their distribution, allowing the synthesis of novel style embeddings. During inference, a numerical style code is mapped to a unique style embedding by the style generator, and this embedding guides the T2I-DM to generate images in the corresponding style. Unlike existing methods, our method offers unparalleled simplicity and diversity, unlocking a vast space of reproducible styles from minimal input. Extensive experiments validate that CoTyle effectively turns a numerical code into a style controller, demonstrating a style is worth one code.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2511.10555",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5714,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:46Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jessica López Espejel",
-            "Mahaman Sanoussi Yahaya Alassan",
-            "Walid Dahhane",
-            "El Hassane Ettifouri"
-          ],
-          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2023
-        },
-        "primary_pointer": "2303.12869",
-        "summary": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2303.12869",
-          "http_status": 200,
-          "pdf_sample_score": 0.25,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:52Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Muhammad Haseeb"
-          ],
-          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2508.08322",
-        "summary": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2508.08322",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:53Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Hongjin Su",
-            "Shuyang Jiang",
-            "Yuhang Lai",
-            "Haoyuan Wu",
-            "Boao Shi",
-            "Che Liu",
-            "Qian Liu",
-            "Tao Yu"
-          ],
-          "title": "EVOR: Evolving Retrieval for Code Generation",
+          "title": "Open-LLM-Leaderboard: From Multi-choice to Open-style Questions for LLMs Evaluation, Benchmark, and Arena",
           "topically_marginal": true,
           "venue": "arXiv",
           "year": 2024
         },
-        "primary_pointer": "2402.12317",
-        "summary": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+        "primary_pointer": "2406.07545",
+        "summary": "Multiple-choice questions (MCQ) are frequently used to assess large language models (LLMs). Typically, an LLM is given a question and selects the answer deemed most probable after adjustments for factors like length. Unfortunately, LLMs may inherently favor certain answer choice IDs, such as A/B/C/D, due to inherent biases of priori unbalanced probabilities, influencing the prediction of answers based on these IDs. Previous research has introduced methods to reduce this ''selection bias'' by simply permutating options on a few test samples and applying to new ones. Another problem of MCQ is the lottery ticket choice by ''random guessing''. The LLM does not learn particular knowledge, but the option is guessed correctly. This situation is especially serious for those small-scale LLMs. To address them, a more thorough approach involves shifting from MCQ to open-style questions, which can fundamentally eliminate selection bias and random guessing issues. However, transitioning causes its own set of challenges in (1) identifying suitable open-style questions and (2) validating the correctness of LLM open-style responses against human-annotated ground-truths. This work aims to tackle these significant difficulties, and establish a new LLM evaluation benchmark through entirely open-style questions. Consequently, we introduce the Open-LLM-Leaderboard to track various LLMs' performance and reflect true capability of them, such as GPT-4o/4/3.5, Claude 3, Gemini, etc. Our code and dataset are available at https://github.com/VILA-Lab/Open-LLM-Leaderboard.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2402.12317",
+          "final_url": "https://arxiv.org/abs/2406.07545",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-29T18:47:53Z"
+          "verified_at": "2026-07-09T19:39:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammad Reza Rezaei",
+            "Adji Bousso Dieng"
+          ],
+          "title": "Vendi-RAG: Adaptively Trading-Off Diversity And Quality Significantly Improves Retrieval Augmented Generation With LLMs",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.11228",
+        "summary": "Retrieval-augmented generation (RAG) enhances large language models (LLMs) for domain-specific question-answering (QA) tasks by leveraging external knowledge sources. However, traditional RAG systems primarily focus on relevance-based retrieval and often struggle with redundancy, especially when reasoning requires connecting information from multiple sources. This paper introduces Vendi-RAG, a framework based on an iterative process that jointly optimizes retrieval diversity and answer quality. This joint optimization leads to significantly higher accuracy for multi-hop QA tasks. Vendi-RAG leverages the Vendi Score (VS), a flexible similarity-based diversity metric, to promote semantic diversity in document retrieval. It then uses an LLM judge that evaluates candidate answers, generated after a reasoning step, and outputs a score that the retriever uses to balance relevance and diversity among the retrieved documents during each iteration. Experiments on three challenging datasets -- HotpotQA, MuSiQue, and 2WikiMultiHopQA -- demonstrate Vendi-RAG's effectiveness in multi-hop reasoning tasks. The framework achieves significant accuracy improvements over traditional single-step and multi-step RAG approaches, with accuracy increases reaching up to +4.2% on HotpotQA, +4.1% on 2WikiMultiHopQA, and +1.3% on MuSiQue compared to Adaptive-RAG, the current best baseline. The benefits of Vendi-RAG are even more pronounced as the number of retrieved documents increases. Finally, we evaluated Vendi-RAG across different LLM backbones, including GPT-3.5, GPT-4, and GPT-4o-mini, and observed consistent improvements, demonstrating that the framework's advantages are model-agnostic.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.11228",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-09T19:39:15Z"
         }
       }
     ]
