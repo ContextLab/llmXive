@@ -1,0 +1,8 @@
+T001a [P] Create `code/`, `tests/`, `data/`, `results/`, `models/` directories at repository root: 1
+T001b [P] Create `projects/PROJ-363-predicting-the-impact-of-additive-manufa/` subdirectory structure if required by plan: 1
+? T002 Initialize Python project with `requirements.txt` (pandas, scikit-learn, shap,
+  matplotlib, seaborn, pyyaml, jsonschema)
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T004 Create `contracts/dataset.schema.yaml` defining required columns (power, speed, hatch, thickness, porosity) and types: 1
+T005 [P] Implement `code/utils.py` with helper functions for logging, seed setting, and state hash updating: 1

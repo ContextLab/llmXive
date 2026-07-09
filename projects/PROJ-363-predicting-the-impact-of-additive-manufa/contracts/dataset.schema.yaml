@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: 316L Stainless Steel LPBF Dataset Schema
+description: |
+  Schema defining the required columns and data types for the
+  preprocessed dataset used in predicting porosity from additive manufacturing parameters.
+type: object
+required:
+  - properties
+  - required
+  - additionalProperties
+properties:
+  type:
+    type: string
+    const: object
+  properties:
+    type: object
+    properties:
+      laser_power:
+        description: Laser power in Watts
+        type: number
+      scan_speed:
+        description: Scan speed in mm/s
+        type: number
+      hatch_spacing:
+        description: Hatch spacing in mm
+        type: number
+      layer_thickness:
+        description: Layer thickness in mm
+        type: number
+      porosity:
+        description: Measured porosity (percentage or volume fraction)
+        type: number
+      energy_density:
+        description: Volumetric Energy Density (J/mm^3), derived column
+        type: number
+    required:
+      - laser_power
+      - scan_speed
+      - hatch_spacing
+      - layer_thickness
+      - porosity
+      - energy_density
+  additionalProperties:
+    type: boolean
+    const: false
+required:
+  - type
+  - properties
+  - additionalProperties

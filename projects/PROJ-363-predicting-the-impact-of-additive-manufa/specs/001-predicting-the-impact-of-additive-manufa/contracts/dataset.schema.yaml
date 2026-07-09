@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LPBF 316L Process Parameters Dataset"
+description: "Schema for the preprocessed LPBF 316L dataset used for porosity prediction."
+type: "object"
+properties:
+  laser_power:
+    type: "number"
+    description: "Laser power in Watts (W). Normalized to [0, 1]."
+    minimum: 0.0
+    maximum: 1.0
+  scan_speed:
+    type: "number"
+    description: "Scan speed in mm/s. Normalized to [0, 1]."
+    minimum: 0.0
+    maximum: 1.0
+  hatch_spacing:
+    type: "number"
+    description: "Hatch spacing in mm. Normalized to [0, 1]."
+    minimum: 0.0
+    maximum: 1.0
+  layer_thickness:
+    type: "number"
+    description: "Layer thickness in mm. Normalized to [0, 1]."
+    minimum: 0.0
+    maximum: 1.0
+  porosity:
+    type: "number"
+    description: "Measured porosity percentage. Target variable."
+    minimum: 0.0
+    maximum: 100.0
+  volumetric_energy_density:
+    type: "number"
+    description: "Derived energy density (J/mm^3). Calculated from raw params."
+    minimum: 0.0
+required:
+  - "laser_power"
+  - "scan_speed"
+  - "hatch_spacing"
+  - "layer_thickness"
+  - "porosity"
+additionalProperties: false

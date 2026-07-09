@@ -1,4 +1,4 @@
-resolved_at: '2026-07-06T11:05:28.024342+00:00'
+resolved_at: '2026-07-09T02:13:10.128883+00:00'
 datasets:
 - intent: LPBF
   status: verified
@@ -43,23 +43,23 @@ datasets:
     source: huggingface
     status: verified
     format: hdf5
-  - url: https://aubh.figshare.com/articles/thesis/Untitled_Item/32907437
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://sussex.figshare.com/articles/journal_contribution/Competing_to_belong_How_midlife_exercisers_sustain_shared_social_identity_through_Peloton_participation/32263344
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://sussex.figshare.com/articles/journal_contribution/Sussex_Integrated_Dataset_SID_Data_Resource_Profile/32034648
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Nigeria_Nsukka_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943353
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/2026_2027_Covenant_University_Ota_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907476
+  - url: https://figshare.com/articles/media/Ave_Maria_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32943344
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/2026_2027_Benson_Idahosa_University_Benin_City_Post_UTME_Direct_Entry_FORM_Is_Out_CALL_07036366909_07036366909_DR_MRS_GRACE_AJAYI_To_apply_For_Application_and_make_your_proper_registration_before_the_deadline_/32907464
+  - url: https://figshare.com/articles/figure/Call_07076040542_University_of_Maiduguri_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943347
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -79,27 +79,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11189615
+  - url: https://zenodo.org/records/15427628
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21198620
+  - url: https://repo.uni-hannover.de/handle/123456789/21907
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21198620
+  - url: https://tud.qucosa.de//id/qucosa:71080
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/6bd4db92-4af2-40b8-afa5-782bfcb83629
+  - url: https://tud.qucosa.de//id/qucosa:71082
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/db85dfbe-cd47-41f7-b122-8341bb4e0651
+  - url: https://macsphere.mcmaster.ca/handle/11375/33320
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://publica.fraunhofer.de/entities/publication/9cc0cde4-150a-44de-bdaf-1705f558975c
+  - url: https://tandf.figshare.com/articles/journal_contribution/Machine-learning-guided_design_of_a_biomedical_high-entropy_alloy_for_additive_manufacturing_cast-state_benchmark_and_preliminary_LPBF_feasibility_assessment/32915783/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -140,23 +140,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://frontiersin.figshare.com/articles/media/Video_1_Case_report_Two_cases_of_juxtapapillary_retinal_capillary_hemangioma_treated_with_intraocular_cryotherapy_mp4/32907542
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Imaging-based_fibrosis_assessment_and_risk_stratification_in_MASLD_docx/32907521
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Applications_of_natural_language_processing_and_large_language_models_in_sports_injury_assessment_and_rehabilitation_decision-making_a_scoping_review_docx/32907518
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Case_report_Two_cases_of_juxtapapillary_retinal_capillary_hemangioma_treated_with_intraocular_cryotherapy_pdf/32907524
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_CLEAR_report_1_a_scoping_review_and_meta-analysis_for_definitions_imaging_metrics_and_functional_correlates_of_photoreceptor_integrity_in_AMD_docx/32907530
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Nigeria_Nsukka_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943353
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -176,27 +176,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3755136
+  - url: https://zenodo.org/records/14238457
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21217279
+  - url: https://arxiv.org/abs/2606.12629
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21217279
+  - url: https://arxiv.org/abs/2607.07670
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19152757
+  - url: https://arxiv.org/abs/2607.07643
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19152757
+  - url: https://arxiv.org/abs/2607.07279
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21214571
+  - url: https://arxiv.org/abs/2607.06949
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -226,27 +226,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&response-content-type=application%2Fjson&Expires=1783339496&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMzMzk0OTZ9fX1dfQ__&Signature=MEUCIQC6~bCOQD6k~1b2ZMwR--jmpUgO~-YFaC6lt9Ayg-44SgIgc67F054~DbJIWhygyoRaW4lF497AEY5KNJZRAElX2i4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&Expires=1783566773&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1NjY3NzN9fX1dfQ__&Signature=MEUCIAPORP07BRhG4GWLXKPzbALmQKq6d141ZMjDIonSM4SuAiEA7AObCz9wLtDQrNFSMMJvK1FfRFtsrCGvXOPdDLUSEqY_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_pdf/32907560
+  - url: https://dro.deakin.edu.au/articles/thesis/Digital_Emotion_Regulation_on_Social_Media/32943110
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_xlsx/32907551
+  - url: https://figshare.com/articles/media/Call_07076040542_Usumanu_Danfodiyo_University_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943365
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Digital_case-library_and_dual-mentor_teaching_for_medical_laboratory_science_internships_in_China_a_historical_comparison_educational_evaluation_zip/32907536
+  - url: https://figshare.com/articles/dataset/Call_07076040542_University_of_Uyo_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943362
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Association_between_the_unaccompanied_nursing_care_model_and_postoperative_delirium_in_older_adults_with_hip_fractures_a_retrospective_before-and-after_cohort_study_docx/32907545
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Port-Harcourt_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943356
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Association_between_the_unaccompanied_nursing_care_model_and_postoperative_delirium_in_older_adults_with_hip_fractures_a_retrospective_before-and-after_cohort_study_docx/32907527
+  - url: https://figshare.com/articles/media/Call_07076040542_University_of_Nigeria_Nsukka_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943353
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -266,27 +266,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10965999
+  - url: https://zenodo.org/records/17167994
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/382362
+  - url: https://arxiv.org/abs/2607.03663
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.zora.uzh.ch/handle/20.500.14742/248149
+  - url: https://arxiv.org/abs/2509.20778
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://researchdata.durham.ac.uk/files/r2j96020698
+  - url: https://arxiv.org/abs/2506.18579
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://researchdata.durham.ac.uk/files/r1st74cq558
+  - url: https://arxiv.org/abs/2607.07441
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Streamflow_prediction_with_machine_learning_evaluating_predictability_across_hydroclimatic_regimes/32907048/1
+  - url: https://arxiv.org/abs/2607.07279
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
