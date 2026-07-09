@@ -1,0 +1,313 @@
+resolved_at: '2026-07-09T03:29:01.699070+00:00'
+datasets:
+- intent: TMDB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/joaopedrocporto/IMTB-TMDB-2026/resolve/main/movies_2025_filtered.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ashraq/tmdb-celeb-10k/resolve/main/data/train-00000-of-00001-d95dffd623223e73.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ashraq/tmdb-people-image/resolve/main/data/train-00000-of-00008-2a2d6416f3c44afe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/joaopedrocporto/IMTB-TMDB-2026/resolve/main/movies_2025_filtered.tsv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/ashraq/tmdb-celeb-10k/resolve/main/data/train-00000-of-00001-d95dffd623223e73.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ashraq/tmdb-people-image/resolve/main/data/train-00000-of-00008-2a2d6416f3c44afe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alejandrowallace/tmdb-5000/resolve/main/tmdb_5000_movies.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/armankz/tmdb/resolve/main/data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/media/Call_07076040542_Kano_University_of_Science_Technology_Wudil_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://healthnz.figshare.com/articles/report/Building_trust_confidence_in_immunisations_Key_insights_from_a_Health_Promotion_learning_system/32943632
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Kaduna_State_University_Kaduna_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Sule_Lamido_University_Kafin_Hausa_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8276077
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14587323
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14773340
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19461976
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2364373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.34740/kaggle/dsv/17780014
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.34740/kaggle/dsv/17742082
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.34740/kaggle/dsv/17694451
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.34740/kaggle/dsv/17665808
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.34740/kaggle/dsv/17631858
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: IMDb
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/stanfordnlp/imdb/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mirfan899/imdb_urdu_reviews/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Lucylulu/imdb/resolve/main/dev.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/stanfordnlp/imdb/resolve/main/plain_text/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mirfan899/imdb_urdu_reviews/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Lucylulu/imdb/resolve/main/dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/SetFit/imdb/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/media/Call_07076040542_Kano_University_of_Science_Technology_Wudil_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://healthnz.figshare.com/articles/report/Building_trust_confidence_in_immunisations_Key_insights_from_a_Health_Promotion_learning_system/32943632
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Kaduna_State_University_Kaduna_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Sule_Lamido_University_Kafin_Hausa_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Information_Transmission_in_Financial_Markets/31825156
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14733708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19240819
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7555547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5655513
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7853441
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mdnye/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/e4zp5/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ysqnb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fz4cr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7sfh8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/The_impact_of_AI_governance_and_audit_assurance_on_organizational_trust_management_in_digital_enterprises_An_empirical_study/32943671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Kano_University_of_Science_Technology_Wudil_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943695
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://healthnz.figshare.com/articles/report/Building_trust_confidence_in_immunisations_Key_insights_from_a_Health_Promotion_learning_system/32943632
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Kaduna_State_University_Kaduna_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943686
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Call_07076040542_Sule_Lamido_University_Kafin_Hausa_2026_2027_Pre_Degree_Form_Direct_Entry_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Lilian_07076040542_for_further_admission_assistance/32943677
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21269656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Videos_of_South_American_sea_lions_i_Otaria_flavescens_i_preying_on_invasive_Chinook_salmon_i_Oncorhynchus_tshawytscha_i_in_river_south_Chile/30267214/6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,109 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: |
+  Schema for the output of the temporal lag and decay analysis.
+  Contains lag profiles, decay rates, and statistical test results.
+type: object
+required:
+  - metadata
+  - genre_lag_profiles
+  - decay_analysis
+  - statistical_tests
+properties:
+  metadata:
+    type: object
+    required:
+      - generated_at
+      - pipeline_version
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      dataset_row_count:
+        type: integer
+  genre_lag_profiles:
+    type: array
+    description: Lag analysis results aggregated by genre.
+    items:
+      type: object
+      required:
+        - genre
+        - optimal_lag_weeks
+        - max_correlation
+        - confidence_interval
+      properties:
+        genre:
+          type: string
+        optimal_lag_weeks:
+          type: integer
+          description: The lag (in weeks) with the highest correlation.
+        max_correlation:
+          type: number
+          format: float
+          description: The correlation coefficient at the optimal lag.
+        confidence_interval:
+          type: object
+          required:
+            - lower
+            - upper
+          properties:
+            lower:
+              type: number
+            upper:
+              type: number
+        sample_size:
+          type: integer
+  decay_analysis:
+    type: array
+    description: Sentiment decay rates over the theatrical run per genre.
+    items:
+      type: object
+      required:
+        - genre
+        - decay_slope
+        - p_value
+        - r_squared
+      properties:
+        genre:
+          type: string
+        decay_slope:
+          type: number
+          format: float
+          description: Slope of the Fisher Z-transformed correlation decay.
+        p_value:
+          type: number
+          format: float
+          description: P-value from the Mann-Whitney U test or regression.
+        r_squared:
+          type: number
+          format: float
+  statistical_tests:
+    type: array
+    description: Results of statistical comparisons (e.g., Mann-Whitney U).
+    items:
+      type: object
+      required:
+        - test_name
+        - null_hypothesis
+        - statistic
+        - p_value
+        - conclusion
+      properties:
+        test_name:
+          type: string
+        null_hypothesis:
+          type: string
+        statistic:
+          type: number
+        p_value:
+          type: number
+        conclusion:
+          type: string
+          description: Textual summary of the test result.
+  figures:
+    type: array
+    description: List of generated figure filenames.
+    items:
+      type: string

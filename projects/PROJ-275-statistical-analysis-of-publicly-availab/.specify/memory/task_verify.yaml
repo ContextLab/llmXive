@@ -1,0 +1,12 @@
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `results/`, `specs/`): 1
+T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 1
+? T004 Implement `Reference-Validator` script in `code/reference_validator.py` to
+  verify dataset URLs against `research.md` and halt on mismatch (Constitution Principle
+  II); if any URL fails, halt pipeline and log specific failure to `data/logs/validation_error.log`
+: 1
+? 'T005 Create schema contracts in `specs/001-sentiment-revenue-lag-analysis/contracts/`:
+  `dataset.schema.yaml` and `analysis_results.schema.yaml`'
+: 1
+? T006 Implement schema validation utilities in `code/tests/test_dataset_schema.py`
+  and `code/tests/test_analysis_results_schema.py`
+: 1
