@@ -1,1 +1,11 @@
-[]
+- artifact_hash: f6f947dced6f89579868d169c5b405d5974c652d36f17ea13da04592bad6eb18
+  artifact_path: projects/PROJ-757-meta-analysis-of-trust-perception-in-dee/specs/001-meta-analysis-of-trust-perception-in-dee/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: The Comprehensive R Archive Network
+  kind: url
+  value: https://cloud.r-project.org
+  verification_status: verified
+  verified_against_url: https://cloud.r-project.org
+  verified_at: '2026-07-09T08:18:43.001880Z'

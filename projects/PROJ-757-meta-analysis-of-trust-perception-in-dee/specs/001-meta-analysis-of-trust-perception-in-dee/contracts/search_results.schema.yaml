@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Search Results Schema"
+description: "Schema for raw search results from OpenAlex, Semantic Scholar, and arXiv"
+type: "object"
+properties:
+  study_id:
+    type: "string"
+    description: "Unique identifier for the study (DOI or generated hash)"
+  title:
+    type: "string"
+    description: "Full title of the paper"
+  year:
+    type: "integer"
+    description: "Publication year"
+  source:
+    type: "string"
+    description: "API source (OpenAlex, Semantic Scholar, arXiv)"
+  abstract:
+    type: "string"
+    description: "Abstract text"
+  doi:
+    type: "string"
+    description: "Digital Object Identifier"
+    pattern: "^10\\.\\d{4,}/[^\\s]+$"
+required:
+  - study_id
+  - title
+  - year
+  - source
+  - abstract
+  - doi
+additionalProperties: false

@@ -1,0 +1,8 @@
+T001 Create project structure per `plan.md` (`code/`, `data/`, `results/`, `tests/`): 1
+? T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`,
+  `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`,
+  `pypdf`, `pdfplumber`)
+: 1
+'T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages <!-- ATOMIZE: requested -->': 1
+T004 [P] Configure `pytest` and create `tests/unit/` and `tests/integration/` directories: 1
+T005 Create `data/search_results/`, `data/screening/`, `data/harmonized/`, and `results/` directories: 1

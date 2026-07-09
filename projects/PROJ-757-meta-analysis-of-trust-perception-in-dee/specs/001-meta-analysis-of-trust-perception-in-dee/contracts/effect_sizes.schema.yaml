@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Effect Sizes Schema"
+description: "Schema for harmonized effect sizes and study metadata"
+type: "object"
+properties:
+  study_id:
+    type: "string"
+    description: "Foreign key to Study"
+  effect_size:
+    type: "number"
+    description: "Cohen's d or log-OR"
+  se:
+    type: "number"
+    description: "Standard error"
+  metric_type:
+    type: "string"
+    description: "cohens_d or log_odds"
+    enum:
+      - "cohens_d"
+      - "log_odds"
+  included_in_primary:
+    type: "boolean"
+    description: "True if not excluded by FR-003 (False if sd_reconstructed or sd_missing or p_value_is_inexact)"
+  included_in_regression:
+    type: "boolean"
+    description: "True if moderator data exists and is continuous"
+  sd_imputed:
+    type: "boolean"
+    description: "Flag: was SD imputed? (Always False for primary)"
+  sd_reconstructed:
+    type: "boolean"
+    description: "Flag: was SD reconstructed from p?"
+  p_value_is_inexact:
+    type: "boolean"
+    description: "Flag: was p-value rounded/inexact?"
+required:
+  - study_id
+  - effect_size
+  - se
+  - metric_type
+  - included_in_primary
+  - included_in_regression
+  - sd_imputed
+  - sd_reconstructed
+  - p_value_is_inexact
+additionalProperties: false
