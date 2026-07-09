@@ -2,75 +2,67 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip` (Python package installer)
-*   Git
+-   Python 3.11+
+-   `pip` or `poetry`
+-   Git
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
+1.  **Clone and Setup**:
     ```bash
+    git clone <repo-url>
     cd projects/PROJ-004-solvent-effects-on-photo-fries-rearrange
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r code/requirements.txt
     ```
 
-3.  **Install dependencies**:
+2.  **Verify Environment**:
     ```bash
-    pip install -r code/requirements.txt
+    python code/config.py --verify
     ```
 
 ## Running the Pipeline
 
-### 1. Generate/Simulate Data (Optional)
-If `data/raw/` and `data/compute/` are empty, run the data generator:
+### Option A: Simulated Data (Default for CI)
+This runs the full pipeline using generated data to validate the logic.
+
 ```bash
-python code/main.py --generate-data
+python code/main.py --mode simulate
 ```
-*This creates synthetic kinetic traces and DFT solvation energies for multiple solvents with 3 replicates each. Note: The synthetic data is generated under a null hypothesis (no correlation) to validate the pipeline.*
+**Output**:
+-   `data/processed/lifetimes.csv`
+-   `data/processed/correlation_report.json`
+-   `docs/deviation_analysis.md`
 
-### 2. Execute Analysis
-Run the full analysis pipeline:
-```bash
-python code/main.py --run-analysis
-```
-*This performs:*
-*   *Data loading and validation (including SC-010 lookup table check)*
-*   *Global kinetic fitting (exponential decay)*
-*   *Power analysis documentation (SC-007)*
-*   *Statistical correlation (Linear Regression with bootstrapped CIs, VIF)*
-*   *Sensitivity analysis (SC-008)*
-*   *Output generation (CSV, JSON, Plots)*
+### Option B: Real Data (If Available)
+To use real instrument data:
+1.  Place CSV files in `data/raw/` with naming convention `trace_<solvent>_<replicate>.csv`.
+2.  Ensure headers match `time_ns, absorbance_mOD`.
+3.  Run:
+    ```bash
+    python code/main.py --mode real --data-path data/raw/
+    ```
+**Validation**: The system will validate the uploaded files against the `dataset.schema.yaml` before processing. Any files failing validation will be flagged and excluded from the analysis. This mechanism allows the pipeline to be used with real instrument data if available, while defaulting to simulation for CI.
 
-### 3. View Results
-Results are saved to `data/processed/`:
-*   `kinetic_metrics.csv`: Fitted lifetimes and statistics.
-*   `correlation_results.json`: Regression coefficients, bootstrapped CIs, VIF scores.
-*   `power_analysis.md`: Documented power analysis for sample size.
-*   `sensitivity_analysis.csv`: Error rates for different cutoffs.
-*   `plots/`: Regression plots and residual analysis.
+## Validation
 
-### 4. Run Tests
-Verify the pipeline integrity:
+Run the test suite to ensure data integrity and schema compliance:
+
 ```bash
 pytest tests/
 ```
 
+## Key Files
+
+-   `code/simulate_data.py`: Generates synthetic decay traces (using independent Arrhenius model).
+-   `code/fit_kinetics.py`: Extracts lifetimes (Joint NLME).
+-   `code/analyze_stats.py`: Performs Bayesian Hierarchical Modeling and PCA.
+-   `data/chemicals/solvents.csv`: Versioned solvent properties.
+
 ## Troubleshooting
 
-*   **Memory Error**: The pipeline is designed for < 7 GB RAM. If you encounter OOM, reduce the number of simulated traces in `code/config.py`.
-*   **Fit Failure**: If `scipy.optimize` fails to converge, check `data/raw/` for noisy data. The pipeline flags these as `status: failed_fit`.
-*   **Environment Tolerance**: If temperature/humidity logs exceed tolerances, the run is flagged in `kinetic_metrics.csv` but continues.
-*   **Lookup Mismatch**: If dielectric constants do not match the lookup table (SC-010), the run is flagged in `kinetic_metrics.csv`.
-
-## Next Steps
-
-*   Review `docs/deviation_analysis.md` for discrepancies between simulated and expected values.
-*   Review `docs/power_analysis.md` for the documented power analysis.
-*   Review `docs/sensitivity_report.md` for the sensitivity analysis results.
-*   Extend the `solvents.yaml` in `data/chemicals/` to include more solvents.
-*   Replace synthetic data with real instrument exports in `data/raw/` (format must match `contracts/dataset.schema.yaml`).
+-   **Missing Dependencies**: Ensure `requirements.txt` is installed in the virtualenv.
+-   **Data Format Errors**: Check CSV headers in `data/raw/`.
+-   **Statistical Warnings**: Low N ($n=3$) may trigger power warnings; these are expected and reflect the exploratory nature of the study.
+-   **Real Data Upload**: Ensure files are in `data/raw/` and match the schema before running with `--mode real`.

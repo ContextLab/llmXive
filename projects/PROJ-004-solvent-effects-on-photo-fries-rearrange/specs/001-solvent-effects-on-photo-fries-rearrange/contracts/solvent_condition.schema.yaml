@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solvent Condition Schema"
+type: "object"
+required:
+  - "solvent_id"
+  - "solvent_name"
+  - "epsilon"
+  - "temperature_c"
+  - "humidity_rh"
+  - "pressure_hpa"
+  - "lookup_version"
+properties:
+  solvent_id:
+    type: "string"
+    description: "Unique identifier for the solvent condition"
+  solvent_name:
+    type: "string"
+    description: "Name of the solvent (e.g., cyclohexane, methanol)"
+  epsilon:
+    type: "number"
+    description: "Dielectric constant (relative permittivity)"
+  temperature_c:
+    type: "number"
+    description: "Temperature in Celsius (target 25.0 ± 0.5)"
+  humidity_rh:
+    type: "number"
+    description: "Relative humidity percentage (target 25 ± 2%)"
+  pressure_hpa:
+    type: "number"
+    description: "Barometric pressure in hPa"
+  lookup_version:
+    type: "string"
+    description: "Version hash of the reference lookup table"
+additionalProperties: false

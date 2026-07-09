@@ -65,7 +65,7 @@ The researcher MUST be able to correlate computed solvation free energies with t
 ### Functional Requirements
 
 - **FR-001**: System MUST allow configuration of at least 5 distinct solvent conditions spanning a dielectric constant range of ε ≈ low to ε ≈ 33. (See US-1)
-- **FR-002**: System MUST capture transient-absorption spectroscopy data in the UV to near-infrared wavelength range with ns–10 μs time resolution. (See US-1)
+- **FR-002**: System MUST capture transient-absorption spectroscopy data in the UV to near-infrared wavelength range with ns–μs time resolution. (See US-1)
 - **FR-003**: System MUST record environmental parameters for each run: temperature (25 ± 0.5°C), relative humidity (±2% RH), and barometric pressure. (See US-1)
 - **FR-004**: System MUST perform global kinetic analysis on decay traces using exponential fitting to extract intermediate lifetimes with instrument calibration metadata. (See US-2)
 - **FR-005**: System MUST integrate or accept computed solvation free energies from implicit solvent models (SMD/PCM) at DFT level (B3LYP/6-31G*) for ≤80% of conditions and explicit solvent models (QM/MM or cluster-continuum) for ≥20% of conditions. (See US-3)

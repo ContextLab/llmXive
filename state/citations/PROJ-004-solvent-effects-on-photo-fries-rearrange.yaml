@@ -65,3 +65,44 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1806.02690v2
   verified_at: '2026-07-04T21:35:06.768027Z'
+- artifact_hash: aba21468c856cbbbfae3ca6ae2dc4340b70ed6e665f9fcfbd4c29a3a74b68b80
+  artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: 'Learning Continuous Solvent Effects from Transient Flow Data: A Graph
+    Neural Network Benchmark on Catechol Rearrangement (2025)'
+  fetched_title: '[2512.19530v1] Learning Continuous Solvent Effects from Transient
+    Flow Data: A Graph Neural Network Benchmark on Catechol Rearrangement'
+  kind: url
+  value: http://arxiv.org/abs/2512.19530v1
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2512.19530v1
+  verified_at: '2026-07-09T01:42:41.012105Z'
+- artifact_hash: aba21468c856cbbbfae3ca6ae2dc4340b70ed6e665f9fcfbd4c29a3a74b68b80
+  artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Fluctuations and correlations in chemical reaction kinetics and population
+    dynamics (2018)
+  fetched_title: '[1807.01248v1] Fluctuations and correlations in chemical reaction
+    kinetics and population dynamics'
+  kind: url
+  value: http://arxiv.org/abs/1807.01248v1
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1807.01248v1
+  verified_at: '2026-07-09T01:42:41.012105Z'
+- artifact_hash: aba21468c856cbbbfae3ca6ae2dc4340b70ed6e665f9fcfbd4c29a3a74b68b80
+  artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/specs/001-solvent-effects-on-photo-fries-rearrange/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: 'Erratum to the article: Charge transfer to solvent identified using
+    dark channel fluorescence-yield L-edge spectroscopy, NATURE CHEMISTRY 2 (2010)
+    853 (2017)'
+  fetched_title: '[1705.03941v2] Erratum to the article: Charge transfer to solvent
+    identified using dark channel fluorescence-yield L-edge spectroscopy, NATURE CHEMISTRY
+    2 (2010) 853'
+  kind: url
+  value: http://arxiv.org/abs/1705.03941v2
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/1705.03941v2
+  verified_at: '2026-07-09T01:42:41.012105Z'

@@ -2,103 +2,69 @@
 
 ## Overview
 
-This document defines the data structures, relationships, and schemas for the project. All data is stored in `data/` (raw, compute, processed) and validated against `contracts/`.
+This document defines the schema for all data artifacts in the project, ensuring compliance with the Constitution (Principle III: Data Hygiene, Principle IV: Single Source of Truth).
+
+## Entity Relationship Diagram (Conceptual)
+
+```mermaid
+erDiagram
+    SOLVENT_CONDITION ||--|{ KINETIC_TRACE : "generates"
+    SOLVENT_CONDITION ||--|{ SOLVATION_DATA : "has"
+    SOLVENT_CONDITION ||--|{ REACTION_METRIC : "produces"
+    CALIBRATION_RECORD ||--|{ KINETIC_TRACE : "validates"
+```
 
 ## Entities
 
 ### 1. Solvent Condition
-Represents a specific experimental environment.
-*   **Attributes**:
-    *   `solvent_id`: Unique identifier (e.g., "C6H12", "CH3OH").
-    *   `dielectric_constant`: Float (e.g., 2.0, 33.0).
-    *   `temperature`: Float (Target: 25.0°C, Tolerance: ±0.5°C).
-    *   `humidity`: Float (Target: 50%, Tolerance: ±2% RH).
-    *   `pressure`: Float (Barometric pressure in hPa).
-    *   `manufacturer`: String.
-    *   `lot_number`: String.
-    *   `purity`: Float (e.g., 0.99).
-    *   `lookup_match_status`: Enum ("match", "mismatch", "unverified").
+Represents a specific experimental setup.
+-   **ID**: `solvent_id` (string, unique)
+-   **Name**: `solvent_name` (string)
+-   **Dielectric Constant**: `epsilon` (float)
+-   **Temperature**: `temperature_c` (float, target 25.0)
+-   **Humidity**: `humidity_rh` (float, target 25.0)
+-   **Pressure**: `pressure_hpa` (float)
+-   **Lookup Version**: `lookup_version` (string)
 
 ### 2. Kinetic Trace
 Raw or processed transient-absorption data.
-*   **Attributes**:
-    *   `trace_id`: Unique identifier.
-    *   `solvent_id`: Foreign key to `Solvent Condition`.
-    *   `wavelength_nm`: Float (e.g., 350.0).
-    *   `time_ns`: Array of floats (Time points).
-    *   `absorbance`: Array of floats (Signal).
-    *   `calibration_id`: Foreign key to `Calibration Record`.
-    *   `status`: Enum ("valid", "flagged_humidity", "flagged_temp", "failed_fit").
+-   **ID**: `trace_id` (string)
+-   **Solvent ID**: `solvent_id` (FK)
+-   **Replicate ID**: `replicate_id` (int)
+-   **Time Series**: `time_ns` (array of floats)
+-   **Absorbance**: `absorbance_mOD` (array of floats)
+-   **Calibration ID**: `calibration_id` (FK)
+-   **Status**: `status` (string: "raw", "processed", "flagged")
 
 ### 3. Reaction Metric
 Derived lifetime and statistics.
-*   **Attributes**:
-    *   `metric_id`: Unique identifier.
-    *   `trace_id`: Foreign key to `Kinetic Trace`.
-    *   `lifetime_ns`: Float (Fitted $\tau$).
-    *   `confidence_interval_lower`: Float.
-    *   `confidence_interval_upper`: Float.
-    *   `replicate_group`: String (e.g., "C6H12_rep1").
-    *   `mean_lifetime_ns`: Float (Aggregated per solvent).
-    *   `std_lifetime_ns`: Float.
-    *   `power_analysis_id`: Foreign key to `Power Analysis`.
+-   **ID**: `metric_id` (string)
+-   **Trace ID**: `trace_id` (FK)
+-   **Lifetime**: `lifetime_ns` (float)
+-   **Confidence Interval**: `ci_lower_ns`, `ci_upper_ns` (floats)
+-   **Residual R2**: `r_squared` (float)
+-   **Mean (Group)**: `mean_lifetime_ns` (float, if aggregated)
+-   **Std Dev (Group)**: `std_lifetime_ns` (float)
 
-### 4. Solvation Energy
-Computed DFT data.
-*   **Attributes**:
-    *   `solv_id`: Unique identifier.
-    *   `solvent_id`: Foreign key to `Solvent Condition`.
-    *   `delta_g_solv_kcal_mol`: Float.
-    *   `method`: Enum ("SMD", "PCM", "Explicit").
-    *   `basis_set`: String (e.g., "6-31G*").
-    *   `functional`: String (e.g., "B3LYP").
+### 4. Solvation Data
+Computed or reference solvation energies.
+-   **ID**: `solv_id` (string)
+-   **Solvent ID**: `solvent_id` (FK)
+-   **Energy**: `solvation_energy_kcal_mol` (float)
+-   **Method**: `method` (string: "SMD", "PCM", "Explicit")
+-   **Basis Set**: `basis_set` (string)
 
 ### 5. Calibration Record
 Instrument validation data.
-*   **Attributes**:
-    *   `calib_id`: Unique identifier.
-    *   `date`: ISO-8601 Date.
-    *   `detector_response`: Float.
-    *   `wavelength_offset`: Float.
-    *   `baseline_drift`: Float.
+-   **ID**: `calib_id` (string)
+-   **Date**: `calibration_date` (ISO-8601)
+-   **Detector Response**: `detector_response` (float)
+-   **Wavelength Cal**: `wavelength_error_nm` (float)
+-   **Baseline Stability**: `baseline_drift` (float)
 
-### 6. Power Analysis
-Documented power analysis for the sample size.
-*   **Attributes**:
-    *   `analysis_id`: Unique identifier.
-    *   `sample_size`: Integer (n per solvent).
-    *   `detectable_effect_size`: Float.
-    *   `power`: Float.
-    *   `limitations`: String.
+## File Formats
 
-### 7. Sensitivity Analysis
-Results of sensitivity analysis on decision cutoffs.
-*   **Attributes**:
-    *   `analysis_id`: Unique identifier.
-    *   `cutoff_value`: Float.
-    *   `false_positive_rate`: Float.
-    *   `false_negative_rate`: Float.
-
-## Relationships
-
-*   **Solvent Condition** (1) -- (N) **Kinetic Trace**
-*   **Solvent Condition** (1) -- (N) **Solvation Energy**
-*   **Kinetic Trace** (1) -- (1) **Reaction Metric**
-*   **Calibration Record** (1) -- (N) **Kinetic Trace**
-*   **Reaction Metric** (N) -- (1) **Power Analysis**
-*   **Sensitivity Analysis** (1) -- (N) **Reaction Metric** (via cutoff)
-
-## Data Flow
-
-1.  **Ingest**: Raw traces (simulated) and DFT results loaded into `data/raw/` and `data/compute/`.
-2.  **Validate**: Check against `contracts/`. Flag out-of-tolerance environmental conditions. **SC-010**: Validate dielectric constants against lookup table.
-3.  **Process**: Fit kinetic models -> Generate `Reaction Metric`.
-4.  **Aggregate**: Calculate mean/std per solvent.
-5.  **Analyze**: Correlate `Reaction Metric` with `Solvation Energy`. **SC-007**: Document power analysis.
-6.  **Sensitivity**: Vary cutoffs -> Generate `Sensitivity Analysis`. **SC-008**: Report error rates.
-
-## Schema References
-
-*   Input Schema: `contracts/dataset.schema.yaml`
-*   Output Schema: `contracts/output.schema.yaml`
-*   Entity Schemas: `contracts/solvent.schema.yaml`, `contracts/kinetic_trace.schema.yaml`, `contracts/reaction_metric.schema.yaml`
+-   **Raw Data**: CSV (`time_ns, absorbance_mOD, replicate_id`)
+-   **Processed Data**: CSV/JSON (`trace_id, lifetime_ns, ci_lower, ci_upper`)
+-   **Configuration**: YAML (`solvents.yaml`)
+-   **Metadata**: JSON (`metadata.json` per run)

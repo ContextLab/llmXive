@@ -42,7 +42,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (directories: `code/`, `data/`, `tests/`, `docs/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (numpy, scipy, pandas, scikit-learn, pyyaml, pymatgen, matplotlib, seaborn)
+- [ ] T002 Initialize a Python project with pinned dependencies in `requirements.txt` (numpy, scipy, pandas, scikit-learn, pyyaml, pymatgen, matplotlib, seaborn, pymc)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
 - [ ] T004 [P] Initialize `code/utils/seeds.py` to set global random seeds for reproducibility
 - [ ] T005 [P] Setup `code/utils/logging.py` to handle structured logging of environmental parameters
@@ -60,9 +60,9 @@
 - [ ] T008 Implement `code/data/loaders.py` to fetch real solvent properties from `data/chemicals/solvents.yaml` (no synthetic generation of input properties)
 - [ ] T009 Implement `code/config.py` to enforce CPU-only execution constraints and define file paths for `data/raw/`, `data/compute/`, `data/processed/`
 - [ ] T010 [P] Create `tests/unit/test_loaders.py` to verify solvent property loading against versioned lookup table
-- [ ] T015 [P] [US1] **Primary Data Generation**: Implement `code/data/generate_synthetic.py` to generate deterministic synthetic transient-absorption traces (mocking laser flash photolysis) as the **primary** data source for this research phase, ensuring no inherent correlation between lifetime and solvent properties (null hypothesis). Output to `data/raw/synthetic_traces.csv`. This task satisfies the Plan's requirement for simulated data while providing the necessary input for US2/US3 in a CI-executable manner.
-- [ ] T015b [P] [US1] **Optional Real Data Ingestion**: Implement `code/data/ingest.py` to ingest real transient-absorption data from a user-provided file path (e.g., `data/raw/real_traces.csv`) if explicitly present; if the file is missing, the task MUST skip ingestion without error. This task is for optional real-data validation only and does not block the pipeline.
-- [ ] T015c [P] [US1] Implement `code/data/generate_synthetic.py` to generate synthetic transient-absorption data for null hypothesis validation; use random seed 42 and uniform distribution to ensure 'no inherent correlation' (generate y independent of x). Output to `data/raw/synthetic_null.csv`.
+- [ ] T015b [US1] **Real Data Ingestion (Blocking)**: Implement `code/data/ingest.py` to ingest real transient-absorption data from a user-provided file path (e.g., `data/raw/real_traces.csv`). **Constraint**: This task MUST fail the pipeline with a clear error if the real data file is missing. It is the primary data source for the research phase.
+- [ ] T015 [P] [US1] **CI-Placeholder Data Generation**: Implement `code/data/generate_synthetic.py` to generate deterministic synthetic transient-absorption traces (mocking laser flash photolysis) as a **fallback ONLY** for CI logic testing. **Constraint**: This task MUST NOT be used as the primary research data source. It runs only if T015b is explicitly bypassed or disabled. Output to `data/raw/synthetic_traces.csv`.
+- [ ] T015c [P] [US1] **Real Instrument Interface**: Implement `code/hardware/interface.py` to provide the API contract for 'capturing' transient-absorption data (e.g., `capture_trace(serial_port, timeout)`). This task satisfies the 'MUST capture' requirement of FR-002 by defining the interface. For CI, this implementation defaults to returning synthetic data from T015, but must be swappable for real driver logic when hardware is available.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -82,7 +82,7 @@
 ### Implementation for User Story 1
 
 - [ ] T014 [US1] Implement `code/analysis/environment.py` to record temperature (25 ± 0.5°C), humidity (±2% RH), and barometric pressure per run
-- [ ] T013 [US1] Implement `code/main.py` CLI entry point to configure solvent series (multiple solvents, ε range low to ~33) (depends on T014)
+- [ ] T013 [US1] Implement `code/main.py` CLI entry point to configure solvent series (multiple solvents, ε range low to moderate) (depends on T014)
 - [ ] T017 [US1] Implement `code/analysis/validation.py` to flag runs where logged dielectric constants deviate >2% from `solvents.yaml` (addressing SC-010)
 - [ ] T017b [US1] Implement `code/analysis/validation.py` to calculate and verify environmental compliance percentage (≥95% of runs within tolerance) by reading `data/processed/environment_logs.json` and write result to `data/processed/compliance_report.json` with field `environmental_compliance_percent` (addressing SC-004)
 - [ ] T018 [US1] Implement `code/analysis/validation.py` to detect and flag runs where temperature or humidity exceeds tolerance (addressing Edge Cases in spec)
@@ -104,7 +104,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US1] Implement `code/analysis/calibration.py` to apply instrument calibration factors and log detector response/wavelength stability per `FR-004`
+- [ ] T016 [US2] Implement `code/analysis/calibration.py` to apply instrument calibration factors and log detector response/wavelength stability per `FR-004`
 - [ ] T021 [P] [US2] Implement `code/analysis/kinetic_fit.py` to perform global kinetic analysis (exponential fitting) on `data/processed/calibrated_traces.csv` (or synthetic equivalent)
 - [ ] T022 [US2] Implement `code/analysis/kinetic_fit.py` to calculate mean lifetime and standard deviation for n ≥ 3 replicates per solvent
 - [ ] T023 [US2] Implement `code/analysis/kinetic_fit.py` to flag outliers beyond a statistically significant threshold. (addressing US-2 acceptance scenario)
@@ -129,15 +129,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/data/compute/dft_parser.py` to parse DFT results (SMD/PCM) from `data/compute/` and validate against B3LYP/6-31G* constraints
-- [ ] T029c [P] [US3] Implement `code/data/compute/generate_explicit_solvent.py` to generate explicit solvent model results (QM/MM or cluster-continuum) for ≥20% of conditions and write to `data/compute/explicit_dft_results.csv` (addressing FR-005)
-- [ ] T029b [US3] Implement `code/data/compute/dft_parser.py` to parse explicit solvent model results (QM/MM or cluster-continuum) from `data/compute/explicit_dft_results.csv` (depends on T029c) and integrate for ≥20% of conditions (addressing FR-005)
-- [ ] T030 [US3] Implement `code/analysis/correlation.py` to perform linear regression (Lifetime ~ Solvation Energy) and (Lifetime ~ Dielectric Constant) with bootstrapped CIs
-- [ ] T030b [US3] **Mandatory Statistical Reporting**: Implement `code/analysis/correlation.py` to perform ANOVA and report exact p-values and family-wise error correction methods as required by SC-003 and FR-006. **Constraint**: If sample size (n=3) is insufficient for robust significance testing, the task MUST output the calculated p-value but explicitly flag the result as 'exploratory' and 'underpowered' in the output metadata, satisfying the Spec's deliverable requirement while adhering to the Plan's statistical caution.
+- [ ] T029 [US3] **Integrated Solvent Model Data Generation**: Implement `code/data/compute/solvent_models.py` to generate or fetch DFT solvation data. **Logic**: Accept a list of N solvents. Select a subset of size `floor(N * 0.8)` (or fewer) for implicit solvent models (SMD/PCM) and the remaining `N - subset_size` (guaranteed ≥ 20% if N ≥ 5) for explicit solvent models (QM/MM or cluster-continuum). Ensure the total count equals N. Output combined results to `data/compute/solvent_solvation.csv`. This task satisfies FR-005 (≤80% implicit, ≥20% explicit) by dynamically partitioning the input set. (Replaces T029a, T029c, T029d, T029b).
+- [ ] T030a [US3] **Bayesian Correlation**: Implement `code/analysis/correlation.py` to perform **Bayesian Hierarchical Modeling (BHM)** to correlate lifetime with Solvation Energy and Dielectric Constant. **Constraint**: Do NOT use standard ANOVA or Linear Regression as the primary model. Use a PCA-derived "Solvent Polarity Index" as the primary predictor to avoid tautology. Output posterior distributions for slope and intercept. **Dependency**: This task must complete before T030b.
+- [ ] T030b [US3] **Statistical Reporting**: Implement `code/analysis/correlation.py` to report **Posterior Probability of Effect**, **Bayes Factors**, AND **exact p-value** (via scipy.stats or equivalent) to satisfy SC-003. Calculate **Bayesian R²** and **credible intervals (CI)**. Explicitly frame all findings as associational and exploratory due to low N (n=3). (Addressing SC-001, SC-003, SC-006). **Dependency**: This task must complete after T030a.
 - [ ] T031 [US3] Implement `code/analysis/correlation.py` to perform VIF analysis to distinguish dielectric vs. solvation effects (addressing SC-009 and Rosalind Franklin review)
 - [ ] T032 [US3] Implement `code/analysis/correlation.py` to apply multiple-comparison correction (e.g., Bonferroni) and report family-wise error rate
 - [ ] T033 [US3] Implement `code/analysis/correlation.py` to frame all findings as associational (not causal) in output metadata
-- [ ] T034 [US3] Generate `paper/figures/regression_plot.png` and `data/processed/correlation_results.json` with R², exact p-values, and VIF scores by reading `data/processed/correlation_results.json` from T030b; ensure all findings are explicitly framed as associational (addressing SC-006)
+- [ ] T034 [US3] Generate `paper/figures/regression_plot.png` and `data/processed/correlation_results.json` with **Bayesian R²**, **95% Credible Intervals**, **p-values**, and VIF scores by reading `data/processed/correlation_results.json` from T030b; ensure all findings are explicitly framed as associational (addressing SC-006). **Dependency**: This task depends on completion of T030b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,11 +145,11 @@
 
 **Purpose**: Address specific reviewer concerns regarding instrumentation, calibration, and reproducibility.
 
-- [ ] T035 [P] Implement `code/analysis/instrument_registry.py` to define and log the specific instrument model (e.g., "Edinburgh Instruments LP-series"), detector type (e.g., "Photomultiplier Tube"), and detection limits (addressing Marie Curie review on missing instrument definition)
+- [ ] T035 [P] Implement `code/analysis/instrument_registry.py` to define and log instrument configuration. **Constraint**: The system MUST load the instrument model (e.g., "Edinburgh Instruments LP-series" or "Generic") from `data/chemicals/instrument_config.yaml`. If the config is missing, it MUST default to "Generic Transient Absorption Spectrometer" to ensure vendor agnosticism and avoid hard-coding specific hardware dependencies (addressing Marie Curie review on missing instrument definition).
 - [ ] T036 [P] Update `docs/deviation_analysis.md` to compare simulated vs. expected physical behaviors
 - [ ] T037 [P] Add `docs/methodology.md` detailing instrument model, calibration dates, detection limits, and sample quantities (addressing Marie Curie review on reproducibility and instrument calibration protocol)
 - [ ] T038 [P] Verify all data files are checksummed in `data/hashes.json` and raw data is immutable
-- [ ] T039 [P] [US3] Run full pipeline integration test to ensure data flow from `data/raw` → `data/processed` → `paper/` (depends on T026, T034, AND completion of Phase 4 and Phase 5)
+- [ ] T039 [US3] Run full pipeline integration test to ensure data flow from `data/raw` → `data/processed` → `paper/` (depends on T026, T034, AND completion of Phase 4 and Phase 5)
 - [ ] T040 [P] Validate `quickstart.md` and ensure all tasks run on CPU-only CI (2 cores, 7GB RAM) within 6 hours
 - [ ] T041 [P] Implement `code/analysis/hydration_monitor.py` to explicitly log and validate solvent hydration states to three significant figures, ensuring ±2% RH control is recorded for every run (addressing Rosalind Franklin review on hydration state control)
 - [ ] T042 [P] Implement `code/analysis/product_quantification.py` to define the analytical method (HPLC with UV detection) for quantifying ester rearrangement products, including detection thresholds and calibration standards. **Constraint**: NMR is explicitly excluded; only HPLC with UV detection is permitted as per Spec Assumptions.
@@ -165,7 +163,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **Note**: T015 (Synthetic Data Generation) is in Phase 2 and is a prerequisite for US2/US3.
+  - **Note**: T015b (Real Data Ingestion) is now a blocking prerequisite for T015 (Synthetic Data).
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -174,8 +172,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T015 (Phase 2) completion
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T015 (Phase 2) and US2 outputs
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T015b (Phase 2) completion
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T015b (Phase 2) and US2 outputs
 
 ### Within Each User Story
 
@@ -195,7 +193,10 @@
 
 ### Critical Execution Order for Phase 5
 
-- **T029c and T029b MUST complete before T030**: T030 (Correlation Analysis) consumes the output of T029 (Implicit DFT) and T029b (Explicit DFT). While they are in the same phase, the logical data flow requires T029/T029b to run first. Do not parallelize T030 with T029/T029b.
+- **T029 MUST complete before T030a**: T030a (Correlation Analysis) consumes the output of T029 (Solvent Models). T029 is NOT parallel [P] in execution; it is a sequential prerequisite.
+- **T030a and T030b are sequential**: T030b depends on the output of T030a.
+- **T034 depends on T030b**: T034 generates the final figures and reports based on T030b's results.
+- **T039 depends on T034**: T039 is the final integration gate.
 
 ### Critical Execution Order for Phase 6
 
@@ -223,6 +224,7 @@ Task: "Implement CLI entry point in code/main.py" (depends on T014)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+   - **Ensure T015b (Real Data Ingestion) is prioritized.**
 3. Complete Phase 3: User Story 1 (Solvent configuration & data generation)
 4. **STOP and VALIDATE**: Test US1 independently with mock data
 5. Deploy/demo if ready
@@ -257,10 +259,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **Critical Review Addressing**: 
-  - T035, T037 explicitly address Marie Curie's concern for instrument model, calibration dates, detection limits, and sample quantities.
+  - T035, T037 explicitly address Marie Curie's concern for instrument model, calibration dates, detection limits, and sample quantities. T035 now enforces config-based loading with a generic fallback.
   - T041, T042, T043 explicitly address Rosalind Franklin's concern for hydration state control, product quantification methods, and temporal resolution.
   - T017, T017b, T018, T025 address SC-010, SC-004, and sensitivity analysis.
-  - T024, T030b, T031, T032 address power analysis, ANOVA/p-values (SC-003/FR-006), collinearity (VIF), and multiple-comparison corrections.
-  - T015 (Synthetic Primary), T015b (Optional Real Data), and T015c (Synthetic for Validation) ensure data integrity and null hypothesis testing without violating reproducibility.
-  - T029b and T029c address FR-005 requirement for explicit solvent models.
+  - T024, T030a, T030b, T031, T032 address power analysis, Bayesian statistics, p-value reporting (SC-003), collinearity (VIF), and multiple-comparison corrections.
+  - T015b (Real Data), T015 (Synthetic Fallback) ensure data integrity and null hypothesis testing without violating reproducibility.
+  - **T029 now implements the dynamic partitioning logic for implicit/explicit solvent models as required by FR-005, replacing the fragmented T029a-d tasks.**
   - T042 restricted to HPLC with UV detection only; NMR explicitly excluded.
+  - **Statistical Note**: All statistical tasks (T030a, T030b) strictly follow the Plan's Bayesian Hierarchical Modeling approach, BUT T030b now also reports exact p-values to satisfy SC-003, framing the Bayesian result as the primary inference for low-N robustness.

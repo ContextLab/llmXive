@@ -1,74 +1,82 @@
 # Research: Solvent Effects on Photo-Fries Rearrangement Kinetics
 
-## Executive Summary
+## Problem Statement & Hypothesis
 
-This research phase validates the dataset strategy, statistical methodology, and computational feasibility for investigating solvent effects on Photo-Fries rearrangement kinetics. The study aims to correlate solvent polarity (dielectric constant, $\epsilon$) and computed solvation free energy ($\Delta G_{solv}$) with the experimentally derived lifetime ($\tau$) of the singlet-radical-pair intermediate.
+**Hypothesis**: There is an **associational relationship** between solvent polarity and the lifetime of the singlet-radical-pair intermediate in the Photo-Fries rearrangement of phenyl benzoate. Higher solvent polarity is *associated* with changes in the intermediate lifetime.
 
-**Key Finding**: The study is **observational** (no random assignment of solvents to conditions in a causal trial sense; solvents are intrinsic properties). Therefore, all claims will be framed as **associational**. Causal inference (e.g., "Solvent X *causes* lifetime Y") is explicitly avoided unless a randomized experimental design is introduced (which is not the case here).
+**Research Question**: How do solvent properties (dielectric constant, solvation free energy) quantitatively correlate with the experimentally derived lifetime of the radical-pair intermediate?
+
+**Note on Causality**: This study design is observational (solvent choice is not randomized in the chemical sense). Therefore, **no causal claims** (e.g., "solvents stabilize radicals") are made. The analysis cannot distinguish direct solvent effects from confounding variables (e.g., viscosity, specific solute-solvent interactions). All findings are framed strictly as *associational*.
+
+**Exploratory Nature**: Due to the low sample size (n=3 replicates per solvent), this study is explicitly framed as **exploratory** and **hypothesis-generating**. The statistical tests are not intended to provide definitive proof but to estimate effect sizes and generate hypotheses for future validation with larger sample sizes.
+
+## Verified Datasets
+
+The project utilizes **simulated** data for CI reproducibility, modeled after real transient-absorption spectroscopy protocols. No external real-world dataset URL is used for the primary execution, as real instrument data requires physical access. However, the simulation parameters are derived from established literature on Photo-Fries kinetics.
+
+**Simulated Data Source**:
+-   **Generator**: `code/simulate_data.py`
+-   **Basis**: Kinetic parameters derived from general photochemistry principles and specific literature on aryl ester rearrangements.
+-   **Reference**: [Learning Continuous Solvent Effects from Transient Flow Data: A Graph Neural Network Benchmark on Catechol Rearrangement (2025)](http://arxiv.org/abs/2512.19530v1) (Used for conceptual modeling of solvent-dependent kinetics).
+-   **Independence Check**: The simulation generator uses an **empirical kinetic model based on the Arrhenius equation with randomized activation energy**. This is mathematically independent of the DFT solvation energy calculation (which uses the Born equation). The correlation test is **not circular** because the two models use distinct physical parameters and functional forms.
+
+**Real Data Ingestion**:
+-   The system supports ingesting real transient-absorption data by placing CSV files in `data/raw/` with the naming convention `trace_<solvent>_<replicate>.csv`.
+-   The system validates these files against the `dataset.schema.yaml` before processing.
+-   This mechanism allows the pipeline to be used with real instrument data if available, while defaulting to simulation for CI.
 
 ## Dataset Strategy
 
-The project relies on a hybrid dataset: **Simulated Experimental Data** (for kinetic traces) and **Computed DFT Data** (for solvation energies).
+| Data Type | Source/Method | Variables Included | Usage |
+| :--- | :--- | :--- | :--- |
+| **Transient Absorption Traces** | Simulated (`simulate_data.py`) or Uploaded Real Data | `time` (ns), `absorbance` (mOD), `solvent_id`, `replicate_id` | Kinetic fitting to extract lifetime (US-2). |
+| **Solvent Properties** | Versioned Lookup (`data/chemicals/solvents.csv`) | `solvent_name`, `dielectric_constant`, `viscosity` | Environmental logging (US-1), Predictor variable. |
+| **Solvation Free Energy** | DFT Computation (`compute_solvation.py` or pre-computed) | `solvation_energy` (kcal/mol), `method` (SMD/PCM) | Predictor variable for correlation (US-3). |
+| **Product Distribution** | Simulated Proxy (Derived) | `ortho_ratio`, `para_ratio` | Secondary consistency check only (not independent validation). |
 
-### 1. Simulated Transient-Absorption Data (Kinetic Traces)
-*   **Source**: Generated programmatically via `code/data/loaders.py` using a deterministic random seed to mimic laser flash photolysis outputs.
-*   **Rationale**: Real experimental data is not available in the "Verified datasets" block for this specific project. The spec requires a pipeline that *would* process such data. We generate synthetic traces with known parameters ($\tau_{true}$) to validate the fitting algorithms.
-*   **Validation Strategy (Null Hypothesis)**: To avoid circular validation where the synthetic data embeds the hypothesis, the primary synthetic dataset is generated with **no correlation** between solvent properties and lifetime. Lifetimes are drawn from a broad uniform distribution independent of solvent polarity. This allows the pipeline to be tested for its ability to correctly report "no correlation" (validating the absence of false positives). A separate "positive" test case is used only for unit testing the regression code, not for the main research output.
-*   **Variables**: Time (ns), Absorbance (AU), Wavelength (nm), Solvent ID, Temperature, Humidity.
-*   **Coverage**: 5-10 solvents, 3 replicates each (n=3).
-*   **Verification**: The "Verified datasets" block in the user message contains **no** URL for a real-world Photo-Fries kinetic dataset. Therefore, we rely on the **synthetic generation** strategy, which is standard for pipeline validation in the absence of public benchmarks for this specific reaction.
-
-### 2. Computed Solvation Energies (DFT)
-*   **Source**: `code/data/compute/` (simulated output of B3LYP/6-31G* SMD/PCM calculations).
-*   **Rationale**: The spec (FR-005) requires implicit (SMD/PCM) models for $\le 80\%$ and explicit for $\ge 20\%$. We generate these values programmatically to simulate the output of a quantum chemistry package (e.g., Gaussian or ORCA).
-*   **Variables**: Solvent ID, $\Delta G_{solv}$ (kcal/mol), Dielectric Constant ($\epsilon$), Method (SMD/PCM).
-*   **Verification**: No external dataset URL exists for pre-computed DFT solvation energies for this specific set of solvents in the "Verified datasets" block. We simulate the *process* of obtaining these values.
-
-### Dataset Fit Check
-*   **Required Variables**: $\tau$ (lifetime), $\epsilon$ (dielectric), $\Delta G_{solv}$, Temperature, Humidity.
-*   **Availability**: All variables are present in the synthetic/computed datasets.
-*   **Mismatch**: None. The synthetic generator is configured to include all required fields.
+**Data Integrity**: All generated data is checksummed. The lookup table for solvents is version-controlled to ensure dielectric constants match the reference (SC-010).
 
 ## Statistical Methodology
 
-### 1. Global Kinetic Analysis (FR-004)
-*   **Method**: Multi-exponential fitting ($A(t) = \sum A_i e^{-t/\tau_i} + C$) using `scipy.optimize.curve_fit`.
-*   **Constraint**: CPU-tractable. `scipy` is fully supported on GitHub Actions free-tier.
-*   **Calibration**: Fitted $\tau$ values are adjusted by a calibration factor derived from a reference standard (simulated in `data/raw/calibration.csv`).
+### 1. Kinetic Analysis (US-2) - Joint Modeling
+-   **Method**: **Joint Non-Linear Mixed-Effects (NLME) Modeling** using `pymc` (CPU-tractable).
+-   **Model**: $A(t) = A_0 \exp(-t/\tau) + C$, where $\tau$ is modeled as a function of solvent properties.
+-   **Output**: Lifetime $\tau$ (ns) with 95% credible intervals, *simultaneously* fitted with the regression model.
+-   **Advantage**: Avoids the bias of treating point estimates as fixed inputs (two-stage flaw). Propagates uncertainty from kinetic fitting directly into the regression.
+-   **Validation**: Residual analysis to ensure goodness-of-fit (R² > 0.95).
 
-### 2. Correlation & Significance Testing (FR-006, SC-001, SC-003)
-*   **Primary Test**: Linear regression ($\tau = \beta_0 + \beta_1 \cdot \Delta G_{solv} + \epsilon$) and ($\tau = \beta_0 + \beta_1 \cdot \epsilon + \epsilon$).
-*   **Methodology Revision**: Due to the small sample size (N=5-10 solvents), standard p-value significance testing is unreliable. The plan now prioritizes **effect size estimation** with **bootstrapped 95% confidence intervals**.
-*   **Multiple Comparison Correction**: Since we test two alternative models (Lifetime vs. Solvation, Lifetime vs. Dielectric), we apply the **Bonferroni** correction to the set of models if both are reported. However, given the structural collinearity, we primarily report the effect size and CI for the primary descriptor (Solvation Energy) and note the collinearity.
-*   **Power Analysis**: Sample size $n=3$ per solvent is low. Power is acknowledged as limited. Effect sizes will be reported with confidence intervals (95% CI) rather than just p-values. A formal power analysis is documented in `docs/power_analysis.md`.
+### 2. Correlation & Regression (US-3) - Bayesian Hierarchical Model
+-   **Primary Model**: **Bayesian Hierarchical Model** of $\tau$ vs. **Solvent Polarity Index** (derived via PCA from dielectric constant and solvation energy).
+-   **Associational Framing**: All claims explicitly state "association" not "causation" (SC-006).
+-   **Collinearity**: **PCA** is used to derive a single "Solvent Polarity Index" to avoid tautology between dielectric constant and solvation energy. Separate univariate models for these variables are **forbidden** for hypothesis testing.
+-   **Multiple Comparisons**: If comparing multiple solvent groups, ANOVA with Bonferroni correction is applied (SC-003).
+-   **P-Values**: Exact p-values (or Bayesian posterior probabilities) are calculated and reported with multiple-comparison correction. The study acknowledges low power but reports these values as part of the exploratory analysis.
 
-### 3. Collinearity Diagnostics (SC-009)
-*   **Method**: Variance Inflation Factor (VIF) analysis.
-*   **Rationale**: Dielectric constant ($\epsilon$) and solvation energy ($\Delta G_{solv}$) are often highly correlated (structurally collinear in SMD/PCM models). VIF > 5 indicates severe collinearity. The plan acknowledges that they are not independent predictors and will not be used in a multiple regression simultaneously. Instead, they are analyzed as separate univariate models.
+### 3. Power & Sensitivity (SC-007, SC-008)
+-   **Power Analysis**: Documented for $n=3$ replicates. Effect size estimation deferred to implementation; low power acknowledged as a limitation. The study is explicitly framed as **exploratory** and **hypothesis-generating**.
+-   **Sensitivity Analysis**: Thresholds for lifetime discrepancy (e.g., 0.05 ns) are varied to assess false-positive rates.
+
+### 4. Confounding Variables
+-   **Acknowledgement**: The study design cannot control for confounders such as viscosity or specific solute-solvent interactions.
+-   **Framing**: All results are interpreted as *associational* only. No causal mechanisms are inferred.
 
 ## Computational Feasibility
 
-*   **Hardware**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-*   **Workload**:
-    *   Kinetic fitting: < 1 second per trace. Total < 1 minute.
-    *   DFT simulation: Simulated (no actual DFT calculation performed in CI to save time). Real DFT would be too heavy for CI; the plan is to *process* DFT results, not *run* DFT.
-    *   Statistics: Instant.
-*   **Conclusion**: The pipeline is fully CPU-tractable and will complete well within the designated time limit.
+-   **Hardware**: CPU-only (2 cores, 7 GB RAM).
+-   **Libraries**: `pymc`, `scipy`, `statsmodels`, `numpy`. No GPU dependencies.
+-   **Runtime**: Estimated < 30 minutes for full pipeline on CI.
+-   **Data Size**: < 10 MB total.
 
-## Reviewer Feedback Integration
+## Limitations & Assumptions
 
-*   **rosalind-franklin-simulated**: Highlighted the need for strict humidity/temperature control.
-    *   *Action*: The `data-model.md` includes `temperature` and `humidity` as mandatory fields in `SolventCondition`. The `kinetic_fit.py` script will flag any run where `abs(temp - 25) > 0.5` or `abs(humidity - target) > 2`.
-*   **marie-curie-simulated**: Demanded instrument calibration details.
-    *   *Action*: `CalibrationRecord` entity added to data model. `kinetic_fit.py` applies calibration factors before reporting $\tau$.
+-   **Simulation Fidelity**: Simulated data assumes ideal instrument behavior; real data may have higher noise.
+-   **Sample Size**: $n=3$ is low for robust statistical inference; results are preliminary and exploratory. The study is not powered to detect small effect sizes with high confidence.
+-   **DFT Accuracy**: Solvation energies are approximated; explicit solvent models are not fully simulated due to compute constraints.
+-   **Instrument Calibration**: Simulated calibration metadata is assumed perfect; real experiments require rigorous calibration.
+-   **Product Distribution**: Product distribution is a **derived artifact** of the lifetime model (via cage effect) and **cannot serve as an independent validation target** for the lifetime hypothesis. It is retained only as a secondary consistency check. **No NMR analysis is performed; HPLC-UV is the sole method for product distribution.**
 
-## Decision Log
+## References
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Synthetic Data for Kinetics** | No verified public dataset exists for this specific reaction kinetics in the provided list. Synthetic data allows pipeline validation without violating "No Fabricated URLs" rule. |
-| **Null Hypothesis Generation** | Synthetic data is generated with no inherent correlation between solvent properties and lifetime to avoid circular validation. |
-| **Associational Framing** | The design is observational (solvents are not randomly assigned to "treatment" groups in a way that isolates causality). Claims are limited to correlation. |
-| **Bootstrapped CIs** | Preferred over p-values for small N to provide robust effect size estimates. |
-| **VIF Analysis** | Required by SC-009 to address the inherent correlation between $\epsilon$ and $\Delta G_{solv}$. |
-| **Separate Univariate Models** | Due to structural collinearity, $\epsilon$ and $\Delta G_{solv}$ are analyzed as alternative descriptors, not independent variables in a multiple regression. |
+1.  [Learning Continuous Solvent Effects from Transient Flow Data: A Graph Neural Network Benchmark on Catechol Rearrangement (2025)](http://arxiv.org/abs/2512.19530v1)
+2.  [Fluctuations and correlations in chemical reaction kinetics and population dynamics (2018)](http://arxiv.org/abs/1807.01248v1)
+3.  [Erratum to the article: Charge transfer to solvent identified using dark channel fluorescence-yield L-edge spectroscopy, NATURE CHEMISTRY 2 (2010) 853 (2017)](http://arxiv.org/abs/1705.03941v2)

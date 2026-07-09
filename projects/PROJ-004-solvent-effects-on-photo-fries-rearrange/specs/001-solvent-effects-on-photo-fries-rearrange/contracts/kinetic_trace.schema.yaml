@@ -1,57 +1,42 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Kinetic Trace Schema
-description: Schema for validating kinetic trace data from laser flash photolysis
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Kinetic Trace Schema"
+type: "object"
+required:
+  - "trace_id"
+  - "solvent_id"
+  - "replicate_id"
+  - "time_ns"
+  - "absorbance_mOD"
+  - "calibration_id"
+  - "status"
 properties:
   trace_id:
-    type: string
-    pattern: "^[a-z]+_[0-9]+_run_[0-9]+$"
-    description: "Unique identifier for kinetic trace"
+    type: "string"
+    description: "Unique identifier for the trace"
   solvent_id:
-    type: string
-    pattern: "^[a-z]+_[0-9]+$"
+    type: "string"
     description: "Foreign key to Solvent Condition"
-  wavelength_range_nm:
-    type: array
+  replicate_id:
+    type: "integer"
+    description: "Replicate number (1, 2, 3...)"
+  time_ns:
+    type: "array"
     items:
-      type: number
-      minimum: 200
-      maximum: 800
-    minItems: 2
-    maxItems: 2
-    description: "[min_wavelength, max_wavelength] in nm"
-  time_range_ns:
-    type: array
+      type: "number"
+    description: "Time points in nanoseconds"
+  absorbance_mOD:
+    type: "array"
     items:
-      type: number
-      minimum: 1
-      maximum: 10000
-    minItems: 2
-    maxItems: 2
-    description: "[min_time, max_time] in nanoseconds"
-  raw_data_path:
-    type: string
-    pattern: "^data/raw/laser_flash_photolysis/.*\\.csv$"
-    description: "Path to raw CSV file"
-  checksum_sha256:
-    type: string
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA-256 hash of raw data file"
-  acquisition_timestamp:
-    type: string
-    format: date-time
-    description: "ISO-8601 timestamp of data capture"
-  laser_pulse_intensity:
-    type: number
-    minimum: 0.0
-    description: "Pulse intensity (mJ/cm²)"
-required:
-  - trace_id
-  - solvent_id
-  - wavelength_range_nm
-  - time_range_ns
-  - raw_data_path
-  - checksum_sha256
-  - acquisition_timestamp
-  - laser_pulse_intensity
+      type: "number"
+    description: "Absorbance in milli-Optical Density"
+  calibration_id:
+    type: "string"
+    description: "Foreign key to Calibration Record"
+  status:
+    type: "string"
+    enum:
+      - "raw"
+      - "processed"
+      - "flagged"
+    description: "Current processing status"
 additionalProperties: false

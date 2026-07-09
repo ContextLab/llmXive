@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Solvation Data Schema"
+type: "object"
+required:
+  - "solv_id"
+  - "solvent_id"
+  - "solvation_energy_kcal_mol"
+  - "method"
+  - "basis_set"
+properties:
+  solv_id:
+    type: "string"
+    description: "Unique identifier for solvation entry"
+  solvent_id:
+    type: "string"
+    description: "Foreign key to Solvent Condition"
+  solvation_energy_kcal_mol:
+    type: "number"
+    description: "Computed solvation free energy in kcal/mol"
+  method:
+    type: "string"
+    enum:
+      - "SMD"
+      - "PCM"
+      - "Explicit"
+    description: "Method used for calculation"
+  basis_set:
+    type: "string"
+    description: "Basis set used (e.g., 6-31G*)"
+additionalProperties: false
