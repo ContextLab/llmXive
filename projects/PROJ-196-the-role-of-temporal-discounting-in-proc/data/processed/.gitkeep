@@ -1,0 +1,3 @@
+# Processed data directory
+# This directory holds the cleaned, transformed, and analysis-ready datasets.
+# Files here are derived from raw data and can be regenerated.

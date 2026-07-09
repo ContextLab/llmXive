@@ -1,0 +1,20 @@
+# Core Data Science Stack
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.0
+
+# Statistical Modeling
+statsmodels==0.14.2
+
+# Testing
+pytest==8.2.2
+
+# Code Quality
+ruff==0.4.9
+black==24.4.2
+
+# Utilities
+pyyaml==6.0.1
+memory-profiler==0.61.0
+radon==6.0.1

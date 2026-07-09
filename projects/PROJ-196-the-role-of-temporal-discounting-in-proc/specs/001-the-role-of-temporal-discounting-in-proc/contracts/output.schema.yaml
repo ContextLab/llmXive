@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Output Schema"
+description: "Schema for the final JSON output containing regression statistics, robustness checks, and DGP recovery metrics."
+type: "object"
+properties:
+  model_summary:
+    type: "object"
+    description: "Overall model statistics (R-squared, AIC, BIC)."
+    properties:
+      r_squared:
+        type: "number"
+      aic:
+        type: "number"
+      bic:
+        type: "number"
+  coefficients:
+    type: "object"
+    description: "Regression coefficients for all predictors."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "P-values for all predictors."
+    additionalProperties:
+      type: "number"
+  interaction_p:
+    type: "number"
+    description: "P-value for the interaction term (log(k) * WM)."
+  interaction_significant:
+    type: "boolean"
+    description: "True if interaction_p < 0.05."
+  interaction_effect_size:
+    type: "number"
+    description: "Estimated coefficient for the interaction term."
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor for each predictor."
+    additionalProperties:
+      type: "number"
+  bootstrap_ci:
+    type: "object"
+    description: "95% Confidence Interval from bootstrapping."
+    properties:
+      lower:
+        type: "number"
+      upper:
+        type: "number"
+  dgp_recovery:
+    type: "object"
+    description: "(Synthetic Only) Validation that the CI contains the DGP ground truth."
+    properties:
+      ground_truth:
+        type: "number"
+      contains_truth:
+        type: "boolean"
+  sensitivity_analysis:
+    type: "array"
+    description: "P-values from threshold sweeps."
+    items:
+      type: "number"
+  excluded_count:
+    type: "integer"
+    description: "Number of participants excluded due to data issues."
+required:
+  - interaction_p
+  - interaction_significant
+  - interaction_effect_size
+  - vif_scores
+  - bootstrap_ci
+  - excluded_count
+additionalProperties: false

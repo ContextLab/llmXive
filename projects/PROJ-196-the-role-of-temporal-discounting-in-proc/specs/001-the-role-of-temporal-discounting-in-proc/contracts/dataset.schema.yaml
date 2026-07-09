@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Analysis Dataset Schema"
+description: "Schema for the harmonized dataset containing discount rates, procrastination scores, and WM metrics. Includes support for synthetic DGP ground truth."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    description: "Participant age in years."
+  gender:
+    type: "string"
+    description: "Gender category."
+  education:
+    type: "integer"
+    description: "Years of education."
+  discount_rate_k:
+    type: "number"
+    description: "Derived temporal discounting rate (k) from hyperbolic model fit."
+  log_k:
+    type: "number"
+    description: "Natural log of discount_rate_k."
+  procrastination_score:
+    type: "number"
+    description: "Total score on the procrastination scale."
+  wm_accuracy:
+    type: "number"
+    description: "Working memory accuracy (0.0 to 1.0)."
+  wm_rt:
+    type: "number"
+    description: "Working memory reaction time in milliseconds."
+  fit_status:
+    type: "string"
+    description: "Status of the hyperbolic model fit (Success/Failed)."
+  dgp_ground_truth:
+    type: "number"
+    description: "(Synthetic Only) The true interaction coefficient used in DGP generation."
+required:
+  - participant_id
+  - discount_rate_k
+  - procrastination_score
+  - wm_accuracy
+  - fit_status
+additionalProperties: false

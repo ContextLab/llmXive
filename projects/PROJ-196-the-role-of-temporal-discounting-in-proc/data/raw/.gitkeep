@@ -1,0 +1,3 @@
+# Raw data directory
+# This directory holds the raw, unprocessed data files.
+# Files here should be immutable once generated or downloaded.

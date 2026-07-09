@@ -1,0 +1,98 @@
+resolved_at: '2026-07-09T10:41:06.436204+00:00'
+datasets:
+- intent: OLS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 110015
+      parsed: true
+  - url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-8.5k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-8.5k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ganidu/OL_science_dataset_guanaco_format/48cb401e63e46d7dc4175e892e59748e6f7d6115/test.csv?%2Fdatasets%2FGanidu%2FOL_science_dataset_guanaco_format%2Fresolve%2Fmain%2Ftest.csv=&etag=%22fb40051278060f27e522ca221f197b311f7b2b94%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10884382
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8060439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14268665
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14446586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15593410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unimore.it/handle/11380/619459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/6zwhg-edm03
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/6zwhg-edm03
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21266344
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

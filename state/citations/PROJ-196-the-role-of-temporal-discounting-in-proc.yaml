@@ -1,0 +1,12 @@
+- artifact_hash: 19b99809468dbfe9cdf72ea0e3fc26222d6ce1216fa65d151bd83f2dec7951f9
+  artifact_path: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Ganidu/OLScience-guanaco-format-llama2-1k \xB7 Datasets at Hugging\
+    \ Face"
+  kind: url
+  value: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/Ganidu/OLScience-guanaco-format-llama2-1k
+  verified_at: '2026-07-09T10:51:27.306053Z'

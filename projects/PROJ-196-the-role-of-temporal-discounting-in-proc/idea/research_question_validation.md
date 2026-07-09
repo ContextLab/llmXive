@@ -1,34 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
 
-The question asks about a psychological mechanism linking temporal valuation to self-regulatory behavior, independent of any specific machine learning architecture or computational constraint. The focus is on the relationship between constructs rather than the performance of a specific model.
+The question investigates a substantive psychological mechanism: how cognitive resource depletion (working memory load) interacts with intertemporal valuation (temporal discounting) to influence self-regulatory failure (procrastination). The inquiry is framed around the relationship between these three constructs rather than the performance of a specific algorithm or the feasibility of a computational pipeline, making it a genuine domain question.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor (temporal discounting rates) is derived from reward-choice tasks, while the predicted variable (procrastination) is derived from self-report scales and behavioral task delays. These are distinct measurement modalities, not two summaries of the same primary signal.
+The predictor variables (individual discount rates derived from monetary choice tasks and working memory capacity derived from n-back accuracy) are measured via distinct experimental paradigms, separate from the outcome variable (procrastination scores from self-report scales). These are independent behavioral and psychometric measures, ensuring the predictive relationship is empirical rather than mechanically constructed from a single data source.
 
 ### Triviality check
-
-**Verdict**: fail
-
-The cited 2014 review explicitly identifies reward valuation as a central factor in procrastination models, suggesting the positive correlation is already well-established in the literature. Consequently, a positive result is predictable and offers limited novelty, while a null result would require strong justification against existing meta-analytic evidence.
-
-### Question-narrowing check
-
 **Verdict**: pass
 
-The question names a substantive relationship between psychological constructs (discounting and procrastination) rather than a constraint on the implementation (e.g., runtime, model size, or specific algorithm performance).
+A positive interaction would provide novel evidence that cognitive load exacerbates the tendency to delay effort, offering a specific target for interventions (load management). Conversely, a null result would be highly informative, suggesting that the link between discounting and procrastination is robust and operates independently of transient cognitive resource fluctuations, which contradicts the theoretical premise that self-control is a limited resource.
+
+### Question-narrowing check
+**Verdict**: pass
+
+The question explicitly names the domain relationship of interest (the moderation of the discounting-procrastination link by working memory) rather than focusing on implementation constraints like model architecture, training time, or hardware limits. It asks "how" and "to what extent" these psychological factors interact, which is the correct framing for a scientific inquiry.
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-[REVISED]
-To what extent does working memory load moderate the relationship between individual temporal discounting rates and procrastination behaviors on cognitively demanding tasks?
-[/REVISED]
-Reframing shifts the focus from establishing a known main effect to investigating boundary conditions (moderation by cognitive load), which would provide novel insight into when discounting drives procrastination versus when other factors dominate.
+All four validation checks pass, indicating a well-formed research question that targets a specific, untested mechanism in psychological science. The question is independent of methodological constraints, avoids circular data construction, and poses a non-trivial inquiry where both positive and null outcomes offer significant theoretical value. The project is ready to proceed to initialization.
