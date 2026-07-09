@@ -1,0 +1,3 @@
+"""
+Figures and visualizations storage.
+"""

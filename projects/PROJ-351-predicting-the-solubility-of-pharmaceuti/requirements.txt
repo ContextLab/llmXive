@@ -1,0 +1,24 @@
+# Python 3.10+ Dependencies
+# Core Data & ML
+rdkit==2023.9.5
+pandas==2.1.4
+numpy==1.26.2
+scikit-learn==1.3.2
+scipy==1.11.4
+
+# Deep Learning (CPU Only)
+torch==2.1.1+cpu
+torch-geometric==2.4.0
+-f https://data.pyg.org/whl/torch-2.1.0+cpu.html
+
+# Visualization
+matplotlib==3.8.2
+
+# Utilities
+matplotlib>=3.8.0
+requests>=2.31.0
+
+# Testing & Linting
+pytest>=7.4.0
+flake8>=6.1.0
+black>=23.11.0

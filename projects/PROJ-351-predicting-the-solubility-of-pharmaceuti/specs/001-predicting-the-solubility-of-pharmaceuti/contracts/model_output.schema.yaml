@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for the JSON report generated after model training and evaluation."
+type: object
+properties:
+  baseline:
+    type: object
+    description: "Random Forest model metrics."
+    properties:
+      type:
+        type: string
+        const: "RandomForest"
+      rmse:
+        type: number
+        description: "Root Mean Squared Error."
+      r2:
+        type: number
+        description: "R-squared coefficient."
+      mae:
+        type: number
+        description: "Mean Absolute Error."
+  gnn:
+    type: object
+    description: "Message Passing Neural Network model metrics."
+    properties:
+      type:
+        type: string
+        const: "MPNN"
+      rmse:
+        type: number
+        description: "Root Mean Squared Error."
+      r2:
+        type: number
+        description: "R-squared coefficient."
+      mae:
+        type: number
+        description: "Mean Absolute Error."
+  statistical_test:
+    type: object
+    description: "Results of the paired t-test on absolute errors."
+    properties:
+      p_value:
+        type: number
+        description: "P-value from the paired t-test."
+      t_statistic:
+        type: number
+        description: "T-statistic value."
+      significance:
+        type: boolean
+        description: "True if p_value < 0.05."
+      power:
+        type: number
+        description: "Post-hoc statistical power (Cohen's d based)."
+  comparison:
+    type: object
+    description: "Delta metrics between GNN and Baseline."
+    properties:
+      delta_rmse:
+        type: number
+        description: "GNN RMSE minus Baseline RMSE."
+      delta_r2:
+        type: number
+        description: "GNN R2 minus Baseline R2."
+required:
+  - baseline
+  - gnn
+  - statistical_test
+  - comparison
+additionalProperties: false

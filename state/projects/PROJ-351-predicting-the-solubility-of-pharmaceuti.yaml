@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T10:49:55.866396Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-351-predicting-the-solubility-of-pharmaceuti
-last_run_id: 3cbe63e7-61b0-4261-9a64-aa7cd7a6eeea
+last_run_id: 18d5a029-8c58-4b0f-b2ac-3042fe659d79
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti
 title: Predicting the Solubility of Pharmaceutical Compounds in Water Using Graph
   Neural Networks
-updated_at: '2026-07-05T18:33:27.843860Z'
+updated_at: '2026-07-09T06:52:39.222080Z'

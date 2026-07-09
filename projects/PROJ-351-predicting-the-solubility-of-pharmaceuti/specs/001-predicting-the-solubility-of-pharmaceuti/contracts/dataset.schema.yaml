@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ESOL Dataset Schema"
+description: "Schema for the cleaned and processed ESOL dataset used in the solubility prediction pipeline."
+type: object
+properties:
+  smiles:
+    type: string
+    description: "Canonical SMILES string representing the molecular structure."
+    pattern: "^[A-Za-z0-9@#$%&*()\\[\\]{}\\-+=/\\\\\\.\\^\\|~]+$"
+  logS:
+    type: number
+    description: "Experimental aqueous solubility in log(mol/L)."
+    minimum: -15.0
+    maximum: 5.0
+  valid:
+    type: boolean
+    description: "Flag indicating if the SMILES was successfully parsed by RDKit."
+  fingerprint:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    description: "Morgan fingerprint bit vector (2048 bits)."
+    minItems: 2048
+    maxItems: 2048
+  graph_features:
+    type: object
+    description: "Node and edge features for GNN (stored as serialized tensors or JSON)."
+    properties:
+      node_features:
+        type: array
+        description: "List of node feature vectors."
+      edge_index:
+        type: array
+        description: "Edge connectivity indices."
+required:
+  - smiles
+  - logS
+  - valid
+additionalProperties: false

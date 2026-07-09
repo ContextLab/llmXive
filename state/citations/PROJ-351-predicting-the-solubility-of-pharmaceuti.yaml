@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 98c1ee1c7aea8e90ad6e271725f3f91839c0c0d782d435e46a3e32056b0e3630
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: esol.csv
+  kind: url
+  value: https://huggingface.co/datasets/scikit-fingerprints/MoleculeNet_ESOL/resolve/main/esol.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/scikit-fingerprints/MoleculeNet_ESOL/8929f602b69f2a32ae07dd7a4015fa4cc64224ae/esol.csv?%2Fdatasets%2Fscikit-fingerprints%2FMoleculeNet_ESOL%2Fresolve%2Fmain%2Fesol.csv=&etag=%2258e042e07c60f9d949e1660999f0d450dc928d50%22
+  verified_at: '2026-07-09T06:39:16.276499Z'
+- artifact_hash: 98c1ee1c7aea8e90ad6e271725f3f91839c0c0d782d435e46a3e32056b0e3630
+  artifact_path: projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/specs/001-predicting-the-solubility-of-pharmaceuti/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: preview_100_molecules.csv
+  kind: url
+  value: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/MKEChem/mke-novel-druglike-smiles/bb210ac2211b5deef4bd657e358526d36a6b407b/preview_100_molecules.csv?%2Fdatasets%2FMKEChem%2Fmke-novel-druglike-smiles%2Fresolve%2Fmain%2Fpreview_100_molecules.csv=&etag=%22907c505431605bb865026076d1c9a94d49c1ba0e%22
+  verified_at: '2026-07-09T06:39:16.276499Z'
