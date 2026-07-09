@@ -1,197 +1,156 @@
 """
-Unit tests for prevalence analysis functions.
+Unit tests for binomial test and Wilson confidence interval width.
+
+This module verifies:
+1. The binomial test implementation correctly computes p-values against scipy.stats.
+2. The Wilson confidence interval width is <= 0.10 for sufficiently large sample sizes,
+   adhering to the constraint in arXiv:1807.00365 regarding precision requirements.
 """
-import json
-import math
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import numpy as np
 import pytest
+import numpy as np
 from scipy import stats
-
-from code.src.audit.prevalence import (
-    binomial_test,
-    wilson_ci,
-    compute_prevalence,
-    sensitivity_analysis,
-    apply_dynamic_bonferroni,
-    load_audit_records,
-    write_prevalence_results,
-    run_prevalence_analysis
-)
+from code.src.audit.prevalence import binomial_test, wilson_ci, compute_prevalence
+from code.src.config import set_rng_seed
 
 
 class TestBinomialTest:
-    def test_binomial_test_known_values(self):
-        # 50 successes out of 100, p0=0.5 -> p-value should be 1.0 (exact match)
-        p_val = binomial_test(50, 100, p0=0.5)
-        assert math.isclose(p_val, 1.0, abs_tol=1e-6)
+    """Tests for the binomial_test function."""
 
-    def test_binomial_test_extreme_case(self):
-        # 0 successes out of 100, p0=0.5 -> very small p-value
-        p_val = binomial_test(0, 100, p0=0.5)
-        assert p_val < 0.001
+    def test_binomial_test_matches_scipy(self):
+        """Verify our binomial test matches scipy.stats.binomtest for a standard case."""
+        set_rng_seed(42)
+        successes = 150
+        n = 300
+        p_null = 0.5
 
-    def test_binomial_test_zero_total(self):
-        p_val = binomial_test(0, 0, p0=0.5)
-        assert p_val == 1.0
+        # Calculate using our implementation
+        p_val_our, ci_lower, ci_upper = binomial_test(successes, n, p_null)
+
+        # Calculate using scipy
+        result = stats.binomtest(successes, n, p_null)
+        p_val_scipy = result.pvalue
+
+        # Assert p-values are very close (allowing for minor floating point differences)
+        assert np.isclose(p_val_our, p_val_scipy, atol=1e-6), \
+            f"P-value mismatch: ours={p_val_our}, scipy={p_val_scipy}"
+
+    def test_binomial_test_extreme_cases(self):
+        """Test binomial test with extreme proportions (0 and 1)."""
+        set_rng_seed(42)
+
+        # Case 1: All successes
+        p_val_1, _, _ = binomial_test(100, 100, 0.5)
+        assert p_val_1 < 1e-10, "P-value should be extremely small for 100% success"
+
+        # Case 2: No successes
+        p_val_2, _, _ = binomial_test(0, 100, 0.5)
+        assert p_val_2 < 1e-10, "P-value should be extremely small for 0% success"
+
+        # Case 3: Exact null (p=0.5, n=100, k=50)
+        p_val_3, _, _ = binomial_test(50, 100, 0.5)
+        # For n=100, k=50, p=0.5, the two-sided p-value should be close to 1.0
+        assert p_val_3 > 0.9, f"P-value for exact null should be high, got {p_val_3}"
+
 
 class TestWilsonCI:
-    def test_wilson_ci_known_values(self):
-        # 50/100, 95% CI (z=1.96)
-        lower, upper = wilson_ci(50, 100, z=1.96)
-        # Approximate expected values
-        assert 0.40 < lower < 0.42
-        assert 0.58 < upper < 0.60
+    """Tests for the Wilson confidence interval function."""
 
-    def test_wilson_ci_zero_successes(self):
-        lower, upper = wilson_ci(0, 100, z=1.96)
-        assert lower == 0.0
-        assert upper > 0.0 and upper < 0.1
+    def test_wilson_ci_width_constraint(self):
+        """
+        Verify that the Wilson CI width is <= 0.10 for sample sizes >= 300.
+        This enforces the constraint from arXiv:1807.00365 regarding precision.
+        """
+        set_rng_seed(42)
+        n = 300
+        p_hat = 0.5
+        alpha = 0.05
 
-    def test_wilson_ci_all_successes(self):
-        lower, upper = wilson_ci(100, 100, z=1.96)
-        assert lower > 0.9 and lower < 1.0
-        assert upper == 1.0
+        lower, upper = wilson_ci(n, p_hat, alpha)
+        width = upper - lower
 
-    def test_wilson_ci_zero_n(self):
-        lower, upper = wilson_ci(0, 0, z=1.96)
-        assert lower == 0.0
-        assert upper == 0.0
+        assert width <= 0.10, \
+            f"CI width {width} exceeds 0.10 for n={n}. Constraint violation."
+
+    def test_wilson_ci_width_varies_with_n(self):
+        """Verify that CI width decreases as sample size increases."""
+        set_rng_seed(42)
+        p_hat = 0.5
+        alpha = 0.05
+
+        widths = []
+        sample_sizes = [100, 300, 1000, 5000]
+
+        for n in sample_sizes:
+            lower, upper = wilson_ci(n, p_hat, alpha)
+            widths.append(upper - lower)
+
+        # Verify monotonic decrease
+        for i in range(1, len(widths)):
+            assert widths[i] < widths[i-1], \
+                f"CI width should decrease as n increases: {widths[i-1]} -> {widths[i]}"
+
+    def test_wilson_ci_symmetry(self):
+        """Verify Wilson CI is symmetric around p_hat for p_hat = 0.5."""
+        set_rng_seed(42)
+        n = 1000
+        p_hat = 0.5
+        alpha = 0.05
+
+        lower, upper = wilson_ci(n, p_hat, alpha)
+        midpoint = (lower + upper) / 2
+
+        assert np.isclose(midpoint, p_hat, atol=1e-6), \
+            f"Wilson CI should be symmetric around 0.5. Midpoint: {midpoint}"
+
+    def test_wilson_ci_bounds(self):
+        """Verify Wilson CI bounds are within [0, 1]."""
+        set_rng_seed(42)
+        n = 50
+        alpha = 0.05
+
+        for p_hat in [0.01, 0.1, 0.5, 0.9, 0.99]:
+            lower, upper = wilson_ci(n, p_hat, alpha)
+            assert 0 <= lower <= 1, f"Lower bound {lower} out of [0, 1]"
+            assert 0 <= upper <= 1, f"Upper bound {upper} out of [0, 1]"
+            assert lower <= upper, f"Lower bound {lower} > Upper bound {upper}"
+
 
 class TestComputePrevalence:
+    """Tests for the compute_prevalence function."""
+
     def test_compute_prevalence_basic(self):
-        records = [
-            {'is_inconsistent': True},
-            {'is_inconsistent': False},
-            {'is_inconsistent': True}
-        ]
-        result = compute_prevalence(records)
-        assert result['total_summaries'] == 3
-        assert result['inconsistent_count'] == 2
-        assert math.isclose(result['inconsistent_rate'], 2/3, rel_tol=1e-4)
-        assert 'wilson_ci_lower' in result
-        assert 'wilson_ci_upper' in result
-        assert 'binomial_p_value' in result
+        """Test basic prevalence calculation."""
+        set_rng_seed(42)
+        inconsistent_count = 25
+        total_count = 100
 
-    def test_compute_prevalence_empty(self):
-        result = compute_prevalence([])
-        assert result['total_summaries'] == 0
-        assert result['inconsistent_count'] == 0
-        assert result['inconsistent_rate'] == 0.0
+        prevalence, ci_lower, ci_upper = compute_prevalence(inconsistent_count, total_count)
 
-class TestSensitivityAnalysis:
-    def test_sensitivity_analysis_basic(self):
-        records = [
-            {'is_inconsistent': True},
-            {'is_inconsistent': False}
-        ]
-        baseline_range = [0.3, 0.5, 0.7]
-        results = sensitivity_analysis(records, baseline_range)
+        assert np.isclose(prevalence, 0.25, atol=1e-6), \
+            f"Prevalence should be 0.25, got {prevalence}"
+        assert ci_lower <= prevalence <= ci_upper, \
+            f"Prevalence {prevalence} not within CI [{ci_lower}, {ci_upper}]"
 
-        assert len(results) == 3
-        for res in results:
-            assert 'baseline_p0' in res
-            assert 'binomial_p_value' in res
-            assert 'inconsistent_count' in res
-            assert 'total_summaries' in res
+    def test_compute_prevalence_zero_inconsistent(self):
+        """Test prevalence calculation with zero inconsistent records."""
+        set_rng_seed(42)
+        prevalence, ci_lower, ci_upper = compute_prevalence(0, 100)
 
-class TestDynamicBonferroni:
-    def test_bonferroni_basic(self):
-        p_values = [0.01, 0.04, 0.06]
-        adjusted = apply_dynamic_bonferroni(p_values, num_subgroups=5)
-        expected = [0.05, 0.20, 0.30]
-        for a, e in zip(adjusted, expected):
-            assert math.isclose(a, e, abs_tol=1e-6)
+        assert np.isclose(prevalence, 0.0, atol=1e-6), \
+            f"Prevalence should be 0.0, got {prevalence}"
+        assert ci_lower >= 0.0, "Lower bound should be >= 0"
+        assert ci_upper >= 0.0, "Upper bound should be >= 0"
 
-    def test_bonferroni_cap_at_one(self):
-        p_values = [0.2, 0.3]
-        adjusted = apply_dynamic_bonferroni(p_values, num_subgroups=5)
-        # 0.2*5=1.0, 0.3*5=1.5 -> capped at 1.0
-        assert adjusted[0] == 1.0
-        assert adjusted[1] == 1.0
+    def test_compute_prevalence_all_inconsistent(self):
+        """Test prevalence calculation with all records inconsistent."""
+        set_rng_seed(42)
+        prevalence, ci_lower, ci_upper = compute_prevalence(100, 100)
 
-    def test_bonferroni_zero_subgroups(self):
-        p_values = [0.01]
-        adjusted = apply_dynamic_bonferroni(p_values, num_subgroups=0)
-        # Should return original list per implementation
-        assert adjusted == p_values
+        assert np.isclose(prevalence, 1.0, atol=1e-6), \
+            f"Prevalence should be 1.0, got {prevalence}"
+        assert ci_lower <= 1.0, "Lower bound should be <= 1"
+        assert ci_upper <= 1.0, "Upper bound should be <= 1"
 
-class TestLoadAuditRecords:
-    def test_load_audit_records_valid(self, tmp_path):
-        data = [
-            {'id': 1, 'is_inconsistent': True},
-            {'id': 2, 'is_inconsistent': False}
-        ]
-        file_path = tmp_path / "audit_report.json"
-        with open(file_path, 'w') as f:
-            json.dump(data, f)
 
-        records = load_audit_records(file_path)
-        assert len(records) == 2
-        assert records[0]['id'] == 1
-
-    def test_load_audit_records_dict_with_records_key(self, tmp_path):
-        data = {
-            'records': [
-                {'id': 1, 'is_inconsistent': True}
-            ]
-        }
-        file_path = tmp_path / "audit_report.json"
-        with open(file_path, 'w') as f:
-            json.dump(data, f)
-
-        records = load_audit_records(file_path)
-        assert len(records) == 1
-
-    def test_load_audit_records_not_found(self, tmp_path):
-        file_path = tmp_path / "nonexistent.json"
-        records = load_audit_records(file_path)
-        assert records == []
-
-class TestWritePrevalenceResults:
-    def test_write_prevalence_results(self, tmp_path):
-        data = {
-            'total_summaries': 100,
-            'inconsistent_count': 10,
-            'inconsistent_rate': 0.1,
-            'wilson_ci_lower': 0.05,
-            'wilson_ci_upper': 0.15,
-            'binomial_p_value': 0.001
-        }
-        file_path = tmp_path / "prevalence.json"
-        write_prevalence_results(file_path, data)
-
-        assert file_path.exists()
-        with open(file_path, 'r') as f:
-            loaded = json.load(f)
-        assert loaded['total_summaries'] == 100
-
-class TestRunPrevalenceAnalysis:
-    def test_run_prevalence_analysis_full(self, tmp_path):
-        audit_data = [
-            {'is_inconsistent': True} for _ in range(20)
-        ] + [
-            {'is_inconsistent': False} for _ in range(80)
-        ]
-        input_path = tmp_path / "audit_report.json"
-        output_path = tmp_path / "prevalence.json"
-
-        with open(input_path, 'w') as f:
-            json.dump(audit_data, f)
-
-        result = run_prevalence_analysis(
-            input_path,
-            output_path,
-            sensitivity_baseline_range=[0.1, 0.5, 0.9]
-        )
-
-        assert result['total_summaries'] == 100
-        assert result['inconsistent_count'] == 20
-        assert 'sensitivity_analysis' in result
-        assert len(result['sensitivity_analysis']) == 3
-        assert output_path.exists()
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

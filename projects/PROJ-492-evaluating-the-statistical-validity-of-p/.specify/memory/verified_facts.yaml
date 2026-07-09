@@ -1,5 +1,5 @@
-'|accuracy extraction least real set validation world':
-  quote: "FusiformNet 96.45\xB1 0.79 99.30\xB1 0.15"
-  source_id: '2011.00577'
-  url: https://arxiv.org/abs/2011.00577
-  value: '96.45'
+'|accuracy csv data extraction label manual real validation world':
+  quote: 90.01% 94.47% 97.39% 97.15% 98.11%
+  source_id: '1407.6748'
+  url: https://arxiv.org/abs/1407.6748
+  value: 98.11%

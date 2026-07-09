@@ -1,4 +1,3 @@
-# Existing dependencies
 requests
 beautifulsoup4
 pandas
@@ -14,4 +13,3 @@ black
 pre-commit
 pytest
 pydantic
-lxml

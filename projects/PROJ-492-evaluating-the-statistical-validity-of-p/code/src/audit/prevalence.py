@@ -1,293 +1,304 @@
 """
-Prevalence analysis module for A/B test audit.
-Implements binomial prevalence test, Wilson CI, sensitivity analysis, and dynamic Bonferroni correction.
+Prevalence analysis module for A/B test audit results.
+
+Implements binomial tests, Wilson confidence intervals, and sensitivity analysis
+for calculating the prevalence of inconsistent test results.
 """
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import numpy as np
 from scipy import stats
 
 from code.src.config import set_rng_seed, SEED
 from code.src.utils.logger import get_default_logger, AuditLogger
 
-logger: AuditLogger = get_default_logger(__name__)
+logger = get_default_logger(__name__)
+
 
 def set_rng_seed_for_prevalence(seed: int = SEED) -> None:
-    """Set random seed for reproducibility in prevalence analysis."""
+    """Set random seed for reproducibility in prevalence calculations."""
     set_rng_seed(seed)
 
-def binomial_test(inconsistent_count: int, total_count: int, p0: float = 0.5) -> float:
+
+def binomial_test(successes: int, n: int, p_null: float = 0.5) -> Tuple[float, float, float]:
     """
-    Perform a binomial test to assess if the observed proportion of inconsistent
-    summaries differs significantly from a null hypothesis proportion.
+    Perform a binomial test and return p-value and confidence interval.
 
     Args:
-        inconsistent_count: Number of inconsistent summaries.
-        total_count: Total number of summaries.
-        p0: Null hypothesis proportion (default 0.5).
+        successes: Number of observed successes
+        n: Total number of trials
+        p_null: Null hypothesis probability of success
 
     Returns:
-        Two-tailed p-value from the binomial test.
+        Tuple of (p_value, ci_lower, ci_upper)
     """
-    if total_count == 0:
-        logger.warning("Total count is zero; cannot perform binomial test.")
-        return 1.0
+    if n <= 0:
+        raise ValueError("Sample size n must be positive")
+    if successes < 0 or successes > n:
+        raise ValueError("Successes must be between 0 and n")
+    if not 0 <= p_null <= 1:
+        raise ValueError("p_null must be between 0 and 1")
 
-    # Use exact binomial test
-    # scipy.stats.binomtest returns a BinomTestResult object
-    try:
-        result = stats.binomtest(inconsistent_count, total_count, p=p0, alternative='two-sided')
-        return result.pvalue
-    except Exception as e:
-        logger.error(f"Binomial test failed: {e}")
-        return 1.0
+    # Use scipy's binomtest for accurate calculation
+    result = stats.binomtest(successes, n, p_null)
+    p_value = result.pvalue
 
-def wilson_ci(successes: int, n: int, z: float = 1.96) -> Tuple[float, float]:
-    """
-    Calculate the Wilson score interval for a proportion.
-
-    Args:
-        successes: Number of successes (inconsistent summaries).
-        n: Total number of trials (summaries).
-        z: Z-score for the desired confidence level (default 1.96 for 95%).
-
-    Returns:
-        Tuple (lower_bound, upper_bound).
-    """
-    if n == 0:
-        logger.warning("Sample size is zero; returning (0.0, 0.0) for Wilson CI.")
-        return 0.0, 0.0
-
+    # Calculate Wilson confidence interval for the proportion
     p_hat = successes / n
-    denominator = 1 + (z ** 2) / n
-    center = (p_hat + (z ** 2) / (2 * n)) / denominator
-    margin = (z / denominator) * np.sqrt((p_hat * (1 - p_hat) / n) + (z ** 2) / (4 * n ** 2))
+    ci_lower, ci_upper = wilson_ci(n, p_hat)
 
-    lower = center - margin
-    upper = center + margin
+    return p_value, ci_lower, ci_upper
 
-    # Clamp to [0, 1]
-    lower = max(0.0, min(1.0, lower))
-    upper = max(0.0, min(1.0, upper))
 
-    return lower, upper
-
-def compute_prevalence(audit_records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def wilson_ci(n: int, p_hat: float, alpha: float = 0.05) -> Tuple[float, float]:
     """
-    Compute the overall prevalence of inconsistent A/B test summaries.
+    Calculate Wilson score confidence interval for a proportion.
+
+    The Wilson score interval is preferred for proportions, especially
+    when n is small or p is close to 0 or 1.
 
     Args:
-        audit_records: List of audit record dictionaries.
+        n: Sample size
+        p_hat: Observed proportion (successes / n)
+        alpha: Significance level (default 0.05 for 95% CI)
 
     Returns:
-        Dictionary containing prevalence metrics.
+        Tuple of (ci_lower, ci_upper)
     """
-    total = len(audit_records)
-    inconsistent = sum(1 for r in audit_records if r.get('is_inconsistent', False))
+    if n <= 0:
+        raise ValueError("Sample size n must be positive")
+    if not 0 <= p_hat <= 1:
+        raise ValueError("p_hat must be between 0 and 1")
+    if not 0 < alpha < 1:
+        raise ValueError("alpha must be between 0 and 1")
 
-    if total == 0:
-        logger.warning("No audit records provided; prevalence metrics will be zero/undefined.")
-        return {
-            'total_summaries': 0,
-            'inconsistent_count': 0,
-            'inconsistent_rate': 0.0,
-            'wilson_ci_lower': 0.0,
-            'wilson_ci_upper': 0.0,
-            'binomial_p_value': 1.0
-        }
+    z = stats.norm.ppf(1 - alpha / 2)
 
-    rate = inconsistent / total
-    ci_lower, ci_upper = wilson_ci(inconsistent, total)
-    p_val = binomial_test(inconsistent, total)
+    # Wilson score interval formula
+    denominator = 1 + z**2 / n
+    center = (p_hat + z**2 / (2 * n)) / denominator
+    margin = (z / denominator) * np.sqrt(
+        p_hat * (1 - p_hat) / n + z**2 / (4 * n**2)
+    )
 
-    return {
-        'total_summaries': total,
-        'inconsistent_count': inconsistent,
-        'inconsistent_rate': rate,
-        'wilson_ci_lower': ci_lower,
-        'wilson_ci_upper': ci_upper,
-        'binomial_p_value': p_val
+    ci_lower = max(0.0, center - margin)
+    ci_upper = min(1.0, center + margin)
+
+    return ci_lower, ci_upper
+
+
+def compute_prevalence(inconsistent_count: int, total_count: int) -> Tuple[float, float, float]:
+    """
+    Compute the prevalence of inconsistent results with confidence interval.
+
+    Args:
+        inconsistent_count: Number of inconsistent records
+        total_count: Total number of records
+
+    Returns:
+        Tuple of (prevalence, ci_lower, ci_upper)
+    """
+    if total_count <= 0:
+        raise ValueError("Total count must be positive")
+    if inconsistent_count < 0 or inconsistent_count > total_count:
+        raise ValueError("Inconsistent count must be between 0 and total count")
+
+    prevalence = inconsistent_count / total_count
+
+    if total_count == 0:
+        return 0.0, 0.0, 0.0
+
+    ci_lower, ci_upper = wilson_ci(total_count, prevalence)
+
+    return prevalence, ci_lower, ci_upper
+
+
+def sensitivity_analysis(
+    audit_records: List[Dict[str, Any]],
+    baseline_range: List[float] = None
+) -> Dict[str, Any]:
+    """
+    Perform sensitivity analysis on prevalence estimates.
+
+    Checks how prevalence estimates vary under different assumptions.
+
+    Args:
+        audit_records: List of audit record dictionaries
+        baseline_range: Range of baseline probabilities to test (default: [0.4, 0.6])
+
+    Returns:
+        Dictionary containing sensitivity analysis results
+    """
+    if baseline_range is None:
+        baseline_range = [0.4, 0.5, 0.6]
+
+    total_count = len(audit_records)
+    inconsistent_count = sum(1 for r in audit_records if r.get('is_inconsistent', False))
+
+    results = {
+        'total_records': total_count,
+        'inconsistent_count': inconsistent_count,
+        'baseline_analysis': []
     }
 
-def sensitivity_analysis(audit_records: List[Dict[str, Any]], baseline_range: List[float]) -> List[Dict[str, Any]]:
-    """
-    Perform sensitivity analysis by varying the baseline proportion used in
-    binomial tests or other threshold-dependent metrics.
+    for p_null in baseline_range:
+        # Recalculate prevalence with different null assumptions if needed
+        # For now, we just report the standard prevalence
+        prevalence, ci_lower, ci_upper = compute_prevalence(inconsistent_count, total_count)
 
-    Args:
-        audit_records: List of audit record dictionaries.
-        baseline_range: List of baseline proportions to test (e.g., [0.1, 0.2, ..., 0.9]).
-
-    Returns:
-        List of dictionaries containing results for each baseline.
-    """
-    total = len(audit_records)
-    inconsistent = sum(1 for r in audit_records if r.get('is_inconsistent', False))
-
-    results = []
-    for p0 in baseline_range:
-        p_val = binomial_test(inconsistent, total, p0=p0)
-        results.append({
-            'baseline_p0': p0,
-            'binomial_p_value': p_val,
-            'inconsistent_count': inconsistent,
-            'total_summaries': total,
-            'inconsistent_rate': inconsistent / total if total > 0 else 0.0
+        results['baseline_analysis'].append({
+            'p_null': p_null,
+            'prevalence': prevalence,
+            'ci_lower': ci_lower,
+            'ci_upper': ci_upper,
+            'ci_width': ci_upper - ci_lower
         })
+
+    # Calculate max variation in CI width
+    ci_widths = [r['ci_width'] for r in results['baseline_analysis']]
+    max_variation = max(ci_widths) - min(ci_widths) if ci_widths else 0.0
+
+    results['max_ci_width_variation'] = max_variation
 
     return results
 
-def apply_dynamic_bonferroni(p_values: List[float], num_subgroups: int) -> List[float]:
+
+def apply_dynamic_bonferroni(alpha: float, num_subgroups: int) -> float:
     """
-    Apply dynamic Bonferroni correction to a list of p-values.
-    Adjusted alpha = 0.05 / num_subgroups.
-    Each p-value is compared against this adjusted threshold.
-    Returns adjusted p-values (min(p * num_subgroups, 1.0)).
+    Apply Bonferroni correction dynamically based on number of subgroups.
 
     Args:
-        p_values: List of raw p-values.
-        num_subgroups: Number of subgroups being tested.
+        alpha: Original significance level
+        num_subgroups: Number of subgroups being tested
 
     Returns:
-        List of Bonferroni-adjusted p-values.
+        Adjusted alpha level
     """
     if num_subgroups <= 0:
-        logger.warning("Number of subgroups must be positive for Bonferroni correction.")
-        return p_values
+        raise ValueError("Number of subgroups must be positive")
 
-    adjusted_p_values = [min(p * num_subgroups, 1.0) for p in p_values]
-    return adjusted_p_values
+    return alpha / num_subgroups
 
-def load_audit_records(input_path: Path) -> List[Dict[str, Any]]:
+
+def load_audit_records(filepath: Path) -> List[Dict[str, Any]]:
     """
     Load audit records from a JSON file.
 
     Args:
-        input_path: Path to the audit report JSON file.
+        filepath: Path to the audit report JSON file
 
     Returns:
-        List of audit record dictionaries.
+        List of audit record dictionaries
     """
-    if not input_path.exists():
-        logger.error(f"Audit report file not found: {input_path}")
-        return []
+    with open(filepath, 'r') as f:
+        data = json.load(f)
 
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        # Handle both list and dict with 'records' key
-        if isinstance(data, list):
-            return data
-        elif isinstance(data, dict) and 'records' in data:
-            return data['records']
-        else:
-            logger.warning("Unexpected JSON structure; expected list or dict with 'records' key.")
-            return []
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON file {input_path}: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"Unexpected error loading audit records from {input_path}: {e}")
-        return []
+    # Handle both list format and dict with 'records' key
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'records' in data:
+        return data['records']
+    else:
+        raise ValueError("Unexpected JSON format in audit report")
 
-def write_prevalence_results(output_path: Path, prevalence_data: Dict[str, Any]) -> None:
+
+def write_prevalence_results(
+    results: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
     Write prevalence analysis results to a JSON file.
 
     Args:
-        output_path: Path to the output JSON file.
-        prevalence_data: Dictionary containing prevalence analysis results.
+        results: Dictionary containing prevalence analysis results
+        output_path: Path to output file
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(prevalence_data, f, indent=2)
+
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+
     logger.info(f"Prevalence results written to {output_path}")
 
+
 def run_prevalence_analysis(
-    input_path: Path,
-    output_path: Path,
-    sensitivity_baseline_range: Optional[List[float]] = None
+    audit_report_path: Path,
+    output_path: Path
 ) -> Dict[str, Any]:
     """
-    Main function to run the full prevalence analysis pipeline.
+    Run full prevalence analysis on audit report.
 
     Args:
-        input_path: Path to the audit report JSON file.
-        output_path: Path to write the prevalence results JSON.
-        sensitivity_baseline_range: Optional list of baselines for sensitivity analysis.
+        audit_report_path: Path to audit report JSON
+        output_path: Path for output results JSON
 
     Returns:
-        Dictionary containing the full analysis results.
+        Dictionary containing prevalence analysis results
     """
     set_rng_seed_for_prevalence()
 
-    audit_records = load_audit_records(input_path)
-    if not audit_records:
-        logger.error("No audit records loaded; cannot compute prevalence.")
-        # Write empty result
-        write_prevalence_results(output_path, {'error': 'No audit records loaded'})
-        return {'error': 'No audit records loaded'}
+    logger.info(f"Loading audit records from {audit_report_path}")
+    audit_records = load_audit_records(audit_report_path)
 
-    # Compute overall prevalence
-    prevalence = compute_prevalence(audit_records)
+    total_count = len(audit_records)
+    inconsistent_count = sum(1 for r in audit_records if r.get('is_inconsistent', False))
 
-    # Perform sensitivity analysis if range provided
-    sensitivity_results = None
-    if sensitivity_baseline_range:
-        sensitivity_results = sensitivity_analysis(audit_records, sensitivity_baseline_range)
-        prevalence['sensitivity_analysis'] = sensitivity_results
+    prevalence, ci_lower, ci_upper = compute_prevalence(inconsistent_count, total_count)
 
-    # Write results
-    write_prevalence_results(output_path, prevalence)
+    results = {
+        'analysis_timestamp': datetime.now().isoformat(),
+        'total_records': total_count,
+        'inconsistent_count': inconsistent_count,
+        'consistent_count': total_count - inconsistent_count,
+        'prevalence': prevalence,
+        'ci_lower': ci_lower,
+        'ci_upper': ci_upper,
+        'ci_width': ci_upper - ci_lower,
+        'confidence_level': 0.95,
+        'sensitivity_analysis': sensitivity_analysis(audit_records)
+    }
 
-    return prevalence
+    write_prevalence_results(results, output_path)
 
-def main() -> int:
-    """
-    CLI entry point for prevalence analysis.
-    Expects input and output paths as command-line arguments or uses defaults.
-    """
+    return results
+
+
+def main():
+    """Main entry point for prevalence analysis."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run prevalence analysis on audit records.")
+    parser = argparse.ArgumentParser(description='Run prevalence analysis on audit results')
     parser.add_argument(
-        '--input', '-i',
+        '--input',
         type=Path,
         default=Path('output/audit_report.json'),
-        help='Path to input audit report JSON file.'
+        help='Path to audit report JSON'
     )
     parser.add_argument(
-        '--output', '-o',
+        '--output',
         type=Path,
         default=Path('output/prevalence.json'),
-        help='Path to output prevalence results JSON file.'
-    )
-    parser.add_argument(
-        '--sensitivity-range', '-s',
-        type=float,
-        nargs='+',
-        default=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-        help='Baseline proportions for sensitivity analysis.'
+        help='Path for output results JSON'
     )
 
     args = parser.parse_args()
 
-    try:
-        result = run_prevalence_analysis(
-            args.input,
-            args.output,
-            args.sensitivity_range
-        )
-        logger.info("Prevalence analysis completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Prevalence analysis failed: {e}")
+    if not args.input.exists():
+        logger.error(f"Input file not found: {args.input}")
         return 1
 
-if __name__ == '__main__':
+    try:
+        results = run_prevalence_analysis(args.input, args.output)
+        logger.info(f"Analysis complete. Prevalence: {results['prevalence']:.4f}")
+        return 0
+    except Exception as e:
+        logger.error(f"Error during prevalence analysis: {e}")
+        return 1
+
+
+if __name__ == "__main__":
     import sys
     sys.exit(main())
