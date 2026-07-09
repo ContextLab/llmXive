@@ -1,0 +1,337 @@
+resolved_at: '2026-07-09T10:41:25.532347+00:00'
+datasets:
+- intent: EBSD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Rxzh/ebsd-synthetic/resolve/main/data_synth_ebsd.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65f840fa84e84712fae92567/b4cf8d50cf3940460273aa920ae71d01a708ecbf17e77758c3f349a6b38191d8?response-content-disposition=inline%3B+filename*%3DUTF-8%27%2719-B588.npy%3B+filename%3D%2219-B588.npy%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783597194&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVmODQwZmE4NGU4NDcxMmZhZTkyNTY3L2I0Y2Y4ZDUwY2YzOTQwNDYwMjczYWE5MjBhZTcxZDAxYTcwOGVjYmYxN2U3Nzc1OGMzZjM0OWE2YjM4MTkxZDhcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3MTktQjU4OC5ucHklM0IrZmlsZW5hbWUlM0QlMjIxOS1CNTg4Lm5weSUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTk3MTk0fX19XX0_&Signature=MEUCIFgwDSgAQ8quNA9TrWRjzHrLHKy2E~j451pfTT0pyFv6AiEAmTBbvCYO6wo3vJJaDtte9dBkTC9o3ynO3Trb6Db32K4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Rxzh/ebsd-synthetic/resolve/main/data_synth_ebsd.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69edd8996490767051325ef5/91000cb318ec3cb8e43f6284fe1bd66f0e0d5ee6cc810ef659854057ee508e18?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27X_patterns.npy%3B+filename%3D%22X_patterns.npy%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783597195&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllZGQ4OTk2NDkwNzY3MDUxMzI1ZWY1LzkxMDAwY2IzMThlYzNjYjhlNDNmNjI4NGZlMWJkNjZmMGUwZDVlZTZjYzgxMGVmNjU5ODU0MDU3ZWU1MDhlMThcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3WF9wYXR0ZXJucy5ucHklM0IrZmlsZW5hbWUlM0QlMjJYX3BhdHRlcm5zLm5weSUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTk3MTk1fX19XX0_&Signature=MEUCIQCcARFc1oi3U5l6JNdPNOO0duJqcUuI1f42o79rkuB3GgIgKuH8DCfIrc9ZxH9oC397nFQKTFrfcFDvhlgWWwJ5CAI_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Benefits_of_Using_HL7_Interfaces_in_Healthcare_Systems/32947328
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6634354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rv15dv489
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8117598
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1488072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6554355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.materialsdatafacility.org/detail/28932d82-3331-4428-955e-4a9e58f94329-1.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repo.uni-hannover.de/handle/123456789/21907
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21026827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://nanonet.go.jp/data_service/arim_data.php?mode=detail&code=3985&key=N2PB4229SmK1Dd5g22Grk3Abc5Xo5Yu4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MTData
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hanesh007/mtdataset_exp/resolve/main/explain.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 13398
+      parsed: true
+  - url: https://huggingface.co/datasets/HanxuHU/mt_data/resolve/main/flores101/flores_101_ar.jsonl
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 212371
+      parsed: true
+  - url: https://huggingface.co/datasets/ShakhzoDavronov/mt-dataset-en-uz/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/KotaNaveen/MT_Dataset/resolve/main/test_llama2_chat_template.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/hanesh007/mtdataset_exp/resolve/main/explain.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/qducnguyen/mt_data_preparation/resolve/main/CulturaX_en/enculturax_clean.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/HanxuHU/mt_data/resolve/main/flores101/flores_101_ar.jsonl
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ShakhzoDavronov/mt-dataset-en-uz/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pureportal.strath.ac.uk/en/datasets/an-ambipolar-bodipy-derivative-for-a-white-exciplex-oled-and-chol/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tuprints.ulb.tu-darmstadt.de/handle/tuda/322
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tuprints.ulb.tu-darmstadt.de/handle/tuda/9556
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.11923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/831/items/1.0064818
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MTEX-style
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4727072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10207835
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601520991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602108269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673600557390
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021938
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021938
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-data.cardiff.ac.uk/articles/dataset/MATLAB_scripts_for_grain_size_and_misorientation_analysis_of_epidote-blueschist_samples/27053803
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783597264&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1OTcyNjR9fX1dfQ__&Signature=MEYCIQDFs5D2KvV63wl6CBWi9lu5oJI-XF7MXt00-byowYeiNgIhAMzWDqwAQiiFWRCS23qggWRP1NJC9JnXH8dDbizuS6Wh&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Autumn_Term_2024/32946692
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2022/32946605
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/book/_b_i_Loop_Avances_en_Qu_mica_y_S_ntesis_i_b_/32947244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Diffractive_Topological_Spin_Textures_of_Relativistic_Twisted_Fermion_Beams/32928065
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Evaluaci_n_de_Rendimiento_de_un_Cl_ster_Kubernetes_K3s_sobre_Raspberry_Pi/32947295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10965999
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21277220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21277220
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21274848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21274848
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

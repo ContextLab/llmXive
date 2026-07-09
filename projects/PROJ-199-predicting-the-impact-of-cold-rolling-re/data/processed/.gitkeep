@@ -1,0 +1,2 @@
+# This directory stores cleaned, filtered, and standardized EBSD data.
+# Output from the preprocessing pipeline (T012) and descriptor calculations (T021) go here.

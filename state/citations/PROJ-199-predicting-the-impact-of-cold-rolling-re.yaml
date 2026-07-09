@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 43c570c3055a86d20df4c098d948e109e71929a3146ba73de1944d914fa74f55
+  artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: data_synth_ebsd.zip
+  kind: url
+  value: https://huggingface.co/datasets/Rxzh/ebsd-synthetic/resolve/main/data_synth_ebsd.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/668ba69f80d60f0934597de6/2b4826a333ee089ebc74f8471b33310be2a12eae80955191c9378b419a9c86ac?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data_synth_ebsd.zip%3B+filename%3D%22data_synth_ebsd.zip%22%3B&response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&Expires=1783597687&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY4YmE2OWY4MGQ2MGYwOTM0NTk3ZGU2LzJiNDgyNmEzMzNlZTA4OWViYzc0Zjg0NzFiMzMzMTBiZTJhMTJlYWU4MDk1NTE5MWM5Mzc4YjQxOWE5Yzg2YWNcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YV9zeW50aF9lYnNkLnppcCUzQitmaWxlbmFtZSUzRCUyMmRhdGFfc3ludGhfZWJzZC56aXAlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGemlwJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1OTc2ODd9fX1dfQ__&Signature=MEQCICsWdH7MGipi3j1O%7EQRun26N9kI97xnjbe0XzVuTCKHqAiBw2W2jm5q7dMIcMsoI-eoAofkZDJYotqysidU967p77A__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-09T10:48:07.696103Z'

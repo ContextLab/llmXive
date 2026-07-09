@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EBSD Sample Schema"
+description: "Schema for raw/preprocessed EBSD data points used in texture analysis."
+type: "object"
+required:
+  - sample_id
+  - material
+  - reduction_percentage
+  - euler_angles
+  - confidence_index
+  - symmetry
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the EBSD measurement point."
+  material:
+    type: "string"
+    enum:
+      - "Al"
+      - "Cu"
+      - "Ni"
+    description: "Material type (FCC metals)."
+  reduction_percentage:
+    type: "number"
+    minimum: 0.0
+    maximum: 80.0
+    description: "Cold rolling reduction percentage."
+  euler_angles:
+    type: "array"
+    minItems: 3
+    maxItems: 3
+    items:
+      type: "number"
+    description: "Euler angles (phi1, Phi, phi2) in Bunge convention."
+  confidence_index:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Confidence index of the EBSD orientation fit."
+  symmetry:
+    type: "string"
+    const: "FCC"
+    description: "Crystal symmetry (fixed to FCC for this project)."
+additionalProperties: false

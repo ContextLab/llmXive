@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Prediction Schema"
+description: "Schema for model outputs including confidence intervals and extrapolation flags."
+type: "object"
+required:
+  - input_material
+  - input_reduction
+  - predicted_brass
+  - predicted_copper
+  - predicted_s
+  - predicted_goss
+  - predicted_texture_index
+  - confidence_interval_upper
+  - confidence_interval_lower
+  - is_extrapolated
+  - residual_variance_contribution
+properties:
+  input_material:
+    type: "string"
+    enum:
+      - "Al"
+      - "Cu"
+      - "Ni"
+    description: "Input material type."
+  input_reduction:
+    type: "number"
+    description: "Input reduction percentage."
+  predicted_brass:
+    type: "number"
+    description: "Predicted Brass volume fraction."
+  predicted_copper:
+    type: "number"
+    description: "Predicted Copper volume fraction."
+  predicted_s:
+    type: "number"
+    description: "Predicted S volume fraction."
+  predicted_goss:
+    type: "number"
+    description: "Predicted Goss volume fraction."
+  predicted_texture_index:
+    type: "number"
+    description: "Predicted Texture Index."
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of confidence interval."
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of confidence interval."
+  is_extrapolated:
+    type: "boolean"
+    description: "True if input_reduction is outside [0.0, 80.0]."
+  residual_variance_contribution:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of variance attributed to missing microstructural variables."
+additionalProperties: false

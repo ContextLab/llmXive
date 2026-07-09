@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Texture Descriptor Schema"
+description: "Schema for aggregated texture metrics (Volume Fractions, Texture Index)."
+type: "object"
+required:
+  - sample_group_id
+  - material
+  - reduction_percentage
+  - volume_fraction_brass
+  - volume_fraction_copper
+  - volume_fraction_s
+  - volume_fraction_goss
+  - texture_index
+  - mass_balance_check
+properties:
+  sample_group_id:
+    type: "string"
+    description: "Identifier for the group of EBSD points (Material + Reduction)."
+  material:
+    type: "string"
+    enum:
+      - "Al"
+      - "Cu"
+      - "Ni"
+    description: "Material type."
+  reduction_percentage:
+    type: "number"
+    minimum: 0.0
+    maximum: 80.0
+    description: "Cold rolling reduction percentage."
+  volume_fraction_brass:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Volume fraction of Brass component."
+  volume_fraction_copper:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Volume fraction of Copper component."
+  volume_fraction_s:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Volume fraction of S component."
+  volume_fraction_goss:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Volume fraction of Goss component."
+  texture_index:
+    type: "number"
+    minimum: 1.0
+    description: "Texture Index (J-index) measure of texture strength."
+  mass_balance_check:
+    type: "boolean"
+    description: "True if sum of volume fractions is within 1.0 ± 0.01."
+additionalProperties: false

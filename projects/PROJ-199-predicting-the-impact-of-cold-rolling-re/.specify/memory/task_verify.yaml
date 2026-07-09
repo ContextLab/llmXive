@@ -1,0 +1,7 @@
+'T001a [P] Create top-level directory structure: `code/`, `data/`, `tests/`, `docs/`': 1
+T001b [P] Create `.gitignore` for Python, data, and IDE files: 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (pinning `orix`, `scikit-learn`,
+  `shap`, `pandas`, `numpy`, `pyyaml`, `requests`, `pytest`)
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools: 1
+T004 [P] Create subdirectories `raw`, `processed`, `interim` within the existing `data/` folder with `.gitkeep`: 1
