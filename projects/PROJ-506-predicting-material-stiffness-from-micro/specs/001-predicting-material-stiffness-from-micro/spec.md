@@ -56,7 +56,7 @@ As a materials scientist, I need to evaluate the model's generalization across d
 
 - What happens when the generated microstructure has an extreme void density (e.g., >90% voids) that approaches the theoretical limit of the numerical homogenization solver?
 - How does the system handle a scenario where the FFT-based homogenization solver fails to converge due to numerical instability in edge-case geometries?
-- How does the system behave if the 6-hour runtime limit is approached during the 50th epoch of training?
+- How does the system behave if the runtime limit is approached during the 50th epoch of training?
 
 ## Requirements
 

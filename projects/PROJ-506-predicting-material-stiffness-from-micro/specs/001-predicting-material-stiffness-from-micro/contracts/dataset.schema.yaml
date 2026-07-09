@@ -23,6 +23,9 @@ properties:
     minimum: 0.0
     maximum: 1.0
     description: "Fraction of inclusion space in the image"
+  topology_metric:
+    type: "number"
+    description: "Quantitative measure of spatial arrangement (e.g., clustering coefficient)"
   stiffness_tensor:
     type: "object"
     properties:
@@ -43,15 +46,16 @@ properties:
       - C12
       - C22
       - C66
-    description: "Effective elastic stiffness tensor (Voigt notation)"
+    description: "Effective elastic stiffness tensor (Voigt notation) calculated via FFT"
   within_voigt_reuss_hill:
     type: "boolean"
-    description: "Whether the calculated tensor is within theoretical bounds"
+    description: "Whether the calculated tensor is within theoretical bounds (plausibility check only)"
 required:
   - image_id
   - resolution
   - void_density
   - inclusion_density
+  - topology_metric
   - stiffness_tensor
   - within_voigt_reuss_hill
 additionalProperties: false

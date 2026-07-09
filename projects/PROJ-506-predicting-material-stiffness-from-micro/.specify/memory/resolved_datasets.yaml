@@ -1,26 +1,26 @@
-resolved_at: '2026-07-07T13:47:01.802017+00:00'
+resolved_at: '2026-07-09T13:54:43.786439+00:00'
 datasets:
 - intent: FFT-based
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Closed_mode_families_for_planar_cylindrical_and_spherical_waveguide_display_design_-_7962472_pdf/32858207
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-precise_phase_estimation_without_mode_entanglement_-_7887402_pdf/32345343
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wind_damage_drivers_and_forest_owners_attitudes_towards_development_of_a_decision_support_system_for_Norwegian_forestry/32948371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Getting_on_the_rollercoaster_again/32772123
+  - url: https://tandf.figshare.com/articles/dataset/Phylogenetic_and_phenotypic_diversity_of_i_Phoma_i_isolates_from_Swedish_forest_nurseries/32948368
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Managing_menopause/32772090
+  - url: https://tandf.figshare.com/articles/journal_contribution/Modeling_self-exciting_diurnal_processes_with_applications_to_smartphone_use_in_populations_with_affective_disorders/32948365
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Creating_joy/32772063
+  - url: https://tandf.figshare.com/articles/dataset/Effects_of_Data_Sparsity_and_Spatiotemporal_Variability_on_Hazard_Maps_of_Workplace_Noise/1254974
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -44,23 +44,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21238311
+  - url: https://zenodo.org/records/20568807
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21238311
+  - url: https://zenodo.org/records/20568807
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21236919
+  - url: https://knowledge.uchicago.edu/records/yxx3f-z0r67
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21236919
+  - url: https://knowledge.uchicago.edu/records/yxx3f-z0r67
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.06510
+  - url: https://zenodo.org/records/21254385
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -79,23 +79,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Closed_mode_families_for_planar_cylindrical_and_spherical_waveguide_display_design_-_7962472_pdf/32858207
+  - url: https://figshare.com/articles/media/_b_Evaluation_of_the_Impact_of_Loan_Tenure_on_Loan_Repayment_A_Case_Study_of_Budadiri_Microfinance_Centre_Limited_b_/32948372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-precise_phase_estimation_without_mode_entanglement_-_7887402_pdf/32345343
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Getting_on_the_rollercoaster_again/32772123
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wind_damage_drivers_and_forest_owners_attitudes_towards_development_of_a_decision_support_system_for_Norwegian_forestry/32948371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Managing_menopause/32772090
+  - url: https://tandf.figshare.com/articles/dataset/Phylogenetic_and_phenotypic_diversity_of_i_Phoma_i_isolates_from_Swedish_forest_nurseries/32948368
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Creating_joy/32772063
+  - url: https://tandf.figshare.com/articles/journal_contribution/Modeling_self-exciting_diurnal_processes_with_applications_to_smartphone_use_in_populations_with_affective_disorders/32948365
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -107,11 +107,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -119,23 +115,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21280255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://napier-repository.worktribe.com/output/280470
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-  - url: https://zenodo.org/records/21232806
+  - url: https://zenodo.org/records/21280255
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21232806
+  - url: https://zenodo.org/records/21279842
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2511.09072
+  - url: https://zenodo.org/records/21279842
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21277996
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -176,23 +176,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Closed_mode_families_for_planar_cylindrical_and_spherical_waveguide_display_design_-_7962472_pdf/32858207
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_Detectable_C-Peptide_and_the_Risk_of_Diabetic_Ketoacidosis_Risk_in_Type_1_Diabetes_b_/32760381
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-precise_phase_estimation_without_mode_entanglement_-_7887402_pdf/32345343
+  - url: https://figshare.com/articles/media/_b_Evaluation_of_the_Impact_of_Loan_Tenure_on_Loan_Repayment_A_Case_Study_of_Budadiri_Microfinance_Centre_Limited_b_/32948372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Getting_on_the_rollercoaster_again/32772123
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Managing_menopause/32772090
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wind_damage_drivers_and_forest_owners_attitudes_towards_development_of_a_decision_support_system_for_Norwegian_forestry/32948371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Creating_joy/32772063
+  - url: https://tandf.figshare.com/articles/dataset/Phylogenetic_and_phenotypic_diversity_of_i_Phoma_i_isolates_from_Swedish_forest_nurseries/32948368
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -200,11 +200,11 @@ datasets:
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 500'
-  - url: https://zenodo.org/records/5550909
+  - url: https://zenodo.org/records/16299984
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16299984
+  - url: https://zenodo.org/records/5550909
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,23 +216,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21239389
+  - url: https://zenodo.org/records/21280397
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21239389
+  - url: https://zenodo.org/records/21280397
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19637515
+  - url: https://zenodo.org/records/21280208
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19622928
+  - url: https://doi.org/10.3929/ethz-c-000801839
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19637515
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21278510
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -281,23 +281,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Closed_mode_families_for_planar_cylindrical_and_spherical_waveguide_display_design_-_7962472_pdf/32858207
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_Detectable_C-Peptide_and_the_Risk_of_Diabetic_Ketoacidosis_Risk_in_Type_1_Diabetes_b_/32760381
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-precise_phase_estimation_without_mode_entanglement_-_7887402_pdf/32345343
+  - url: https://figshare.com/articles/media/_b_Evaluation_of_the_Impact_of_Loan_Tenure_on_Loan_Repayment_A_Case_Study_of_Budadiri_Microfinance_Centre_Limited_b_/32948372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Getting_on_the_rollercoaster_again/32772123
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Managing_menopause/32772090
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wind_damage_drivers_and_forest_owners_attitudes_towards_development_of_a_decision_support_system_for_Norwegian_forestry/32948371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Creating_joy/32772063
+  - url: https://tandf.figshare.com/articles/dataset/Phylogenetic_and_phenotypic_diversity_of_i_Phoma_i_isolates_from_Swedish_forest_nurseries/32948368
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -313,31 +313,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14174346
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/rzm2g/
+  - url: https://zenodo.org/records/6068475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21241008
+  - url: https://zenodo.org/records/20465547
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21241008
+  - url: https://zenodo.org/records/20465547
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21240451
+  - url: https://doi.org/10.3929/ethz-c-000801933
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21240451
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21278711
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -382,23 +382,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Closed_mode_families_for_planar_cylindrical_and_spherical_waveguide_display_design_-_7962472_pdf/32858207
+  - url: https://diabetesjournals.figshare.com/articles/figure/_b_Detectable_C-Peptide_and_the_Risk_of_Diabetic_Ketoacidosis_Risk_in_Type_1_Diabetes_b_/32760381
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-precise_phase_estimation_without_mode_entanglement_-_7887402_pdf/32345343
+  - url: https://figshare.com/articles/media/_b_Evaluation_of_the_Impact_of_Loan_Tenure_on_Loan_Repayment_A_Case_Study_of_Budadiri_Microfinance_Centre_Limited_b_/32948372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Getting_on_the_rollercoaster_again/32772123
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Managing_menopause/32772090
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wind_damage_drivers_and_forest_owners_attitudes_towards_development_of_a_decision_support_system_for_Norwegian_forestry/32948371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.cardiffmet.ac.uk/articles/media/Creating_joy/32772063
+  - url: https://tandf.figshare.com/articles/dataset/Phylogenetic_and_phenotypic_diversity_of_i_Phoma_i_isolates_from_Swedish_forest_nurseries/32948368
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -422,23 +422,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134524
+  - url: https://ora.ox.ac.uk/objects/uuid:3b973c67-7587-40d5-9269-4a3fcc75fcb9
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://scienzaepace.unipi.it/costruttori-di-affettivita-i-media-digitali-nei-conflitti-contemporanei-alcune-riflessioni-a-partire-dalla-guerra-in-ucraina/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134524
+  - url: https://zenodo.org/records/21278757
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21224419
+  - url: https://zenodo.org/records/21278757
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21224419
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tubaf.qucosa.de/id/qucosa:105775
+  - url: https://figshare.le.ac.uk/articles/thesis/Deep_Learning_for_Efficient_Adverse_Weather_Image_Processing_in_Autonomous_Driving/32947304
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

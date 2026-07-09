@@ -1,70 +1,83 @@
 # Research: Predicting Material Stiffness from Microstructure Images Using Convolutional Neural Networks
 
-## Dataset Strategy
+## 1. Problem Statement
 
-Since this project relies on **synthetic data generation** rather than external datasets, no external dataset URLs are cited. The dataset is generated programmatically using `scikit-image` and validated via FFT-based numerical homogenization.
+The goal is to develop a surrogate model that predicts the effective elastic stiffness tensor of 2D microstructures from grayscale images. The challenge lies in capturing the non-linear relationship between the **spatial arrangement (topology)** of inclusions/voids and the resulting stiffness, which analytical bounds (Voigt-Reuss-Hill) fail to represent.
 
-| Dataset Component | Source/Method | Verification Method |
-|-------------------|---------------|---------------------|
-| **Microstructure Images** | `scikit-image` procedural generation (stratified by density & topology) | Visual inspection + metadata validation (density, topology hash) |
-| **Stiffness Ground Truth** | FFT-based numerical homogenization (custom `fft_homogenization.py`) | Comparison against Voigt-Reuss-Hill bounds (as sanity check only) |
-| **Metadata** | Generated alongside images (density, tensor components, topology hash) | CSV/JSON schema validation |
+## 2. Dataset Strategy
 
-**Note**: No external datasets are used. All data is synthetic and generated on-the-fly during the pipeline execution.
+### 2.1 Data Source
+The project relies on **synthetic data generation** rather than external datasets.
+- **Source**: Internal `code/data/generate_microstructures.py` using `scikit-image`.
+- **Rationale**: No verified external dataset exists that provides both 2D microstructure images and corresponding FFT-based ground-truth stiffness tensors for the specific topology-dependent research question.
+- **Dataset Size**: ≥ 2,000 images (128x128 pixels) to satisfy power analysis for 95% CI on MAE (FR-001).
+ - *Note*: A feasible sample size exists under 6-hour CPU constraints. A post-hoc power analysis will be conducted to assess if this sample size is sufficient for the observed variance.
 
-## Methodology
+### 2.2 Verified Datasets (External)
+*No external datasets are used for training or validation. The following verified datasets were reviewed but deemed unsuitable:*
+- **CPU-only (parquet)**: ` (Text-only, irrelevant).
+- **CNN (parquet)**: ` (Text summarization, irrelevant).
+- **MAE (zip)**: ` (Audio/MIDI, irrelevant).
 
-### 1. Synthetic Data Generation (FR-001) - **Stratified & Decoupled**
-- **Approach**: Use `scikit-image` to generate 256x256 grayscale images.
-- **Strategy**: **Decoupled Generation**. Generate samples by first fixing inclusion density (e.g., low, medium, and high levels) and then varying spatial topology (e.g., cluster size, connectivity, randomness) within each density bin.
-- **Volume**: ≥ 2,000 samples to satisfy power analysis for 95% CI on MAE.
-- **Validation**: Ensure that for a fixed density, the stiffness tensor varies significantly across different topologies. This prevents the model from learning a trivial density-to-stiffness mapping.
+**Decision**: Synthetic generation is the only viable path to ensure ground truth accuracy and topology dependence.
 
-### 2. Ground Truth Calculation (FR-002)
-- **Approach**: Implement FFT-based numerical homogenization to compute effective elastic stiffness tensors.
-- **Rationale**: Analytical bounds (Voigt-Reuss-Hill) are insufficient as they ignore spatial topology. FFT captures the influence of inclusion arrangement on stiffness.
-- **Validation**: All calculated tensors must fall within physically plausible bounds (Voigt-Reuss-Hill limits).
-- **Constitution Note**: This method necessitates an amendment to Constitution Principle VI (from "analytical" to "FFT-based") to ensure scientific validity.
+### 2.3 Data Generation Methodology
+1. **Microstructure Generation**: Randomized void/inclusion densities and spatial distributions using `scikit-image`.
+ - **Topological Diversity**: The generator will use **Latin Hypercube Sampling (LHS)** to vary spatial correlation length and clustering parameters **independently** of volume fraction. This ensures that for any given density, the dataset contains a diverse range of topologies (e.g., clustered, dispersed, percolated), preventing the model from learning a simple density-stiffness mapping.
+2. **Ground Truth Calculation**: FFT-based numerical homogenization (using `scipy.fft` or `pyfftw`) to compute effective stiffness tensors.
+ - **Method**: Solve the Lippmann-Schwinger equation via FFT.
+ - **Ground Truth Definition**: The **exact numerical value** produced by the FFT solver is the target label. **Crucially**, the model is **not** trained to predict Voigt-Reuss-Hill (VRH) bounds. VRH is used **only** as a plausibility filter to discard numerically unstable simulations.
+ - **Physical Plausibility Check**: Values are checked against VRH bounds. If a value is within VRH bounds but the FFT solver failed to converge, it is discarded. If a value is outside VRH bounds, it is discarded as physically invalid.
+ - **Constraint**: Handle convergence failures for extreme densities (>90% voids) by flagging and excluding from training.
 
-### 3. Model Architecture (FR-003) - **Ablation Study**
-- **Architecture**: Shallow CNN with 3 convolutional layers, ReLU activation, and global average pooling.
-- **Ablation Plan**: Before full training, run a small-scale ablation (a limited number of samples, 10 epochs) comparing 3-layer vs. 5-layer CNNs to verify the 3-layer model has sufficient receptive field for the generated microstructures.
-- **Rationale**: Deep networks are computationally prohibitive on CPU-only runners. A shallow architecture balances expressiveness with runtime constraints, provided the ablation confirms sufficiency.
-- **Compatibility**: Designed for CPU inference; no CUDA dependencies.
+## 3. Model Architecture & Training
 
-### 4. Training Strategy (FR-004, FR-005)
-- **Optimizer**: Adam with learning rate scheduling.
-- **Batch Size**: 32 (memory-constrained).
-- **Epochs**: Max 50 (to stay within 6-hour runtime).
-- **Cross-Validation**: 5-fold CV to assess stability and prevent overfitting.
-- **Metrics**: MSE, R-squared, MAE.
+### 3.1 Architecture
+- **Type**: Shallow Convolutional Neural Network (CNN).
+- **Layers**: 2-3 Convolutional layers (3x3 kernels), ReLU activation, Global Average Pooling.
+- **Output**: 6 values (representing the 2D stiffness tensor components: $C_{11}, C_{12}, C_{22}, C_{66}$, etc., depending on symmetry).
+- **Rationale**: Deep networks are unnecessary for this correlation and would violate CPU runtime constraints (FR-003).
 
-### 5. Evaluation & Statistical Analysis (FR-006, FR-007, FR-008) - **ANOVA**
-- **Binning**: Test data binned by inclusion density.
-- **Statistical Tests**: **One-way ANOVA** (followed by Tukey HSD post-hoc tests) to compare prediction errors across density bins.
-- **Correction**: Paired t-tests are invalid for independent groups (different microstructures). ANOVA is the correct test for comparing means across multiple independent groups.
-- **Outlier Flagging**: Instances with MAE > 5% are flagged, especially those with densities outside the training distribution.
-- **Generalization**: Quantify error degradation for out-of-distribution densities.
+### 3.2 Training Configuration
+- **Framework**: PyTorch (CPU mode).
+- **Optimizer**: Adam.
+- **Batch Size**: 32.
+- **Epochs**: Max 50.
+- **Loss Function**: Mean Squared Error (MSE) against the **exact FFT numerical values**.
+- **Hardware**: 2-core CPU, ~7 GB RAM (GitHub Actions free tier).
+- **Feasibility**: Estimated training time < 4 hours for [deferred] samples and 50 epochs on CPU (using 128x128 images).
 
-## Computational Feasibility
+### 3.3 Validation Strategy
+- **K-Fold Cross-Validation**: 5-fold to assess stability (FR-005).
+ - **Stratification**: Folds will be stratified by both **inclusion density** and **topological features** (e.g., clustering coefficient) to ensure the model cannot simply learn density-stiffness correlations.
+- **Metrics**: MSE, R-squared, MAE (FR-006).
+- **Target**: MAE ≤ 5% relative to ground truth (SC-001).
 
-| Constraint | Mitigation Strategy |
-|------------|---------------------|
-| **No GPU** | Use CPU-only `torch`; avoid CUDA-specific operations. |
-| **≤6 Hours** | Limit epochs to 50; use batch size 32; optimize FFT solver. |
-| **~7 GB RAM** | Stream data in batches; avoid loading entire dataset into memory. |
-| **Substantial Disk** | Compress generated images; clean intermediate files. |
+## 4. Statistical Analysis & Generalization
 
-## Assumptions & Limitations
+### 4.1 Generalization Testing
+- **Method**: Bin test data by inclusion density (e.g., 0-20%, 20-40%,..., 80-100%).
+- **Metric**: Compare prediction errors across bins.
+- **Hypothesis**: Error increases for densities outside the training distribution (SC-002).
 
-- **Synthetic Representativeness**: Generated microstructures approximate real polymer microstructures sufficiently for surrogate training.
-- **FFT Accuracy**: FFT-based homogenization provides accurate ground truth for 2D cases.
-- **Topological Learnability**: Spatial arrangement of inclusions is learnable by a shallow CNN (verified via ablation).
-- **Runtime Stability**: GitHub Actions runners are stable enough for extended jobs without preemption.
-- **Constitution Amendment**: Principle VI is amended to allow FFT-based homogenization.
+### 4.2 Statistical Tests
+- **Test**: Paired t-tests on prediction errors between density bins.
+- **Significance**: p-value < 0.05 (SC-004).
+- **Outlier Flagging**: Flag instances where MAE > 5% (FR-008) to identify failure modes.
 
-## References
+### 4.3 Limitations
+- **Dataset**: Synthetic data may not perfectly represent real-world polymer microstructures (Assumption 1).
+- **2D Representation**: 3D effects are ignored; results are specific to 2D slices.
+- **CPU Constraints**: Model complexity is limited by runtime; deeper architectures not explored.
+- **Sample Size**: [deferred] samples is a minimum baseline. High variance in MAE may limit the precision of the absolute error estimate, but the *relative* trends across density bins remain valid.
 
-- **FFT Homogenization**: Custom implementation based on standard numerical methods (no external URL cited).
-- **Synthetic Generation**: `scikit-image` documentation (standard library).
-- **CNN Architecture**: Standard shallow CNN designs for regression tasks.
+## 5. Constitution Amendment Proposal
+
+**Current Principle VI**: "The project generates labels using analytical homogenization formulas..."
+**Proposed Amendment**: "The project generates labels using FFT-based numerical homogenization. The validity of the surrogate model depends on the accuracy of these numerical solutions for the specific microstructure topology."
+**Justification**: Analytical bounds (Voigt-Reuss-Hill) are topology-independent. Using them would make the CNN task trivial (predicting a function of volume fraction only) and fail to answer the research question regarding spatial arrangement. FFT-based homogenization is the standard method for topology-dependent effective properties.
+
+**Action Plan**:
+1. Draft `docs/constitution_amendment_proposal.md`.
+2. Update `constitution.md` (Principle VI) prior to data generation.
+3. Record the change in `state/` files.

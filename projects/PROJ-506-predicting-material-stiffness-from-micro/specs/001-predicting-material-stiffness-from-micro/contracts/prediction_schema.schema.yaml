@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResultSchema"
+description: "Schema for the model prediction results and error metrics."
+type: object
+properties:
+  image_id:
+    type: string
+    description: "Link to the source image ID."
+  predicted_stiffness:
+    type: array
+    description: "Predicted stiffness tensor components."
+    items:
+      type: number
+    minItems: 6
+    maxItems: 6
+  ground_truth_stiffness:
+    type: array
+    description: "Ground truth stiffness tensor components (from FFT solver)."
+    items:
+      type: number
+    minItems: 6
+    maxItems: 6
+  mae:
+    type: number
+    description: "Mean Absolute Error for this instance."
+    minimum: 0.0
+  mse:
+    type: number
+    description: "Mean Squared Error for this instance."
+    minimum: 0.0
+  density_bin:
+    type: string
+    description: "Categorical bin for the inclusion density (e.g., '0-20%')."
+  is_outlier:
+    type: boolean
+    description: "True if MAE exceeds the 5% threshold."
+required:
+  - image_id
+  - predicted_stiffness
+  - ground_truth_stiffness
+  - mae
+  - mse
+  - density_bin
+  - is_outlier
+additionalProperties: false
