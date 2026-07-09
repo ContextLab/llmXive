@@ -22,6 +22,9 @@ properties:
       data_gap_halted:
         type: boolean
         description: "True if the pipeline halted due to missing data."
+      data_source:
+        type: string
+        description: "Source of the entrainment data (e.g., 'real', 'synthetic')."
     required:
       - timestamp
       - atlas_type
@@ -29,6 +32,7 @@ properties:
       - power_warning
       - collinearity_warning
       - data_gap_halted
+      - data_source
   results:
     type: array
     items:
@@ -41,15 +45,21 @@ properties:
             - "characteristic_path_length"
         correlation_coefficient:
           type: number
+          description: "Univariate Spearman r."
+        partial_correlation_coefficient:
+          type: number
+          description: "Partial correlation r controlling for the other metric."
         raw_p_value:
           type: number
         adjusted_p_value:
           type: number
         is_significant:
           type: boolean
+          description: "True only if p_adj < 0.05."
       required:
         - metric_name
         - correlation_coefficient
+        - partial_correlation_coefficient
         - raw_p_value
         - adjusted_p_value
         - is_significant

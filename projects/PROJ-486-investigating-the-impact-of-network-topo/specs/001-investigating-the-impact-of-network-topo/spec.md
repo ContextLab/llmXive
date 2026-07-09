@@ -89,7 +89,7 @@ The system must re-run the core correlation analysis using alternative parcellat
 
 ## Assumptions
 
-- **Dataset Availability**: It is assumed that the HCP release data is accessible via the provided open-access credentials and that the specific subset of subjects with matching external entrainment data can be identified and downloaded within the 14GB disk limit.
+- **Dataset Availability**: It is assumed that the HCP release data is accessible via the provided open-access credentials and that the specific subset of subjects with matching external entrainment data can be identified and downloaded within the available disk capacity.
 - **Methodological Framing**: The analysis assumes an observational design; therefore, all findings will be framed as associational (correlation) rather than causal, as no random assignment of network topology exists.
 - **Measurement Validity**: It is assumed that the external entrainment metrics provided in the input dataset were derived using validated EEG/MEG protocols and that the phase-locking values are directly comparable across subjects.
 - **Compute Constraints**: The analysis assumes that the NetworkX computation on a 200x200 matrix and the subsequent statistical tests are computationally trivial and will not exceed the 2-core/7GB RAM limits of the free-tier runner.

@@ -21,22 +21,28 @@ properties:
     description: "Characteristic path length for the subject."
   entrainment_strength:
     type: number
-    description: "Phase-locking value (PLV) for the subject."
+    description: "Phase-locking value (PLV) for the subject (Synthetic or Real)."
   vif:
     type: number
     description: "Variance Inflation Factor between clustering and path length."
   is_significant:
     type: boolean
-    description: "Whether the correlation is significant after Bonferroni correction."
+    description: "Whether the partial correlation is significant after Bonferroni correction."
   adjusted_p_value:
     type: number
     description: "Bonferroni-corrected p-value."
+  partial_correlation_r:
+    type: number
+    description: "Partial correlation coefficient (r)."
   raw_p_value:
     type: number
     description: "Raw p-value before correction."
   correlation_coefficient:
     type: number
-    description: "Spearman correlation coefficient (r)."
+    description: "Spearman correlation coefficient (r) (univariate)."
+  collinearity_warning:
+    type: string
+    description: "Warning message if VIF > 5, otherwise null."
 required:
   - subject_id
   - atlas_type

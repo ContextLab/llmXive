@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+type: "object"
+description: "Schema for the final correlation results and statistics."
+properties:
+  atlas:
+    type: "string"
+    description: "Atlas used for this analysis row."
+  metric_name:
+    type: "string"
+    description: "Name of the topology metric ('clustering_coefficient' or 'path_length')."
+  n_subjects:
+    type: "integer"
+    description: "Number of subjects included in this analysis."
+  correlation_r:
+    type: "number"
+    description: "Spearman correlation coefficient (univariate)."
+  partial_correlation_r:
+    type: "number"
+    description: "Partial correlation coefficient (controlling for the other metric)."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value from the univariate correlation test."
+  p_value_partial:
+    type: "number"
+    description: "Raw p-value from the partial correlation test."
+  p_value_adj:
+    type: "number"
+    description: "Bonferroni-corrected p-value (for partial correlation)."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value_adj < 0.05."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor between the two topology metrics."
+  collinearity_warning:
+    type: "string"
+    description: "Warning message if VIF > 5, otherwise null."
+  power_warning:
+    type: "string"
+    description: "Warning message if N < 30, otherwise null."
+  effect_size_diff:
+    type: "number"
+    description: "Absolute difference in effect size compared to Schaefer atlas (null for Schaefer)."
+required:
+  - "atlas"
+  - "metric_name"
+  - "n_subjects"
+  - "correlation_r"
+  - "partial_correlation_r"
+  - "p_value_raw"
+  - "p_value_partial"
+  - "p_value_adj"
+  - "is_significant"
+  - "vif"
+  - "collinearity_warning"
+  - "power_warning"
+additionalProperties: false
