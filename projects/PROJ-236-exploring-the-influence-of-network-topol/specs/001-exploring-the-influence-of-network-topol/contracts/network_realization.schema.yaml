@@ -1,0 +1,113 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetworkRealization"
+description: "Schema for a single atomic connectivity network realization."
+type: "object"
+required:
+  - "id"
+  - "topology_type"
+  - "graph"
+  - "topological_metrics"
+properties:
+  id:
+    type: "string"
+    description: "UUID of the realization."
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  topology_type:
+    type: "string"
+    enum:
+      - "Small-World"
+      - "Scale-Free"
+      - "Random"
+    description: "The type of network topology generated."
+  atomic_structure:
+    type: "object"
+    required:
+      - "lattice_type"
+      - "num_atoms"
+      - "displacement_sigma"
+      - "relaxation_method"
+    properties:
+      lattice_type:
+        type: "string"
+        description: "Type of underlying lattice (e.g., FCC, BCC)."
+      num_atoms:
+        type: "integer"
+        minimum: 1
+        description: "Number of atoms in the structure."
+      displacement_sigma:
+        type: "number"
+        description: "Standard deviation of atomic displacement."
+      relaxation_method:
+        type: "string"
+        description: "Method used for relaxation (e.g., 'Langevin_EAM')."
+  graph:
+    type: "object"
+    required:
+      - "num_nodes"
+      - "num_edges"
+      - "adjacency_matrix_path"
+      - "is_connected"
+    properties:
+      num_nodes:
+        type: "integer"
+        minimum: 1
+      num_edges:
+        type: "integer"
+        minimum: 0
+      adjacency_matrix_path:
+        type: "string"
+        description: "Relative path to the adjacency matrix file."
+      is_connected:
+        type: "boolean"
+        description: "Whether the graph is connected."
+  topological_metrics:
+    type: "object"
+    required:
+      - "clustering_coefficient"
+      - "average_path_length"
+      - "degree_variance"
+      - "spectral_gap"
+    properties:
+      clustering_coefficient:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      average_path_length:
+        type: "number"
+        minimum: 0.0
+      degree_variance:
+        type: "number"
+        minimum: 0.0
+      spectral_gap:
+        type: "number"
+        minimum: 0.0
+      betweenness_centrality_mean:
+        type: "number"
+        minimum: 0.0
+      betweenness_centrality_std:
+        type: "number"
+        minimum: 0.0
+  construction_params:
+    type: "object"
+    required:
+      - "distance_cutoff_factor"
+      - "algorithm_seed"
+    properties:
+      distance_cutoff_factor:
+        type: "number"
+        description: "Multiplier for nearest-neighbor distance."
+      algorithm_seed:
+        type: "integer"
+      cutoff_sweep_range:
+        type: "string"
+        description: "Range of cutoffs swept (e.g., '1.0-2.0')."
+  validation_status:
+    type: "string"
+    enum:
+      - "Valid"
+      - "Invalid_Disconnected"
+      - "Invalid_DegDist"
+    description: "Status of the validation checks."
+additionalProperties: false

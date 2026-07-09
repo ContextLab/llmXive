@@ -32,11 +32,25 @@ properties:
   ci_upper:
     type: "number"
     description: "Upper bound of 95% bootstrap confidence interval"
+  ci_width:
+    type: "number"
+    description: "Width of the 95% bootstrap confidence interval"
   r_squared:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Coefficient of determination for the fit"
+    description: "Coefficient of determination for the linear fit"
+  power_law_r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "R-squared for the power-law fit between disorder and conductivity"
+  power_law_exponent:
+    type: "number"
+    description: "Exponent of the power-law fit"
+  ci_width_target_met:
+    type: "boolean"
+    description: "True if ci_width <= 0.2"
 required:
   - "metric_name"
   - "topology_type"
@@ -45,5 +59,9 @@ required:
   - "p_value_corrected"
   - "ci_lower"
   - "ci_upper"
+  - "ci_width"
   - "r_squared"
+  - "power_law_r_squared"
+  - "power_law_exponent"
+  - "ci_width_target_met"
 additionalProperties: false
