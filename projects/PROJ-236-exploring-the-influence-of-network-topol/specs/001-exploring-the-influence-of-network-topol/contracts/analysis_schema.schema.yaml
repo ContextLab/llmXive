@@ -48,9 +48,22 @@ properties:
   power_law_exponent:
     type: "number"
     description: "Exponent of the power-law fit"
+  power_law_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the power-law fit null hypothesis test"
   ci_width_target_met:
     type: "boolean"
     description: "True if ci_width <= 0.2"
+  anova_f_statistic:
+    type: "number"
+    description: "F-statistic from ANOVA"
+  anova_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from ANOVA"
 required:
   - "metric_name"
   - "topology_type"
@@ -63,5 +76,8 @@ required:
   - "r_squared"
   - "power_law_r_squared"
   - "power_law_exponent"
+  - "power_law_p_value"
   - "ci_width_target_met"
+  - "anova_f_statistic"
+  - "anova_p_value"
 additionalProperties: false

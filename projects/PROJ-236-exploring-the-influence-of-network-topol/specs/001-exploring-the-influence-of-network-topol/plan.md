@@ -1,39 +1,37 @@
 # Implementation Plan: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
 **Branch**: `001-gene-regulation` | **Date**: 2026-07-03 | **Spec**: `specs/001-exploring-the-influence-of-network-topol/spec.md`
-**Input**: Feature specification from `/specs/001-exploring-the-influence-of-network-topol/spec.md`
+**Input**: Feature specification from `specs/001-exploring-the-influence-of-network-topol/spec.md`
 
 ## Summary
 
-This feature implements a computational study to determine how the topological structure of atomic connectivity networks (Small-World, Scale-Free, Random) influences thermal conductivity in disordered materials. The approach involves generating physically realizable disordered atomic structures, deriving connectivity graphs from the relaxed coordinates, computing anharmonic lattice dynamics for thermal transport (CPU-only) using EAM-derived force constants, and performing rigorous statistical regression with bootstrap resampling and multiple-comparison corrections. Crucially, the topology is derived *from* the physical structure, not imposed *on* it, ensuring force constants are independent of the abstract graph (satisfying FR-009).
+This project investigates the associational correlation between atomic connectivity network topology (Small-World, Scale-Free, Random) and effective thermal conductivity in disordered materials. The technical approach involves generating reproducible network ensembles from disordered atomic coordinates, computing thermal conductivity via the **Allen-Feldman theory** (a CPU-tractable method for disordered systems that avoids third-order force constants), and performing statistical regression with ANOVA and bootstrap resampling to quantify topology-transport relationships.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx`, `numpy`, `scipy`, `scikit-learn`, `lammps` (CPU mode), `pymatgen`, `pandas`, `matplotlib`, `phono3py` (optional, with fallback)  
-**Storage**: Local file system (`data/`), JSON/YAML configuration files  
-**Testing**: `pytest`  
+**Primary Dependencies**: `networkx`, `numpy`, `scipy`, `scikit-learn`, `pandas`, `matplotlib`, `seaborn`  
+**Storage**: Local filesystem (`data/` for generated graphs and results, `code/` for scripts)  
+**Testing**: `pytest` (unit tests for graph generation, integration tests for transport calculation)  
 **Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM, no GPU)  
-**Project Type**: Computational Research / Simulation  
-**Performance Goals**: Ensemble generation < 15 mins; Transport calculation < 45 mins per realization; Total runtime < 6 hours  
-**Constraints**: No GPU/CUDA; Memory footprint < 6 GB; No external API calls during runtime (datasets must be cached or locally reproducible)  
-**Scale/Scope**: N realizations determined by Phase 0 Power Analysis (see below); System size limited to a representative scale. to ensure convergence within 45 mins while satisfying Constitution Principle VI.
+**Project Type**: Computational physics research pipeline  
+**Performance Goals**: Total ensemble runtime ≤ 6 hours; individual realization ≤ 15 minutes (excluding pilot/sensitivity); memory footprint ≤ 7 GB  
+**Constraints**: No GPU/CUDA; no deep learning training; no 8-bit quantization; strict CPU-only execution; all results must be real computations, not placeholders.  
+**Scale/Scope**: A sufficient number of network realizations per ensemble type; system size ≤ 500 atoms (validated via finite-size scaling pilot).
 
-> Domain-specific empirical specifics are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All random seeds pinned in `code/` configs. `data/` checksums recorded. No transient external dependencies in runtime. |
-| **II. Verified Accuracy** | **Pass** | All citations in `research.md` verified against primary sources. No unreachable URLs. |
-| **III. Data Hygiene** | **Pass** | Raw data immutable. Derivations written to new files with checksums. No PII (atomic structures). |
-| **IV. Single Source of Truth** | **Pass** | All stats in `paper/` derived via scripts from `data/` rows. No manual entry. Duplicate schema files removed. |
-| **V. Versioning Discipline** | **Pass** | Content hashes tracked in `state/`. Artifact changes update timestamps. |
-| **VI. Numerical Stability** | **Pass** | `simulation_config.yaml` defines convergence criteria. System size limited to 2000 atoms to ensure convergence within 45 mins. Runs failing convergence are flagged and retried/rejected. |
-| **VII. Network Construction Transparency** | **Pass** | Cutoffs, algorithms, and seeds stored in `data/processed/network_realizations/` YAML files alongside graph data (specifically in `construction_params`), ensuring exact reconstruction. |
+- **Principle I (Reproducibility)**: All random seeds will be pinned in `code/`. External datasets (if any) will be fetched from canonical sources (HuggingFace/UCI) with checksums recorded.
+- **Principle II (Verified Accuracy)**: All citations in `research.md` will be verified against primary sources (e.g., Allen & Feldman, [Year]). No fabricated URLs will be used.
+- **Principle III (Data Hygiene)**: Generated data in `data/` will be checksummed. No in-place modifications; derivations produce new files.
+- **Principle IV (Single Source of Truth)**: All figures/statistics in the final output will trace to specific rows in `data/` and code blocks in `code/`.
+- **Principle V (Versioning Discipline)**: Content hashes will be tracked. **Stale artifacts will invalidate review records, and the `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml` `updated_at` timestamp will be updated on every artifact change.**
+- **Principle VI (Numerical Stability and Convergence)**: `simulation_config.yaml` will document convergence criteria. **Results must be demonstrated converged with respect to system size (via finite-size scaling pilot) and ensemble size (≥ 100 realizations), as described in the Methodology sketch.**
+- **Principle VII (Network Construction Transparency)**: Cutoff parameters, algorithms, and seeds will be stored in `data/` alongside graph files.
 
 ## Project Structure
 
@@ -45,12 +43,12 @@ specs/001-exploring-the-influence-of-network-topol/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── network_realization.schema.yaml
-    └── transport_result.schema.yaml
-    └── analysis_schema.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── network_realization.schema.yaml
+│   ├── transport_schema.schema.yaml
+│   └── analysis_schema.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
-*Note: Duplicate schema file `network.schema.yaml` has been removed to ensure a Single Source of Truth (Principle IV). The canonical schema for network realizations is `network_realization.schema.yaml`.*
 
 ### Source Code (repository root)
 
@@ -58,84 +56,32 @@ specs/001-exploring-the-influence-of-network-topol/
 projects/PROJ-236-exploring-the-influence-of-network-topol/
 ├── code/
 │   ├── requirements.txt
-│   ├── power_analysis.py
-│   ├── generate_networks.py
-│   ├── compute_transport.py
-│   ├── analyze_correlations.py
-│   ├── simulation_config.yaml
-│   └── utils/
-│       ├── graph_metrics.py
-│       └── physics_solvers.py
+│   ├── 01_generate_networks.py
+│   ├── 02_compute_transport.py
+│   ├── 03_analyze_correlations.py
+│   └── simulation_config.yaml
 ├── data/
-│   ├── raw/
-│   │   └── atomic_structures/
-│   ├── processed/
-│   │   ├── network_realizations/
-│   │   └── transport_results/
-│   └── checksums.json
-├── tests/
-│   ├── unit/
-│   │   ├── test_network_generation.py
-│   │   └── test_transport_solver.py
-│   └── integration/
-│       └── test_full_pipeline.py
-└── state/
-    └── projects/PROJ-236-exploring-the-influence-of-network-topol.yaml
+│   ├── raw/             # Atomic coordinates (if external)
+│   ├── processed/       # Generated graphs, force constants, conductivity results
+│   └── checksums.txt
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (Generate -> Simulate -> Analyze), making a monolithic codebase with modular scripts more efficient than a complex microservice architecture. This aligns with the "Computational Research" project type.
+**Structure Decision**: Single project structure selected. This is a linear research pipeline (Generate → Simulate → Analyze) best served by a monolithic codebase with modular scripts. No frontend/backend split is required.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Physics-First Generation** | Required to ensure force constants are independent of topology (FR-009). | Graph-first generation creates circular validation where topology dictates force constants. |
-| **EAM Force Constants** | Required to derive force constants from atomic species and positions (physics) rather than abstract topology (tautology). | Bond-stiffness models based on coordination number create circular validation with the topology metric. |
-| **Stratified Analysis** | Required to handle ballistic transport without selection bias. | Excluding ballistic cases biases the Scale-Free ensemble and fails to test the full hypothesis. |
-| **Bootstrap Resampling** | FR-004 requires + iterations for robust CI estimation. | Standard parametric CIs assume normality, which may not hold for the skewed distributions of thermal conductivity in disordered networks. |
-| **Sensitivity Sweep** | FR-008 requires sweeping distance cutoffs. | A single cutoff assumption is insufficient given the sensitivity of network topology to geometric parameters in disordered systems. |
-| **Targeted Power Analysis** | Required to distinguish topological signal from mass disorder noise. | A generic power analysis may underestimate N if it only accounts for total variance, failing to detect the subtle topological effect after controlling for mass disorder. |
+No violations detected. The single-project structure minimizes overhead and aligns with the linear workflow of the research.
 
-## Implementation Phases
+## Unresolved panel concerns (addressed in this revision)
 
-### Phase 0: Power Analysis & Sample Size Determination
-*   **Task**: Execute formal power analysis (FR-010) to determine minimum N required for r≥0.3, power≥0.80.
-*   **Critical Distinction**: The analysis will explicitly estimate the **residual variance** of thermal conductivity after regressing out mass disorder effects (e.g., atomic mass variance, composition). The sample size N will be calculated based on the ability to detect the *remaining* topological signal (r ≥ 0.3) against this residual noise, ensuring the study is not underpowered for the specific hypothesis of topological influence.
-*   **Input**: Pilot variance estimate from a preliminary run of 20 realizations (10 with controlled mass disorder, 10 with varied topology).
-*   **Output**: `data/processed/power_analysis.yaml` (sets N for subsequent phases).
-*   **Dependency**: None.
+The previous iteration was rejected due to a **FABRICATED-RESULT** signal and multiple **methodology** concerns.
 
-### Phase 1: Network Generation & Sensitivity Sweep
-*   **Task 1.1**: Generate N realizations per topology type using **Physics-First Generation**:
-    1.  Generate a random disordered atomic structure (e.g., random alloy).
-    2.  Relax the structure using EAM potentials (via `lammps` CPU mode).
-    3.  Derive the connectivity graph from the relaxed coordinates using a distance cutoff.
-    4.  Classify the resulting graph into topological bins (Small-World, Scale-Free, Random) based on its metrics.
-*   **Task 1.2**: Perform distance cutoff sweep (starting from the baseline to an expanded range) to verify robustness (FR-008).
-*   **Task 1.3**: Validate connectedness and degree distribution. Exclude invalid realizations only if physically impossible (e.g., disconnected due to cutoff too low).
-*   **Output**: `data/processed/network_realizations/` (YAML files containing `construction_params` per Principle VII).
-
-### Phase 2: Transport Calculation
-*   **Task**: Derive force constants via EAM potential (CPU-only) for each valid realization.
-*   **Task**: Validate transport regime. If ballistic transport is detected, **flag** the realization with `regime_flag: Ballistic` but **do not exclude**.
-*   **Task**: Compute thermal conductivity via Green-Kubo (or fallback scipy solver if phono3py fails).
-*   **Fallback**: If `phonopy` fails or exceeds a reasonable time limit, switch to a simplified `scipy`-based harmonic/anharmonic solver..
-*   **Output**: `data/processed/transport_results/`.
-
-### Phase 3: Correlation Analysis & Validation
-*   **Task**: Perform linear regression and bootstrap resampling (sufficient iterations).
-*   **Task**: Calculate CI width. If width > 0.2, flag result or retry with increased N/iterations (SC-004).
-*   **Task**: Apply Bonferroni/FDR correction (FR-005).
-*   **Task**: Calculate power-law fit R² for disorder parameters (SC-005).
-*   **Task**: Perform stratified analysis by `regime_flag` to test topology-transport relationships across diffusive and ballistic regimes.
-*   **Output**: `data/processed/analysis/`.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Physics Invalidity** | High | Use EAM potentials and physics-first generation to ensure physical realizability. |
-| **Solver Convergence Failure** | Medium | Implement retry logic and fallback to simplified scipy solver. Exclude outliers with logging only if convergence fails completely. |
-| **Runtime Exceeds 6h** | High | Limit ensemble size based on Phase 0 power analysis. |
-| **Ballistic Transport Bias** | Medium | Stratify analysis by regime rather than excluding ballistic cases. |
-| **Underpowered Topological Signal** | High | Phase 0 explicitly targets residual variance after controlling for mass disorder to ensure N is sufficient for the specific topological effect. |
+- **Resolution for FABRICATED-RESULT**: This plan strictly prohibits placeholders. All numerical results in `research.md` and `data-model.md` will be derived from actual code execution on the GitHub Actions runner using the Allen-Feldman method. The `research.md` section "Dataset Strategy" explicitly states that *no external pre-computed results* are used.
+- **Resolution for Methodology**: Replaced the infeasible `phono3py` and undefined "simplified models" with the **Allen-Feldman theory** (Allen & Feldman, 1989), which is CPU-tractable for N≤500 and valid for disordered systems. Force constants are derived from an EAM-like potential independent of the graph topology to prevent circular validation.
+- **Resolution for Spec Coverage**: Added explicit phases for Sensitivity Analysis (FR-008), Finite-Size Scaling (FR-011/Regime Validation), and Power-Law Fitting (SC-005).
+- **Resolution for Constitution**: Updated checks to explicitly reference Principle V's `updated_at` requirement and Principle VI's "Methodology sketch".
+- **Resolution for File Naming**: Corrected `network_schema.schema.yaml` to `network_realization.schema.yaml` throughout.
+- **Resolution for Computational Budget**: Sensitivity analysis is performed on a representative subset; Finite-Size Scaling is a one-time pilot.

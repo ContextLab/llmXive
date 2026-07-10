@@ -22,9 +22,21 @@ properties:
     type: "number"
     minimum: 0
     description: "Time taken to solve in seconds"
+  regime_detected:
+    type: "string"
+    enum:
+      - "diffusive"
+      - "ballistic"
+      - "mixed"
+    description: "Detected transport regime"
+  method_switched:
+    type: "boolean"
+    description: "True if method was switched (e.g., to NEMD)"
 required:
   - "network_id"
   - "conductivity"
   - "convergence_status"
   - "solver_runtime"
+  - "regime_detected"
+  - "method_switched"
 additionalProperties: false

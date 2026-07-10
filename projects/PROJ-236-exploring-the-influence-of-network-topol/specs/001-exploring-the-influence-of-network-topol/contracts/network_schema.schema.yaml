@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NetworkRealization Schema"
+description: "Schema for validating generated network realization files"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the realization"
+  type:
+    type: "string"
+    enum:
+      - "small_world"
+      - "scale_free"
+      - "random"
+    description: "Topology type of the network"
+  nodes:
+    type: "integer"
+    minimum: 10
+    description: "Number of nodes in the graph"
+  edges:
+    type: "array"
+    items:
+      type: "array"
+      minItems: 2
+      maxItems: 2
+      items:
+        type: "integer"
+    description: "List of edges as [u, v]"
+  metrics:
+    type: "object"
+    properties:
+      clustering_coefficient:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Average clustering coefficient"
+      average_path_length:
+        type: "number"
+        minimum: 0
+        description: "Average shortest path length"
+      degree_variance:
+        type: "number"
+        minimum: 0
+        description: "Variance of the degree distribution"
+      spectral_gap:
+        type: "number"
+        minimum: 0
+        description: "Difference between largest and second largest eigenvalues"
+      betweenness_centrality:
+        type: "array"
+        items:
+          type: "number"
+        description: "Betweenness centrality for each node"
+    required:
+      - "clustering_coefficient"
+      - "average_path_length"
+      - "degree_variance"
+      - "spectral_gap"
+      - "betweenness_centrality"
+  cutoff_used:
+    type: "number"
+    minimum: 1.0
+    description: "Distance cutoff multiplier used"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+required:
+  - "id"
+  - "type"
+  - "nodes"
+  - "edges"
+  - "metrics"
+  - "cutoff_used"
+  - "seed"

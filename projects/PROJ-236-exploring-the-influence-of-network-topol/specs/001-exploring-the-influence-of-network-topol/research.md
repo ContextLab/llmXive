@@ -1,83 +1,80 @@
 # Research: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
-## 1. Scientific Background & Hypothesis
+## Background & Motivation
 
-### 1.1 Background
-Thermal transport in disordered materials is governed by phonon scattering. While traditional models focus on mass disorder or point defects, the topological arrangement of atomic bonds (the connectivity network) may significantly influence phonon mean free paths. This study investigates whether specific network motifs (e.g., small-world clustering, scale-free hubs) correlate with anomalous heat transport behavior.
+Thermal transport in disordered materials is governed by phonon scattering, which is heavily influenced by the underlying atomic connectivity. While traditional models often assume random or periodic lattices, real disordered systems (e.g., amorphous solids, alloys) may exhibit specific topological features like small-world clustering or scale-free degree distributions. Understanding how these topological motifs correlate with thermal conductivity ($\kappa$) is crucial for designing materials with tailored thermal properties.
 
-### 1.2 Hypothesis
-*H0*: Network topology metrics (clustering coefficient, degree variance, spectral gap) are not associated with effective thermal conductivity in disordered materials, after controlling for mass disorder.
-*H1*: Specific topological features (e.g., high clustering in small-world networks) are negatively associated with thermal conductivity due to enhanced phonon scattering, while scale-free hubs may facilitate ballistic transport channels.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+This study **generates its own data** to ensure full control over topological parameters and to avoid the "garbage-in, garbage-out" risk of finding external datasets that lack the specific topological annotations required.
 
-### 2.1 Data Generation Pipeline
-The study generates synthetic disordered atomic structures that are physically realizable for the target topologies.
-*   **Source**: `pymatgen` for base lattice generation.
-*   **Method**: **Physics-First Generation with EAM Relaxation**.
-    1.  Generate a random disordered atomic configuration (e.g., random alloy).
-    2.  Relax the structure using EAM potentials (via `lammps` CPU mode) to ensure physical validity (no overlaps, valid bond lengths).
-    3.  Derive the connectivity graph from the relaxed coordinates using a distance cutoff.
-    4.  Classify the resulting graph into topological bins (Small-World, Scale-Free, Random) based on its metrics.
-*   **Force Constants**: Derived via **Embedded Atom Method (EAM)** potentials based on atomic species and relaxed positions. This ensures force constants depend on local geometry and species, satisfying FR-009 and avoiding circular validation with the abstract graph topology.
-*   **Regime Validation**: Before transport calculation, the system checks for high-degree hubs or low clustering indicative of ballistic transport. If detected, the realization is **flagged** (not excluded) and the regime is recorded for stratified analysis (FR-011).
+| Data Source | Description | Access Method | Verification |
+| :--- | :--- | :--- | :--- |
+| **Synthetic Atomic Coordinates** | Disordered point clouds generated via Poisson Disk Sampling or Gaussian perturbation of a lattice. | `numpy` / `scipy` (Local generation) | N/A (Self-generated) |
+| **Network Generators** | Watts-Strogatz (Small-World), Barabási-Albert (Scale-Free), Erdős-Rényi (Random). | `networkx` (Local library) | Unit-tested against theoretical distributions |
+| **Force Constants** | Effective force constants derived from an **EAM-like empirical potential** based on atomic species and equilibrium bond lengths. **Crucially, these are calculated BEFORE graph topology is defined, ensuring independence.** | `code/02_compute_transport.py` (Local calculation) | Validated against analytical 1D chain |
+| **Physics Model** | **Allen-Feldman Theory** (Allen & Feldman, Phys. Rev. Lett. 1989) for heat transport in disordered systems. | `code/02_compute_transport.py` (Local implementation) | Cited primary source |
 
-### 2.2 Force Constant Derivation
-*   **Method**: EAM potentials (CPU-only) via `lammps`.
-*   **Justification**: EAM captures many-body interactions and anharmonicity essential for disordered materials, unlike simple harmonic or bond-stiffness models. It depends on atomic positions, not the abstract graph, ensuring independence from the topology metric being tested.
+**Note**: No external pre-computed thermal conductivity values are used. All $\kappa$ values are computed by the `02_compute_transport.py` script on the CI runner.
 
-### 2.3 Data Availability Note
-The plan explicitly rejects using the 'Materials Project (Disordered Alloys)' dataset in favor of synthetic generation because the input block provided **NO verified Zenodo URL** for a specific disordered alloy dataset with force constants. The synthetic generation approach (Physics-First with EAM) is scientifically valid and avoids the risk of fabricating a dataset URL.
+## Methodology
 
-## 3. Methodology
+### Phase 1: Network Generation (FR-001, FR-008)
+1.  **Input**: Number of nodes $N$ (e.g., 200), target topology type.
+2.  **Procedure**:
+    *   Generate random atomic coordinates in a box.
+    *   **Step 1.1 (Force Constants)**: Derive effective force constants $K_{ij}$ from an EAM-like potential based on atomic species and equilibrium bond lengths. **This step is independent of the graph topology.**
+    *   Apply distance-based cutoff ($1.5 \times$ nearest-neighbor distance) to define edges.
+    *   For Small-World: Start with a ring lattice, rewire with probability $p$.
+    *   For Scale-Free: Use Barabási-Albert growth with $m=2$.
+    *   **Validation**: Check connectedness. If disconnected, retry with cutoff up to $2.0 \times$. Log exclusion reasons.
+3.  **Output**: `data/processed/graphs/{type}_{id}.graphml`.
 
-### 3.1 Phase 0: Power Analysis (FR-010)
-*   **Action**: Calculate required sample size N for r≥0.3, power≥0.80.
-*   **Critical Nuance**: The power analysis will not use total variance. Instead, it will use a **pilot run** to estimate the **residual variance** of thermal conductivity after regressing out mass disorder effects (e.g., atomic mass variance, composition). The sample size N is calculated to detect the *topological signal* (r ≥ 0.3) against this residual noise, ensuring the study is not underpowered to distinguish topological effects from trivial mass-disorder correlations.
-*   **Output**: Set N in `simulation_config.yaml` before generation.
+### Phase 1.5: Sensitivity Analysis (FR-008)
+1. **Input**: A representative subset ([deferred]) of network realizations.
+2.  **Procedure**: Systematically sweep distance cutoff values from $1.0\times$ to $2.0\times$ in $0.1\times$ increments.
+3.  **Output**: `data/processed/sensitivity/cutoff_sweep_results.csv`.
 
-### 3.2 Phase 1: Network Generation & Sensitivity (FR-001, FR-008)
-*   **Algorithms**: Watts-Strogatz (Small-World), Barabási-Albert (Scale-Free), Erdős-Rényi (Random) are used for **classification** or **targeting** via iterative relaxation, not for direct coordinate constraint.
-*   **Validation**: Ensure connectedness (>95% realizations) and degree distribution match theoretical expectations.
-*   **Sensitivity Sweep**: Iterate distance cutoff factors from x to 2.0x to verify robustness of correlations.
-*   **Edge Cases**: If disconnected, retry with larger cutoff. Flag failures.
+### Phase 2: Transport Calculation (FR-002, FR-006, FR-009, FR-011)
+1.  **Input**: Graph structure, atomic masses, pre-calculated force constants.
+2.  **Procedure**:
+    *   Construct dynamical matrix from $K_{ij}$.
+    *   Compute thermal conductivity using **Allen-Feldman theory** (diffusivity of vibrational modes). This method is valid for disordered systems and does not require third-order force constants.
+    *   **Regime Validation (FR-011)**: Calculate spectral gap and estimate mean free path. If ballistic regime is detected (high hubs, low clustering, mean free path > system size), switch to NEMD or flag as invalid.
+    *   **Constraint**: Must run on CPU (2 cores, 7 GB RAM). System size limited to $N \le 500$.
+3.  **Output**: `data/processed/transport/{type}_{id}.csv` (contains $\kappa$, convergence status, regime_detected).
 
-### 3.3 Phase 2: Transport Calculation (FR-002, FR-009, FR-011)
-*   **Method**: Anharmonic Lattice Dynamics (ALD) via Green-Kubo formalism.
-*   **Constraint**: CPU-only.
-*   **Solver**: `phono3py` (CPU mode) with EAM force constants.
-*   **Fallback**: If `phono3py` fails or exceeds time limits, switch to a simplified `scipy`-based harmonic/anharmonic solver.
-*   **Regime Check**: If ballistic transport is detected, **flag** the realization with `regime_flag: Ballistic` but **do not exclude**. The analysis will stratify by regime.
+### Phase 2.1: Finite-Size Scaling Pilot (FR-011)
+1.  **Input**: Small ensembles at $N=100, 200, 300$.
+2.  **Procedure**: Run transport calculations to verify that $\kappa$ converges (is size-independent) before proceeding to the main ensemble at $N=500$.
+3.  **Output**: `data/processed/pilot/finite_size_results.csv`.
 
-### 3.4 Phase 3: Statistical Analysis (FR-004, FR-005, SC-004, SC-005)
-*   **Metrics**: Clustering, Degree Variance, Spectral Gap, Betweenness.
-*   **Regression**: Linear regression of Metric vs. Conductivity.
-*   **Power-Law Fit**: Calculate R² for power-law fit between disorder parameters and conductivity reduction (SC-005).
-*   **Resampling**: Bootstrap (sufficient iterations) for confidence intervals
+### Phase 3: Statistical Analysis (FR-003, FR-004, FR-005, FR-007, FR-010, SC-005)
+1.  **Input**: Ensemble of graphs and $\kappa$ values.
+2.  **Procedure**:
+    *   Extract metrics: Clustering coeff, degree variance, spectral gap, betweenness.
+    *   Perform Power Analysis (FR-010): Determine $N$ for power $\ge 0.80$ at $r \ge 0.3$.
+    *   **Statistical Modeling**:
+        *   **ANOVA/Mixed-Effects**: Treat 'Topology Type' as a categorical fixed effect and 'Metric Value' as a continuous covariate to separate discrete class effects from continuous variations.
+        *   **Power-Law Fit**: Regress $\kappa$ against 'disorder parameter' (e.g., $1 - \text{clustering}$) to calculate $R^2$ and exponent (SC-005).
+    *   Bootstrap: A sufficient number of iterations for confidence intervals.
+    *   Correction: Bonferroni for multiple metrics.
+3.  **Output**: `data/processed/analysis/correlation_results.json`.
 
-The research question and method remain as specified in the planning document, with references preserved verbatim..
-*   **CI Validation**: Calculate CI width. If width > 0.2, flag result or retry with increased iterations/N (SC-004).
-*   **Correction**: Bonferroni or FDR for multiple metrics (FR-005).
-*   **Stratification**: Perform analysis stratified by `regime_flag` to test topology-transport relationships across diffusive and ballistic regimes.
-*   **Framing**: All results reported as **associational** (FR-007).
+## Statistical Rigor & Limitations
 
-## 4. Computational Feasibility
+- **Multiple Comparisons**: Bonferroni correction applied for all metric tests (FR-005).
+- **Power Analysis**: Formal calculation performed prior to full ensemble generation (FR-010).
+- **Causal Framing**: All results framed as **associational** (FR-007). No claim of "causation" due to observational nature of generated ensembles.
+- **Collinearity**: If degree variance and clustering are correlated, this is reported descriptively; independent effects are not claimed without orthogonalization.
+- **Limitations**:
+    - Allen-Feldman theory is an approximation for disordered systems; full anharmonicity may not be captured.
+    - System size limited to $N \le 500$ due to CPU constraints; extrapolation to macroscopic scales is speculative.
+    - Force constants are derived from an empirical potential, not DFT.
 
-*   **Hardware**: GitHub Actions Free Tier (limited vCPU, constrained RAM).
-*   **Memory**: Data subsets to < 6 GB.
-*   **Runtime**: Total ensemble < 6 hours.
-*   **Mitigation**:
-    *   Use small system sizes (N_atoms ~) to ensure feasibility.
-    *   EAM relaxation and transport calculations are CPU-tractable for these sizes.
-    *   No CUDA/8-bit quantization.
+## Decision Log
 
-## 5. Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Unreachability** | High | Use synthetic generation with `pymatgen` + EAM relaxation (verified approach) instead of external Zenodo links. |
-| **Solver Convergence Failure** | Medium | Implement retry logic and fallback to simplified scipy solver. Exclude outliers with logging only if convergence fails completely. |
-| **Runtime Exceeds 6h** | High | Limit ensemble size based on power analysis (FR-010) to minimum required N. |
-| **Circular Validation** | High | Force constants derived from EAM (species/position), not topology (FR-009). |
-| **Ballistic Transport Bias** | Medium | Stratify analysis by regime rather than excluding ballistic cases. |
-| **Underpowered Topological Signal** | High | Phase 0 explicitly targets residual variance after controlling for mass disorder to ensure N is sufficient for the specific topological effect. |
+- **Why Allen-Feldman?**: `phono3py` is infeasible on 2-core CPU for N=500. Allen-Feldman is the standard CPU-tractable method for disordered systems.
+- **Why EAM Potential?**: Ensures force constants are independent of graph topology, preventing circular validation (FR-009).
+- **Why ANOVA?**: Separates the effect of discrete topology types from continuous metric variations (Methodology concern).
+- **Why Subset Sensitivity?**: Performing sensitivity analysis on [deferred] of realizations balances FR-008 requirements with the 6-hour runtime budget.

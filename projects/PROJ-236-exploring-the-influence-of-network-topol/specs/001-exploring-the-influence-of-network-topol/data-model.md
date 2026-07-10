@@ -1,104 +1,83 @@
 # Data Model: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used to represent network realizations, transport results, and correlation analyses. All data is stored in `data/processed/` in JSON or YAML format, with checksums recorded in `data/checksums.json`.
+This document defines the data structures used throughout the project. All data is stored in `data/` and versioned via checksums.
 
-## 2. Core Entities
+## Entities
 
-### 2.1 NetworkRealization
-Represents a single instance of an atomic connectivity graph.
-*   **Storage**: `data/processed/network_realizations/realization_<id>.yaml`
-*   **Compliance**: Stores `construction_params` (cutoff, algorithm, seed) to satisfy Constitution Principle VII.
+### 1. NetworkRealization
 
-```yaml
-id: string (UUID)
-seed: integer
-topology_type: enum [Small-World, Scale-Free, Random]
-atomic_structure:
-  lattice_type: string
-  num_atoms: integer
-  displacement_sigma: float
-  relaxation_method: string # e.g., "Langevin_EAM"
-graph:
-  num_nodes: integer
-  num_edges: integer
-  adjacency_matrix_path: string (relative path to data/processed/networks/)
-  is_connected: boolean
-topological_metrics:
-  clustering_coefficient: float
-  average_path_length: float
-  degree_variance: float
-  spectral_gap: float
-  betweenness_centrality_mean: float
-  betweenness_centrality_std: float
-construction_params:
-  distance_cutoff_factor: float
-  algorithm_seed: integer
-  cutoff_sweep_range: string # e.g., "1.0-2.0"
-validation_status: enum [Valid, Invalid_Disconnected, Invalid_DegDist]
-```
+Represents a single atomic connectivity graph.
 
-### 2.2 TransportResult
-Represents the calculated thermal conductivity for a specific realization.
+- **`id`**: Unique string identifier (e.g., `sw_001`).
+- **`type`**: Enum: `small_world`, `scale_free`, `random`.
+- **`nodes`**: Integer count of nodes ($N$).
+- **`edges`**: List of tuples `(u, v)`.
+- **`metrics`**: Dictionary of topological features:
+    - `clustering_coefficient`: Float.
+    - `average_path_length`: Float.
+    - `degree_variance`: Float.
+    - `spectral_gap`: Float.
+    - `betweenness_centrality`: List of floats (one per node).
+- **`cutoff_used`**: Float (distance multiplier).
+- **`seed`**: Integer (random seed used).
 
-```yaml
-realization_id: string (UUID, FK to NetworkRealization)
-method: enum [Green-Kubo, Fallback_Scipy]
-thermal_conductivity: float (W/mK)
-error_estimate: float
-convergence_status: enum [Converged, Failed_Retry_Exhausted, Failed_Singular]
-simulation_time_seconds: float
-force_constant_source: enum [EAM, Ab-Initio]
-regime_flag: enum [Diffusive, Ballistic_Flagged] # Added for stratified analysis
-```
+### 2. TransportResult
 
-### 2.3 CorrelationAnalysis
-Represents the statistical relationship between a metric and conductivity.
+Represents the computed thermal conductivity for a realization.
 
-```yaml
-metric_name: string
-ensemble_type: enum [Small-World, Scale-Free, Random, All]
-correlation_coefficient: float
-p_value_raw: float
-p_value_corrected: float
-confidence_interval:
-  lower: float
-  upper: float
-  width: float # Added for SC-004 validation
-bootstrap_iterations: integer
-regression_r_squared: float
-power_law_r_squared: float # Added for SC-005
-power_law_exponent: float # Added for SC-005
-significance_flag: boolean (p_corrected < 0.05)
-ci_width_target_met: boolean # Added for SC-004
-```
+- **`realization_id`**: Reference to `NetworkRealization.id`.
+- **`conductivity`**: Float ($\kappa$ in W/m·K).
+- **`convergence_status`**: Enum: `converged`, `failed`, `retry_exhausted`.
+- **`method`**: Enum: `allen_feldman`, `nemd`.
+- **`regime_detected`**: Enum: `diffusive`, `ballistic`, `mixed`.
+- **`computation_time`**: Float (seconds).
+- **`error_estimate`**: Float (standard error).
 
-## 3. File Organization
+### 3. CorrelationAnalysis
 
-```text
-data/
-├── raw/
-│   └── atomic_structures/
-│       └── lattice_seed_42.json
-├── processed/
-│   ├── network_realizations/
-│   │   ├── realization_001.yaml
-│   │   ├── realization_002.yaml
-│   │   └── ...
-│   ├── transport_results/
-│   │   ├── result_001.yaml
-│   │   └── ...
-│   └── analysis/
-│       ├── correlation_summary.yaml
-│       ├── power_analysis.yaml
-│       └── sensitivity_report.yaml
-└── checksums.json
-```
+Aggregated statistical results.
 
-## 4. Data Integrity
+- **`metric_name`**: String (e.g., `clustering_coefficient`).
+- **`topology_type`**: String (e.g., `small_world`).
+- **`correlation_coefficient`**: Float ($r$).
+- **`p_value`**: Float (uncorrected).
+- **`p_value_corrected`**: Float (Bonferroni/FDR).
+- **`confidence_interval`**: Dictionary `{lower: Float, upper: Float}`.
+- **`r_squared`**: Float.
+- **`sample_size`**: Integer ($N$).
 
-*   **Immutability**: Raw data is never modified. Derived files (e.g., `transport_results`) are written once.
-*   **Checksums**: Every file in `data/processed/` is checksummed (SHA-256) and recorded in `checksums.json`.
-*   **Validation**: Scripts must validate that `realization_id` in `TransportResult` exists in `NetworkRealization`.
-*   **Transparency**: `construction_params` in `NetworkRealization` files explicitly record the cutoff, algorithm, and seed used, ensuring Principle VII compliance.
+### 4. PowerLawFit
+
+Results of the power-law fit between disorder and conductivity (SC-005).
+
+- **`disorder_parameter`**: String (e.g., `1 - clustering`).
+- **`power_law_r_squared`**: Float.
+- **`power_law_exponent`**: Float.
+- **`power_law_p_value`**: Float (test against null hypothesis $R^2=0$).
+- **`ci_lower`**: Float.
+- **`ci_upper`**: Float.
+- **`ci_width`**: Float.
+- **`ci_width_target_met`**: Boolean.
+
+### 5. ANOVAResult
+
+Results of the Analysis of Variance.
+
+- **`metric_name`**: String.
+- **`f_statistic`**: Float.
+- **`p_value`**: Float.
+- **`effect_size`**: Float (e.g., $\eta^2$).
+
+## File Formats
+
+- **Graphs**: `.graphml` (NetworkX format).
+- **Results**: `.csv` (Transport results), `.json` (Analysis results).
+- **Config**: `.yaml` (Simulation parameters).
+
+## Data Flow
+
+1.  `01_generate_networks.py` → `data/processed/graphs/`
+2.  `02_compute_transport.py` → `data/processed/transport/`
+3.  `03_analyze_correlations.py` → `data/processed/analysis/`

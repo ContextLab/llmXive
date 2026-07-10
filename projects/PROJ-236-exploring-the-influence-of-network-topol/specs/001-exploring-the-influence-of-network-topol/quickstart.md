@@ -1,13 +1,12 @@
 # Quickstart: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   Access to a CPU-only environment (e.g., GitHub Actions, local Linux machine).
-*   `lammps` installed (CPU version) for EAM relaxation.
+- Python 3.11+
+- `pip` or `conda`
+- GitHub Actions Runner (for CI execution)
 
-## 2. Installation
+## Installation
 
 1.  **Clone the repository**:
     ```bash
@@ -26,53 +25,36 @@
     pip install -r code/requirements.txt
     ```
 
-## 3. Execution
+## Running the Pipeline
 
-The pipeline is executed in three sequential phases.
-
-### Phase 0: Power Analysis
-Calculates the required sample size.
+### 1. Generate Networks
 ```bash
-python code/power_analysis.py --config code/simulation_config.yaml
+python code/01_generate_networks.py --n 200 --types small_world,scale_free,random --seed 42
 ```
-*Output*: `data/processed/power_analysis.yaml`
+*Output*: `data/processed/graphs/`
 
-### Phase 1: Generate Networks
-Generates the ensemble of atomic connectivity networks with sensitivity sweep.
+### 2. Compute Transport
 ```bash
-python code/generate_networks.py --config code/simulation_config.yaml
+python code/02_compute_transport.py --input data/processed/graphs/ --mode cpu
 ```
-*Output*: `data/processed/network_realizations/`
+*Output*: `data/processed/transport/`
 
-### Phase 2: Compute Transport
-Calculates thermal conductivity for each realization.
+### 3. Analyze Correlations
 ```bash
-python code/compute_transport.py --input data/processed/network_realizations/ --config code/simulation_config.yaml
-```
-*Output*: `data/processed/transport_results/`
-
-### Phase 3: Analyze Correlations
-Performs statistical analysis and generates reports.
-```bash
-python code/analyze_correlations.py --networks data/processed/network_realizations/ --results data/processed/transport_results/
+python code/03_analyze_correlations.py --transport data/processed/transport/ --graphs data/processed/graphs/
 ```
 *Output*: `data/processed/analysis/`
 
-## 4. Verification
+## Verification
 
-Run the unit tests to ensure the pipeline is functional:
+To verify the pipeline on a small scale:
 ```bash
 pytest tests/unit/
-```
-
-Run the integration test to verify the full pipeline (may take a significant duration).:
-```bash
 pytest tests/integration/test_full_pipeline.py
 ```
 
-## 5. Troubleshooting
+## Troubleshooting
 
-*   **Convergence Failure**: If `compute_transport.py` fails, check `simulation_config.yaml` for tighter convergence criteria or reduce the system size.
-*   **Memory Error**: If `MemoryError` occurs, reduce `num_atoms` in `simulation_config.yaml` (target < 500 atoms).
-*   **Missing Data**: Ensure `data/raw/` contains the synthetic lattice seed file. If missing, run `code/generate_networks.py` with `--generate-synth` flag.
-*   **CI Width > 0.2**: If the analysis fails the CI width check, increase `bootstrap_iterations` in `simulation_config.yaml` or re-run the initial phase with a larger N.
+- **Convergence Failure**: If `convergence_status` is `failed`, check `simulation_config.yaml` for time step adjustments.
+- **Memory Error**: Reduce `--n` (number of nodes) to a computationally feasible scale appropriate for the experimental design.
+- **Disconnected Graphs**: The script automatically retries with a larger cutoff. If it fails >5% of the time, log and report.

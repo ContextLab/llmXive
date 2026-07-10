@@ -2,7 +2,7 @@
 
 **Input**: Design documents from `/specs/001-exploring-the-influence-of-network-topol/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-**Branch**: `001-exploring-the-influence-of-network-topol`
+**Branch**: `001-gene-regulation`
 **Spec**: `specs/001-exploring-the-influence-of-network-topol/spec.md`
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -32,7 +32,7 @@
   - Entities from data-model.md
   - Endpoints from contracts/
   
-  Tasks MUST be organized by user story so each story can:
+  Tasks MUST be organized by user story so each story can be:
   - Be implemented independently
   - Be tested independently
   - Be delivered as an MVP increment
@@ -41,17 +41,16 @@
   ============================================================================
 -->
 
-## Phase 0: Documentation Alignment, Power Analysis & Pilot Data
+## Phase 0: Documentation Alignment, Power Analysis Script & Pilot Data Planning
 
-**Purpose**: Resolve contradictions in upstream artifacts (spec.md, plan.md) before code implementation begins. Execute formal power analysis to determine sample size N.
+**Purpose**: Resolve contradictions in upstream artifacts (spec.md, plan.md) before code implementation begins. Implement the power analysis script.
 **Dependency**: None. Must be completed before Phase 1.
 
-- [ ] T047 [P] [Doc] Update `plan.md` and `spec.md` to replace branch name `001-gene-regulation` with `001-exploring-the-influence-of-network-topol` to resolve branch naming contradiction. (Status: Pending - upstream artifacts still require update)
-- [ ] T048 [P] [Doc] Update `plan.md` Constitution Check to explicitly state that external atomic coordinate seeds are fetched from verified sources (e.g., Zenodo, Materials Project) to satisfy Principle III (Data Hygiene). (Status: Pending - upstream artifacts still require update)
-- [ ] T049 [P] [Doc] Update `plan.md` FR/SC Mapping for FR-006 to specify "anharmonic force constant estimation via EAM potentials" (Physics-First) to align with spec requirements and reject false dichotomies. (Status: Pending - upstream artifacts still require update)
-- [ ] T050 [P] [Doc] Fix formatting error in `spec.md` FR-004 line to ensure valid Markdown rendering and correct requirement text. (Status: Pending - upstream artifacts still require update)
-- [ ] T000a [P] [FR-010] Generate a pilot dataset of network realizations (including controlled mass disorder and varied topology configurations) to provide variance estimates for power analysis. Output: `data/processed/pilot_data/`.
-- [ ] T000 [P] [FR-010] Execute formal statistical power analysis script `code/power_analysis.py` using pilot data from T000a to determine minimum sample size N (target r≥0.3, power≥0.80) and generate `data/processed/power_analysis.yaml`.
+- [ ] T047 [P] [Doc] Generate a 'Resolution Document' (`docs/resolution_report.md`) listing any inconsistencies found between spec.md, plan.md, and tasks.md (e.g., branch names, constraints) for human review. Do NOT auto-update upstream artifacts. (Status: Pending - upstream artifacts still require update)
+- [ ] T048 [P] [Doc] Generate a patch file for `plan.md` to update Constitution Check to explicitly state that external atomic coordinate seeds are fetched from verified sources (e.g., Zenodo, Materials Project) to satisfy Principle III (Data Hygiene). (Status: Pending - upstream artifacts still require update)
+- [ ] T049 [P] [Doc] Generate a patch file for `plan.md` to update FR/SC Mapping for FR-006 to specify "anharmonic force constant estimation via EAM potentials" (Physics-First) to align with spec requirements and reject false dichotomies. (Status: Pending - upstream artifacts still require update)
+- [ ] T050 [P] [Doc] Generate a patch file for `spec.md` to fix formatting error in FR-004 line to ensure valid Markdown rendering and correct requirement text. (Status: Pending - upstream artifacts still require update)
+- [ ] T000a [P] [FR-010] Implement `code/power_analysis.py` script to perform statistical power analysis for correlation detection (r≥0.3, power≥0.80).
 - [ ] T001b [P] [Orchestrator] Implement global runtime monitor in `code/orchestrator.py` to track total wall-clock time of the ensemble execution and enforce a predefined temporal limit (SC-002). Logs failure if total time > 6 hours.
 
 ---
@@ -75,9 +74,10 @@
 - [ ] T004 [P] Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`
 - [ ] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`
 - [ ] T006 [P] Create base logging infrastructure in `code/utils/logging.py`
-- [ ] T007 [P] Create Pydantic base entities `NetworkRealization` (fields: node_count: int, edge_list: List[Tuple[int, int]], topology_type: str, cutoff_factor: float, seed: int, validation_status: Literal['valid', 'disconnected', 'failed']) and `TransportResult` (fields: network_id: str, kappa: float, error_estimate: float, convergence_status: str, runtime: float) in `code/utils/models.py`
+- [ ] T007 [P] Create Pydantic base entities `NetworkRealization` (fields: node_count: int, edge_list: List[Tuple[int, int]], topology_type: str, cutoff_factor: float, seed: int, validation_status: Literal['pending', 'valid', 'disconnected', 'failed']) and `TransportResult` (fields: network_id: str, kappa: float, error_estimate: float, convergence_status: str, runtime: float) in `code/utils/models.py`. **Logic**: `validation_status` transitions from 'pending' to 'valid'/'disconnected'/'failed' based on output of T015/T018a. The state machine is triggered by the validation functions in `code/generate_networks.py`.
 - [ ] T008 [P] Setup random seed management (np.random.seed()) in `code/utils/seeds.py`
-- [ ] T017a [P] [Foundational] Implement 'Physical Stability Filter' in `code/utils/validation.py` to check for bond-distance thresholds (e.g., >0.8x nearest neighbor) and atomic stability based on Assumptions. This filter consumes atomic coordinate seeds (from Plan Phase 0) and returns a boolean indicating if the structure is physically valid *before* network generation.
+- [ ] T017a [P] [Foundational] Implement 'Physical Stability Filter' in `code/utils/validation.py` to check for bond-distance thresholds (e.g., >0.8x nearest neighbor) and atomic stability based on Assumptions. This filter consumes atomic coordinate seeds (from T017b) and returns a boolean indicating if the structure is physically valid *before* network generation.
+- [ ] T017b [P] [Foundational] Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files) representing disordered alloys for N=500 atoms. Store in `data/raw/atomic_seeds/`. This provides the input for T017a and T024. (Resolves missing producer for atomic coordinates).
 - [ ] T018a [P] [FR-001] Implement explicit connectivity validation logic to ensure >95% of realizations are connected in `code/generate_networks.py`. Logic: Retry with cutoff * 1.1 up to 2.0x; if still disconnected, flag as invalid. (Distinct deliverable for FR-001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -106,8 +106,9 @@
 - [ ] T014 [P] [US1] Implement Random (Erdős-Rényi) graph generator in `code/generate_networks.py` (Depends on T015)
 - [ ] T016 [US1] Implement topological metric extraction (clustering, degree variance, spectral gap, betweenness) in `code/generate_networks.py`
 - [ ] T018 [US1] Implement ensemble generation loop with `meta.json` logging for each realization in `code/generate_networks.py` (Depends on T015, T017a, T018a)
+- [ ] T018c [US1] [FR-001, SC-001] Implement enforcement logic to measure, aggregate, and report the connectivity success rate. If the rate < 95% after retries, the task MUST fail and log the specific realization IDs that failed, preventing the ensemble from proceeding. This acts as a hard pass/fail gate for the ensemble. (Resolves missing enforcement task).
 - [ ] T018b [US1] [FR-008] Implement ensemble generation per cutoff (regular increments defined in `simulation_config.yaml`) in `code/generate_networks.py` with explicit 'regular increments' sweep logic. (Split from T019a)
-- [ ] T019a [US1] [Stub] Implement transport simulation runner **stub** in `code/generate_networks.py` that calls a placeholder function returning a dummy `TransportResult` (kappa=0.0, status='stub') to satisfy dependency checks without executing US2 logic. Stub signature: `def run_transport_stub(network_id: str) -> TransportResult`. (Split from T019b, explicitly a Stub for US2)
+- [ ] T000a [P] [FR-010] Generate a pilot dataset of network realizations (including controlled mass disorder and varied topology configurations) to provide variance estimates for power analysis. Output: `data/processed/pilot_data/`. **Format**: CSV with columns [network_id, topology_type, cutoff, connectivity_status, clustering_coeff]. **Volume**: 50 realizations per topology type. (Moved from Phase 0 to Phase 3 to ensure generators exist).
 - [ ] T020 [US1] Save generated graphs to `data/networks/` and checksums to `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -128,10 +129,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] [FR-006, FR-009] Implement force constant derivation via **Anharmonic Lattice Dynamics using EAM potentials** (Physics-First) in `code/compute_transport.py`. This task consumes atomic coordinates (from T018) and generates force constants independent of topology. (Aligned with Plan's approved methodology. Depends on T018 and T007)
-- [ ] T025a [US2] Implement Anharmonic Lattice Dynamics (ALD) Green-Kubo solver core in `code/compute_transport.py` (reads `data/networks/*.graphml`, writes `data/transport/results.csv`). **Includes**: 1) Regime detection (ballistic vs diffusive) based on high-degree hubs/low clustering; 2) Fallback to NEMD or flag invalidity per FR-011; 3) Unit conversion from reduced units to physical units (W/mK) using defined constants. (Depends on T024)
+- [ ] T024 [US2] [FR-006, FR-009] Implement force constant derivation via **Anharmonic Lattice Dynamics using EAM potentials** (Physics-First) in `code/compute_transport.py`. This task consumes atomic coordinates (from T017b) and generates force constants independent of topology. (Aligned with Plan's approved methodology. Depends on T017b and T007)
+- [ ] T025a [US2] Implement **Allen-Feldman Theory** solver core in `code/compute_transport.py` (reads `data/networks/*.graphml`, writes `data/transport/results.csv`). **Includes**: 1) Calculation of vibrational density of states; 2) Computation of diffusivity via Green-Kubo formalism for disordered systems; 3) Unit conversion from reduced units to physical units (W/mK). **Note**: This implements the primary methodology. If the network exhibits high-degree hubs or low clustering indicative of ballistic transport, the system MUST flag the result as "regime_mismatch" and exclude it from the final correlation analysis, rather than switching to NEMD. (Depends on T024)
+- [ ] T025d [US2] [FR-011] Implement regime validation: If the network exhibits high-degree hubs (scale-free) or low clustering indicative of ballistic transport, the system MUST flag the result as "regime_mismatch" and exclude it from the final correlation analysis, rather than switching to NEMD. (Resolves NEMD constraint violation).
 - [ ] T025b [US2] Implement convergence check and retry logic (a limited number of retries with adjusted solver parameters) in `code/utils/validation.py`
-- [ ] T025c [US2] Implement timeout enforcement (A moderate duration per realization) and retry logic (3 retries) in `code/compute_transport.py` as per FR-002
+- [ ] T025c [US2] Implement timeout enforcement (A moderate duration per realization) and retry logic (multiple retries) in `code/compute_transport.py` as per FR-002
 - [ ] T029 [US2] Save transport results to `data/transport/transport_results.csv` with metadata in `code/compute_transport.py`
 - [ ] T029c [US2] [FR-011, SC-002] Implement total ensemble runtime aggregation and check against 6-hour limit (SC-002) in `code/compute_transport.py`. Logs failure if total time > 6 hours. Reports to T001b.
 
@@ -155,7 +157,7 @@
 ### Implementation for User Story 3
 
 - [ ] T034 [P] [US3] Implement linear regression and correlation coefficient calculation in `code/analyze_correlations.py`
-- [ ] T035 [US3] Implement bootstrap resampling (A sufficient number of iterations will be performed to ensure convergence and stability of the results.) for confidence intervals **and Variance Inflation Factor (VIF) check (threshold > 5)** in `code/analyze_correlations.py` (Integrated T037 logic)
+- [ ] T035 [US3] Implement bootstrap resampling (A sufficient number of iterations will be performed to ensure convergence and stability of the results.) for confidence intervals **and** optional Variance Inflation Factor (VIF) check (threshold configurable in `simulation_config.yaml`, default 5) in `code/analyze_correlations.py`. **Note**: VIF is optional. If VIF > threshold, log a warning and proceed with bootstrap-only results. (Integrated T037 logic, removed VIF as mandatory requirement).
 - [ ] T036 [US3] Implement multiple-comparison correction (Bonferroni/FDR) for p-values in `code/analyze_correlations.py`
 - [ ] T036b [US3] Implement result aggregation for sensitivity analysis (from T018b) in `code/analyze_correlations.py` (Moved from US1)
 - [ ] T036c [US3] Implement result aggregation per cutoff for sensitivity analysis in `code/analyze_correlations.py` (Split from T019c)
@@ -198,7 +200,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T018 (networks) for input data
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T017b (atomic seeds) and T018 (networks) for input data
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T018 (networks) AND T029 (transport results) for input data
 
 ### Within Each User Story
@@ -277,14 +279,15 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All transport simulations (T025a) must run within 45 minutes on CPU cores; if convergence fails, the task must exclude the realization and log the failure, never hang or require GPU.
-- **Critical Constraint**: No synthetic/fake data generation for input; all network realizations must be procedurally generated from real atomic coordinate seeds, and transport results must be computed from real simulations, not hardcoded values.
-- **Methodology Note**: The Spec mandates **Anharmonic Lattice Dynamics (ALD)** and **EAM potentials** for force constant derivation. All tasks in Phase 4 (T024, T025a) must adhere to this physics model, not Harmonic approximations.
-- **Branch Note**: The feature branch is `001-exploring-the-influence-of-network-topol`. Phase 0 tasks (T047-T050) must be completed first to align upstream artifacts.
+- **Critical Constraint**: No synthetic/fake data generation for input; all network realizations must be procedurally generated from real atomic coordinate seeds (T017b), and transport results must be computed from real simulations (Allen-Feldman), not hardcoded values.
+- **Methodology Note**: The Spec mandates **Anharmonic Lattice Dynamics (ALD)** and **EAM potentials** for force constant derivation. All tasks in Phase 4 (T024, T025a) must adhere to this physics model, specifically using **Allen-Feldman theory** for disordered systems, not Harmonic approximations or NEMD.
+- **Branch Note**: The feature branch is `001-gene-regulation`. Phase 0 tasks (T047-T050) must be completed first to align upstream artifacts.
 - **Constitution Note**: The `plan.md` Constitution Check must be updated to reflect fetching external atomic coordinate seeds from verified sources (Zenodo/Materials Project).
 - **FR-006/FR-009 Note**: Force constant derivation in T024 must use EAM potentials (Physics-First) to avoid circular validation.
-- **FR-011 Note**: T025a must include logic to detect ballistic transport and switch to NEMD or flag invalidity.
+- **FR-011 Note**: T025d must flag ballistic regimes as "regime_mismatch" rather than switching to NEMD.
 - **FR-008 Note**: T018b and T036d must implement 'regular increments' sweep and robustness verification.
 - **SC-002 Note**: T029c must aggregate total runtime and check against 6-hour limit.
-- **FR-010 Note**: T000 must execute power analysis to determine N.
-- **Pilot Data Note**: T000a generates pilot data required for T000 power analysis.
+- **FR-010 Note**: T000a and T000b must execute power analysis to determine N.
+- **Pilot Data Note**: T000a (now in Phase 3) generates pilot data required for T000b power analysis.
 - **Global Runtime Note**: T001b monitors total wall-clock time and enforces SC-002.
+- **Revision Note (Scope)**: Phase 6 (Rule Mining) has been removed as it was unanchored scope creep not supported by spec.md. The research scope is strictly static topology vs. anharmonic lattice dynamics.
