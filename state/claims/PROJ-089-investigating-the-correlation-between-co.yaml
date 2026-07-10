@@ -1,0 +1,459 @@
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Repositories selected via GitHub API
+  claim_id: c_0bcbe4ff
+  context: Repositories are selected programmatically via the GitHub API. Criteria
+    include minimum stars and age.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Repositories_selected_via_GitHub_API
+  kind: entity_fact
+  raw_text: Repositories are selected programmatically via the GitHub API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:08:35Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Minimum repository stars set to 500
+  claim_id: c_f4566b7b
+  context: 'Criteria: Minimum stars: 500 (indicates community adoption and code review
+    activity).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Minimum stars: 500.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:09:23Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Minimum repository age set to 2 years
+  claim_id: c_b473d0a8
+  context: 'Criteria: Minimum age: 2 years (ensures sufficient historical data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Minimum age: 2 years.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:09:50Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: 'Languages analyzed: Python, Java, JavaScript, TypeScript, Go, Rust'
+  claim_id: c_8da52ab9
+  context: 'Languages: Python, Java, JavaScript, TypeScript, Go, Rust.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Languages_analyzed:_Python,_Java,_JavaScript,_TypeScript,_Go
+  kind: entity_fact
+  raw_text: Languages analyzed include Python, Java, JavaScript, TypeScript, Go, and
+    Rust.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:10:31Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Repositories inactive for 24 months excluded
+  claim_id: c_653c1568
+  context: 'Filtering: Repositories with inactive development in the last 24 months
+    are excluded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Repositories with inactive development in the last 24 months are excluded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:11:09Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Hassan 2009 ICSE paper on predicting faults
+  claim_id: c_072d39b2
+  context: Hassan, A. E. (2009). 'Predicting faults using the complexity of code changes.'
+    ICSE. (Validates the use of historical metrics for defect prediction).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hassan, A. E. (2009) published 'Predicting faults using the complexity
+    of code changes' in ICSE.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:13:05Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Meneely and Williams 2009 ICSOC paper on secure open source
+  claim_id: c_7ba130fc
+  context: 'Meneely, A., & Williams, L. (2009). ''Secure Open Source: An Analysis
+    of Security Vulnerabilities in Open Source Software.'' ICSOC. (Validates the star-count
+    and age thresholds as proxies for project maturity).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Meneely, A., & Williams, L. (2009) published ''Secure Open Source: An
+    Analysis of Security Vulnerabilities in Open Source Software'' in ICSOC.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:13:37Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Total Lines Changed metric definition
+  claim_id: c_ed9beafb
+  context: 'Total Lines Changed: The sum of lines added and deleted for a specific
+    file over the last 2 years.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_Lines_Changed_metric_definition
+  kind: entity_fact
+  raw_text: Total Lines Changed is defined as the sum of lines added and deleted for
+    a specific file over the last 2 years.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:14:24Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Czerwonka 2005 ICSE paper on mining software repositories
+  claim_id: c_e5a926ea
+  context: 'Reference: Czerwonka, J. (2005). ''Mining software repositories for requirements
+    traceability.'' ICSE.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Czerwonka, J. (2005) published 'Mining software repositories for requirements
+    traceability' in ICSE.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:14:50Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: 'Technical Debt formula: Sum(Code Smells) + Sum(Cyclomatic Complexity)'
+  claim_id: c_46e3c0b8
+  context: 'Formula: debt_score = Sum(Code Smells) + Sum(Cyclomatic Complexity).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Technical_Debt_formula:_Sum(Code_Smells)_+_Sum(Cyclomatic_Co
+  kind: entity_fact
+  raw_text: 'Technical Debt is quantified as a composite score derived from static
+    analysis tools using the formula: debt_score = Sum(Code Smells) + Sum(Cyclomatic
+    Complexity).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:15:28Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Python files analyzed with radon v0.x
+  claim_id: c_ce929be2
+  context: 'Python Files: Analyzed using radon (v0.x).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_files_analyzed_with_radon_v0.x
+  kind: entity_fact
+  raw_text: Python files are analyzed using radon (v0.x).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:16:07Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: radon implements Cyclomatic Complexity and Maintainability Index
+  claim_id: c_84072a05
+  context: radon implements standard Cyclomatic Complexity (McCabe, 1976) and Maintainability
+    Index.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: radon implements standard Cyclomatic Complexity (McCabe, 1976) and Maintainability
+    Index.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:16:37Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Martin 2008 Clean Code publication
+  claim_id: c_a32f0db8
+  context: 'Validation: Aligns with Martin, R. C. (2008). Clean Code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Martin, R. C. (2008) published 'Clean Code'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:18:49Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Multi-language files analyzed with semgrep
+  claim_id: c_ae26b2bb
+  context: 'Multi-Language (Java, JS, TS, Go, Rust): Analyzed using semgrep (latest
+    stable).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multi-language_files_analyzed_with_semgrep
+  kind: magnitude
+  raw_text: Multi-language files (Java, JS, TS, Go, Rust) are analyzed using semgrep
+    (latest stable).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:19:25Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Semgrep rulesets mapped to SonarSource Code Smell Taxonomy
+  claim_id: c_ebc0f107
+  context: Semgrep rulesets are mapped to common 'Code Smells' defined in the SonarSource
+    Code Smell Taxonomy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semgrep_rulesets_mapped_to_SonarSource_Code_Smell_Taxonomy
+  kind: entity_fact
+  raw_text: Semgrep rulesets are mapped to common 'Code Smells' defined in the SonarSource
+    Code Smell Taxonomy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:20:10Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Girba et al. 2005 paper on detecting and measuring technical debt
+  claim_id: c_48bb7198
+  context: 'Citation: Girba, T., et al. (2005). ''Detecting and Measuring Technical
+    Debt.'' (General TD definition).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Girba, T., et al. (2005) published 'Detecting and Measuring Technical
+    Debt'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:20:31Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Analysis limited to last 2 years of git history
+  claim_id: c_7cfb431c
+  context: Analysis is limited to the last 2 years of git history to ensure data relevance
+    and manage computational load.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis is limited to the last 2 years of git history.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:21:03Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Linear Mixed-Effects Model used for hierarchical data
+  claim_id: c_db128d6c
+  context: We employ a Linear Mixed-Effects Model (LMM) to account for the hierarchical
+    structure of the data (files nested within repositories).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q59901484
+        url: https://www.wikidata.org/wiki/Q59901484
+        value: Linear Mixed-Effects Model
+      quote: linear mixed-effects model
+      source_id: Q120282163
+      url: https://www.wikidata.org/wiki/Q120282163
+      value: linear mixed-effects model
+    filled: true
+  kind: entity_fact
+  raw_text: The study employs a Linear Mixed-Effects Model (LMM) to account for the
+    hierarchical structure of the data.
+  resolved_value: linear mixed-effects model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T04:21:32Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Pinheiro and Bates 2000 book on Mixed-Effects Models
+  claim_id: c_81ec50cf
+  context: 'Reference: Pinheiro, J. C., & Bates, D. M. (2000). Mixed-Effects Models
+    in S and S-PLUS.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pinheiro, J. C., & Bates, D. M. (2000) published 'Mixed-Effects Models
+    in S and S-PLUS'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:24:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Ridge Regression applied if VIF > 5
+  claim_id: c_cb18975c
+  context: 'Threshold: If VIF > 5, Ridge Regression is applied to stabilize estimates.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ridge_Regression_applied_if_VIF_%3E_5
+  kind: magnitude
+  raw_text: If Variance Inflation Factor (VIF) is greater than 5, Ridge Regression
+    is applied.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:24:55Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: O'Brien 2007 paper on Variance Inflation Factors
+  claim_id: c_8c2ef646
+  context: 'Reference: O''Brien, R. M. (2007). ''A Caution Regarding Rules of Thumb
+    for Variance Inflation Factors.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: O'Brien, R. M. (2007) published 'A Caution Regarding Rules of Thumb for
+    Variance Inflation Factors'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:25:26Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Fisher's Z-transformation used for meta-analysis
+  claim_id: c_bbe5b154
+  context: 'Method: Fisher''s Z-transformation of Pearson/Spearman correlation coefficients
+    (r).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Z-transformation_used_for_meta-analysis
+  kind: entity_fact
+  raw_text: Fisher's Z-transformation of Pearson/Spearman correlation coefficients
+    is used to control for family-wise error rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:27:47Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Hedges and Olkin 1985 book on Statistical Methods for Meta-Analysis
+  claim_id: c_96b915bb
+  context: 'Reference: Hedges, L. V., & Olkin, I. (1985). Statistical Methods for
+    Meta-Analysis.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Hedges, Larry V.; Olkin, Ingram (1985). Statistical methods for meta-analysis.
+        Boston: Academic Press. ISBN 0-12-336380-2.'
+      source_id: Larry V. Hedges
+      url: https://en.wikipedia.org/wiki/Larry_V._Hedges
+      value: Statistical methods for meta-analysis
+    filled: true
+  kind: numeric
+  raw_text: Hedges, L. V., & Olkin, I. (1985) published 'Statistical Methods for Meta-Analysis'.
+  resolved_value: Statistical methods for meta-analysis
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T04:27:58Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Sensitivity analysis with avg_loc thresholds 5, 10, and 20
+  claim_id: c_7e8548c8
+  context: 'Procedure: Re-run the full pipeline with avg_loc thresholds of 5, 10,
+    and 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis is performed with avg_loc thresholds of 5, 10, and
+    20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:28:33Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/code/research.md
+  attempts: 1
+  canonical: Ioannidis 2005 paper on false research findings
+  claim_id: c_c4161ab3
+  context: 'Reference: Ioannidis, J. P. A. (2005). ''Why Most Published Research Findings
+    Are False.'' (Sensitivity as a robustness check).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '"Why Most Published Research Findings Are False" is a 2005 essay written
+        by John Ioannidis, a professor at the Stanford School of Medicine, and published
+        in PLOS Medicine. It is considered foundational to the field of metascience.'
+      source_id: Why Most Published Research Findings Are False
+      url: https://en.wikipedia.org/wiki/Why_Most_Published_Research_Findings_Are_False
+      value: '2005'
+    filled: true
+  kind: magnitude
+  raw_text: Ioannidis, J. P. A. (2005) published 'Why Most Published Research Findings
+    Are False'.
+  resolved_value: '2005'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T04:28:58Z'

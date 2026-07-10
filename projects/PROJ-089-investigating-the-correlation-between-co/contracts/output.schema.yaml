@@ -1,0 +1,124 @@
+%YAML 1.2
+---
+# Schema for analysis output files
+# Generated for PROJ-089: Investigating the Correlation Between Code Churn and Technical Debt
+
+name: analysis_output_schema
+version: 1.0.0
+description: >
+  Defines the structure of correlation results, sensitivity analysis, and meta-analysis outputs.
+
+datasets:
+  - name: correlation_results
+    file: data/results/correlation_results.csv
+    description: Primary correlation analysis results per repository and aggregate.
+    fields:
+      - name: repo_id
+        type: string
+        description: Repository identifier
+        nullable: false
+      - name: correlation_type
+        type: string
+        description: Type of correlation calculated (Pearson, Spearman)
+        enum:
+          - Pearson
+          - Spearman
+        nullable: false
+      - name: r_value
+        type: float
+        description: Correlation coefficient
+        nullable: false
+      - name: p_value
+        type: float
+        description: P-value for the correlation
+        nullable: false
+      - name: n_samples
+        type: integer
+        description: Number of samples (files) used
+        nullable: false
+      - name: control_vars
+        type: string
+        description: List of covariates controlled for (e.g., 'avg_loc')
+        nullable: false
+      - name: model_type
+        type: string
+        description: Statistical model used (e.g., 'Linear', 'Ridge', 'MixedEffects')
+        nullable: false
+      - name: vif_score
+        type: float
+        description: Variance Inflation Factor if applicable, else null
+        nullable: true
+      - name: significance_flag
+        type: string
+        description: 'Significant' if p < 0.05, else 'Not Significant'
+        nullable: false
+      - name: magnitude_flag
+        type: string
+        description: 'Moderate' if |r| >= 0.3, else 'Weak' or 'Strong'
+        nullable: false
+
+  - name: sensitivity_analysis
+    file: data/results/sensitivity_analysis.csv
+    description: Results of sensitivity analysis across different LOC thresholds.
+    fields:
+      - name: threshold_loc
+        type: integer
+        description: The avg_loc threshold used for filtering (5, 10, or 20)
+        nullable: false
+      - name: n_files
+        type: integer
+        description: Number of files remaining after filtering
+        nullable: false
+      - name: r_value
+        type: float
+        description: Correlation coefficient for this threshold
+        nullable: false
+      - name: p_value
+        type: float
+        description: P-value for this threshold
+        nullable: false
+      - name: stability_score
+        type: float
+        description: Measure of result stability across thresholds
+        nullable: true
+
+  - name: meta_analysis_results
+    file: data/results/meta_analysis_results.csv
+    description: Meta-analysis of Fisher-transformed correlation coefficients.
+    fields:
+      - name: metric_name
+        type: string
+        description: Name of the metric being meta-analyzed (e.g., 'Churn-Debt Correlation')
+        nullable: false
+      - name: k_studies
+        type: integer
+        description: Number of repositories (studies) included
+        nullable: false
+      - name: mean_r
+        type: float
+        description: Weighted mean correlation coefficient
+        nullable: false
+      - name: mean_r_ci_lower
+        type: float
+        description: Lower bound of 95% CI for mean r
+        nullable: false
+      - name: mean_r_ci_upper
+        type: float
+        description: Upper bound of 95% CI for mean r
+        nullable: false
+      - name: z_score
+        type: float
+        description: Z-score for the meta-analysis
+        nullable: false
+      - name: p_value
+        type: float
+        description: P-value for the meta-analysis
+        nullable: false
+      - name: heterogeneity_i2
+        type: float
+        description: I-squared statistic for heterogeneity
+        nullable: true
+      - name: method
+        type: string
+        description: Method used (e.g., 'Fisher Z-transformation', 'Random Effects')
+        nullable: false

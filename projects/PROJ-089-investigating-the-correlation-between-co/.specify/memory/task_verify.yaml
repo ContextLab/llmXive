@@ -1,0 +1,8 @@
+T007 [P] Implement `main.py` orchestrator with error handling and timeout logic: 1
+T008 [P] [US1] Contract test for `unified_metrics.csv` schema in `tests/contract/test_dataset_schema.py`: 1
+T009 [P] [US1] Integration test for repo cloning and filtering in `tests/integration/test_data_extraction.py`: 1
+'T010 [P] [US1] Implement `data_extraction.py`: Query GitHub API for >500-star repos, filter by age (>2 years) and language': 1
+? 'T011 [P] [US1] Implement `data_extraction.py`: Clone repos and extract per-file
+  commit counts & lines changed (last 2 years) using `pydriller`'
+: 1
+'T012 [P] [US1] Implement `data_extraction.py`: Generate `data/raw/repos_metadata.csv`': 1

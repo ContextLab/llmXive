@@ -1,0 +1,4 @@
+# Additional Ruff overrides
+extend-ignore = [
+    "D",  # Ignore docstring conventions
+]

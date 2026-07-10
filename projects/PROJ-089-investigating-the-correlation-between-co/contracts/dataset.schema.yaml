@@ -1,0 +1,113 @@
+%YAML 1.2
+---
+# Schema for the unified dataset: data/processed/unified_metrics.csv
+# Generated for PROJ-089: Investigating the Correlation Between Code Churn and Technical Debt
+# This schema defines the expected columns and types for the processed metrics dataset.
+
+name: unified_metrics_schema
+version: 1.0.0
+description: >
+  Raw metrics dataset containing code churn, technical debt scores, and covariates
+  per file across multiple repositories.
+
+fields:
+  - name: repo_id
+    type: string
+    description: Unique identifier for the repository (e.g., owner/repo)
+    nullable: false
+    example: "psf/requests"
+
+  - name: file_path
+    type: string
+    description: Relative path of the file within the repository
+    nullable: false
+    example: "requests/api.py"
+
+  - name: language
+    type: string
+    description: Programming language of the file
+    nullable: false
+    example: "Python"
+
+  - name: total_lines_changed
+    type: integer
+    description: >
+      Total number of lines changed (added + removed) in the last 2 years.
+      This is the raw churn metric.
+    nullable: false
+    minimum: 0
+    example: 150
+
+  - name: debt_score
+    type: float
+    description: >
+      Calculated technical debt score for the file.
+      For Python: Sum of Cyclomatic Complexity (Radon) + Code Smells (Semgrep).
+      For other languages: Sum of Code Smells + CC from Semgrep.
+    nullable: false
+    minimum: 0.0
+    example: 12.5
+
+  - name: avg_loc
+    type: float
+    description: >
+      Average Lines of Code per function/method in the file.
+      Used as a covariate to control for size.
+    nullable: false
+    minimum: 0.0
+    example: 15.2
+
+  - name: contributor_count
+    type: integer
+    description: Number of unique contributors who modified this file in the last 2 years.
+    nullable: false
+    minimum: 1
+    example: 4
+
+  - name: commit_count
+    type: integer
+    description: Total number of commits touching this file in the last 2 years.
+    nullable: false
+    minimum: 0
+    example: 23
+
+  - name: file_size_lines
+    type: integer
+    description: Total lines of code in the file (current version).
+    nullable: false
+    minimum: 0
+    example: 340
+
+  - name: repo_age_years
+    type: float
+    description: Age of the repository in years.
+    nullable: false
+    minimum: 0.0
+    example: 5.2
+
+  - name: repo_stars
+    type: integer
+    description: Number of GitHub stars for the repository.
+    nullable: false
+    minimum: 0
+    example: 5200
+
+  - name: validation_status
+    type: string
+    description: Status of the file's data validation (e.g., 'valid', 'skipped', 'error').
+    nullable: false
+    enum:
+      - valid
+      - skipped
+      - error
+    example: "valid"
+
+constraints:
+  - description: "No missing values allowed in core metrics"
+    fields:
+      - total_lines_changed
+      - debt_score
+      - avg_loc
+      - contributor_count
+
+output_path: "data/processed/unified_metrics.csv"
