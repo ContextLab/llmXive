@@ -1,37 +1,47 @@
-# Dockerfile for PROJ-492: Evaluating Statistical Validity of Public A/B Test Summaries
-# Uses a CPU-compatible base image. No GPU support required.
-# Build: docker build -t proj492-ab-audit .
-# Run: docker run --rm proj492-ab-audit python code/src/cli/run_audit.py --help
+# Dockerfile for PROJ-492: Evaluating the Statistical Validity of Public A/B Test Summaries
+# Base image: CPU-compatible, lightweight, Python 3.11 slim
+FROM python:3.11-slim
 
-FROM python:3.10-slim
-
-# Set environment variables to prevent interactive prompts and ensure UTF-8
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies (if any specific to the project are needed later)
-# Currently minimal, but kept for potential future use (e.g., compiling some libs)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (if any needed for compilation)
+# Currently none required beyond standard libs and pure Python wheels
+# Uncomment if scipy/numpy require build tools in future
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     build-essential \
+#     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker layer caching
+# Copy requirements first for better layer caching
 COPY code/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project source code
-COPY code/ .
+# Copy project source code
+COPY code/src ./src
+COPY code/data ./data
+COPY code/tests ./tests
+COPY code/scripts ./scripts
+COPY code/specs ./specs
+COPY code/contracts ./contracts
+COPY code/config.py ./config.py
+COPY code/setup_linting.py ./setup_linting.py
+COPY code/setup_project_structure.py ./setup_project_structure.py
 
-# Create necessary directories if they don't exist (though they should be in the repo)
+# Create necessary directories that might be empty but required at runtime
 RUN mkdir -p data/raw data/manual_validation output figures
 
-# Default command: Verify installation and show help
-# This ensures the container runs successfully on startup without crashing immediately
-CMD ["python", "code/src/cli/run_audit.py", "--help"]
+# Default command: run the main audit pipeline
+# Users can override with docker run ... python scripts/<script>.py
+ENTRYPOINT ["python", "scripts/run_audit.py"]
+
+# Health check (optional, verifies basic import)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD python -c "import sys; sys.path.insert(0, '.'); from src.audit.monte_carlo_core import set_seeds; print('OK')" || exit 1

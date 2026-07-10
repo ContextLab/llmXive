@@ -1,150 +1,277 @@
 """
-Unit tests for the manifest generation utility (T014).
+Unit tests for manifest generation utility (T014).
+Verifies SHA256 hash computation and manifest structure.
 """
+
 import json
-import os
 import tempfile
 from pathlib import Path
-from unittest import TestCase
+from unittest.mock import patch, MagicMock
+
+import pytest
 
 from code.src.utils.manifest import (
-    compute_sha256,
+    compute_file_hash,
+    scan_directory,
     generate_manifest,
-    load_manifest,
-    verify_manifest
+    validate_manifest
 )
 
 
-class TestManifestGeneration(TestCase):
-    
-    def setUp(self):
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.base_dir = Path(self.temp_dir.name)
-        
-        # Create some dummy files
-        self.file1 = self.base_dir / "file1.txt"
-        self.file2 = self.base_dir / "subdir" / "file2.json"
-        
-        self.file1.parent.mkdir(parents=True, exist_ok=True)
-        self.file2.parent.mkdir(parents=True, exist_ok=True)
-        
-        self.file1.write_text("Hello World")
-        self.file2.write_text('{"key": "value"}')
-        
-        self.manifest_path = self.base_dir / "manifest.json"
-    
-    def tearDown(self):
-        self.temp_dir.cleanup()
+class TestComputeFileHash:
+    """Tests for compute_file_hash function."""
 
-    def test_compute_sha256(self):
-        """Test SHA256 computation matches known values."""
-        content = b"Hello World"
-        # "Hello World" SHA256
-        expected_hash = "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
-        
-        # Create a temp file to test
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(content)
-            temp_path = Path(f.name)
-        
-        try:
-            computed_hash = compute_sha256(temp_path)
-            self.assertEqual(computed_hash, expected_hash)
-        finally:
-            temp_path.unlink()
+    def test_hash_sha256(self, tmp_path):
+        """Test SHA256 hash computation for a simple file."""
+        test_file = tmp_path / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
 
-    def test_compute_sha256_file_not_found(self):
-        """Test that FileNotFoundError is raised for missing files."""
-        with self.assertRaises(FileNotFoundError):
-            compute_sha256(Path("/nonexistent/file.txt"))
+        hash_result = compute_file_hash(test_file)
 
-    def test_generate_manifest_creates_file(self):
-        """Test that generate_manifest creates the output file."""
+        # Known SHA256 for "Hello, World!"
+        expected = "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+        assert hash_result == expected
+
+    def test_hash_empty_file(self, tmp_path):
+        """Test hash computation for an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
+
+        hash_result = compute_file_hash(test_file)
+
+        # SHA256 for empty string
+        expected = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        assert hash_result == expected
+
+    def test_hash_large_file(self, tmp_path):
+        """Test hash computation for a larger file (chunked reading)."""
+        test_file = tmp_path / "large.bin"
+        # Create a file larger than default chunk size (8KB)
+        content = b"X" * (1024 * 1024)  # 1MB
+        test_file.write_bytes(content)
+
+        hash_result = compute_file_hash(test_file)
+
+        # Verify it returns a valid hex string
+        assert len(hash_result) == 64
+        assert all(c in "0123456789abcdef" for c in hash_result)
+
+    def test_file_not_found(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        non_existent = tmp_path / "nonexistent.txt"
+
+        with pytest.raises(FileNotFoundError):
+            compute_file_hash(non_existent)
+
+
+class TestScanDirectory:
+    """Tests for scan_directory function."""
+
+    def test_scan_all_files(self, tmp_path):
+        """Test scanning for all files."""
+        (tmp_path / "file1.txt").write_text("a")
+        (tmp_path / "file2.json").write_text("b")
+        (tmp_path / "subdir").mkdir()
+        (tmp_path / "subdir" / "file3.txt").write_text("c")
+
+        files = scan_directory(tmp_path)
+
+        assert len(files) == 3
+        assert all(f.exists() for f in files)
+
+    def test_scan_with_extensions(self, tmp_path):
+        """Test scanning with specific extensions."""
+        (tmp_path / "file1.txt").write_text("a")
+        (tmp_path / "file2.json").write_text("b")
+        (tmp_path / "file3.py").write_text("c")
+
+        files = scan_directory(tmp_path, extensions=[".json", ".txt"])
+
+        assert len(files) == 2
+        assert all(f.suffix in [".json", ".txt"] for f in files)
+
+    def test_scan_with_exclusions(self, tmp_path):
+        """Test scanning with exclusion patterns."""
+        (tmp_path / "file1.txt").write_text("a")
+        (tmp_path / "__pycache__").mkdir()
+        (tmp_path / "__pycache__" / "cache.pyc").write_text("b")
+        (tmp_path / ".git").mkdir()
+        (tmp_path / ".git" / "config").write_text("c")
+
+        files = scan_directory(tmp_path, exclude_patterns=["__pycache__", ".git"])
+
+        assert len(files) == 1
+        assert files[0].name == "file1.txt"
+
+    def test_empty_directory(self, tmp_path):
+        """Test scanning an empty directory."""
+        files = scan_directory(tmp_path)
+        assert files == []
+
+    def test_nonexistent_directory(self, tmp_path):
+        """Test scanning a nonexistent directory."""
+        nonexistent = tmp_path / "does_not_exist"
+        files = scan_directory(nonexistent)
+        assert files == []
+
+
+class TestGenerateManifest:
+    """Tests for generate_manifest function."""
+
+    def test_generate_basic_manifest(self, tmp_path):
+        """Test basic manifest generation."""
+        # Setup test files
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        (output_dir / "test1.json").write_text('{"a": 1}')
+        (output_dir / "test2.csv").write_text("a,b\n1,2")
+
+        manifest_path = tmp_path / "manifest.json"
+
         manifest = generate_manifest(
-            artifact_paths=[self.file1, self.file2],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
+            target_dirs=[output_dir],
+            output_path=manifest_path
         )
-        
-        self.assertTrue(self.manifest_path.exists())
-        self.assertIn("artifacts", manifest)
-        self.assertEqual(len(manifest["artifacts"]), 2)
 
-    def test_generate_manifest_content(self):
-        """Test that manifest contains correct hashes and relative paths."""
+        # Verify manifest structure
+        assert "version" in manifest
+        assert "generated_at" in manifest
+        assert "algorithm" in manifest
+        assert manifest["algorithm"] == "sha256"
+        assert "files" in manifest
+
+        # Verify file entries
+        assert len(manifest["files"]) == 2
+        assert all(isinstance(h, str) and len(h) == 64 for h in manifest["files"].values())
+
+        # Verify file was written
+        assert manifest_path.exists()
+        with open(manifest_path) as f:
+            loaded = json.load(f)
+        assert loaded == manifest
+
+    def test_generate_with_multiple_dirs(self, tmp_path):
+        """Test manifest generation from multiple directories."""
+        dir1 = tmp_path / "dir1"
+        dir2 = tmp_path / "dir2"
+        dir1.mkdir()
+        dir2.mkdir()
+        (dir1 / "file1.txt").write_text("a")
+        (dir2 / "file2.txt").write_text("b")
+
+        manifest_path = tmp_path / "manifest.json"
+
         manifest = generate_manifest(
-            artifact_paths=[self.file1, self.file2],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
+            target_dirs=[dir1, dir2],
+            output_path=manifest_path
         )
-        
-        # Check relative paths
-        self.assertIn("file1.txt", manifest["artifacts"])
-        self.assertIn("subdir/file2.json", manifest["artifacts"])
-        
-        # Check hashes exist
-        self.assertIn("sha256", manifest["artifacts"]["file1.txt"])
-        self.assertIn("sha256", manifest["artifacts"]["subdir/file2.json"])
-        
-        # Check sizes exist
-        self.assertIn("size_bytes", manifest["artifacts"]["file1.txt"])
-        self.assertIn("size_bytes", manifest["artifacts"]["subdir/file2.json"])
 
-    def test_load_manifest(self):
-        """Test loading a generated manifest."""
-        generate_manifest(
-            artifact_paths=[self.file1],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
-        )
-        
-        loaded = load_manifest(self.manifest_path)
-        self.assertIn("artifacts", loaded)
-        self.assertIn("file1.txt", loaded["artifacts"])
+        assert len(manifest["files"]) == 2
 
-    def test_verify_manifest_success(self):
-        """Test verification passes when files match."""
-        generate_manifest(
-            artifact_paths=[self.file1, self.file2],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
-        )
-        
-        self.assertTrue(verify_manifest(self.manifest_path, self.base_dir))
+    def test_generate_no_files(self, tmp_path):
+        """Test that ValueError is raised when no files are found."""
+        empty_dir = tmp_path / "empty"
+        empty_dir.mkdir()
+        manifest_path = tmp_path / "manifest.json"
 
-    def test_verify_manifest_failure_modified_file(self):
-        """Test verification fails when a file is modified."""
-        generate_manifest(
-            artifact_paths=[self.file1],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
-        )
-        
-        # Modify the file
-        self.file1.write_text("Modified Content")
-        
-        self.assertFalse(verify_manifest(self.manifest_path, self.base_dir))
-
-    def test_verify_manifest_failure_missing_file(self):
-        """Test verification fails when a file is missing."""
-        generate_manifest(
-            artifact_paths=[self.file1, self.file2],
-            output_path=self.manifest_path,
-            base_dir=self.base_dir
-        )
-        
-        # Delete a file
-        self.file2.unlink()
-        
-        self.assertFalse(verify_manifest(self.manifest_path, self.base_dir))
-
-    def test_generate_manifest_missing_file_raises(self):
-        """Test that generate_manifest raises FileNotFoundError if a file is missing."""
-        missing_file = self.base_dir / "nonexistent.txt"
-        
-        with self.assertRaises(FileNotFoundError):
+        with pytest.raises(ValueError, match="No files found"):
             generate_manifest(
-                artifact_paths=[self.file1, missing_file],
-                output_path=self.manifest_path,
-                base_dir=self.base_dir
+                target_dirs=[empty_dir],
+                output_path=manifest_path
             )
+
+    def test_generate_creates_output_dir(self, tmp_path):
+        """Test that output directory is created if it doesn't exist."""
+        test_dir = tmp_path / "test"
+        test_dir.mkdir()
+        (test_dir / "file.txt").write_text("a")
+
+        manifest_path = tmp_path / "nested" / "deep" / "manifest.json"
+
+        generate_manifest(
+            target_dirs=[test_dir],
+            output_path=manifest_path
+        )
+
+        assert manifest_path.exists()
+
+
+class TestValidateManifest:
+    """Tests for validate_manifest function."""
+
+    def test_validate_all_match(self, tmp_path):
+        """Test validation when all hashes match."""
+        # Create files and manifest
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        test_file = output_dir / "test.txt"
+        test_file.write_text("content")
+
+        manifest_path = tmp_path / "manifest.json"
+        file_hash = compute_file_hash(test_file)
+
+        manifest = {
+            "version": "1.0",
+            "generated_at": "2024-01-01T00:00:00Z",
+            "algorithm": "sha256",
+            "files": {
+                "output/test.txt": file_hash
+            }
+        }
+
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f)
+
+        is_valid = validate_manifest(manifest_path, tmp_path)
+        assert is_valid is True
+
+    def test_validate_hash_mismatch(self, tmp_path):
+        """Test validation when hash does not match."""
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        test_file = output_dir / "test.txt"
+        test_file.write_text("content")
+
+        manifest_path = tmp_path / "manifest.json"
+        wrong_hash = "0" * 64
+
+        manifest = {
+            "version": "1.0",
+            "generated_at": "2024-01-01T00:00:00Z",
+            "algorithm": "sha256",
+            "files": {
+                "output/test.txt": wrong_hash
+            }
+        }
+
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f)
+
+        is_valid = validate_manifest(manifest_path, tmp_path)
+        assert is_valid is False
+
+    def test_validate_missing_file(self, tmp_path):
+        """Test validation when file is missing."""
+        manifest_path = tmp_path / "manifest.json"
+        wrong_hash = "0" * 64
+
+        manifest = {
+            "version": "1.0",
+            "generated_at": "2024-01-01T00:00:00Z",
+            "algorithm": "sha256",
+            "files": {
+                "output/nonexistent.txt": wrong_hash
+            }
+        }
+
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f)
+
+        is_valid = validate_manifest(manifest_path, tmp_path)
+        assert is_valid is False
+
+    def test_validate_manifest_not_found(self, tmp_path):
+        """Test validation when manifest file is missing."""
+        is_valid = validate_manifest(tmp_path / "nonexistent.json", tmp_path)
+        assert is_valid is False

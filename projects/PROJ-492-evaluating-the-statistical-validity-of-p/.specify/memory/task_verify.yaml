@@ -3,9 +3,6 @@
   \ *(Alias of PT002)*"
 : 1
 ? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
-  \ \u2013 verify core functions importable. *(Alias of PT002)*"
-: 2
-? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
   \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_117d6102 \u2014\
   \ status=not_enough_info] *(Alias of PT002)*"
 : 1
@@ -179,12 +176,12 @@
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
 : 1
-? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
-  \ base image) (build Docker image successfully). **(No dependency on T012)**"
-: 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes [UNRESOLVED-CLAIM:\
   \ c_1c143949 \u2014 status=not_enough_info]) [DEPENDS ON: T007]."
+: 1
+? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
+  \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007]."
 : 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
