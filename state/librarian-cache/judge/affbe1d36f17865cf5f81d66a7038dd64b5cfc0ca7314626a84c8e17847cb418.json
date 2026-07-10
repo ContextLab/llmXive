@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.18279",
+  "judged_at": "2026-07-10T08:05:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+  "rationale": "This paper qualifies under category (d) as a foundational survey and category (f) as a canonical reference for the domain of LLM-based GUI agents, which is the specific empirical population and technical context of the user's question regarding \"UI-MOPD\" and GUI agent distillation. While it is a broad survey rather than a specific study on the \"linguistics\" of the distillation mechanism, it establishes the necessary baseline and vocabulary cluster for any literature review on this topic.",
+  "relevant": true
+}

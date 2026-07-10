@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.18834",
+  "judged_at": "2026-07-10T07:50:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (few-step autoregressive/diffusion distillation via ReFlow) and addresses the same dependent variable (sampling efficiency and generation quality in few-step synthesis) as the user's question, even though it focuses on image synthesis rather than the specific \"Causal Forcing++\" method mentioned. It provides essential prior work on the ReFlow framework and trajectory alignment that is foundational for any literat",
+  "relevant": true
+}

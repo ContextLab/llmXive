@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.04425",
+  "judged_at": "2026-07-10T08:05:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+  "rationale": "The candidate paper is the foundational source for the \"UI-MOPD\" method explicitly named in the user's research question, satisfying acceptance criteria (d) as the canonical reference for the technique being extended. Additionally, it establishes the empirical baseline and specific mechanism (multi-teacher on-policy distillation for continual GUI learning) that the user's follow-up work aims to investigate, fitting criteria (a) and (c).",
+  "relevant": true
+}

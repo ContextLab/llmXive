@@ -2,11 +2,10 @@ T001 Create project structure per implementation plan in `code/` and `tests/`: 1
 T002 Initialize Python 3.11 project with `requirements.txt` (scipy, numpy, pandas, matplotlib, pyyaml, nolds, pytest): 1
 T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`: 1
 T006 [P] Implement `code/utils/plotting.py` with base plot styles and error-bar visualization helpers: 1
-? T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP,
-  Rosenstein, FNN (FR-004, FR-005, FR-006).
-: 2
 T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).: 1
 T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).: 1
-"T040 [P] Implement `code/generators.py` logic for Lorenz/R\xF6ssler integration (FR-001).": 1
-T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).: 1
-T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).: 1
+"T040 [P] Implement `code/generators.py` logic for Lorenz/R\xF6ssler integration (FR-001).": 2
+T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).: 2
+T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).: 2
+T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).: 1
+T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).: 1

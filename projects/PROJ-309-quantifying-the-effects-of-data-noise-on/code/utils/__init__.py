@@ -1,3 +1,1 @@
-"""
-Utilities package.
-"""
+# Utils package initialization

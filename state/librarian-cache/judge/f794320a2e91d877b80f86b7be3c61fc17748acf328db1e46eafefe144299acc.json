@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.15141",
+  "judged_at": "2026-07-10T07:50:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "The candidate paper is the foundational methods paper for the specific technique (\"Causal Forcing++\") and research direction explicitly named in the user's query, satisfying acceptance category (d) as the canonical reference for this new research line.",
+  "relevant": true
+}

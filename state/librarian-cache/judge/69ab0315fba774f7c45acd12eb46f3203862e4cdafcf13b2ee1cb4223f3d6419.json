@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.15857",
+  "judged_at": "2026-07-10T07:50:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) by investigating the same core mechanism (comparing diffusion models vs. autoregressive models) and measuring the same dependent variables (validation loss, downstream performance, scaling laws) in the same domain (large language models), even though it focuses on data-constrained settings rather than the specific \"Causal Forcing++\" distillation method mentioned in the user's query. It provides the necessary empirical baseline and comparative context for",
+  "relevant": true
+}

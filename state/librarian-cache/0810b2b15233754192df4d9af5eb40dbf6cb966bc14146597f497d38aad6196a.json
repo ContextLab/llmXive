@@ -1,0 +1,755 @@
+{
+  "fetched_at": "2026-07-10T08:05:16Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for Continual GUI Agent\"",
+      "target_n": 5
+    },
+    "duration_seconds": 169.519,
+    "ended_at": "2026-07-10T08:05:16Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multi-platform GUI agent continual learning"
+        ],
+        [
+          2,
+          "on-policy distillation for user interface agents"
+        ],
+        [
+          3,
+          "cross-platform GUI interaction language models"
+        ],
+        [
+          4,
+          "continual adaptation of GUI agents via distillation"
+        ],
+        [
+          5,
+          "multi-platform policy transfer in GUI environments"
+        ],
+        [
+          6,
+          "language model adaptation for graphical user interfaces"
+        ],
+        [
+          7,
+          "distillation techniques for multimodal GUI agents"
+        ],
+        [
+          8,
+          "cross-device GUI agent generalization"
+        ],
+        [
+          9,
+          "on-policy knowledge transfer in interactive systems"
+        ],
+        [
+          10,
+          "continual learning strategies for UI-based agents"
+        ],
+        [
+          11,
+          "multimodal instruction following in GUI contexts"
+        ],
+        [
+          12,
+          "policy distillation for human-computer interaction"
+        ],
+        [
+          13,
+          "cross-platform semantic understanding of user interfaces"
+        ],
+        [
+          14,
+          "iterative refinement of GUI agent policies"
+        ],
+        [
+          15,
+          "language-guided navigation in multi-platform environments"
+        ],
+        [
+          16,
+          "transfer learning for visual interface agents"
+        ],
+        [
+          17,
+          "adaptive GUI agents using on-policy methods"
+        ],
+        [
+          18,
+          "cross-platform consistency in agent-driven UI interaction"
+        ],
+        [
+          19,
+          "distillation-based generalization for interface automation"
+        ],
+        [
+          20,
+          "multimodal continual learning for graphical interfaces"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for Continual GUI Agent\" linguistics": 0,
+        "multi-platform GUI agent continual learning": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "GUI instruction following multimodal grounding",
+      "multimodal LLM Android iOS cross-device",
+      "visual grounding UI layout parsing",
+      "instruction following benchmark evaluation metrics",
+      "domain adaptation cross-platform generalization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2411.18279"
+      ]
+    },
+    "per_query_hit_count": {
+      "GUI instruction following multimodal grounding": 3,
+      "domain adaptation cross-platform generalization": 3,
+      "instruction following benchmark evaluation metrics": 3,
+      "llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for Continual GUI Agent\" linguistics": 3,
+      "multimodal LLM Android iOS cross-device": 3,
+      "visual grounding UI layout parsing": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-10T08:02:27Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+      "raw": "llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for Continual GUI Agent\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graphical User Interface (GUI) grounding plays a crucial role in enhancing the capabilities of Vision-Language Model (VLM) agents. While general VLMs, such as GPT-4V, demonstrate strong performance across various tasks, their proficiency in GUI grounding remains suboptimal. Recent studies have focused on fine-tuning these models specifically for zero-shot GUI grounding, yielding significant improvements over baseline performance. We introduce a visual prompting framework that employs an iterative narrowing mechanism to further improve the performance of both general and fine-tuned models in GUI grounding. For evaluation, we tested our method on a comprehensive benchmark comprising various UI platforms and provided the code to reproduce our results.",
+          "claimed_authors": [
+            "Anthony Nguyen"
+          ],
+          "claimed_title": "Improved GUI Grounding via Iterative Narrowing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.13591"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Improved GUI Grounding via Iterative Narrowing')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
+          "claimed_authors": [
+            "Dongping Chen",
+            "Yue Huang",
+            "Siyuan Wu",
+            "Jingyu Tang",
+            "Liuyi Chen",
+            "Yilin Bai",
+            "Zhigang He",
+            "Chenlong Wang",
+            "Huichi Zhou",
+            "Yiqiang Li",
+            "Tianshuo Zhou",
+            "Yue Yu",
+            "Chujie Gao",
+            "Qihui Zhang",
+            "Yi Gui",
+            "Zhen Li",
+            "Yao Wan",
+            "Pan Zhou",
+            "Jianfeng Gao",
+            "Lichao Sun"
+          ],
+          "claimed_title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.10819"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents MagicGUI, a foundational mobile GUI agent designed to address critical challenges in perception, grounding, and reasoning within real-world mobile GUI environments. The framework is underpinned by following six key components: (1) a comprehensive and accurate dataset, constructed via the scalable GUI Data Pipeline, which aggregates the largest and most diverse GUI-centric multimodal data to date from open-source repositories, automated crawling, and targeted manual annotation; (2) enhanced perception and grounding capabilities, facilitating fine-grained multimodal alignment for UI element referencing, grounding, and screen comprehension; (3) a comprehensive and unified action space, encompassing both fundamental UI operations and complex interactive intents to support human-agent interactions; (4) planning-oriented reasoning mechanisms that enable the model to decompose complex user instructions into sequential actions with explicit intermediate meta-paln reasoning; (5) an iterative two-stage training procedure, combining large-scale continue pre-training on 7.8M samples with reinforcement fine-tuning utilizing a spatially enhanced composite reward and dual filtering strategy; and (6) competitive performance on both the proprietary Magic-RICH benchmark and over a dozen public benchmarks, achieving superior performance across GUI perception and agent tasks, while demonstrating robust generalization and real-world deployment potential in practical mobile GUI scenarios, as detailed in Figure 1.",
+          "claimed_authors": [
+            "Liujian Tang",
+            "Shaokang Dong",
+            "Yijia Huang",
+            "Minqi Xiang",
+            "Hongtao Ruan",
+            "Bin Wang",
+            "Shuo Li",
+            "Zhiheng Xi",
+            "Zhihui Cao",
+            "Hailiang Pang",
+            "Heng Kong",
+            "He Yang",
+            "Mingxu Chai",
+            "Zhilin Gao",
+            "Xingyu Liu",
+            "Yingnan Fu",
+            "Jiaming Liu",
+            "Xuanjing Huang",
+            "Yu-Gang Jiang",
+            "Tao Gui",
+            "Qi Zhang",
+            "Kang Wang",
+            "Yunke Zhang",
+            "Yuran Wang"
+          ],
+          "claimed_title": "MagicGUI: A Foundational Mobile GUI Agent with Scalable Data Pipeline and Reinforcement Fine-tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.03700"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='MagicGUI: A Foundational Mobile GUI Agent with Scalable Data Pipeline and Reinforcement Fine-tuning')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Network traffic, as a key media format, is crucial for ensuring security and communications in modern internet infrastructure. While existing methods offer excellent performance, they face two key bottlenecks: (1) They fail to capture multidimensional semantics beyond unimodal sequence patterns. (2) Their black box property, i.e., providing only category labels, lacks an auditable reasoning process. We identify a key factor that existing network traffic datasets are primarily designed for classification and inherently lack rich semantic annotations, failing to generate human-readable evidence report. To address data scarcity, this paper proposes a Byte-Grounded Traffic Description (BGTD) benchmark for the first time, combining raw bytes with structured expert annotations. BGTD provides necessary behavioral features and verifiable chains of evidence for multimodal reasoning towards explainable encrypted traffic interpretation. Built upon BGTD, this paper proposes an end-to-end traffic-language representation framework (mmTraffic), a multimodal reasoning architecture bridging physical traffic encoding and semantic interpretation. In order to alleviate modality interference and generative hallucinations, mmTraffic adopts a jointly-optimized perception-cognition architecture. By incorporating a perception-centered traffic encoder and a cognition-centered LLM generator, mmTraffic achieves refined traffic interpretation with guaranteed category prediction. Extensive experiments demonstrate that mmTraffic autonomously generates high-fidelity, human-readable, and evidence-grounded traffic interpretation reports, while maintaining highly competitive classification accuracy comparing to specialized unimodal model (e.g., NetMamba). The source code is available at https://github.com/lgzhangzlg/Multimodal-Reasoning-with-LLM-for-Encrypted-Traffic-Interpretation-A-Benchmark",
+          "claimed_authors": [
+            "Longgang Zhang",
+            "Xiaowei Fu",
+            "Fuxiang Huang",
+            "Lei Zhang"
+          ],
+          "claimed_title": "Multimodal Reasoning with LLM for Encrypted Traffic Interpretation: A Benchmark",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.08140"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Multimodal Reasoning with LLM for Encrypted Traffic Interpretation: A Benchmark')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid advancement of mobile applications has led to a significant demand for cross-platform compatibility, particularly between the Android and iOS platforms. Traditional approaches to mobile application translation often rely on manual intervention or rule-based systems, which are labor-intensive and time-consuming. While recent advancements in machine learning have introduced automated methods, they often lack contextual understanding and adaptability, resulting in suboptimal translations. Large Language Models (LLMs) were recently leveraged to enhance code translation at different granularities, including the method, class, and repository levels. Researchers have investigated common errors, limitations, and potential strategies to improve these tasks. However, LLM-based application translation across different platforms, such as migrating mobile applications between Android and iOS or adapting software across diverse frameworks, remains underexplored. Understanding the performance, strengths, and limitations of LLMs in cross-platform application translation is critical for advancing software engineering automation. This study aims to fill this gap by evaluating LLM-based agentic approaches for mobile application translation, identifying key failure points, and proposing guidelines to improve translation performance. We developed a chain of agents that account for dependencies, specifications, program structure, and program control flow when translating applications from Android to iOS. To evaluate the performance, we manually examined the translated code for syntactic correctness, semantic accuracy, and functional completeness. For translation failures, we further conducted a detailed root cause analysis to understand the underlying limitations of the agentic translation process and identify opportunities for improvement.",
+          "claimed_authors": [
+            "Zhili Zeng",
+            "Kimya Khakzad Shahandashti",
+            "Alvine Boaye Belle",
+            "Song Wang",
+            "Zhen Ming",
+            " Jiang"
+          ],
+          "claimed_title": "A Pilot Study on LLM-Based Agentic Translation from Android to iOS: Pitfalls and Insights",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.16037"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='A Pilot Study on LLM-Based Agentic Translation from Android to iOS: Pitfalls and Insights')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
+          "claimed_authors": [
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
+          ],
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Grounding, also known as Referring Expression Comprehension and Phrase Grounding, aims to ground the specific region(s) within the image(s) based on the given expression text. This task simulates the common referential relationships between visual and linguistic modalities, enabling machines to develop human-like multimodal comprehension capabilities. Consequently, it has extensive applications in various domains. However, since 2021, visual grounding has witnessed significant advancements, with emerging new concepts such as grounded pre-training, grounding multimodal LLMs, generalized visual grounding, and giga-pixel grounding, which have brought numerous new challenges. In this survey, we first examine the developmental history of visual grounding and provide an overview of essential background knowledge. We systematically track and summarize the advancements, and then meticulously define and organize the various settings to standardize future research and ensure a fair comparison. Additionally, we delve into numerous related datasets and applications, and highlight several advanced topics. Finally, we outline the challenges confronting visual grounding and propose valuable directions for future research, which may serve as inspiration for subsequent researchers. By extracting common technical details, this survey encompasses the representative work in each subtopic over the past decade. To the best of our knowledge, this paper represents the most comprehensive overview currently available in the field of visual grounding. This survey is designed to be suitable for both beginners and experienced researchers, serving as an invaluable resource for understanding key concepts and tracking the latest research developments. We keep tracing related work at https://github.com/linhuixiao/Awesome-Visual-Grounding.",
+          "claimed_authors": [
+            "Linhui Xiao",
+            "Xiaoshan Yang",
+            "Xiangyuan Lan",
+            "Yaowei Wang",
+            "Changsheng Xu"
+          ],
+          "claimed_title": "Towards Visual Grounding: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.20206"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Towards Visual Grounding: A Survey')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing Visual Question Answering (VQA) methods tend to exploit dataset biases and spurious statistical correlations, instead of producing right answers for the right reasons. To address this issue, recent bias mitigation methods for VQA propose to incorporate visual cues (e.g., human attention maps) to better ground the VQA models, showcasing impressive gains. However, we show that the performance improvements are not a result of improved visual grounding, but a regularization effect which prevents over-fitting to linguistic priors. For instance, we find that it is not actually necessary to provide proper, human-based cues; random, insensible cues also result in similar improvements. Based on this observation, we propose a simpler regularization scheme that does not require any external annotations and yet achieves near state-of-the-art performance on VQA-CPv2.",
+          "claimed_authors": [
+            "Robik Shrestha",
+            "Kushal Kafle",
+            "Christopher Kanan"
+          ],
+          "claimed_title": "Visual Grounding Methods for VQA are Working for the Wrong Reasons!",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.05704"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Visual Grounding Methods for VQA are Working for the Wrong Reasons!')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18892"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models are traditionally finetuned on large instruction datasets. However recent studies suggest that small, high-quality datasets can suffice for general purpose instruction following. This lack of consensus surrounding finetuning best practices is in part due to rapidly diverging approaches to LLM evaluation. In this study, we ask whether a small amount of diverse finetuning samples can improve performance on both traditional perplexity-based NLP benchmarks, and on open-ended, model-based evaluation. We finetune open-source MPT-7B and MPT-30B models on instruction finetuning datasets of various sizes ranging from 1k to 60k samples. We find that subsets of 1k-6k instruction finetuning samples are sufficient to achieve good performance on both (1) traditional NLP benchmarks and (2) model-based evaluation. Finally, we show that mixing textbook-style and open-ended QA finetuning datasets optimizes performance on both evaluation paradigms.",
+          "claimed_authors": [
+            "Aditi Jha",
+            "Sam Havens",
+            "Jeremy Dohmann",
+            "Alex Trott",
+            "Jacob Portes"
+          ],
+          "claimed_title": "LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.13133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this companion paper for the DAGECC (Domain Adaptation and GEneralization for Character Classification) competition organized within the frame of the ICPR 2024 conference, we present the general context of the tasks we proposed to the community, we introduce the data that were prepared for the competition and we provide a summary of the results along with a description of the top three winning entries. The competition was centered around domain adaptation and generalization, and our core aim is to foster interest and facilitate advancement on these topics by providing a high-quality, lightweight, real world dataset able to support fast prototyping and validation of novel ideas.",
+          "claimed_authors": [
+            "Sofia Marino",
+            "Jennifer Vandoni",
+            "Emanuel Aldea",
+            "Ichraq Lemghari",
+            "Sylvie Le Hégarat-Mascle",
+            "Frédéric Jurie"
+          ],
+          "claimed_title": "ICPR 2024 Competition on Domain Adaptation and GEneralization for Character Classification (DAGECC)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.17984"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='ICPR 2024 Competition on Domain Adaptation and GEneralization for Character Classification (DAGECC)')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many variants of unsupervised domain adaptation (UDA) problems have been proposed and solved individually. Its side effect is that a method that works for one variant is often ineffective for or not even applicable to another, which has prevented practical applications. In this paper, we give a general representation of UDA problems, named Generalized Domain Adaptation (GDA). GDA covers the major variants as special cases, which allows us to organize them in a comprehensive framework. Moreover, this generalization leads to a new challenging setting where existing methods fail, such as when domain labels are unknown, and class labels are only partially given to each domain. We propose a novel approach to the new setting. The key to our approach is self-supervised class-destructive learning, which enables the learning of class-invariant representations and domain-adversarial classifiers without using any domain labels. Extensive experiments using three benchmark datasets demonstrate that our method outperforms the state-of-the-art UDA methods in the new setting and that it is competitive in existing UDA variations as well.",
+          "claimed_authors": [
+            "Yu Mitsuzumi",
+            "Go Irie",
+            "Daiki Ikami",
+            "Takashi Shibata"
+          ],
+          "claimed_title": "Generalized Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.01656"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Generalized Domain Adaptation')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Unsupervised domain adaptation (UDA) aims to learn transferable representation across domains. Recently a few UDA works have successfully applied Transformer-based methods and achieved state-of-the-art (SOTA) results. However, it remains challenging when there exists a large domain gap between the source and target domain. Inspired by humans' exceptional transferability abilities to adapt knowledge from familiar to uncharted domains, we try to apply the universally existing organizational structure in the human functional brain networks, i.e., the core-periphery principle to design the Transformer and improve its UDA performance. In this paper, we propose a novel brain-inspired robust core-periphery constrained transformer (RCCT) for unsupervised domain adaptation, which brings a large margin of performance improvement on various datasets. Specifically, in RCCT, the self-attention operation across image patches is rescheduled by an adaptively learned weighted graph with the Core-Periphery structure (CP graph), where the information communication and exchange between images patches are manipulated and controlled by the connection strength, i.e., edge weight of the learned weighted CP graph. Besides, since the data in domain adaptation tasks can be noisy, to improve the model robustness, we intentionally add perturbations to the patches in the latent space to ensure generating robust learned weighted core-periphery graphs. Extensive evaluations are conducted on several widely tested UDA benchmarks. Our proposed RCCT consistently performs best compared to existing works, including 88.3\\% on Office-Home, 95.0\\% on Office-31, 90.7\\% on VisDA-2017, and 46.0\\% on DomainNet.",
+          "claimed_authors": [
+            "Xiaowei Yu",
+            "Zeyu Zhang",
+            "Dajiang Zhu",
+            "Tianming Liu"
+          ],
+          "claimed_title": "Robust Core-Periphery Constrained Transformer for Domain Adaptation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.13515"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UI-MOPD: Multi-Platform On-Policy Distillation for', candidate_title='Robust Core-Periphery Constrained Transformer for Domain Adaptation')",
+        "failed_at": "2026-07-10T08:04:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziwei Liu",
+            "Borui Kang",
+            "Hangjie Yuan",
+            "Zixiang Zhao",
+            "Wei Li",
+            "Yifan Zhu",
+            "Tao Feng"
+          ],
+          "title": "Continual GUI Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.20732",
+        "summary": "As digital environments (data distribution) are in flux, with new GUI data arriving over time-introducing new domains or resolutions-agents trained on static environments deteriorate in performance. In this work, we introduce Continual GUI Agents, a new task that requires GUI agents to perform continual learning under shifted domains and resolutions. We find existing methods fail to maintain stable grounding as GUI distributions shift over time, due to the diversity of UI interaction points and regions in fluxing scenarios. To address this, we introduce GUI-Anchoring in Flux (GUI-AiF), a new reinforcement fine-tuning framework that stabilizes continual learning through two novel rewards: Anchoring Point Reward in Flux (APR-iF) and Anchoring Region Reward in Flux (ARR-iF). These rewards guide the agents to align with shifting interaction points and regions, mitigating the tendency of existing reward strategies to over-adapt to static grounding cues (e.g., fixed coordinates or element scales). Extensive experiments show GUI-AiF surpasses state-of-the-art baselines. Our work establishes the first continual learning framework for GUI agents, revealing the untapped potential of reinforcement fine-tuning for continual GUI Agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.20732",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:05:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Niu Lian",
+            "Alan Chen",
+            "Zhehao Yu",
+            "Chengzhen Duan",
+            "Fazhan Liu",
+            "Hui Liu",
+            "Pei Fu",
+            "Jian Luan",
+            "Yaowei Wang",
+            "Shu-Tao Xia",
+            "Jinpeng Wang"
+          ],
+          "title": "UI-MOPD: Multi-Platform On-Policy Distillation for Continual GUI Agent Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.04425",
+        "summary": "Recent advances in multimodal foundation models and agent systems have driven GUI agents from single-platform task execution toward cross-platform interaction. However, building multi-platform GUI agents remains challenging. On one hand, high-quality and executable cross-platform interaction trajectories are still scarce, and existing data often suffer from limited platform coverage. On the other hand, different platforms exhibit distinct interaction conventions, making joint or continual training prone to behavioral pattern mixing, platform-specific capability degradation, and catastrophic forgetting. To address these challenges, we construct Uni-GUI, a high-quality cross-platform GUI interaction dataset, and propose UI-MOPD, the first method that incorporates multi-teacher on-policy distillation into continual learning for GUI agents. UI-MOPD dynamically selects a platform-specific teacher according to the current environment and transfers platform-specific behavioral priors to a shared policy through platform-conditioned distillation, enabling adaptation to new platforms while preserving capabilities on existing ones. Experiments on OSWorld and MobileWorld show that UI-MOPD achieves task success rates of 38.2% and 12.0%, respectively, demonstrating its effectiveness in balancing cross-platform capability retention and new-platform adaptation.\n  Project page: https://elispectre.github.io/UI-MOPD/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.04425",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:05:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shuang Li",
+            "Yilun Du",
+            "Gido M. van de Ven",
+            "Igor Mordatch"
+          ],
+          "title": "Energy-Based Models for Continual Learning",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.12216",
+        "summary": "We motivate Energy-Based Models (EBMs) as a promising model class for continual learning problems. Instead of tackling continual learning via the use of external memory, growing models, or regularization, EBMs change the underlying training objective to cause less interference with previously learned information. Our proposed version of EBMs for continual learning is simple, efficient, and outperforms baseline methods by a large margin on several benchmarks. Moreover, our proposed contrastive divergence-based training objective can be combined with other continual learning methods, resulting in substantial boosts in their performance. We further show that EBMs are adaptable to a more general continual learning setting where the data distribution changes without the notion of explicitly delineated tasks. These observations point towards EBMs as a useful building block for future continual learning methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.12216",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:05:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ning Li",
+            "Xiangmou Qu",
+            "Jiamu Zhou",
+            "Jun Wang",
+            "Muning Wen",
+            "Kounianhua Du",
+            "Xingyu Lou",
+            "Qiuying Peng",
+            "Jun Wang",
+            "Weinan Zhang"
+          ],
+          "title": "MobileUse: A GUI Agent with Hierarchical Reflection for Autonomous Mobile Operation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.16853",
+        "summary": "Recent advances in Multimodal Large Language Models (MLLMs) have enabled the development of mobile agents that can understand visual inputs and follow user instructions, unlocking new possibilities for automating complex tasks on mobile devices. However, applying these models to real-world mobile scenarios remains a significant challenge due to the long-horizon task execution, difficulty in error recovery, and the cold-start problem in unfamiliar environments. To address these challenges, we propose MobileUse, a GUI agent designed for robust and adaptive mobile task execution. To improve resilience in long-horizon tasks and dynamic environments, we introduce a hierarchical reflection architecture that enables the agent to self-monitor, detect, and recover from errors across multiple temporal scales-ranging from individual actions to overall task completion-while maintaining efficiency through a reflection-on-demand strategy. To tackle cold-start issues, we further introduce a proactive exploration module, which enriches the agent's understanding of the environment through self-planned exploration. Evaluations on AndroidWorld and AndroidLab benchmarks demonstrate that MobileUse establishes new state-of-the-art performance, achieving success rates of 62.9% and 44.2%, respectively. To facilitate real-world applications, we release an out-of-the-box toolkit for automated task execution on physical mobile devices, which is available at https://github.com/MadeAgents/mobile-use.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.16853",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:05:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyun Zhang",
+            "Shilin He",
+            "Jiaxu Qian",
+            "Bowen Li",
+            "Liqun Li",
+            "Si Qin",
+            "Yu Kang",
+            "Minghua Ma",
+            "Guyue Liu",
+            "Qingwei Lin",
+            "Saravan Rajmohan",
+            "Dongmei Zhang",
+            "Qi Zhang"
+          ],
+          "title": "Large Language Model-Brained GUI Agents: A Survey",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.18279",
+        "summary": "GUIs have long been central to human-computer interaction, providing an intuitive and visually-driven way to access and interact with digital systems. The advent of LLMs, particularly multimodal models, has ushered in a new era of GUI automation. They have demonstrated exceptional capabilities in natural language understanding, code generation, and visual processing. This has paved the way for a new generation of LLM-brained GUI agents capable of interpreting complex GUI elements and autonomously executing actions based on natural language instructions. These agents represent a paradigm shift, enabling users to perform intricate, multi-step tasks through simple conversational commands. Their applications span across web navigation, mobile app interactions, and desktop automation, offering a transformative user experience that revolutionizes how individuals interact with software. This emerging field is rapidly advancing, with significant progress in both research and industry.\n  To provide a structured understanding of this trend, this paper presents a comprehensive survey of LLM-brained GUI agents, exploring their historical evolution, core components, and advanced techniques. We address research questions such as existing GUI agent frameworks, the collection and utilization of data for training specialized GUI agents, the development of large action models tailored for GUI tasks, and the evaluation metrics and benchmarks necessary to assess their effectiveness. Additionally, we examine emerging applications powered by these agents. Through a detailed analysis, this survey identifies key research gaps and outlines a roadmap for future advancements in the field. By consolidating foundational knowledge and state-of-the-art developments, this work aims to guide both researchers and practitioners in overcoming challenges and unlocking the full potential of LLM-brained GUI agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.18279",
+          "http_status": 200,
+          "pdf_sample_score": 0.3525,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:05:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

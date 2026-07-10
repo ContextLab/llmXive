@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.03687",
+  "judged_at": "2026-07-10T07:50:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational method (PARD) that explicitly integrates autoregressive modeling with diffusion processes for graph generation, directly addressing the user's interest in \"Autoregressive Diffusion\" mechanisms and \"Scalable\" generation techniques, even though the specific application domain (graphs) differs from the likely target of the user's \"llmXive\" follow-up.",
+  "relevant": true
+}

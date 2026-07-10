@@ -1,3 +1,1 @@
-"""
-Code package for the project.
-"""
+# Code package initialization

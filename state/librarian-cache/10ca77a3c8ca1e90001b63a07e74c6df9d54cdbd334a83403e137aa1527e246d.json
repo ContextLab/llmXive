@@ -1,0 +1,688 @@
+{
+  "fetched_at": "2026-07-10T07:50:41Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\"",
+      "target_n": 5
+    },
+    "duration_seconds": 48.983,
+    "ended_at": "2026-07-10T07:50:41Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "few-step autoregressive diffusion models"
+        ],
+        [
+          2,
+          "scalable diffusion distillation techniques"
+        ],
+        [
+          3,
+          "causal forcing in diffusion transformers"
+        ],
+        [
+          4,
+          "autoregressive diffusion for LLM acceleration"
+        ],
+        [
+          5,
+          "knowledge distillation for diffusion language models"
+        ],
+        [
+          6,
+          "iterative refinement in few-step diffusion"
+        ],
+        [
+          7,
+          "causal masking strategies for diffusion models"
+        ],
+        [
+          8,
+          "efficient sampling for autoregressive diffusion"
+        ],
+        [
+          9,
+          "distilling large language models via diffusion"
+        ],
+        [
+          10,
+          "reduced-step generative modeling with diffusion"
+        ],
+        [
+          11,
+          "autoregressive flow matching for text generation"
+        ],
+        [
+          12,
+          "causal inference in diffusion-based generation"
+        ],
+        [
+          13,
+          "fast convergence methods for diffusion LLMs"
+        ],
+        [
+          14,
+          "teacher-student distillation for diffusion transformers"
+        ],
+        [
+          15,
+          "non-Markovian sampling in autoregressive diffusion"
+        ],
+        [
+          16,
+          "scaling laws for few-step diffusion models"
+        ],
+        [
+          17,
+          "hybrid autoregressive-diffusion architectures"
+        ],
+        [
+          18,
+          "curriculum learning for diffusion distillation"
+        ],
+        [
+          19,
+          "causal attention mechanisms in generative diffusion"
+        ],
+        [
+          20,
+          "low-latency text generation using diffusion distillation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "few-step autoregressive diffusion models": 5,
+        "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "few-step distillation autoregressive diffusion",
+      "Causal Forcing++ scalability LLM training",
+      "step reduction knowledge distillation large language models",
+      "autoregressive diffusion model evaluation latency",
+      "teacher-student alignment iterative refinement"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.15141"
+      ]
+    },
+    "per_query_hit_count": {
+      "Causal Forcing++ scalability LLM training": 3,
+      "autoregressive diffusion model evaluation latency": 3,
+      "few-step distillation autoregressive diffusion": 3,
+      "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science": 3,
+      "step reduction knowledge distillation large language models": 3,
+      "teacher-student alignment iterative refinement": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-10T07:49:52Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+      "raw": "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-10T07:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-10T07:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-10T07:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the success of flow matching in visual generation, sampling efficiency remains a critical bottleneck for its practical application. Among flow models' accelerating methods, ReFlow has been somehow overlooked although it has theoretical consistency with flow matching. This is primarily due to its suboptimal performance in practical scenarios compared to consistency distillation and score distillation. In this work, we investigate this issue within the ReFlow framework and propose FlowSteer, a method unlocks the potential of ReFlow-based distillation by guiding the student along teacher's authentic generation trajectories. We first identify that Piecewised ReFlow's performance is hampered by a critical distribution mismatch during the training and propose Online Trajectory Alignment(OTA) to resolve it. Then, we introduce a adversarial distillation objective applied directly on the ODE trajectory, improving the student's adherence to the teacher's generation trajectory. Furthermore, we find and fix a previously undiscovered flaw in the widely-used FlowMatchEulerDiscreteScheduler that largely degrades few-step inference quality. Our experiment result on SD3 demonstrates our method's efficacy.",
+          "claimed_authors": [
+            "Lei Ke",
+            "Hubery Yin",
+            "Gongye Liu",
+            "Zhengyao Lv",
+            "Jingcai Guo",
+            "Chen Li",
+            "Wenhan Luo",
+            "Yujiu Yang",
+            "Jing Lyu"
+          ],
+          "claimed_title": "FlowSteer: Guiding Few-Step Image Synthesis with Authentic Trajectories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.18834"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='FlowSteer: Guiding Few-Step Image Synthesis with Authentic Trajectories')",
+        "failed_at": "2026-07-10T07:50:21Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion distillation has emerged as a promising strategy for accelerating text-to-image (T2I) diffusion models by distilling a pretrained score network into a one- or few-step generator. While existing methods have made notable progress, they often rely on real or teacher-synthesized images to perform well when distilling high-resolution T2I diffusion models such as Stable Diffusion XL (SDXL), and their use of classifier-free guidance (CFG) introduces a persistent trade-off between text-image alignment and generation diversity. We address these challenges by optimizing Score identity Distillation (SiD) -- a data-free, one-step distillation framework -- for few-step generation. Backed by theoretical analysis that justifies matching a uniform mixture of outputs from all generation steps to the data distribution, our few-step distillation algorithm avoids step-specific networks and integrates seamlessly into existing pipelines, achieving state-of-the-art performance on SDXL at 1024x1024 resolution. To mitigate the alignment-diversity trade-off when real text-image pairs are available, we introduce a Diffusion GAN-based adversarial loss applied to the uniform mixture and propose two new guidance strategies: Zero-CFG, which disables CFG in the teacher and removes text conditioning in the fake score network, and Anti-CFG, which applies negative CFG in the fake score network. This flexible setup improves diversity without sacrificing alignment. Comprehensive experiments on SD1.5 and SDXL demonstrate state-of-the-art performance in both one-step and few-step generation settings, along with robustness to the absence of real images. Our efficient PyTorch implementation, along with the resulting one- and few-step distilled generators, will be released publicly as a separate branch at https://github.com/mingyuanzhou/SiD-LSG.",
+          "claimed_authors": [
+            "Mingyuan Zhou",
+            "Yi Gu",
+            "Zhendong Wang"
+          ],
+          "claimed_title": "Few-Step Diffusion via Score identity Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.12674"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Few-Step Diffusion via Score identity Distillation')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_authors": [
+            "Daniel Grünbaum",
+            "Maike L. Stern",
+            "Elmar W. Lang"
+          ],
+          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.03013"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent interest in the external validity of prediction models (i.e., the problem of different train and test distributions, known as dataset shift) has produced many methods for finding predictive distributions that are invariant to dataset shifts and can be used for prediction in new, unseen environments. However, these methods consider different types of shifts and have been developed under disparate frameworks, making it difficult to theoretically analyze how solutions differ with respect to stability and accuracy. Taking a causal graphical view, we use a flexible graphical representation to express various types of dataset shifts. Given a known graph of the data generating process, we show that all invariant distributions correspond to a causal hierarchy of graphical operators which disable the edges in the graph that are responsible for the shifts. The hierarchy provides a common theoretical underpinning for understanding when and how stability to shifts can be achieved, and in what ways stable distributions can differ. We use it to establish conditions for minimax optimal performance across environments, and derive new algorithms that find optimal stable distributions. Using this new perspective, we empirically demonstrate that that there is a tradeoff between minimax and average performance.",
+          "claimed_authors": [
+            "Adarsh Subbaswamy",
+            "Bryant Chen",
+            "Suchi Saria"
+          ],
+          "claimed_title": "A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1905.11374"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Corpus distillation for biomedical large language models (LLMs) seeks to address the pressing challenge of insufficient quantity and quality in open-source annotated scientific corpora, which remains a bottleneck for effective LLM training in biomedical research. This paper proposes a knowledge-driven, agentic framework for scientific corpus distillation, tailored explicitly for LLM training in the biomedical domain, addressing the challenge posed by the complex hierarchy of biomedical knowledge. Central to our approach is a collaborative multi-agent architecture, where specialized agents, each guided by the Medical Subject Headings (MeSH) hierarchy, work in concert to autonomously extract, synthesize, and self-evaluate high-quality textual data from vast scientific literature. This agentic framework collectively generates and refines domain-specific question-answer pairs, ensuring comprehensive coverage and consistency with biomedical ontologies while minimizing manual involvement. Extensive experimental results show that language models trained on our multi-agent distilled datasets achieve notable improvements in biomedical question-answering tasks, outperforming both strong life sciences LLM baselines and advanced proprietary models. Notably, our AI-Ready dataset enables Llama3-70B to surpass GPT-4 with MedPrompt and Med-PaLM-2, despite their larger scale. Detailed ablation studies and case analyses further validate the effectiveness and synergy of each agent within the framework, highlighting the potential of multi-agent collaboration in biomedical LLM training.",
+          "claimed_authors": [
+            "Meng Xiao",
+            "Xunxin Cai",
+            "Qingqing Long",
+            "Chengrui Wang",
+            "Yuanchun Zhou",
+            "Hengshu Zhu"
+          ],
+          "claimed_title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.19565"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent Mixture-of-Experts (MoE)-based large language models (LLMs) such as Qwen-MoE and DeepSeek-MoE are transforming generative AI in natural language processing. However, these models require vast and diverse training data. Federated learning (FL) addresses this challenge by leveraging private data from heterogeneous edge devices for privacy-preserving MoE training. Nonetheless, traditional FL approaches require devices to host local MoE models, which is impractical for resource-constrained devices due to large model sizes. To address this, we propose DeepFusion, the first scalable federated MoE training framework that enables the fusion of heterogeneous on-device LLM knowledge via federated knowledge distillation, yielding a knowledge-abundant global MoE model. Specifically, DeepFusion features each device to independently configure and train an on-device LLM tailored to its own needs and hardware limitations. Furthermore, we propose a novel View-Aligned Attention (VAA) module that integrates multi-stage feature representations from the global MoE model to construct a predictive perspective aligned with on-device LLMs, thereby enabling effective cross-architecture knowledge distillation. By explicitly aligning predictive perspectives, VAA resolves the view-mismatch problem in traditional federated knowledge distillation, which arises from heterogeneity in model architectures and prediction behaviors between on-device LLMs and the global MoE model. Experiments with industry-level MoE models (Qwen-MoE and DeepSeek-MoE) and real-world datasets (medical and finance) demonstrate that DeepFusion achieves performance close to centralized MoE training. Compared with key federated MoE baselines, DeepFusion reduces communication costs by up to 71% and improves token perplexity by up to 5.28%.",
+          "claimed_authors": [
+            "Songyuan Li",
+            "Jia Hu",
+            "Ahmed M. Abdelmoniem",
+            "Geyong Min",
+            "Haojun Huang",
+            "Jiwei Huang"
+          ],
+          "claimed_title": "DeepFusion: Accelerating MoE Training via Federated Knowledge Distillation from Heterogeneous Edge Devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.14301"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='DeepFusion: Accelerating MoE Training via Federated Knowledge Distillation from Heterogeneous Edge Devices')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning (ML) is increasingly vital for smart-grid research, yet restricted access to realistic, diverse data - often due to privacy concerns - slows progress and fuels doubts within the energy sector about adopting ML-based strategies. We propose integrating Large Language Models (LLMs) in energy modeling to generate realistic, culturally sensitive, and behavior-specific data for household energy usage across diverse geographies. In this study, we employ and compare five different LLMs to systematically produce family structures, weather patterns, and daily consumption profiles for households in six distinct countries. A four-stage methodology synthesizes contextual daily data, including culturally nuanced activities, realistic weather ranges, HVAC operations, and distinct `energy signatures' that capture unique consumption footprints. Additionally, we explore an alternative strategy where external weather datasets can be directly integrated, bypassing intermediate weather modeling stages while ensuring physically consistent data inputs. The resulting dataset provides insights into how cultural, climatic, and behavioral factors converge to shape carbon emissions, offering a cost-effective avenue for scenario-based energy optimization. This approach underscores how prompt engineering, combined with knowledge distillation, can advance sustainable energy research and climate mitigation efforts. Source code is available at https://github.com/Singularity-AI-Lab/LLM-Energy-Knowledge-Distillation .",
+          "claimed_authors": [
+            "Mohannad Takrouri",
+            "Nicolás M. Cuadrado",
+            "Martin Takáč"
+          ],
+          "claimed_title": "Knowledge Distillation from Large Language Models for Household Energy Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.03034"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Knowledge Distillation from Large Language Models for Household Energy Modeling')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph generation has been dominated by autoregressive models due to their simplicity and effectiveness, despite their sensitivity to ordering. Yet diffusion models have garnered increasing attention, as they offer comparable performance while being permutation-invariant. Current graph diffusion models generate graphs in a one-shot fashion, but they require extra features and thousands of denoising steps to achieve optimal performance. We introduce PARD, a Permutation-invariant Auto Regressive Diffusion model that integrates diffusion models with autoregressive methods. PARD harnesses the effectiveness and efficiency of the autoregressive model while maintaining permutation invariance without ordering sensitivity. Specifically, we show that contrary to sets, elements in a graph are not entirely unordered and there is a unique partial order for nodes and edges. With this partial order, PARD generates a graph in a block-by-block, autoregressive fashion, where each block's probability is conditionally modeled by a shared diffusion model with an equivariant network. To ensure efficiency while being expressive, we further propose a higher-order graph transformer, which integrates transformer with PPGN. Like GPT, we extend the higher-order graph transformer to support parallel training of all blocks. Without any extra features, PARD achieves state-of-the-art performance on molecular and non-molecular datasets, and scales to large datasets like MOSES containing 1.9M molecules. Pard is open-sourced at https://github.com/LingxiaoShawn/Pard.",
+          "claimed_authors": [
+            "Lingxiao Zhao",
+            "Xueying Ding",
+            "Leman Akoglu"
+          ],
+          "claimed_title": "Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.03687"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative diffusion models are extensively used in unsupervised and self-supervised machine learning with the aim to generate new samples from a probability distribution estimated with a set of known samples. They have demonstrated impressive results in replicating dense, real-world contents such as images, musical pieces, or human languages. This work investigates their application to the numerical simulation of incompressible fluid flows, with a view toward incorporating physical constraints such as incompressibility in the probabilistic forecasting framework enabled by generative networks. For that purpose, we explore different conditional, score-based diffusion models where the divergence-free constraint is imposed by the Leray spectral projector, and autoregressive conditioning is aimed at stabilizing the forecasted flow snapshots at distant time horizons. The proposed models are run on a benchmark turbulence problem, namely a Kolmogorov flow, which allows for a fairly detailed analytical and numerical treatment and thus simplifies the evaluation of the numerical methods used to simulate it. Numerical experiments of increasing complexity are performed in order to compare the advantages and limitations of the diffusion models we have implemented and appraise their performances, including: (i) in-distribution assessment over the same time horizons and for similar physical conditions as the ones seen during training; (ii) rollout predictions over time horizons unseen during training; and (iii) out-of-distribution tests for forecasting flows markedly different from those seen during training. In particular, these results illustrate the ability of diffusion models to reproduce the main statistical characteristics of Kolmogorov turbulence in scenarios departing from the ones they were trained on.",
+          "claimed_authors": [
+            "Wilfried Genuist",
+            "Éric Savin",
+            "Filippo Gatti",
+            "Didier Clouteau"
+          ],
+          "claimed_title": "Divergence-Free Diffusion Models for Incompressible Fluid Flows",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.19368"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Divergence-Free Diffusion Models for Incompressible Fluid Flows')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate a fully Latent AutoRegressive scheme based on a Gaussian Process (GP) integrated into a Variational Autoencoder (VAE). In this setting, sequential dynamics are transferred from the observation space to a continuous latent space, while linguistic generation remains parallel through a non-autoregressive decoder. We present a complete methodological formulation, including a causal GP prior, a structured amortized posterior, and a training protocol based on a regularized ELBO. Empirical evaluation, conducted within a deliberately constrained proof-of-concept (POC) framework, shows that the model can be trained stably and that the sequential and parallel sampling variants exhibit consistent behavior. Overall, the results suggest that part of the temporal structure in a language model can be supported by the probabilistic geometry of the latent space rather than by explicit neural operations.",
+          "claimed_authors": [
+            "Yves Ruffenach"
+          ],
+          "claimed_title": "Latent-Autoregressive GP-VAE Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.09535"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Latent-Autoregressive GP-VAE Language Model')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose: The teacher role in the classroom can explain important aspects of the student's school experience. The teacher-student relationship, a central dimension of social capital, influences students' engagement, and the teaching style plays an important role in student outcomes. But there is scarce literature that links teaching styles to teacher-student relationship. This article aims to: 1) analyze whether there is a relationship between teaching styles and the type of relationship perceived by students; 2) test whether this relationship is equally strong for any teaching style; and 3) determine the extent to which students' perceptions vary according to their profile. Design/methodology/approach: A structural equation model with four latent variables is estimated: two for the teacher-student relationship (emotional vs. educational) and two for the teaching styles (directive vs. participative), with information for 21126 sixth-grade primary-students in 2019 in Spain. Findings: Teacher-student relationships and teaching styles are interconnected. The participative style implies a better relationship. The perceptions of the teacher are heterogeneous, depending on gender (girls perceive clearer than boys) and with the educational background (children from lower educational background perceive both types of teaching styles more clearly). Originality/value: The analysis is based on the point of view of the addressee of the teacher's work, i.e. the student. It provides a model that can be replicated in any other education system. The latent variables, based on a periodically administered questionnaire, could be estimated with data from diagnostic assessments in other countries, which in turn would allow the formulation of context-specific educational policy proposals that take into account student feedback.",
+          "claimed_authors": [
+            "Maria-Eugenia Cardenal",
+            "Octavio-David Diaz-Santana",
+            "Sara-Maria Gonzalez-Betancor"
+          ],
+          "claimed_title": "Teacher-student relationship and teaching styles in primary education. A model of analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.06562"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Teacher-student relationship and teaching styles in primary education. A model of analysis')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mainstream approaches to aligning large language models (LLMs) heavily rely on human preference data, particularly when models require periodic updates. The standard process for iterative alignment of LLMs involves collecting new human feedback for each update. However, the data collection process is costly and challenging to scale. To address this issue, we introduce the \"TS-Align\" framework, which fine-tunes a policy model using pairwise feedback data automatically mined from its outputs. This automatic mining process is efficiently accomplished through the collaboration between a large-scale teacher model and a small-scale student model. The policy fine-tuning process can be iteratively repeated using on-policy generations within our proposed teacher-student collaborative framework. Through extensive experiments, we demonstrate that our final aligned policy outperforms the base policy model with an average win rate of 69.7% across seven conversational or instruction-following datasets. Furthermore, we show that the ranking capability of the teacher is effectively distilled into the student through our pipeline, resulting in a small-scale yet effective reward model for policy model alignment.",
+          "claimed_authors": [
+            "Chen Zhang",
+            "Chengguang Tang",
+            "Dading Chong",
+            "Ke Shi",
+            "Guohua Tang",
+            "Feng Jiang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "TS-Align: A Teacher-Student Collaborative Framework for Scalable Iterative Finetuning of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.20215"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='TS-Align: A Teacher-Student Collaborative Framework for Scalable Iterative Finetuning of Large Language Models')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
+          "claimed_authors": [
+            "Andrew Konya",
+            "Deger Turan",
+            "Aviv Ovadya",
+            "Lina Qui",
+            "Daanish Masood",
+            "Flynn Devine",
+            "Lisa Schirch",
+            "Isabella Roberts",
+            "Deliberative Alignment Forum"
+          ],
+          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.03893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Deliberative Technology for Alignment')",
+        "failed_at": "2026-07-10T07:50:22Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Min Zhao",
+            "Hongzhou Zhu",
+            "Kaiwen Zheng",
+            "Zihan Zhou",
+            "Bokai Yan",
+            "Xinyuan Li",
+            "Xiao Yang",
+            "Chongxuan Li",
+            "Jun Zhu"
+          ],
+          "title": "Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation for Real-Time Interactive Video Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.15141",
+        "summary": "Real-time interactive video generation requires low-latency, streaming, and controllable rollout. Existing autoregressive (AR) diffusion distillation methods have achieved strong results in the chunk-wise 4-step regime by distilling bidirectional base models into few-step AR students, but they remain limited by coarse response granularity and non-negligible sampling latency. In this paper, we study a more aggressive setting: frame-wise autoregression with only 1--2 sampling steps. In this regime, we identify the initialization of a few-step AR student as the key bottleneck: existing strategies are either target-misaligned, incapable of few-step generation, or too costly to scale. We propose \\textbf{Causal Forcing++}, a principled and scalable pipeline that uses \\emph{causal consistency distillation} (causal CD) for few-step AR initialization. The core idea is that causal CD learns the same AR-conditional flow map as causal ODE distillation, but obtains supervision from a single online teacher ODE step between adjacent timesteps, avoiding the need to precompute and store full PF-ODE trajectories. This makes the initialization both more efficient and easier to optimize. The resulting pipeline, \\ours, surpasses the SOTA 4-step chunk-wise Causal Forcing under the \\textit{\\textbf{frame-wise 2-step setting}} by 0.1 in VBench Total, 0.3 in VBench Quality, and 0.335 in VisionReward, while reducing first-frame latency by 50\\% and Stage 2 training cost by $\\sim$$4\\times$. We further extend the pipeline to action-conditioned world model generation in the spirit of Genie3. Project Page: https://github.com/thu-ml/Causal-Forcing and https://github.com/shengshu-ai/minWM .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.15141",
+          "http_status": 200,
+          "pdf_sample_score": 0.338,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T07:50:21Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lei Ke",
+            "Hubery Yin",
+            "Gongye Liu",
+            "Zhengyao Lv",
+            "Jingcai Guo",
+            "Chen Li",
+            "Wenhan Luo",
+            "Yujiu Yang",
+            "Jing Lyu"
+          ],
+          "title": "FlowSteer: Guiding Few-Step Image Synthesis with Authentic Trajectories",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.18834",
+        "summary": "With the success of flow matching in visual generation, sampling efficiency remains a critical bottleneck for its practical application. Among flow models' accelerating methods, ReFlow has been somehow overlooked although it has theoretical consistency with flow matching. This is primarily due to its suboptimal performance in practical scenarios compared to consistency distillation and score distillation. In this work, we investigate this issue within the ReFlow framework and propose FlowSteer, a method unlocks the potential of ReFlow-based distillation by guiding the student along teacher's authentic generation trajectories. We first identify that Piecewised ReFlow's performance is hampered by a critical distribution mismatch during the training and propose Online Trajectory Alignment(OTA) to resolve it. Then, we introduce a adversarial distillation objective applied directly on the ODE trajectory, improving the student's adherence to the teacher's generation trajectory. Furthermore, we find and fix a previously undiscovered flaw in the widely-used FlowMatchEulerDiscreteScheduler that largely degrades few-step inference quality. Our experiment result on SD3 demonstrates our method's efficacy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.18834",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T07:50:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lingxiao Zhao",
+            "Xueying Ding",
+            "Leman Akoglu"
+          ],
+          "title": "Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.03687",
+        "summary": "Graph generation has been dominated by autoregressive models due to their simplicity and effectiveness, despite their sensitivity to ordering. Yet diffusion models have garnered increasing attention, as they offer comparable performance while being permutation-invariant. Current graph diffusion models generate graphs in a one-shot fashion, but they require extra features and thousands of denoising steps to achieve optimal performance. We introduce PARD, a Permutation-invariant Auto Regressive Diffusion model that integrates diffusion models with autoregressive methods. PARD harnesses the effectiveness and efficiency of the autoregressive model while maintaining permutation invariance without ordering sensitivity. Specifically, we show that contrary to sets, elements in a graph are not entirely unordered and there is a unique partial order for nodes and edges. With this partial order, PARD generates a graph in a block-by-block, autoregressive fashion, where each block's probability is conditionally modeled by a shared diffusion model with an equivariant network. To ensure efficiency while being expressive, we further propose a higher-order graph transformer, which integrates transformer with PPGN. Like GPT, we extend the higher-order graph transformer to support parallel training of all blocks. Without any extra features, PARD achieves state-of-the-art performance on molecular and non-molecular datasets, and scales to large datasets like MOSES containing 1.9M molecules. Pard is open-sourced at https://github.com/LingxiaoShawn/Pard.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.03687",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T07:50:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiayi Fu",
+            "Yuxia Wang"
+          ],
+          "title": "A Tutorial on Diffusion Theory: From Differential Equations to Diffusion Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.22586",
+        "summary": "Diffusion models have emerged as a dominant framework for generative modeling, but their mathematical foundations are often presented separately through diffusion probabilistic models, score-based modeling, stochastic differential equations, and numerical sampling methods. We write this tutorial to provide a unified and self-contained account of these viewpoints from the perspective of differential equations. Starting from a conditional Gaussian noising process, we derive ordinary differential equation (ODE) and stochastic differential equation (SDE) representations, pass to the corresponding marginal forward dynamics, and then obtain the reverse-time SDE and probability-flow ODE that make generation possible. We show that the central unknown quantity in reverse sampling is the marginal score, explain how score matching becomes the standard denoising objective under a noise-prediction parameterization, and discuss practical reverse-time sampling and guidance. We further place DDPM, DDIM, flow matching, and score-based SDEs in a common framework, and conclude with diffusion language models in continuous embedding space together with a brief discussion of discrete masked-token diffusion. The tutorial is intended as a bridge between the analytical foundations of diffusion processes and the modern generative algorithms built upon them.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.22586",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T07:50:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mihir Prabhudesai",
+            "Mengning Wu",
+            "Amir Zadeh",
+            "Katerina Fragkiadaki",
+            "Deepak Pathak"
+          ],
+          "title": "Diffusion Beats Autoregressive in Data-Constrained Settings",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.15857",
+        "summary": "Autoregressive (AR) models have long dominated the landscape of large language models, driving progress across a wide range of tasks. Recently, diffusion-based language models have emerged as a promising alternative, though their advantages over AR models remain underexplored. In this paper, we systematically study masked diffusion models in data-constrained settings where training involves repeated passes over limited data and find that they significantly outperform AR models when compute is abundant but data is scarce. Diffusion models make better use of repeated data, achieving lower validation loss and superior downstream performance. We find new scaling laws for diffusion models and derive a closed-form expression for the critical compute threshold at which diffusion begins to outperform AR. Finally, we explain why diffusion models excel in this regime: their randomized masking objective implicitly trains over a rich distribution of token orderings, acting as an implicit data augmentation that AR's fixed left-to-right factorization lacks. Our results suggest that when data, not compute, is the bottleneck, diffusion models offer a compelling alternative to the standard AR paradigm. Our code is available at: https://diffusion-scaling.github.io.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.15857",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T07:50:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

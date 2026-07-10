@@ -1,189 +1,317 @@
 """
-Noise injection module for adding controlled noise to trajectories.
+Noise injection module for dynamical systems research.
 
-Supports:
-- Gaussian noise injection at target SNR levels (FR-002)
-- Uniform quantization noise injection (FR-003)
-- SNR verification and accuracy checking
+Implements Gaussian and uniform quantization noise injection for trajectory data.
+Provides functions to calculate signal/noise power and verify SNR accuracy.
+
+FR-002: Gaussian noise injection with target SNR
+FR-003: Uniform quantization noise injection with bit resolution
 """
+
 import numpy as np
 from typing import Tuple, Optional, Dict, Any, List, Callable
 from scipy.stats import norm
 import logging
+
 from config import NoiseType, get_snr_levels
 from utils.data_models import Trajectory, NoisyTrajectory
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def calculate_signal_power(signal: np.ndarray) -> float:
     """
-    Calculate the power of a signal (mean squared value).
+    Calculate the power of a signal.
+
+    Signal power is defined as the mean of the squared values.
 
     Args:
-        signal: Input signal array (can be multi-dimensional).
+        signal: 1D or 2D numpy array of signal values. If 2D, power is calculated
+               for each column and then averaged.
 
     Returns:
-        float: Mean squared value of the flattened signal.
+        float: The average power of the signal.
     """
-    # Flatten if multi-dimensional
-    flat_signal = signal.flatten()
-    return float(np.mean(flat_signal ** 2))
+    if signal.ndim == 1:
+        return float(np.mean(signal ** 2))
+    else:
+        # For multi-dimensional signals, calculate power per dimension and average
+        return float(np.mean(np.mean(signal ** 2, axis=0)))
+
 
 def calculate_noise_power(noise: np.ndarray) -> float:
     """
-    Calculate the power of noise (mean squared value).
+    Calculate the power of noise.
+
+    Noise power is defined as the mean of the squared values.
 
     Args:
-        noise: Input noise array (can be multi-dimensional).
+        noise: 1D or 2D numpy array of noise values.
 
     Returns:
-        float: Mean squared value of the flattened noise.
+        float: The average power of the noise.
     """
-    flat_noise = noise.flatten()
-    return float(np.mean(flat_noise ** 2))
+    if noise.ndim == 1:
+        return float(np.mean(noise ** 2))
+    else:
+        return float(np.mean(np.mean(noise ** 2, axis=0)))
 
-def calculate_snr(clean_data: np.ndarray, noisy_data: np.ndarray) -> float:
+
+def calculate_snr(signal_power: float, noise_power: float) -> float:
     """
-    Calculate Signal-to-Noise Ratio in dB.
+    Calculate Signal-to-Noise Ratio (SNR) in decibels.
 
-    SNR(dB) = 10 * log10(P_signal / P_noise)
-    where P_signal is the power of the clean signal
-    and P_noise is the power of the noise (difference between clean and noisy).
+    SNR_dB = 10 * log10(P_signal / P_noise)
 
     Args:
-        clean_data: Original clean trajectory data.
-        noisy_data: Noisy trajectory data.
+        signal_power: Power of the signal.
+        noise_power: Power of the noise.
 
     Returns:
-        float: SNR in decibels. Returns infinity if noise power is zero.
+        float: SNR in decibels. Returns inf if noise_power is 0.
     """
-    noise = noisy_data - clean_data
-    signal_power = calculate_signal_power(clean_data)
-    noise_power = calculate_noise_power(noise)
-
     if noise_power == 0:
         return float('inf')
+    return float(10 * np.log10(signal_power / noise_power))
 
-    snr_linear = signal_power / noise_power
-    snr_db = 10 * np.log10(snr_linear)
-    return float(snr_db)
 
-def verify_snr_accuracy(clean_data: np.ndarray, noisy_data: np.ndarray, target_snr_db: float, tolerance: float = 0.5) -> Tuple[bool, float]:
+def inject_gaussian_noise(
+    trajectory: Trajectory,
+    target_snr_db: float,
+    seed: Optional[int] = None
+) -> NoisyTrajectory:
     """
-    Verify that the actual SNR matches the target within tolerance.
+    Inject additive Gaussian noise into a trajectory to achieve a target SNR.
+
+    Implements FR-002: Gaussian noise injection with target SNR accuracy ±0.5dB.
+
+    The noise is generated such that:
+    10 * log10(P_signal / P_noise) = target_snr_db
+
+    Which implies:
+    P_noise = P_signal / (10^(target_snr_db / 10))
+
+    For Gaussian noise with zero mean, P_noise = σ², so:
+    σ = sqrt(P_noise)
 
     Args:
-        clean_data: Original clean trajectory data.
-        noisy_data: Noisy trajectory data.
-        target_snr_db: Target SNR in dB.
-        tolerance: Acceptable error in dB (default ±0.5dB).
+        trajectory: Clean trajectory object with `data` (numpy array) and metadata.
+        target_snr_db: Target SNR in decibels.
+        seed: Random seed for reproducibility. If None, uses system entropy.
 
     Returns:
-        Tuple of (is_valid, actual_snr_db) where is_valid is True if the
-        actual SNR is within the tolerance of the target.
+        NoisyTrajectory: Object containing the noisy data, original data,
+                       noise parameters, and measured SNR.
+
+    Raises:
+        ValueError: If target_snr_db is not finite.
     """
-    actual_snr = calculate_snr(clean_data, noisy_data)
-    error = abs(actual_snr - target_snr_db)
-    return error <= tolerance, actual_snr
+    if not np.isfinite(target_snr_db):
+        raise ValueError(f"target_snr_db must be finite, got {target_snr_db}")
 
-def inject_gaussian_noise(clean_data: np.ndarray, target_snr_db: float) -> np.ndarray:
-    """
-    Inject additive Gaussian noise to achieve target SNR (FR-002).
+    # Set random seed for reproducibility
+    rng = np.random.default_rng(seed)
 
-    The noise is scaled such that:
-    SNR = 10 * log10(P_signal / P_noise) = target_snr_db
+    # Extract signal data
+    signal_data = trajectory.data.copy()
 
-    Args:
-        clean_data: Clean trajectory data (n_points, n_dimensions).
-        target_snr_db: Target SNR in dB.
-
-    Returns:
-        np.ndarray: Noisy trajectory data with injected Gaussian noise.
-    """
     # Calculate signal power
-    signal_power = calculate_signal_power(clean_data)
+    signal_power = calculate_signal_power(signal_data)
+
+    if signal_power == 0:
+        logger.warning("Signal power is zero. Cannot inject noise. Returning clean trajectory.")
+        return NoisyTrajectory(
+            data=signal_data,
+            original_data=signal_data,
+            noise_type=NoiseType.GAUSSIAN,
+            noise_params={'target_snr_db': target_snr_db, 'actual_snr_db': float('inf')},
+            measured_snr_db=float('inf')
+        )
 
     # Calculate required noise power
-    # target_snr_linear = 10 ^ (target_snr_db / 10)
-    # noise_power = signal_power / target_snr_linear
-    target_snr_linear = 10 ** (target_snr_db / 10.0)
-    if target_snr_linear == 0:
-        noise_power = signal_power
-    else:
-        noise_power = signal_power / target_snr_linear
+    noise_power = signal_power / (10 ** (target_snr_db / 10))
 
     # Calculate standard deviation for Gaussian noise
-    # For zero-mean Gaussian noise, variance = noise_power
-    std_dev = np.sqrt(noise_power)
+    noise_std = np.sqrt(noise_power)
 
     # Generate Gaussian noise
-    noise = np.random.normal(0, std_dev, clean_data.shape)
+    noise = rng.normal(loc=0.0, scale=noise_std, size=signal_data.shape)
 
-    # Add noise to signal
-    noisy_data = clean_data + noise
+    # Inject noise
+    noisy_data = signal_data + noise
 
     # Verify SNR accuracy
-    is_valid, actual_snr = verify_snr_accuracy(clean_data, noisy_data, target_snr_db)
-    if not is_valid:
-        logger.warning(f"Gaussian noise injection SNR mismatch: target={target_snr_db}dB, actual={actual_snr:.2f}dB")
+    actual_noise_power = calculate_noise_power(noise)
+    actual_snr_db = calculate_snr(signal_power, actual_noise_power)
 
-    return noisy_data
+    # Log verification
+    snr_error = abs(actual_snr_db - target_snr_db)
+    if snr_error > 0.5:
+        logger.warning(
+            f"SNR verification warning: Target={target_snr_db:.2f}dB, "
+            f"Actual={actual_snr_db:.2f}dB, Error={snr_error:.2f}dB"
+        )
+    else:
+        logger.info(
+            f"SNR verification passed: Target={target_snr_db:.2f}dB, "
+            f"Actual={actual_snr_db:.2f}dB, Error={snr_error:.2f}dB"
+        )
 
-def inject_quantization_noise(clean_data: np.ndarray, bits: int = 8) -> np.ndarray:
+    return NoisyTrajectory(
+        data=noisy_data,
+        original_data=signal_data,
+        noise_type=NoiseType.GAUSSIAN,
+        noise_params={
+            'target_snr_db': target_snr_db,
+            'actual_snr_db': actual_snr_db,
+            'noise_std': noise_std,
+            'seed': seed
+        },
+        measured_snr_db=actual_snr_db
+    )
+
+
+def inject_quantization_noise(
+    trajectory: Trajectory,
+    bit_resolution: int,
+    seed: Optional[int] = None
+) -> NoisyTrajectory:
     """
-    Inject uniform quantization noise (FR-003).
+    Inject uniform quantization noise into a trajectory.
 
-    Simulates the effect of quantizing the signal to a fixed number of bits.
-    The quantization noise is uniformly distributed in [-q/2, q/2] where q is the step size.
+    Implements FR-003: Uniform quantization noise injection with user-specified bit resolution.
+
+    Quantization noise is modeled as uniform noise in the range [-Δ/2, Δ/2]
+    where Δ is the quantization step size.
+
+    For a signal with range [min_val, max_val]:
+    Δ = (max_val - min_val) / (2^bit_resolution - 1)
+
+    The quantization error is uniformly distributed, so:
+    P_noise = Δ² / 12
 
     Args:
-        clean_data: Clean trajectory data.
-        bits: Number of bits for quantization (default 8).
+        trajectory: Clean trajectory object with `data` (numpy array) and metadata.
+        bit_resolution: Number of bits for quantization (e.g., 8, 10, 12, 16).
+        seed: Random seed for reproducibility (used for dithering if needed).
 
     Returns:
-        np.ndarray: Noisy trajectory data with quantization noise.
+        NoisyTrajectory: Object containing the quantized data, original data,
+                       noise parameters, and estimated SNR.
     """
-    # Calculate range of the data
-    data_min = np.min(clean_data)
-    data_max = np.max(clean_data)
-    data_range = data_max - data_min
+    if not isinstance(bit_resolution, int) or bit_resolution < 1:
+        raise ValueError(f"bit_resolution must be a positive integer, got {bit_resolution}")
 
-    if data_range == 0:
-        # All values are the same, no quantization needed
-        logger.warning("Data range is zero; returning copy of clean data without quantization noise.")
-        return clean_data.copy()
+    rng = np.random.default_rng(seed)
+
+    # Extract signal data
+    signal_data = trajectory.data.copy()
+
+    # Calculate signal range
+    min_val = np.min(signal_data)
+    max_val = np.max(signal_data)
+    signal_range = max_val - min_val
+
+    if signal_range == 0:
+        logger.warning("Signal range is zero. Returning clean trajectory.")
+        return NoisyTrajectory(
+            data=signal_data,
+            original_data=signal_data,
+            noise_type=NoiseType.QUANTIZATION,
+            noise_params={'bit_resolution': bit_resolution, 'estimated_snr_db': float('inf')},
+            measured_snr_db=float('inf')
+        )
 
     # Calculate quantization step size
-    n_levels = 2 ** bits
-    step_size = data_range / (n_levels - 1)
+    num_levels = 2 ** bit_resolution
+    delta = signal_range / (num_levels - 1)
 
-    # Quantize the data
-    quantized_data = np.round((clean_data - data_min) / step_size) * step_size + data_min
+    # Simulate quantization by rounding to nearest level and adding uniform noise
+    # This is a more accurate model than simple rounding
+    # Add dithering noise before quantization to decorrelate quantization error
+    dither = rng.uniform(-delta/2, delta/2, size=signal_data.shape)
+    quantized_with_dither = signal_data + dither
 
-    # Calculate quantization noise (uniform distribution)
-    # The noise is the difference between original and quantized values
-    quantization_noise = clean_data - quantized_data
+    # Quantize to discrete levels
+    normalized = (quantized_with_dither - min_val) / delta
+    quantized_indices = np.round(normalized).astype(int)
+    quantized_indices = np.clip(quantized_indices, 0, num_levels - 1)
+    quantized_data = min_val + quantized_indices * delta
 
-    # Add noise back to simulate the effect
-    # This creates a noisy signal that represents the quantized version
-    # The noise is uniformly distributed in [-step_size/2, step_size/2]
-    noisy_data = quantized_data + np.random.uniform(-step_size/2, step_size/2, clean_data.shape)
+    # Calculate the actual quantization noise
+    noise = quantized_data - signal_data
 
-    return noisy_data
+    # Calculate powers
+    signal_power = calculate_signal_power(signal_data)
+    noise_power = calculate_noise_power(noise)
+
+    # Estimate SNR
+    estimated_snr_db = calculate_snr(signal_power, noise_power)
+
+    # Theoretical SNR for uniform quantization (approximate)
+    # SNR ≈ 6.02 * bit_resolution + 1.76 dB (for full-scale sine wave)
+    # For general signals, this is an approximation
+    theoretical_snr_db = 6.02 * bit_resolution + 1.76
+
+    logger.info(
+        f"Quantization injection: bit_resolution={bit_resolution}, "
+        f"delta={delta:.6f}, estimated_snr={estimated_snr_db:.2f}dB, "
+        f"theoretical_snr≈{theoretical_snr_db:.2f}dB"
+    )
+
+    return NoisyTrajectory(
+        data=quantized_data,
+        original_data=signal_data,
+        noise_type=NoiseType.QUANTIZATION,
+        noise_params={
+            'bit_resolution': bit_resolution,
+            'delta': delta,
+            'estimated_snr_db': estimated_snr_db,
+            'theoretical_snr_db': theoretical_snr_db
+        },
+        measured_snr_db=estimated_snr_db
+    )
+
+
+def verify_snr_accuracy(
+    trajectory: Trajectory,
+    target_snr_db: float,
+    tolerance_db: float = 0.5
+) -> Tuple[bool, float]:
+    """
+    Verify that injected noise achieves the target SNR within tolerance.
+
+    This function is used to validate the accuracy of noise injection.
+
+    Args:
+        trajectory: Noisy trajectory object (result of inject_gaussian_noise).
+        target_snr_db: Target SNR in decibels.
+        tolerance_db: Acceptable deviation in dB (default: 0.5dB).
+
+    Returns:
+        Tuple[bool, float]: (is_within_tolerance, actual_snr_db)
+    """
+    actual_snr_db = trajectory.measured_snr_db
+    error = abs(actual_snr_db - target_snr_db)
+    is_within_tolerance = error <= tolerance_db
+
+    return is_within_tolerance, actual_snr_db
+
 
 def get_noise_injection_function(noise_type: NoiseType) -> Callable:
     """
-    Get the appropriate noise injection function for a given noise type.
+    Factory function to get the appropriate noise injection function.
 
     Args:
-        noise_type: The type of noise to inject (Gaussian or Quantization).
+        noise_type: Enum value specifying the noise type.
 
     Returns:
-        Callable: The corresponding injection function.
+        Callable: The corresponding noise injection function.
 
     Raises:
-        ValueError: If the noise type is not supported.
+        ValueError: If noise_type is not supported.
     """
     if noise_type == NoiseType.GAUSSIAN:
         return inject_gaussian_noise
@@ -192,14 +320,15 @@ def get_noise_injection_function(noise_type: NoiseType) -> Callable:
     else:
         raise ValueError(f"Unsupported noise type: {noise_type}")
 
-def get_noise_injection_functions() -> Dict[NoiseType, Callable]:
+
+def get_noise_injection_functions() -> Dict[str, Callable]:
     """
     Get all available noise injection functions.
 
     Returns:
-        Dict[NoiseType, Callable]: Mapping of noise types to their injection functions.
+        Dict mapping noise type names to injection functions.
     """
     return {
-        NoiseType.GAUSSIAN: inject_gaussian_noise,
-        NoiseType.QUANTIZATION: inject_quantization_noise
+        'gaussian': inject_gaussian_noise,
+        'quantization': inject_quantization_noise
     }

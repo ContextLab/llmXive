@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.20732",
+  "judged_at": "2026-07-10T08:05:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ui-mopd: multi-platform on-policy distillation for continual gui agent\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of \"continual learning for GUI agents\" under shifting domains, which is the exact subject of the user's follow-up research on extending the UI-MOPD framework. Although it does not explicitly mention \"linguistics\" or \"on-policy distillation,\" it establishes the foundational task definition and empirical baseline for the specific domain (GUI agents in flux) that the user's work aims to extend.",
+  "relevant": true
+}

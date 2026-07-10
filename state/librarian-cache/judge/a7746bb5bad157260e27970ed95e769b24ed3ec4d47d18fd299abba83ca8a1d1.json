@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.22586",
+  "judged_at": "2026-07-10T07:50:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology and canonical reference for the diffusion models and ODE/SDE frameworks that are the core subject of the user's question regarding \"Causal Forcing++\" and autoregressive diffusion distillation. Additionally, it meets criterion (b) by establishing the theoretical baseline for the \"few-step\" and \"distillation\" mechanisms (via probability-flow ODEs and reverse-time sampling) that the user's specific algorithm extends.",
+  "relevant": true
+}

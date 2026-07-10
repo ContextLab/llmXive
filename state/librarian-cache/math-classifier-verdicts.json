@@ -91,6 +91,10 @@
     "classified_at": "2026-06-26T14:38:00Z",
     "verdict": false
   },
+  "PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult::1.6.0": {
+    "classified_at": "2026-07-10T08:04:58Z",
+    "verdict": false
+  },
   "PROJ-1012-llmxive-follow-up-extending-researchstud::1.6.0": {
     "classified_at": "2026-07-08T12:49:04Z",
     "verdict": false
@@ -885,6 +889,10 @@
   },
   "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
     "classified_at": "2026-07-03T18:58:54Z",
+    "verdict": false
+  },
+  "PROJ-827-llmxive-follow-up-extending-causal-forci::1.6.0": {
+    "classified_at": "2026-07-10T07:50:21Z",
     "verdict": false
   },
   "PROJ-829-llmxive-follow-up-extending-fashionchame::1.6.0": {

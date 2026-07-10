@@ -67,7 +67,7 @@
 - [X] T004 [P] Create `code/config.py` with function signatures and docstrings for constants: SNR levels, system params, seeds, noise type enums (Gaussian, Uniform Quantization).
 - [X] T005 [P] Create `code/generators.py` with function signatures and docstrings for Lorenz/Rössler integration (FR-001).
 - [X] T006 [P] Create `code/noise.py` with function signatures and docstrings for Gaussian/Quantization injection (FR-002, FR-003).
-- [ ] T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
+- [X] T007 [P] Create `code/metrics.py` with function signatures and docstrings for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
 - [X] T008 [P] Create `code/analysis.py` with function signatures and docstrings for error calc, threshold ID (FR-007, FR-008).
 - [X] T009 [P] Create `code/visualize.py` with function signatures and docstrings for plotting, CSV export (FR-009, FR-010).
 
@@ -77,8 +77,8 @@
 - [ ] T040 [P] Implement `code/generators.py` logic for Lorenz/Rössler integration (FR-001).
 - [ ] T041 [P] Implement `code/noise.py` logic for Gaussian/Quantization injection (FR-002, FR-003).
 - [ ] T042 [P] Implement `code/metrics.py` logic for GP, Rosenstein, FNN (FR-004, FR-005, FR-006).
-- [~] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
-- [~] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
+- [ ] T043 [P] Implement `code/analysis.py` logic for error calc, threshold ID (FR-007, FR-008).
+- [ ] T044 [P] Implement `code/visualize.py` logic for plotting, CSV export (FR-009, FR-010).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
