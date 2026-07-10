@@ -1,0 +1,12 @@
+T007 Create base data schemas in `specs/001-predict-voc-profiles/contracts/dataset.schema.yaml`: 2
+T008 Configure environment variable management for data paths and seeds: 1
+T010 [P] [US1] Contract test for data ingestion output schema in `tests/test_ingest.py`: 1
+? T011 [US1] Integration test for merge logic in `tests/test_merge.py` (Defines contract
+  for T015; no dependency on T015 completion)
+: 1
+? T012 [US1] Query NCBI GEO and Metabolomics Workbench for *Arabidopsis thaliana*
+  stress studies using search strings "Arabidopsis thaliana" AND ("VOC" OR "volatile")
+  AND "RNA-seq" AND "stress". Log results to `data/raw/query_log.json`. **If** `data/raw/query_log.json`
+  is empty or contains no valid paired samples, immediately trigger T005 to generate
+  synthetic data.
+: 1

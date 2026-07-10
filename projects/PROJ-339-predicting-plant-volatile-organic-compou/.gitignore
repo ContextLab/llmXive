@@ -1,0 +1,49 @@
+# Data directories - never commit raw or processed data
+data/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Environment and virtual environments
+env/
+venv/
+ENV/
+.venv/
+*.egg-info/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+*.tmp
+
+# Model artifacts (large binary files)
+*.pkl
+*.h5
+*.onnx
+data/models/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Coverage and testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Environment variables (local overrides)
+.env

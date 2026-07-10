@@ -1,0 +1,10 @@
+scikit-learn
+pandas
+numpy
+shap
+requests
+biopython
+pyyaml
+memory-profiler
+python-dotenv
+scipy

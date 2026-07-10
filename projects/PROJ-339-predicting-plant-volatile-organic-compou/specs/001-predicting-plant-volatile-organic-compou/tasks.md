@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `data/models/`, `specs/`
-- [ ] T001b [P] Create `requirements.txt` with dependencies: `scikit-learn`, `pandas`, `numpy`, `shap`, `requests`, `biopython`, `pyyaml`, `memory-profiler`
-- [ ] T001c [P] Create `.gitignore` to exclude `data/`, `__pycache__`, `*.pyc`, `*.pkl`
-- [ ] T001d [P] Create `.env.example` with placeholder keys for data paths and seeds
+- [X] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `data/models/`, `specs/`
+- [X] T001b [P] Create `requirements.txt` with dependencies: `scikit-learn`, `pandas`, `numpy`, `shap`, `requests`, `biopython`, `pyyaml`, `memory-profiler`
+- [X] T001c [P] Create `.gitignore` to exclude `data/`, `__pycache__`, `*.pyc`, `*.pkl`
+- [X] T001d [P] Create `.env.example` with placeholder keys for data paths and seeds
 
 ---
 
@@ -56,12 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/hashing.py` for content checksumming of artifacts
-- [ ] T005 [P] Create `code/generators/synthetic_data.py` as the canonical source for mock data (checksummed). Must output `data/raw/synthetic_arabidopsis_v1.csv`.
-- [ ] T006 [P] Implement `code/utils/validation.py` for replicate checks and data type validation
+- [X] T004 Implement `code/utils/hashing.py` for content checksumming of artifacts
+- [X] T005 [P] Create `code/generators/synthetic_data.py` as the canonical source for mock data (checksummed). Must output `data/raw/synthetic_arabidopsis_v1.csv`.
+- [X] T006 [P] Implement `code/utils/validation.py` for replicate checks and data type validation
 - [ ] T007 Create base data schemas in `specs/001-predict-voc-profiles/contracts/dataset.schema.yaml`
 - [ ] T008 Configure environment variable management for data paths and seeds
-- [ ] T009 Implement `code/utils/imputation.py` for median/KNN strategies
+- [X] T009 Implement `code/utils/imputation.py` for median/KNN strategies
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,10 +83,10 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Query NCBI GEO and Metabolomics Workbench for *Arabidopsis thaliana* stress studies using search strings "Arabidopsis thaliana" AND ("VOC" OR "volatile") AND "RNA-seq" AND "stress". Log results to `data/raw/query_log.json`. **If** `data/raw/query_log.json` is empty or contains no valid paired samples, immediately trigger T005 to generate synthetic data.
-- [ ] T014 [US1] Implement TPM normalization and missing value imputation in `code/01_ingest.py`. **Note**: Imputation applies to non-critical fields; critical environmental fields (temp, light) are handled by T015 exclusion logic. (Depends on T012/T005 completion)
-- [ ] T015 [US1] Implement `code/02_merge.py` to join genomic and VOC data ONLY on exact sample ID match. **Logic**: 1) Exclude conditions with <3 biological replicates (FR-011). 2) Exclude samples missing continuous environmental metadata for 'temperature' or 'light intensity' (FR-012). 3) Merge remaining data. (Depends on T014 completion; excludes data before imputation obscures missingness)
-- [ ] T016 [US1] Implement aggregation of gene expression into pathway-level features (e.g., TPS families) to reduce dimensionality for the model. (Depends on T015 completion)
-- [ ] T017 [US1] Ensure output CSV `data/processed/merged_dataset.csv` has correct types and no non-numeric entries. Generate validation report at `data/results/data_validation_report.json`. (Depends on T016 completion)
+- [~] T014 [US1] Implement TPM normalization and missing value imputation in `code/01_ingest.py`. **Note**: Imputation applies to non-critical fields; critical environmental fields (temp, light) are handled by T015 exclusion logic. (Depends on T012/T005 completion)
+- [~] T015 [US1] Implement `code/02_merge.py` to join genomic and VOC data ONLY on exact sample ID match. **Logic**: 1) Exclude conditions with <3 biological replicates (FR-011). 2) Exclude samples missing continuous environmental metadata for 'temperature' or 'light intensity' (FR-012). 3) Merge remaining data. (Depends on T014 completion; excludes data before imputation obscures missingness)
+- [~] T016 [US1] Implement aggregation of gene expression into pathway-level features (e.g., TPS families) to reduce dimensionality for the model. (Depends on T015 completion)
+- [~] T017 [US1] Ensure output CSV `data/processed/merged_dataset.csv` has correct types and no non-numeric entries. Generate validation report at `data/results/data_validation_report.json`. (Depends on T016 completion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,17 +100,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model metrics JSON schema in `tests/test_model.py`
-- [ ] T019 [US2] Integration test for cross-validation loop in `tests/test_model.py` (Depends on T024 completion)
+- [~] T018 [P] [US2] Contract test for model metrics JSON schema in `tests/test_model.py`
+- [~] T019 [US2] Integration test for cross-validation loop in `tests/test_model.py` (Depends on T024 completion)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/03_train.py` using scikit-learn Random Forest Regressor (CPU only, no GPU/quantization).
-- [ ] T021 [US2] Implement **Nested k-Fold Cross-Validation** (inner loop for tuning, outer loop for evaluation) in `code/03_train.py` as the primary strategy for FR-005.
-- [ ] T022 [US2] Ensure imputation parameters are fitted ONLY on training folds to prevent leakage. (Depends on T020, T021)
-- [ ] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`.
-- [ ] T024 [US2] Save trained model artifact to `data/models/random_forest.pkl`. (Depends on T020 completion)
-- [ ] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion)
+- [~] T020 [US2] Implement `code/03_train.py` using scikit-learn Random Forest Regressor (CPU only, no GPU/quantization).
+- [~] T021 [US2] Implement **Nested k-Fold Cross-Validation** (inner loop for tuning, outer loop for evaluation) in `code/03_train.py` as the primary strategy for FR-005.
+- [~] T022 [US2] Ensure imputation parameters are fitted ONLY on training folds to prevent leakage. (Depends on T020, T021)
+- [~] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`.
+- [~] T024 [US2] Save trained model artifact to `data/models/random_forest.pkl`. (Depends on T020 completion)
+- [~] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,17 +124,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Contract test for interpretation output schema in `tests/test_interpret.py`
-- [ ] T027 [US3] Integration test for SHAP generation in `tests/test_interpret.py` (Depends on T033 completion)
+- [~] T026 [P] [US3] Contract test for interpretation output schema in `tests/test_interpret.py`
+- [~] T027 [US3] Integration test for SHAP generation in `tests/test_interpret.py` (Depends on T033 completion)
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement permutation feature importance calculation in `code/04_interpret.py`, generating p-values. (Depends on T024 completion)
-- [ ] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
-- [ ] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
-- [ ] T031 [US3] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using the aggregated pathway features from T016.
-- [ ] T032 [US3] Generate final JSON report in `data/results/interpretation_report.json` with disclaimers and FDR values.
-- [ ] T033 [US3] Validate stability of feature importance rankings across CV folds by generating `data/results/stability_metrics.json` containing the standard deviation of feature ranks (SC-004). (Depends on T024 completion)
+- [~] T028 [US3] Implement permutation feature importance calculation in `code/04_interpret.py`, generating p-values. (Depends on T024 completion) <!-- FAILED: unspecified -->
+- [~] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
+- [~] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
+- [~] T031 [US3] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using the aggregated pathway features from T016.
+- [~] T032 [US3] Generate final JSON report in `data/results/interpretation_report.json` with disclaimers and FDR values.
+- [~] T033 [US3] Validate stability of feature importance rankings across CV folds by generating `data/results/stability_metrics.json` containing the standard deviation of feature ranks (SC-004). (Depends on T024 completion)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,11 +144,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `quickstart.md` (include synthetic data generation command and full pipeline execution command) and `research.md` (update with data availability status).
-- [ ] T035 Run `ruff check` and `black --check` on `code/`, save output to `data/results/lint_report.txt`.
-- [ ] T036 Run `memory_profiler` on the full pipeline, record peak RAM usage in `data/results/perf_metrics.json` (ensure <6GB).
-- [ ] T037 [P] Additional unit tests for edge cases (missing data, <50 samples) in `tests/unit/`
-- [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T034 [P] Documentation updates in `quickstart.md` (include synthetic data generation command and full pipeline execution command) and `research.md` (update with data availability status).
+- [~] T035 Run `ruff check` and `black --check` on `code/`, save output to `data/results/lint_report.txt`.
+- [~] T036 Run `memory_profiler` on the full pipeline, record peak RAM usage in `data/results/perf_metrics.json` (ensure <6GB).
+- [~] T037 [P] Additional unit tests for edge cases (missing data, <50 samples) in `tests/unit/`
+- [~] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -159,8 +159,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -226,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

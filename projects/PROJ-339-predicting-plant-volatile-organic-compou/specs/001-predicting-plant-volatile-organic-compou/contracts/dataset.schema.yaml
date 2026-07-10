@@ -1,56 +1,150 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Plant VOC Prediction Dataset Schema"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant VOC Genomic Dataset Schema
+description: >
+  Base schema for the merged genomic and environmental dataset used to predict
+  plant volatile organic compound (VOC) emission profiles. This schema defines
+  the expected structure for `data/processed/merged_dataset.csv` and intermediate
+  artifacts.
+type: object
 properties:
-  sample_id:
-    type: "string"
-    description: "Unique identifier for the experimental sample"
-  treatment:
-    type: "string"
-    description: "Experimental treatment condition (e.g., drought, herbivory)"
-  time_point:
-    type: "integer"
-    description: "Time in hours since treatment initiation"
-  tissue:
-    type: "string"
-    description: "Plant tissue type (e.g., leaf, root)"
-  temperature:
-    type: "number"
-    description: "Ambient temperature in Celsius"
-    minimum: 0
-  light_intensity:
-    type: "number"
-    description: "Light intensity in µmol m⁻² s⁻¹"
-    minimum: 0
-  co2_level:
-    type: "number"
-    description: "CO2 concentration in ppm"
-    minimum: 0
-  replicate_count:
-    type: "integer"
-    description: "Number of biological replicates for this condition"
-    minimum: 1
-  genes:
-    type: "object"
-    description: "Dictionary of gene_id to TPM value"
-    additionalProperties:
-      type: "number"
-      minimum: 0
-  vocs:
-    type: "object"
-    description: "Dictionary of voc_id to concentration value"
-    additionalProperties:
-      type: "number"
-      minimum: 0
+  meta:
+    type: object
+    description: Metadata about the dataset generation
+    properties:
+      source:
+        type: string
+        description: Source of the data (e.g., 'synthetic', 'NCBI_GEO', 'Metabolomics_Workbench')
+      version:
+        type: string
+        description: Schema version
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      sample_count:
+        type: integer
+        minimum: 1
+        description: Total number of samples in the dataset
+      feature_count:
+        type: integer
+        minimum: 1
+        description: Total number of feature columns (genes/pathways + environmental)
+    required:
+      - source
+      - version
+      - generated_at
+      - sample_count
+      - feature_count
+
+  columns:
+    type: array
+    description: Definition of each column in the dataset
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Column name as it appears in the CSV
+        type:
+          type: string
+          enum:
+            - sample_id
+            - gene_expression_tpm
+            - pathway_aggregate
+            - environmental_continuous
+            - environmental_categorical
+            - voc_target
+            - metadata
+          description: Semantic type of the column
+        required:
+          type: boolean
+          description: Whether the column must be present and non-null
+        description:
+          type: string
+          description: Human-readable description of the column
+        unit:
+          type: string
+          nullable: true
+          description: Physical unit (e.g., 'TPM', '°C', 'µmol/m²/s', 'ppb')
+      required:
+        - name
+        - type
+        - required
+        - description
+    minItems: 1
+
+  constraints:
+    type: object
+    description: Business logic constraints enforced during validation
+    properties:
+      min_replicates:
+        type: integer
+        default: 3
+        description: Minimum biological replicates required per condition (FR-011)
+      required_environmental_fields:
+        type: array
+        items:
+          type: string
+        default:
+          - temperature
+          - light_intensity
+        description: Environmental fields that must be present for inclusion (FR-012)
+      voc_targets:
+        type: array
+        items:
+          type: string
+        description: List of valid VOC target column names
+      gene_expression_threshold:
+        type: number
+        default: 0.0
+        description: Minimum TPM value considered valid (non-negative)
+    required:
+      - min_replicates
+      - required_environmental_fields
+      - voc_targets
+
+  examples:
+    type: object
+    description: Example rows conforming to the schema
+    properties:
+      sample_row:
+        type: object
+        description: A single representative row of data
+        properties:
+          sample_id:
+            type: string
+            example: "AT_STRESS_001"
+          gene_At1g01010_tpm:
+            type: number
+            example: 12.5
+          pathway_terpene_tpm:
+            type: number
+            example: 45.2
+          temperature:
+            type: number
+            example: 22.5
+          light_intensity:
+            type: number
+            example: 150.0
+          stress_condition:
+            type: string
+            example: "drought"
+          monoterpenes_ppb:
+            type: number
+            example: 10.5
+          sesquiterpenes_ppb:
+            type: number
+            example: 2.1
+        required:
+          - sample_id
+          - temperature
+          - light_intensity
+          - stress_condition
+    required:
+      - sample_row
+
 required:
-  - sample_id
-  - treatment
-  - time_point
-  - tissue
-  - temperature
-  - light_intensity
-  - co2_level
-  - replicate_count
-  - genes
-  - vocs
-additionalProperties: false
+  - meta
+  - columns
+  - constraints
+  - examples
