@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyDatasetSchema"
+description: "Schema for the raw and processed alloy dataset used in oxidation prediction."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the alloy sample."
+  composition:
+    type: "object"
+    description: "Elemental weight percentages."
+    properties:
+      Ni:
+        type: "number"
+        description: "Nickel weight percentage."
+      Cr:
+        type: "number"
+        description: "Chromium weight percentage."
+      Al:
+        type: "number"
+        description: "Aluminum weight percentage."
+      Co:
+        type: "number"
+        description: "Cobalt weight percentage."
+      Ti:
+        type: "number"
+        description: "Titanium weight percentage."
+    required:
+      - Ni
+      - Cr
+      - Al
+  thermo_descriptors:
+    type: "object"
+    description: "Calculated thermodynamic properties."
+    properties:
+      enthalpy_Al2O3:
+        type: "number"
+        description: "Oxide formation enthalpy for Al2O3 (kJ/mol)."
+      enthalpy_Cr2O3:
+        type: "number"
+        description: "Oxide formation enthalpy for Cr2O3 (kJ/mol)."
+      avg_atomic_radius:
+        type: "number"
+        description: "Weighted average atomic radius."
+  microstructure:
+    type: ["object", "null"]
+    description: "Optional microstructural features."
+    properties:
+      grain_size_um:
+        type: "number"
+        description: "Average grain size in micrometers."
+      precipitate_vol_frac:
+        type: "number"
+        description: "Volume fraction of precipitates."
+  observed_weight_gain:
+    type: "number"
+    description: "Measured oxidation weight gain in mg/cm²."
+required:
+  - sample_id
+  - composition
+  - observed_weight_gain
+additionalProperties: false

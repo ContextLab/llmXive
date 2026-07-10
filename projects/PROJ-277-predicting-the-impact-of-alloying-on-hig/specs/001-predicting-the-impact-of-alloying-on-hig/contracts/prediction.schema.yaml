@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResultSchema"
+description: "Schema for the model prediction output."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Reference to the input sample."
+  predicted_weight_gain:
+    type: "number"
+    description: "Predicted oxidation weight gain in mg/cm²."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "Lower and upper bounds of the confidence interval."
+  model_type:
+    type: "string"
+    description: "Name of the model used (e.g., RandomForest)."
+  feature_contributions:
+    type: "object"
+    description: "SHAP values or feature importance for this prediction."
+  warning_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of warnings (e.g., UNKNOWN_ELEMENT_EXCLUDED)."
+required:
+  - sample_id
+  - predicted_weight_gain
+  - model_type
+additionalProperties: false
