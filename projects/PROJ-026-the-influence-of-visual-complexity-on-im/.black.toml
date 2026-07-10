@@ -1,0 +1,21 @@
+# Black configuration file
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+# but pyproject.toml is the source of truth for the build system.
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

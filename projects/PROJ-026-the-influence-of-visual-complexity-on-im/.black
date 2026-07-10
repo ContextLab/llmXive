@@ -1,0 +1,18 @@
+# Black configuration file
+# Note: Primary configuration is in pyproject.toml [tool.black]
+# This file serves as a reference or can be used for specific overrides if the tool supports it.
+# Standard black CLI usage prefers pyproject.toml.
+line-length = 88
+target-version = py311
+include = \.pyi?$
+extend-exclude = (
+    .eggs
+    | .git
+    | .mypy_cache
+    | .tox
+    | .venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)

@@ -1,0 +1,14 @@
+T009 [P] [US1] Unit test for edge density calculation in `tests/test_stimuli/test_metrics.py`: 1
+T010 [P] [US1] Unit test for entropy calculation in `tests/test_stimuli/test_metrics.py`: 1
+T011 [P] [US1] Unit test for fractal dimension (box-counting) in `tests/test_stimuli/test_metrics.py`: 1
+? T027a [P] [US2] Generate `data/processed/counterbalance_assignment.csv` mapping
+  participant IDs to session orders (Low-High vs High-Low) using a seeded random shuffle
+  (seed=42) to ensure a 50/50 split for each starting condition. This task generates
+  a synthetic assignment map for CI/testing and does not depend on raw logs.
+: 2
+T027b [US2] Log the specific counterbalancing assignment strategy used in `logs/counterbalance_strategy.log`.: 1
+? T033a [P] [US3] Document the methodological shift from ANOVA to Permutation Test
+  in `research.md`, including justification and citation of the plan's decision. This
+  task must be completed before T033 to ensure implementation aligns with the chosen
+  statistical method.
+: 2
