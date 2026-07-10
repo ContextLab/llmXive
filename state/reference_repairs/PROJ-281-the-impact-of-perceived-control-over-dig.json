@@ -1,0 +1,20 @@
+[
+  {
+    "repaired_at": "2026-07-10T03:21:08.655787+00:00",
+    "project": "PROJ-281-the-impact-of-perceived-control-over-dig",
+    "repairs": [
+      {
+        "dead_url": "https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/SWE-bench/SWE-bench_Verified/resolve/main/data/test-00000-of-00001.parquet",
+        "intent": "uciml sms spam collection Dataset Extended via ucimlrepo VERIFIED Contains text and metadata. While originally for spam, the metadata timestamps if available in versions,"
+      },
+      {
+        "dead_url": "https://huggingface.co/datasets/crassous/twitter_us_airline_sentiment",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/atsushi3110/chosen-rejected-pairs/resolve/main/anthropic_hh/test.json",
+        "intent": "crassous twitter us airline sentiment UNREACHABLE HTTP 401 REJECTED . Previous reference was unreachable. This dataset lacks explicit \"control\" metadata flags and requires authentication."
+      }
+    ]
+  }
+]
