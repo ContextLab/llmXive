@@ -3,6 +3,9 @@
   \ *(Alias of PT002)*"
 : 1
 ? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
+  \ \u2013 verify core functions importable. *(Alias of PT002)*"
+: 2
+? "T002 Implement Monte\u2011Carlo framework core (`src/audit/monte_carlo_core.py`)\
   \ \u2013 verify core functions importable. [UNRESOLVED-CLAIM: c_117d6102 \u2014\
   \ status=not_enough_info] *(Alias of PT002)*"
 : 1
@@ -172,13 +175,12 @@
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
-? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
-  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
-  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
-: 2
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
+: 1
+? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
+  \ base image) (build Docker image successfully). **(No dependency on T012)**"
 : 1
 ? "T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py`\
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes [UNRESOLVED-CLAIM:\
@@ -216,6 +218,10 @@
   \ repository identifier, and fetch timestamp [UNRESOLVED-CLAIM: c_3afd62b7 \u2014\
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
+: 1
+? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
+  \ (detect binary vs continuous only, no extra test\u2011type handling) (verify detector\
+  \ returns correct type)."
 : 1
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
@@ -647,6 +653,10 @@
   \ (verify test passes)."
 : 1
 ? "T044 **[P]** Domain Bias Subsampling \u2013 create a balanced subsample of the\
+  \ corpus so that no single domain exceeds 30\u202F% before bias adjustment (FR\u2011\
+  027). (writes `data/subsampled_balanced.csv`). **DEPENDS ON:** T006\u2011T012."
+: 1
+? "T044 **[P]** Domain Bias Subsampling \u2013 create a balanced subsample of the\
   \ corpus so that no single domain exceeds 30\u202F% before bias adjustment [UNRESOLVED-CLAIM:\
   \ c_2f72044d \u2014 status=not_enough_info] (FR\u2011027). (writes `data/subsampled_balanced.csv`).\
   \ **DEPENDS ON:** T006\u2011T012."
@@ -668,6 +678,10 @@
 ? "T049 Add Quickstart guide `docs/README_QUICKSTART.md` covering execution on 30\
   \ URLs within 30 minutes [UNRESOLVED-CLAIM: c_cf59c7a8 \u2014 status=not_enough_info]\
   \ (FR\u2011028) **and include novice\u2011user verification step with written confirmation\
+  \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
+: 1
+? "T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. (FR\u2011\
+  028) **and include novice\u2011user verification step with written confirmation\
   \ log** (see T095b) (verify guide file exists and includes novice verification instructions)."
 : 1
 ? "T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the\
@@ -874,6 +888,9 @@
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
   \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T065 Add CI step that caches `pip` packages to stay within 6\u202Fhour total runtime\
+  \ (plan.md) (verify cache hit on subsequent runs)."
 : 1
 ? "T095c **[P]** Verify that the CI run includes a step that checks all seven Constitution\
   \ Principles (I\u2011VII) are satisfied (ties to PT005C) (verify CI step exists\

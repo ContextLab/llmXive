@@ -8,10 +8,10 @@ tqdm
 pyyaml
 jsonschema
 psutil
+pytest
 ruff
 black
 pre-commit
-pytest
 pydantic
-matplotlib
-seaborn
+jupyter
+nbconvert
