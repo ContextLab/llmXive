@@ -1,34 +1,33 @@
-resolved_at: '2026-07-08T20:13:38.138652+00:00'
+resolved_at: '2026-07-10T09:22:59.942843+00:00'
 datasets:
 - intent: CPU-compatible
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_National_Open_University_of_Nigeria_NOUN_Jabi_Abuja_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942315
+  - url: https://repository.lboro.ac.uk/articles/conference_contribution/Belonging_to_time_design_infrastructure_as_mediator_of_urgency_and_continuity_in_emergency_alerts_and_educational_archives/32924816
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Money_Drift_Glossary_Inconvenience_Inflation_Extraction_Economy_and_the_Hidden_Costs_of_Modern_Capitalism/30384772
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Emerging_gene-edited_dog_models_for_autism_spectrum_disorder/32907191
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Scale_Graphs_I_Reproducibility_package_code_raw_numerical_tables_certificates_and_figures_v1_7_/32942288
+  - url: https://figshare.com/articles/dataset/_b_New_genus_new_species_and_taxonomic_updates_of_lignicolous_freshwater_fungi_from_Xizang_China_b_/32956001
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_Akoka_Yaba_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942312
+  - url: https://zivahub.uct.ac.za/articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''zivahub.uct.ac.za'',
+      port=443): Max retries exceeded with url: /articles/physical_object/Polysiphonia_uncinnata_BOL0262530_/32244204
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Post-fire_forest_recovery_in_the_Amazon_region_2001_2023_A_patch-level_analysis_of_spatiotemporal_patterns_and_compound_drivers/32956006
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_University_of_Lagos_UNILAG_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32942306
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,7 +35,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -44,23 +47,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21267965
+  - url: https://zenodo.org/records/20988950
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21267965
+  - url: https://zenodo.org/records/20988950
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21263816
+  - url: https://zenodo.org/records/21286742
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21239100
+  - url: https://zenodo.org/records/21285334
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21239100
+  - url: https://zenodo.org/records/21285334
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

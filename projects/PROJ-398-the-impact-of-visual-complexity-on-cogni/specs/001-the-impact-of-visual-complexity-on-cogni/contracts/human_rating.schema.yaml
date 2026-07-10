@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: HumanRating
+description: "Schema for a human rating of a background image's complexity (Perceptual task)."
+type: object
+properties:
+  image_id:
+    type: string
+    description: "Reference to the BackgroundFrame.frame_id."
+  participant_id:
+    type: string
+    description: "Unique identifier for the human rater."
+  complexity_score:
+    type: integer
+    minimum: 1
+    maximum: 10
+    description: "Human-rated complexity on a 1-10 scale ('How busy is this image?')."
+required:
+  - image_id
+  - participant_id
+  - complexity_score
+additionalProperties: false

@@ -1,69 +1,57 @@
 # Data Model: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
-## Overview
+## 1. Overview
 
-This document defines the data schemas for the project, ensuring strict adherence to the "Single Source of Truth" and "Data Hygiene" principles. All data is stored in `data/` with checksums, and all derived data includes provenance metadata.
+This document defines the data structures used throughout the project. All data is stored in JSON or CSV formats, with strict schema validation against the YAML contracts defined in `contracts/`.
 
-## Entity Relationship Diagram (Conceptual)
+## 2. Entity Definitions
 
-1.  **Stimulus**: A single background image.
-    *   One-to-Many with **Measurement** (multiple participants view the same stimulus).
-2.  **Participant**: A human subject ID.
-    *   One-to-Many with **Measurement** (one participant views multiple stimuli).
-3.  **Measurement**: A single observation linking a Stimulus and a Participant.
-    *   Contains the cognitive load outcomes (TLX, RT).
+### 2.1 BackgroundFrame
+Represents a single frame from a meeting video (or synthetic image) with computed complexity metrics.
 
-## Schema Definitions
+- **Source**: `data/stimuli/` (raw) -> `data/derived/metrics.json` (processed).
+- **Key Fields**: `frame_id`, `entropy`, `color_variance`, `object_count`.
+- **Constraints**: `entropy` ≥ 0, `object_count` ≥ 0.
 
-### 1. Stimulus Metadata (`data/derived/stimuli_metadata.csv`)
-Contains the computed visual complexity metrics for each background image.
+### 2.2 HumanRating
+Represents a human participant's rating of a background image for visual complexity.
 
-| Column | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `stimulus_id` | string | Unique ID (e.g., `img_001`) | Primary Key |
-| `filename` | string | Relative path in `data/stimuli/` | Not Null |
-| `entropy` | float | Shannon entropy (0-8 range) | >= 0 |
-| `color_variance` | float | Variance of saturation channel | >= 0 |
-| `object_count` | int | YOLOv8n detection count | >= 0 |
-| `checksum` | string | SHA-256 of the image file | Not Null |
+- **Source**: `data/measurements/pilot_ratings.csv`.
+- **Key Fields**: `image_id`, `participant_id`, `complexity_score` (1-10).
+- **Constraints**: `complexity_score` ∈ [1, 10].
 
-### 2. Participant Measurement (`data/measurements/raw_responses.csv`)
-Raw (empirical) data from the pilot study.
+### 2.3 ParticipantSession
+Represents a participant's interaction with the experimental stimuli, including cognitive load metrics.
 
-| Column | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `session_id` | string | Unique session ID | Primary Key |
-| `participant_id` | string | Human participant ID | Not Null |
-| `stimulus_id` | string | Link to Stimulus | Foreign Key |
-| `task_difficulty` | float | Self-reported difficulty (0.0-1.0) | 0.0 to 1.0 |
-| `nasa_tlx_score` | float | Subjective load (0-100) | 0.0 to 100.0 |
-| `reaction_time_ms` | int | Reaction time in ms | > 0 |
-| `accuracy_pct` | float | Accuracy percentage | 0.0 to 100.0 |
-| `attention_check` | bool | Passed attention check | True/False |
-| `missing_flag` | bool | Flagged for exclusion | True/False |
-| `is_baseline` | bool | Flag for baseline condition | True/False |
+- **Source**: `data/measurements/session_logs.csv`.
+- **Key Fields**: `session_id`, `participant_id`, `clip_id`, `nasa_tlx_score`, `reaction_time_ms`, `accuracy_pct`, `task_difficulty`.
+- **Constraints**: `reaction_time_ms` > 0.
 
-### 3. Analysis Results (`results/analysis/model_summary.json`)
-Aggregated statistical results.
+### 2.4 AnalysisResult
+Represents the output of the statistical model.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_formula` | string | The LMM formula string |
-| `fixed_effects` | list | List of dicts: `{term, estimate, std_err, p_value, adj_p_value, ci_lower, ci_upper}` |
-| `random_effects` | list | Variance components for random intercepts |
-| `vif_scores` | dict | VIF for each predictor |
-| `sensitivity_analysis` | list | Results for alpha sweeps {0.01, 0.05, 0.1} |
-| `fwer_estimate` | float | Estimated Family-Wise Error Rate |
-| `diagnostics` | dict | Shapiro-Wilk, Residual plots status |
+- **Source**: `data/derived/model_results.json`.
+- **Key Fields**: `model_id`, `predictor`, `estimate`, `std_err`, `p_value`, `p_adj`, `vif`, `ci_lower`, `ci_upper`.
 
-## Data Flow & Transformation
+## 3. Data Flow
 
-1.  **Raw Images** (`data/stimuli/`) → `extract_metrics.py` → **Stimulus Metadata** (`data/derived/`).
-2.  **Raw Responses** (collected from pilot) → `data/measurements/raw_responses.csv`.
-3.  **Raw Responses** (filtered for `missing_flag=False`) → `analyze_results.py` → **Analysis Results** (`results/`).
+1.  **Ingestion**: Raw images placed in `data/stimuli/`.
+2.  **Processing**: `code/metrics/extraction.py` reads images, computes metrics, writes to `data/derived/metrics.json`.
+3.  **Collection**: Pilot ratings and session logs written to `data/measurements/`.
+4.  **Analysis**: `code/analysis/models.py` reads metrics and session logs, fits LMM, writes `data/derived/model_results.json`.
+5.  **Validation**: `tests/test_contracts.py` validates all JSON/CSV outputs against `contracts/*.schema.yaml` (including `analysis_result.schema.yaml` and `analysis_results.schema.yaml`).
 
-## Data Hygiene & Provenance
+## 4. Schema Validation
 
-*   **Checksums**: Every file in `data/stimuli/` and `data/derived/` is checksummed. The `state/` file records these hashes.
-*   **Immutability**: Raw files are never modified. Transformations create new files (e.g., `raw_responses_v1.csv`).
-*   **PII**: No real names or emails. `participant_id` is an anonymized code.
+All data artifacts must conform to the schemas defined in:
+- `contracts/background_frame.schema.yaml`
+- `contracts/human_rating.schema.yaml`
+- `contracts/participant_session.schema.yaml`
+- `contracts/participant_sessions.schema.yaml`
+- `contracts/analysis_result.schema.yaml`
+- `contracts/analysis_results.schema.yaml`
+- `contracts/metrics.schema.yaml`
+- `contracts/stimuli_metadata.schema.yaml`
+- `contracts/stimuli_metrics.schema.yaml`
+- `contracts/participant_data.schema.yaml`
+- `contracts/participant_measurements.schema.yaml`

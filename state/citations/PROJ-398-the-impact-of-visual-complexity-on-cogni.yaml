@@ -1,11 +1,22 @@
-- artifact_hash: 1d3aab2e72a614ba85b62a02b6e8b81f68a63aea6feaa6e7b0871e46d358dbcf
+- artifact_hash: 8192eb26b9e01d0b33e606efeb8718ef169f01290f9eb990586fc925cfd1f753
+  artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/Backgrounds-10k`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/Backgrounds-10k/datasets
+  verified_at: '2026-07-10T09:00:15.840709Z'
+- artifact_hash: 192f59dfdc9545257f952a77471a3c33b68753c546b713a137503f1208a3c2f7
   artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: cpu
+  fetched_title: null
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-06T00:24:45.776551Z'
+  value: http://localhost:5000
+  verification_status: unreachable
+  verified_against_url: http://localhost:5000
+  verified_at: '2026-07-10T09:00:32.619361Z'

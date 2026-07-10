@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ParticipantSession
+description: "Represents one participant's interaction with the study; attributes include NASA-TLX score, reaction time, accuracy, baseline reaction time, and associated background frames."
+type: object
+properties:
+  session_id:
+    type: string
+    description: "Unique identifier for the session."
+  participant_id:
+    type: string
+    description: "Anonymized participant identifier."
+  clip_id:
+    type: string
+    description: "Identifier of the background frame/clip shown."
+  nasa_tlx_score:
+    type: number
+    description: "NASA-TLX cognitive load score."
+    minimum: 0
+  reaction_time_ms:
+    type: number
+    description: "Mean reaction time in milliseconds."
+    minimum: 0
+  accuracy_pct:
+    type: number
+    description: "Accuracy percentage of the reaction-time task."
+    minimum: 0
+    maximum: 100
+  task_difficulty:
+    type: string
+    enum: ["low", "medium", "high"]
+    description: "Assigned task difficulty level."
+  baseline_reaction_time_ms:
+    type: number
+    description: "Baseline reaction time from the control condition."
+    minimum: 0
+required:
+  - session_id
+  - participant_id
+  - clip_id
+  - nasa_tlx_score
+  - reaction_time_ms
+  - accuracy_pct
+  - task_difficulty
+additionalProperties: false
