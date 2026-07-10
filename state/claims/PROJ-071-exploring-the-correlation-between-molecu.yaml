@@ -1,0 +1,119 @@
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: pipeline produces CSV with SMILES, metrics, half-lives
+  claim_id: c_0c71137c
+  context: The pipeline can be run in isolation to produce a CSV file containing SMILES,
+    calculated metrics, and degradation half-lives. The test verifies that the file
+    exists, has no missing values in key columns, and that the calculated metrics
+    match known reference values for a small subset of test molecules.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_CSV_with_SMILES,_metrics,_half-lives
+  kind: entity_fact
+  raw_text: The pipeline can be run in isolation to produce a CSV file containing
+    SMILES, calculated metrics, and degradation half-lives.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T10:13:19Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: data insufficiency report generated if N < 30
+  claim_id: c_594fbd06
+  context: 'Implement Data Availability Gate in `code/ingest.py`: If degradation data
+    missing or N < 30, generate `data_insufficiency_report.md` and exit. **Dependency**:
+    T012 (Fetch data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If degradation data missing or N < 30, generate `data_insufficiency_report.md`
+    and exit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T10:13:19Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: descriptors calculated using RDKit
+  claim_id: c_e43e95d9
+  context: 'Implement `code/descriptors.py`: Calculate TPSA, Rotatable Bond Count,
+    MW, Aromatic Ring Count, Wiener Index, Zagreb Index using RDKit. **Dependency**:
+    T012 (Fetch data).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptors_calculated_using_RDKit
+  kind: entity_fact
+  raw_text: Calculate TPSA, Rotatable Bond Count, MW, Aromatic Ring Count, Wiener
+    Index, Zagreb Index using RDKit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T10:13:48Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: TPSA of aspirin is 37.3
+  claim_id: c_5b0172db
+  context: 'Unit test for RDKit descriptor calculation in `tests/test_descriptors.py`.
+    Function: `test_tpsa_wiener_zagreb_aspirin`. **Assertion**: `rdkit.CalcTPSA("c1ccccc1C(=O)O")
+    == 37.3` and `CalcWienerIndex` wrapper output matches reference value within 1e-4.
+    **Dependency**: T014.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: rdkit.CalcTPSA("c1ccccc1C(=O)O") == 37.3
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T10:13:48Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: data insufficiency report generated with N=29
+  claim_id: c_bccf2899
+  context: 'Integration test for data ingestion gate in `tests/test_pipeline.py`.
+    Function: `test_insufficient_data_gate`. **Assertion**: Mock dataset with N=29;
+    verify `data_insufficiency_report.md` is generated, contains "N < 30" message,
+    and `assert exit_code == 0`. **Dependency**: T013.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mock dataset with N=29; verify `data_insufficiency_report.md` is generated,
+    contains "N < 30" message, and `assert exit_code == 0`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T10:14:04Z'
+- artifact_path: projects/PROJ-071-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/tasks.md
+  attempts: 1
+  canonical: half-life calculation with rate constant 0.01
+  claim_id: c_59bde18b
+  context: 'Unit test for unit conversion logic in `tests/test_standardize.py`. Function:
+    `test_k_to_half_life_conversion`. **Assertion**: `t1_2 = ln(2)/0.01` equals `69.31`
+    hours within 0.01. **Dependency**: T020.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: t1_2 = ln(2)/0.01` equals `69.31` hours within 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T10:14:26Z'

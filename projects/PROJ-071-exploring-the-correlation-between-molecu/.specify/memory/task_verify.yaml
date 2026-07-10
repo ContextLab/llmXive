@@ -1,0 +1,9 @@
+T008 Configure error handling and logging infrastructure for pipeline failures: 1
+? 'T013 [US1] Implement Data Availability Gate in `code/ingest.py`: If degradation
+  data missing or N < 30, generate `data_insufficiency_report.md` and exit. **Dependency**:
+  T012 (Fetch data).'
+: 1
+? 'T015 [US1] Implement error handling in `code/descriptors.py`: Flag/exclude molecules
+  with non-standard valence, log SMILES to `data/errors.log`. **Dependency**: T014
+  (Descriptors).'
+: 1

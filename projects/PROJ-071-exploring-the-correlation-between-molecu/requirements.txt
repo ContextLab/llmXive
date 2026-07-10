@@ -1,0 +1,13 @@
+rdkit
+pandas
+scikit-learn
+numpy
+matplotlib
+seaborn
+pyyaml
+requests
+datasets
+scipy
+pydantic
+black
+ruff

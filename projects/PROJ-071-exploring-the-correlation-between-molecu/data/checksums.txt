@@ -1,0 +1,3 @@
+# This file will be populated by code/ingest.py upon successful execution.
+# It contains SHA256 checksums for generated data artifacts.
+# Format: <sha256_hash>  <filename>
