@@ -1,0 +1,10 @@
+? T009 Setup environment configuration management by creating `.env.example` with
+  keys `GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH` and a validation script `scripts/validate_env.py`.
+: 2
+? "T011 [US1] Implement repository cloning logic in `code/01_data_curation.py`: shallow\
+  \ clone (depth=100), filter by activity (\u22651 commit/90 days, \u22655 stars)."
+: 1
+? 'T011a [US1] Implement repository metadata extraction in `code/01_data_curation.py`:
+  retrieve `stargazers_count`, `created_at`, and `updated_at` for each repo and store
+  in `data/raw/repo_metadata.csv` for use in matching.'
+: 1

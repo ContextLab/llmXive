@@ -26,8 +26,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure per implementation plan (`projects/PROJ-247-evaluating-the-impact-of-code-generation/`) by executing: `mkdir -p data/raw data/processed data/ground_truth data/logs code/utils tests/unit tests/contract docs/paper scripts`.
-- [ ] T001b Validate directory structure against plan.md by checking existence of all required directories and logging any missing paths to `data/logs/structure_validation.log`. (Depends on T001)
+- [X] T001 Create project directory structure per implementation plan (`projects/PROJ-247-evaluating-the-impact-of-code-generation/`) by executing: `mkdir -p data/raw data/processed data/ground_truth data/logs code/utils tests/unit tests/contract docs/paper scripts`.
+- [X] T001b Validate directory structure against plan.md by checking existence of all required directories and logging any missing paths to `data/logs/structure_validation.log`. (Depends on T001)
 
 ---
 
@@ -39,12 +39,12 @@
 
 **Note**: T007 (Models) MUST complete before T005 and T006. T005 and T006 are parallel to each other but sequential to T007.
 
-- [ ] T007 Create base data models/entities in `code/utils/models.py` (Repository, CodeBlock, MaintenanceEvent, MatchedPair) using dataclasses with type hints.
-- [ ] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub.
-- [ ] T003 [P] Configure linting and formatting by creating `.flake8` (max-line-length=88, exclude=venv), `pyproject.toml` (black target-version=py311), and `.editorconfig` (indent_size=4, end_of_line=lf) with the specified rules.
-- [ ] T005 [P] Implement `code/utils/github_client.py` with rate-limit handling, shallow clone logic (depth=100), and 404 error handling for deleted repos.
-- [ ] T006 [P] Implement `code/utils/classifier.py` wrapping `transformers` CodeBERT model via `onnxruntime` for CPU-only inference.
-- [ ] T008 Configure error handling and logging infrastructure by creating `code/utils/logging_config.py` with JSON format, TimedRotatingFileHandler (maxBytes=1MB, backupCount=5), and log output to `data/logs/`.
+- [X] T007 Create base data models/entities in `code/utils/models.py` (Repository, CodeBlock, MaintenanceEvent, MatchedPair) using dataclasses with type hints.
+- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` containing pinned versions for: transformers, onnxruntime, radon, scikit-learn, pandas, requests, matplotlib, statsmodels, datasets, PyGithub.
+- [X] T003 [P] Configure linting and formatting by creating `.flake8` (max-line-length=88, exclude=venv), `pyproject.toml` (black target-version=py311), and `.editorconfig` (indent_size=4, end_of_line=lf) with the specified rules.
+- [X] T005 [P] Implement `code/utils/github_client.py` with rate-limit handling, shallow clone logic (depth=100), and 404 error handling for deleted repos.
+- [X] T006 [P] Implement `code/utils/classifier.py` wrapping `transformers` CodeBERT model via `onnxruntime` for CPU-only inference.
+- [X] T008 Configure error handling and logging infrastructure by creating `code/utils/logging_config.py` with JSON format, TimedRotatingFileHandler (maxBytes=1MB, backupCount=5), and log output to `data/logs/`.
 - [ ] T009 Setup environment configuration management by creating `.env.example` with keys `GITHUB_TOKEN`, `DATA_PATH`, `LOG_PATH` and a validation script `scripts/validate_env.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -59,19 +59,19 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement `code/01_data_curation.py` script: GitHub Search API integration (topics:llm-generated, topic:copilot). **CRITICAL**: If <50 repos found via topics, expand search to keywords "LLM generated code" OR "Copilot generated" and repeat until a sufficient number of repositories are found or API limit reached.
+- [X] T010 [P] [US1] Implement `code/01_data_curation.py` script: GitHub Search API integration (topics:llm-generated, topic:copilot). **CRITICAL**: If <50 repos found via topics, expand search to keywords "LLM generated code" OR "Copilot generated" and repeat until a sufficient number of repositories are found or API limit reached.
 - [ ] T011 [US1] Implement repository cloning logic in `code/01_data_curation.py`: shallow clone (depth=100), filter by activity (≥1 commit/90 days, ≥5 stars).
 - [ ] T011a [US1] Implement repository metadata extraction in `code/01_data_curation.py`: retrieve `stargazers_count`, `created_at`, and `updated_at` for each repo and store in `data/raw/repo_metadata.csv` for use in matching.
-- [ ] T012 [P] [US1] Implement code block extraction logic: parse Python/JS files, extract functions/classes.
-- [ ] T012b [US1] Implement verification logic for `git mv` detection: if file path hash changes or directory level changes, exclude the block from the analysis set. Log exclusion reasons. **Verify** the specific exclusion logic for refactored blocks as required by Edge Cases. (Depends on T012)
-- [ ] T013 [US1] Integrate CodeBERT classifier (ONNX) in `code/01_data_curation.py`: tag blocks as LLM/Human with confidence ≥ 0.8; exclude low-confidence blocks.
-- [ ] T014 [US1] Implement static complexity metric extraction using `radon` (cyclomatic complexity, nesting depth, LOC) in `code/01_data_curation.py`.
-- [ ] T015 [US1] Implement 1:1 nearest-neighbor propensity score matching in `code/utils/matching.py`. **Logic**: Join block-level metrics (from T014) with repo-level covariates (stars, age from T011a) using `repo_id` as the key. Match LLM and Human blocks within the same repository. (Depends on T011a, T014)
-- [ ] T016 [US1] Enforce repository inclusion criteria: exclude repos with <5 LLM and <5 Human blocks after tagging.
-- [ ] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`.
-- [ ] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a and save results to `data/ground_truth/classifier_metrics.json` as required by FR-007. (Depends on T017a)
-- [ ] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
-- [ ] T019 [US1] Add checkpoint mechanism in `code/01_data_curation.py`: save progress per repo to resume if interrupted (time limit).
+- [~] T012 [P] [US1] Implement code block extraction logic: parse Python/JS files, extract functions/classes.
+- [~] T012b [US1] Implement verification logic for `git mv` detection: if file path hash changes or directory level changes, exclude the block from the analysis set. Log exclusion reasons. **Verify** the specific exclusion logic for refactored blocks as required by Edge Cases. (Depends on T012)
+- [~] T013 [US1] Integrate CodeBERT classifier (ONNX) in `code/01_data_curation.py`: tag blocks as LLM/Human with confidence ≥ 0.8; exclude low-confidence blocks.
+- [~] T014 [US1] Implement static complexity metric extraction using `radon` (cyclomatic complexity, nesting depth, LOC) in `code/01_data_curation.py`.
+- [~] T015 [US1] Implement 1:1 nearest-neighbor propensity score matching in `code/utils/matching.py`. **Logic**: Join block-level metrics (from T014) with repo-level covariates (stars, age from T011a) using `repo_id` as the key. Match LLM and Human blocks within the same repository. (Depends on T011a, T014)
+- [~] T016 [US1] Enforce repository inclusion criteria: exclude repos with <5 LLM and <5 Human blocks after tagging.
+- [~] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`.
+- [~] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a and save results to `data/ground_truth/classifier_metrics.json` as required by FR-007. (Depends on T017a)
+- [~] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
+- [~] T019 [US1] Add checkpoint mechanism in `code/01_data_curation.py`: save progress per repo to resume if interrupted (time limit).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,12 +85,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/02_metric_extraction.py`: load `matched_pairs.csv` and retrieve commit history for a multi-month window post-introduction. (Depends on T015)
-- [ ] T021 [US2] Implement bug fix latency calculation: parse commit messages for "Fixes #N" / "Closes #N". **Logic**: Map specific code block changes to issues by matching the file path in the commit diff to the issue description; if multiple issues exist, prioritize the first matching issue.
-- [ ] T022 [US2] Implement code churn calculation: aggregate lines added/deleted for each block in a multi-month window (excluding initial commit).
-- [ ] T023 [US2] Handle edge cases: exclude pairs with null latency from latency analysis (but retain for churn); log exclusion reasons.
-- [ ] T024 [US2] Handle repo deletion/private status during window: gracefully exclude from analysis count with 404 handling.
-- [ ] T025 [US2] Save processed metrics to `data/processed/metrics_longitudinal.csv` with schema validation.
+- [~] T020 [US2] Implement `code/02_metric_extraction.py`: load `matched_pairs.csv` and retrieve commit history for a multi-month window post-introduction. (Depends on T015)
+- [~] T021 [US2] Implement bug fix latency calculation: parse commit messages for "Fixes #N" / "Closes #N". **Logic**: Map specific code block changes to issues by matching the file path in the commit diff to the issue description; if multiple issues exist, prioritize the first matching issue.
+- [~] T022 [US2] Implement code churn calculation: aggregate lines added/deleted for each block in a multi-month window (excluding initial commit).
+- [~] T023 [US2] Handle edge cases: exclude pairs with null latency from latency analysis (but retain for churn); log exclusion reasons.
+- [~] T024 [US2] Handle repo deletion/private status during window: gracefully exclude from analysis count with 404 handling.
+- [~] T025 [US2] Save processed metrics to `data/processed/metrics_longitudinal.csv` with schema validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -104,14 +104,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/03_analysis.py`: Load `metrics_longitudinal.csv` (requires T025) and `matched_pairs.csv` (requires T015). (Depends on T025, T015)
-- [ ] T027 [US3] Implement Wilcoxon Signed-Rank tests using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005.
-- [ ] T027a [US3] Document the amendment to Constitution Principle VI in `docs/paper/constitution_amendment.md`: explain why Wilcoxon Signed-Rank is used instead of Mann-Whitney U for paired data.
-- [ ] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values.
-- [ ] T028a [US3] Document Benjamini-Hochberg assumptions and verify logic based on code output in `docs/paper/methodology.md`, ensuring traceability to code/data. (Depends on T028)
-- [ ] T029 [US3] Implement Sensitivity Analysis: adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth).
-- [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. Report pass/fail and document any failure as a limitation in `docs/paper/limitations.md` without re-calculating. (Depends on T017b)
-- [ ] T030 [US3] Generate visualizations: box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB.
+- [~] T026 [US3] Implement `code/03_analysis.py`: Load `metrics_longitudinal.csv` (requires T025) and `matched_pairs.csv` (requires T015). (Depends on T025, T015)
+- [~] T027 [US3] Implement Wilcoxon Signed-Rank tests using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005.
+- [~] T027a [US3] Document the amendment to Constitution Principle VI in `docs/paper/constitution_amendment.md`: explain why Wilcoxon Signed-Rank is used instead of Mann-Whitney U for paired data.
+- [~] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values.
+- [~] T028a [US3] Document Benjamini-Hochberg assumptions and verify logic based on code output in `docs/paper/methodology.md`, ensuring traceability to code/data. (Depends on T028)
+- [~] T029 [US3] Implement Sensitivity Analysis: adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth).
+- [~] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. Report pass/fail and document any failure as a limitation in `docs/paper/limitations.md` without re-calculating. (Depends on T017b)
+- [~] T030 [US3] Generate visualizations: box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB.
 - [ ] T031 [US3] Perform post-hoc power analysis on final matched pair count using `scipy.stats.power_analysis` with effect size=0.5, alpha=0.05, targeting ≥0.80 power.
 - [ ] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR.
 - [ ] T033 [US3] Save all statistical artifacts to `data/processed/statistical_results.json` and `docs/paper/`.
@@ -140,11 +140,11 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **Note**: T007 (Models) must complete before T005/T006 (which depend on models). T005 and T006 are NOT parallel to T007.
+ - **Note**: T007 (Models) must complete before T005/T006 (which depend on models). T005 and T006 are NOT parallel to T007.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **User Story 1 (P1)**: Can start after Foundational.
-  - **User Story 2 (P2)**: Can start after Foundational, but **depends on US1 output** (`matched_pairs.csv`).
-  - **User Story 3 (P3)**: Can start after Foundational, but **depends on US1 and US2 outputs** (`matched_pairs.csv`, `metrics_longitudinal.csv`, `manual_labels.csv`).
+ - **User Story 1 (P1)**: Can start after Foundational.
+ - **User Story 2 (P2)**: Can start after Foundational, but **depends on US1 output** (`matched_pairs.csv`).
+ - **User Story 3 (P3)**: Can start after Foundational, but **depends on US1 and US2 outputs** (`matched_pairs.csv`, `metrics_longitudinal.csv`, `manual_labels.csv`).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -213,11 +213,11 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together (T007 first, then T005/T006).
 2. Once Foundational is done:
-   - Developer A: User Story 1
+ - Developer A: User Story 1
 3. Once US1 completes:
-   - Developer B: User Story 2
+ - Developer B: User Story 2
 4. Once US2 completes:
-   - Developer C: User Story 3
+ - Developer C: User Story 3
 5. Stories complete and integrate independently.
 
 ---
