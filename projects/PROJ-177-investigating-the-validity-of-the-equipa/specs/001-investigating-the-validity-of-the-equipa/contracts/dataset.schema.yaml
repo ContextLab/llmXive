@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Particle Tracking Dataset Schema"
+description: "Schema for raw particle tracking CSV files ingested by the pipeline."
+type: "object"
+properties:
+  timestamp:
+    type: "number"
+    description: "Timestamp in seconds."
+  particle_id:
+    type: "integer"
+    description: "Unique identifier for the particle."
+  x:
+    type: "number"
+    description: "X position in meters."
+  y:
+    type: "number"
+    description: "Y position in meters."
+  z:
+    type: "number"
+    description: "Z position in meters (required for potential energy)."
+  theta:
+    type: "number"
+    description: "Orientation angle in radians (required for rotational energy)."
+  material:
+    type: "string"
+    description: "Material type (e.g., 'steel', 'glass', 'polymer')."
+required:
+  - timestamp
+  - particle_id
+  - x
+  - y
+  - z
+  - theta
+  - material
+additionalProperties: true

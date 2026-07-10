@@ -1,101 +1,29 @@
-resolved_at: '2026-07-10T13:26:42.137825+00:00'
+resolved_at: '2026-07-10T14:15:42.538002+00:00'
 datasets:
-- intent: CPU-only
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_docx/32957096
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet_1_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_zip/32957090
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_xlsx/32957093
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Impact_of_a_clinical_engagement_targeted_antimicrobial_stewardship_program_on_antimicrobial_use_in_Pakistan_a_multicenter_longitudinal_point_prevalence_survey/32957089
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Details_of_the_policy_actions_from_2005_to_2025/29385098
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21293289
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21293289
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21097833
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21097833
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: OpenGranular
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_docx/32957096
+  - url: https://tandf.figshare.com/articles/dataset/Fluorinated_acylpyrazolone_ligand_HQ_sup_PhF_sup_Synthesis_structural_characterization_and_DFT_studies_of_three_new_divalent_cobalt_and_zinc_complexes/32957305
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet_1_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_zip/32957090
+  - url: https://figshare.com/articles/preprint/_p_dir_ltr_b_L_environnement_mat_riel_comme_fondement_p_dagogique_de_la_formation_professionnelle_b_p_/32957246
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Classification_of_tuberculosis-related_programmed_cell_death-related_patient_subgroups_and_associated_immune_cell_profiling_xlsx/32957093
+  - url: https://repository.rcsi.com/articles/journal_contribution/Cannabidiol_to_reduce_persistent_post-surgical_pain_following_total_knee_arthroplasty_protocol_for_a_multi-centre_randomized_controlled_pilot_trial/32947640
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Cannabidiol_to_reduce_persistent_post-surgical_pain_following_total_knee_arthroplasty_protocol_for_a_multi-centre_randomized_controlled_pilot_trial/32947640
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Image_3_CRISPR-SWITCH_silent_mutations_with_intention_to_create_heterozygotes_a_strategy_for_monoallelic_genome_editing_and_generation_of_a_Syt1-D365E_mouse_model_of_Baker_Gordon_syndrome_jpeg/32957297
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Impact_of_a_clinical_engagement_targeted_antimicrobial_stewardship_program_on_antimicrobial_use_in_Pakistan_a_multicenter_longitudinal_point_prevalence_survey/32957089
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Details_of_the_policy_actions_from_2005_to_2025/29385098
+  - url: https://frontiersin.figshare.com/articles/figure/Image_4_CRISPR-SWITCH_silent_mutations_with_intention_to_create_heterozygotes_a_strategy_for_monoallelic_genome_editing_and_generation_of_a_Syt1-D365E_mouse_model_of_Baker_Gordon_syndrome_jpeg/32957300
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

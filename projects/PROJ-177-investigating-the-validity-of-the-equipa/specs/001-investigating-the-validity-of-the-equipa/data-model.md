@@ -1,73 +1,80 @@
 # Data Model: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-## Entity Definitions
+## Overview
+This document defines the data structures used for ingestion, processing, and output. All data is stored as CSV or JSON for portability and version control.
 
-### 1. ParticleFrame
-Represents a single particle at a specific timestamp.
-- `particle_id`: int (unique identifier for the particle)
-- `timestamp`: float (seconds)
-- `position_x`: float (float32)
-- `position_y`: float (float32)
-- `position_z`: float (float32)
-- `orientation_theta`: float (float32)
-- `material_type`: str (e.g., "steel", "glass")
-- `driving_frequency`: float (Hz) (global parameter)
-- `velocity_x`: float (float32, derived)
-- `velocity_y`: float (float32, derived)
-- `velocity_z`: float (float32, derived)
-- `angular_velocity`: float (float32, derived)
-- `mass`: float (float64, derived or provided)
-- `moment_of_inertia`: float (float64, derived)
-- `friction_coefficient`: float (float32, from synthetic generator)
-- `E_trans`: float (float64, Joules)
-- `E_rot`: float (float64, Joules)
-- `E_pot`: float (float64, Joules)
-- `diff_E`: float (float64, derived: `E_trans - E_rot`)
-- `ratio_E`: float (float64, derived: `E_trans / E_rot`)
+## Core Entities
 
-### 2. EnergyBin
-Aggregated statistics for a specific frequency and material combination.
-- `frequency_bin`: str (e.g., "5Hz", "10Hz")
-- `material_type`: str
-- `n_frames`: int
-- `mean_E_trans`: float
-- `mean_E_rot`: float
-- `std_E_trans`: float
-- `std_E_rot`: float
-- `mean_diff_E`: float (mean of `diff_E`)
-- `std_diff_E`: float (std of `diff_E`)
-- `ratio_mean`: float ($mean\_E\_trans / mean\_E\_rot$)
-- `t_statistic`: float (from paired t-test)
-- `p_value_raw`: float
-- `p_value_corrected`: float (Holm-Bonferroni)
-- `ks_statistic`: float (from KS test)
-- `ks_p_value`: float
-- `is_significant`: bool
+### 1. ParticleState (Raw/Ingested)
+Represents the state of a single particle at a specific timestamp.
+- **Source**: `data/raw/particle_tracking.csv`
+- **Fields**:
+  - `timestamp` (float): Time in seconds.
+  - `particle_id` (int): Unique identifier.
+  - `x`, `y`, `z` (float): Position in meters.
+  - `theta` (float): Orientation angle in radians.
+  - `material` (str): "steel", "glass", "polymer".
+  - `mass` (float): Mass in kg (can be derived from material if not present).
+  - `moment_of_inertia` (float): $I$ in kg·m².
 
-### 3. StatisticalResult
-Output of a specific hypothesis test or regression.
-- `test_type`: str (e.g., "paired-t-test", "ANOVA", "regression", "KS-test")
-- `bin_id`: str (frequency + material)
-- `statistic_value`: float
-- `raw_p_value`: float
-- `corrected_p_value`: float
-- `degrees_of_freedom`: int
-- `confidence_interval_low`: float
-- `confidence_interval_high`: float
-- `effect_size`: float (Cohen's d for paired differences)
+### 2. EnergySample (Derived)
+Computed energy values for a single particle at a single timestamp.
+- **Source**: `data/derived/energy_samples.csv`
+- **Fields**:
+  - `timestamp` (float)
+  - `particle_id` (int)
+  - `E_trans` (float): Translational kinetic energy (J).
+  - `E_rot` (float): Rotational kinetic energy (J).
+  - `E_pot` (float): Potential energy (J).
+  - `E_vib_residual` (float): Diagnostic residual (Total - E_trans - E_rot - E_pot), NOT used for hypothesis testing.
+  - `material` (str)
+  - `driving_frequency` (float): Hz (from synchronized log).
+
+### 3. EnergyDistribution (Aggregated)
+Aggregated statistics for a specific group (Material + Frequency).
+- **Source**: `artifacts/distributions.json`
+- **Fields**:
+  - `group_id` (str): e.g., "steel_10Hz".
+  - `material` (str)
+  - `frequency` (float)
+  - `n_samples` (int)
+  - `mean_E_trans` (float)
+  - `mean_E_rot` (float)
+  - `mean_E_ratio` (float): $\mu_{E_{rot}} / \mu_{E_{trans}}$.
+  - `excess_kurtosis_E_trans` (float)
+  - `excess_kurtosis_E_rot` (float)
+  - `distribution_data` (list): Raw energy values for KS test (Lilliefors).
+
+### 4. StatisticalResult
+Outcome of hypothesis tests.
+- **Source**: `artifacts/stats_results.json`
+- **Fields**:
+  - `test_id` (str)
+  - `group_id` (str)
+  - `test_type` (str): "RatioTest", "KS_Lilliefors", "ChiSq", "Regression".
+  - `statistic_value` (float)
+  - `p_value_raw` (float)
+  - `p_value_corrected` (float) (FDR adjusted)
+  - `is_significant` (bool)
+  - `rejection_flag` (bool) (True if $H_0$ rejected).
+
+### 5. RegressionResult
+Outcome of linear regression analysis.
+- **Source**: `artifacts/regression_results.json`
+- **Fields**:
+  - `model_id` (str)
+  - `dependent_variable` (str): "excess_kurtosis" or "energy_ratio".
+  - `slope` (float)
+  - `intercept` (float)
+  - `r_squared` (float)
+  - `slope_p_value` (float)
+  - `slope_t_stat` (float)
+  - `model_fit_quality` (str): "Good", "Poor", "Inconclusive".
 
 ## Data Flow
 
-1. **Ingestion**: Raw CSV/Parquet $\rightarrow$ `ParticleFrame` (with missing values handled).
-2. **Derivation**: `ParticleFrame` $\rightarrow$ Calculate velocities, mass, $I$, $E_{trans}$, $E_{rot}$, $E_{pot}$, `diff_E`, `ratio_E`.
-3. **Binning**: `ParticleFrame` $\rightarrow$ Group by `frequency_bin` + `material_type` $\rightarrow$ `EnergyBin` aggregates.
-4. **Testing**: `EnergyBin` $\rightarrow$ Run **Paired t-test**, **KS test**, ANOVA $\rightarrow$ `StatisticalResult`.
-5. **Sensitivity**: `StatisticalResult` $\rightarrow$ Sweep $\alpha$ $\rightarrow$ Summary Table.
-
-## Constraints & Validations
-
-- **Mass Derivation**: If `mass` is missing, derive from `material_type` and `r=2.5mm`. If `material_type` is unknown, raise error.
-- **Frequency Binning**: 5Hz intervals (e.g., 0-5, 5-10). 0Hz bins excluded from ratio test.
-- **Missing Data**: If velocity cannot be calculated (gaps > threshold), mark frame as invalid or interpolate.
-- **Precision**: Coordinates stored as float32 to save memory; energies and derived statistics stored as float64 for accuracy.
-- **Chunking**: Data processed in chunks of 100k frames to fit within 7GB RAM. This is the primary execution path.
+1. **Raw CSV** -> `ingestion.py` -> **EnergySample** (Filtered/Sampled).
+2. **EnergySample** -> `stats.py` -> **EnergyDistribution** (Binned).
+3. **EnergyDistribution** -> `stats.py` -> **StatisticalResult**.
+4. **StatisticalResult** + **EnergySample** -> `regression.py` -> **RegressionResult**.
+5. **All Results** -> `paper/` generation scripts.

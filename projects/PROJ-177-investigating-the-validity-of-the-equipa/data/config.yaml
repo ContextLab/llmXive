@@ -1,0 +1,32 @@
+# Configuration for granular system simulation analysis
+# Contains material properties and frequency bin definitions
+
+materials:
+  steel:
+    mass: 0.005  # kg
+    inertia: 2.083333e-07  # kg*m^2 (for sphere: 2/5 * m * r^2, assuming r=0.005m)
+    roughness_proxy: 0.05  # dimensionless, 0=smooth, 1=very rough
+
+  polymer:
+    mass: 0.002  # kg
+    inertia: 8.333333e-08  # kg*m^2 (assuming same radius as steel for comparison)
+    roughness_proxy: 0.25  # dimensionless
+
+  glass:
+    mass: 0.0035  # kg
+    inertia: 1.458333e-07  # kg*m^2
+    roughness_proxy: 0.02  # dimensionless
+
+frequency_bins:
+  - label: "low"
+    min_hz: 0.0
+    max_hz: 10.0
+  - label: "medium"
+    min_hz: 10.0
+    max_hz: 50.0
+  - label: "high"
+    min_hz: 50.0
+    max_hz: 200.0
+  - label: "very_high"
+    min_hz: 200.0
+    max_hz: 1000.0

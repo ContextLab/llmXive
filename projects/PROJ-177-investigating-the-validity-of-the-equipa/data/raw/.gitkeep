@@ -1,0 +1,3 @@
+# This directory is for raw experimental data.
+# Data is not stored in Git. Fetch required data here before running the pipeline.
+# See specs/001-validity-equipartition-granular/ for data format requirements.

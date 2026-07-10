@@ -1,0 +1,15 @@
+# Python 3.11+ dependencies for PROJ-177: Investigating the Validity of the Equipartition Theorem
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Statistical analysis
+statsmodels>=0.14.0
+
+# Configuration and utilities
+pyyaml>=6.0
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.0.0

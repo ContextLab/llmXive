@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T23:22:13.977711Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-177-investigating-the-validity-of-the-equipa
-last_run_id: cede0a42-1241-4492-bcd1-171932a87f54
+last_run_id: 10f0828b-75cc-4a40-9641-cb495c1c9c9a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa
 title: Investigating the Validity of the Equipartition Theorem in Driven Granular
   Systems
-updated_at: '2026-07-10T14:16:08.906500Z'
+updated_at: '2026-07-10T14:45:34.349391Z'

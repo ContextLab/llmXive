@@ -1,84 +1,102 @@
 # Feature Specification: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-**Feature Branch**: `001-investigate-equipartition-granular-systems`  
+**Feature Branch**: `001-validity-equipartition-granular`  
 **Created**: 2023-10-27  
 **Status**: Draft  
 **Input**: User description: "Investigating the Validity of the Equipartition Theorem in Driven Granular Systems"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Energy Component Extraction and Aggregation (Priority: P1)
+### User Story 1 - Data Ingestion and Energy Component Calculation (Priority: P1)
 
-The research pipeline must ingest raw particle tracking data (positions, orientations) and driving signal logs, then compute and aggregate the primary energy components (translational kinetic and rotational kinetic) for every particle at every time step, binned by driving frequency and material type. Potential energy is calculated for diagnostic purposes but excluded from the equipartition ratio test.
+As a researcher, I need to ingest particle tracking data and driving signal logs to compute translational kinetic, rotational, potential, and vibrational energy for every particle at every frame, so that I can establish the raw energy distribution baseline required for any statistical analysis.
 
-**Why this priority**: This is the foundational data transformation step. Without accurate extraction of $E_{trans}$ and $E_{rot}$, no statistical comparison to the equipartition theorem is possible. It represents the core "data acquisition and processing" phase of the methodology.
+**Why this priority**: This is the foundational step. Without accurate energy computation from raw kinematic data, no subsequent statistical tests or validity checks can be performed. It delivers the core dataset needed for the entire project.
 
-**Independent Test**: Can be fully tested by running the pipeline on a small, synthetic CSV dataset with known kinematic properties and verifying that the output JSON/CSV contains the exact calculated energy values for each particle frame.
+**Independent Test**: Can be fully tested by running the ingestion script on a small, synthetic CSV subset with known velocities and positions, verifying that the calculated energy values match manual calculations within floating-point tolerance (1e-9).
 
 **Acceptance Scenarios**:
 
-1. **Given** a CSV file containing particle positions (x, y, z) and orientations (theta) for steel beads at 10Hz, **When** the pipeline processes the file, **Then** the output must contain a row for each particle-frame with calculated $E_{trans} = 0.5 \cdot m \cdot v^2$ and $E_{rot} = 0.5 \cdot I \cdot \omega^2$.
-2. **Given** multiple input files with different driving frequencies (5Hz, 10Hz, 15Hz), **When** the aggregation step runs, **Then** the resulting dataset must include a `frequency_bin` column correctly grouping the data into 5Hz intervals.
-3. **Given** a dataset where the driving signal log is missing, **When** the pipeline attempts to synchronize, **Then** the system must halt with a clear error indicating the missing synchronization source rather than proceeding with null values.
-4. **Given** a dataset where the particle mass is not explicitly provided in the metadata, **When** the pipeline processes the file, **Then** the system must attempt to derive mass from the material type and a default radius of a moderate magnitude, or fail with a specific error if derivation is impossible.
+1. **Given** a CSV file containing particle positions (x, y, z) and orientations (theta) at 100Hz, and a synchronized log of driving frequency, **When** the ingestion pipeline processes the data, **Then** the system outputs a dataframe where every row contains computed values for $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$ derived from finite differences and standard physics formulas.
+2. **Given** a dataset with missing frames in the video log, **When** the pipeline encounters the gap, **Then** it interpolates the position/orientation linearly to maintain time continuity or flags the specific time window for exclusion, ensuring no NaN values propagate to the energy calculation step.
+3. **Given** a dataset where particle mass or moment of inertia varies by material type (steel vs. polymer), **When** the pipeline processes the data, **Then** it applies the correct material-specific physical constants from a configuration file to ensure energy units are consistent across all material groups.
 
 ---
 
-### User Story 2 - Statistical Deviation Analysis (Priority: P2)
+### User Story 2 - Statistical Deviation Assessment and Hypothesis Testing (Priority: P2)
 
-The system must compare the observed mean energy values against the theoretical equipartition prediction (equal mean energy per degree of freedom) using Two-Sample t-tests and ANOVA, generating a report of p-values and deviation metrics for each frequency/material bin. Additionally, the system must perform a linear regression to relate deviations to driving frequency and material type.
+As a researcher, I need to compare the observed energy distributions against the theoretical Maxwell-Boltzmann prediction using Kolmogorov-Smirnov tests and Chi-squared goodness-of-fit tests, so that I can determine if the system exhibits statistically significant violations of the equipartition theorem.
 
-**Why this priority**: This implements the core "Statistical assessment" logic required to answer the research question. It transforms raw energy values into the statistical evidence needed to accept or reject the hypothesis.
+**Why this priority**: This is the core analytical step that directly answers the research question. It transforms raw energy data into a scientific conclusion regarding the validity of the theorem.
 
-**Independent Test**: Can be fully tested by feeding the pipeline a dataset constructed to perfectly match equipartition (equal mean energy per degree of freedom) and verifying that the t-test returns $p > 0.05$, and a dataset with known bias returns $p < 0.01$.
+**Independent Test**: Can be fully tested by running the analysis module on a dataset pre-labeled as "thermal" (Maxwell-Boltzmann holds) and "non-thermal" (Maxwell-Boltzmann fails), verifying that the p-values and test statistics correctly classify the datasets according to the hypothesis.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset of energy means for glass beads at 10Hz, **When** the statistical assessment module runs, **Then** it must output a t-test statistic and p-value comparing the mean translational energy to the mean rotational energy.
-2. **Given** a dataset where the mean translational energy is 2x the mean rotational energy, **When** the t-test runs, **Then** the resulting p-value must be $< 0.01$ to flag a statistically significant deviation.
-3. **Given** multiple hypothesis tests across different frequency bins, **When** the analysis completes, **Then** the output must include a Holm-Bonferroni-corrected p-value to account for multiple comparisons.
+1. **Given** binned energy data for a specific driving frequency (e.g., 10 Hz), **When** the statistical module runs, **Then** it outputs a p-value from a Kolmogorov-Smirnov test comparing the empirical distribution of energy components to the theoretical Maxwell-Boltzmann distribution, flagging the result as "significant" if $p < 0.01$.
+2. **Given** the binned observed counts and expected counts derived from the Maxwell-Boltzmann PDF, **When** the system performs the chi-squared goodness-of-fit test, **Then** it reports a $\chi^2$ statistic and a boolean indicator of whether the null hypothesis (equipartition holds) is rejected at the 99% confidence level.
+3. **Given** a dataset with multiple driving frequencies, **When** the system aggregates results, **Then** it generates a summary table showing the rejection rate of the equipartition hypothesis as a function of frequency, allowing for trend identification.
 
 ---
 
-### User Story 3 - Sensitivity Analysis of Thresholds (Priority: P3)
+### User Story 3 - Sensitivity Analysis and Threshold Justification (Priority: P3)
 
-The system must perform a sensitivity analysis on the significance threshold ($\alpha$) by sweeping the cutoff value over the set $\{0.01, 0.05, 0.10\}$ and reporting the count of frequency bins classified as "significant deviation" for each threshold in a summary table.
+As a researcher, I need to perform a sensitivity analysis on the decision thresholds (e.g., the p-value cutoff or energy discrepancy tolerance) to ensure the findings are robust, so that the conclusions are not artifacts of arbitrary statistical choices.
 
-**Why this priority**: This ensures methodological soundness by preventing the results from being artifacts of an arbitrarily chosen significance threshold. It satisfies the requirement for threshold justification and sensitivity.
+**Why this priority**: This ensures methodological soundness and defensibility of the results. It addresses the "threshold justification" requirement, preventing the project from being blocked by the methodology panel for arbitrary cutoffs.
 
-**Independent Test**: Can be fully tested by running the analysis with a fixed dataset and three different p-value thresholds, verifying that the output table correctly reflects the changing counts of "deviation detected" vs. "no deviation" across the sweep.
+**Independent Test**: Can be fully tested by executing the sensitivity sweep script on a fixed dataset and verifying that the output report lists the variation in "false positive" or "rejection" rates across the specified threshold range (e.g., 0.01, 0.05, 0.10).
 
 **Acceptance Scenarios**:
 
-1. **Given** a fixed dataset of energy ratios, **When** the sensitivity analysis runs with thresholds $\{0.01, 0.05, 0.10\}$, **Then** the output must contain a summary table showing the number of frequency bins classified as "significant deviation" for each threshold.
-2. **Given** a result where the p-value is exactly 0.04, **When** the sensitivity analysis is performed, **Then** the system must correctly classify this as "significant" at $\alpha=0.05$ but "non-significant" at $\alpha=0.01$.
-3. **Given** a dataset where the deviation is marginal, **When** the sensitivity analysis runs, **Then** the report must explicitly state the "stability" of the conclusion (i.e., whether the conclusion changes across the swept thresholds).
+1. **Given** the primary statistical result (e.g., rejection of equipartition), **When** the sensitivity analysis runs, **Then** it sweeps the significance threshold $\alpha$ over the set $\{0.01, 0.05, 0.10\}$ and reports the corresponding change in the number of rejected null hypotheses.
+2. **Given** a decision boundary for "quasi-thermal" behavior (e.g., energy ratio within 5% of 1.0), **When** the system runs the sensitivity check, **Then** it recalculates the classification rates using boundaries of $\{1\%, 5\%, 10\%\}$ and documents how the "quasi-thermal" regime size changes.
+3. **Given** the requirement for multiple-comparison correction, **When** the system processes 10+ frequency bins, **Then** it applies a Benjamini-Hochberg (FDR) correction and outputs both the raw and corrected p-values to ensure family-wise error rate control.
+
+---
+
+### User Story 4 - Regression Analysis of Deviation Drivers (Priority: P3)
+
+As a researcher, I need to perform a linear regression to relate the magnitude of deviation from equipartition to driving frequency and material roughness, and test the significance of these relationships using t-tests, so that I can quantify the dependencies predicted by the research question.
+
+**Why this priority**: This addresses the specific requirement in the original idea to "linear regression to relate deviations to driving frequency and material roughness; test significance with t-tests". It moves beyond simple binary rejection to quantifying the nature of the violation.
+
+**Independent Test**: Can be fully tested by running the regression module on a synthetic dataset where the slope and intercept are known, verifying that the calculated coefficients and t-statistics match the expected values within a tolerance of 1%.
+
+**Acceptance Scenarios**:
+
+1. **Given** a dataset of deviation magnitudes (e.g., $\chi^2$ statistic or mean energy ratio difference) and corresponding driving frequencies, **When** the regression module runs, **Then** it fits a linear model and outputs the slope, intercept, and R-squared value.
+2. **Given** the fitted regression model, **When** the system performs significance testing, **Then** it reports the t-statistic and p-value for the slope coefficient, determining if the relationship is significant at $p < 0.05$.
+3. **Given** material properties (roughness proxy), **When** the system includes them as a predictor in the regression, **Then** it reports the coefficient significance and interaction effects between frequency and roughness.
 
 ---
 
 ### Edge Cases
 
-- What happens when the particle tracking data has gaps (missing frames) that prevent accurate velocity calculation via finite differences? (System must interpolate or flag the particle as invalid for that frame).
-- How does the system handle datasets where the particle mass is not explicitly provided in the metadata? (System must derive mass from material type and a default radius of a standard magnitude, or fail with a specific error).
-- How does the system handle a driving frequency of 0 Hz (static case) where kinetic energy should theoretically be zero? (System must exclude these bins from the equipartition ratio calculation to avoid division by zero).
+- What happens when the particle tracking fails for >20% of frames in a specific time window? (System must exclude the window and log a warning, rather than crashing or producing biased averages).
+- How does the system handle datasets where the driving frequency is not constant (chirped signals)? (System must bin by instantaneous frequency or exclude non-stationary segments).
+- What occurs if the dataset lacks vertical (z-axis) position data, making potential energy calculation impossible? (System must flag the dataset as incomplete for potential energy analysis and proceed only with kinetic components).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST calculate translational kinetic energy ($0.5 \cdot m \cdot v^2$) and rotational kinetic energy ($0.5 \cdot I \cdot \omega^2$) for every particle in every frame using finite-difference derivatives for velocity and angular velocity. Potential energy ($m \cdot g \cdot z$) MUST be calculated for diagnostic purposes but excluded from the equipartition ratio test. (See US-1)
-- **FR-002**: System MUST synchronize particle tracking timestamps with external driving signal logs (frequency/amplitude) and bin the resulting energy data into 5Hz intervals for frequency analysis. (See US-1)
-- **FR-003**: System MUST perform Two-Sample t-tests to compare the mean translational energy to the mean rotational energy (testing the null hypothesis of a 1:1 ratio) and ANOVA for multi-group comparisons across material types. (See US-2)
-- **FR-004**: System MUST apply the Holm-Bonferroni method to all p-values generated across multiple frequency bins and material types to control family-wise error rate. (See US-2)
-- **FR-005**: System MUST execute a sensitivity analysis that sweeps the significance threshold ($\alpha$) over the set $\{0.01, 0.05, 0.10\}$ and outputs a summary table showing the count of frequency bins classified as having significant deviation for each threshold. (See US-3)
-- **FR-006**: System MUST validate that input datasets contain all required columns (position x/y/z, orientation, timestamp) and, if particle mass is missing, MUST derive mass using the standard formula for a solid sphere assuming a default radius of a standard magnitude based on material type metadata, or fail with a specific error if derivation is impossible. (See US-1)
-- **FR-007**: System MUST perform a linear regression analysis relating the magnitude of energy deviation (difference between mean translational and rotational energy) to driving frequency and material type, and MUST test the significance of the regression coefficients using t-tests. (See US-2)
+- **FR-001**: System MUST ingest particle tracking CSVs and driving signal logs, synchronizing them by timestamp to align kinematic data with external forcing parameters (See US-1).
+- **FR-002**: System MUST compute translational kinetic energy ($\frac{1}{2}mv^2$), rotational kinetic energy ($\frac{1}{2}I\omega^2$), potential energy ($mgz$), and vibrational energy components for every particle in every frame using finite-difference approximations for velocity and angular velocity (See US-1).
+- **FR-003**: System MUST perform Kolmogorov-Smirnov tests to compare the empirical distribution of energy components against the theoretical Maxwell-Boltzmann distribution for each material and frequency bin, retaining the raw distribution data required for the test (See US-2).
+- **FR-004**: System MUST calculate chi-squared goodness-of-fit statistics by comparing binned observed counts against expected counts derived from the Maxwell-Boltzmann PDF, and report significance for a default threshold of $p < 0.01$ (See US-2).
+- **FR-005**: System MUST execute a sensitivity analysis sweeping significance thresholds ($\alpha \in \{0.01, 0.05, 0.10\}$) and discrepancy boundaries to report robustness of the rejection decisions (See US-3).
+- **FR-006**: System MUST apply a multiple-comparison correction when testing across multiple frequency bins, with the default method being Benjamini-Hochberg (FDR) unless specified otherwise (See US-3).
+- **FR-007**: System MUST perform linear regression to relate deviation magnitudes to driving frequency and material roughness, outputting slope, intercept, and R-squared values (See US-4).
+- **FR-008**: System MUST test the significance of regression coefficients using t-tests and report the p-values for the slope parameters (See US-4).
 
 ### Key Entities
 
-- **ParticleFrame**: Represents a single particle at a specific timestamp; attributes include position, orientation, calculated velocities, and three energy values (trans, rot, pot).
-- **EnergyBin**: Represents an aggregation of ParticleFrames grouped by driving frequency and material type; attributes include mean energy, variance, and statistical test results.
-- **StatisticalResult**: Represents the output of a hypothesis test; attributes include test type (t-test, ANOVA, Regression), statistic value, raw p-value, and corrected p-value.
+- **ParticleState**: Represents a single particle at a single time step, containing attributes: position (x, y, z), orientation (theta), velocity (v), angular velocity (omega), mass (m), and moment of inertia (I).
+- **EnergySample**: Represents the raw energy values for a single particle at a single time step, containing attributes: $E_{trans}$, $E_{rot}$, $E_{pot}$, $E_{vib}$, and particle_id. This entity stores the raw distribution data required for KS tests.
+- **EnergyDistribution**: Represents the aggregated energy statistics for a specific group (e.g., "Steel beads at 10Hz"), containing attributes: mean translational energy, mean rotational energy, mean potential energy, variance, and sample size.
+- **StatisticalResult**: Represents the outcome of a hypothesis test, containing attributes: test_type (KS, Chi-Square, Regression), statistic_value, p_value, is_significant, and corrected_p_value.
+- **RegressionResult**: Represents the outcome of a linear regression analysis, containing attributes: slope, intercept, r_squared, slope_p_value, and model_fit_quality.
 
 ## Success Criteria
 
@@ -86,18 +104,17 @@ The system must perform a sensitivity analysis on the significance threshold ($\
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The deviation of observed energy ratios from the equipartition prediction is measured against the theoretical expectation of equal mean energy per degree of freedom (1:1 ratio for translational vs. rotational energy only; potential energy is excluded). (See FR-003)
-- **SC-002**: The statistical significance of the observed deviations is measured against the corrected p-value threshold derived from the Holm-Bonferroni method (FR-004) and the regression coefficient significance (FR-007). (See FR-003, FR-004, FR-007)
-- **SC-003**: The robustness of the "significant deviation" classification is measured against the sensitivity analysis sweep across $\alpha \in \{0.01, 0.05, 0.10\}$. (See FR-005)
-- **SC-004**: The computational feasibility is measured against the constraint of completing the full analysis (data ingestion, energy calculation, statistical testing, and visualization) within 6 hours on a CPU-only runner with ≤7 GB RAM, processing a dataset of ≥ 1,000,000 frames. (See Assumptions)
+- **SC-001**: The accuracy of energy computation is measured against the ground-truth values derived from manual calculation on a synthetic test dataset (See US-1).
+- **SC-002**: The validity of the statistical inference is measured against the known ground truth of the "thermal" vs "non-thermal" labeled test datasets to ensure correct rejection/acceptance rates (See US-2).
+- **SC-003**: The robustness of the conclusions is measured by the boolean rejection decision (True/False) for the null hypothesis remaining identical across all thresholds in the set $\{0.01, 0.05, 0.10\}$ for the primary frequency bin (See US-3).
+- **SC-004**: The methodological soundness is measured by the presence of a multiple-comparison correction in the final report, verified by checking that the reported p-values are adjusted for the number of frequency bins tested (See US-3).
+- **SC-005**: The regression analysis validity is measured by the t-statistic significance (p < 0.05) of the slope coefficient relating deviation to driving frequency (See US-4).
 
 ## Assumptions
 
-- The publicly available "Granular experiment dataset" (Zenodo) and "OpenGranular" (OpenML ID: 98765) contain the necessary variables (particle mass, moment of inertia, position, orientation, and driving frequency) to compute all three energy components. If the dataset lacks explicit moment of inertia ($I$) or particle radius, the system will derive $I$ using the standard formula for a solid sphere ($I = \frac{2}{5}mr^2$) assuming a default radius of 2.5mm based on material type metadata, as specified in FR-006.
-- The analysis assumes the driving signal is perfectly periodic and the frequency bins (5Hz) align with the experimental design; if the data contains transient startup phases, these will be excluded from the steady-state analysis.
-- The system assumes a standard gravitational acceleration ($g = 9.81 m/s^2$) and that the vertical displacement ($z$) is calibrated correctly in the provided video tracking data.
-- The analysis is observational; therefore, any findings regarding the relationship between driving frequency and energy distribution will be framed as associational rather than causal, as there is no random assignment of particles to frequency states.
-- The dataset size is assumed to be small enough (after sampling if necessary) to fit entirely within 7 GB of RAM, avoiding the need for out-of-core processing or database storage.
-- The "roughness" of particles is treated as a categorical variable (material type) as a proxy, assuming the provided datasets do not have a direct quantitative roughness metric.
-- The analysis will use standard double-precision floating-point arithmetic, as the CPU-only environment does not support mixed-precision or GPU-accelerated libraries.
-- Potential energy is excluded from the equipartition ratio test (1:1) as it is not a quadratic degree of freedom in this specific driven granular context.
+- The provided Zenodo and OpenGranular datasets contain sufficient frame rates (≥100 Hz) to accurately resolve particle velocities and angular velocities via finite differences without aliasing.
+- The datasets include particle mass and material properties (density, radius) either explicitly or via metadata that allows for their derivation, as these are required for kinetic energy calculations.
+- The driving signal logs are synchronized with the video timestamps within the dataset; the system assumes that phase-locked or high-order spline interpolation is sufficient to align the data, and any residual desynchronization error must not exceed 5% of the driving period to avoid invalidating the energy balance calculation.
+- The analysis is strictly observational; therefore, all findings regarding energy distributions are framed as associational correlations with driving parameters, not causal claims of energy transfer mechanisms, unless the dataset explicitly includes randomized forcing protocols.
+- The dataset size fits within the GitHub Actions runner constraints (≤7 GB RAM, ≤14 GB disk); if the raw dataset exceeds this, the system assumes a random sampling strategy (e.g., a configurable percentage of frames or particles) will be applied to fit the computational box without biasing the distribution shape.
+- The "roughness" of particles is represented by a scalar parameter in the dataset or can be inferred from the material type (steel vs. glass vs. polymer); if a direct roughness metric is missing, the analysis assumes material type serves as a valid proxy for surface properties.
