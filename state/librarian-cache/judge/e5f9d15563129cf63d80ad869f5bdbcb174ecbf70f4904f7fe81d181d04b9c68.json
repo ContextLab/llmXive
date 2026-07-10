@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.13751",
+  "judged_at": "2026-07-10T20:36:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the core mechanism of cross-lingual retrieval (queries and documents in different language spaces) and provides empirical evidence on a specific linguistic domain (Arabic-English), which is directly relevant to extending a unified retrieval framework to heterogeneous linguistic sources.",
+  "relevant": true
+}

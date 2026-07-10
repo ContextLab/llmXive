@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.05181",
+  "judged_at": "2026-07-10T20:36:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of \"unified retrieval across heterogeneous knowledge sources\" by proposing a method (DDRO) to optimize Generative Information Retrieval (GenIR) models, which is the specific technical domain of the user's \"OmniRetrieval\" follow-up. Although the user's query includes the word \"linguistics,\" the paper's focus on token-level alignment and document-level relevance in GenIR is the canonical prior work for the retrieval mecha",
+  "relevant": true
+}

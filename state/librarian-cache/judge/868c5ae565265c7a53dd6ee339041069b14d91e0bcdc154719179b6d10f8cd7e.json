@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.11903",
+  "judged_at": "2026-07-10T20:36:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology and canonical reference for neural ranking models, which are the core technical mechanism underlying the \"OmniRetrieval\" system mentioned in the user's question. Additionally, it meets criterion (a) by analyzing the same mechanism (neural retrieval ranking) across heterogeneous data types (documents, answers, images, videos), providing the necessary prior work context for extending retrieval to new domains like linguistics.",
+  "relevant": true
+}

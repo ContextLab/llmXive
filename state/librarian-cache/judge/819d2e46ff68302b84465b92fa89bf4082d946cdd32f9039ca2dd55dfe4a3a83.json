@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.10378",
+  "judged_at": "2026-07-10T20:36:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "The paper focuses on the internal consistency of factual knowledge across languages within multilingual models, which does not address the user's specific question about extending a retrieval framework (\"OmniRetrieval\") to heterogeneous knowledge sources with a linguistics focus. While both involve multilingual models, the candidate paper studies a different mechanism (factual consistency vs. retrieval architecture) and lacks the specific domain connection to retrieval systems or the \"OmniRetrie",
+  "relevant": false
+}

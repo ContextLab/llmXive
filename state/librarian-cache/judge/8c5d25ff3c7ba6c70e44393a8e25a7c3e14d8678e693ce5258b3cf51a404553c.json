@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.09063",
+  "judged_at": "2026-07-10T20:36:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criterion (b) by measuring the performance and extensibility of multilingual language models (the dependent variable) when adapting to low-resource settings via vocabulary augmentation and transliteration (mechanisms relevant to extending retrieval capabilities across heterogeneous linguistic sources). It also aligns with criterion (f) as it addresses the canonical alternative-vocabulary cluster for \"extending LLMs linguistically\" through the lens of low-resource adaptation ",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.11651",
+  "judged_at": "2026-07-10T20:37:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criteria (b) and (f) by measuring the performance of Retrieval-Augmented Generation (RAG) systems on heterogeneous knowledge sources (visual documents) across multiple languages, which directly addresses the core variables (retrieval across heterogeneous sources, multilingual capability) of the user's question regarding \"OmniRetrieval\" and its linguistic extensions. Although the user's query mentions \"linguistics,\" the paper's focus on multilingual retrieval benchmarks and t",
+  "relevant": true
+}

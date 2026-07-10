@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.05508",
+  "judged_at": "2026-07-10T20:37:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
+  "rationale": "This paper satisfies criterion (b) by measuring the generalizability of core retrieval mechanisms (dense vs. sparse, query expansion, hard negative sampling) from standard document/passage domains to the dialogue response domain, which is a critical component of the \"heterogeneous knowledge source\" and \"linguistics\" aspects of the user's question regarding OmniRetrieval. It also aligns with criterion (f) as it addresses the canonical alternative-vocabulary cluster of \"conversational search\" and ",
+  "relevant": true
+}

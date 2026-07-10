@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-03T13:04:03Z",
+  "fetched_at": "2026-07-10T20:37:03Z",
   "field": "linguistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\"",
       "target_n": 5
     },
-    "duration_seconds": 52.493,
-    "ended_at": "2026-07-03T13:04:03Z",
+    "duration_seconds": 81.416,
+    "ended_at": "2026-07-10T20:37:03Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "cross-lingual retrieval for heterogeneous corpora"
+          "cross-lingual retrieval systems"
         ],
         [
           2,
-          "unified information retrieval across multilingual sources"
+          "multilingual document retrieval"
         ],
         [
           3,
-          "cross-lingual semantic search in linguistics"
+          "heterogeneous knowledge base integration"
         ],
         [
           4,
-          "multilingual document retrieval systems"
+          "unified information retrieval frameworks"
         ],
         [
           5,
-          "heterogeneous knowledge graph retrieval for language data"
+          "cross-lingual semantic search"
         ],
         [
           6,
-          "cross-lingual passage retrieval with large language models"
+          "multilingual question answering"
         ],
         [
           7,
-          "unified retrieval frameworks for diverse linguistic datasets"
+          "retrieval-augmented generation across languages"
         ],
         [
           8,
-          "multilingual question answering over heterogeneous sources"
+          "cross-lingual passage retrieval"
         ],
         [
           9,
-          "cross-lingual semantic matching in information retrieval"
+          "multilingual natural language understanding"
         ],
         [
           10,
-          "retrieval-augmented generation for multilingual linguistics"
+          "cross-lingual text similarity"
         ],
         [
           11,
-          "cross-lingual query expansion for diverse text sources"
+          "language-agnostic retrieval models"
         ],
         [
           12,
-          "heterogeneous corpus alignment and retrieval"
+          "multilingual corpus alignment"
         ],
         [
           13,
-          "multilingual semantic search across varied knowledge domains"
+          "cross-lingual embedding spaces"
         ],
         [
           14,
-          "unified cross-lingual embedding spaces for retrieval"
+          "unified search over mixed-language data"
         ],
         [
           15,
-          "cross-lingual dense retrieval for linguistic analysis"
+          "multilingual semantic matching"
         ],
         [
           16,
-          "multilingual retrieval over mixed-modality language data"
+          "cross-lingual information access"
         ],
         [
           17,
-          "cross-lingual information access for heterogeneous sources"
+          "heterogeneous source indexing"
         ],
         [
           18,
-          "unified semantic search for multilingual linguistic corpora"
+          "multilingual representation learning for retrieval"
         ],
         [
           19,
-          "cross-lingual retrieval performance on diverse datasets"
+          "cross-lingual transfer in information retrieval"
         ],
         [
           20,
-          "multilingual knowledge retrieval using transformer models"
+          "multilingual knowledge graph retrieval"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "cross-lingual retrieval for heterogeneous corpora": 4,
-        "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 0
+        "cross-lingual retrieval systems": 4,
+        "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 0,
+        "multilingual document retrieval": 5
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
-      "retrieval augmented generation linguistics corpus",
-      "heterogeneous knowledge source NLP benchmark",
-      "cross-domain retrieval linguistic phenomena",
-      "retrieval accuracy linguistic evaluation metrics",
-      "knowledge integration theory semantic heterogeneity"
+      "cross-lingual retrieval multilingual embedding alignment",
+      "OmniRetrieval heterogeneous corpus linguistic evaluation",
+      "code-switching retrieval language mixing corpus",
+      "cross-lingual semantic similarity benchmark evaluation",
+      "knowledge contamination retrieval multilingual pretraining"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,21 +116,21 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2505.18673"
+        "2106.09063"
       ]
     },
     "per_query_hit_count": {
-      "cross-domain retrieval linguistic phenomena": 3,
-      "heterogeneous knowledge source NLP benchmark": 3,
-      "knowledge integration theory semantic heterogeneity": 3,
-      "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 3,
-      "retrieval accuracy linguistic evaluation metrics": 2,
-      "retrieval augmented generation linguistics corpus": 3
+      "OmniRetrieval heterogeneous corpus linguistic evaluation": 3,
+      "code-switching retrieval language mixing corpus": 3,
+      "cross-lingual retrieval multilingual embedding alignment": 3,
+      "cross-lingual semantic similarity benchmark evaluation": 3,
+      "knowledge contamination retrieval multilingual pretraining": 3,
+      "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -137,19 +138,19 @@
       "rejected_count": 2,
       "rejections": [
         {
-          "primary_pointer": "2602.09319",
-          "rationale": "The paper focuses on security vulnerabilities (knowledge-extraction attacks) and benchmarking defense mechanisms in RAG systems, which is a distinct construct from the user's question regarding \"OmniRetrieval\" and its extension into linguistics. While both involve retrieval systems, the paper does not measure the same biological/algorithmic mechanism, variables, or empirical population related to linguistic extensions of the specific OmniRetrieval framework, nor does it serve as a foundational r",
-          "title": "Benchmarking Knowledge-Extraction Attack and Defense on Retrieval-Augmented Generation"
-        },
-        {
           "primary_pointer": "1911.12091",
           "rationale": "The paper focuses on a specific cross-lingual pronoun prediction task using deep recurrent neural networks, which does not address the user's question about extending a unified retrieval framework (\"OmniRetrieval\") across heterogeneous knowledge sources. While both involve NLP, the paper lacks the retrieval mechanism, heterogeneous source integration, or the specific \"llmXive\" context required by the user's research question, failing to meet any of the inclusion criteria (a-f) for a literature r",
           "title": "Findings of the 2016 WMT Shared Task on Cross-lingual Pronoun Prediction"
+        },
+        {
+          "primary_pointer": "2310.10378",
+          "rationale": "The paper focuses on the internal consistency of factual knowledge across languages within multilingual models, which does not address the user's specific question about extending a retrieval framework (\"OmniRetrieval\") to heterogeneous knowledge sources with a linguistics focus. While both involve multilingual models, the candidate paper studies a different mechanism (factual consistency vs. retrieval architecture) and lacks the specific domain connection to retrieval systems or the \"OmniRetrie",
+          "title": "Cross-Lingual Consistency of Factual Knowledge in Multilingual Language Models"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-03T13:03:11Z",
+    "started_at": "2026-07-10T20:35:42Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"omniretrieval: unified retrieval across heterogeneous knowledge source\" linguistics",
       "raw": "llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogeneous Knowledge Source\" linguistics"
@@ -169,7 +170,7 @@
           "primary_pointer": "1602.00245"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -186,7 +187,7 @@
           "primary_pointer": "1601.01126"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -202,7 +203,63 @@
           "primary_pointer": "2606.14257"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many pretrained multilingual models exhibit cross-lingual transfer ability, which is often attributed to a learned language-neutral representation during pretraining. However, it remains unclear what factors contribute to the learning of a language-neutral representation, and whether the learned language-neutral representation suffices to facilitate cross-lingual transfer. We propose a synthetic task, Multilingual Othello (mOthello), as a testbed to delve into these two questions. We find that: (1) models trained with naive multilingual pretraining fail to learn a language-neutral representation across all input languages; (2) the introduction of \"anchor tokens\" (i.e., lexical items that are identical across languages) helps cross-lingual representation alignment; and (3) the learning of a language-neutral representation alone is not sufficient to facilitate cross-lingual transfer. Based on our findings, we propose a novel approach - multilingual pretraining with unified output space - that both induces the learning of language-neutral representation and facilitates cross-lingual transfer.",
+          "claimed_authors": [
+            "Tianze Hua",
+            "Tian Yun",
+            "Ellie Pavlick"
+          ],
+          "claimed_title": "mOthello: When Do Cross-Lingual Representation Alignment and Cross-Lingual Transfer Emerge in Multilingual Models?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.12444"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='mOthello: When Do Cross-Lingual Representation Alignment and Cross-Lingual Transfer Emerge in Multilingual Models?')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the increasing accessibility and utilization of multilingual documents, Cross-Lingual Information Retrieval (CLIR) has emerged as an important research area. Conventionally, CLIR tasks have been conducted under settings where the language of documents differs from that of queries, and typically, the documents are composed in a single coherent language. In this paper, we highlight that in such a setting, the cross-lingual alignment capability may not be evaluated adequately. Specifically, we observe that, in a document pool where English documents coexist with another language, most multilingual retrievers tend to prioritize unrelated English documents over the related document written in the same language as the query. To rigorously analyze and quantify this phenomenon, we introduce various scenarios and metrics designed to evaluate the cross-lingual alignment performance of multilingual retrieval models. Furthermore, to improve cross-lingual performance under these challenging conditions, we propose a novel training strategy aimed at enhancing cross-lingual alignment. Using only a small dataset consisting of 2.8k samples, our method significantly improves the cross-lingual retrieval performance while simultaneously mitigating the English inclination problem. Extensive analyses demonstrate that the proposed method substantially enhances the cross-lingual alignment capabilities of most multilingual embedding models.",
+          "claimed_authors": [
+            "Seongtae Hong",
+            "Youngjoon Jang",
+            "Jungseob Lee",
+            "Hyeonseok Moon",
+            "Heuiseok Lim"
+          ],
+          "claimed_title": "Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.05684"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Improving Semantic Proximity in Information Retrieval through Cross-Lingual Alignment')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cross-lingual information retrieval (CLIR) addresses the challenge of retrieving relevant documents written in languages different from that of the original query. Research in this area has typically framed the task as monolingual retrieval augmented by translation, treating retrieval methods and cross-lingual capabilities in isolation. Both monolingual and cross-lingual retrieval usually follow a pipeline of query expansion, ranking, re-ranking and, increasingly, question answering. Recent advances, however, have shifted from translation-based methods toward embedding-based approaches and leverage multilingual large language models (LLMs), for which aligning representations across languages remains a central challenge. The emergence of cross-lingual embeddings and multilingual LLMs has introduced a new paradigm, offering improved retrieval performance and enabling answer generation. This survey provides a comprehensive overview of developments from early translation-based methods to state-of-the-art embedding-driven and generative techniques. It presents a structured account of core CLIR components, evaluation practices, and available resources. Persistent challenges such as data imbalance and linguistic variation are identified, while promising directions are suggested for advancing equitable and effective cross-lingual information retrieval. By situating CLIR within the broader landscape of information retrieval and multilingual language processing, this work not only reviews current capabilities but also outlines future directions for building retrieval systems that are robust, inclusive, and adaptable.",
+          "claimed_authors": [
+            "Roksana Goworek",
+            "Olivia Macmillan-Scott",
+            "Eda B. Özyiğit"
+          ],
+          "claimed_title": "Bridging Language Gaps: Advances in Cross-Lingual Information Retrieval with Multilingual LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.00908"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Bridging Language Gaps: Advances in Cross-Lingual Information Retrieval with Multilingual LLMs')",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -219,92 +276,200 @@
           "primary_pointer": "1203.5066"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='A Corpus-based Study of Temporal Signals')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We introduce Autoregressive Retrieval Augmentation (AR-RAG), a novel paradigm that enhances image generation by autoregressively incorporating knearest neighbor retrievals at the patch level. Unlike prior methods that perform a single, static retrieval before generation and condition the entire generation on fixed reference images, AR-RAG performs context-aware retrievals at each generation step, using prior-generated patches as queries to retrieve and incorporate the most relevant patch-level visual references, enabling the model to respond to evolving generation needs while avoiding limitations (e.g., over-copying, stylistic bias, etc.) prevalent in existing methods. To realize AR-RAG, we propose two parallel frameworks: (1) Distribution-Augmentation in Decoding (DAiD), a training-free plug-and-use decoding strategy that directly merges the distribution of model-predicted patches with the distribution of retrieved patches, and (2) Feature-Augmentation in Decoding (FAiD), a parameter-efficient fine-tuning method that progressively smooths the features of retrieved patches via multi-scale convolution operations and leverages them to augment the image generation process. We validate the effectiveness of AR-RAG on widely adopted benchmarks, including Midjourney-30K, GenEval and DPG-Bench, demonstrating significant performance gains over state-of-the-art image generation models.",
+          "claimed_abstract": "This paper presents a novel treebank-driven approach to comparing syntactic structures in speech and writing using dependency-parsed corpora. Adopting a fully inductive, bottom-up method, we define syntactic structures as delexicalized dependency (sub)trees and extract them from spoken and written Universal Dependencies (UD) treebanks in two syntactically distinct languages, English and Slovenian. For each corpus, we analyze the size, diversity, and distribution of syntactic inventories, their overlap across modalities, and the structures most characteristic of speech. Results show that, across both languages, spoken corpora contain fewer and less diverse syntactic structures than their written counterparts, with consistent cross-linguistic preferences for certain structural types across modalities. Strikingly, the overlap between spoken and written syntactic inventories is very limited: most structures attested in speech do not occur in writing, pointing to modality-specific preferences in syntactic organization that reflect the distinct demands of real-time interaction and elaborated writing. This contrast is further supported by a keyness analysis of the most frequent speech-specific structures, which highlights patterns associated with interactivity, context-grounding, and economy of expression. We argue that this scalable, language-independent framework offers a useful general method for systematically studying syntactic variation across corpora, laying the groundwork for more comprehensive data-driven theories of grammar in use.",
           "claimed_authors": [
-            "Jingyuan Qi",
-            "Zhiyang Xu",
-            "Qifan Wang",
-            "Lifu Huang"
+            "Kaja Dobrovoljc"
           ],
-          "claimed_title": "AR-RAG: Autoregressive Retrieval Augmentation for Image Generation",
+          "claimed_title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2506.06962"
+          "primary_pointer": "2505.22774"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='AR-RAG: Autoregressive Retrieval Augmentation for Image Generation')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages')",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Human cognition is constrained by processing limitations, leading to cognitive overload and inefficiencies in knowledge synthesis and decision-making. Large Language Models (LLMs) present an opportunity for cognitive augmentation, but their current reactive nature limits their real-world applicability. This position paper explores the potential of context-aware cognitive augmentation, where LLMs dynamically adapt to users' cognitive states and task environments to provide appropriate support. Through a think-aloud study in an exhibition setting, we examine how individuals interact with multi-modal information and identify key cognitive challenges in structuring, retrieving, and applying knowledge. Our findings highlight the need for AI-driven cognitive support systems that integrate real-time contextual awareness, personalized reasoning assistance, and socially adaptive interactions. We propose a framework for AI augmentation that seamlessly transitions between real-time cognitive support and post-experience knowledge organization, contributing to the design of more effective human-centered AI systems.",
+          "claimed_abstract": "This paper reports on the state-of-the-art in application of multidimensional scaling (MDS) techniques to create semantic maps in linguistic research. MDS refers to a statistical technique that represents objects (lexical items, linguistic contexts, languages, etc.) as points in a space so that close similarity between the objects corresponds to close distances between the corresponding points in the representation. We focus on the use of MDS in combination with parallel corpus data as used in research on cross-linguistic variation.\n  We first introduce the mathematical foundations of MDS and then give an exhaustive overview of past research that employs MDS techniques in combination with parallel corpus data. We propose a set of terminology to succinctly describe the key parameters of a particular MDS application. We then show that this computational methodology is theory-neutral, i.e. it can be employed to answer research questions in a variety of linguistic theoretical frameworks. Finally, we show how this leads to two lines of future developments for MDS research in linguistics.",
           "claimed_authors": [
-            " Xiangrong",
-            " Zhu",
-            "Yuan Xu",
-            "Tianjian Liu",
-            "Jingwei Sun",
-            "Yu Zhang",
-            "Xin Tong"
+            "Martijn van der Klis",
+            "Jos Tellings"
           ],
-          "claimed_title": "Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation",
+          "claimed_title": "Generating semantic maps through multidimensional scaling: linguistic applications and theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.04946"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Generating semantic maps through multidimensional scaling: linguistic applications and theory')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The mixing of two or more languages is called Code-Mixing (CM). CM is a social norm in multilingual societies. Neural Language Models (NLMs) like transformers have been effective on many NLP tasks. However, NLM for CM is an under-explored area. Though transformers are capable and powerful, they cannot always encode positional information since they are non-recurrent. Therefore, to enrich word information and incorporate positional information, positional encoding is defined. We hypothesize that Switching Points (SPs), i.e., junctions in the text where the language switches (L1 -> L2 or L2 -> L1), pose a challenge for CM Language Models (LMs), and hence give special emphasis to SPs in the modeling process. We experiment with several positional encoding mechanisms and show that rotatory positional encodings along with switching point information yield the best results.\n  We introduce CONFLATOR: a neural language modeling approach for code-mixed languages. CONFLATOR tries to learn to emphasize switching points using smarter positional encoding, both at unigram and bigram levels. CONFLATOR outperforms the state-of-the-art on two tasks based on code-mixed Hindi and English (Hinglish): (i) sentiment analysis and (ii) machine translation.",
+          "claimed_authors": [
+            "Mohsin Ali",
+            "Kandukuri Sai Teja",
+            "Neeharika Gupta",
+            "Parth Patwa",
+            "Anubhab Chatterjee",
+            "Vinija Jain",
+            "Aman Chadha",
+            "Amitava Das"
+          ],
+          "claimed_title": "CONFLATOR: Incorporating Switching Point based Rotatory Positional Encodings for Code-Mixed Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.05270"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='CONFLATOR: Incorporating Switching Point based Rotatory Positional Encodings for Code-Mixed Language Modeling')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Lack of text data has been the major issue on code-switching language modeling. In this paper, we introduce multi-task learning based language model which shares syntax representation of languages to leverage linguistic information and tackle the low resource data issue. Our model jointly learns both language modeling and Part-of-Speech tagging on code-switched utterances. In this way, the model is able to identify the location of code-switching points and improves the prediction of next word. Our approach outperforms standard LSTM based language model, with an improvement of 9.7% and 7.4% in perplexity on SEAME Phase I and Phase II dataset respectively.",
+          "claimed_authors": [
+            "Genta Indra Winata",
+            "Andrea Madotto",
+            "Chien-Sheng Wu",
+            "Pascale Fung"
+          ],
+          "claimed_title": "Code-Switching Language Modeling using Syntax-Aware Multi-Task Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.12070"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Code-Switching Language Modeling using Syntax-Aware Multi-Task Learning')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the Mandarin-English Language Interview (MELI) Corpus, an open-source resource of 29.8 hours of speech from 51 Mandarin-English bilingual speakers. MELI combines matched sessions in Mandarin and English with two speaking styles: read sentences and spontaneous interviews about language varieties, standardness, and learning experiences. Audio was recorded at 44.1 kHz (16-bit, stereo). Interviews were fully transcribed, force-aligned at word and phone levels, and anonymized. Descriptively, the Mandarin component totals ~14.7 hours (mean duration 17.3 minutes) and the English component ~15.1 hours (mean duration 17.8 minutes). We report token/type statistics for each language and document code-switching patterns (frequent in Mandarin sessions; more limited in English sessions). The corpus design supports within-/cross-speaker, within/cross-language acoustic comparison and links acoustics to speakers' stated language attitudes, enabling both quantitative and qualitative analyses. The MELI Corpus will be released with transcriptions, alignments, metadata, scans of labelled maps and documentation under a CC BY-NC 4.0 license.",
+          "claimed_authors": [
+            "Suyuan Liu",
+            "Molly Babel"
+          ],
+          "claimed_title": "Introducing MELI: the Mandarin-English Language Interview Corpus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.27043"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Introducing MELI: the Mandarin-English Language Interview Corpus')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have achieved remarkable success in Natural Language Processing (NLP), yet their cross-lingual performance consistency remains a significant challenge. This paper introduces a novel methodology for efficiently identifying inherent cross-lingual weaknesses in LLMs. Our approach leverages beam search and LLM-based simulation to generate bilingual question pairs that expose performance discrepancies between English and target languages. We construct a new dataset of over 6,000 bilingual pairs across 16 languages using this methodology, demonstrating its effectiveness in revealing weaknesses even in state-of-the-art models. The extensive experiments demonstrate that our method precisely and cost-effectively pinpoints cross-lingual weaknesses, consistently revealing over 50\\% accuracy drops in target languages across a wide range of models. Moreover, further experiments investigate the relationship between linguistic similarity and cross-lingual weaknesses, revealing that linguistically related languages share similar performance patterns and benefit from targeted post-training. Code is available at https://github.com/xzx34/Cross-Lingual-Pitfalls.",
+          "claimed_authors": [
+            "Zixiang Xu",
+            "Yanbo Wang",
+            "Yue Huang",
+            "Xiuying Chen",
+            "Jieyu Zhao",
+            "Meng Jiang",
+            "Xiangliang Zhang"
+          ],
+          "claimed_title": "Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2504.13684"
+          "primary_pointer": "2505.18673"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Intelligent Interaction Strategies for Context-Aware Cognitive Augmentation')",
-        "failed_at": "2026-07-03T13:03:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models')",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe and make available the game-based material developed for a laboratory run at several Italian science festivals to popularize NLP among young students.",
+          "claimed_abstract": "While summarization has been extensively researched in natural language processing (NLP), cross-lingual cross-temporal summarization (CLCTS) is a largely unexplored area that has the potential to improve cross-cultural accessibility and understanding. This paper comprehensively addresses the CLCTS task, including dataset creation, modeling, and evaluation. We (1) build the first CLCTS corpus with 328 instances for hDe-En (extended version with 455 instances) and 289 for hEn-De (extended version with 501 instances), leveraging historical fiction texts and Wikipedia summaries in English and German; (2) examine the effectiveness of popular transformer end-to-end models with different intermediate finetuning tasks; (3) explore the potential of GPT-3.5 as a summarizer; (4) report evaluations from humans, GPT-4, and several recent automatic evaluation metrics. Our results indicate that intermediate task finetuned end-to-end models generate bad to moderate quality summaries while GPT-3.5, as a zero-shot summarizer, provides moderate to good quality outputs. GPT-3.5 also seems very adept at normalizing historical text. To assess data contamination in GPT-3.5, we design an adversarial attack scheme in which we find that GPT-3.5 performs slightly worse for unseen source documents compared to seen documents. Moreover, it sometimes hallucinates when the source sentences are inverted against its prior knowledge with a summarization accuracy of 0.67 for plot omission, 0.71 for entity swap, and 0.53 for plot negation. Overall, our regression results of model performances suggest that longer, older, and more complex source texts (all of which are more characteristic for historical language variants) are harder to summarize for all models, indicating the difficulty of the CLCTS task.",
           "claimed_authors": [
-            "Lucio Messina",
-            "Lucia Busso",
-            "Claudia Roberta Combei",
-            "Ludovica Pannitto",
-            "Alessio Miaschi",
-            "Gabriele Sarti",
-            "Malvina Nissim"
+            "Ran Zhang",
+            "Jihed Ouni",
+            "Steffen Eger"
           ],
-          "claimed_title": "A dissemination workshop for introducing young Italian students to NLP",
+          "claimed_title": "Cross-lingual Cross-temporal Summarization: Dataset, Models, Evaluation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2104.12405"
+          "claimed_year": 2023,
+          "primary_pointer": "2306.12916"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='A dissemination workshop for introducing young Italian students to NLP')",
-        "failed_at": "2026-07-03T13:03:40Z",
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Cross-lingual Cross-temporal Summarization: Dataset, Models, Evaluation')",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Although Natural Language Processing (NLP) is at the core of many tools young people use in their everyday life, high school curricula (in Italy) do not include any computational linguistics education. This lack of exposure makes the use of such tools less responsible than it could be and makes choosing computational linguistics as a university degree unlikely. To raise awareness, curiosity, and longer-term interest in young people, we have developed an interactive workshop designed to illustrate the basic principles of NLP and computational linguistics to high school Italian students aged between 13 and 18 years. The workshop takes the form of a game in which participants play the role of machines needing to solve some of the most common problems a computer faces in understanding language: from voice recognition to Markov chains to syntactic parsing. Participants are guided through the workshop with the help of instructors, who present the activities and explain core concepts from computational linguistics. The workshop was presented at numerous outlets in Italy between 2019 and 2021, both face-to-face and online.",
+          "claimed_abstract": "We introduce Multi-SimLex, a large-scale lexical resource and evaluation benchmark covering datasets for 12 typologically diverse languages, including major languages (e.g., Mandarin Chinese, Spanish, Russian) as well as less-resourced ones (e.g., Welsh, Kiswahili). Each language dataset is annotated for the lexical relation of semantic similarity and contains 1,888 semantically aligned concept pairs, providing a representative coverage of word classes (nouns, verbs, adjectives, adverbs), frequency ranks, similarity intervals, lexical fields, and concreteness levels. Additionally, owing to the alignment of concepts across languages, we provide a suite of 66 cross-lingual semantic similarity datasets. Due to its extensive size and language coverage, Multi-SimLex provides entirely novel opportunities for experimental evaluation and analysis. On its monolingual and cross-lingual benchmarks, we evaluate and analyze a wide array of recent state-of-the-art monolingual and cross-lingual representation models, including static and contextualized word embeddings (such as fastText, M-BERT and XLM), externally informed lexical representations, as well as fully unsupervised and (weakly) supervised cross-lingual word embeddings. We also present a step-by-step dataset creation protocol for creating consistent, Multi-Simlex-style resources for additional languages. We make these contributions -- the public release of Multi-SimLex datasets, their creation protocol, strong baseline results, and in-depth analyses which can be be helpful in guiding future developments in multilingual lexical semantics and representation learning -- available via a website which will encourage community effort in further expansion of Multi-Simlex to many more languages. Such a large-scale semantic resource could inspire significant further advances in NLP across languages.",
           "claimed_authors": [
-            "Ludovica Pannitto",
-            "Lucia Busso",
-            "Claudia Roberta Combei",
-            "Lucio Messina",
-            "Alessio Miaschi",
-            "Gabriele Sarti",
-            "Malvina Nissim"
+            "Ivan Vulić",
+            "Simon Baker",
+            "Edoardo Maria Ponti",
+            "Ulla Petti",
+            "Ira Leviant",
+            "Kelly Wing",
+            "Olga Majewska",
+            "Eden Bar",
+            "Matt Malone",
+            "Thierry Poibeau",
+            "Roi Reichart",
+            "Anna Korhonen"
           ],
-          "claimed_title": "Teaching NLP with Bracelets and Restaurant Menus: An Interactive Workshop for Italian Students",
+          "claimed_title": "Multi-SimLex: A Large-Scale Evaluation of Multilingual and Cross-Lingual Lexical Semantic Similarity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.04866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Multi-SimLex: A Large-Scale Evaluation of Multilingual and Cross-Lingual Lexical Semantic Similarity')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multilingual data from the web is essential for LLM pretraining. Yet, scraping it is expensive, and research groups repeatedly crawl the same content. For example, we found that over 40\\% of tokens across major Arabic web corpora are duplicated between sources. In this work, we propose to use this wasteful redundancy as a quality signal to create high-quality pretraining datasets. Our key insight is that cross-source agreement functions as a free, model-free quality filter: content retained by multiple independent pipelines is more likely to represent high-quality text. Crucially, this signal requires no additional computation beyond standard deduplication, which is already performed at scale when pretraining language models. So, we propose MixMinMatch, a method that combines multiple existing web corpora, performs cross-dataset MinHash deduplication, and identifies documents independently recovered by multiple sources. We apply MixMinMatch to Arabic, Turkish, and Hindi, producing corpora that match or exceed the quality of the best single-source baselines, while providing up to 4$\\times$ more unique tokens. On Arabic, our matched subset achieves a 4.5\\% relative improvement over ArabicWeb24, while on Turkish, we improve over FineWeb-2 by 5.5\\%. We release the datasets at: https://huggingface.co/collections/AdaMLLab/mixminmatch",
+          "claimed_authors": [
+            "Sultan Alrashed",
+            "Francesco Orabona"
+          ],
+          "claimed_title": "Mix, MinHash, and Match: Cross-Source Agreement for Multilingual Pretraining Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.18834"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Mix, MinHash, and Match: Cross-Source Agreement for Multilingual Pretraining Datasets')",
+        "failed_at": "2026-07-10T20:36:09Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained multilingual language models have become a common tool in transferring NLP capabilities to low-resource languages, often with adaptations. In this work, we study the performance, extensibility, and interaction of two such adaptations: vocabulary augmentation and script transliteration. Our evaluations on part-of-speech tagging, universal dependency parsing, and named entity recognition in nine diverse low-resource languages uphold the viability of these approaches while raising new questions around how to optimally adapt multilingual models to low-resource settings.",
+          "claimed_authors": [
+            "Ethan C. Chau",
+            "Noah A. Smith"
+          ],
+          "claimed_title": "Specializing Multilingual Language Models: An Empirical Study",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2104.12422"
+          "primary_pointer": "2106.09063"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Teaching NLP with Bracelets and Restaurant Menus: An Interactive Workshop for Italian Students')",
-        "failed_at": "2026-07-03T13:03:40Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Specializing Multilingual Language Models: An Empirical Study')",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       },
       {
@@ -326,141 +491,7 @@
           "primary_pointer": "1811.08772"
         },
         "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Diffusion models have enabled high-quality, conditional image editing capabilities. We propose to expand their arsenal, and demonstrate that off-the-shelf diffusion models can be used for a wide range of cross-domain compositing tasks. Among numerous others, these include image blending, object immersion, texture-replacement and even CG2Real translation or stylization. We employ a localized, iterative refinement scheme which infuses the injected objects with contextual information derived from the background scene, and enables control over the degree and types of changes the object may undergo. We conduct a range of qualitative and quantitative comparisons to prior work, and exhibit that our method produces higher quality and realistic results without requiring any annotations or training. Finally, we demonstrate how our method may be used for data augmentation of downstream tasks.",
-          "claimed_authors": [
-            "Roy Hachnochi",
-            "Mingrui Zhao",
-            "Nadav Orzech",
-            "Rinon Gal",
-            "Ali Mahdavi-Amiri",
-            "Daniel Cohen-Or",
-            "Amit Haim Bermano"
-          ],
-          "claimed_title": "Cross-domain Compositing with Pretrained Diffusion Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2302.10167"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Cross-domain Compositing with Pretrained Diffusion Models')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
-          "claimed_authors": [
-            "Kidist Amde Mekonnen",
-            "Yubao Tang",
-            "Maarten de Rijke"
-          ],
-          "claimed_title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.05181"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This report describes metrics for the evaluation of the effectiveness of segment-based retrieval based on existing binary information retrieval metrics. This metrics are described in the context of a task for the hyperlinking of video segments. This evaluation approach re-uses existing evaluation measures from the standard Cranfield evaluation paradigm. Our adaptation approach can in principle be used with any kind of effectiveness measure that uses binary relevance, and for other segment-baed retrieval tasks. In our video hyperlinking setting, we use precision at a cut-off rank n and mean average precision.",
-          "claimed_authors": [
-            "Robin Aly",
-            "Maria Eskevich",
-            "Roeland Ordelman",
-            "Gareth J. F. Jones"
-          ],
-          "claimed_title": "Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1312.1913"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Adapting Binary Information Retrieval Evaluation Metrics for Segment-based Retrieval Tasks')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We introduce Ragas (Retrieval Augmented Generation Assessment), a framework for reference-free evaluation of Retrieval Augmented Generation (RAG) pipelines. RAG systems are composed of a retrieval and an LLM based generation module, and provide LLMs with knowledge from a reference textual database, which enables them to act as a natural language layer between a user and textual databases, reducing the risk of hallucinations. Evaluating RAG architectures is, however, challenging because there are several dimensions to consider: the ability of the retrieval system to identify relevant and focused context passages, the ability of the LLM to exploit such passages in a faithful way, or the quality of the generation itself. With Ragas, we put forward a suite of metrics which can be used to evaluate these different dimensions \\textit{without having to rely on ground truth human annotations}. We posit that such a framework can crucially contribute to faster evaluation cycles of RAG architectures, which is especially important given the fast adoption of LLMs.",
-          "claimed_authors": [
-            "Shahul Es",
-            "Jithin James",
-            "Luis Espinosa-Anke",
-            "Steven Schockaert"
-          ],
-          "claimed_title": "Ragas: Automated Evaluation of Retrieval Augmented Generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.15217"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Ragas: Automated Evaluation of Retrieval Augmented Generation')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
-          "claimed_authors": [
-            "Eduard Manziuk",
-            "Oleksander Barmak",
-            "Pavlo Radiuk",
-            "Vladislav Kuznetsov",
-            "Iurii Krak",
-            "Sergiy Yakovlev"
-          ],
-          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2411.19113"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In informational recommenders, many challenges arise from the need to handle the semantic and hierarchical structure between knowledge areas. This work aims to advance towards building a state-aware educational recommendation system that incorporates semantic relatedness between knowledge topics, propagating latent information across semantically related topics. We introduce a novel learner model that exploits this semantic relatedness between knowledge components in learning resources using the Wikipedia link graph, with the aim to better predict learner engagement and latent knowledge in a lifelong learning scenario. In this sense, Semantic TrueLearn builds a humanly intuitive knowledge representation while leveraging Bayesian machine learning to improve the predictive performance of the educational engagement. Our experiments with a large dataset demonstrate that this new semantic version of TrueLearn algorithm achieves statistically significant improvements in terms of predictive performance with a simple extension that adds semantic awareness to the model.",
-          "claimed_authors": [
-            "Sahan Bulathwela",
-            "María Pérez-Ortiz",
-            "Emine Yilmaz",
-            "John Shawe-Taylor"
-          ],
-          "claimed_title": "Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2112.04368"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Semantic TrueLearn: Using Semantic Knowledge Graphs in Recommendation Systems')",
-        "failed_at": "2026-07-03T13:03:40Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The IEEE P1600.1 Standard Upper Ontology (SUO) project aims to specify an upper ontology that will provide a structure and a set of general concepts upon which domain ontologies could be constructed. The Information Flow Framework (IFF), which is being developed under the auspices of the SUO Working Group, represents the structural aspect of the SUO. The IFF is based on category theory. Semantic integration of object-level ontologies in the IFF is represented with its fusion construction. The IFF maintains ontologies using powerful composition primitives, which includes the fusion construction.",
-          "claimed_authors": [
-            "Robert E. Kent"
-          ],
-          "claimed_title": "Semantic Integration in the IFF",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2011,
-          "primary_pointer": "1109.0032"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OmniRetrieval: Unified Retrieval across Heterogene', candidate_title='Semantic Integration in the IFF')",
-        "failed_at": "2026-07-03T13:03:40Z",
+        "failed_at": "2026-07-10T20:36:09Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -487,73 +518,176 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2505.18673",
           "http_status": 200,
-          "pdf_sample_score": 0.2236,
-          "query_relevance_score": 0.4,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T13:03:46Z"
+          "verified_at": "2026-07-10T20:36:14Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Mitodru Niyogi",
-            "Kripabandhu Ghosh",
-            "Arnab Bhattacharya"
+            "Zhizhong Chen",
+            "Carsten Eickhoff"
           ],
-          "title": "Learning Multilingual Embeddings for Cross-Lingual Information Retrieval in the Presence of Topically Aligned Corpora",
+          "title": "The Cross-Lingual Arabic Information REtrieval (CLAIRE) System",
           "venue": "arXiv",
-          "year": 2018
+          "year": 2021
         },
-        "primary_pointer": "1804.04475",
-        "summary": "Cross-lingual information retrieval is a challenging task in the absence of aligned parallel corpora. In this paper, we address this problem by considering topically aligned corpora designed for evaluating an IR setup. To emphasize, we neither use any sentence-aligned corpora or document-aligned corpora, nor do we use any language specific resources such as dictionary, thesaurus, or grammar rules. Instead, we use an embedding into a common space and learn word correspondences directly from there. We test our proposed approach for bilingual IR on standard FIRE datasets for Bangla, Hindi and English. The proposed method is superior to the state-of-the-art method not only for IR evaluation measures but also in terms of time requirements. We extend our method successfully to the trilingual setting.",
+        "primary_pointer": "2107.13751",
+        "summary": "Despite advances in neural machine translation, cross-lingual retrieval tasks in which queries and documents live in different natural language spaces remain challenging. Although neural translation models may provide an intuitive approach to tackle the cross-lingual problem, their resource-consuming training and advanced model structures may complicate the overall retrieval pipeline and reduce users engagement. In this paper, we build our end-to-end Cross-Lingual Arabic Information REtrieval (CLAIRE) system based on the cross-lingual word embedding where searchers are assumed to have a passable passive understanding of Arabic and various supporting information in English is provided to aid retrieval experience. The proposed system has three major advantages: (1) The usage of English-Arabic word embedding simplifies the overall pipeline and avoids the potential mistakes caused by machine translation. (2) Our CLAIRE system can incorporate arbitrary word embedding-based neural retrieval models without structural modification. (3) Early empirical results on an Arabic news collection show promising performance.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1804.04475",
+          "final_url": "https://arxiv.org/abs/2107.13751",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.8,
+          "query_relevance_score": 0.75,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T13:03:47Z"
+          "verified_at": "2026-07-10T20:36:14Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Zhen Zhang",
-            "Xinyu Ma",
-            "Weiwei Sun",
-            "Pengjie Ren",
-            "Zhumin Chen",
-            "Shuaiqiang Wang",
-            "Dawei Yin",
-            "Maarten de Rijke",
-            "Zhaochun Ren"
+            "Kidist Amde Mekonnen",
+            "Yubao Tang",
+            "Maarten de Rijke"
           ],
-          "title": "Replication and Exploration of Generative Retrieval over Dynamic Corpora",
+          "title": "Lightweight and Direct Document Relevance Optimization for Generative Information Retrieval",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2504.17519",
-        "summary": "Generative retrieval (GR) has emerged as a promising paradigm in information retrieval (IR). However, most existing GR models are developed and evaluated using a static document collection, and their performance in dynamic corpora where document collections evolve continuously is rarely studied. In this paper, we first reproduce and systematically evaluate various representative GR approaches over dynamic corpora. Through extensive experiments, we reveal that existing GR models with \\textit{text-based} docids show superior generalization to unseen documents. We observe that the more fine-grained the docid design in the GR model, the better its performance over dynamic corpora, surpassing BM25 and even being comparable to dense retrieval methods. While GR models with \\textit{numeric-based} docids show high efficiency, their performance drops significantly over dynamic corpora. Furthermore, our experiments find that the underperformance of numeric-based docids is partly due to their excessive tendency toward the initial document set, which likely results from overfitting on the training set. We then conduct an in-depth analysis of the best-performing GR methods. We identify three critical advantages of text-based docids in dynamic corpora: (i) Semantic alignment with language models' pretrained knowledge, (ii) Fine-grained docid design, and (iii) High lexical diversity. Building on these insights, we finally propose a novel multi-docid design that leverages both the efficiency of numeric-based docids and the effectiveness of text-based docids, achieving improved performance in dynamic corpus without requiring additional retraining. Our work offers empirical evidence for advancing GR methods over dynamic corpora and paves the way for developing more generalized yet efficient GR models in real-world search engines.",
+        "primary_pointer": "2504.05181",
+        "summary": "Generative information retrieval (GenIR) is a promising neural retrieval paradigm that formulates document retrieval as a document identifier (docid) generation task, allowing for end-to-end optimization toward a unified global retrieval objective. However, existing GenIR models suffer from token-level misalignment, where models trained to predict the next token often fail to capture document-level relevance effectively. While reinforcement learning-based methods, such as reinforcement learning from relevance feedback (RLRF), aim to address this misalignment through reward modeling, they introduce significant complexity, requiring the optimization of an auxiliary reward function followed by reinforcement fine-tuning, which is computationally expensive and often unstable. To address these challenges, we propose direct document relevance optimization (DDRO), which aligns token-level docid generation with document-level relevance estimation through direct optimization via pairwise ranking, eliminating the need for explicit reward modeling and reinforcement learning. Experimental results on benchmark datasets, including MS MARCO document and Natural Questions, show that DDRO outperforms reinforcement learning-based methods, achieving a 7.4% improvement in MRR@10 for MS MARCO and a 19.9% improvement for Natural Questions. These findings highlight DDRO's potential to enhance retrieval effectiveness with a simplified optimization approach. By framing alignment as a direct optimization problem, DDRO simplifies the ranking optimization pipeline of GenIR models while offering a viable alternative to reinforcement learning-based methods.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2504.17519",
+          "final_url": "https://arxiv.org/abs/2504.05181",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T13:03:47Z"
+          "verified_at": "2026-07-10T20:36:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ethan C. Chau",
+            "Noah A. Smith"
+          ],
+          "title": "Specializing Multilingual Language Models: An Empirical Study",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.09063",
+        "summary": "Pretrained multilingual language models have become a common tool in transferring NLP capabilities to low-resource languages, often with adaptations. In this work, we study the performance, extensibility, and interaction of two such adaptations: vocabulary augmentation and script transliteration. Our evaluations on part-of-speech tagging, universal dependency parsing, and named entity recognition in nine diverse low-resource languages uphold the viability of these approaches while raising new questions around how to optimally adapt multilingual models to low-resource settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.09063",
+          "http_status": 200,
+          "pdf_sample_score": 0.1365,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T20:36:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohamed Trabelsi",
+            "Zhiyu Chen",
+            "Brian D. Davison",
+            "Jeff Heflin"
+          ],
+          "title": "Neural ranking models for document retrieval",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2102.11903",
+        "summary": "Ranking models are the main components of information retrieval systems. Several approaches to ranking are based on traditional machine learning algorithms using a set of hand-crafted features. Recently, researchers have leveraged deep learning models in information retrieval. These models are trained end-to-end to extract features from the raw data for ranking tasks, so that they overcome the limitations of hand-crafted features. A variety of deep learning models have been proposed, and each model presents a set of neural network components to extract features that are used for ranking. In this paper, we compare the proposed models in the literature along different dimensions in order to understand the major contributions and limitations of each model. In our discussion of the literature, we analyze the promising neural components, and propose future research directions. We also show the analogy between document retrieval and other retrieval tasks where the items to be ranked are structured documents, answers, images and videos.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2102.11903",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T20:36:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Radek Osmulski",
+            "Gabriel de Souza P. Moreira",
+            "Ronay Ak",
+            "Mengyao Xu",
+            "Benedikt Schifferer",
+            "Even Oldridge"
+          ],
+          "title": "MIRACL-VISION: A Large, multilingual, visual document retrieval benchmark",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.11651",
+        "summary": "Document retrieval is an important task for search and Retrieval-Augmented Generation (RAG) applications. Large Language Models (LLMs) have contributed to improving the accuracy of text-based document retrieval. However, documents with complex layout and visual elements like tables, charts and infographics are not perfectly represented in textual format. Recently, image-based document retrieval pipelines have become popular, which use visual large language models (VLMs) to retrieve relevant page images given a query. Current evaluation benchmarks on visual document retrieval are limited, as they primarily focus only English language, rely on synthetically generated questions and offer a small corpus size. Therefore, we introduce MIRACL-VISION, a multilingual visual document retrieval evaluation benchmark. MIRACL-VISION covers 18 languages, and is an extension of the MIRACL dataset, a popular benchmark to evaluate text-based multilingual retrieval pipelines. MIRACL was built using a human-intensive annotation process to generate high-quality questions. In order to reduce MIRACL-VISION corpus size to make evaluation more compute friendly while keeping the datasets challenging, we have designed a method for eliminating the \"easy\" negatives from the corpus. We conducted extensive experiments comparing MIRACL-VISION with other benchmarks, using popular public text and image models. We observe a gap in state-of-the-art VLM-based embedding models on multilingual capabilities, with up to 59.7% lower retrieval accuracy than a text-based retrieval models. Even for the English language, the visual models retrieval accuracy is 12.1% lower compared to text-based models. MIRACL-VISION is a challenging, representative, multilingual evaluation benchmark for visual retrieval pipelines and will help the community build robust models for document retrieval.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.11651",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T20:36:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gustavo Penha",
+            "Claudia Hauff"
+          ],
+          "title": "Do the Findings of Document and Passage Retrieval Generalize to the Retrieval of Responses for Dialogues?",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.05508",
+        "summary": "A number of learned sparse and dense retrieval approaches have recently been proposed and proven effective in tasks such as passage retrieval and document retrieval. In this paper we analyze with a replicability study if the lessons learned generalize to the retrieval of responses for dialogues, an important task for the increasingly popular field of conversational search. Unlike passage and document retrieval where documents are usually longer than queries, in response ranking for dialogues the queries (dialogue contexts) are often longer than the documents (responses). Additionally, dialogues have a particular structure, i.e. multiple utterances by different users. With these differences in mind, we here evaluate how generalizable the following major findings from previous works are: (F1) query expansion outperforms a no-expansion baseline; (F2) document expansion outperforms a no-expansion baseline; (F3) zero-shot dense retrieval underperforms sparse baselines; (F4) dense retrieval outperforms sparse baselines; (F5) hard negative sampling is better than random sampling for training dense models. Our experiments -- based on three different information-seeking dialogue datasets -- reveal that four out of five findings (F2-F5) generalize to our domain",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.05508",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T20:36:20Z"
         }
       }
     ]
