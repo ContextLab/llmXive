@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-274"
+version = "0.1.0"
+description = "Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding"
+requires-python = ">=3.9"
+dependencies = [
+    "requests",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "scikit-learn",
+    "openai",
+    "transformers",
+    "llama-cpp-python",
+    "tiktoken",
+    "pyyaml",
+    "psutil",
+    "gitpython",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+exclude = [
+    ".git",
+    ".tox",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data",
+    "scripts",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"data/*" = ["F401"]
+"tests/*" = ["F401"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | build
+  | dist
+  | venv
+  | .venv
+  | data
+  | scripts
+)/
+'''

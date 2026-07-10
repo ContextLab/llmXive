@@ -19,7 +19,7 @@ This project implements a feasibility pilot study to evaluate whether LLM-genera
 **Primary Dependencies**: `scikit-learn`, `scipy`, `pandas`, `numpy`, `requests`, `datasets`, `psutil`, `pyyaml`, `gitpython`  
 **Storage**: Local filesystem (JSON/CSV/Parquet) for data; no persistent database required for this pilot  
 **Testing**: `pytest` with contract tests against YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: vCPU, ~7GB RAM)  
 **Project Type**: Research pipeline / CLI tool  
 **Performance Goals**: Analysis pipeline ≤6h runtime, ≤7GB peak RAM; Documentation generation ≤15min per repo (API dependent)  
 **Constraints**: No GPU; no large-LLM training; CPU-only inference only; data subset to fit 7GB RAM  

@@ -20,32 +20,36 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, basic structure, and shared utilities.
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/` including `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/`. Verification: Run `ls -R` and assert existence of `data/raw/`, `code/`, `tests/`. Assert exit code 0.
-- [ ] T002 Create `requirements.txt` containing: `requests`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `openai`, `transformers`, `llama-cpp-python`, `tiktoken`, `pyyaml` with pinned versions (e.g., `pip freeze` or explicit versions). Verification: Run `pip check` to ensure no conflicts.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with configuration and running `ruff check .` and `black --check .` to ensure exit code 0.
+- [ ] T001 Create project structure per implementation plan: `projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/` including `code/`, `data/raw/`, `data/processed/`, `data/reports/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `specs/`. Verification: Run a Python script `scripts/verify_structure.py` that asserts `os.path.isdir` for `data/raw/`, `code/`, `tests/` and exits with code 0.
+- [ ] T002 Create `requirements.txt` containing: `requests`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `openai`, `transformers`, `llama-cpp-python`, `tiktoken`, `pyyaml`, `psutil`, `gitpython`, `ruff`, `black` with pinned versions (e.g., `pip freeze` or explicit versions). Verification: Run `pip check` to ensure no conflicts.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `pyproject.toml` with configuration and running `ruff check.` and `black --check.` to ensure exit code 0.
+- [ ] T010 [P] [Setup] Implement active monitoring context manager in `code/utils/monitor.py` using `psutil` and `time` to log peak memory and wall-clock time during execution. (Required for FR-010 and available for all phases). <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
 
 ---
 
@@ -55,10 +59,18 @@
 
 **⚠️ CRITICAL**: No User Story 2 work can begin until this phase is complete.
 
-- [ ] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks. (Moved from Phase 8 to ensure logic is available for T021a/b).
-- [ ] T021a [P] Implement repository selection rubric logic (criteria: setup instructions, API ref, architecture) in `code/validation.py` (DEPENDS on T047).
-- [ ] T021b [P] Execute rubric on candidate repos, generate `data/raw/repo_selection_rubric.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSON exists and checksum is in `data/checksums.txt`.
-- [ ] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021b).
+- [ ] T047 [P] Consolidate validation logic for repository selection and schema validation into `code/validation.py` to ensure a single source of truth for all validation tasks. (Moved from Phase 8 to ensure logic is available for T021a/b). <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+ in "<unicode string>", line 4, column 1:
+ **Task**: Consolidate validation...
+ ^
+expected alphabetic or numeric character, but found '*'
+ in "<unicode string>", line 4, column 2:
+ **Task**: Consolidate validation...
+ ^) -->
+- [X] T021a [P] Implement repository selection rubric logic (criteria: setup instructions, API ref, architecture) in `code/validation.py` (DEPENDS on T047).
+- [~] T021b [US2] Execute rubric on candidate repos, calculate Lines of Code (LOC) and Cyclomatic Complexity (CC) metrics for each repo, generate `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`, implement exclusion logic for failing repos, generate a checksum of `data/raw/repo_selection_rubric.json` and record it in `data/checksums.txt`. Verification: Ensure JSONs exist, metrics are numeric, and checksum is in `data/checksums.txt`. (DEPENDS on T021a).
+- [~] T021c [P] Implement metric collection for covariate adjustment in `code/validation.py` (DEPENDS on T021b). Output: `data/raw/repo_covariates.json`. This task replaces "quantitative matching" with metric collection for ANCOVA as per Plan updates.
+- [~] T024 [P] Implement codebase fetching (≤500 files) and commit pinning logic in `code/repo_utils.py` (DEPENDS on T021c).
 
 ---
 
@@ -72,19 +84,19 @@
 
 > **NOTE**: Write these tests after Schema Definition (Phase 1) but before Implementation tasks. Ensure they FAIL before implementation.
 
-- [ ] T012 [P] [US1] Contract test for data logging schema in `tests/contract/test_logging_schema.py`
-- [ ] T013 [P] [US1] Integration test for full mock participant session in `tests/integration/test_mock_session.py`
+- [~] T012 [P] [US1] Contract test for data logging schema in `tests/contract/test_logging_schema.py`
+- [~] T013 [P] [US1] Integration test for full mock participant session in `tests/integration/test_mock_session.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
-- [ ] T013a [US1] Enforce N≥15 Recruitment Gate: Halt study execution if recruited count < 15 in `code/data_collection.py`. Verification: Log exact error message "Recruitment count < 15" and exit with code 1.
-- [ ] T015 [US1] Implement session start/end logging with precise timestamps in `code/data_collection.py`
-- [ ] T016 [US1] Implement clarification question logging (timestamp + content) in `code/data_collection.py`
-- [ ] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
-- [ ] T018 [US1] Implement "Stop-Loss" intervention logic: flag `intervention_flag=True`, `time_capped=True`, set `final_time=MAX_TIME` (60 mins), or record as failed if docs are unusable in `code/data_collection.py`
-- [ ] T019 [US1] Implement handling for incomplete/abandoned records (exclude from time analysis, retain for dropout reporting) in `code/data_collection.py`
-- [ ] T020 [US1] Create raw data export function to `data/raw/participant_logs.json` with checksum generation in `code/data_collection.py`
+- [~] T013a [US1] Enforce N≥15 Recruitment Gate: Halt study execution if recruited count < 15 in `code/data_collection.py`. Verification: Log exact error message "Recruitment count < 15" and exit with code 1. (Moved before T014).
+- [~] T014 [P] [US1] Implement participant assignment logic (randomized to LLM/Human/None) in `code/data_collection.py`
+- [~] T015 [US1] Implement session start/end logging with precise timestamps in `code/data_collection.py`
+- [~] T016 [US1] Implement clarification question logging (timestamp + content) AND calculate the derived 'Cognitive Load Proxy' composite score. Logic: Redefine "Clarification Questions" as "Help Requests" (independent of struggle) by filtering for keywords ('how', 'why', 'what', 'explain') OR moderator tags. Composite Score = (Count of Help Requests) * (Average Time per Request). Output: Both raw logs and composite score written to JSON. Verification: Ensure both raw logs and the composite score are written to the output JSON.
+- [~] T017 [US1] Implement subjective helpfulness survey capture in `code/data_collection.py`
+- [~] T018 [US1] Implement "Stop-Loss" intervention logic: flag `intervention_flag=True`, `time_capped=True`, set `final_time=MAX_TIME` (minutes), or record as failed if docs are unusable in `code/data_collection.py`. (Corrected timeout to 45m per spec Edge Case).
+- [~] T019 [US1] Implement handling for incomplete/abandoned records (exclude from time analysis, retain for dropout reporting) in `code/data_collection.py`
+- [~] T020 [US1] Create raw data export function to `data/raw/participant_logs.json` with checksum generation in `code/data_collection.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,15 +110,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
-- [ ] T026 [P] [US2] Integration test for repo fetch and commit pinning in `tests/integration/test_repo_fetch.py`
+- [~] T025 [P] [US2] Contract test for documentation output format in `tests/contract/test_doc_format.py`
+- [~] T026 [P] [US2] Integration test for repo fetch and commit pinning in `tests/integration/test_repo_fetch.py`
 
 ### Implementation for User Story 2
 
 - [ ] T027 [P] [US2] Implement primary LLM API integration (e.g., OpenAI) for documentation generation in `code/doc_generation.py`
-- [ ] T028 [US2] Implement fallback logic to local CPU-optimized model (`llama-cpp-python`) if API fails. Max a limited number of retries with exponential backoff (2s base, max 16s). NO paid API fallbacks allowed. in `code/doc_generation.py`
+- [ ] T028 [US2] Implement fallback logic to local CPU-optimized model. If API fails, load a quantized language model using `llama-cpp-python`. MUST pin the model to a specific HuggingFace commit hash (use `HF_COMMIT_HASH` env var or constant). Max a limited number of retries with exponential backoff (s base, max bounded interval). NO paid API fallbacks allowed. Log generation config (model, temp, prompt, commit hash) to `data/llm_config.yaml` and generate a checksum recorded in `data/checksums.txt` to satisfy Constitution Principle VII.
 - [ ] T029 [US2] Implement prompt engineering to ensure coverage of architecture, API, and setup steps in `code/doc_generation.py`
-- [ ] T030 [US2] Implement generation config logging (model, temp, prompt, commit hash) to `data/raw/llm_config.yaml` in `code/doc_generation.py`
+- [ ] T030 [US2] Implement generation config logging (model, temp, prompt, commit hash) to `data/llm_config.yaml` (Note: Config is now logged in T028).
 - [ ] T031 [US2] Save generated Markdown docs to `data/raw/llm_docs/` with checksums in `code/doc_generation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -118,7 +130,9 @@
 **Purpose**: Clean, anonymize, and validate data before analysis. Produces `cleaned_dataset.csv` for Phase 6.
 
 - [ ] T033 [P] Run schema validation on `data/raw/participant_logs.json` against `contracts/dataset.schema.yaml` in `code/validation.py`. Ensure validation passes before cleaning. **Gate**: Abort pipeline if validation fails. Output: `data/processed/validation_report.json`.
-- [ ] T032 [US1/3] Implement data cleaning and anonymization pipeline (remove PII, handle incomplete records) in `code/analysis.py` (DEPENDS on T033). Output: `data/processed/cleaned_dataset.csv`.
+- [ ] T032a [P] [US1/3] Implement PII removal logic (remove names, emails, etc.) in `code/analysis.py` (DEPENDS on T033).
+- [ ] T032b [US1/3] Implement incomplete record handling (flagging, exclusion logic) in `code/analysis.py` (DEPENDS on T033).
+- [ ] T032 [US1/3] Aggregate cleaning steps (T032a, T032b) to produce `data/processed/cleaned_dataset.csv`. Read validation status from T033's output (`validation_report.json`) before proceeding. (Note: Essential for US3 readiness).
 
 **Checkpoint**: Cleaned dataset ready for analysis.
 
@@ -130,7 +144,7 @@
 
 **Independent Test**: Feed a synthetic dataset with known effect sizes into the analysis script and verify that the calculated p-values and confidence intervals match the expected theoretical values.
 
-**NOTE**: Per FR-005, the primary analysis MUST follow the decision tree: Shapiro-Wilk → ANOVA/Tukey OR Kruskal-Wallis/Dunn's. LMM (T039b) is a secondary analysis per Plan Phase 4 to account for repository difficulty.
+**NOTE**: Per FR-005 and Plan, the primary analysis MUST follow the 'Pre-specified' robust flow: **Pre-specified Welch's ANOVA** (no Levene's gate) with ANCOVA adjustment.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -139,14 +153,12 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Implement normality test (Shapiro-Wilk) and decision logic to select ANOVA or Kruskal-Wallis in `code/analysis.py`. Output: `data/reports/shapiro_results.json`.
-- [ ] T037 [US3] Implement One-Way ANOVA and Tukey HSD post-hoc tests for the parametric path in `code/analysis.py`. Output: `data/reports/anova_results.json`.
-- [ ] T038 [US3] Implement Kruskal-Wallis test and Dunn's test with Bonferroni correction for the non-parametric path in `code/analysis.py`. Output: `data/reports/kw_results.json`.
-- [ ] T039 [US3] Implement post-hoc correction mapping: Tukey HSD for ANOVA, Dunn's+Bonferroni for KW, ensuring FR-006 compliance in `code/analysis.py`.
-- [ ] T039b [US3] Implement Linear Mixed-Effects Models (LMM) as a secondary/alternative analysis path (Plan requirement) with Repository as random effect in `code/analysis.py` (DEPENDS on T036-T039). Output: `data/reports/lmm_results.json`.
-- [ ] T040 [US3] Implement observed power and effect size calculation for the PRIMARY analysis results (ANOVA/KW) and, if LMM is run, for LMM results. Explicitly report that N=15-20 is underpowered for medium effects in `code/analysis.py`. Output: `data/reports/power_analysis.json`.
+- [ ] T036 [P] [US3] Implement **Pre-specified Welch's ANOVA** (no Levene's gate) to avoid test-then-select bias. Use this as the primary test regardless of variance homogeneity. Output: `data/reports/welch_results.json`. (Replaces T036/T037 decision tree).
+- [ ] T037 [US3] Implement Games-Howell post-hoc tests for Welch's ANOVA to control for family-wise error rate (FR-006). Output: `data/reports/welch_posthoc.json`.
+- [ ] T037c [US3] Implement ANCOVA (Analysis of Covariance) with Repository Complexity (LOC, CC) and Human Doc Quality Score as covariates, as mandated by Plan's "Key Methodological Updates". Output: `data/reports/ancova_results.json`.
+- [ ] T039 [US3] Implement **Sensitivity Analysis** for alpha thresholds across a range of standard significance levels. instead of observed power. Explicitly report that N=15-20 is underpowered for medium effects. Output: `data/reports/sensitivity_analysis.json`.
 - [ ] T041 [US3] Generate `data/reports/analysis_results.json` with all metrics and traceability to raw data in `code/analysis.py`.
-- [ ] T042 [US3] Isolate and report specific pairwise comparison against "No Documentation" baseline as primary metric per SC-001 in `code/analysis.py`.
+- [ ] T042 [US3] Isolate and report specific pairwise comparison against "No Documentation" baseline as primary metric per SC-001 AND include "Human Documentation" condition as a secondary comparison per Plan assumptions in `code/analysis.py`.
 - [ ] T043 [US3] Generate `data/reports/final_report.md` summarizing means, SDs, p-values, and explicitly noting power limitations (N=15-20) in `code/analysis.py`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -157,8 +169,8 @@
 
 **Purpose**: Verify constraints and perform final checks.
 
-- [ ] T044a [P] Verify **Analysis Phase** execution time < 6 hours and RAM < 7GB using `scripts/measure_analysis_resources.py` which logs `wall_clock_time` and `peak_RSS`. Verification: Assert `wall_clock_time < 21600` and `peak_RSS < 7GB`.
-- [ ] T045a [P] Verify **Generation Phase** execution time < 6 hours and context window limits (RAM limit NOT applicable) using `scripts/measure_generation_resources.py`. Verification: Assert `total_time < 6h` and log `context_window_usage`.
+- [ ] T044 [P] Verify **Analysis Phase** execution time < 6 hours and RAM < 7GB using the active monitoring context manager from T010. Verification: Assert `wall_clock_time < 21600` and `peak_RSS < 7GB` in the logged analysis report.
+- [ ] T045a [P] Verify **Generation Phase** execution time < 15 minutes per repo (US-2 constraint) using `scripts/measure_generation_resources.py`. Verification: Assert `total_time_per_repo < 900s` and log `context_window_usage`. (Corrected from 6h/7GB analysis constraints).
 
 ---
 
@@ -167,7 +179,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T046 [P] Documentation updates in `docs/` including `quickstart.md`
-- [ ] T048 Remove unused imports and variables across all modules
+- [ ] T048a [P] Run `ruff check --select F401.` to identify unused imports in `code/` and remove them.
+- [ ] T048b [P] Run `ruff check.` to identify other linting issues and fix them.
 - [ ] T049 Optimize data loading in `code/analysis.py` to reduce memory footprint
 - [ ] T050 Add unit tests for `Participant` class in `tests/unit/test_data_models.py`
 - [ ] T051 Add unit tests for `doc_generation` functions in `tests/unit/test_doc_generation.py`
@@ -250,12 +263,12 @@ With multiple developers:
 
 1. Team completes Setup together
 2. Once Setup is done:
-   - Developer A: Phase 2 (Repo Selection)
-   - Developer B: User Story 1
+ - Developer A: Phase 2 (Repo Selection)
+ - Developer B: User Story 1
 3. Once Phase 2 is done:
-   - Developer C: User Story 2
+ - Developer C: User Story 2
 4. Once US1 is done:
-   - Developer D: Data Processing & User Story 3
+ - Developer D: Data Processing & User Story 3
 5. Stories complete and integrate independently
 
 ---
@@ -269,6 +282,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: FR-005 requires the Shapiro-Wilk → ANOVA/KW decision tree. This is the PRIMARY path. LMM (T039b) is secondary.
-- **CRITICAL**: T033 (Validation) MUST run before T032 (Cleaning).
-- **CRITICAL**: T044a checks Analysis Phase resources; T045a checks Generation Phase resources.
+- **CRITICAL**: Plan mandates "Pre-specified Welch's ANOVA" (no Levene's gate). T036 implements this directly.
+- **CRITICAL**: T033 (Validation) MUST run before T032 (Cleaning). T032 explicitly consumes T033's output.
+- **CRITICAL**: T044 checks Analysis Phase resources using active monitoring (T010). T045a checks Generation Phase resources (15 min/repo).
+- **CRITICAL**: T021b must produce LOC/CC metrics for T021c covariate collection.
+- **CRITICAL**: T013a (Recruitment Gate) MUST precede T014 (Assignment).
+- **CRITICAL**: T028 must log config to `data/llm_config.yaml` and generate a checksum.
