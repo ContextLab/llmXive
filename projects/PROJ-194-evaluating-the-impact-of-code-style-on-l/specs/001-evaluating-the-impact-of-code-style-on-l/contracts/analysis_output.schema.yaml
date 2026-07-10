@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+description: "Schema for the statistical model output stored in results/analysis/"
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the analysis run"
+  method:
+    type: string
+    enum:
+      - "LMM"
+      - "GLMM"
+      - "Permutation"
+    description: "Statistical method used"
+  fixed_effects:
+    type: array
+    items:
+      type: string
+    description: "List of fixed effect factors"
+  random_effects:
+    type: array
+    items:
+      type: string
+    description: "List of random effect factors"
+  coefficients:
+    type: array
+    items:
+      type: object
+      properties:
+        factor:
+          type: string
+        estimate:
+          type: number
+        standard_error:
+          type: number
+        t_value:
+          type: number
+        p_value:
+          type: number
+      required:
+        - factor
+        - estimate
+        - standard_error
+        - t_value
+        - p_value
+  effect_sizes:
+    type: array
+    items:
+      type: object
+      properties:
+        factor:
+          type: string
+        eta_squared:
+          type: number
+      required:
+        - factor
+        - eta_squared
+  normality_test:
+    type: object
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
+    required:
+      - statistic
+      - p_value
+  correction_method:
+    type: string
+    description: "Method used for multiple comparison correction (e.g., 'Bonferroni')"
+required:
+  - model_id
+  - method
+  - fixed_effects
+  - random_effects
+  - coefficients
+  - effect_sizes
+  - normality_test
+  - correction_method
+additionalProperties: false

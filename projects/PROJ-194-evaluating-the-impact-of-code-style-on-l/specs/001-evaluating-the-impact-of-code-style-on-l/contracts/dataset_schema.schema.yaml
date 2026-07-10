@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSearchNet Dataset Schema"
+description: "Schema for the base CodeSearchNet dataset used in the project."
+type: "object"
+properties:
+  function_id:
+    type: "string"
+    description: "Unique identifier for the function."
+  code:
+    type: "string"
+    description: "The original Python source code."
+  docstring:
+    type: "string"
+    description: "The original docstring (ground truth for summarization)."
+  completion:
+    type: "string"
+    description: "The ground truth completion (optional)."
+    default: ""
+  language:
+    type: "string"
+    const: "python"
+required:
+  - function_id
+  - code
+  - docstring
+  - language

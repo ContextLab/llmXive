@@ -1,0 +1,490 @@
+resolved_at: '2026-07-10T10:40:21.011732+00:00'
+datasets:
+- intent: CodeSearchNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/code-search-net/code_search_net/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/espejelomar/code_search_net_python_10000_examples/resolve/main/codesearchnet_10000_python_examples.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S6_Monocyte_Subset_Data_and_White_Blood_Cell_Counts_of_Study_Cohort/32956493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Adaptive_problem_solving_as_adult_learning_for_work/32956337
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7857872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7908468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13755783
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7016108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2306-5729/8/9/140
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://arxiv.org/abs/2605.16046
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/108137
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/71524-gap-gen-guided-automatic-python-code-generation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/30127-bag-of-words-baselines-for-semantic-code-search
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19248328
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROUGE-L
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-_ROUGE-L_r_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_r_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard/Jimmy19991222__llama-3-8b-instruct-gapo-v2-rougeL-beta10-gamma0.3-lr1.0e-6-scale-log-details/resolve/main/Jimmy19991222__llama-3-8b-instruct-gapo-v2-rougeL-beta10-gamma0.3-lr1.0e-6-scale-log/samples_leaderboard_bbh_boolean_expressions_2024-09-23T10-57-23.954689.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-_ROUGE-L_r_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gswamy/pythia-1.4B-tldr-sft_tldr_pythia_1.4b_ROUGE-L_r_iter_1/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.lboro.ac.uk/articles/dataset/Supplementary_information_files_for_Diffusiophoresis_and_diffusioosmosis_in_a_junction_device_with_a_long_microchannel_colloid_dynamics_and_particle_characterisation_/32956499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S6_Monocyte_Subset_Data_and_White_Blood_Cell_Counts_of_Study_Cohort/32956493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/30114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20125306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18320054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13939231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17470860
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140924
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07673
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BLEU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/bleugreen/typescript-instruct/resolve/main/ts-instruct.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.lboro.ac.uk/articles/dataset/Supplementary_information_files_for_Diffusiophoresis_and_diffusioosmosis_in_a_junction_device_with_a_long_microchannel_colloid_dynamics_and_particle_characterisation_/32956499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S6_Monocyte_Subset_Data_and_White_Blood_Cell_Counts_of_Study_Cohort/32956493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10317906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17096816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15268586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5794093
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10305972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/09c2df12-0d49-4cc3-8b49-d6d0c916ab20
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cudl.colorado.edu/luna/servlet/verify?redirectUrl=https%3A%2F%2Fcudl.colorado.edu%2Fluna%2Fservlet%2Fdetail%2FUCBOULDERCB1~53~53~1098806~141469&helpUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FBrowsing%2Band%2BViewing%2BMedia%23BrowsingandViewingMedia-BrowsingandViewingMedia&showTip=false&showTipAdvancedSearch=false&advancedSearchUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FSearching%23Searching-Searching
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140924
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GroundTruthLabel
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.lboro.ac.uk/articles/dataset/Supplementary_information_files_for_Diffusiophoresis_and_diffusioosmosis_in_a_junction_device_with_a_long_microchannel_colloid_dynamics_and_particle_characterisation_/32956499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S6_Monocyte_Subset_Data_and_White_Blood_Cell_Counts_of_Study_Cohort/32956493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/Heat_Vulnerability_and_Urban_Green_in_Municipalities_and_Neighbourhoods_of_Metropolitan_Athens_Deliverable_2_5_____________2_5_/32882909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/dataset/Supplementary_information_files_for_Diffusiophoresis_and_diffusioosmosis_in_a_junction_device_with_a_long_microchannel_colloid_dynamics_and_particle_characterisation_/32956499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21293289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21293289
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21097833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21097833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA-specific
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/online_resource/Heat_Vulnerability_and_Urban_Green_in_Municipalities_and_Neighbourhoods_of_Metropolitan_Athens_Deliverable_2_5_____________2_5_/32882909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/dataset/Supplementary_information_files_for_Diffusiophoresis_and_diffusioosmosis_in_a_junction_device_with_a_long_microchannel_colloid_dynamics_and_particle_characterisation_/32956499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Figure_S7_Additional_Plasma_Cytokine_and_Soluble_Receptor_Data_of_Study_Cohort/32956496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Barriers_and_facilitators_while_implementing_community_first_responder_systems_in_a_western_setting_mixed-methods_expert_consensus/32947442
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Co-designing_an_exercise_maintenance_intervention_for_older_adults_exiting_falls_prevention_programmes_a_multi-stage_stakeholder_consultation_approach/32922824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.103.0405
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/496147
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/496142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21287426
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278510
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278510
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/286c7a4f-3694-433f-9d3d-90294a7d1f2e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07632
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

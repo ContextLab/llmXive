@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StyleVariant Dataset Schema"
+description: "Schema for the transformed style variant data stored in data/derived/variants/"
+type: object
+properties:
+  variant_id:
+    type: string
+    description: "Unique identifier for the variant"
+  function_id:
+    type: string
+    description: "Reference to the base function"
+  formatting:
+    type: string
+    enum:
+      - "black"
+      - "minified"
+    description: "Formatting style applied"
+  naming:
+    type: string
+    enum:
+      - "meaningful"
+      - "generic"
+    description: "Naming convention applied"
+  commenting:
+    type: string
+    enum:
+      - "present"
+      - "stripped"
+    description: "Commenting status applied"
+  code:
+    type: string
+    description: "The transformed code string"
+  is_valid:
+    type: boolean
+    description: "Result of syntax validation (ast.parse)"
+  token_count:
+    type: integer
+    description: "Number of tokens in the transformed code"
+required:
+  - variant_id
+  - function_id
+  - formatting
+  - naming
+  - commenting
+  - code
+  - is_valid
+  - token_count
+additionalProperties: false

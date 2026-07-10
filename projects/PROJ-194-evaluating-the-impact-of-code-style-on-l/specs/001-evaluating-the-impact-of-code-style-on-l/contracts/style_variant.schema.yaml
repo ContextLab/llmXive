@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Style Variant Schema"
+description: "Schema for a transformed style variant of a base function."
+type: "object"
+properties:
+  variant_id:
+    type: "string"
+    description: "Unique identifier for the variant."
+  function_id:
+    type: "string"
+    description: "Foreign key to the base function."
+  formatting:
+    type: "string"
+    enum:
+      - "black"
+      - "minified"
+    description: "Formatting style applied."
+  naming:
+    type: "string"
+    enum:
+      - "meaningful"
+      - "generic"
+    description: "Naming convention applied."
+  commenting:
+    type: "string"
+    enum:
+      - "present"
+      - "stripped"
+    description: "Commenting strategy applied."
+  code:
+    type: "string"
+    description: "The transformed source code."
+  is_valid:
+    type: "boolean"
+    description: "Whether the code is syntactically valid."
+  token_count:
+    type: "integer"
+    description: "Number of tokens in the transformed code."
+  transform_seed:
+    type: "integer"
+    description: "Random seed used for identifier replacement (for reproducibility)."
+required:
+  - variant_id
+  - function_id
+  - formatting
+  - naming
+  - commenting
+  - code
+  - is_valid
+  - token_count
+  - transform_seed
+additionalProperties: false
