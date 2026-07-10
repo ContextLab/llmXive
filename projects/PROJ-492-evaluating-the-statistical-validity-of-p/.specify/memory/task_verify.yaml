@@ -215,14 +215,10 @@
   \ all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS\
   \ ON: T020]."
 : 1
-? "T021 Unit tests for extractor covering missing metric, inequality p\u2011value,\
-  \ malformed HTML, conflicting sample sizes (tests/unit/test_extractor.py) (verify\
-  \ all tests pass) [DEPENDS ON: T020]."
-: 2
 ? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
   \ (detect binary vs continuous only, no extra test\u2011type handling) (verify detector\
   \ returns correct type)."
-: 1
+: 2
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
   \ per FR\u2011012) (verify reconstructed values match known fixtures). [UNRESOLVED-CLAIM:\
