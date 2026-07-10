@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TaggedCodeBlock"
+description: "Schema for a single code block with classification and metrics"
+type: object
+properties:
+  block_id:
+    type: string
+    description: "Unique identifier for the block (repo:file:start:end)"
+  repo_id:
+    type: string
+    description: "Repository owner/name"
+  file_path:
+    type: string
+    description: "Relative path to the file"
+  start_line:
+    type: integer
+    description: "Starting line number"
+  end_line:
+    type: integer
+    description: "Ending line number"
+  origin_label:
+    type: string
+    enum:
+      - "LLM"
+      - "Human"
+    description: "Classification label"
+  confidence:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Classifier confidence score"
+  complexity:
+    type: integer
+    description: "Cyclomatic complexity"
+  nesting_depth:
+    type: integer
+    description: "Maximum nesting depth"
+  loc:
+    type: integer
+    description: "Lines of code"
+  introduction_commit:
+    type: string
+    description: "Git commit hash"
+  introduction_timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of introduction"
+required:
+  - block_id
+  - repo_id
+  - file_path
+  - start_line
+  - end_line
+  - origin_label
+  - confidence
+  - complexity
+  - nesting_depth
+  - loc
+  - introduction_commit
+  - introduction_timestamp
+additionalProperties: false

@@ -89,5 +89,8 @@ properties:
         repo_age_days:
           type: integer
           description: "Repository age in days (for matching)"
+        repo_total_loc:
+          type: integer
+          description: "Total lines of code in the repository (for matching)"
       additionalProperties: false
 additionalProperties: false

@@ -33,8 +33,8 @@ properties:
             default: 0.5
       model_type:
         type: string
-        enum: ["Linear Mixed-Effects Model (LMM)"]
-        description: "Statistical model used (LMM for hierarchical data)"
+        enum: ["Wilcoxon Signed-Rank Test (Paired)"]
+        description: "Statistical model used (Wilcoxon for paired data)"
   tests:
     type: array
     items:
@@ -51,7 +51,7 @@ properties:
           enum: ["churn", "bug_fix_latency"]
         statistic:
           type: number
-          description: "LMM fixed effect statistic (t-value or z-value)"
+          description: "Wilcoxon W-statistic"
         p_value:
           type: number
           minimum: 0.0
@@ -69,9 +69,6 @@ properties:
         significant:
           type: boolean
           description: "True if adjusted p-value < 0.05"
-        random_effect_variance:
-          type: number
-          description: "Variance of the random effect (repo_id)"
   figures:
     type: array
     items:

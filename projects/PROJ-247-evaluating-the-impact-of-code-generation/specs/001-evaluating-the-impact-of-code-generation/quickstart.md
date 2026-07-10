@@ -1,76 +1,84 @@
 # Quickstart: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
 
-## 1. Prerequisites
+## Prerequisites
+- Python 3.11+
+- GitHub Personal Access Token (with `repo` scope)
+- Sufficient disk space (for temporary git clones)
+- GB RAM (minimum)
 
-- **Python**: 3.11+
-- **Dependencies**: `pip install -r code/requirements.txt`
-- **GitHub Token**: Set `GITHUB_TOKEN` environment variable (with `repo` scope).
-- **RAM**: ≥ 7GB (for processing).
-- **Disk**: ≥ 14GB (for git clones and data).
+## Setup
 
-## 2. Installation
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/your-org/your-repo.git
+    cd your-repo
+    ```
 
+2.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Configure Environment**
+    Create a `.env` file in the root directory:
+    ```env
+    GITHUB_TOKEN=your_token_here
+    RANDOM_SEED=42
+    ```
+
+## Execution
+
+### Step 1: Data Curation
+Identify and clone repositories.
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-247-evaluating-the-impact-of-code-generation
+python code/01_curation.py
+```
+*Output*: `data/raw/repos.json`, cloned repos in `data/raw/clones/`.
 
-# Install dependencies
-pip install -r code/requirements.txt
+### Step 2: Classification
+Tag code blocks using CodeBERT.
+```bash
+python code/02_classification.py
+```
+*Output*: `data/processed/tagged_blocks.csv`.
 
-# Set environment variables
-export GITHUB_TOKEN="your_token_here"
+### Step 3: Matching
+Perform propensity score matching.
+```bash
+python code/03_matching.py
+```
+*Output*: `data/processed/matched_pairs.csv`.
+
+### Step 4: Metrics Extraction
+Extract churn and latency.
+```bash
+python code/04_metrics.py
+```
+*Output*: `data/processed/metrics.csv`.
+
+### Step 5: Analysis & Visualization
+Run statistical tests and generate plots.
+```bash
+python code/05_analysis.py
+```
+*Output*: `data/analysis/results.json`, `data/analysis/plots/`.
+
+### Step 6: Ground Truth (Optional)
+Select blocks for manual verification.
+```bash
+python code/06_ground_truth.py
+```
+*Output*: `data/ground_truth/labels.csv`.
+
+## Validation
+
+Run the test suite to verify data integrity and logic:
+```bash
+pytest tests/
 ```
 
-## 3. Running the Pipeline
+## Troubleshooting
 
-### Step 1: Data Curation (FR-001, FR-002, FR-008)
-```bash
-python code/01_data_curation.py
-```
-- **Output**: `data/processed/tagged_blocks.csv`, `data/processed/matched_pairs.csv`
-- **Time**: ~2-3 hours (depends on repo count).
-- **Note**: Includes collinearity checks and repository-level matching.
-
-### Step 2: Metric Extraction (FR-004)
-```bash
-python code/02_metric_extraction.py
-```
-- **Output**: `data/processed/maintenance_metrics.csv`
-- **Time**: ~1-2 hours.
-- **Note**: Includes linking bias analysis.
-
-### Step 3: Ground Truth Verification (FR-007)
-- **Manual Step**: Review 10+ blocks in `data/ground_truth/manual_labels.csv`.
-- **Action**: Update labels; **run `python code/utils/checksum_ground_truth.py` to generate and record the SHA-256 checksum in `state/`**.
-- **Output**: `data/ground_truth/manual_labels.csv` (checksummed).
-
-### Step 4: Statistical Analysis (FR-005, FR-006)
-```bash
-python code/03_analysis.py
-```
-- **Output**: `results/stats.json`, `results/figures/boxplot_churn.png`, `results/figures/boxplot_latency.png`
-- **Time**: [deferred].
-- **Note**: Performs Linear Mixed-Effects Model (LMM) and Sensitivity Analysis.
-
-## 4. Verification
-
-- **Contract Tests**: `pytest tests/contract/`
-- **Unit Tests**: `pytest tests/unit/`
-- **Data Integrity**: Check `state/` for checksums (including ground truth).
-
-## 5. Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| **GitHub API Rate Limit** | Wait 1 hour or use a different token. |
-| **Memory Error** | Reduce repo count in config; ensure 7GB RAM. |
-| **Classifier Low Confidence** | Check `data/processed/exclusions.log`. |
-| **Missing Issue Links** | Pairs excluded from latency analysis (expected). |
-| **Timeout** | The pipeline automatically reduces sample size if approaching 6 hours. |
-
-## 6. Output Artifacts
-
-- **Stats**: `results/stats.json` (p-values, effect sizes, **bias-corrected effect sizes**).
-- **Figures**: `results/figures/*.png` (box plots).
-- **Reports**: `results/report.md` (summary of findings, including sensitivity analysis).
+- **API Rate Limit**: If `403` errors occur, wait 1 hour or increase token permissions.
+- **RAM Error**: Reduce `MAX_REPOS` in `code/utils/config.py` or process in smaller batches.
+- **Model Load Error**: Ensure `onnxruntime` is installed and compatible with your CPU architecture.

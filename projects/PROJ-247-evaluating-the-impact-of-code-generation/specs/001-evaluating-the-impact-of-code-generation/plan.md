@@ -1,41 +1,48 @@
 # Implementation Plan: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
 
-**Branch**: `001-code-maintainability-impact` | **Date**: 2026-06-29 | **Spec**: `spec.md`
+**Branch**: `001-code-maintainability-impact` | **Date**: 2026-07-08 | **Spec**: `specs/001-code-maintainability-impact/spec.md`
 **Input**: Feature specification from `/specs/001-code-maintainability-impact/spec.md`
 
 ## Summary
 
-This feature implements a longitudinal study to determine if code associated with LLM generation tags exhibits different maintainability characteristics (churn, bug fix latency) compared to human-written code. The approach involves: (1) identifying active repositories via GitHub API, (2) tagging code blocks using a CPU-optimized CodeBERT classifier (treated as a probabilistic proxy), (3) performing propensity score matching with repository-level covariates to control for context, (4) extracting longitudinal metrics over a multi-month window, and (5) conducting Linear Mixed-Effects Model (LMM) analysis to account for hierarchical data structure. All processing is constrained to CPU-only execution on free-tier GitHub Actions runners with limited vCPU and RAM resources.
+This project evaluates whether code blocks classified as "LLM-generated" exhibit different long-term maintainability characteristics compared to "Human-written" code blocks. The approach involves:
+1.  **Curation**: Identifying active Python/JS repositories via GitHub API and extracting metadata (stars, age, total LOC).
+2.  **Classification**: Using a pre-trained CodeBERT model (`microsoft/codebert-base`, ONNX runtime) to tag code blocks as "LLM" or "Human" with ≥0.8 confidence.
+3.  **Matching**: Performing 1:1 propensity score matching on block-level complexity and repo-level covariates (stars, age, total LOC) to control for confounding variables.
+4.  **Longitudinal Analysis**: Extracting code churn and bug fix latency over a multi-month window.
+5.  **Statistical Testing**: Applying Wilcoxon Signed-Rank tests (paired) with Benjamini-Hochberg correction on matched pairs.
 
-> **Critical Methodological Note**: The study relies on a classifier to assign "LLM" vs "Human" labels. This introduces measurement error. The analysis explicitly treats the classifier output as a probabilistic construct. A **Sensitivity Analysis** is mandated to quantify how misclassification rates (derived from the ground truth subset) bias the effect size. The results are framed as "Associations between LLM-tagged code and maintainability" rather than "Causal effects of LLM generation."
+> **Critical Limitation Note**: This study is observational. The "LLM" label is a probabilistic proxy derived from code patterns, not a verified ground truth for generation method. Results are framed as "associational differences" between blocks with LLM-like patterns and human-like patterns, not causal impacts of LLMs.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `onnxruntime`, `radon`, `scikit-learn`, `pandas`, `requests`, `matplotlib`, `statsmodels`, `datasets`  
-**Storage**: Local filesystem (`data/` for raw/processed data), GitHub API (external)  
-**Testing**: `pytest` (unit/integration), contract validation via YAML schemas  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data science pipeline / Research tool  
-**Performance Goals**: Complete full pipeline within 6 hours; memory usage < 7GB; disk usage < 14GB  
-**Constraints**: No GPU; no large-LLM inference; shallow git clones; sampling for manual verification  
-**Scale/Scope**: A substantial number of repositories; ~k code blocks; -month historical window  
+**Primary Dependencies**: `transformers`, `onnxruntime`, `radon`, `scikit-learn`, `pandas`, `matplotlib`, `pygithub`  
+**Storage**: Local filesystem (`data/`), GitHub API (remote)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
+**Project Type**: Data Analysis / Research Pipeline  
+**Performance Goals**: Complete analysis within 6 hours on CPU-only runner; RAM usage < 6GB.  
+**Constraints**: No GPU; no large model fine-tuning; strict adherence to GitHub API rate limits; datasets must fit in memory or be processed in streams.  
+**Scale/Scope**: A set of repositories; A substantial number of code blocks; -month historical window.
 
-> **Runtime Safety**: The GitHub Actions free-tier has a hard timeout. The pipeline is configured with a timeout setting in the workflow. The `01_data_curation.py` script includes a checkpoint mechanism: if interrupted, it resumes from the last saved repo. If the 6-hour limit is approached, the script automatically reduces the sample size to ensure a valid result set is produced.
+**Model Source**: `microsoft/codebert-base` (HuggingFace) - Cited per Constitution Principle II.
 
-> **Dataset Constraint Note**: The spec requires a dataset of *LLM-generated vs Human-written code blocks* with *longitudinal maintenance history*. The "Verified datasets" block contains text-generation datasets and static code dumps, but **none** contain the required longitudinal git history or paired human/LLM labels with maintenance events. This plan treats the "Verified datasets" as **unusable** for the primary analysis and instead relies on **live GitHub API calls** to construct the dataset dynamically, as mandated by FR-001. The verified URLs are only referenced for potential auxiliary text-generation benchmarks if the live API fails to yield sufficient data, but the primary data source is the live GitHub ecosystem.
+> **Note on Dataset Strategy**: The project relies on the GitHub API for primary data ingestion (repositories, code blocks, issues, commit history). The "Verified datasets" block in the prompt contains generic LLM-text and JavaScript datasets which are **not** suitable for this specific longitudinal study (they lack commit history, issue links, and repo context). Therefore, the implementation **does not** use those external URLs as the primary data source. Instead, it programmatically fetches data from GitHub as specified in FR-001.
 
 ## Constitution Check
 
-| Principle | Compliance Status | Notes |
-|-----------|-------------------|-------|
-| I. Reproducibility | **Pass** | Random seeds pinned; `requirements.txt` used; data checksums enforced. |
-| II. Verified Accuracy | **Pass** | All dataset sources (GitHub API) are live and verifiable; no hallucinated URLs used for primary data. |
-| III. Data Hygiene | **Pass** | Raw data preserved; derivations written to new files; PII scan enabled. **Ground truth files (`data/ground_truth/manual_labels.csv`) are checksummed immediately after creation and recorded in `state/`.** |
-| IV. Single Source of Truth | **Pass** | All stats trace to `data/` rows; no hand-typed numbers in paper. |
-| V. Versioning Discipline | **Pass** | Content hashes tracked in `state/`; artifacts updated on change. Ground truth checksums included. |
-| VI. Longitudinal Data Integrity | **Pass** | Immutable snapshots of git history; gaps documented. **Statistical analysis uses Linear Mixed-Effects Models (LMM) to handle hierarchical data, superseding the spec's Wilcoxon reference which is methodologically insufficient for clustered data.** |
-| VII. Classification Ground Truth | **Pass** | Random subset selected for manual verification; **Sensitivity Analysis** performed to quantify bias; metrics calculated. |
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Status | Implementation Detail |
+|-----------|--------|-----------------------|
+| **I. Reproducibility** | Pass | Random seeds pinned in `code/`. GitHub API queries use fixed parameters. All dependencies pinned in `requirements.txt`. |
+| **II. Verified Accuracy** | Pass | Model source (`microsoft/codebert-base`) explicitly cited. No external data citations; data fetched live from GitHub. |
+| **III. Data Hygiene** | Pass | Raw API responses saved to `data/raw/` with checksums. Derived data in `data/processed/`. No in-place modification. PII scan enforced. |
+| **IV. Single Source of Truth** | Pass | All figures/statistics derived from `data/processed/matched_pairs.csv` and `data/processed/metrics.csv`. |
+| **V. Versioning Discipline** | Pass | Content hashes tracked in `state/`. Artifact changes trigger `updated_at` updates. |
+| **VI. Longitudinal Data Integrity** | Pass | Time-series data captured via immutable snapshots of `git log` and GitHub Issues API. Gaps documented. **Note**: The Constitution mentions "Mann-Whitney U", but for *matched pairs* (FR-008), the Wilcoxon Signed-Rank test is the statistically correct method. This plan uses Wilcoxon Signed-Rank; the Constitution requires amendment to reflect the paired design. |
+| **VII. Classification Ground Truth** | Pass | Random subset (minimum number of blocks) manually verified. Precision/Recall calculated and reported. |
 
 ## Project Structure
 
@@ -47,64 +54,58 @@ specs/001-code-maintainability-impact/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── dataset_schema.schema.yaml
+    ├── ground_truth_schema.schema.yaml
+    ├── metrics.schema.yaml
+    └── metrics_schema.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-247-evaluating-the-impact-of-code-generation/
-├── data/
-│   ├── raw/             # Raw GitHub API dumps, git logs
-│   ├── processed/       # Matched pairs, metrics
-│   └── ground_truth/    # Manual verification labels (checksummed)
-├── code/
-│   ├── 01_data_curation.py
-│   ├── 02_metric_extraction.py
-│   ├── 03_analysis.py
-│   ├── utils/
-│   │   ├── github_client.py
-│   │   ├── classifier.py
-│   │   └── matching.py
-│   └── requirements.txt
-├── tests/
-│   ├── unit/
-│   └── contract/
-└── docs/
-    └── paper/
+code/
+├── 01_curation.py           # FR-001: Repo search, cloning, metadata extraction (stars, age, total_loc)
+├── 02_classification.py     # FR-002: CodeBERT tagging (ONNX)
+├── 03_matching.py           # FR-008: Propensity score matching (block + repo covariates)
+├── 04_metrics.py            # FR-004: Churn & latency extraction
+├── 05_analysis.py           # FR-005, FR-006: Wilcoxon tests, plots
+├── 06_ground_truth.py       # FR-007: Manual verification subset selection
+├── utils/
+│   ├── git_utils.py         # Git log parsing, file tracking
+│   ├── github_utils.py      # API wrappers
+│   └── config.py            # Seeds, constants
+├── requirements.txt
+└── main.py                  # Orchestration script
+
+data/
+├── raw/                     # API dumps, git logs
+├── processed/               # Matched pairs, metrics
+└── ground_truth/            # Manual verification labels
+
+tests/
+├── unit/
+├── integration/
+└── contract/
 ```
 
-**Structure Decision**: Single project structure with modular `code/` directory. Separation of `raw/` and `processed/` ensures data hygiene (Constitution Principle III). `utils/` isolates complex logic (GitHub API, ONNX inference, matching).
+**Structure Decision**: Single project structure (`code/`) selected to simplify data flow between curation, classification, and analysis phases. No separate frontend/backend required as this is a batch research pipeline.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Linear Mixed-Effects Model (LMM) | Required to account for non-independence of blocks within repositories (Constitution VI, Panel Concern). | Wilcoxon Signed-Rank test assumes independence; using it would violate statistical assumptions and produce invalid p-values. |
-| Repository Stratification | Required to control for "confounding by repository" (Panel Concern). | Simple matching on block-level metrics fails to account for systemic repo-level biases (e.g., tutorial vs. production). |
-| Sensitivity Analysis | Required to quantify bias from classifier uncertainty (Panel Concern). | Treating classifier output as absolute truth ignores measurement error, leading to potentially spurious conclusions. |
-| ONNX Runtime | Required for CPU-only inference of CodeBERT (Constitution + Compute Feasibility). | Standard `transformers` with PyTorch would be too slow/heavy for 6-hour limit on CPU. |
-| Shallow Git Clone | Required to fit 7GB RAM and 6-hour limit. | Full clone would exceed disk/memory limits and timeout. |
+| Propensity Score Matching (PSM) | Required to control for confounding variables (complexity, repo size) to isolate the effect of code origin. | Simple t-tests on raw data would be biased by inherent complexity differences between LLM and human code. |
+| Longitudinal Tracking | Required to measure "long-term" maintainability (churn, latency). | Cross-sectional analysis cannot capture maintenance burden over time. |
+| ONNX Runtime | Required for CPU-only inference of CodeBERT within 6-hour limit. | Standard PyTorch inference is too slow on CPU for large codebases; GPU is unavailable. |
 
-## Methodological Rigor & Panel Concerns Addressed
+## Limitations & Assumptions
 
-### 1. Classifier Validity & Circular Validation
-- **Mitigation**: The plan does not treat the "origin_label" as ground truth. It is a "probabilistic proxy."
-- **Action**: A **Sensitivity Analysis** is performed. We calculate the misclassification rate from the ground truth subset. We then re-run the LMM with the effect size adjusted for this error rate (using standard measurement error correction formulas) to report a "bias-corrected" confidence interval.
-
-### 2. Confounding by Repository
-- **Mitigation**: Propensity score matching includes **repository-level covariates** (stars, age, contributor count) in addition to block-level metrics.
-- **Action**: Matching is performed **within** repositories (stratified) where possible. If not, a random effect for `repo_id` is used in the LMM.
-
-### 3. Survivorship & Linking Bias
-- **Mitigation**: We explicitly analyze the rate of issue linking for LLM vs. Human blocks.
-- **Action**: If a significant difference in linking rates is found, the latency analysis is stratified by "linked" vs "unlinked" blocks, and results are qualified as "for tracked issues only."
-
-### 4. Statistical Validity (LMM vs Wilcoxon)
-- **Mitigation**: The Constitution requires "Longitudinal Data Integrity" and handling of hierarchical data.
-- **Action**: We use a Linear Mixed-Effects Model (LMM) with `repo_id` as a random intercept. This supersedes the Wilcoxon test mentioned in the spec (which will be updated in a kickback).
-
-### 5. Ground Truth Integrity
-- **Mitigation**: Manual verification is not just a check; it is a critical artifact.
-- **Action**: `data/ground_truth/manual_labels.csv` is checksummed and recorded in `state/` immediately after manual entry. This ensures it is versioned and immutable.
+- **Selection Bias**: Repositories tagged `topic:llm-generated` may not represent general LLM usage. Results are limited to this population.
+- **Ground Truth**: The "LLM" label is a probabilistic proxy. Misclassification risk is quantified via FR-007 but cannot be fully eliminated.
+- **Developer Skill**: Matching within repositories controls for some team-level heterogeneity, but individual developer skill remains a potential confounder.
+- **Latency Metric**: "Bug Fix Latency" measures issue resolution speed for *tracked* issues. It excludes untracked fixes and may be biased by issue severity.
+- **Style Confounding**: Code style patterns (which the classifier detects) may directly influence churn metrics, confounding the "origin" effect.
+- **Time Window**: A pragmatic temporal constraint is established for the study duration.; it may not capture full lifecycle effects.
+- **Constitution Alignment**: The Constitution mentions "Mann-Whitney U" for comparisons, but the paired design (FR-008) requires Wilcoxon Signed-Rank. This plan uses Wilcoxon; the Constitution requires amendment.

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaintenanceMetrics"
+description: "Schema for longitudinal maintenance metrics (churn and latency)"
+type: object
+properties:
+  pair_id:
+    type: string
+    description: "Unique identifier for the matched pair"
+  llm_block_id:
+    type: string
+    description: "ID of the LLM-generated block"
+  human_block_id:
+    type: string
+    description: "ID of the human-written block"
+  llm_churn_lines:
+    type: number
+    description: "Total lines added/deleted for LLM block in 6-month window"
+  human_churn_lines:
+    type: number
+    description: "Total lines added/deleted for Human block in 6-month window"
+  llm_latency_days:
+    type: ["number", "null"]
+    description: "Bug fix latency for LLM block (days), or null if no linked issue"
+  human_latency_days:
+    type: ["number", "null"]
+    description: "Bug fix latency for Human block (days), or null if no linked issue"
+  repo_stars:
+    type: integer
+    description: "Star count of the parent repository"
+  repo_age_days:
+    type: integer
+    description: "Age of the repository in days"
+  repo_total_loc:
+    type: integer
+    description: "Total lines of code in the repository"
+required:
+  - pair_id
+  - llm_block_id
+  - human_block_id
+  - llm_churn_lines
+  - human_churn_lines
+  - repo_stars
+  - repo_age_days
+  - repo_total_loc
+additionalProperties: false

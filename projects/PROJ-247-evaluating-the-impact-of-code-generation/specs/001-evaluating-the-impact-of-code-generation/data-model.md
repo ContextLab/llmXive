@@ -1,61 +1,69 @@
 # Data Model: Evaluating the Impact of Code Generation on Long-Term Code Maintainability
 
-## 1. Entities & Relationships
+## Overview
+This document defines the data structures used throughout the project. All data is stored in `data/` directory. Raw data is immutable; derived data is versioned.
 
-### 1.1 Core Entities
+## Entities
 
-| Entity | Description | Key Attributes |
-|--------|-------------|----------------|
-| **Repository** | A GitHub project. | `repo_id` (PK), `owner`, `name`, `stars`, `last_commit_date`, `topics`, `contributor_count`, `age_days` |
-| **CodeBlock** | A function/class within a repo. | `block_id` (PK), `repo_id` (FK), `file_path`, `start_line`, `end_line`, `origin_label` (LLM/Human), `confidence_score`, `complexity_score`, `loc` |
-| **MaintenanceEvent** | A change to a code block. | `event_id` (PK), `block_id` (FK), `commit_hash`, `timestamp`, `lines_added`, `lines_deleted`, `issue_id` (nullable) |
-| **Issue** | A GitHub issue/PR. | `issue_id` (PK), `repo_id` (FK), `number`, `state`, `created_at`, `closed_at` |
-| **MatchedPair** | A pair of LLM and Human blocks. | `pair_id` (PK), `llm_block_id` (FK), `human_block_id` (FK), `propensity_score_diff`, `repo_id` (FK) |
-| **GroundTruth** | Manual verification label. | `gt_id` (PK), `block_id` (FK), `human_label` (LLM/Human), `annotator_id`, `checksum` (SHA-256) |
+### 1. Repository
+Represents a GitHub repository.
+- `repo_id`: Unique identifier (owner/repo).
+- `language`: Primary language (Python/JavaScript).
+- `stars`: Star count (int).
+- `created_at`: ISO8601 timestamp.
+- `updated_at`: ISO8601 timestamp.
+- `is_active`: Boolean (≥1 commit in 90 days).
+- `total_loc`: Total lines of code in the repository (int). **Added to satisfy FR-008.**
 
-### 1.2 Relationships
+### 2. CodeBlock
+Represents a function or class within a repository.
+- `block_id`: Unique identifier (repo_id + file_path + start_line + end_line).
+- `origin_label`: "LLM" or "Human".
+- `confidence`: Float (0.0 - 1.0) from CodeBERT.
+- `complexity`: Cyclomatic complexity (int).
+- `nesting_depth`: Max nesting depth (int).
+- `loc`: Lines of code (int).
+- `introduction_commit`: Commit hash.
+- `introduction_timestamp`: ISO8601 timestamp.
 
-- **Repository** (1) -- (N) **CodeBlock**
-- **CodeBlock** (1) -- (N) **MaintenanceEvent**
-- **Issue** (1) -- (N) **MaintenanceEvent** (via `issue_id`)
-- **CodeBlock** (1) -- (1) **MatchedPair** (as `llm_block_id` or `human_block_id`)
-- **CodeBlock** (1) -- (0..1) **GroundTruth**
+### 3. MatchedPair
+Result of propensity score matching.
+- `pair_id`: Unique identifier.
+- `llm_block_id`: Reference to LLM code block.
+- `human_block_id`: Reference to Human code block.
+- `propensity_score`: Float (score used for matching).
+- `repo_id`: Parent repository.
+- `repo_stars`: Star count (covariate).
+- `repo_total_loc`: Total lines of code in the repo (covariate).
 
-## 2. Data Flow
+### 4. MaintenanceEvent
+Record of code modification or bug fix.
+- `event_id`: Unique identifier.
+- `block_id`: Reference to CodeBlock.
+- `event_type`: "churn" or "bug_fix".
+- `timestamp`: ISO8601 timestamp.
+- `lines_added`: Int.
+- `lines_deleted`: Int.
+- `issue_number`: Int (for bug_fix, linked via "Fixes #N").
+- `latency_days`: Float (calculated for bug_fix).
 
-1. **Ingestion**: GitHub API → `raw/repos.json`, `raw/git_logs/`
-2. **Processing**: `01_data_curation.py` → `processed/tagged_blocks.csv`, `processed/matched_pairs.csv`
-3. **Metric Extraction**: `02_metric_extraction.py` → `processed/maintenance_metrics.csv`
-4. **Analysis**: `03_analysis.py` → `results/stats.json`, `results/figures/`
-5. **Verification**: `manual_labels.csv` → `results/ground_truth_metrics.json` (Checksummed)
+### 5. GroundTruth
+Manual verification labels.
+- `block_id`: Reference to CodeBlock.
+- `manual_label`: "LLM" or "Human".
+- `verifier_id`: Identifier of human expert.
 
-## 3. File Formats
+## Data Flow
 
-### 3.1 Raw Data (Immutable)
-- **Format**: JSON/Parquet
-- **Storage**: `data/raw/`
-- **Checksum**: SHA-256 recorded in `state/`
+1.  **Raw Data**: `data/raw/repos.json`, `data/raw/git_logs/`, `data/raw/issues.json`.
+2.  **Processed Data**:
+    - `data/processed/tagged_blocks.csv` (Block-level metrics + labels).
+    - `data/processed/matched_pairs.csv` (FR-008 output).
+    - `data/processed/metrics.csv` (Churn and Latency).
+3.  **Analysis Data**: `data/analysis/results.json` (Test statistics, p-values).
 
-### 3.2 Processed Data
-- **Format**: CSV/Parquet
-- **Storage**: `data/processed/`
-- **Derivation**: Documented in `code/` scripts.
+## Constraints
 
-### 3.3 Ground Truth (Versioned)
-- **Format**: CSV
-- **Storage**: `data/ground_truth/manual_labels.csv`
-- **Checksum**: SHA-256 recorded in `state/` immediately after creation.
-
-### 3.4 Results
-- **Format**: JSON/PNG
-- **Storage**: `results/`
-- **Traceability**: Each stat links to a row in `processed/`.
-
-## 4. Constraints & Validation
-
-- **Uniqueness**: `block_id` unique per repo.
-- **Referential Integrity**: `repo_id` in `CodeBlock` must exist in `Repository`.
-- **Confidence Threshold**: `confidence_score` ≥ 0.8 for inclusion.
-- **Balance**: Propensity score difference < 0.1 for matched pairs.
-- **Null Handling**: `issue_id` can be null; excluded from latency analysis.
-- **Ground Truth**: Must be checksummed and recorded in `state/`.
+- **Immutability**: Raw data files are never modified. Derivations create new files.
+- **Checksums**: All files in `data/` must have a corresponding checksum in `state/`.
+- **PII**: No user emails or personal names are stored in `data/`.

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-08T23:59:19.795358+00:00'
+resolved_at: '2026-07-10T12:22:14.479739+00:00'
 datasets:
 - intent: ONNX
   status: verified
@@ -30,27 +30,31 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Legacy_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission/32942798
+  - url: https://tandf.figshare.com/articles/figure/Attenuated_i_Salmonella_i_Carrying_IL-21_Expression_Plasmid_Enhances_the_Efficacy_of_Radiotherapy_for_Hepatocellular_Carcinoma/32956809
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Functional_Trait_Variation_Along_Animal_Invasion_Pathways/32766744
+  - url: https://tandf.figshare.com/articles/journal_contribution/Field_phytoremediation_of_slightly_cadmium-contaminated_farmland_by_intercropping_i_Amaranthus_hypochondriacus_i_with_the_medicinal_crop_i_Bletilla_striata_i_remediation_efficiency_and_cost_benefit_assessment/32956776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Beyond_meritocracy_moderation_of_social_and_political_capital_on_the_representation_of_Muslim_bureaucrats_in_asymmetric_autonomous_regions_pdf/32956841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Invasive_Asian_water_moss_Salvinia_cucullata_biochar_modulates_selected_steviol_glycoside_biosynthesis-related_gene_expression_and_drought-associated_physiological_responses_in_Stevia_docx/32956838
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Intelligent_asset_parameterisation_for_risk-based_moving_target_defence/32934908
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/15314214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3228411
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -62,31 +66,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3228411
+  - url: https://zenodo.org/records/15741207
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3899507
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21253583
+  - url: https://zenodo.org/records/21295497
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21253583
+  - url: https://zenodo.org/records/21295497
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21253554
+  - url: https://zenodo.org/records/21294161
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21246940
+  - url: https://zenodo.org/records/21294161
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21246940
+  - url: https://zenodo.org/records/21290942
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -135,27 +135,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/media/Legacy_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission/32942798
+  - url: https://figshare.com/articles/dataset/_Supplementary_Materials_for_On_the_use_of_laboratory_tests_to_assess_the_corrosion_behavior_of_weathering_steel_in_marine_atmospheres_Yuzhou_Wang_et_al_/32956811
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Functional_Trait_Variation_Along_Animal_Invasion_Pathways/32766744
+  - url: https://tandf.figshare.com/articles/figure/Attenuated_i_Salmonella_i_Carrying_IL-21_Expression_Plasmid_Enhances_the_Efficacy_of_Radiotherapy_for_Hepatocellular_Carcinoma/32956809
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
+  - url: https://tandf.figshare.com/articles/journal_contribution/Field_phytoremediation_of_slightly_cadmium-contaminated_farmland_by_intercropping_i_Amaranthus_hypochondriacus_i_with_the_medicinal_crop_i_Bletilla_striata_i_remediation_efficiency_and_cost_benefit_assessment/32956776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Manejo_Biorregulador_de_la_cistitis_Intersticial_Reporte_de_caso_cl_nico/32942753
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Beyond_meritocracy_moderation_of_social_and_political_capital_on_the_representation_of_Muslim_bureaucrats_in_asymmetric_autonomous_regions_pdf/32956841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Detection_of_Microelectromechanical_System_Acoustics_via_Scanning_Tunneling_Microscopy/32942796
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Invasive_Asian_water_moss_Salvinia_cucullata_biochar_modulates_selected_steviol_glycoside_biosynthesis-related_gene_expression_and_drought-associated_physiological_responses_in_Stevia_docx/32956838
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/18657875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18169626
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -167,31 +171,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18169626
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20683800
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269205
+  - url: https://darus.uni-stuttgart.de/dataset.xhtml?persistentId=doi:10.18419/DARUS-6299
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269205
+  - url: https://zenodo.org/records/21294060
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21268949
+  - url: https://zenodo.org/records/21294060
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21268949
+  - url: https://zenodo.org/records/17850820
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21267497
+  - url: https://zenodo.org/records/17850820
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -240,23 +240,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Nature-Related_Risk_Perceptions_Among_Vietnamese_Smallholder_Tea_Farmers_and_Implications_for_Environmental_Management/32931149
+  - url: https://preprints.opticaopen.org/articles/preprint/Flexible_Perovskite_Light-Emitting_Diodes_Based_on_Polybenzimidazole_Substrates/32937278
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Novena_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission_status_Via_07047903330_For_admission_list_confirmation_clearance_school_fees_payment_/32942801
+  - url: https://figshare.com/articles/dataset/_Supplementary_Materials_for_On_the_use_of_laboratory_tests_to_assess_the_corrosion_behavior_of_weathering_steel_in_marine_atmospheres_Yuzhou_Wang_et_al_/32956811
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Legacy_University_2026_2027_Admission_O7047903330_List_1st_2nd_Batch_is_Out_Candidates_who_applied_for_admission_can_now_check_their_admission/32942798
+  - url: https://tandf.figshare.com/articles/figure/Attenuated_i_Salmonella_i_Carrying_IL-21_Expression_Plasmid_Enhances_the_Efficacy_of_Radiotherapy_for_Hepatocellular_Carcinoma/32956809
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Functional_Trait_Variation_Along_Animal_Invasion_Pathways/32766744
+  - url: https://tandf.figshare.com/articles/journal_contribution/Field_phytoremediation_of_slightly_cadmium-contaminated_farmland_by_intercropping_i_Amaranthus_hypochondriacus_i_with_the_medicinal_crop_i_Bletilla_striata_i_remediation_efficiency_and_cost_benefit_assessment/32956776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Enhancing_the_stability_of_Ion-Selective_Electrodes_for_simulated_inner_ear_ion_monitoring/30141769
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Beyond_meritocracy_moderation_of_social_and_political_capital_on_the_representation_of_Muslim_bureaucrats_in_asymmetric_autonomous_regions_pdf/32956841
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -268,35 +268,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17661943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10901259
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14289370
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21270262
+  - url: http://infotech-soccult.knukim.edu.ua/article/view/247484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10889919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295157
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21270262
+  - url: https://zenodo.org/records/21295157
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21270255
+  - url: https://zenodo.org/records/21295152
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269720
+  - url: https://zenodo.org/records/21295105
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21269689
+  - url: https://zenodo.org/records/21295081
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
