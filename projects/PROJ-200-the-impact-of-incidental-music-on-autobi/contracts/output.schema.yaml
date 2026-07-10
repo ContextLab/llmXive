@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Schemas
+definitions:
+  RegressionResults:
+    type: object
+    properties:
+      model_name:
+        type: string
+      coefficient_residualized_exposure:
+        type: number
+      se_residualized_exposure:
+        type: number
+      pvalue_residualized_exposure:
+        type: number
+      coefficient_popularity:
+        type: number
+      pvalue_popularity:
+        type: number
+      r_squared:
+        type: number
+      vif_residualized_exposure:
+        type: number
+      vif_popularity:
+        type: number
+    required:
+      - model_name
+      - coefficient_residualized_exposure
+      - pvalue_residualized_exposure
+
+  SensitivityAnalysis:
+    type: object
+    properties:
+      levenshtein_threshold:
+        type: integer
+      match_rate:
+        type: number
+      coefficient_residualized_exposure:
+        type: number
+      pvalue_residualized_exposure:
+        type: number
+    required:
+      - levenshtein_threshold
+      - match_rate
+      - coefficient_residualized_exposure
+
+  PermutationResults:
+    type: object
+    properties:
+      observed_statistic:
+        type: number
+      null_distribution_mean:
+        type: number
+      null_distribution_std:
+        type: number
+      p_value:
+        type: number
+      iterations:
+        type: integer
+    required:
+      - observed_statistic
+      - p_value
+      - iterations

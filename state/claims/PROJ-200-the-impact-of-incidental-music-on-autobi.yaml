@@ -1,0 +1,20 @@
+- artifact_path: projects/PROJ-200-the-impact-of-incidental-music-on-autobi/specs/001-the-impact-of-incidental-music-on-autobi/spec.md
+  attempts: 1
+  canonical: Data sources include Million Song Dataset and Autobiographical Memory
+    Test corpus
+  claim_id: c_c0665ff9
+  context: The system must ingest data from the Million Song Dataset (MSD) and the
+    Autobiographical Memory Test (AMT) corpus.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_sources_include_Million_Song_Dataset_and_Autobiographic
+  kind: entity_fact
+  raw_text: The system must ingest data from the Million Song Dataset (MSD) and the
+    Autobiographical Memory Test (AMT) corpus.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T06:05:19Z'

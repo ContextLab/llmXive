@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (`pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-Levenshtein`, `pyyaml`, `tqdm`, `scipy`)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (`pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-Levenshtein`, `pyyaml`, `tqdm`, `scipy`)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `contracts/dataset.schema.yaml` defining Track, CohortListen, MemoryCue, and AggregatedMetric schemas
-- [ ] T005 Create `contracts/output.schema.yaml` for regression results and sensitivity analysis outputs
-- [ ] T006 [P] Implement `code/config.py` with paths, thresholds (Levenshtein ≤ 4), seeds, and fallback flags
-- [ ] T007 Setup `data/raw/`, `data/processed/`, and `data/final/` directories with `.gitkeep`
-- [ ] T008 Implement `code/__init__.py` and basic logging configuration in `code/utils.py`
+- [X] T004 Create `contracts/dataset.schema.yaml` defining Track, CohortListen, MemoryCue, and AggregatedMetric schemas
+- [X] T005 Create `contracts/output.schema.yaml` for regression results and sensitivity analysis outputs
+- [X] T006 [P] Implement `code/config.py` with paths, thresholds (Levenshtein ≤ 4), seeds, and fallback flags
+- [X] T007 Setup `data/raw/`, `data/processed/`, and `data/final/` directories with `.gitkeep`
+- [X] T008 Implement `code/__init__.py` and basic logging configuration in `code/utils.py`
 - [ ] T009 Create `state.yaml` mechanism for checksum tracking of derived files
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,10 +75,10 @@
 - [ ] T016a [SPEC UPDATE] Update `spec.md` FR-001 to define `residualized_exposure_score` as the primary predictor, including the regression formula (adolescent_exposure ~ overall_popularity).
 - [ ] T016b [SPEC UPDATE] Update `spec.md` FR-005 to change the unit of analysis from "individual memory instance" to "User-Track Pair" and update the model formula to `mean_vividness ~ residualized_exposure + popularity + (1|user_id)`.
 - [ ] T016c [SPEC UPDATE] Update `spec.md` FR-007 to explicitly define the permutation test as a **block-permutation** on **User-Track Pair** rows (shuffling exposure scores while preserving the User-Track grouping structure), replacing the invalid "shuffling memory outcomes" definition.
-- [ ] T016d [SPEC UPDATE] Update `spec.md` FR-004 to change aggregation from "per matched track" to "per User-Track Pair".
-- [ ] T016e [SPEC UPDATE] Update `spec.md` SC-004 to explicitly state: "Log unmatched cues and proceed with a warning if the match rate is < 80%; do not halt the pipeline."
-- [ ] T016f [SPEC UPDATE] Update `spec.md` FR-006 to explicitly mandate **re-aggregation** of data to User-Track pairs for each sensitivity threshold (2, 4, 6).
-- [ ] T016g [SPEC UPDATE] Update `spec.md` Edge Cases section to explicitly state: "The fallback check for missing birth years (>50%) MUST be performed BEFORE applying the Minimum Listen Threshold filter to prevent empty datasets."
+- [~] T016d [SPEC UPDATE] Update `spec.md` FR-004 to change aggregation from "per matched track" to "per User-Track Pair".
+- [~] T016e [SPEC UPDATE] Update `spec.md` SC-004 to explicitly state: "Log unmatched cues and proceed with a warning if the match rate is < 80%; do not halt the pipeline."
+- [~] T016f [SPEC UPDATE] Update `spec.md` FR-006 to explicitly mandate **re-aggregation** of data to User-Track pairs for each sensitivity threshold (2, 4, 6).
+- [~] T016g [SPEC UPDATE] Update `spec.md` Edge Cases section to explicitly state: "The fallback check for missing birth years (>50%) MUST be performed BEFORE applying the Minimum Listen Threshold filter to prevent empty datasets."
 
 **Checkpoint**: Spec is now consistent with the Plan and ready for implementation.
 
@@ -94,19 +94,22 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
-- [ ] T011 [US1] Unit test for exposure score calculation (0 listens = 0.0) in `tests/unit/test_ingestion.py`
-- [ ] T012 [US1] Unit test for fallback "global exposure" trigger when >50% missing birth years in `tests/unit/test_ingestion.py`
+- [~] T010 [US1] Unit test for birth year filtering logic in `tests/unit/test_ingestion.py`
+- [~] T011 [US1] Unit test for exposure score calculation (0 listens = 0.0) in `tests/unit/test_ingestion.py`
+- [~] T012 [US1] Unit test for fallback "global exposure" trigger when >50% missing birth years in `tests/unit/test_ingestion.py` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs
-- [ ] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence)
-- [ ] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run before any frequency filtering.
-- [ ] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **ORDERING**: This runs AFTER the fallback check (T023).
-- [ ] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
-- [ ] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and extracting residuals. Formula: `residuals = observed - predicted`.
-- [ ] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
+- [~] T013 [US1] Implement `code/data_ingestion.py` function `download_datasets` to download/verify MSD and AMT datasets from canonical URLs
+- [~] T013a [US1] Implement `code/data_ingestion.py` function `filter_cohort` to filter MSD logs for `birth_year` presence and calculate adolescent window (birth_year + early adolescence to late adolescence)
+- [~] T023 [US1] Implement `code/data_ingestion.py` function `handle_fallback` for FR-008 (Global Exposure metric) if birth year data is insufficient (>50% missing). **ORDERING**: This check MUST run before any frequency filtering.
+- [~] T015 [US1] Implement `code/data_ingestion.py` function `apply_frequency_threshold` to filter tracks with < 10 total listens. **ORDERING**: This runs AFTER the fallback check (T023).
+- [~] T014 [US1] Implement `code/data_ingestion.py` function `calculate_ratio_score` to compute `adolescent_exposure_score` (adolescent listens / total valid listens) per track
+- [~] T016 [US1] Implement `code/data_ingestion.py` function `calculate_residualized_score` to compute `residualized_exposure_score` by running OLS regression of `adolescent_exposure_score` ~ `overall_popularity_score` and extracting residuals. Formula: `residuals = observed - predicted`.
+- [~] T018 [US1] Generate `data/processed/ingested_cohort.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,20 +123,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T019 [US2] Unit test for text normalization (lowercase, remove punctuation) in `tests/unit/test_matching.py`
-- [ ] T020 [US2] Unit test for fuzzy matching logic (Levenshtein distance ≤ 4) in `tests/unit/test_matching.py`
-- [ ] T021 [US2] Unit test for aggregation logic (mean vividness/valence per User-Track) in `tests/unit/test_matching.py`
+- [~] T019 [US2] Unit test for text normalization (lowercase, remove punctuation) in `tests/unit/test_matching.py`
+- [~] T020 [US2] Unit test for fuzzy matching logic (Levenshtein distance ≤ 4) in `tests/unit/test_matching.py`
+- [~] T021 [US2] Unit test for aggregation logic (mean vividness/valence per User-Track) in `tests/unit/test_matching.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/cue_matching.py` function `normalize_cues` to normalize AMT cues and load MSD track titles into a searchable index
-- [ ] T023 [US2] Implement `code/cue_matching.py` function `match_cues` to perform fuzzy matching with Levenshtein distance ≤ 4 and log unmatched cues
-- [ ] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to resolve ambiguous matches (same title/artist) and log collisions
-- [ ] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data` to join matched cues with exposure data (Track-level exposure joined to User-Track pairs)
-- [ ] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track` to aggregate data to **User-Track Pair** level (mean vividness, mean valence) as per plan.md update
-- [ ] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with high exposure but no memory cues
-- [ ] T036 [US2] [P] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ 80%); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. This task MUST run before any modeling tasks.
-- [ ] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
+- [~] T022 [US2] Implement `code/cue_matching.py` function `normalize_cues` to normalize AMT cues and load MSD track titles into a searchable index
+- [~] T023 [US2] Implement `code/cue_matching.py` function `match_cues` to perform fuzzy matching with Levenshtein distance ≤ 4 and log unmatched cues
+- [~] T024 [US2] Implement `code/cue_matching.py` function `resolve_collisions` to resolve ambiguous matches (same title/artist) and log collisions
+- [~] T025 [US2] Implement `code/aggregation.py` function `join_exposure_data` to join matched cues with exposure data (Track-level exposure joined to User-Track pairs)
+- [~] T026 [US2] Implement `code/aggregation.py` function `aggregate_to_user_track` to aggregate data to **User-Track Pair** level (mean vividness, mean valence) as per plan.md update
+- [~] T027 [US2] Implement `code/aggregation.py` function `filter_zero_variance` to filter out tracks with high exposure but no memory cues
+- [~] T036 [US2] [P] Implement `code/aggregation.py` function `enforce_match_rate` to verify SC-004 (Match Rate ≥ 80%); **LOG WARNING** and proceed if threshold is missed, do NOT raise exception. This task MUST run before any modeling tasks.
+- [~] T029 [US2] Generate `data/processed/user_track_pairs.parquet` with checksum and update `state.yaml`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -147,20 +150,20 @@
 
 ### Tests for User Story 3
 
-- [ ] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
-- [ ] T031 [US3] Unit test for sensitivity analysis loop (thresholds, 4, 6) in `tests/unit/test_modeling.py`
-- [ ] T032 [US3] Unit test for permutation test logic (block-permutation) in `tests/unit/test_modeling.py`
+- [~] T030 [US3] Unit test for model formula construction in `tests/unit/test_modeling.py`
+- [~] T031 [US3] Unit test for sensitivity analysis loop (thresholds, 4, 6) in `tests/unit/test_modeling.py`
+- [~] T032 [US3] Unit test for permutation test logic (block-permutation) in `tests/unit/test_modeling.py`
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
-- [ ] T034 [US3] Implement `code/modeling.py` function `fit_valence_model` to fit the same model for `mean_valence`
-- [ ] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
-- [ ] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds 2 and 6.
-- [ ] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. Shuffle the `residualized_exposure_score` values among tracks while preserving the User-Track grouping structure (i.e., keep the mean_vividness and user_id intact for each pair, shuffle the exposure score assigned to the pair). Run a sufficient number of iterations to establish a null distribution. Compare observed statistic to null distribution.
-- [ ] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
-- [ ] T039 [US3] Generate `data/final/sensitivity_analysis.csv` and `data/final/permutation_results.csv`
-- [ ] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
+- [~] T033 [US3] Implement `code/modeling.py` function `fit_mixed_model` to fit `statsmodels` MixedLM: `mean_vividness ~ residualized_exposure + popularity + (1|user_id)` on **User-Track pairs**
+- [~] T034 [US3] Implement `code/modeling.py` function `fit_valence_model` to fit the same model for `mean_valence`
+- [~] T035 [US3] Implement `code/modeling.py` function `check_collinearity` to calculate Variance Inflation Factor (VIF) and check for multicollinearity (VIF > 5)
+- [~] T044 [US3] Implement `code/modeling.py` function `run_sensitivity_analysis` to re-match, **re-aggregate to User-Track pairs**, and re-model with Levenshtein thresholds 2 and 6.
+- [~] T045 [US3] Implement `code/modeling.py` function `run_permutation_test` to perform a **block-permutation** on the **User-Track Pair** dataset. Shuffle the `residualized_exposure_score` values among tracks while preserving the User-Track grouping structure (i.e., keep the mean_vividness and user_id intact for each pair, shuffle the exposure score assigned to the pair). Run a sufficient number of iterations to establish a null distribution. Compare observed statistic to null distribution.
+- [~] T038 [US3] Generate `data/final/regression_summary.csv` containing coefficients, SEs, p-values, and VIFs
+- [~] T039 [US3] Generate `data/final/sensitivity_analysis.csv` and `data/final/permutation_results.csv`
+- [~] T040 [US3] Generate diagnostic plots (residual checks, QQ plots) and save to `data/final/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -170,11 +173,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `README.md` and `code/` docstrings
-- [ ] T042 Code cleanup and refactoring of `code/main.py` orchestration script
-- [ ] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
-- [ ] T044 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data
-- [ ] T045 Security hardening: ensure no PII leaks in logs or output files
+- [~] T041 [P] Documentation updates in `README.md` and `code/` docstrings
+- [~] T042 Code cleanup and refactoring of `code/main.py` orchestration script
+- [~] T043 Performance optimization: ensure chunking is used if memory > 5GB during ingestion
+- [~] T044 [P] Add integration test in `tests/integration/test_pipeline.py` to run full flow on synthetic data
+- [~] T045 Security hardening: ensure no PII leaks in logs or output files
 - [ ] T046 Run `quickstart.md` validation to ensure pipeline runs end-to-end within 6 hours
 
 ---
@@ -187,8 +190,8 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **Spec Finalization (Phase 2.5)**: Depends on Foundational - BLOCKS all User Stories
 - **User Stories (Phase 3+)**: All depend on Foundational + Spec Finalization phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -256,9 +259,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational + Spec Finalization together
 2. Once Foundational + Spec Finalization is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

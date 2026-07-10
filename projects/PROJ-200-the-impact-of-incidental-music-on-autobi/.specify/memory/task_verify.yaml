@@ -1,0 +1,14 @@
+T009 Create `state.yaml` mechanism for checksum tracking of derived files: 1
+? T016a [SPEC UPDATE] Update `spec.md` FR-001 to define `residualized_exposure_score`
+  as the primary predictor, including the regression formula (adolescent_exposure
+  ~ overall_popularity).
+: 1
+? T016b [SPEC UPDATE] Update `spec.md` FR-005 to change the unit of analysis from
+  "individual memory instance" to "User-Track Pair" and update the model formula to
+  `mean_vividness ~ residualized_exposure + popularity + (1|user_id)`.
+: 1
+? T016c [SPEC UPDATE] Update `spec.md` FR-007 to explicitly define the permutation
+  test as a **block-permutation** on **User-Track Pair** rows (shuffling exposure
+  scores while preserving the User-Track grouping structure), replacing the invalid
+  "shuffling memory outcomes" definition.
+: 1

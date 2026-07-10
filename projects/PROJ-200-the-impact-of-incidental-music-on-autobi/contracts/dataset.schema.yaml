@@ -1,0 +1,93 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schemas
+definitions:
+  Track:
+    type: object
+    properties:
+      track_id:
+        type: string
+      title:
+        type: string
+      artist:
+        type: string
+      overall_popularity_score:
+        type: number
+        minimum: 0
+        maximum: 1
+    required:
+      - track_id
+      - title
+      - artist
+
+  CohortListen:
+    type: object
+    properties:
+      user_id:
+        type: string
+      track_id:
+        type: string
+      listen_count:
+        type: integer
+        minimum: 0
+      birth_year:
+        type: integer
+        minimum: 1900
+        maximum: 2025
+    required:
+      - user_id
+      - track_id
+      - listen_count
+      - birth_year
+
+  MemoryCue:
+    type: object
+    properties:
+      cue_id:
+        type: string
+      user_id:
+        type: string
+      cue_text:
+        type: string
+      vividness:
+        type: number
+        minimum: 1
+        maximum: 5
+      valence:
+        type: number
+        minimum: -1
+        maximum: 1
+      matched_track_id:
+        type: string
+        nullable: true
+      match_confidence:
+        type: number
+        minimum: 0
+        maximum: 1
+    required:
+      - cue_id
+      - user_id
+      - cue_text
+      - vividness
+      - valence
+
+  AggregatedMetric:
+    type: object
+    properties:
+      user_id:
+        type: string
+      track_id:
+        type: string
+      mean_vividness:
+        type: number
+      mean_valence:
+        type: number
+      count_cues:
+        type: integer
+      residualized_exposure_score:
+        type: number
+    required:
+      - user_id
+      - track_id
+      - mean_vividness
+      - mean_valence
+      - count_cues
