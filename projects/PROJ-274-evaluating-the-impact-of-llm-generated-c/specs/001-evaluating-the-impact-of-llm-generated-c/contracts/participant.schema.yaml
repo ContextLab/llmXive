@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Participant Schema
+description: Schema for participant records in the LLM documentation study.
+type: object
+properties:
+  participant_id:
+    type: string
+    description: Unique anonymized ID for the participant.
+    pattern: "^[a-z0-9]{8}$"
+  condition:
+    type: string
+    description: Assigned experimental condition.
+    enum:
+      - "llm"
+      - "human"
+      - "none"
+  start_time:
+    type: string
+    description: Session start time in ISO 8601 format.
+    format: date-time
+  end_time:
+    type: string
+    description: Session end time in ISO 8601 format.
+    format: date-time
+  total_time_sec:
+    type: integer
+    description: Total elapsed time in seconds.
+    minimum: 0
+  status:
+    type: string
+    description: Completion status.
+    enum:
+      - "complete"
+      - "incomplete"
+      - "failed"
+  dropout_reason:
+    type: string
+    description: Reason for dropout (if applicable).
+  anonymized:
+    type: boolean
+    description: Whether PII has been removed.
+    const: true
+  irb_protocol_hash:
+    type: string
+    description: SHA256 hash of the IRB protocol document.
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - participant_id
+  - condition
+  - start_time
+  - end_time
+  - total_time_sec
+  - status
+  - anonymized
+  - irb_protocol_hash
+additionalProperties: false

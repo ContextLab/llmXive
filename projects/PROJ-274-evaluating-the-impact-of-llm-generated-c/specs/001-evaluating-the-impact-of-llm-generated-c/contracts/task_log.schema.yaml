@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TaskLog Schema
+description: Schema for per-task metrics in the LLM documentation study.
+type: object
+properties:
+  log_id:
+    type: string
+    description: Unique log entry ID.
+    pattern: "^[a-z0-9]{8}$"
+  participant_id:
+    type: string
+    description: Reference to participant ID.
+    pattern: "^[a-z0-9]{8}$"
+  task_id:
+    type: string
+    description: Unique task ID.
+    pattern: "^T[0-9]{3}$"
+  start_time:
+    type: string
+    description: Task start time in ISO 8601 format.
+    format: date-time
+  end_time:
+    type: string
+    description: Task end time in ISO 8601 format.
+    format: date-time
+  time_sec:
+    type: integer
+    description: Elapsed time in seconds.
+    minimum: 0
+  help_request_count:
+    type: integer
+    description: Number of "Help Requests" (keyword + moderator tag).
+    minimum: 0
+  cognitive_load_proxy:
+    type: number
+    description: Composite score for cognitive load (time, clicks, NASA-TLX).
+    minimum: 0.0
+    maximum: 100.0
+  helpfulness_rating:
+    type: integer
+    description: Likert scale rating (1-5).
+    minimum: 1
+    maximum: 5
+  moderator_intervention:
+    type: boolean
+    description: Whether moderator intervened.
+  intervention_type:
+    type: string
+    description: Type of intervention.
+    enum:
+      - "clarification"
+      - "action"
+      - "none"
+  status:
+    type: string
+    description: Task completion status.
+    enum:
+      - "complete"
+      - "failed"
+      - "timeout"
+required:
+  - log_id
+  - participant_id
+  - task_id
+  - start_time
+  - end_time
+  - time_sec
+  - help_request_count
+  - cognitive_load_proxy
+  - helpfulness_rating
+  - moderator_intervention
+  - intervention_type
+  - status
+additionalProperties: false

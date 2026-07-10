@@ -1,4 +1,4 @@
-resolved_at: '2026-07-08T08:14:54.877385+00:00'
+resolved_at: '2026-07-10T01:51:25.915920+00:00'
 datasets:
 - intent: ANOVA
   status: verified
@@ -15,28 +15,24 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Transformative_learning_and_community_engagement_for_sustainable_competency_development_in_higher_education_a_PLS-SEM-ANN_analysis_from_Ecuador_docx/32934869
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Sensory_and_Contextual_Drivers_of_Consumer_Acceptance_of_Functional_Peach_Drinks_Formulated_with_Synergistic_Green_Tea_and_Turmeric_Extracts/32944730
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/data_of_enhanced_olivine_weathering_v2/32920037
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Aboriginal_and_Torres_Strait_Islander_Arts_Advocacy_and_Activism_as_a_Context_for_Teaching_Learning/32952992
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Assamese_Dual-Channel_Speech_Dataset/32934821
+  - url: https://figshare.com/articles/figure/Supplementary_Figures_S1-S5_and_Supplementary_Table_S1/32952932
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Supplementary_Material_for_A_Conceptual_Model_and_Supporting_Approach_for_EU_Taxonomy_Alignment_with_Green_BPM_/30316711
+  - url: https://figshare.unimelb.edu.au/articles/report/Reconciliation_and_Education_New_report_and_recommendations/32952986
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Geometric_Mirror_Model_GEMM_v1_0_Main_Paper_and_Popular_Science_Supplements__/32778645
+  - url: https://figshare.com/articles/poster/College_of_Nursing_Sciences_Alor_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registrat/32952971
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/1255322
@@ -55,23 +51,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21257026
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21287044
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21257026
+  - url: https://zenodo.org/records/21287044
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/363316
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.tht76hff8
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21256491
+  - url: https://doi.org/10.26192/q4v07
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21256491
+    status: unreachable
+    reason: 'reachability failed: HTTP 405'
+  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

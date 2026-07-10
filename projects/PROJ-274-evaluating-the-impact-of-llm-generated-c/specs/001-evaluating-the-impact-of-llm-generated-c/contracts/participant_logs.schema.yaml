@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Participant Logs Schema
+description: Schema for raw participant session logs from the onboarding experiment.
+type: object
+properties:
+  participant_id:
+    type: string
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    description: "Unique UUID for the participant."
+  condition:
+    type: string
+    enum:
+      - llm_docs
+      - human_docs
+      - no_docs
+    description: "Experimental condition assigned."
+  repo_id:
+    type: string
+    description: "Reference to the repository used."
+  task_start_time:
+    type: string
+    format: date-time
+    description: "ISO8601 timestamp of task start."
+  task_end_time:
+    type: string
+    format: date-time
+    description: "ISO8601 timestamp of task end."
+  elapsed_seconds:
+    type: integer
+    minimum: 0
+    description: "Total time taken in seconds."
+  clarification_questions:
+    type: integer
+    minimum: 0
+    description: "Count of clarification questions asked."
+  subjective_rating:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Likert scale rating of documentation helpfulness."
+  status:
+    type: string
+    enum:
+      - complete
+      - incomplete
+      - dropped
+    description: "Completion status of the session."
+required:
+  - participant_id
+  - condition
+  - repo_id
+  - task_start_time
+  - task_end_time
+  - elapsed_seconds
+  - clarification_questions
+  - subjective_rating
+  - status
+additionalProperties: false

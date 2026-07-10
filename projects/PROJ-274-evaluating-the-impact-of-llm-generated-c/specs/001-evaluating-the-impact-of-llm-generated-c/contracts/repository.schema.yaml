@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Repository Schema
+description: Schema for repository metadata in the LLM documentation study.
+type: object
+properties:
+  repo_id:
+    type: string
+    description: Unique repository ID.
+    pattern: "^[a-z0-9]{8}$"
+  url:
+    type: string
+    description: GitHub repository URL.
+    format: uri
+  commit_hash:
+    type: string
+    description: Pinned commit hash.
+    pattern: "^[a-f0-9]{40}$"
+  loc:
+    type: integer
+    description: Lines of Code.
+    minimum: 0
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic Complexity.
+    minimum: 0
+  has_human_docs:
+    type: boolean
+    description: Whether human documentation exists.
+  doc_rubric_score:
+    type: integer
+    description: Rubric score (0-4) for Human Docs.
+    minimum: 0
+    maximum: 4
+  condition:
+    type: string
+    description: Assigned experimental condition.
+    enum:
+      - "llm"
+      - "human"
+      - "none"
+required:
+  - repo_id
+  - url
+  - commit_hash
+  - loc
+  - cyclomatic_complexity
+  - has_human_docs
+  - doc_rubric_score
+  - condition
+additionalProperties: false

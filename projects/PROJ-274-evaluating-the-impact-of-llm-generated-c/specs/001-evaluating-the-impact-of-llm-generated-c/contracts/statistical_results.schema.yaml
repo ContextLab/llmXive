@@ -1,0 +1,116 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Results Schema
+description: Schema for the output of the statistical analysis pipeline.
+type: object
+properties:
+  test_type:
+    type: string
+    enum:
+      - "Welch's ANOVA"
+      - "Games-Howell"
+    description: "Primary statistical test performed."
+  normality_test:
+    type: object
+    properties:
+      method:
+        type: string
+        const: "Shapiro-Wilk"
+      statistic:
+        type: number
+      p_value:
+        type: number
+    required:
+      - method
+      - statistic
+      - p_value
+    description: "Result of the normality check (descriptive only)."
+  homogeneity_test:
+    type: object
+    properties:
+      method:
+        type: string
+        const: "Levene's Test"
+      statistic:
+        type: number
+      p_value:
+        type: number
+    required:
+      - method
+      - statistic
+      - p_value
+    description: "Result of the homogeneity of variance check (descriptive only)."
+  primary_test:
+    type: object
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
+      degrees_of_freedom:
+        type: array
+        items:
+          type: integer
+      covariates:
+        type: array
+        items:
+          type: string
+        description: "List of covariates used in ANCOVA (e.g., LOC, CC, Human Doc Quality)."
+    required:
+      - statistic
+      - p_value
+    description: "Result of the primary group comparison test."
+  post_hoc:
+    type: object
+    properties:
+      method:
+        type: string
+        enum:
+          - "Games-Howell"
+      comparisons:
+        type: array
+        items:
+          type: object
+          properties:
+            group_a:
+              type: string
+            group_b:
+              type: string
+            p_value:
+              type: number
+            adjusted_p_value:
+              type: number
+          required:
+            - group_a
+            - group_b
+            - p_value
+            - adjusted_p_value
+    required:
+      - method
+      - comparisons
+    description: "Pairwise comparisons with family-wise error correction."
+  conclusion:
+    type: string
+    description: "Narrative summary of the null hypothesis rejection."
+  resource_usage:
+    type: object
+    properties:
+      peak_memory_mb:
+        type: number
+      total_runtime_seconds:
+        type: number
+      cpu_cores:
+        type: integer
+    required:
+      - peak_memory_mb
+      - total_runtime_seconds
+      - cpu_cores
+    description: "Performance metrics for the analysis pipeline."
+required:
+  - test_type
+  - normality_test
+  - homogeneity_test
+  - primary_test
+  - post_hoc
+  - conclusion
+  - resource_usage
+additionalProperties: false

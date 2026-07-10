@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: LLMConfig Schema
+description: Schema for LLM generation configuration.
+type: object
+properties:
+  config_id:
+    type: string
+    description: Unique configuration ID.
+    pattern: "^[a-z0-9]{8}$"
+  model_name:
+    type: string
+    description: Primary LLM model name.
+  version:
+    type: string
+    description: Model version or commit hash.
+  temperature:
+    type: number
+    description: Sampling temperature.
+    minimum: 0.0
+    maximum: 2.0
+  prompt_template:
+    type: string
+    description: Prompt template used for generation.
+  fallback_model:
+    type: string
+    description: Fallback model name (e.g., phi-2).
+  checksum:
+    type: string
+    description: SHA256 checksum of the configuration.
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - config_id
+  - model_name
+  - version
+  - temperature
+  - prompt_template
+  - fallback_model
+  - checksum
+additionalProperties: false

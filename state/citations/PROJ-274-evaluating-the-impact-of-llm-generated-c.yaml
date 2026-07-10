@@ -1,11 +1,33 @@
-- artifact_hash: e3faa61e2e340729ec16eeb9f4f81e47e75ecc3f64e53d5685f17e1f5f70567c
+- artifact_hash: e4805ceeafb573607dc2aed6307177dee3bd4344417ab02ca3c6a41e38171a87
   artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: functional_anova_2026-05-19.json
   kind: url
-  value: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+  value: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json`
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/P2SAMAPA/p2-etf-functional-anova-results/ab66418d2512562f99763e50575a2bd193eb923c/functional_anova_2026-05-19.json?%2Fdatasets%2FP2SAMAPA%2Fp2-etf-functional-anova-results%2Fresolve%2Fmain%2Ffunctional_anova_2026-05-19.json=&etag=%2201fff0768cdf9ee211af561c87088fd962cf384c%22
-  verified_at: '2026-07-08T08:26:59.897207Z'
+  verified_at: '2026-07-10T02:01:32.111565Z'
+- artifact_hash: 6786b443edcd40cfd5ba3f7d40c458c22fd7679e4849daba9f43c47921e3b727
+  artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/evaluating-llm-docs-impact.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/evaluating-llm-docs-impact
+  verified_at: '2026-07-10T02:01:44.274730Z'
+- artifact_hash: 6786b443edcd40cfd5ba3f7d40c458c22fd7679e4849daba9f43c47921e3b727
+  artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/example/repo
+  verification_status: mismatch
+  verified_against_url: https://github.com/example/repo
+  verified_at: '2026-07-10T02:01:44.274730Z'
