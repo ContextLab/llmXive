@@ -1,0 +1,15 @@
+? "T006 [P] Implement `code/data_generator.py` function to generate Mock gene models\
+  \ CSV with Drosophila release 6 TSS/TES coordinates. Must simulate a **distribution\
+  \ of TE insertions across the genome, ensuring a mix of proximal (\u22645kb) and\
+  \ distal (>5kb) insertions** to provide necessary negative controls for filtering\
+  \ logic. (FR-002, FR-011)"
+: 1
+? T008 [P] Implement `code/data_generator.py` function to filter monomorphic TEs (freq
+  < 5% or > 95%) in the generated dataset and log exclusions. Ensure the final output
+  CSV only contains polymorphic TEs. (FR-008)
+: 1
+? T009 [P] Implement `code/preprocessing.py` function to calculate Variance Inflation
+  Factor (VIF) for TE presence vs PCs (for use in association testing).
+: 1
+T010 [P] Implement `code/association.py` skeleton for linear model fitting (`log2(expr) ~ TE + PC1 + PC2 + PC3`): 1
+T011 [P] Implement `code/association.py` function to apply Benjamini-Hochberg correction and filter FDR < 0.05: 1
