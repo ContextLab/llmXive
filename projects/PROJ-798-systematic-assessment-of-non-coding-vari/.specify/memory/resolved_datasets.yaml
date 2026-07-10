@@ -1,26 +1,26 @@
-resolved_at: '2026-07-10T08:58:47.911997+00:00'
+resolved_at: '2026-07-10T23:02:42.093669+00:00'
 datasets:
 - intent: SNPs
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_png/32955953
+  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -36,31 +36,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10866351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7053677
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14800106
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1106623
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.98sf7m0w7
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/405711
+  - url: https://zenodo.org/records/17438022
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_silico_i_characterization_of_MC4R_variants_reveals_insights_into_Setmelanotide_pharmacogenomics_and_personalized_medicine_for_obesity/32451204
+  - url: https://zenodo.org/records/17438022
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_silico_i_characterization_of_MC4R_variants_reveals_insights_into_Setmelanotide_pharmacogenomics_and_personalized_medicine_for_obesity/32451204/1
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Genome-wide_association_study_for_sucrose_content_and_cane_yield-related_traits_in_sugarcane_Saccharum_spp_using_diverse_germplasm_globally/32806406/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/6G1OBG
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_Genome-wide_association_study_for_sucrose_content_and_cane_yield-related_traits_in_sugarcane_Saccharum_spp_using_diverse_germplasm_globally/32806406
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -101,26 +101,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -128,11 +125,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12750653
+  - url: https://zenodo.org/records/14750745
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14750745
+  - url: https://zenodo.org/records/12750653
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -140,27 +137,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19412362
+  - url: https://zenodo.org/records/6378127
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20557405
+  - url: https://yareta.unige.ch/archives/5289c100-bc49-4535-89db-2d3c52a8da5a
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20557405
+  - url: https://yareta.unige.ch/archives/e85dff46-edae-47f9-a553-8a6a375816f2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1106623
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.98sf7m0w7
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/405711
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/NTUYAP
+  - url: https://tandf.figshare.com/articles/dataset/Genetic_characterisation_of_the_Cane_da_Pastore_della_Sila_an_Italian_guardian_dog_breed/32957972
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -194,30 +191,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10493047
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/16907933
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15304631
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -225,16 +227,12 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10493047
+  - url: https://zenodo.org/records/10760183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8062771
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.cambridge.org/core/journals/genetics-research/article/patterns-of-evolution-of-genes-disrupted-in-expression-in-drosophila-species-hybrids/C6DF24AE75BDB35B5747D143DC6D58D1
-    source: zenodo
+  - url: https://adattar.unideb.hu/dataset.xhtml?persistentId=doi:10.48428/ADATTAR/T3OMKJ
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://fair.unifg.it//handle/11369/369205
@@ -250,10 +248,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -302,26 +296,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -345,23 +336,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21291745
+  - url: https://yareta.unige.ch/archives/35300a59-24fc-4ec6-b862-309b5b66f395
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21291745
+  - url: https://yareta.unige.ch/archives/7e1af251-839f-4de7-9f0e-bb0978e8d28b
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/153099
+  - url: https://yareta.unige.ch/archives/66cbf2d5-d170-4fff-a192-8f18fcfff268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Uncovering_superior_alleles_and_genetic_loci_for_yield-related_traits_in_mungbean_Vigna_radiata_L_Wilczek_through_a_genome-wide_association_study/8586286/1
+  - url: https://yareta.unige.ch/archives/9b275ef8-e012-4c1f-9e82-4371ba0cbad5
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/Uncovering_superior_alleles_and_genetic_loci_for_yield-related_traits_in_mungbean_Vigna_radiata_L_Wilczek_through_a_genome-wide_association_study/8586286
+  - url: https://yareta.unige.ch/archives/83ec6764-3b97-4cfb-b93c-31e6e2f68eae
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -410,26 +401,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -445,31 +433,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ijere.iaescore.com/index.php/IJERE/article/view/20709
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/200884
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://ijere.iaescore.com/index.php/IJERE/article/view/20709
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://campagnes.flotteoceanographique.fr/campagnes/1200070/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.17153.01125
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21296797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21296797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21270936
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/wc4h7/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/d9djq/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/3mfbc/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21257486
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -477,26 +465,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -516,7 +501,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14207730
+  - url: https://zenodo.org/records/7783033
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -544,26 +529,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -587,6 +569,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://edoc.ub.uni-muenchen.de/36877/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://boris-portal.unibe.ch/handle/20.500.12422/223633
     source: datacite
     status: wrong_format
@@ -600,10 +586,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://boris-portal.unibe.ch/handle/20.500.12422/248953
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/jf5dh/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -644,29 +626,26 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Data_and_codes_of_paper_Study_on_the_Efficiency_of_Industry-University-Research_Collaborative_Innovation_in_China_Based_on_a_Two-Stage_Game_Cross-Efficiency_Model_Incorporating_Shapley_Value_/32955860
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
-      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/16414829
     source: zenodo
     status: wrong_format
@@ -687,23 +666,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292356
+  - url: https://yareta.unige.ch/archives/217b9fac-38f9-4a21-9f2e-df4adea124b1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21292356
+  - url: https://depositonce.tu-berlin.de/handle/11303/27409
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/155512
+  - url: https://figshare.com/articles/journal_contribution/A_Century_of_Petrology_Enduring_Debates_Emerging_Frontiers/32961590/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1138295
+  - url: https://figshare.com/articles/journal_contribution/A_Century_of_Petrology_Enduring_Debates_Emerging_Frontiers/32961590
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/363317
+  - url: https://zenodo.org/records/18979384
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -730,23 +709,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/Keeping_Pace_with_Evolving_APIs_via_Continual_Learning_in_LLMs_How_Far_Are_We_/31868494
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Towards_mutualist_appropriation_art_an_artist-centred_perspective/32908835
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Data_and_codes_of_paper_Study_on_the_Efficiency_of_Industry-University-Research_Collaborative_Innovation_in_China_Based_on_a_Two-Stage_Game_Cross-Efficiency_Model_Incorporating_Shapley_Value_/32955860
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961800
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+  - url: https://figshare.com/articles/book/_2-_____1979_2026___________-_-_Russia/32961797
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+  - url: https://figshare.com/articles/preprint/_b_Selection_as_Ontology_A_Non-Dual_Framework_for_Time_Identity_and_b_/32961767
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -766,18 +745,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14228315
+  - url: https://zenodo.org/records/15355910
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/103435
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26262/heal.auth.ir.374945
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
-      port=80): Max retries exceeded with url: /record/374945 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
-      port=80) at 0x7f6e15be3890>, ''Connection to ikee.lib.auth.gr timed out. (connect
-      timeout=20.0)''))'

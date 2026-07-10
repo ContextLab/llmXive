@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-798-systematic-assessment-of-non-coding-vari",
+  "stage": "clarified",
+  "last_error": "research.md reference is unreachable: 'http://jaspar.genereg.net/download/data/2024/CORE/JASPAR2024_CORE_non_redundant_pfms_jaspar.txt' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-10T23:08:52.116012+00:00",
+  "count": 1
+}
