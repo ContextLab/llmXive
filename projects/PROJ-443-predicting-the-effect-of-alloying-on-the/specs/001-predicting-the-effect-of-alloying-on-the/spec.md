@@ -57,7 +57,7 @@ As a researcher, I need to extract feature importance (SHAP/Permutation) and gen
 
 1. **Given** the best-performing model, **When** the interpretability module runs, **Then** it identifies the top 3-5 compositional descriptors contributing to prediction variance.
 2. **Given** the final results, **When** the summary is drafted, **Then** it explicitly states that correlations do not imply causation due to the observational nature of the dataset.
-3. **Given** the R² null hypothesis threshold (0.3), **When** sensitivity analysis runs (sweeping thresholds {0.25, 0.30, 0.35}), **Then** it reports the **p-value for R² > 0.3 (estimated via permutation testing)** at each threshold to assess robustness. **If the p-value at the specified significance threshold exceeds 0.05, the primary claim is rejected and the study halts.**
+3. **Given** the R² null hypothesis threshold (0.3), **When** sensitivity analysis runs (sweeping thresholds {0.25, 0.30, 0.35}), **Then** it reports the **p-value for R² > 0.3 (estimated via permutation testing)** at each threshold to assess robustness. **If the p-value at the specified significance threshold exceeds the predetermined level of statistical significance, the primary claim is rejected and the study halts.**
 
 ---
 
@@ -68,7 +68,7 @@ As a researcher, I need to extract feature importance (SHAP/Permutation) and gen
 - **How does system handle** compositional data where element percentages do not sum to 1.0 (data entry error)?
   - **Given** raw compositional data where percentages do not sum to 1.0, **When** the normalization step runs, **Then** the system normalizes percentages to sum to 1.0 and logs the adjustment before feature engineering.
 - **What happens when** a model overfits due to high dimensionality relative to sample size?
-  - **Given** a train/test gap, **When** the evaluation concludes, **Then** the system calculates the 95% confidence interval of the gap. **If the 95% CI excludes zero (i.e., the gap is statistically significant), the system reports the gap and halts** to prevent invalid model deployment.
+  - **Given** a train/test gap, **When** the evaluation concludes, **Then** the system calculates the 95% confidence interval of the gap. **If the confidence interval excludes zero (i.e., the gap is statistically significant), the system reports the gap and halts** to prevent invalid model deployment.
 - **What happens when** the number of unique element groups (for bootstrapping) is insufficient (e.g., < 10 groups)?
   - **Given** a group count below 10, **When** the bootstrap setup runs, **Then** the system logs a warning: "Insufficient groups for grouped bootstrap (N=[N]); falling back to standard bootstrap with caution" and proceeds, **flagging the resulting confidence intervals as potentially underestimated** in the final report.
 - **What happens when** the OQMD/MP APIs lack Bulk Modulus data?

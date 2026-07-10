@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Schema"
+description: "Schema for the output metrics of trained regression models."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+      - "ElasticNet"
+  target_variable:
+    type: "string"
+    description: "The target variable predicted."
+  r2_score:
+    type: "number"
+  rmse:
+    type: "number"
+  mae:
+    type: "number"
+  r2_ci_lower:
+    type: "number"
+    description: "95% confidence interval lower bound for R²."
+  r2_ci_upper:
+    type: "number"
+    description: "95% confidence interval upper bound for R²."
+  permutation_p_value:
+    type: "number"
+    description: "P-value for the null hypothesis R² = 0."
+  significant:
+    type: "boolean"
+    description: "True if p-value < 0.05."
+  miedema_correlation:
+    type: "number"
+    description: "Pearson |r| between residuals and Miedema features."
+  circularity_warning:
+    type: "boolean"
+    description: "True if |r| > 0.1."
+required:
+  - model_type
+  - target_variable
+  - r2_score
+  - rmse
+  - mae
+  - r2_ci_lower
+  - r2_ci_upper
+  - permutation_p_value
+  - significant
+  - miedema_correlation
+  - circularity_warning
+additionalProperties: false

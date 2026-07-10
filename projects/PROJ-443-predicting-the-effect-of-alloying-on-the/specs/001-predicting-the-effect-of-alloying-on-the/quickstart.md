@@ -2,84 +2,85 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- API Keys for Materials Project (if available)
-- ~8 GB free disk space
+-   Python 3.11+
+-   `pip`
+-   Access to GitHub Actions (for CI execution) or a local environment with 7 GB+ RAM.
 
 ## Installation
 
-1. **Clone and Setup**:
-   ```bash
-   cd projects/PROJ-443-predicting-the-effect-of-alloying-on-the
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    cd projects/PROJ-443-predicting-the-effect-of-alloying-on-the
+    ```
 
-2. **Configure API Keys**:
-   Create `code/config.py` or set environment variables:
-   ```bash
-   export MP_API_KEY="your_key_here"
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
 ## Running the Pipeline
 
-Execute the full pipeline (Fetch -> Process -> Train -> Evaluate -> Report):
+The pipeline is executed via the main entry point `code/main.py`.
+
+### Full Pipeline Execution
 
 ```bash
-python code/main_pipeline.py
+python code/main.py --mode full
 ```
+
+This command performs the following steps sequentially:
+1.  **Fetch**: Downloads data from OQMD (using verified URLs).
+2.  **Clean**: Normalizes compositions and filters for HEAs (≥5 elements).
+3.  **Engineer**: Computes descriptors and applies ILR transformation.
+4.  **Train**: Trains RF, GB, and ElasticNet models.
+5.  **Evaluate**: Computes metrics, CIs, and permutation tests.
+6.  **Report**: Generates `results/report.md` and `results/metrics.yaml`.
 
 ### Step-by-Step Execution
 
-1. **Data Fetch**:
-   ```bash
-   python code/data/fetch_hea_data.py
-   ```
-   - Downloads from OQMD (verified URLs) and Materials Project.
-   - Generates `data/source_metadata.yaml` (includes API versions).
-   - **Halts** if < 500 samples.
+To run individual stages:
 
-2. **Feature Engineering**:
-   ```bash
-   python code/data/preprocess.py
-   ```
-   - Applies ILR transformation.
-   - Calculates Residual Bulk Modulus.
-   - **Excludes** Miedema features if predicting Residual.
+```bash
+# Data Ingestion
+python code/main.py --mode fetch
 
-3. **Validation Check**:
-   ```bash
-   python code/data/validate.py
-   ```
-   - Checks residual vs. descriptor correlation (Warning if $|r| > 0.1$).
+# Feature Engineering
+python code/main.py --mode engineer
 
-4. **Model Training & Evaluation**:
-   ```bash
-   python code/models/train.py
-   python code/models/evaluate.py
-   ```
-   - Runs RF, GB, ElasticNet.
-   - Performs Grouped Bootstrap (sufficient iterations).
-   - Computes FDR-corrected p-values.
-   - Runs Permutation Test for Type I error (Thresholds: a range of values).
+# Model Training & Evaluation
+python code/main.py --mode train
 
-5. **Report Generation**:
-   ```bash
-   python code/reports/generate_report.py
-   ```
-   - Outputs `results/report.md` with SHAP plots and **Associational Disclaimer**.
+# Interpretability & Reporting
+python code/main.py --mode report
+```
 
 ## Expected Outputs
 
-- `data/processed/hea_dataset.csv`: Cleaned dataset.
-- `data/source_metadata.yaml`: Provenance record.
-- `results/metrics.yaml`: Performance metrics.
-- `results/report.md`: Final scientific summary.
+-   `data/source_metadata.yaml`: Provenance of downloaded datasets.
+-   `data/processed/heas_features.parquet`: Cleaned dataset with descriptors.
+-   `results/metrics.yaml`: JSON/YAML containing R², RMSE, MAE, CIs, and p-values.
+-   `results/plots/`: Directory containing parity plots, SHAP summary plots, and partial dependence plots.
+-   `results/report.md`: Final summary with associational disclaimers.
 
 ## Troubleshooting
 
-- **"Retrieved [N] samples; threshold 500 not met"**: The public datasets did not provide enough HEA samples. The pipeline halts to prevent underpowered analysis.
-- **"Insufficient groups for grouped bootstrap"**: A limited number of unique element sets are expected to be found. Proceeds with standard bootstrap (warning logged).
-- **"Potential confound detected"**: Residuals correlate with a descriptor. Proceeds with caution; check `results/report.md` for notes.
-- **"Bulk Modulus not found in dataset"**: The verified OQMD dataset lacks the required target variable. The pipeline halts.
+-   **Insufficient Data**: If the pipeline reports "Underpowered Study", check `results/report.md` for the specific sample count and confidence interval widening details.
+-   **Circularity Warning**: If a "Potential circularity detected" warning appears, review the `results/report.md` section on Residual Validity.
+-   **Memory Errors**: If the process exceeds 7 GB RAM, the pipeline will automatically downsample the dataset. Check logs for the sampling ratio.
+
+## Validation
+
+To verify the installation and data integrity:
+
+```bash
+pytest tests/contract/
+pytest tests/integration/
+```
+
+Ensure all tests pass before proceeding to the research phase.

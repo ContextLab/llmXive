@@ -1,0 +1,31 @@
+end_time: "2023-10-27T12:00:00.000000"
+min_elements_threshold: 5
+output_file: data/processed/hea_features.csv
+output_rows: 0
+seed: 42
+sources:
+- count: 0
+  name: OQMD
+  status: empty
+- count: 0
+  name: Materials Project
+  status: empty
+start_time: "2023-10-27T12:00:00.000000"
+steps:
+  fetch:
+    duration_seconds: 0.0
+    total_rows_fetched: 0
+  filter:
+    details: {}
+    rows_after: 0
+    rows_before: 0
+  feature_engineering:
+    descriptor_count: 0
+    duration_seconds: 0.0
+    ilr_applied: true
+  normalize:
+    details: {}
+    duration_seconds: 0.0
+  target_calculation:
+    duration_seconds: 0.0
+total_duration_seconds: 0.0

@@ -1,40 +1,64 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Dataset Schema"
-description: "Schema for the processed High-Entropy Alloy dataset CSV."
+description: "Schema for the processed High-Entropy Alloy dataset used in model training."
 type: "object"
 properties:
   sample_id:
     type: "string"
-    description: "Unique identifier for the alloy sample."
+    description: "Unique identifier for the sample."
   composition:
+    type: "object"
+    description: "Elemental composition with atomic fractions."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  element_set:
     type: "string"
-    description: "JSON string of elemental composition (e.g. '{\"Fe\": 0.2}')."
-  bulk_modulus_observed:
+    description: "Sorted string of constituent elements."
+  elastic_constants:
+    type: "object"
+    properties:
+      bulk_modulus:
+        type: "number"
+      shear_modulus:
+        type: "number"
+      young_modulus:
+        type: "number"
+      poisson_ratio:
+        type: "number"
+  features:
+    type: "object"
+    description: "Computed descriptors."
+    properties:
+      mixing_entropy:
+        type: "number"
+      atomic_radius_variance:
+        type: "number"
+      electronegativity_variance:
+        type: "number"
+      miedema_mixing_enthalpy:
+        type: "number"
+      miedema_radius_variance:
+        type: "number"
+      miedema_electronegativity_variance:
+        type: "number"
+      ilr_features:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - mixing_entropy
+      - atomic_radius_variance
+      - electronegativity_variance
+      - ilr_features
+  target_residual_bulk_modulus:
     type: "number"
-    description: "Observed Bulk Modulus in GPa."
-  bulk_modulus_miedema:
-    type: "number"
-    description: "Bulk Modulus calculated via Miedema's model in GPa."
-  bulk_modulus_residual:
-    type: "number"
-    description: "Residual Bulk Modulus (Observed - Miedema)."
-  constituent_elements:
-    type: "string"
-    description: "Sorted string of constituent elements (e.g. 'CrMnFeCoNi')."
-  source:
-    type: "string"
-    enum:
-      - "OQMD"
-      - "MaterialsProject"
-    description: "Source of the data."
-  ilr_features:
-    type: "string"
-    description: "JSON string of ILR-transformed features."
+    description: "Observed Bulk Modulus minus Miedema prediction."
 required:
   - sample_id
   - composition
-  - bulk_modulus_observed
-  - bulk_modulus_residual
-  - constituent_elements
-  - source
-additionalProperties: true
+  - element_set
+  - elastic_constants
+  - features
+additionalProperties: false

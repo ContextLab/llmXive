@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, E501, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
+per-file-ignores =
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py: F401
+    # Allow unused arguments in test files
+    tests/*: ARG001, ARG002
+# Ensure we don't flag docstring formatting that might differ slightly
+docstring-convention = google

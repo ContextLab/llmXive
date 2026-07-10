@@ -1,4 +1,4 @@
-- artifact_hash: 50155a53cdada3a730f4686224e5b40550b073d88b3cea70152c2fe35c4df6d1
+- artifact_hash: f06ee72329c6b3a02f644bcf92e880b0e72ad53d4e21699877764ef033bc37ef
   artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,16 +7,16 @@
   kind: url
   value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&Expires=1783385990&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMzg1OTkwfX19XX0_&Signature=MEUCIQCTUpc8BjV3nniURvj6HopUoGte88GXwV1WhQDsc6equwIgf17UA906jjPjbmaPWfGoWcTAjWbG4DSdj3hg7dDmyuw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-06T23:59:50.740154Z'
-- artifact_hash: 50155a53cdada3a730f4686224e5b40550b073d88b3cea70152c2fe35c4df6d1
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&response-content-type=text%2Fcsv&Expires=1783701086&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGFyZ2V0cy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ0YXJnZXRzLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNzAxMDg2fX19XX0_&Signature=MEYCIQD6ZUtyBPYsKpg8imo7fNtrOWmi-W4leEQinONiZr3ceAIhAO7mYLLXud6%7E-X9J%7EN1Ms1tLlCCjUoVSSHNotZfM-ynr&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T15:31:25.959807Z'
+- artifact_hash: f06ee72329c6b3a02f644bcf92e880b0e72ad53d4e21699877764ef033bc37ef
   artifact_path: projects/PROJ-443-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "punwaiw/il-reasoning-responses \xB7 Datasets at Hugging Face"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/punwaiw/il-reasoning-responses/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/punwaiw/il-reasoning-responses
-  verified_at: '2026-07-06T23:59:50.740154Z'
+  value: https://materialsproject.org`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-10T15:31:25.959807Z'

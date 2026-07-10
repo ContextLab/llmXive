@@ -1,62 +1,60 @@
 # Data Model: Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys
 
-## Entities & Relationships
+## Entity Definitions
 
 ### 1. HEA Sample
-Represents a single alloy instance.
+Represents a single high-entropy alloy instance.
 - **Attributes**:
-  - `sample_id`: Unique identifier (string).
-  - `composition`: Dictionary of element:atomic_percent (e.g., `{"Fe": 0.2, "Co": 0.2...}`).
-  - `bulk_modulus_observed`: Float (GPa).
-  - `bulk_modulus_miedema`: Float (GPa) (Calculated).
-  - `bulk_modulus_residual`: Float (GPa) (Target: Observed - Miedema).
-  - `constituent_elements`: String (e.g., "FeCoNiCrMn") (Grouping key).
-  - `source`: String ("OQMD" or "MaterialsProject").
+  - `sample_id`: Unique string identifier (e.g., "OQMD_12345").
+  - `composition`: Dictionary of element:atomic_fraction (e.g., `{"Fe": 0.2, "Co": 0.2, ...}`).
+  - `element_set`: Sorted string of unique elements (e.g., "CrMnFeCoNi"). Used for grouping.
+  - `elastic_constants`: Dictionary containing `bulk_modulus`, `shear_modulus`, `young_modulus`, `poisson_ratio`.
+  - `formation_energy`: Float (eV/atom).
 
 ### 2. Compositional Descriptor
-Derived features for ML.
+Derived features calculated from the composition.
 - **Attributes**:
-  - `sample_id`: Foreign key to HEA Sample.
-  - `mixing_enthalpy`: Float (eV/atom) (Calculated via Miedema).
-  - `atomic_radius_variance`: Float.
+  - `mixing_entropy`: Float (J/mol·K).
+  - `atomic_radius_variance`: Float (Å²).
   - `electronegativity_variance`: Float.
-  - `valence_electron_concentration`: Float.
-  - `entropy_of_mixing`: Float.
-  - `ilr_features`: Array of Float (ILR-transformed composition).
-- **Constraint**: If `target_type` == "residual", `mixing_enthalpy` MUST be excluded from the predictor matrix.
+  - `miedema_mixing_enthalpy`: Float (kJ/mol).
+  - `miedema_radius_variance`: Float (Å²).
+  - `miedema_electronegativity_variance`: Float.
+  - `ilr_features`: List of Floats (transformed composition coordinates).
 
 ### 3. Model Performance Record
-Evaluation output.
+Evaluation metrics for a specific model run.
 - **Attributes**:
-  - `model_name`: String ("RF", "GB", "ElasticNet").
-  - `r2`: Float.
+  - `model_type`: String (e.g., "RandomForest").
+  - `target_variable`: String (e.g., "ResidualBulkModulus").
+  - `r2_score`: Float.
   - `rmse`: Float.
   - `mae`: Float.
-  - `r2_ci_lower`: Float (95% CI).
-  - `r2_ci_upper`: Float (95% CI).
-  - `p_value_null`: Float (Test vs $R^2=0$).
+ - `r2_ci_lower`: Float ([deferred] lower bound).
+ - `r2_ci_upper`: Float ([deferred] upper bound).
+  - `permutation_p_value`: Float.
   - `significant`: Boolean.
-  - `fdr_corrected_p`: Float (Pairwise comparison).
 
 ### 4. Source Metadata
-Provenance record (FR-010).
+Provenance information for external data.
 - **Attributes**:
-  - `dataset_name`: String.
-  - `api_version`: String (e.g., "v1", "2024-05").
-  - `query_parameters`: String (JSON encoded).
-  - `timestamp`: ISO 8601.
-  - `checksum`: String (SHA256).
+  - `source_name`: String (e.g., "OQMD").
+  - `api_version`: String.
+  - `query_parameters`: Dictionary.
+  - `timestamp`: ISO 8601 string.
+  - `checksum`: SHA-256 hash of the raw file.
 
 ## Data Flow
 
-1. **Ingestion**: Raw JSON/CSV from APIs -> `data/raw/`.
-2. **Validation**: Check for `bulk_modulus` and `>=5` elements.
-3. **Transformation**:
-   - Normalize composition (sum=1).
-   - Calculate Miedema enthalpy.
-   - Apply ILR to composition.
-   - Calculate Residual Target.
-   - **Filter**: Remove Miedema enthalpy from features if Target is Residual.
-4. **Storage**: `data/processed/hea_dataset.csv`.
-5. **Modeling**: Train -> Evaluate -> `results/metrics.yaml`.
-6. **Reporting**: Generate `paper/report.md` with associational disclaimer.
+1.  **Ingestion**: Raw JSON/CSV from OQMD/MP → `data/raw/`.
+2.  **Cleaning**: Normalization of composition, filtering for ≥5 elements → `data/processed/heas_clean.csv`.
+3.  **Engineering**: Calculation of descriptors and ILR transformation → `data/processed/heas_features.parquet`.
+4.  **Modeling**: Training and evaluation → `results/metrics.yaml`.
+5.  **Reporting**: Aggregation of metrics and plots → `results/report.md`.
+
+## Constraints & Rules
+
+-   **Closure Constraint**: Composition percentages MUST sum to 1.0 (normalized if not).
+-   **Miedema Exclusion**: If `target_variable` contains "Residual", `$MIEDEMA_FEATURES$` MUST be removed from the feature set before training.
+-   **Grouping**: All bootstrap resampling MUST be grouped by `element_set`.
+-   **Null Handling**: Missing elastic constants result in sample exclusion.
