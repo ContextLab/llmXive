@@ -59,11 +59,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/config.yaml` with pinned random seeds, dataset versions (Auger DOI: 10.5281/zenodo.3966535, TA: 2023-01), and path definitions
+- [ ] T004 [P] Create `code/config.yaml` with pinned random seeds, dataset versions (Auger DOI: 10.5281/zenodo.3966535 [UNRESOLVED-CLAIM: c_f2a48608 — status=not_enough_info], TA: 2023-01), and path definitions
 - [ ] T005 [P] Implement checksum verification logic in `code/ingestion/checksum.py` using SHA-256; ensure logic writes checksums to `state/projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso.yaml` as required by Constitution Principle III
 - [ ] T006 [P] Setup logging infrastructure in `code/utils/logging.py` to record event exclusion counts and pipeline steps
 - [ ] T007a [P] Create `code/models/event_catalog.py` with `EventCatalog` class (Energy, RA, Dec, Source)
-- [ ] T007b [P] Create `code/models/exposure_map.py` with `ExposureMap` class (HEALPix Nside=64, exposure values)
+- [ ] T007b [P] Create `code/models/exposure_map.py` with `ExposureMap` class (HEALPix Nside=64 [UNRESOLVED-CLAIM: c_90fa8763 — status=not_enough_info], exposure values)
 - [ ] T007c [P] Create `code/models/power_spectrum.py` with `PowerSpectrum` class (ell values, Cl values, p-value)
 - [ ] T008 [P] Implement graceful error handling for missing data repositories in `code/ingestion/download_events.py`
 - [ ] T032a [P] Create/Initialize `research.md` in `specs/001-testing-cosmic-ray-arrival-direction-iso/` if missing, with placeholder sections for detector types and calibration methods
@@ -75,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Pre-processing (Priority: P1) 🎯 MVP
 
-**Goal**: Download public UHECR event catalogs from Pierre Auger and Telescope Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).
+**Goal**: Download public UHECR event catalogs from Pierre Auger and Telescope Array, apply energy cut (E > 50 EeV [UNRESOLVED-CLAIM: c_96eedc7e — status=not_enough_info]), and convert RA/Dec to HEALPix map (Nside=64).
 
 **Independent Test**: Execute ingestion script on local/CI; verify existence of valid HEALPix map file with correct event count, no NaN coordinates, and coverage matching detector footprints.
 
@@ -88,9 +88,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `download_events.py` to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535) and TA Public Data 2023-01 to `data/raw/`
-- [ ] T012 [US1] Implement `preprocess.py` to filter events with E > 50 EeV, exclude missing energy/coords, and log exclusion counts
-- [ ] T013 [US1] Implement `analysis/healpix_conversion.py` to convert RA/Dec to HEALPix Nside=64, handling wrap-around and pixel overflow
+- [ ] T011 [P] [US1] Implement `download_events.py` to fetch Fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535) and TA Public Data 2023-01 [UNRESOLVED-CLAIM: c_57d717b6 — status=not_enough_info] and The document references Telescope Array Public Data 2023-01. [UNRESOLVED-CLAIM: c_64c316cf — status=not_enough_info] to `data/raw/`
+- [ ] T012 [US1] Implement `preprocess.py` to filter events with E > 50 EeV [UNRESOLVED-CLAIM: c_96eedc7e — status=not_enough_info], exclude missing energy/coords, and log exclusion counts
+- [ ] T013 [US1] Implement `analysis/healpix_conversion.py` to convert RA/Dec to HEALPix Nside=64 [UNRESOLVED-CLAIM: c_90fa8763 — status=not_enough_info], handling wrap-around and pixel overflow
 - [ ] T014 [US1] Fetch pinned exposure maps (Auger from `, TA from ` Name or service not known)"))]) to `data/processed/`
 - [ ] T015 [US1] Add validation to ensure combined dataset contains only valid events and output map covers visible sky correctly
 - [ ] T016 [US1] Add logging for data ingestion steps, event counts, and exclusion reasons
@@ -124,7 +124,7 @@
 
 ## Phase 5: User Story 3 - Statistical Significance Testing and Multiple-Comparison Correction (Priority: P3)
 
-**Goal**: Generate a large set of isotropic Monte Carlo simulations (weighted by exposure), compute max $C_\ell$ distribution, and derive global p-value to test isotropy at $\alpha=0.05$.
+**Goal**: Generate a large set of isotropic Monte Carlo simulations (weighted by exposure), compute max $C_\ell$ distribution, and derive global p-value to test isotropy at $\{{claim:c_ec7f39ef}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)$.
 
 **Independent Test**: Run pipeline on purely random isotropic dataset; verify global p-value > 0.05 in [deferred] of trials (false positive rate control).
 
@@ -136,9 +136,9 @@
 ### Implementation for User Story 3
 
 - [ ] T027 [US3] Implement `analysis/monte_carlo.py` to generate [deferred] isotropic event sets weighted by exact exposure map (per FR-004). Note: Must utilize optimization strategies from T027b and T038.
-- [ ] T027b [US3] Implement benchmarking and batching logic in `analysis/monte_carlo.py` to parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit. This task must validate throughput and define the batching strategy before full run.
+- [ ] T027b [US3] Implement benchmarking and batching logic in `analysis/monte_carlo.py` to parallelize The Monte Carlo simulation plan requires 10,000 simulations. [UNRESOLVED-CLAIM: c_88e4e388 — status=not_enough_info] across 2 CPUs within 6-hour runtime limit [UNRESOLVED-CLAIM: c_dbd8bfb2 — status=not_enough_info]. This task must validate throughput and define the batching strategy before full run.
 - [ ] T028 [US3] Implement `stats/significance_test.py` to compute max $C_\ell$ for each of the simulations and build null distribution (depends on T027/T027b completion)
-- [ ] T029 [US3] Implement global empirical p-value calculation by comparing observed max $C_\ell$ to null distribution of 10,000 simulations
+- [ ] T029 [US3] Implement global empirical p-value calculation by comparing observed max $C_\ell$ to null distribution of The Monte Carlo simulation plan requires 10,000 simulations. [UNRESOLVED-CLAIM: c_88e4e388 — status=not_enough_info]
 - [ ] T029b [US3] Persist the null distribution (list of max $C_\ell$ values from [deferred] sims) to `data/processed/null_distribution.json` for verification of SC-002 and SC-003
 - [ ] T030 [US3] Implement binary decision logic: reject isotropy if $p \le \alpha$, else fail to reject
 - [ ] T031 [US3] Add convergence checks to flag degenerate distributions (e.g., all $C_\ell$ identical) as critical failures
@@ -155,9 +155,9 @@
 
 ### Implementation for Research Review Resolution
 
-- [ ] T032 [Review] Update `research.md` to document detector types (Auger Surface Detector, TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks, cosmic ray muons)
-- [ ] T033 [Review] Update `research.md` to calculate and document total integrated exposure (km²·sr·yr) and expected event count (E > 50 EeV) for Auger/TA combined
-- [ ] T034 [Review] Update `data-model.md` to explicitly define statistical test (Angular Power Spectrum / Harmonic Analysis) and confidence level ($\alpha=0.05$)
+- [ ] T032 [Review] Update `research.md` to document detector types ({{claim:c_8caa9269}} (2507.07762, https://arxiv.org/abs/2507.07762), TA Fluorescence/Surface [UNRESOLVED-CLAIM: c_b2710184 — status=not_enough_info]) and calibration methods (atmospheric muons [UNRESOLVED-CLAIM: c_85a8123d — status=not_enough_info], laser tracks [UNRESOLVED-CLAIM: c_21cee0cb — status=not_enough_info], cosmic ray muons [UNRESOLVED-CLAIM: c_fc754a19 — status=not_enough_info])
+- [ ] T033 [Review] Update `research.md` to calculate and document total integrated exposure (km²·sr·yr) and expected event count (E > 50 EeV [UNRESOLVED-CLAIM: c_96eedc7e — status=not_enough_info]) for Auger/TA combined
+- [ ] T034 [Review] Update `data-model.md` to explicitly define statistical test (Angular Power Spectrum / Harmonic Analysis) and confidence level ($\{{claim:c_ec7f39ef}}$)
 - [ ] T035 [Review] Update `code/config.yaml` to include references to calibration procedures and exposure estimates
 - [ ] T036 [Review] Add validation task to ensure research documentation matches implementation parameters in `main.py`
 
@@ -170,7 +170,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 [P] Documentation updates in `docs/` including quickstart.md and API docs
-- [ ] T038 [P] Optimize `map2alm` calls in `analysis/power_spectrum.py` using Nside=64 caching and implement parallel execution strategy in `analysis/monte_carlo.py` to ensure 10,000 simulations complete within 6 hours
+- [ ] T038 [P] Optimize `map2alm` calls in `analysis/power_spectrum.py` using Nside=64 caching and implement parallel execution strategy in `analysis/monte_carlo.py` to ensure The Monte Carlo simulation plan requires 10,000 simulations. [UNRESOLVED-CLAIM: c_88e4e388 — status=not_enough_info] complete within 6 hours
 - [ ] T039 [P] Additional unit tests for edge cases (empty data, missing coords) in `tests/unit/`
 - [ ] T040 Security hardening for external data fetching (checksum verification, timeout handling)
 - [ ] T041 Run quickstart.md validation to ensure end-to-end pipeline execution on CI
@@ -270,6 +270,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All Monte Carlo simulations (N=10,000) must complete within 6 hours on 2-CPU CPU-only runner; optimize `map2alm` calls via T038 and batching (T027b).
 - **Critical Constraint**: No synthetic data for primary scientific results; use real Auger/TA data only.
-- **Plan Discrepancy Note**: Spec FR-004 requires 10,000 simulations. Plan.md currently states [deferred]. Tasks enforce Spec requirement ([deferred]) and add optimization tasks (T027b, T038) to ensure feasibility. Plan.md must be updated to reflect 10,000 simulations and the optimization strategy.
+- **Plan Discrepancy Note**: Spec FR-004 requires The Monte Carlo simulation plan requires 10,000 simulations. [UNRESOLVED-CLAIM: c_88e4e388 — status=not_enough_info]. Plan.md currently states [deferred]. Tasks enforce Spec requirement ([deferred]) and add optimization tasks (T027b, T038) to ensure feasibility. Plan.md must be updated to reflect The Monte Carlo simulation plan requires 10,000 simulations. [UNRESOLVED-CLAIM: c_88e4e388 — status=not_enough_info] and the optimization strategy.
 - **Review Resolution**: Phase 6 tasks (T032-T036) specifically address Marie Curie's request for calibration details, exposure estimates, and statistical test definitions.
 - **Constitution Compliance**: Task T005 and T029b ensure Data Hygiene (checksums in state file) and Verified Accuracy (null distribution artifact) as per Constitution Principles III and II.

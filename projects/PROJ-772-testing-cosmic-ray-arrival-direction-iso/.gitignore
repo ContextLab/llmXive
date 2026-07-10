@@ -1,0 +1,49 @@
+# Data artifacts (large binary/text files)
+data/
+!data/.gitkeep
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# State management (keep .gitkeep, ignore generated YAML)
+state/projects/*.yaml
+!state/projects/.gitkeep
+!state/projects/**/.gitkeep
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Logs (if generated in root)
+*.log

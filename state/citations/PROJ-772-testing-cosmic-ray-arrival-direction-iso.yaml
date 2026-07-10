@@ -64,29 +64,30 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4063457
   verified_at: '2026-07-07T02:31:39.882455Z'
-- artifact_hash: 206a4c542ef11b937fd6a31be30c30ce67c4cb131e58f77362e7feec1bfbf477
+- artifact_hash: 0099f7703cf81e6ecc55e8f30256375e6bd8d931b743f8165645deac27d490bb
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: p-value - Wikipedia
   kind: url
-  value: https://www.auger.org/open-data/exposure_maps/`
-  verification_status: mismatch
-  verified_against_url: https://www.auger.org/open-data/exposure_maps/
-  verified_at: '2026-07-07T02:53:27.411560Z'
-- artifact_hash: 206a4c542ef11b937fd6a31be30c30ce67c4cb131e58f77362e7feec1bfbf477
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-07-10T01:38:57.649189Z'
+- artifact_hash: 0099f7703cf81e6ecc55e8f30256375e6bd8d931b743f8165645deac27d490bb
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: '[2507.07762] The Scintillator Surface Detector of the Pierre Auger
+    Observatory'
   kind: url
-  value: https://www.telescope-array.org/`
-  verification_status: unreachable
-  verified_against_url: https://www.telescope-array.org/
-  verified_at: '2026-07-07T02:53:27.411560Z'
-- artifact_hash: 206a4c542ef11b937fd6a31be30c30ce67c4cb131e58f77362e7feec1bfbf477
+  value: https://arxiv.org/abs/2507.07762
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2507.07762
+  verified_at: '2026-07-10T01:38:57.649189Z'
+- artifact_hash: 0099f7703cf81e6ecc55e8f30256375e6bd8d931b743f8165645deac27d490bb
   artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -96,4 +97,4 @@
   value: 10.5281/zenodo.3966535
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.3966535
-  verified_at: '2026-07-07T02:53:27.411560Z'
+  verified_at: '2026-07-10T01:38:57.649189Z'

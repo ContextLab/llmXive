@@ -1,0 +1,765 @@
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Ultra-high-energy cosmic ray energy cut at 50 EeV
+  claim_id: c_dc88bc61
+  context: Implement preprocess.py to filter events with E > 50 EeV, exclude missing
+    energy/coords, and log exclusion counts
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter events with E > 50 EeV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:59:00Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: HEALPix Nside parameter set to 64 for angular power spectrum
+  claim_id: c_c6990192
+  context: Implement analysis/healpix_conversion.py to convert RA/Dec to HEALPix Nside=64,
+    handling wrap-around and pixel overflow
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Convert RA/Dec to HEALPix map with Nside=64
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:59:35Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular power spectrum computed for multipoles 1 to 5
+  claim_id: c_7828777d
+  context: "Compute angular power spectrum ($C_\ell$) for $\ell=1..5$ from HEALPix\
+    \ map, using detector exposure to generate expected isotropic distribution"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute angular power spectrum for ell=1..5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:01:35Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Shot-noise subtraction term 1/N_tot applied to power spectrum
+  claim_id: c_5cb4c1ac
+  context: "Implement analysis/power_spectrum.py to compute spherical-harmonic coefficients\
+    \ $a_{\ell m}$ from the exposure-corrected intensity map with shot-noise subtraction\
+    \ ($1/N_{tot}$)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use shot-noise subtraction of 1/N_tot
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:04:28Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Monte Carlo simulation count set to 10,000
+  claim_id: c_885eeedd
+  context: 'Implement analysis/monte_carlo.py to generate [deferred] isotropic event
+    sets... Note: Must utilize optimization strategies... to parallelize 10,000 simulations
+    across 2 CPUs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 10,000 isotropic Monte Carlo simulations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:06:34Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha set to 0.05
+  claim_id: c_e6fcfc6a
+  context: "Derive global p-value to test isotropy at $\alpha=0.05$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test isotropy at alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:09:10Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Simulation performance target 10,000 runs on 2 CPUs in 6 hours
+  claim_id: c_ac507b08
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 10,000 simulations across 2 CPUs within 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:11:49Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Integrated exposure unit km squared steradian year
+  claim_id: c_fd97df3d
+  context: "Update research.md to calculate and document total integrated exposure\
+    \ (km\xB2\xB7sr\xB7yr) and expected event count (E > 50 EeV) for Auger/TA combined"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integrated_exposure_unit_km_squared_steradian_year
+  kind: entity_fact
+  raw_text: "Calculate total integrated exposure in km\xB2\xB7sr\xB7yr"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:12:20Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Detector types Auger Surface Detector and TA Fluorescence/Surface
+  claim_id: c_b743712e
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detector_types_Auger_Surface_Detector_and_TA_Fluorescence/Su
+  kind: entity_fact
+  raw_text: Use Auger Surface Detector and TA Fluorescence/Surface detector types
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:13:36Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python version 3.11
+  claim_id: c_bfd685cb
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:15:24Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: healpy dependency version 1.16.0
+  claim_id: c_931f10b7
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., healpy>=1.16.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use healpy version 1.16.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:15:54Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: numpy dependency version 1.24.0
+  claim_id: c_ee3d9b53
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... numpy>=1.24.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use numpy version 1.24.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:16:24Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: pandas dependency version 2.0.0
+  claim_id: c_18dc9bf8
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... pandas>=2.0.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pandas version 2.0.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:17:10Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: scipy dependency version 1.10.0
+  claim_id: c_a2ce50f5
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... scipy>=1.10.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy version 1.10.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:17:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: astropy dependency version 5.3.0
+  claim_id: c_89e3841d
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... astropy>=5.3.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use astropy version 5.3.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:18:26Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: requests dependency version 2.31.0
+  claim_id: c_ab4ae21a
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... requests>=2.31.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use requests version 2.31.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:18:45Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: tqdm dependency version 4.65.0
+  claim_id: c_2a144f87
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... tqdm>=4.65.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use tqdm version 4.65.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:19:16Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: pytest dependency version 7.4.0
+  claim_id: c_c8b1a42e
+  context: Initialize Python 3.11 project with requirements.txt in code/ containing
+    exact version pins (e.g., ... pytest>=7.4.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use pytest version 7.4.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:19:50Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Checksum algorithm SHA-256
+  claim_id: c_ae7c3236
+  context: Implement checksum verification logic in code/ingestion/checksum.py using
+    SHA-256
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SHA-256 for checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:20:39Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array data version 2023-01
+  claim_id: c_c48bdf13
+  context: 'Create code/config.yaml with pinned random seeds, dataset versions (Auger
+    DOI: 10.5281/zenodo.3966535, TA: 2023-01), and path definitions'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use TA data version 2023-01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:21:23Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Energy cut E greater than 50 EeV
+  claim_id: c_b29774f1
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_cut_E_greater_than_50_EeV
+  kind: magnitude
+  raw_text: The analysis requires an energy cut of E > 50 EeV.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:24:18Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: HEALPix Nside 64
+  claim_id: c_b5a9f1c8
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses HEALPix Nside=64 for the map resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:24:55Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Angular power spectrum ell 1 to 5
+  claim_id: c_224d18ef
+  context: "Goal: Compute angular power spectrum ($C_\ell$) for $\ell=1..5$ from HEALPix\
+    \ map, using detector exposure to generate expected isotropic distribution and\
+    \ analyzing residuals with shot-noise subtraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The angular power spectrum is computed for ell values from 1 to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:25:27Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Significance level alpha 0.05
+  claim_id: c_9835b879
+  context: "Goal: Generate a large set of isotropic Monte Carlo simulations (weighted\
+    \ by exposure), compute max $C_\ell$ distribution, and derive global p-value to\
+    \ test isotropy at $\alpha=0.05$."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical significance test uses a confidence level of alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T01:25:42Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: 6 hour runtime limit
+  claim_id: c_5da1cd0a
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation runtime target is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:26:37Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: 2 CPU parallel execution
+  claim_id: c_89de3cfe
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation execution uses 2 CPUs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:27:19Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Auger Surface Detector and TA Fluorescence Surface detector types
+  claim_id: c_c590e38d
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Auger_Surface_Detector_and_TA_Fluorescence_Surface_detector
+  kind: entity_fact
+  raw_text: The detector types specified are Auger Surface Detector and TA Fluorescence/Surface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:28:10Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 2
+  canonical: Calibration methods atmospheric muons laser tracks cosmic ray muons
+  claim_id: c_a7298754
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calibration_methods_atmospheric_muons_laser_tracks_cosmic_ra
+  kind: entity_fact
+  raw_text: Use atmospheric muons, laser tracks, and cosmic ray muons for calibration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:28:13Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_185088b3
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/'
+  evidence:
+    asserted: '2020.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: 'The Pierre Auger Open Data 2020 is available at DOI: 10.5281/zenodo.3966535.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T01:28:29Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Public Data 2023-01 availability
+  claim_id: c_a4c34823
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Telescope Array Public Data 2023-01 is available for download.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:29:23Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 3
+  canonical: Auger Open Data 2020 DOI 10.5281/zenodo.3966535
+  claim_id: c_57d717b6
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535) and TA Public
+    Data 2023-01'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:31:49Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 2
+  canonical: Telescope Array Public Data 2023-01
+  claim_id: c_64c316cf
+  context: 'Implement download_events.py to fetch Auger Open Data 2020 (DOI: 10.5281/zenodo.3966535)
+    and TA Public Data 2023-01 to data/raw/'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document references Telescope Array Public Data 2023-01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:31:49Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 2
+  canonical: 10000 Monte Carlo simulations
+  claim_id: c_88e4e388
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulation plan requires 10,000 simulations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:31:49Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: simulation runtime limit of 6 hours
+  claim_id: c_dbd8bfb2
+  context: Implement benchmarking and batching logic in analysis/monte_carlo.py to
+    parallelize 10,000 simulations across 2 CPUs within 6-hour runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 6-hour runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:32:24Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: energy cut greater than 50 EeV
+  claim_id: c_96eedc7e
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_cut_greater_than_50_EeV
+  kind: magnitude
+  raw_text: E > 50 EeV
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:33:36Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: HEALPix map with Nside 64
+  claim_id: c_90fa8763
+  context: 'Goal: Download public UHECR event catalogs from Pierre Auger and Telescope
+    Array, apply energy cut (E > 50 EeV), and convert RA/Dec to HEALPix map (Nside=64).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HEALPix Nside=64
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:33:57Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: significance level alpha 0.05
+  claim_id: c_ec7f39ef
+  context: "Goal: Generate a large set of isotropic Monte Carlo simulations (weighted\
+    \ by exposure), compute max $C_\ell$ distribution, and derive global p-value to\
+    \ test isotropy at $\alpha=0.05$."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T01:34:20Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Pierre Auger Observatory Surface Detector
+  claim_id: c_8caa9269
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: and consists of an array of 1660 water-Cherenkov detectors (WCD) arranged
+        on a triangular grid
+      source_id: '2507.07762'
+      url: https://arxiv.org/abs/2507.07762
+      value: '1660'
+    filled: true
+  kind: entity_fact
+  raw_text: Auger Surface Detector
+  resolved_value: '1660'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T01:35:06Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Telescope Array Fluorescence and Surface Detectors
+  claim_id: c_b2710184
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Telescope_Array_Fluorescence_and_Surface_Detectors
+  kind: entity_fact
+  raw_text: TA Fluorescence/Surface
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:36:08Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: calibration using atmospheric muons
+  claim_id: c_85a8123d
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calibration_using_atmospheric_muons
+  kind: entity_fact
+  raw_text: atmospheric muons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:36:47Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: calibration using laser tracks
+  claim_id: c_21cee0cb
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calibration_using_laser_tracks
+  kind: entity_fact
+  raw_text: laser tracks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:37:57Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: calibration using cosmic ray muons
+  claim_id: c_fc754a19
+  context: Update research.md to document detector types (Auger Surface Detector,
+    TA Fluorescence/Surface) and calibration methods (atmospheric muons, laser tracks,
+    cosmic ray muons)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calibration_using_cosmic_ray_muons
+  kind: entity_fact
+  raw_text: cosmic ray muons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:38:53Z'
+- artifact_path: projects/PROJ-772-testing-cosmic-ray-arrival-direction-iso/specs/001-testing-cosmic-ray-arrival-direction-iso/tasks.md
+  attempts: 1
+  canonical: Zenodo DOI 10.5281/zenodo.3966535 for Auger dataset
+  claim_id: c_f2a48608
+  context: 'Create code/config.yaml with pinned random seeds, dataset versions (Auger
+    DOI: 10.5281/zenodo.3966535, TA: 2023-01), and path definitions'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 10.5281/zenodo.3966535
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T01:38:57Z'
