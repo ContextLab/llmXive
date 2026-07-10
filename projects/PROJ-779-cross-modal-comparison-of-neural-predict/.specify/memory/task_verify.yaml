@@ -1,0 +1,16 @@
+'T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified -->': 1
+? 'T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!--
+  FAILED: unspecified --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!--
+  FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->'
+: 1
+? 'T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!--
+  FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+  <!-- FAILED: unspecified -->'
+: 1
+T010 Setup environment configuration management (load from `.env` or defaults): 1
+? 'T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`,
+  explicitly stating that all data must originate from OpenNeuro datasets and that
+  no synthetic data generation is permitted.'
+: 1

@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-779"
+version = "0.1.0"
+description = "Cross-Modal Comparison of Neural Prediction Error Signals"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "mne",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "pandas",
+    "statsmodels",
+    "h5py",
+    "requests",
+    "huggingface_hub",
+    "python-dotenv",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | figures
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code", "tests"]
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "data",
+    "figures",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in mne/scipy)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
