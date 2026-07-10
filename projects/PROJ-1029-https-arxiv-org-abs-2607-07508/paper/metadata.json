@@ -1,0 +1,43 @@
+{
+  "arxiv_id": "2607.07508",
+  "arxiv_url": "https://arxiv.org/abs/2607.07508",
+  "title": "https://arxiv.org/abs/2607.07508",
+  "authors": [],
+  "submitter": "github-actions[bot]",
+  "abstract": null,
+  "submitted_via": "llmXive dashboard, GitHub issue #813",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "0.main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "0.main.tex",
+    "1.abstract.tex",
+    "2.introduction.tex",
+    "2.preliminary.tex",
+    "3.related_work.tex",
+    "4.method.tex",
+    "5.experiment.tex",
+    "6.conclusion.tex",
+    "7.appendix.tex",
+    "example_paper.bib",
+    "figures",
+    "figures/stepwise_trainingreward.pdf",
+    "figures/overview.pdf",
+    "figures/main_result_aime.pdf",
+    "figures/benchmark_bar_results.pdf",
+    "figures/writing_eval_classicalprompt.pdf",
+    "figures/main_vs_fullparam_criticgradnorm.pdf",
+    "figures/main_vs_criticonce_ev.pdf",
+    "figures/writing_training_reward.pdf",
+    "figures/grpo_vs_grpobasic_clipratio.pdf",
+    "figures/main_result_hmmtnov.pdf",
+    "figures/main_result_beyondaime.pdf",
+    "neurips_2026.sty",
+    "references.bib"
+  ]
+}

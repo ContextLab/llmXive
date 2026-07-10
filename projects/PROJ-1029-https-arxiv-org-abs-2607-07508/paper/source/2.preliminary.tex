@@ -1,0 +1,35 @@
+
+
+\section{Preliminaries}
+In reinforcement learning  for language models, the model is parameterized by $\theta$ as a stochastic policy $\pi_\theta(y|q)$, which generates a response sequence $y = [y_1, \dots, y_{|y|}]$ given a query $q$ from dataset $\mathcal{D}$. RL optimizes $\pi_\theta$ by maximizing a clipped surrogate objective that encourages stable policy updates. Formally, for a given batch of data, the unified optimization target is defined as:
+
+% _{q \sim \mathcal{D}, (y, \hat{A}) \sim \pi_{\theta_{\text{old}}}} 
+\begin{equation*}
+% \mathcal{J}(\theta) = 
+\mathbb{E}\left[ \frac{1}{|y|} \sum_{t=1}^{|y|} \min \left( r_t(\theta) \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \hat{A}_t \right) \right]
+\label{eq:unified_objective}
+\end{equation*}
+% - \beta \mathbb{D}_{\text{KL}}(\pi_\theta || \pi_{\text{ref}}) 
+
+where $r_t(\theta) = \frac{\pi_\theta(y_t \mid q, y_{<t})}{\pi_{\theta_{\text{old}}}(y_t \mid q, y_{<t})}$ is the probability ratio between the current and old policies, $\epsilon$ is the clipping hyperparameter.
+% , and $\beta$ controls the strength of the KL-divergence penalty $\mathbb{D}_{\text{KL}}$ relative to the reference model $\pi_{\text{ref}}$. 
+The fundamental distinction between PPO~\citep{schulman2017proximal} and GRPO~\citep{shao2024deepseekv3} lies in whether to estimate the advantage function $\hat{A}_t$ and the necessity of auxiliary value networks.
+
+\textbf{Proximal Policy Optimization (PPO).} Standard PPO typically adopts an Actor-Critic architecture, requiring the training of a separate value function (Critic) $V_\phi$, parameterized by $\phi$, to estimate the expected return of the current state. This critic is optimized concurrently with the policy to minimize the value error $\mathcal{L}_\phi^{\text{VF}} = \mathbb{E} [ (V_\phi(q, y_{<t}) - R)^2 ]$, where $R$ denotes the cumulative reward. To balance bias and variance, PPO employs Generalized Advantage Estimation (GAE). The advantage $\hat{A}_t^{\text{GAE}}$ is computed as an exponentially weighted sum of temporal difference errors:
+
+\begin{equation*}
+\hat{A}_t^{\text{GAE}} = \sum_{l=0}^{|y|-t-1} (\gamma \lambda)^l \delta_{t+l}
+\end{equation*}
+where $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$.
+While effective, this approach necessitates maintaining a copy of the model parameters for the value function, essentially doubling the memory footprint during training and increasing computational overhead.
+
+\begin{hide}
+\textbf{Group Relative Policy Optimization (GRPO).} In contrast, GRPO obviates the need for a learned value function and thus reduces memory consumption. Instead of relying on a critic for baseline estimation, GRPO utilizes the properties of a group of sampled responses. For each query $q$, the algorithm samples a group of $G$ outputs $\{y_1, \dots, y_G\}$ from the policy $\pi_{\theta_{\text{old}}}$ and computes their respective rewards $\{R_1, \dots, R_G\}$. The advantage for the $i$-th response is then derived by normalizing its reward against the group:
+
+\begin{equation*}
+\hat{A}_{i,t} = \frac{R_i - \mu_R}{\sigma_R}, \quad \text{with} \quad \mu_R = \frac{1}{G}\sum_{j=1}^G R_j
+\end{equation*}
+where, $\sigma_R = \sqrt{\frac{1}{G}\sum_{j=1}^G (R_j - \mu_R)^2 + \epsilon_{\text{stab}}}$. The group mean $\mu_R$ effectively serves as the baseline, replacing the learned value function $V_\phi$. This formulation renders the advantage $\hat{A}_{i,t}$ constant across all tokens within a specific response $y_i$, assuming sequence-level rewards. 
+% By discarding the critic model, GRPO enables the fine-tuning of larger models or the use of larger batch sizes under constrained computational resources.
+
+\end{hide}

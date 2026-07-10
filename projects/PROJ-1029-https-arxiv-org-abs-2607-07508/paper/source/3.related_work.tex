@@ -1,0 +1,16 @@
+\section{Related Work}
+
+\subsection{Reinforcement Learning for Language Models}
+The standard RLHF pipeline trains a reward model from preference data and optimizes the policy with PPO\citep{ouyang2022training, schulman2017proximal}. To reduce the overhead and instability of value-function learning, critic-free objectives such as Group Relative Policy Optimization (GRPO) \citep{deepseek2024math, deepseek2024r1} and REINFORCE-style baselines (e.g., RLOO) \citep{ahmadian2024back} have become increasingly popular. GRPO forms advantages by normalizing rewards within a prompt-level group, which improves stability in synchronous training but introduces an implicit synchronization barrier: updates must wait until all group members are generated, exacerbating staleness and off-policy drift under asynchrony.
+
+Recent work further refines GRPO/PPO-style objectives to improve stability and variance reduction, including sequence-level importance weighting \citep{zheng2025group}, adaptive clipping strategies \citep{yang2025dcpo}, and smoother alternatives to hard clipping \citep{yue2025vapo}. However, these works focus primarily on synchronous RL, where exact importance-sampling ratios are easier to obtain. Importance sampling and clipping strategies for asynchronous RL remain less explored.
+
+
+\subsection{Synchronous and Asynchronous RL for LLMs}
+Most large-scale LLM RL implementations remain synchronous and interleaved: collect a full batch of rollouts with a fixed policy snapshot, then run optimization epochs on that batch \citep{ouyang2022training}. With long-tail output lengths in reasoning and tool-use, synchronous barriers cause stragglers and substantial idle time, motivating asynchronous actor--learner designs where rollout generation and learning proceed concurrently \citep{mnih2016asynchronous, sutton2018reinforcement}. However, asynchrony introduces policy lag and off-policy drift, often requiring staleness-aware training or off-policy corrections \citep{espeholt2018impala}.
+
+Several recent systems target asynchronous RL specifically for LLMs. \citet{noukhovitch2024asynchronous} study asynchronous RLHF as online-but-off-policy learning and characterize robustness tradeoffs. On the systems side, AReaL~\citep{fu2025areal} fully decouples rollout from training and incorporates staleness-aware PPO-style updates for reasoning tasks. ROLL Flash provides fine-grained parallelism and rollout--train decoupling for RLVR and agentic training \citep{lu2025part}.
+Complementary to asynchronous systems, MobileRL studies online agentic RL for mobile GUI agents and introduces difficulty-adaptive GRPO variants to improve stability and sample efficiency in multi-turn GUI environments~\citep{xu2025mobilerl}.
+Our work complements these systems by focusing on the single-rollout setting where group-based baselines (e.g., GRPO) are structurally mismatched, and by stabilizing asynchronous learning algorithm designs.
+
+

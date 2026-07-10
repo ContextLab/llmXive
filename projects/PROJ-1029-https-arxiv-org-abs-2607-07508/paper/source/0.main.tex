@@ -1,0 +1,138 @@
+\documentclass{article}
+
+\usepackage[preprint]{neurips_2026}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{colortbl}       % table row shading
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{amssymb}
+\newcommand{\xmark}{\ding{55}}
+\usepackage{pifont}
+\usepackage{tikz}
+\usepackage{graphicx}
+\usepackage{bm}
+% \usepackage{biblatex}
+\usepackage{verbatim}
+\usepackage{balance}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{xspace}
+\usepackage{threeparttable}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{bbding}
+% \usepackage{caption}
+\usepackage{subfig}
+\usepackage{float}
+\usepackage{wrapfig}
+% \usepackage{subcaption}
+\usepackage[export]{adjustbox}
+% \addbibresource{ref.bib}
+% \usepackage{underscore}
+% \usepackage{cleveref}
+
+
+\def\best{\bf}
+
+\newcommand*{\para}[1]{\noindent\textbf{#1}}
+%% mathematical symbols
+\newcommand*{\Real}{\ensuremath{\mathbb{R}}}
+\newcommand*{\mat}[1]{\ensuremath{\bm{#1}}}
+\newcommand*{\vect}[1]{\ensuremath{\bm{#1}}}
+\newcommand*{\set}[1]{\ensuremath{\mathcal{#1}}}
+
+\newcommand{\vpara}[1]{\vspace{0.04in}\noindent\textbf{#1}\xspace}
+\newcommand{\beq}[1]{{\small \begin{equation}#1\end{equation}}}
+\newcommand{\beqn}[1]{{\small\begin{eqnarray}#1\end{eqnarray}}}
+\newcommand{\besp}[1]{\begin{split}#1\end{split}}
+
+\newcommand{\draftnote}[1]{\textbf{\color{red}[(Draft note: #1 )]}}
+
+\newcommand{\yuxiao}[1]{\textbf{\color{red}[(YD: #1 )]}}
+\newcommand{\stdv}[2][\tiny]{#1\text{$\pm$}#2}
+
+% \newcommand{\model}{MLAgent\xspace}
+% \newcommand{\model}{MLE-RL\xspace}
+\newcommand{\model}{SAO\xspace}
+\usepackage{xcolor}
+% \newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\blue}[1]{#1}
+
+\definecolor{saoRowGray}{gray}{0.92}
+
+% Keep hidden draft-only text suppressed in preprint/final modes.
+\makeatletter
+\@ifundefined{hide}{\NewEnviron{hide}{}}{}
+\makeatother
+
+% Keep the preprint layout while using a custom first-page notice.
+\makeatletter
+\renewcommand{\@noticestring}{Under review, Feb 2026.}
+\makeatother
+
+\title{Advancing Asynchronous Reinforcement Learning for Language Models}
+% \title{\model: Single-Rollout Asynchronous Optimization for Agentic Reinforcement Learning}
+\title{Single-Rollout Asynchronous Optimization for Agentic Reinforcement Learning}
+
+
+\author{%
+Zhenyu Hou\thanks{Equal Contribution. Work done while ZH and YL interned at Z.AI.} \quad
+Yujiang Li\footnotemark[1] \quad
+Jie Tang \quad
+Yuxiao Dong
+\\
+\\
+Tsinghua University
+}
+
+\begin{document}
+
+
+\maketitle
+
+
+
+\input{1.abstract}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/benchmark_bar_results.pdf}
+\vspace{-1mm}
+\caption{\textbf{The performance of \model on reasoning and coding benchmarks.} The four reasoning benchmarks are evaluated in a reasoning-with-Python-tool setting, where the baseline is the Qwen3-30B-A3B SFT model; SWE-Bench Verified evaluates coding with the Qwen3-30B-A3B baseline. \model outperforms the corresponding baseline and GRPO across all five benchmarks.}
+\label{fig:teaser}
+\vspace{-2mm}
+\end{figure}
+
+\input{2.introduction}
+\input{2.preliminary}
+\input{4.method}
+\input{5.experiment}
+% \input{3.related_work}
+\input{3.related_work}
+\input{6.conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\newpage
+\appendix
+\input{7.appendix}
+
+%\clearpage
+%\input{checklist.tex}
+
+
+\end{document}

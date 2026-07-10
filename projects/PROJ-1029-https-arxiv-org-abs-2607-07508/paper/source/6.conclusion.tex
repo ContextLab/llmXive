@@ -1,0 +1,11 @@
+% \section{Limitations and Broader Impact}
+
+% Our experiments focus on large-scale agentic reasoning, coding, and simulated online writing tasks with a Qwen3-30B-A3B backbone. The conclusions therefore may not transfer directly to smaller models, non-agentic RLHF settings, or environments with dense rewards and shorter rollouts. In addition, \model depends on a trained value model and rollout log-probabilities, so deployment requires infrastructure that can reliably preserve token-level behavior probabilities during asynchronous generation. The online learning study uses a controlled simulated preference shift; real user-facing online adaptation would require stronger safeguards, monitoring, and privacy review before deployment.
+
+% By improving the stability and efficiency of LLM reinforcement learning, this work can reduce the cost of training capable agentic systems. The same capability could also make it easier to optimize models for harmful objectives if used without appropriate data filtering, access controls, or evaluation, so responsible release and monitoring are important for any deployed system derived from this work.
+
+\section{Conclusion}
+
+In this work, we explore the optimization of asynchronous RL on the training effectiveness and stability
+% while existing asynchronous systems often trade stability and effectiveness for throughput. 
+We proposed \model, a single-rollout asynchronous RL strategy that addresses off-policy and instability. \model stabilizes training with token-level importance sampling and double-sided clipping/masking, and improves generalization by replacing group-wise sampling with single-rollout enabled by stronger value-model training. On agentic reasoning and coding tasks, \model shows consistent outperformance over GRPO baselines, and adapts effectively in simulated online learning.
