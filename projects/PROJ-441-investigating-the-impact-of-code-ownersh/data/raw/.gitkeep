@@ -1,0 +1,2 @@
+# Placeholder to ensure data/raw directory is tracked by Git.
+# This directory will contain raw data fetched from external sources (e.g., CodeXGLUE).

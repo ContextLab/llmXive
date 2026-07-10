@@ -31,7 +31,7 @@
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Language_model_benchmark
   verified_at: '2026-06-29T07:06:11.359954Z'
-- artifact_hash: 70a453b870f9fa1a80ba9493c6a2eb2a54d854de9cae25813c5501005979ac25
+- artifact_hash: 21c8894799340de63d60874ea7123b26bc9faa261c79055c37d4821ce12c318e
   artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +42,4 @@
   value: https://arxiv.org/abs/2410.12381
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2410.12381
-  verified_at: '2026-07-03T05:00:09.813084Z'
+  verified_at: '2026-07-10T14:08:22.661862Z'

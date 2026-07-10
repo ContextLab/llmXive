@@ -323,3 +323,461 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T05:00:09Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit requires 7GB RAM on CPU
+  claim_id: c_8ccf74c6
+  context: '**Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits
+    within 7GB RAM limit; HumanEval (the complete problem set) can be processed within
+    maximum job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:59:57Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval fits in maximum job duration limit
+  claim_id: c_2b62396e
+  context: '**Feasibility Check**: StarCoder-1.3B 4-bit via llama.cpp on CPU fits
+    within 7GB RAM limit; HumanEval (the complete problem set) can be processed within
+    maximum job duration limit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_fits_in_maximum_job_duration_limit
+  kind: entity_fact
+  raw_text: HumanEval can be processed within maximum job duration limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:00:30Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md uses McNemar's test for pass@1
+  claim_id: c_ad3a39e3
+  context: '**Plan Amendment Flags**: 1. plan.md uses McNemar''s for pass@1 and 3
+    hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks
+    follow spec, plan flagged for amendment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses McNemar's test for pass@1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:00:51Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md specifies 3 hypotheses for Bonferroni
+  claim_id: c_491cb6c2
+  context: '**Plan Amendment Flags**: 1. plan.md uses McNemar''s for pass@1 and 3
+    hypotheses for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks
+    follow spec, plan flagged for amendment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md specifies 3 hypotheses for Bonferroni correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:01:12Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md uses 164 problems
+  claim_id: c_50052029
+  context: "**Plan Amendment Flags**: 4. plan.md uses 164 problems; spec FR-010 requires\
+    \ n\u2265200 - tasks document constraint mismatch, plan flagged for amendment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 164 problems
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:01:36Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit fits within 7GB RAM limit on CPU
+  claim_id: c_24fe1a96
+  context: 'Notes section: Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on
+    CPU fits within 7GB RAM limit; HumanEval (the complete problem set) can be processed
+    within maximum job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:03:08Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval complete problem set processable within maximum job duration
+    limit
+  claim_id: c_1a09578f
+  context: 'Notes section: Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on
+    CPU fits within 7GB RAM limit; HumanEval (the complete problem set) can be processed
+    within maximum job duration limit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_complete_problem_set_processable_within_maximum_jo
+  kind: entity_fact
+  raw_text: HumanEval (the complete problem set) can be processed within maximum job
+    duration limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:03:09Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: minimum detectable effect for n=164 at power 0.8
+  claim_id: c_bcecc8cd
+  context: "Create power/sample-size justification in research.md Section 3 (FR-010:\
+    \ document minimum detectable effect forn=164 at power\u22650.8; include constraint_mismatch\
+    \ field noting spec requires n\u2265200)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "document minimum detectable effect for n=164 at power\u22650.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:05Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: arxiv paper 2410.12381
+  claim_id: c_b5190d0a
+  context: "Document power analysis constraint mismatch in research.md Section 3:\
+    \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381);\
+    \ propose mitigation (document limitation in final report, note reduced power)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2410.12381'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:13Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit CPU RAM usage 7GB
+  claim_id: c_611a727c
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:13Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval processing time within job duration limit
+  claim_id: c_a37375e4
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_processing_time_within_job_duration_limit
+  kind: entity_fact
+  raw_text: HumanEval can be processed within maximum job duration limit
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:14Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: pytest minimum 80 percent coverage
+  claim_id: c_d952de42
+  context: 'Run unit tests for all modules in code/ (tests/unit/); PASS CRITERIA:
+    pytest exit code 0, minimum 80% coverage, all tests pass'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 80% coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:14Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan uses 164 problems
+  claim_id: c_b9a2db3c
+  context: "plan.md uses 164 problems; spec FR-010 requires n\u2265200 - tasks document\
+    \ constraint mismatch, plan flagged for amendment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 164 problems
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:14Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: arXiv reference 2410.12381
+  claim_id: c_6d7b6344
+  context: "spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381,\
+    \ https://arxiv.org/abs/2410.12381)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2410.12381'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:04:58Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: arXiv URL for reference 2410.12381
+  claim_id: c_d69abab7
+  context: "spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381,\
+    \ https://arxiv.org/abs/2410.12381)"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: https://arxiv.org/abs/2410.12381
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:05:00Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: StarCoder-1.3B 4-bit fits within 7GB RAM limit
+  claim_id: c_53a8bec6
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:05:17Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: minimum test coverage is 80 percent
+  claim_id: c_d5939817
+  context: 'PASS CRITERIA: pytest exit code 0, minimum 80% coverage, all tests pass'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 80% coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:05:18Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: inference timeout is 30 seconds
+  claim_id: c_9b9094fc
+  context: 'FR-009: 30-second timeout, log failure with inference_time_ms=30000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30-second timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:05:38Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: timeout failure logged as 30000 milliseconds
+  claim_id: c_1a67ac01
+  context: 'FR-009: 30-second timeout, log failure with inference_time_ms=30000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: inference_time_ms=30000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:06:07Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for 2 hypotheses
+  claim_id: c_4a4b6d25
+  context: Bonferroni for 2 hypotheses (accuracy, latency)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 hypotheses
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:06:28Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 0
+  canonical: arXiv URL for paper 2410.12381
+  claim_id: c_e38e144e
+  context: "Document power analysis constraint mismatch in research.md Section 3:\
+    \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381);\
+    \ propose mitigation (document limitation in final report, note reduced power)"
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: https://arxiv.org/abs/2410.12381
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T14:07:23Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: arXiv paper 2410.12381
+  claim_id: c_f989d5e9
+  context: "Document power analysis constraint mismatch in research.md Section 3:\
+    \ spec FR-010 requires n\u2265200 but {{claim:c_c9ee2ab8}} (2410.12381, https://arxiv.org/abs/2410.12381);\
+    \ propose mitigation (document limitation in final report, note reduced power)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '2410.12381'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:07:24Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md specifies 164 problems
+  claim_id: c_3cd96b0f
+  context: "Plan Amendment Flags: 4. plan.md uses 164 problems; spec FR-010 requires\
+    \ n\u2265200 - tasks document constraint mismatch, plan flagged for amendment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 164 problems
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:07:24Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: Starcoder-1.3B 4-bit llama.cpp CPU inference requires 7GB RAM
+  claim_id: c_485c63b5
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Starcoder-1.3B 4-bit via llama.cpp on CPU fits within 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:07:24Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains complete problem set
+  claim_id: c_9fedadd9
+  context: 'Feasibility Check: StarCoder-1.3B 4-bit via llama.cpp on CPU fits within
+    7GB RAM limit; HumanEval (the complete problem set) can be processed within maximum
+    job duration limit'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_contains_complete_problem_set
+  kind: entity_fact
+  raw_text: HumanEval is the complete problem set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:07:45Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md specifies McNemar's test for pass@1
+  claim_id: c_b3f77e6f
+  context: 'Statistical Test Clarification: Wilcoxon signed-rank test for pass@1 (per
+    spec FR-005; plan.md uses McNemar''s - follow spec, flag plan for amendment);
+    Wilcoxon for continuous latency metrics; Bonferroni for 2 hypotheses (accuracy,
+    latency)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses McNemar's for pass@1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:08:03Z'
+- artifact_path: projects/PROJ-213-evaluating-the-effectiveness-of-code-sim/specs/001-evaluating-the-effectiveness-of-code-sim/tasks.md
+  attempts: 1
+  canonical: plan.md specifies Bonferroni correction for 3 hypotheses
+  claim_id: c_732bfefd
+  context: 'Plan Amendment Flags: 1. plan.md uses McNemar''s for pass@1 and 3 hypotheses
+    for Bonferroni; spec FR-005 requires Wilcoxon and 2 hypotheses - tasks follow
+    spec, plan flagged for amendment'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: plan.md uses 3 hypotheses for Bonferroni correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T14:08:22Z'

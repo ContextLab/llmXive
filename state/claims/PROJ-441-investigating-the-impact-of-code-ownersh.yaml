@@ -1,0 +1,324 @@
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: LOC-weighted Gini coefficient of commit distribution calculated using
+    git blame
+  claim_id: c_45fd5864
+  context: "Phase 3: User Story 1 - Extract Socio-Technical Ownership Metrics (Priority:\
+    \ P1) \U0001F3AF MVP. Implement `code/extractors/git_metrics.py` to calculate\
+    \ the **LOC-weighted Gini coefficient** of commit distribution (using `git blame`\
+    \ to attribute lines to authors) and unique developer count, strictly adhering\
+    \ to the Plan's Complexity Tracking decision."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LOC-weighted_Gini_coefficient_of_commit_distribution_calcula
+  kind: entity_fact
+  raw_text: Implement `code/extractors/git_metrics.py` to calculate the LOC-weighted
+    Gini coefficient of commit distribution (using git blame to attribute lines to
+    authors) and unique developer count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:51:40Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Linear Mixed-Effects Model unit of analysis is Snippet with n=150
+  claim_id: c_ddcc41a9
+  context: 'Phase 5: User Story 3 - Execute LLM Inference and Statistical Correlation.
+    Implement `code/analysis/regression.py` to perform **Linear Mixed-Effects Model
+    (LMM)** where the **unit of analysis is the Snippet** (n=150), using snippet-level
+    ownership metrics (aggregated from repo-level LOC-weighted Gini), complexity,
+    and documentation density as predictors, with Repository as a random effect.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Linear Mixed-Effects Model (LMM) where the unit of analysis is
+    the Snippet (n=150), using snippet-level ownership metrics (aggregated from repo-level
+    LOC-weighted Gini), complexity, and documentation density as predictors, with
+    Repository as a random effect
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:51:55Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Input sequence length truncated to 2048 tokens for 7GB RAM feasibility
+  claim_id: c_eb4ab312
+  context: 'Phase 5: User Story 3 - Execute LLM Inference and Statistical Correlation.
+    Implement **context truncation** logic in `code/inference/runner.py` to **truncate
+    input sequence length to 2048 tokens** to ensure feasibility on 7GB RAM as per
+    Plan Phase 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Truncate input sequence length to 2048 tokens to ensure feasibility on
+    7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:52:10Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Pipeline auto-stop triggered if runtime exceeds 5.5 hours
+  claim_id: c_c5c0992c
+  context: 'Phase 5: User Story 3 - Execute LLM Inference and Statistical Correlation.
+    Implement runtime monitoring and auto-stop logic in `code/main.py` that tracks
+    total pipeline time; **if runtime > 5.5h, auto-stop the pipeline** and trigger
+    the **progressive sample reduction logic from T009** (5 -> 3 -> 2) for subsequent
+    runs if configured.'
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If runtime exceeds 5.5 hours, auto-stop the pipeline and trigger the progressive
+    sample reduction logic (5 -> 3 -> 2)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:52:10Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with torch==2.3.0+cpu and bitsandbytes-cpu
+  claim_id: c_abe9f3ca
+  context: 'Phase 1: Setup (Shared Infrastructure). Initialize Python 3.11 project
+    with pinned requirements.txt (gitpython, radon, scikit-learn, transformers, torch==2.3.0+cpu,
+    pandas, scipy, pyyaml, statsmodels, bitsandbytes-cpu) ensuring CPU-only torch
+    variant and bitsandbytes-cpu are explicitly specified.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned requirements including torch==2.3.0+cpu
+    and bitsandbytes-cpu
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:52:10Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Inference tasks constrained to 2 CPU and 7GB RAM
+  claim_id: c_b4df5d59
+  context: 'Notes. Compute Constraint: All inference tasks (T025-T028, T042) MUST
+    respect the 2 CPU / 7GB RAM limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inference tasks must respect the 2 CPU / 7GB RAM limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:52:37Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Progressive sample reduction reduces snippets per repo from 5 to 3 to
+    2
+  claim_id: c_2ede98e6
+  context: 'Phase 2: Foundational (Blocking Prerequisites). Implement progressive
+    sample reduction logic in `code/main.py` that dynamically reduces snippets per
+    repo (5 -> 3 -> 2) if time/memory constraints are threatened.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The progressive sample reduction logic dynamically reduces snippets per
+    repo from 5 to 3 to 2 if time/memory constraints are threatened
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:53:07Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if total runtime exceeds 6 hours
+  claim_id: c_68ebece4
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Performance optimization: **Add
+    a CI step/assertion** that fails if total pipeline runtime > 6 hours (relying
+    on T041 for runtime management).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must fail if total runtime exceeds 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:53:12Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps Gini aggregation window over values 100 and
+    500
+  claim_id: c_823009ab
+  context: 'Phase 5: User Story 3 - Execute LLM Inference and Statistical Correlation.
+    Implement sensitivity analysis in `code/analysis/regression.py` to sweep the **''Gini
+    aggregation window''** (number of commits included in the Gini calculation) over
+    **a range of values** (covering Spec {100, 500} and Plan''s broad range).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the Gini aggregation window over a range
+    of values covering Spec {100, 500}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:53:18Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: unit of analysis is snippet n=150
+  claim_id: c_e44e8153
+  context: Implement code/analysis/regression.py to perform Linear Mixed-Effects Model
+    (LMM) where the unit of analysis is the Snippet (n=150), using snippet-level ownership
+    metrics...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit of analysis is the Snippet (n=150).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:10Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: input sequence length truncated to 2048 tokens
+  claim_id: c_a2aabb55
+  context: Implement context truncation logic in code/inference/runner.py to truncate
+    input sequence length to 2048 tokens to ensure feasibility on 7GB RAM...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input sequence length is truncated to 2048 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:16Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: pipeline auto-stops if runtime exceeds 5.5 hours
+  claim_id: c_1d66e9e0
+  context: Implement runtime monitoring and auto-stop logic in code/main.py that tracks
+    total pipeline time; if runtime > 5.5h, auto-stop the pipeline...
+  evidence:
+    asserted: '5.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline auto-stops if runtime exceeds 5.5 hours.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:56:16Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: progressive sample reduction reduces snippets per repo from 5 to 3 to
+    2
+  claim_id: c_32c68e6b
+  context: Implement progressive sample reduction logic in code/main.py that dynamically
+    reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The progressive sample reduction logic reduces snippets per repo from
+    5 to 3 to 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:19Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime constraint is 6 hours
+  claim_id: c_188b5fc3
+  context: Add a CI step/assertion that fails if total pipeline runtime > 6 hours...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pipeline runtime constraint is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:25Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: Python version is 3.11
+  claim_id: c_66d79398
+  context: Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:29Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: torch version is 2.3.0+cpu
+  claim_id: c_3ce6459c
+  context: Initialize Python 3.11 project with pinned requirements.txt (gitpython,
+    radon, scikit-learn, transformers, torch==2.3.0+cpu, pandas, scipy, pyyaml, statsmodels,
+    bitsandbytes-cpu)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The torch version is 2.3.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:34Z'
+- artifact_path: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh/tasks.md
+  attempts: 1
+  canonical: inference tasks hardware limit is 2 CPU 7GB RAM
+  claim_id: c_2e46f124
+  context: All inference tasks (T025-T028, T042) MUST respect the 2 CPU / 7GB RAM
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hardware limit for inference tasks is 2 CPU and 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:56:39Z'

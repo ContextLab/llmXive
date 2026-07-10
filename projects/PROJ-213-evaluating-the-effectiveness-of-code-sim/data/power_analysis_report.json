@@ -1,0 +1,28 @@
+{
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "analysis_type": "Power Analysis for Code Simplification Evaluation",
+  "parameters": {
+    "alpha": 0.05,
+    "power": 0.8,
+    "standard_deviation_assumption": 1.0
+  },
+  "sample_size_analysis": {
+    "n_current": 164,
+    "n_spec_required": 200,
+    "minimum_detectable_effect_current": 0.2116,
+    "minimum_detectable_effect_spec": 0.1914,
+    "interpretation": "With n=164, we can detect an effect size of 0.2116 standard deviations with 80.0% power. This is 1.11x larger than the effect size detectable with the spec-required n=200."
+  },
+  "constraint_mismatch": {
+    "spec_requirement": 200,
+    "actual_sample_size": 164,
+    "difference": 36,
+    "power_at_spec": 0.8,
+    "power_at_actual": 0.8,
+    "mde_at_spec": 0.1914,
+    "mde_at_actual": 0.2116,
+    "mde_increase_factor": 1.1055,
+    "status": "CONFLICT"
+  },
+  "recommendation": "Proceed with n=164 but explicitly document reduced sensitivity to small effects in the final report."
+}

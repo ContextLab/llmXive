@@ -1,0 +1,2 @@
+# Placeholder to ensure data/processed directory is tracked by Git.
+# This directory will contain intermediate data products (e.g., ownership_metrics.json, code_metrics.json).

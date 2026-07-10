@@ -1,0 +1,10 @@
+gitpython
+radon
+scikit-learn
+transformers
+torch==2.3.0+cpu
+pandas
+scipy
+pyyaml
+statsmodels
+bitsandbytes-cpu

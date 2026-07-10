@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T13:41:19.176728Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-441-investigating-the-impact-of-code-ownersh
-last_run_id: e53892d8-4133-4128-ba25-e337ab0186b5
+last_run_id: 1c0c4f05-f5c7-4642-8412-c56e542a03c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-441-investigating-the-impact-of-code-ownersh/specs/001-investigating-the-impact-of-code-ownersh
 title: Investigating the Impact of Code Ownership on LLM Code Understanding
-updated_at: '2026-07-10T12:09:04.287713Z'
+updated_at: '2026-07-10T13:56:56.899155Z'

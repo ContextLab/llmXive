@@ -1,0 +1,11 @@
+? T001 Create project structure per implementation plan (mkdir -p code/{extractors,inference,analysis,utils},
+  data/{raw,processed,results}, tests)
+: 1
+? T002 Initialize Python 3.11 project with pinned requirements.txt (gitpython, radon,
+  scikit-learn, transformers, torch==2.3.0+cpu, pandas, scipy, pyyaml, statsmodels,
+  bitsandbytes-cpu) ensuring CPU-only torch variant and bitsandbytes-cpu are explicitly
+  specified for SC-004 compliance
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools in code/: 1
+T005 [P] Implement `code/utils/logger.py` with structured logging and file rotation: 1
+T006 Create `code/__init__.py` and package init files for all sub-packages: 1

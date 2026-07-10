@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -55,12 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/config.py` with random seed pinning and environment variable loading
+- [X] T004 Implement `code/utils/config.py` with random seed pinning and environment variable loading
 - [ ] T005 [P] Implement `code/utils/logger.py` with structured logging and file rotation
 - [ ] T006 Create `code/__init__.py` and package init files for all sub-packages
-- [ ] T007 Setup data directory structure and `.gitkeep` files for `data/raw`, `data/processed`, `data/results`
-- [ ] T008 Implement `code/main.py` entry point with argument parsing for pipeline stages
-- [ ] T009 [P] [US3] Implement progressive sample reduction logic in `code/main.py` that dynamically reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened, ensuring the Plan's fallback strategy is available before T041 triggers. This logic must be callable by T041.
+- [~] T007 Setup data directory structure and `.gitkeep` files for `data/raw`, `data/processed`, `data/results`
+- [~] T008 Implement `code/main.py` entry point with argument parsing for pipeline stages
+- [~] T009 [P] [US3] Implement progressive sample reduction logic in `code/main.py` that dynamically reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened, ensuring the Plan's fallback strategy is available before T041 triggers. This logic must be callable by T041.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,14 +74,14 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for ownership metrics schema in `tests/contract/test_ownership_metrics.py`
-- [ ] T011 [P] [US1] Integration test for git history extraction in `tests/integration/test_git_extraction.py`
+- [~] T010 [P] [US1] Contract test for ownership metrics schema in `tests/contract/test_ownership_metrics.py`
+- [~] T011 [P] [US1] Integration test for git history extraction in `tests/integration/test_git_extraction.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/extractors/git_metrics.py` to calculate the **LOC-weighted Gini coefficient** of commit distribution (using `git blame` to attribute lines to authors) and unique developer count, strictly adhering to the Plan's Complexity Tracking decision (deviating from Spec FR-001's simpler commit-count proxy to ensure accuracy). This task produces the artifact required by T028.
-- [ ] T013 [US1] Implement temporal alignment logic in `code/extractors/git_metrics.py` to explicitly **checkout the specific commit SHA before running git log/blame** to ensure metrics reflect the state at that point in time, as required by Plan Phase 1.
-- [ ] T014 [US1] Implement edge case handling in `code/extractors/git_metrics.py` for missing history or non-Python/Java repos (set metrics to null, log warning)
+- [~] T012 [P] [US1] Implement `code/extractors/git_metrics.py` to calculate the **LOC-weighted Gini coefficient** of commit distribution (using `git blame` to attribute lines to authors) and unique developer count, strictly adhering to the Plan's Complexity Tracking decision (deviating from Spec FR-001's simpler commit-count proxy to ensure accuracy). This task produces the artifact required by T028.
+- [~] T013 [US1] Implement temporal alignment logic in `code/extractors/git_metrics.py` to explicitly **checkout the specific commit SHA before running git log/blame** to ensure metrics reflect the state at that point in time, as required by Plan Phase 1.
+- [~] T014 [US1] Implement edge case handling in `code/extractors/git_metrics.py` for missing history or non-Python/Java repos (set metrics to null, log warning)
 - [ ] T015 [US1] Create data loader in `code/extractors/__init__.py` to fetch repository URLs and CodeXGLUE sample metadata
 - [ ] T016 [US1] Implement output serialization in `code/extractors/git_metrics.py` to save `OwnershipMetrics` JSON (containing `gini_coefficient` based on LOC-weighted distribution) to `data/processed/ownership_metrics.json`
 - [ ] T040 [US1] Create a `code/analysis/deviation_rationale.md` document explaining the Spec/Plan conflict resolution (why LOC-weighted Gini and LMM were chosen over Spec defaults) to ensure auditability
@@ -164,8 +164,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -173,7 +173,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 for temporal alignment context, but can be implemented independently
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and US2 for regression inputs
-  - **Critical Order**: T012 (US1) and T019 (US2) must complete before T029 (US3) can run the full regression
+ - **Critical Order**: T012 (US1) and T019 (US2) must complete before T029 (US3) can run the full regression
 
 ### Within Each User Story
 
@@ -232,9 +232,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

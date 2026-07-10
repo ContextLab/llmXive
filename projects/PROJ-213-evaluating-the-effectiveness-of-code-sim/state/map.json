@@ -1,0 +1,17 @@
+{
+  "artifacts": {
+    "citations_20231027120000": {
+      "artifact_id": "citations_20231027120000",
+      "artifact_type": "citation_verification",
+      "timestamp": "2023-10-27T12:00:00.000000",
+      "file_path": "state/map.json",
+      "checksum": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+      "status": "verified",
+      "details": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0
+      }
+    }
+  }
+}

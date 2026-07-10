@@ -13,7 +13,7 @@ The system must download a public social media dataset, preprocess the text, and
 
 **Why this priority**: This is the foundational data layer. Without reliable anxiety scores derived from the text, no correlation analysis can be performed. It delivers the primary dependent variable for the study.
 
-**Independent Test**: The system can be fully tested by running the ingestion pipeline on a small, fixed sample of 100 known posts and verifying that anxiety scores are generated for [deferred] of them, with no null values, and that the distribution of scores matches the expected range (0.0 to 1.0) defined by the model.
+**Independent Test**: The system can be fully tested by running the ingestion pipeline on a small, fixed sample of 100 known posts and verifying that anxiety scores are generated for [deferred] of them, with no null values, and that the distribution of scores matches the expected range (to 1.0) defined by the model.
 
 **Acceptance Scenarios**:
 
@@ -34,7 +34,7 @@ The system must extract metadata-based proxies representing "perceived control" 
 **Acceptance Scenarios**:
 
 1. **Given** a post with metadata indicating `filter_applied=true`, **When** the extraction script runs, **Then** the `control_proxy` field for that post is incremented by 1.0.
-2. **Given** a sequence of posts from a single user with timestamps varying by less than 5 minutes, **When** the extraction script runs, **Then** the `timestamp_regularity` metric for that user is calculated and stored.
+2. **Given** a sequence of posts from a single user with timestamps varying by minutes, **When** the extraction script runs, **Then** the `timestamp_regularity` metric for that user is calculated and stored.
 3. **Given** a post with no control-related metadata flags and irregular timestamps, **When** the extraction script runs, **Then** the resulting `control_proxy` score is 0.0.
 
 ---
@@ -58,7 +58,7 @@ The system must perform a statistical analysis to test the correlation between t
 
 ### Edge Cases
 
-- What happens when the downloaded dataset is empty or contains fewer than 100 posts? (System should fail gracefully with a specific error code, not crash).
+- What happens when the downloaded dataset is empty or contains a limited number of posts? (System should fail gracefully with a specific error code, not crash).
 - How does the system handle posts where the anxiety model returns a confidence score below a threshold? (These posts should be excluded from the final analysis).
 - What happens if the control proxy extraction logic encounters a post with missing metadata fields? (The system should default the proxy score to 0.0 and log a warning).
 
@@ -95,4 +95,4 @@ The system must perform a statistical analysis to test the correlation between t
 - The "perceived control" proxies (metadata flags and timestamp regularity) are valid and independent operationalizations of the psychological construct, distinct from the NLP features used for anxiety scoring.
 - The dataset does not contain significant missing values in the text or timestamp fields that would prevent the extraction of proxies or scoring.
 - The statistical analysis pipeline (including normality checks and fallback methods) is appropriate for testing the association between these variables.
-- The GitHub Actions free-tier runner (2 CPU, 7 GB RAM) is sufficient to process the dataset and run the inference model within 6 hours.
+- The GitHub Actions free-tier runner (Multiple CPU cores, 7 GB RAM) is sufficient to process the dataset and run the inference model within 6 hours.

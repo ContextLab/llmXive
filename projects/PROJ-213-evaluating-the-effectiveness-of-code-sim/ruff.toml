@@ -1,0 +1,15 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "B", "C4", "DTZ", "TCH", "ARG", "SIM", "PL"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py310"
+
+[format]
+target-version = "py310"
+line-length = 88
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

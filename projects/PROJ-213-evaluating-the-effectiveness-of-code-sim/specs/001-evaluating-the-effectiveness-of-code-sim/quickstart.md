@@ -1,82 +1,111 @@
-# Quickstart: Evaluating the Effectiveness of Code Simplification on LLM Performance
+# Quick Start Guide: Evaluating Code Simplification Effectiveness
+
+This guide provides instructions to set up the environment and run the benchmark pipeline for evaluating the effectiveness of code simplification on LLM performance.
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI execution)
+- Python 3.9 or higher
+- Access to HuggingFace (for dataset download)
+- 7GB+ RAM (for StarCoder-1.3B 4-bit model inference)
 
-## Installation
+## Setup Instructions
 
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-213-evaluating-the-effectiveness-of-code-sim
-   ```
+1. **Clone the repository** (if not already done) and navigate to the project root.
 
-2. **Create virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-4. **Verify environment**
-   ```bash
-   python -m pytest tests/unit/
-   ```
+4. **Verify dataset and model availability** (optional but recommended):
+ ```bash
+ python code/verify_dataset.py
+ python code/verify_model.py
+ ```
 
-## Running the Benchmark
+## Running the Benchmark Pipeline
 
-### Step 1: Download Dataset
+The full pipeline consists of three main stages: **Download**, **Simplify**, and **Inference/Analysis**.
+
+### Option A: Run the Full Pipeline (Orchestrated)
+
+Execute the main orchestration script to run the complete benchmark:
+
 ```bash
-python code/download.py --output data/raw/humaneval.jsonl
-```
-*Note: If HumanEval is not available from verified source, this step will fail. Document the gap.*
-
-### Step 2: Simplify Code
-```bash
-python code/simplify.py --input data/raw/humaneval.jsonl --output data/processed/simplified/
-```
-*Outputs: `data/processed/simplified/*.py`, `parse_failures.log`, `flagged_snippets.csv`*
-
-### Step 3: Run Inference (Raw)
-```bash
-python code/inference.py --input data/raw/humaneval.jsonl --output data/processed/metrics_raw.csv --mode raw
+python code/main.py
 ```
 
-### Step 4: Run Inference (Simplified)
-```bash
-python code/inference.py --input data/processed/simplified/ --output data/processed/metrics_simplified.csv --mode simplified
-```
+This will:
+1. Download the HumanEval dataset.
+2. Generate AST-simplified versions of the code.
+3. Run inference on both raw and simplified code using the StarCoder-1.3B model.
+4. Generate result tables (`data/processed/results_raw.csv`, `data/processed/results_simplified.csv`).
+5. Perform statistical analysis and generate `analysis_report.pdf`.
 
-### Step 5: Analyze Results
+### Option B: Run Stages Independently
+
+If you need to run specific stages separately:
+
+#### 1. Download Dataset
 ```bash
-python code/analyze.py --raw data/processed/metrics_raw.csv --simplified data/processed/metrics_simplified.csv --output analysis_report.pdf
+python code/download.py
 ```
+**Output**: `data/raw/humaneval.json` (and checksums in `state/map.json`)
+
+#### 2. Simplify Code
+```bash
+python code/simplify.py
+```
+**Outputs**:
+- `data/processed/simplified_problems.json`
+- `data/logs/parse_failures.log`
+- `data/logs/flagged_snippets.csv`
+
+#### 3. Run Inference & Analysis
+```bash
+python code/inference.py --mode full
+python code/analyze.py
+```
+**Outputs**:
+- `data/processed/metrics_raw.csv`
+- `data/processed/metrics_simplified.csv`
+- `analysis_report.pdf`
+- `figures/accuracy_latency_comparison.png`
 
 ## Expected Outputs
 
-| File | Description |
-|------|-------------|
-| `data/raw/humaneval.jsonl` | Downloaded HumanEval benchmark |
-| `data/processed/simplified/*.py` | AST-simplified code snippets |
-| `data/processed/metrics_raw.csv` | Inference metrics for raw code |
-| `data/processed/metrics_simplified.csv` | Inference metrics for simplified code |
-| `parse_failures.log` | AST parsing failures |
-| `flagged_snippets.csv` | Semantic change warnings |
-| `analysis_report.pdf` | Statistical report with tests + figures |
+After a successful run, you should find the following artifacts in the project root:
+
+- **Data**:
+ - `data/raw/humaneval.json`
+ - `data/processed/simplified_problems.json`
+ - `data/processed/results_raw.csv`
+ - `data/processed/results_simplified.csv`
+ - `data/processed/metrics_raw.csv`
+ - `data/processed/metrics_simplified.csv`
+- **Logs**:
+ - `data/logs/parse_failures.log`
+ - `data/logs/flagged_snippets.csv`
+- **Reports**:
+ - `analysis_report.pdf`
+ - `figures/accuracy_latency_comparison.png`
+- **State**:
+ - `state/map.json` (artifact versioning and checksums)
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| HumanEval download fails | Check verified source; document gap if unavailable |
-| Out of memory | Reduce sample size; confirm 4-bit quantization |
-| Inference timeout | Check model loading; reduce context window |
-| AST parse failures | Log to `parse_failures.log`; exclude from analysis if >5% |
-| Semantic changes | Log to `flagged_snippets.csv`; exclude from analysis if >5% |
+- **Memory Error**: Ensure you have at least 7GB of free RAM. The StarCoder-1.3B 4-bit model requires significant memory.
+- **Dataset Download Failed**: Verify your internet connection and HuggingFace token (if required).
+- **Inference Timeout**: The default timeout is 30 seconds per sample. Increase `TIMEOUT_SECONDS` in `code/config.py` if necessary (not recommended for standard runs).
+
+## Next Steps
+
+- Review `research.md` for statistical design and power analysis details.
+- Check `specs/001-eval-code-simplification/spec.md` for detailed user stories and requirements.
+- Run tests in `tests/` to validate the pipeline.

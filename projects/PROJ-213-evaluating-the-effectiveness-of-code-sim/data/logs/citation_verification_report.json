@@ -1,0 +1,17 @@
+{
+  "verification_date": "2023-10-27T12:00:00.000000",
+  "total_citations": 1,
+  "verified_count": 1,
+  "failed_count": 0,
+  "results": [
+    {
+      "url": "https://arxiv.org/abs/2410.12381",
+      "source_type": "arxiv",
+      "identifier": "2410.12381",
+      "reachable": true,
+      "status_code": 200,
+      "verified": true,
+      "message": "ID found in content"
+    }
+  ]
+}
