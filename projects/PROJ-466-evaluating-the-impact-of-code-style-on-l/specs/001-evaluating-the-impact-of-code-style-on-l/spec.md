@@ -54,7 +54,7 @@ A researcher needs to determine if the differences in diversity scores between N
 
 ### Edge Cases
 
-- **Memory Overflow**: The system MUST detect memory pressure and reduce the batch size dynamically until the 7 GB limit is respected.
+- **Memory Overflow**: The system MUST detect memory pressure and reduce the batch size dynamically until the memory limit is respected.
 - **Syntax Errors in Prompts**: The system MUST catch AST parsing errors, log the task ID and style, and skip the specific sample without crashing the pipeline.
 - **Zero-Variance Groups**: The system MUST detect zero variance in a group and skip the statistical test for that group, logging a "Zero Variance" warning.
 - **Timeout**: The system MUST enforce a per-task timeout of 5 minutes; if exceeded, the system MUST log a timeout error and skip the task.
@@ -69,12 +69,12 @@ A researcher needs to determine if the differences in diversity scores between N
 - **FR-004**: System MUST execute generated code against the official HumanEval unit tests and discard any samples that fail, ensuring diversity metrics are computed only on functionally valid solutions. (See US-1)
 - **FR-005**: System MUST compute token-level n-gram entropy and pairwise AST edit distance for all valid samples within a style group, aggregating results to a task-level diversity score. (See US-2)
 - **FR-006**: System MUST perform a Kruskal-Wallis H-test to compare diversity distributions across the three style groups, explicitly framing findings as **causal impact within the model's response distribution** due to the controlled manipulation of the prompt style. (See US-3)
-- **FR-007**: System MUST implement a sensitivity analysis that sweeps the statistical significance threshold (α) across the set {0.01, 0.05, 0.1} and reports the variation in the count of significant findings to justify the chosen cutoff. (See US-3)
-- **FR-008**: System MUST use the `Salesforce/codegen-2B-mono` model (or larger if memory permits) and MUST determine the maximum safe batch size at runtime by probing memory usage, starting with a target of 50 but reducing iteratively until the 7 GB limit is respected. If the pass rate for a style group is < 1%, the system MUST halt and log a "Model Incapability" warning. (See US-1, US-2, US-3)
+- **FR-007**: System MUST implement a sensitivity analysis that sweeps the statistical significance threshold (α) across a range of conventional values and reports the variation in the count of significant findings to justify the chosen cutoff. (See US-3)
+- **FR-008**: System MUST use the `Salesforce/codegenB-mono` model (or larger if memory permits) and MUST determine the maximum safe batch size at runtime by probing memory usage, starting with a target of 50 but reducing iteratively until the 7 GB limit is respected. If the pass rate for a style group is < 1%, the system MUST halt and log a "Model Incapability" warning. (See US-1, US-2, US-3)
 - **FR-009**: System MUST output a structured CSV containing the task ID, style profile, sample ID, functional pass status, and computed diversity metrics (AST distance, n-gram entropy). (See US-2)
 - **FR-010**: System MUST generate a summary report (PDF/HTML) containing the statistical test results (H-statistic, p-value), post-hoc comparisons, and sensitivity analysis plots. (See US-3)
 - **FR-011**: System MUST report the functional pass rate for each style group in the final summary. (See US-1)
-- **FR-012**: System MUST handle memory overflow by dynamically reducing the batch size by discrete steps until the 7 GB RAM limit is respected, logging each reduction. (See Edge Cases)
+- **FR-012**: System MUST handle memory overflow by dynamically reducing the batch size by discrete steps until the RAM limit is respected, logging each reduction. (See Edge Cases)
 - **FR-013**: System MUST catch AST parsing errors, log the task ID and style, and skip the specific sample without crashing the pipeline. (See Edge Cases)
 - **FR-014**: System MUST detect zero variance in a group, skip the statistical test for that group, and log a "Zero Variance" warning. (See Edge Cases)
 - **FR-015**: System MUST enforce a per-task timeout of 5 minutes; if exceeded, the system MUST log a timeout error and skip the task. (See Edge Cases)
