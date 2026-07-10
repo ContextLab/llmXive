@@ -12,7 +12,7 @@ This project implements a reproducible, CPU-only pipeline to identify structure-
 **Language/Version**: Python 3.11  
 **Primary Dependencies**: `pandas`, `rdkit`, `scikit-learn`, `xgboost`, `shap`, `pyyaml`, `requests`, `joblib`, `hashlib`, `hansen-solubility` (if available), `polymer-properties` (if available)  
 **Storage**: Local files (`data/raw/`, `data/processed/`), `state/projects/PROJ-122-identifying-structure-property-relations.yaml` for artifact tracking  
-**Seeds**: Pinned in `config.py` (global seed = 42, plus independent runs with seeds -5)  
+**Seeds**: Pinned in `config.py` (global seed = 42, plus independent runs with varying random seeds)  
 **Testing**: `pytest` (unit, integration, contract tests)  
 **Target Platform**: GitHub Actions `ubuntu-latest` (2 CPU, 7 GB RAM, no GPU)  
 **Project Type**: Data Science / Computational Materials Science Pipeline  
@@ -62,7 +62,7 @@ specs/001-structure-property-relationships/
 ```text
 src/
 ├── 01_ingest.py         # Data download, unit harmonization, validation (FR-001, FR-002, FR-010, FR-011)
-├── 01b_sensitivity.py   # Weight-fraction tolerance sweep {0.01, 0.02, 0.05} (FR-014)
+├── 01b_sensitivity.py   # Weight-fraction tolerance sweep over a range of representative values. (FR-014)
 ├── 02_features.py       # Descriptor generation, interaction features, VIF analysis (FR-003, FR-004, FR-008)
 ├── 02b_fallback.py      # Component-level prediction mode if blend join fails >50% (FR-013)
 ├── 03_train.py          # Model training, hyperparameter tuning, cross-validation (Source Stratified Split) (FR-005, FR-009, FR-016)

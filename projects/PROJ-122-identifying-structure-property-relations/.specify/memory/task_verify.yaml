@@ -1,0 +1,11 @@
+T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`): 1
+? 'T001a [P] Create directory structure: `code/`, `data/raw/`, `data/processed/`,
+  `data/features/`, `tests/`, `state/projects/`'
+: 1
+? T001b [P] Create `code/requirements.txt` with pinned dependencies (pandas, rdkit,
+  scikit-learn, xgboost, shap, pyyaml, requests, joblib, psutil)
+: 1
+'T001c [P] Create `tests/` directory structure: `contract/`, `integration/`, `unit/`': 1
+? T001d [P] Create `state/projects/` directory structure and placeholder `PROJ-122-identifying-structure-property-relations.yaml`
+: 1
+T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`: 1

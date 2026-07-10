@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T03:15:48.614143Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-122-identifying-structure-property-relations
-last_run_id: eac149ec-61f4-4fd8-aaf6-39f515623926
+last_run_id: e8a038b6-5f32-4cb2-939f-9bd5c9782e5e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations
 title: Identifying Structure-Property Relationships in Polymer Blends Using Public
   Databases
-updated_at: '2026-07-10T19:16:13.014536Z'
+updated_at: '2026-07-10T23:44:33.036005Z'

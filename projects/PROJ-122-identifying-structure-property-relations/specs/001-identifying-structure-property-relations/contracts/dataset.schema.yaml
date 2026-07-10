@@ -1,47 +1,126 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: PolymerBlendDataset
+# Dataset Schema Definition for Polymer Blend Structure-Property Relationships
+# PROJ-122: Identifying Structure-Property Relations
+# This schema defines the structure of the harmonized dataset used for model training.
+# All fields are required unless marked as optional.
+# Units are strictly enforced: Temperature in Kelvin, Modulus in GPa.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PolymerBlendDataset"
+description: "Harmonized dataset of polymer blends containing SMILES, composition, and properties."
+
 type: object
 properties:
-  blend_id:
-    type: string
-    description: "Unique identifier for the blend"
-  source:
-    type: string
-    description: "Source of the data (e.g., NIST, PolymerDB)"
-  components:
+  metadata:
+    type: object
+    description: "Dataset provenance and processing metadata"
+    properties:
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: "Semantic version of the dataset schema"
+      generated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of dataset generation"
+      sources:
+        type: array
+        items:
+          type: string
+        description: "List of source databases (e.g., NIST, PolymerDB, MaterialsProject)"
+      record_count:
+        type: integer
+        minimum: 0
+        description: "Total number of records in the dataset"
+      checksum:
+        type: string
+        pattern: "^[a-fA-F0-9]{64}$"
+        description: "SHA-256 checksum of the raw data file"
+    required:
+      - version
+      - generated_at
+      - sources
+      - record_count
+      - checksum
+
+  records:
     type: array
+    description: "List of polymer blend records"
     items:
       type: object
       properties:
-        smiles:
+        record_id:
           type: string
-          description: "SMILES string for the component"
-        weight_fraction:
+          description: "Unique identifier for the record"
+        
+        source:
+          type: string
+          enum: ["NIST", "PolymerDB", "MaterialsProject", "Custom"]
+          description: "Origin database of the record"
+        
+        # Structure
+        smiles_component_a:
+          type: string
+          description: "SMILES string for Polymer Component A"
+        smiles_component_b:
+          type: string
+          description: "SMILES string for Polymer Component B"
+        
+        composition_weight_fraction_a:
           type: number
-          description: "Weight fraction of the component (0.0 to 1.0)"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Weight fraction of Component A (0.0 to 1.0)"
+        composition_weight_fraction_b:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: "Weight fraction of Component B (0.0 to 1.0)"
+          # Note: sum of a and b must be within tolerance of 1.0 (validated in code)
+
+        # Properties
+        tg_measured_kelvin:
+          type: number
+          exclusiveMinimum: 0.0
+          description: "Measured Glass Transition Temperature in Kelvin"
+        
+        modulus_gpa:
+          type: number
+          exclusiveMinimum: 0.0
+          description: "Young's Modulus in GPa"
+        
+        # Optional: Experimental conditions
+        measurement_temp_kelvin:
+          type: number
+          exclusiveMinimum: 0.0
+          description: "Temperature at which modulus was measured (K)"
+        heating_rate_k_min:
+          type: number
+          description: "Heating rate during Tg measurement (K/min)"
+        
+        # Validation flags (populated during ingestion)
+        rdkit_valid:
+          type: boolean
+          description: "True if SMILES parsed successfully by RDKit"
+        composition_valid:
+          type: boolean
+          description: "True if weight fractions sum to ~1.0 within tolerance"
+        unit_harmonized:
+          type: boolean
+          description: "True if all units were converted to standard (K, GPa)"
+        
       required:
-        - smiles
-        - weight_fraction
-  Tg_K:
-    type: number
-    description: "Glass Transition Temperature in Kelvin"
-    minimum: 0
-  Modulus_GPa:
-    type: number
-    description: "Young's Modulus in Gigapascals"
-    minimum: 0
-  is_valid:
-    type: boolean
-    description: "True if all validation checks passed"
-  has_target:
-    type: boolean
-    description: "True if Tg_measured and Tg_1, Tg_2 exist for residual calculation"
+        - record_id
+        - source
+        - smiles_component_a
+        - smiles_component_b
+        - composition_weight_fraction_a
+        - composition_weight_fraction_b
+        - tg_measured_kelvin
+        - modulus_gpa
+        - rdkit_valid
+        - composition_valid
+        - unit_harmonized
+
 required:
-  - blend_id
-  - source
-  - components
-  - Tg_K
-  - Modulus_GPa
-  - is_valid
-  - has_target
-additionalProperties: false
+  - metadata
+  - records
