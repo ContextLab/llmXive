@@ -64,6 +64,9 @@ properties:
         vif_status:
           type: "string"
           description: "Status of multicollinearity check (e.g., 'Pass', 'PCA_Fallback')."
+        spline_terms_used:
+          type: "boolean"
+          description: "True if splines were used in the model."
       required:
         - task_type
         - model_formula

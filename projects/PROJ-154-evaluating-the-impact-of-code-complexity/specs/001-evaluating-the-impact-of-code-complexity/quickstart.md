@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Sufficient RAM available (for local testing; CI will handle constraints).
-- `bitsandbytes` installed (required for 4-bit quantization on CPU).
+-   Python 3.11+
+-   Git
+-   HuggingFace CLI (optional, for authentication)
+-   7 GB+ RAM available
 
 ## Installation
 
@@ -18,54 +18,71 @@
     pip install -r requirements.txt
     ```
 
-2.  **Verify Environment**:
-    Ensure `torch` and `bitsandbytes` are installed:
+2.  **Install Radon**:
     ```bash
-    python -c "import torch; import bitsandbytes; print('CPU' if not torch.cuda.is_available() else 'GPU')"
+    pip install radon
     ```
 
-## Running the Pipeline
+3.  **Download Dependencies**:
+    Ensure `transformers` and `torch` are installed with CPU support (default wheels).
 
-Execute the full pipeline via the orchestrator:
+## Execution Workflow
 
+### Step 1: Data Acquisition
 ```bash
-python main.py
+python 01_data_acquisition.py
+# Outputs: data/raw/codesearchnet_raw.parquet
+# Note: Logs total_valid_snippets count.
 ```
 
-### Step-by-Step Execution
+### Step 2: Complexity Annotation & Derived Dataset Generation
+```bash
+python 02_complexity_annotation.py
+# Outputs: data/processed/annotated_snippets.csv
+# Note: Excludes syntax errors, logs warnings. Injects bugs for Bug Detection task.
+# Note: Performs stratified sampling to ensure high-complexity representation.
+```
 
-1.  **Data Acquisition**:
-    ```bash
-    python data_acquisition.py --source "kejian/codesearchnet-python-raw-457k" --sample-size 10000
-    ```
-    *Downloads and samples CodeSearchNet (larger initial sample for stratification).*
+### Step 3: Inference (CPU Tractable)
+```bash
+python 03_inference_pipeline.py --model microsoft/Phi-3-mini-4k-instruct --batch-size 1
+# Outputs: results/inference_logs.jsonl
+# Note: Memory guard active; adjusts batch size if RAM > 6.5 GB.
+# Note: Logs is_valid_response for SC-005.
+```
 
-2.  **Complexity Annotation**:
-    ```bash
-    python 02_complexity_annotation.py --input data/processed/sample.parquet --output data/processed/annotated_snippets.csv
-    ```
-    *Computes Radon metrics and records version in metadata.json.*
+### Step 4: Metric Calculation
+```bash
+python 04_metric_calculation.py
+# Outputs: results/metrics.csv
+# Note: Calculates BLEU-4, ROUGE-L, Execution Pass Rate, and Bug Detection (substring match).
+```
 
-3.  **Inference (CPU Mode, 4-bit)**:
-    ```bash
-    python inference_script.py --model microsoft/Phi-3-mini-4k-instruct --quantization 4bit --batch-size 1 --max-runs 5000
-    ```
-    *Runs LLM Summarization tasks with memory guard.*
+### Step 5: Statistical Analysis
+```bash
+python 05_statistical_analysis.py
+# Outputs: results/analysis_report.json, results/binning_metadata.json
+# Note: Applies Bonferroni correction, VIF checks, and PCA fallback if VIF > 5.
+# Note: Prioritizes GLM with splines over binning.
+```
 
-4.  **Analysis**:
-    ```bash
-    python 04_analysis.py --input results/inference_logs.jsonl --output results/analysis_metrics.csv
-    ```
-    *Generates correlations, GLM results, and VIF checks.*
+### Step 6: Report Generation
+```bash
+python 06_report_generation.py
+# Outputs: results/final_report.md
+```
 
-## Validation
+## Verification
 
-Check the generated files:
-- `data/processed/annotated_snippets.csv`: Ensure no `NaN` in complexity columns.
-- `data/processed/metadata.json`: Verify `radon` version is recorded.
-- `results/analysis_metrics.csv`: Ensure p-values are present and VIF status is recorded.
+Run the test suite to verify data integrity:
+```bash
+pytest tests/
+```
 
-## Troubleshooting
-
-- **OOM Error**: Reduce `--sample-size` in step 1 or `--max-runs` in step 3.
-- **Model Load Fail**: If `Phi-3-mini` fails, ensure `bitsandbytes` is installed and `load_in_4bit=True` is used.
+Check for missing metrics and SC-005 compliance:
+```bash
+python -c "import pandas as pd; df = pd.read_csv('results/metrics.csv'); print(df.isnull().sum())"
+# Expected: All counts 0 for numeric columns.
+python -c "import json; r = json.load(open('results/analysis_report.json')); print(f'Denom: {r[\"denominator\"]}, Num: {r[\"numerator\"]}')"
+# Expected: Numerator / Denominator >= 0.95 (SC-005).
+```

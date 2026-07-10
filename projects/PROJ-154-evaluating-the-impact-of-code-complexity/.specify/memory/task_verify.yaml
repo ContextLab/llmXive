@@ -1,0 +1,16 @@
+T001 Create project structure per `plan.md` (code/, data/, results/, tests/): 1
+? T002 Initialize Python project with `requirements.txt` (radon, transformers, torch,
+  datasets, pandas, scikit-learn, statsmodels, nltk, evaluate, scipy, patsy). **Explicitly
+  exclude 'bitsandbytes' to comply with CPU-only constraints.**
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+? T004 [US2] Implement `code/utils/memory_guard.py` with RAM monitoring (FR-006) to
+  abort/downsample if usage exceeds the threshold defined in `config.yaml` (T004.1).
+: 1
+? T004.1 [P] Create `config.yaml` to define the memory threshold (e.g., `memory_threshold_percent:`)
+  and other runtime parameters (FR-006). This task explicitly defines the "predefined"
+  threshold required by the spec.
+: 1
+? T005 [US2] Implement `code/utils/prompts.py` with standardized prompt templates
+  for Summarization, Bug Detection, and Code Completion
+: 1

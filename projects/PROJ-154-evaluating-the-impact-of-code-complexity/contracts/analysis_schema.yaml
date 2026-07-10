@@ -1,0 +1,320 @@
+# Analysis Output Schema for Evaluating the Impact of Code Complexity on LLM Code Understanding
+# This schema defines the structure of statistical results produced by code/04_analysis.py.
+# It covers Correlation, GLM (with natural cubic splines), and Stratified Analysis.
+#
+# Version: 1.0
+# Reference: US3, FR-007, Constitution VII
+
+type: object
+required:
+  - metadata
+  - correlations
+  - glm_results
+  - stratified_analysis
+  - pca_info
+
+properties:
+  metadata:
+    type: object
+    description: Information about the analysis run
+    required:
+      - timestamp
+      - model_id
+      - dataset_version
+      - total_samples
+      - tasks_analyzed
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      model_id:
+        type: string
+        description: The LLM model identifier used (e.g., microsoft/Phi-3-mini-4k-instruct)
+      dataset_version:
+        type: string
+        description: Version or hash of the input dataset (annotated_metrics.csv)
+      total_samples:
+        type: integer
+        description: Number of valid samples used in analysis
+      tasks_analyzed:
+        type: array
+        items:
+          type: string
+        description: List of tasks analyzed (e.g., ["summarization", "bug_detection", "code_completion"])
+      binning_boundaries:
+        type: object
+        description: The calculated Low/Medium/High tertile boundaries for complexity metrics
+        properties:
+          cyclomatic_complexity:
+            type: object
+            properties:
+              low_upper:
+                type: number
+              high_lower:
+                type: number
+          halstead_volume:
+            type: object
+            properties:
+              low_upper:
+                type: number
+              high_lower:
+                type: number
+          maintainability_index:
+            type: object
+            properties:
+              low_upper:
+                type: number
+              high_lower:
+                type: number
+
+  correlations:
+    type: object
+    description: Spearman correlation results between complexity metrics and performance scores
+    patternProperties:
+      "^summarization$|^bug_detection$|^code_completion$":
+        type: object
+        description: Results for a specific task
+        required:
+          - cyclomatic_complexity
+          - halstead_volume
+          - maintainability_index
+        properties:
+          cyclomatic_complexity:
+            type: object
+            properties:
+              coefficient:
+                type: number
+                format: float
+              p_value:
+                type: number
+                format: float
+              n:
+                type: integer
+          halstead_volume:
+            type: object
+            properties:
+              coefficient:
+                type: number
+                format: float
+              p_value:
+                type: number
+                format: float
+              n:
+                type: integer
+          maintainability_index:
+            type: object
+            properties:
+              coefficient:
+                type: number
+                format: float
+              p_value:
+                type: number
+                format: float
+              n:
+                type: integer
+
+  glm_results:
+    type: object
+    description: Generalized Linear Model results with natural cubic splines
+    required:
+      - model_formula
+      - spline_knots
+      - task_results
+    properties:
+      model_formula:
+        type: string
+        description: The Patsy formula used (e.g., "score ~ ns(complexity, df=4)")
+      spline_knots:
+        type: array
+        items:
+          type: number
+        description: Locations of the natural cubic spline knots
+      task_results:
+        type: object
+        patternProperties:
+          "^summarization$|^bug_detection$|^code_completion$":
+            type: object
+            description: GLM results for a specific task
+            required:
+              - coefficients
+              - standard_errors
+              - p_values
+              - vif_check
+              - convergence_status
+            properties:
+              vif_check:
+                type: object
+                required:
+                  - max_vif
+                  - action_taken
+                properties:
+                  max_vif:
+                    type: number
+                    description: Maximum Variance Inflation Factor observed
+                  action_taken:
+                    type: string
+                    enum: ["none", "pca_applied"]
+                    description: Whether PCA was applied due to multicollinearity
+              convergence_status:
+                type: string
+                enum: ["converged", "failed", "warning"]
+              coefficients:
+                type: object
+                description: Map of feature names to coefficients
+                additionalProperties:
+                  type: number
+              standard_errors:
+                type: object
+                description: Map of feature names to standard errors
+                additionalProperties:
+                  type: number
+              p_values:
+                type: object
+                description: Map of feature names to p-values
+                additionalProperties:
+                  type: number
+              pca_info:
+                type: object
+                nullable: true
+                description: Present only if PCA was applied
+                properties:
+                  components_explained_variance:
+                    type: array
+                    items:
+                      type: number
+                  components_used:
+                    type: integer
+
+  stratified_analysis:
+    type: object
+    description: Performance comparison across Low/Medium/High complexity bins
+    required:
+      - binning_method
+      - task_results
+    properties:
+      binning_method:
+        type: string
+        enum: ["tertiles"]
+        description: Method used for binning
+      task_results:
+        type: object
+        patternProperties:
+          "^summarization$|^bug_detection$|^code_completion$":
+            type: object
+            description: Stratified results for a specific task
+            required:
+              - low
+              - medium
+              - high
+            properties:
+              low:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  mean_score:
+                    type: number
+                  std_score:
+                    type: number
+                  median_score:
+                    type: number
+              medium:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  mean_score:
+                    type: number
+                  std_score:
+                    type: number
+                  median_score:
+                    type: number
+              high:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  mean_score:
+                    type: number
+                  std_score:
+                    type: number
+                  median_score:
+                    type: number
+              trend_direction:
+                type: string
+                enum: ["increasing", "decreasing", "stable", "non-monotonic"]
+                description: Overall trend of performance as complexity increases
+
+  hypothesis_support:
+    type: object
+    description: Summary of whether the hypothesis (complexity negatively impacts performance) is supported
+    required:
+      - summarization
+      - bug_detection
+      - code_completion
+    properties:
+      summarization:
+        type: object
+        properties:
+          supported:
+            type: boolean
+          evidence_summary:
+            type: string
+      bug_detection:
+        type: object
+        properties:
+          supported:
+            type: boolean
+          evidence_summary:
+            type: string
+      code_completion:
+        type: object
+        properties:
+          supported:
+            type: boolean
+          evidence_summary:
+            type: string
+
+  raw_metrics_summary:
+    type: object
+    description: Descriptive statistics of the input metrics (optional but recommended)
+    properties:
+      cyclomatic_complexity:
+        type: object
+        properties:
+          mean:
+            type: number
+          median:
+            type: number
+          std:
+            type: number
+          min:
+            type: number
+          max:
+            type: number
+      halstead_volume:
+        type: object
+        properties:
+          mean:
+            type: number
+          median:
+            type: number
+          std:
+            type: number
+          min:
+            type: number
+          max:
+            type: number
+      maintainability_index:
+        type: object
+        properties:
+          mean:
+            type: number
+          median:
+            type: number
+          std:
+            type: number
+          min:
+            type: number
+          max:
+            type: number

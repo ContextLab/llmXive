@@ -1,0 +1,60 @@
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "D", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files from linting
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Per-file ignores (optional)
+# exclude = []
+
+# Line length configuration
+line-length = 88
+
+# Allow unused variables starting with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Target Python version
+target-version = "py310"
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files if necessary
+"tests/*" = ["D100", "D101", "D102", "D103"]
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+known-first-party = []
+known-third-party = []
+order-by-type = true
+
+[lint.pydocstyle]
+convention = "numpy"

@@ -7,12 +7,12 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-**Scope Change Note**: 
-This project restricts scope to **Code Summarization** only. 
-- **Bug Detection** and **Code Completion** tasks (originally in FR-003, US-2) are **EXCLUDED** per the Plan's decision to avoid construct validity threats associated with synthetic ground truths.
-- **Execution Pass Rate** and **bug line detection** metrics (originally in FR-004) are **EXCLUDED**.
-- The Plan mandates the use of `Phi-3-mini-4k-instruct` (CPU-tractable) instead of `codellama/CodeLlama-7b-Instruct-hf` (original Spec FR-003) to ensure feasibility on 7GB RAM CI runners.
-- A formal Scope Change Justification document will be generated to trace these exclusions.
+**Note on Scope**:
+This project implements **all three tasks** (Summarization, Bug Detection, Code Completion) as mandated by FR-003.
+- **Bug Detection** ground truth is generated via programmatic bug injection (Plan Requirement Amendment 2).
+- **Code Completion** ground truth is generated via code truncation (Plan Requirement Amendment 2).
+- **Execution Pass Rate** and **bug line detection (substring match)** metrics are implemented as per FR-004 and Plan Amendment 3.
+- The Plan mandates the use of `Phi-3-mini-4k-instruct` (CPU-tractable, **default precision float16/float32**) instead of `codellama/CodeLlama-7b-Instruct-hf` (original Spec FR-003) to ensure feasibility on 7GB RAM CI runners. **No 4-bit/8-bit quantization is used.**
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -32,7 +32,7 @@ This project restricts scope to **Code Summarization** only.
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (code/, data/, results/, tests/)
-- [ ] T002 Initialize Python project with `requirements.txt` (radon, transformers, torch, datasets, pandas, scikit-learn, statsmodels, nltk, evaluate, bitsandbytes)
+- [ ] T002 Initialize Python project with `requirements.txt` (radon, transformers, torch, datasets, pandas, scikit-learn, statsmodels, nltk, evaluate, scipy, patsy). **Explicitly exclude 'bitsandbytes' to comply with CPU-only constraints.**
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -43,10 +43,11 @@ This project restricts scope to **Code Summarization** only.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/memory_guard.py` with RAM monitoring (FR-006) to abort/downsample if usage > 85% of 7GB
-- [ ] T005 Implement `code/utils/prompts.py` with standardized summarization prompt templates
-- [ ] T006 Create `contracts/analysis_schema.yaml` defining the output structure for statistical results (GLM, Correlation, Stratified Analysis)
-- [ ] T007 Setup deterministic logging configuration (random seed fixation, radon version recording) per Constitution VI
+- [ ] T004.1 [P] Create `config.yaml` to define the memory threshold (e.g., `memory_threshold_percent:`) and other runtime parameters (FR-006). This task explicitly defines the "predefined" threshold required by the spec.
+- [ ] T004 [US2] Implement `code/utils/memory_guard.py` with RAM monitoring (FR-006) to abort/downsample if usage exceeds the threshold defined in `config.yaml` (T004.1).
+- [ ] T005 [US2] Implement `code/utils/prompts.py` with standardized prompt templates for Summarization, Bug Detection, and Code Completion
+- [~] T006 [US3] Create `contracts/analysis_schema.yaml` defining the output structure for statistical results (GLM, Correlation, Stratified Analysis)
+- [~] T007 [P] Setup deterministic logging configuration (random seed fixation, radon version recording) per Constitution VI
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,23 +55,25 @@ This project restricts scope to **Code Summarization** only.
 
 ## Phase 3: User Story 1 - Dataset Acquisition and Complexity Annotation (Priority: P1) 🎯 MVP
 
-**Goal**: Download CodeSearchNet Python subset, compute complexity metrics using `radon`, and store in structured CSV.
+**Goal**: Download CodeSearchNet Python subset, compute complexity metrics using `radon`, preserve ground truth (docstrings), and store in structured CSV.
 
-**Independent Test**: The script runs successfully, producing a CSV where every row has a unique ID, raw code, and three valid numeric complexity columns.
+**Independent Test**: The script runs successfully, producing a CSV where every row has a unique ID, raw code, ground truth, and three valid numeric complexity columns.
 
 ### Tests for User Story 1 (MANDATORY)
 
-- [ ] T010 [P] [US1] Prerequisites: T001, T002. Unit test for `radon` metric calculation on known code snippets in `tests/unit/test_complexity_calc.py`
-- [ ] T011 [P] [US1] Prerequisites: T001, T002. Integration test for data download and extraction in `tests/integration/test_data_acquisition.py`
+- [~] T010 [P] [US1] Prerequisites: T001, T002. Unit test for `radon` metric calculation on known code snippets in `tests/unit/test_complexity_calc.py`
+- [~] T011 [P] [US1] Prerequisites: T001, T002. Integration test for data download and extraction in `tests/integration/test_data_acquisition.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_data_acquisition.py` to download CodeSearchNet Python subset to `data/raw/` (FR-001)
-- [ ] T013 [US1] Implement `code/02_complexity_annotation.py` to parse functions and compute Cyclomatic Complexity, Halstead Volume, Maintainability Index (FR-002)
-- [ ] T014 [US1] Add error handling in `02_complexity_annotation.py` to skip snippets with syntax errors and log warnings (Edge Case)
-- [ ] T015 [US1] Implement logic to save processed data to `data/processed/annotated_metrics.csv` with metadata.json (Constitution VI)
-- [ ] T016 [US1] Verify all rows in output CSV have valid numeric values for all three metrics (SC-004)
-- [ ] T017 [US1] Implement 'Binning Strategy' logic to define Low/Medium/High tertiles for complexity stratification and explicitly write the calculated binning boundaries to `data/processed/metadata.json` (Constitution VII)
+- [~] T012 [US1] Prerequisites: T001, T002. Implement `code/01_data_acquisition.py` to download CodeSearchNet Python subset to `data/raw/` (FR-001). Log `total_raw_snippets` (count of all downloaded snippets) to `data/processed/metadata.json`.
+- [~] T013 [US1] Prerequisites: T012. Implement `code/02_complexity_annotation.py` to parse functions, compute Cyclomatic Complexity, Halstead Volume, Maintainability Index, and **preserve the ground_truth (docstring) column** from the raw dataset (FR-002). Log syntax errors and exclude them from the final CSV.
+- [~] T014 [US1] Prerequisites: T013. Add error handling in `02_complexity_annotation.py` to skip snippets with syntax errors and log warnings to `data/processed/exclusions.log` (Edge Case). Ensure `metadata.json` tracks `total_valid_snippets` (excluding syntax errors) and `total_raw_snippets`.
+- [~] T015 [US1] Prerequisites: T014. Implement logic to save processed data to `data/processed/annotated_metrics.csv` with `metadata.json` containing `total_raw_snippets` and `total_valid_snippets` counts (Constitution VI).
+- [~] T016 [US1] Prerequisites: T015. Verify all rows in output CSV have valid numeric values for all three metrics (SC-004).
+- [~] T017 [US1] Prerequisites: T015. Implement 'Binning Strategy' logic to define Low/Medium/High tertiles for complexity stratification. **Note: Binning is for descriptive visualization and robustness checks only; the primary analysis uses GLM with splines.** Explicitly write the calculated binning boundaries to `data/processed/metadata.json` (Constitution VII).
+- [~] T018.1 [US1] Prerequisites: T015. Implement `code/02_bug_injection.py` to generate a derived dataset `data/processed/bug_injected.csv` by programmatically injecting bugs (operator swaps) into a subset of snippets. This satisfies the ground truth requirement for Bug Detection (Plan Amendment 2).
+- [~] T018.2 [US1] Prerequisites: T015. Implement `code/02_truncation.py` to generate a derived dataset `data/processed/truncated_code.csv` by truncating functions and storing the *original full function* alongside the truncated version. This provides the ground truth for Code Completion execution validation (Plan Amendment 2).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -78,9 +81,9 @@ This project restricts scope to **Code Summarization** only.
 
 ## Phase 4: User Story 2 - LLM Inference and Task Execution (Priority: P2)
 
-**Goal**: Execute **Code Summarization** only (Bug Detection and Code Completion excluded per Plan) on the annotated dataset using `Phi-3-mini-4k-instruct` (CPU-tractable, 4-bit quantized) and generate results log.
+**Goal**: Execute **all three tasks** (Summarization, Bug Detection, Code Completion) on the annotated dataset using `Phi-3-mini-4k-instruct` (CPU-tractable, **default precision**) and generate results log.
 
-**Independent Test**: The inference pipeline processes a subset, producing a JSONL file with input, output, and ground truth, completing within memory limits.
+**Independent Test**: The inference pipeline processes a subset, producing a JSONL file with input, output, and ground truth for all three tasks, completing within memory limits.
 
 ### Tests for User Story 2 (MANDATORY)
 
@@ -89,13 +92,17 @@ This project restricts scope to **Code Summarization** only.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/03_inference.py` to load `Phi-3-mini-4k-instruct` (per Plan) with 4-bit quantization and CPU device mapping. **Note**: Do NOT load `codellama/CodeLlama-7b-Instruct-hf` as per Plan scope change.
-- [ ] T021 [US2] Integrate `memory_guard.py` into `03_inference.py` to monitor RAM and abort/downsample if > 85% threshold (FR-006)
-- [ ] T022 [US2] Implement batching logic to process `data/processed/annotated_metrics.csv` with context window truncation handling (Edge Case)
-- [ ] T023 [US2] Generate `results/inference_logs.jsonl` containing snippet_id, task_type ('summarization'), model_output, reasoning, and ground_truth
-- [ ] T024 [US2] Implement metric calculation for **Summarization only** (BLEU-4, ROUGE-L) comparing model output to docstring ground truth. **Note**: Execution Pass Rate and bug detection metrics are excluded per Plan scope change; FR-004 is partially satisfied.
-- [ ] T025 [US2] Handle empty/whitespace model responses by recording as "failed" (Edge Case)
-- [ ] T026 [US2] Verify inference log contains non-empty responses for ≥ 95% of the **total number of valid input snippets** (including those excluded upstream for syntax errors) (SC-005)
+- [ ] T020 [US2] Prerequisites: T004, T005, T015. Implement `code/03_inference.py` to load `microsoft/Phi-3-mini-4k-instruct` with **`torch_dtype=torch.float16`** and **`device_map='cpu'`** (Plan Amendment 1). **Explicitly forbid 4-bit/8-bit quantization.** Verify the model loads and runs within 7GB RAM. (FR-003)
+- [ ] T021 [US2] Prerequisites: T020. Integrate `memory_guard.py` into `03_inference.py` to monitor RAM and abort/downsample if > threshold defined in `config.yaml` (FR-006)
+- [ ] T022 [US2] Prerequisites: T021. Implement batching logic to process `data/processed/annotated_metrics.csv` with context window truncation handling (Edge Case)
+- [ ] T023 [US2] Prerequisites: T022. Generate `results/inference_logs.jsonl` containing snippet_id, task_type (summarization/bug_detection/code_completion), model_output, reasoning, and ground_truth
+- [ ] T024 [US2] Prerequisites: T023, T018.1, T018.2. Implement metric calculation for **all three tasks**:
+ - Summarization: BLEU-4, ROUGE-L (vs docstring)
+ - Bug Detection: Substring match for injected bugs (vs `bug_injected.csv` injected bug location)
+ - Code Completion: Execution Pass Rate (execute model output against the *original full function* stored in `truncated_code.csv` to verify logical equivalence, as no external unit tests exist)
+ (FR-004)
+- [ ] T025 [US2] Prerequisites: T024. Handle empty/whitespace model responses by recording as "failed" (Edge Case)
+- [ ] T026 [US2] Prerequisites: T024, T015. Verify inference log contains non-empty responses for ≥ 95% of the **total_raw_snippets** (as defined in `data/processed/metadata.json`, including all snippets from the raw dataset, not just those processed if some were skipped) (SC-005).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -103,7 +110,7 @@ This project restricts scope to **Code Summarization** only.
 
 ## Phase 5: User Story 3 - Statistical Analysis and Correlation Reporting (Priority: P3)
 
-**Goal**: Compute Spearman correlations and GLM analysis to evaluate the relationship between complexity and performance for Summarization tasks, including stratified analysis by complexity bins.
+**Goal**: Compute Spearman correlations and GLM analysis (with **natural cubic splines**) to evaluate the relationship between complexity and performance for all three tasks, including stratified analysis by complexity bins.
 
 **Independent Test**: The analysis script outputs a table with correlation coefficients, p-values, and GLM statistics, validating against the schema contract.
 
@@ -114,14 +121,15 @@ This project restricts scope to **Code Summarization** only.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/04_analysis.py` to load `results/inference_logs.jsonl` (Summarization only) and `data/processed/annotated_metrics.csv`. **Note**: Logic must handle single-task structure without expecting missing columns.
-- [ ] T031 [US3] Implement Spearman correlation calculation between complexity metrics and performance scores (FR-005)
-- [ ] T032 [US3] Implement VIF check for multicollinearity; if VIF > 5, **generate PCA components and save to `results/pca_components.csv`**, then use PCA components for GLM (Constitution VII)
-- [ ] T033 [US3] Implement GLM with logit link to evaluate non-linear relationships (FR-005)
-- [ ] T034 [US3] Implement stratified analysis by comparing performance metrics across Low/Medium/High complexity bins (Constitution VII)
-- [ ] T035 [US3] Generate `results/analysis_metrics.csv` containing correlation matrix, GLM coefficients, standard errors, p-values, and stratified analysis results (FR-007)
-- [ ] T036 [US3] Generate final report visualizing accuracy vs. complexity trend (including bin-based stratification) and stating hypothesis support status (SC-001, SC-002)
-- [ ] T037 [US3] Validate output against `contracts/analysis_schema.yaml` before report generation (Constitution VII)
+- [ ] T030 [US3] Prerequisites: T015, T023. Implement `code/04_analysis.py` to load `results/inference_logs.jsonl` and `data/processed/annotated_metrics.csv`. Logic must handle all three tasks.
+- [ ] T031 [US3] Prerequisites: T030. Implement Spearman correlation calculation between complexity metrics and performance scores for each task (FR-005)
+- [ ] T032.0 [US3] Prerequisites: T002. Install and configure `patsy` library. Define natural cubic spline basis parameters (knots, boundaries) for the GLM model (Constitution VII, Plan Statistical Rigor).
+- [ ] T032.1 [US3] Prerequisites: T032.0. Implement the GLM model with natural cubic splines as the primary analysis method (Constitution VII, Plan Statistical Rigor). This step must be ready before T032 executes the orchestration.
+- [ ] T032 [US3] Prerequisites: T031, T032.1. Implement VIF check for multicollinearity. **Logic:** Calculate VIF. If VIF > 5, generate PCA components (retain [deferred] variance, include all complexity metrics) and save to `results/pca_components.csv`, then run GLM on PCA components. If VIF <= 5, run GLM on original metrics. **Do not skip GLM based on convergence; PCA is mandatory only if VIF > 5.** (Constitution VII)
+- [ ] T033 [US3] Prerequisites: T032. Implement stratified analysis by comparing performance metrics across Low/Medium/High complexity bins (Constitution VII). **Note: Use binning for visualization/robustness only; primary results come from GLM with splines.**
+- [ ] T034 [US3] Prerequisites: T032, T033. Generate `results/analysis_metrics.csv` containing correlation matrix, GLM coefficients (with splines), standard errors, p-values, and stratified analysis results (FR-007)
+- [ ] T035 [US3] Prerequisites: T034. Generate final report visualizing accuracy vs. complexity trend (including bin-based stratification) and stating hypothesis support status for all three tasks (SC-001, SC-002)
+- [ ] T036 [US3] Prerequisites: T035. Validate output against `contracts/analysis_schema.yaml` before report generation (Constitution VII)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,20 +139,19 @@ This project restricts scope to **Code Summarization** only.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `quickstart.md` and `data-model.md`
-- [ ] T039 Code cleanup and refactoring
-- [ ] T040 [P] Refactor `code/03_inference.py` to implement dynamic batch sizing using a binary search heuristic starting at batch_size=1, capping at max_memory=6.5GB to maximize throughput while staying under 7GB RAM limit
-- [ ] T041 [P] Implement caching in `code/01_data_acquisition.py` to prevent re-downloading if checksums match
-- [ ] T042 [P] Run quickstart.md validation and verify CI feasibility (SC-003)
-- [ ] T043 [P] Generate `results/scope_compliance_report.md` explicitly listing which FRs are met (Summarization) and which are excluded (Bug Detection, Code Completion) with justification from Plan.md
-- [ ] T044 [P] Verify that `results/inference_logs.jsonl` contains ONLY 'summarization' task_type entries and no references to excluded tasks
-- [ ] T045 [P] Verify that analysis scripts handle the single-task data structure correctly without expecting missing columns
-- [ ] T046 [P] Generate `specs/scope-change-justification.md` formally documenting the exclusion of FR-003 (Bug Detection, Code Completion) and FR-004 (Execution Pass Rate, bug line detection) per Plan decision
-- [ ] T047 [P] Update `specs/scope-change-justification.md` to explicitly state that FR-004 metrics (Execution Pass Rate, bug line detection) are excluded due to scope reduction
-- [ ] T048 [P] Update `specs/scope-change-justification.md` to explicitly state that User Story 2 acceptance scenarios for Bug Detection and Code Completion are superseded by the Summarization-only scenario
-- [ ] T049 [P] Verify that `data/processed/metadata.json` contains the specific Low/Medium/High tertile boundary values generated by T017
-- [ ] T050 [P] Verify that `code/04_analysis.py` performs stratified analysis using the bins from T017/T049
-- [ ] T051 [P] Verify that `code/04_analysis.py` does not attempt to access columns for excluded tasks (Bug Detection, Code Completion)
+- [ ] T037 [P] Documentation updates in `quickstart.md` and `data-model.md`
+- [ ] T038 Code cleanup and refactoring
+- [ ] T039 [P] Refactor `code/03_inference.py` to implement dynamic batch sizing using a binary search heuristic starting at batch_size=1, capping at max_memory=6.5GB to maximize throughput while staying under 7GB RAM limit
+- [ ] T040 [P] Implement caching in `code/01_data_acquisition.py` to prevent re-downloading if checksums match
+- [ ] T041 [P] Run quickstart.md validation and verify CI feasibility (SC-003)
+- [ ] T042 [P] Generate `specs/scope-change-justification.md` formally documenting the implementation of all 3 tasks (Summarization, Bug Detection, Code Completion), the derived dataset generation strategies (bug injection, truncation), and the **Plan Amendment 1** substituting `Phi-3-mini` for `CodeLlama-7b` due to RAM constraints. Explicitly state that no tasks were excluded.
+- [ ] T043 [P] Verify that `results/inference_logs.jsonl` contains entries for all three task types (summarization, bug_detection, code_completion)
+- [ ] T044 [P] Verify that analysis scripts handle the multi-task data structure correctly and calculate metrics for all three tasks
+- [ ] T045 [P] Verify that `data/processed/metadata.json` contains the specific Low/Medium/High tertile boundary values generated by T017
+- [ ] T046 [P] Verify end-to-end data flow: T013 preserves ground_truth, T018.1/T018.2 generate derived datasets, T023 generates logs for all 3 tasks, T024 calculates all 3 metrics, T030-T035 perform analysis for all 3 tasks. Ensure schema compliance across all artifacts.
+- [ ] T047 [P] [US1] Verify `code/01_data_acquisition.py` uses the canonical HuggingFace `datasets` loader for CodeSearchNet Python to ensure data integrity and reproducibility, avoiding manual URL concatenation
+- [ ] T048 [P] [US2] Implement a timeout mechanism in `code/inference.py` to abort individual inference requests exceeding a predefined duration threshold to prevent CI job hangs on complex snippets.
+- [ ] T049 [P] [US3] Add a robustness check in `code/04_analysis.py` to handle cases where the GLM fails to converge (e.g., due to perfect separation) by falling back to the Spearman correlation result with a warning flag
 
 ---
 
@@ -155,14 +162,14 @@ This project restricts scope to **Code Summarization** only.
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (requires `data/processed/annotated_metrics.csv`)
+- **User Story 2 (P2)**: Depends on US1 (requires `data/processed/annotated_metrics.csv`, `bug_injected.csv`, `truncated_code.csv`)
 - **User Story 3 (P3)**: Depends on US2 (requires `results/inference_logs.jsonl`)
 
 ### Within Each User Story
@@ -192,6 +199,8 @@ Task: "Integration test for data download in tests/integration/test_data_acquisi
 # Launch all models/utilities for User Story 1 together:
 Task: "Implement 01_data_acquisition.py"
 Task: "Implement 02_complexity_annotation.py"
+Task: "Implement 02_bug_injection.py"
+Task: "Implement 02_truncation.py"
 ```
 
 ---
@@ -210,7 +219,7 @@ Task: "Implement 02_complexity_annotation.py"
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (requires US1 data)
+3. Add User Story 2 → Test independently → Deploy/Demo (requires US1 data file)
 4. Add User Story 3 → Test independently → Deploy/Demo (requires US2 logs)
 5. Each story adds value without breaking previous stories
 
@@ -220,9 +229,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Inference) - *Note: Must wait for US1 data file to exist, but can prepare code*
-   - Developer C: User Story 3 (Analysis) - *Note: Must wait for US2 logs, but can prepare code*
+ - Developer A: User Story 1 (Data)
+ - Developer B: User Story 2 (Inference) - *Note: Must wait for US1 data file to exist, but can prepare code*
+ - Developer C: User Story 3 (Analysis) - *Note: Must wait for US2 logs, but can prepare code*
 3. Stories complete and integrate independently
 
 ---
@@ -236,5 +245,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model loading without strict memory guards.
-- **Scope Constraint**: Only Code Summarization is implemented. Bug Detection and Code Completion are excluded per Plan.md.
+- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, **no 4-bit/8-bit quantization**, strict memory caps, deterministic reproducibility.
+- **Scope Constraint**: All three tasks (Summarization, Bug Detection, Code Completion) are implemented. Ground truths for Bug Detection and Code Completion are generated via derived datasets (bug injection, truncation) as per Plan Requirement Amendments.
+- **Model Constraint**: `Phi-3-mini` is used due to 7GB RAM limit (Plan Amendment 1).

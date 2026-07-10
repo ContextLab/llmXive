@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisReport"
+description: "Schema for the final statistical analysis report"
+type: "object"
+required:
+  - "report_id"
+  - "correlation_matrix"
+  - "glm_results"
+  - "hypothesis_status"
+  - "binning_strategy"
+  - "vif_check"
+  - "denominator"
+  - "numerator"
+properties:
+  report_id:
+    type: "string"
+    description: "Unique identifier for the analysis report"
+  correlation_matrix:
+    type: "object"
+    description: "Spearman correlation coefficients and p-values"
+    additionalProperties:
+      type: "object"
+      properties:
+        rho:
+          type: "number"
+          description: "Spearman correlation coefficient"
+        p_value:
+          type: "number"
+          description: "P-value for the correlation"
+        adjusted_p_value:
+          type: "number"
+          description: "Bonferroni adjusted p-value"
+        significant:
+          type: "boolean"
+          description: "Whether the result is significant at alpha=0.05"
+  glm_results:
+    type: "object"
+    description: "GLM coefficients, standard errors, and p-values"
+    additionalProperties:
+      type: "object"
+      properties:
+        coefficient:
+          type: "number"
+        std_error:
+          type: "number"
+        p_value:
+          type: "number"
+        z_statistic:
+          type: "number"
+        spline_terms:
+          type: "array"
+          description: "Coefficients for spline terms if used"
+          items:
+            type: "number"
+  binning_strategy:
+    type: "object"
+    description: "Definition of Low/Medium/High tertiles"
+    properties:
+      metric_name:
+        type: "string"
+      low_threshold:
+        type: "number"
+      high_threshold:
+        type: "number"
+      low_percentile:
+        type: "integer"
+        enum: [33]
+      high_percentile:
+        type: "integer"
+        enum: [66]
+      distribution_check:
+        type: "string"
+        description: "Validation status for the binning (e.g., 'passed', 'failed')"
+  hypothesis_status:
+    type: "string"
+    enum:
+      - "supported"
+      - "rejected"
+      - "inconclusive"
+    description: "Final conclusion on the negative relationship hypothesis"
+  vif_check:
+    type: "object"
+    description: "Variance Inflation Factor results"
+    properties:
+      max_vif:
+        type: "number"
+      pca_applied:
+        type: "boolean"
+        description: "Whether PCA was used as a fallback due to high VIF"
+      pca_components:
+        type: "array"
+        description: "Number of PCA components used if applied"
+        items:
+          type: "integer"
+  denominator:
+    type: "integer"
+    description: "Total number of valid input snippets (SC-005 denominator)"
+  numerator:
+    type: "integer"
+    description: "Number of successful non-empty responses (SC-005 numerator)"

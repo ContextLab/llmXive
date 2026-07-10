@@ -95,7 +95,7 @@ The researcher needs to compute Spearman correlations between complexity metrics
 
 - The CodeSearchNet Python subset contains sufficient variety of complexity levels (low to high) to allow for meaningful statistical correlation analysis.
 - The `radon` library can successfully parse the vast majority of functions in the dataset; the remaining functions with syntax errors will be excluded without biasing the results significantly.
-- The open-source LLM `codellama/CodeLlamab-Instruct-hf` can be loaded and run on a GitHub Actions free-tier runner with 2 CPU cores and 7 GB RAM using `torch.float16` without GPU acceleration.
+- The open-source LLM `codellama/CodeLlamab-Instruct-hf` can be loaded and run on a GitHub Actions free-tier runner with a minimal number of CPU cores and limited RAM using `torch.float16` without GPU acceleration.
 - The ground truth references (docstrings for summarization, injected bugs for detection, original continuations for completion) are accurate and representative of the intended task.
 - The relationship between code complexity and LLM performance is unknown and may be non-linear; the analysis plan (GLM) is designed to detect such patterns.
 - The dataset size (after sampling if necessary) will fit within the disk limit of the CI runner.

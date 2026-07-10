@@ -1,0 +1,15 @@
+# Existing dependencies
+radon
+transformers
+torch
+datasets
+pandas
+scikit-learn
+statsmodels
+nltk
+evaluate
+scipy
+patsy
+pyarrow
+pytest
+# New dependencies if any (none required for T013 beyond existing)

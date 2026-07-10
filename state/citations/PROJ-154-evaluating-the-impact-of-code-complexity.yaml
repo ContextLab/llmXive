@@ -1,11 +1,22 @@
-- artifact_hash: a13ac4f1abbfa6b2d19579c23283677072285646315932f637f8b82e438674fc
+- artifact_hash: e42041feeafb3f467d2c4b64cbcc87c5da6ad1e8d595434240b40710642f99bc
+  artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00002-022fcdc5658ecd68.parquet
+  kind: url
+  value: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6328088c5d34ed9e2dbc75ec/4dd6adfab9c8aeb7d8bf6019eee05d59c675587806421fa1da88fc84b7b5c32f?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002-022fcdc5658ecd68.parquet%3B+filename%3D%22train-00000-of-00002-022fcdc5658ecd68.parquet%22%3B&user_id=public&Expires=1783705361&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMyODA4OGM1ZDM0ZWQ5ZTJkYmM3NWVjLzRkZDZhZGZhYjljOGFlYjdkOGJmNjAxOWVlZTA1ZDU5YzY3NTU4NzgwNjQyMWZhMWRhODhmYzg0YjdiNWMzMmZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3MDUzNjF9fX1dfQ__&Signature=MEUCICppvcIySQ-1dxkdyZW3elJSZI9D3TKnDuRW1R1O8IYFAiEAniV6pDK-PeAW7DOOB5Mcby%7Eittza0E-lX9SWRAhSDsg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T16:42:41.078596Z'
+- artifact_hash: f197cb63ded1b67f63d4ce2ab1290ceff2f37a92cff4c4341e15996cc09117a8
   artifact_path: projects/PROJ-154-evaluating-the-impact-of-code-complexity/specs/001-evaluating-the-impact-of-code-complexity/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "kejian/codesearchnet-python-raw-457k \xB7 Datasets at Hugging Face"
+  fetched_title: train-00000-of-00002-022fcdc5658ecd68.parquet
   kind: url
-  value: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k`
+  value: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet`
   verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k
-  verified_at: '2026-07-09T14:03:34.701788Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6328088c5d34ed9e2dbc75ec/4dd6adfab9c8aeb7d8bf6019eee05d59c675587806421fa1da88fc84b7b5c32f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002-022fcdc5658ecd68.parquet%3B+filename%3D%22train-00000-of-00002-022fcdc5658ecd68.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783705406&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMyODA4OGM1ZDM0ZWQ5ZTJkYmM3NWVjLzRkZDZhZGZhYjljOGFlYjdkOGJmNjAxOWVlZTA1ZDU5YzY3NTU4NzgwNjQyMWZhMWRhODhmYzg0YjdiNWMzMmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDItMDIyZmNkYzU2NThlY2Q2OC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3MDU0MDZ9fX1dfQ__&Signature=MEUCIG-7OGn6JPLONFuYy74MS5xLCo4xaecjLzaEyBGpVO4nAiEAnFSlMBcDvnEHx8MBhl7BrVOZ1ckOjY3E0nhu-mXC1Q4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T16:43:26.736388Z'

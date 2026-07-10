@@ -1,80 +1,86 @@
 # Research: Evaluating the Impact of Code Complexity on LLM Code Understanding
 
-## 1. Problem Statement & Hypothesis
+## Research Question
 
-**Hypothesis**: There is a negative monotonic relationship between code complexity metrics (Cyclomatic Complexity, Halstead Volume, Maintainability Index) and LLM performance on **Code Summarization** tasks.
-**Null Hypothesis**: No significant correlation exists between complexity and performance.
+Does code complexity (Cyclomatic Complexity, Halstead Volume, Maintainability Index) negatively correlate with **Phi-3-mini-4k-instruct** performance across Summarization, Bug Detection, and Code Completion tasks?
 
-**Scope Clarification**: The original specification included "Bug Detection" and "Code Completion" tasks. These tasks were removed from the research design because they require synthetic ground truths (injected bugs, truncated code) that introduce severe construct validity threats. Specifically:
-- Synthetic bugs (e.g., off-by-one) do not naturally correlate with code complexity metrics, meaning the model's ability to detect them is not a valid proxy for "understanding" complex code.
-- Code completion tasks risk measuring memorization of training data rather than logical understanding, and the "correctness" metric is often trivially determined by syntax.
-- **Decision**: The project now focuses exclusively on **Code Summarization**, which uses the native `docstring` ground truth in CodeSearchNet, providing a valid measure of code understanding.
+*Note: The hypothesis is explicitly scoped to the capabilities of the Phi-3 model due to compute constraints.*
 
-## 2. Dataset Strategy
+## Dataset Strategy
 
-The primary dataset is **CodeSearchNet (Python subset)**. It is verified and reachable via the following canonical HuggingFace source. We will apply a **stratified sampling** strategy to ensure sufficient representation of high-complexity functions.
+| Dataset | Source URL | Usage | Notes |
+|:--- |:--- |:--- |:--- |
+| **CodeSearchNet (Python)** | ` | Primary source for code snippets and ground truth (docstrings, original code). | Will be filtered to Python subset. Parquet format ensures efficient streaming. |
+| **Derived Bug Dataset** | *Programmatic Generation* | Ground truth for Bug Detection. | Created by injecting synthetic bugs (operator swaps, off-by-one) into a subset of CodeSearchNet functions. |
 
-| Dataset Name | Source URL | Usage |
-| :--- | :--- | :--- |
-| CodeSearchNet Python (Raw corpus)
+**Dataset Variable Fit Verification**:
+- **Required**: Source code, docstrings (for Summarization GT), original code (for Completion GT), injected bugs (for Bug Detection GT).
+- **Verified**: CodeSearchNet Python subset contains `func_code` and `func_doc`.
+- **Gap**: The raw dataset does **not** contain pre-injected bugs or completion continuations.
+- **Mitigation**: The implementation includes a **Derived Dataset Generation** step in `02_complexity_annotation.py` to programmatically inject bugs and truncate code for completion tasks. This creates a *derived* artifact, not a raw download, to satisfy FR-003.
 
-The research question and method remain unchanged as per the planning document requirements. References: CodeSearchNet (Raw corpus). | `https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k` | Primary source for code snippets. |
+**Stratified Sampling Strategy**:
+To address the heavy-tailed distribution of code complexity:
+1. Calculate complexity metrics for a large initial sample (e.g., [deferred] snippets).
+2. Identify the top % of functions by Cyclomatic Complexity.
+3. Sample an approximately equal proportion of the final dataset from this "High" tail, and the remaining proportion from the rest (Low/Medium).
+4. This ensures sufficient statistical power to detect correlations in the high-complexity region.
 
-**Note on Source Selection**: The `kejian/codesearchnet-python-raw-457k` dataset is selected as the primary source because it provides the most comprehensive raw Python code with docstrings, avoiding the ambiguity of multiple resolve links.
+## Model Strategy
 
-**Dataset Fit Verification**:
-- **Required Variables**: `code` (source), `docstring` (ground truth for summarization), `func_name` (for context).
-- **Availability**: CodeSearchNet provides `code` and `docstring`.
-- **Gap Handling**: No synthetic bugs or truncations are used. The study relies solely on the native `code` -> `docstring` relationship.
+- **Primary Model**: `microsoft/Phi-3-mini-4k-instruct`
+- **Rationale**:
+ - **Feasibility**: The spec-requested `codellama/CodeLlama-7b-Instruct-hf` requires ~14 GB RAM in default precision, exceeding the 7 GB CI limit.
+ - **Capacity Justification**: Phi-mini is state-of-the-art for its size, supports 4k context, and has demonstrated reasoning capabilities sufficient for code tasks. While it may have a "floor effect" on very complex code, the study explicitly tests **Phi-3's** performance, not a generic "LLM" capability. If Phi-3 fails to correlate, the conclusion is specific to this model tier.
+ - **Inference Configuration**:
+ - `device`: `cpu`
+ - `torch_dtype`: `torch.float16` (if supported) or `torch.float32`
+ - `max_new_tokens`: 256 (summarization/completion), 128 (bug detection)
+ - `temperature`: 0.0 (deterministic for reproducibility)
+ - `batch_size`: Dynamically adjusted based on memory guard (max 1-2 snippets per batch).
 
-**Sampling Strategy (Stratified by Complexity)**:
-- **Problem**: CodeSearchNet has a highly skewed distribution of complexity (mostly simple functions), which reduces statistical power to detect correlations.
-- **Solution**: We will compute complexity metrics on a larger initial sample, then **stratify** the final dataset into three tertiles: **Low**, **Medium**, and **High** complexity. We will oversample from the High complexity bin to ensure balanced representation (e.g., [deferred] Low, [deferred] Medium, [deferred] High).
-- **Target Size**: [deferred] functions (actual count depends on the number of valid snippets in each tertile).
+## Statistical Methodology
 
-## 3. Model Strategy
+1. **Correlation Analysis**:
+ - **Metric**: Spearman's Rank Correlation Coefficient (ρ).
+ - **Rationale**: Robust to non-normality and outliers.
+ - **Correction**: Bonferroni correction applied for multiple comparisons (3 tasks × 3 metrics = 9 tests). Adjusted α = 0.05 / 9 ≈ 0.0056.
 
-**Model**: `microsoft/Phi-3-mini-4k-instruct`
-**Source**: HuggingFace (Model Hub).
-**Feasibility Check**:
-- **Hardware Constraint**: GB RAM (GitHub Actions Free Tier).
-- **Original Spec Model**: `CodeLlama-7b-Instruct` (~14 GB in FP16) is **physically impossible** to run on 7 GB RAM.
-- **Selected Model**: `Phi-3-mini-4k-instruct` (A large-scale language model with billions of parameters).
-- **Quantization**: To strictly fit within 7 GB RAM (including OS overhead and context window), the model will be loaded in **4-bit quantization** (`load_in_4bit=True` via `bitsandbytes`).
-  - **Estimated Memory**: Significant memory allocation for weights + ~1 GB for runtime/context = ~3.5 GB total. This leaves ~3.5 GB headroom for the Python interpreter and data processing, satisfying SC-003.
-- **Constraint**: No GPU. Inference must be batched with batch size 1 and monitored via `memory_guard.py`.
+2. **Generalized Linear Model (GLM) with Splines**:
+ - **Family**: Binomial (Logit link) for binary outcomes (Pass/Fail).
+ - **Family**: Gaussian (Identity link) for continuous outcomes (BLEU/ROUGE).
+ - **Variables**:
+ - *Dependent*: Task Performance (Score).
+ - *Independent*: Cyclomatic Complexity, Halstead Volume, Maintainability Index (modeled with natural cubic splines to capture non-linearity).
+ - *Controls*: Snippet Length (tokens), Task Type (categorical).
+ - **Collinearity & Size Control**:
+ - **VIF Check**: Variance Inflation Factor calculated for all predictors.
+ - **PCA Fallback**: If **VIF > 5**, the plan mandates **Principal Component Analysis (PCA)** to generate orthogonal complexity components. The GLM will then use these components instead of raw metrics.
+ - **Length Orthogonalization**: Snippet length will be orthogonalized against complexity metrics or included as a covariate only after VIF checks to disentangle "size" from "complexity".
 
-**Task Prompts**:
-1.  **Summarization**: "Summarize the functionality of the following Python code in one sentence:\n{code}"
+3. **Binning Strategy (Descriptive Only)**:
+ - Complexity scores will be binned into **Low (0-33rd percentile)**, **Medium (34-66th)**, and **High (67-100th)** tertiles.
+ - **Maintainability Index**: Due to potential negative values, binning will be performed using **quantile-based** methods specific to its distribution.
+ - **Usage**: Binning is used for descriptive visualization (ANOVA/Kruskal-Wallis) and robustness checks, **not** as the primary inference method. Continuous analysis with splines is prioritized.
 
-## 4. Statistical Analysis Plan
+## Construct Validity Mitigation
 
-**Metrics**:
-- **Performance**: BLEU-4, ROUGE-L (comparing model output to `docstring`).
-- **Complexity**: Cyclomatic Complexity, Halstead Volume, Maintainability Index (computed via `radon`).
+- **Synthetic Bugs**: The "Bug Detection" task uses programmatic bug injection. This is a known limitation. The research claims are explicitly scoped to "synthetic bug detection" and not "natural bug detection". The study acknowledges that detecting simple injected bugs may not generalize to complex real-world defects.
+- **Model Capacity**: The hypothesis is framed as "Phi-3's performance vs. complexity". If Phi-3 lacks the reasoning depth to understand complex code, the study may find no correlation. This is a valid finding for the Phi-3 model tier, not a failure of the complexity hypothesis generally.
 
-**Methods**:
-1.  **Multicollinearity Check**:
-    -   Compute Variance Inflation Factor (VIF) for the three complexity metrics.
-    -   **Decision Rule**: If VIF > 5 for any metric, the analysis will **fall back to Principal Component Analysis (PCA)**. The first principal component (capturing the majority of variance in complexity) will be used as the predictor in the GLM instead of individual metrics.
-2.  **Spearman Correlation**: Compute $\rho$ and p-values between the complexity metric (or PCA component) and performance scores.
-3.  **Generalized Linear Model (GLM)**:
-    -   Family: Gaussian (for continuous scores like BLEU/ROUGE).
-    -   Link: Identity.
-    -   Formula: `Performance ~ Complexity + Complexity^2` (to test non-linearity).
-4.  **Multiple Comparison Correction**: Apply Benjamini-Hochberg procedure to p-values across all tests to control False Discovery Rate (FDR).
-5.  **Power Analysis**: Acknowledge that sample size is limited by CI constraints. Report observed effect sizes with confidence intervals. The stratified sampling strategy is designed to maximize power for detecting non-linear effects.
+## Feasibility & Constraints
 
-**Assumptions**:
-- Errors in code parsing (radon failures) are random and do not bias the complexity distribution significantly.
-- The `Phi-3-mini` model is a valid proxy for "LLM code understanding" despite being smaller than CodeLlama-7B.
+- **Runtime**: Data acquisition and annotation are fast (<30 min). Inference is the bottleneck. With Phi-mini on CPU cores, inference speed is ~2-4 tokens/sec. Processing a substantial set of snippets across 3 tasks, yielding thousands of prompts. Estimated time: [deferred] or less. Well within 6h limit.
+- **Memory**: Phi-3-mini model size (~2.5 GB) + overhead fits within 7 GB. Memory guard will abort if usage > 6.5 GB.
+- **Data Volume**: Will sample a stratified subset of valid functions to ensure high-quality parsing and fit within disk limits.
 
-## 5. Risks & Mitigations
+## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| OOM (Out of Memory) on CI | Job failure | Use 4-bit quantization (Phi-3-mini); implement `memory_guard.py` to abort/downsample. |
-| Radon parse errors | Data loss | Log and exclude; ensure >95% validity (SC-004). |
-| Multicollinearity | Unstable coefficients | Implement VIF check; fallback to PCA if VIF > 5. |
-| Model hallucination | Invalid metrics | Use strict regex parsing for outputs; fallback to "failed" on parse error. |
-| Validity of Summarization | Proxy for "understanding" | Acknowledge in report that summarization is a valid but limited proxy; scope is restricted to avoid invalid synthetic tasks. |
+|:--- |:--- |:--- |
+| **Radon Parse Failure** | High | Snippets with syntax errors are logged and excluded. |
+| **Context Window Exceeded** | Medium | Truncate code to a predefined token limit; log as "context_exceeded". |
+| **Model OOM** | Critical | Memory guard script monitors RAM; reduces batch size to 1 or aborts. |
+| **Bug Detection GT Missing** | High | Programmatic bug injection (random operator swap) for a subset of snippets; scope limited to "synthetic bug detection". |
+| **High Complexity Tail Missing** | High | Stratified sampling ensures representation of top [deferred] complexity. |
+| **Collinearity** | High | VIF check with mandatory PCA fallback if VIF > 5. |
