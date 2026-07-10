@@ -1,0 +1,99 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Extracted Metrics Dataset"
+type: object
+properties:
+  study_id:
+    type: string
+    description: "Unique identifier for the study (DOI or arXiv ID)"
+  title:
+    type: string
+    description: "Paper title"
+  authors:
+    type: array
+    items:
+      type: string
+    description: "List of authors"
+  abstract:
+    type: string
+    description: "Paper abstract"
+  pdf_url:
+    type: string
+    format: uri
+    description: "URL to the PDF"
+  doi:
+    type: string
+    description: "Digital Object Identifier"
+  publication_year:
+    type: integer
+    minimum: 2018
+    maximum: 2024
+    description: "Year of publication"
+  mechanism:
+    type: string
+    enum:
+      - "DP"
+      - "SecureAgg"
+      - "FHE"
+      - "Hybrid"
+    description: "Privacy mechanism category"
+  has_baseline:
+    type: boolean
+    description: "Whether a non-private baseline was reported"
+  metric_type:
+    type: string
+    enum:
+      - "communication_overhead"
+      - "convergence_speed"
+      - "accuracy_loss"
+      - "computational_cost"
+    description: "Type of metric extracted"
+  value:
+    type: number
+    description: "Numeric value of the metric"
+  unit:
+    type: string
+    enum:
+      - "bytes"
+      - "rounds"
+      - "%"
+      - "relative_ratio"
+    description: "Standardized unit of the metric"
+  has_variance:
+    type: boolean
+    description: "Whether variance (SD/SE) is reported"
+  variance_value:
+    type: number
+    nullable: true
+    description: "Variance value if reported"
+  control_value:
+    type: number
+    nullable: true
+    description: "Value of the non-private baseline"
+  control_variance:
+    type: number
+    nullable: true
+    description: "Variance of the non-private baseline"
+  parsing_flag:
+    type: string
+    enum:
+      - "OK"
+      - "parsing_error"
+      - "missing_baseline"
+    description: "Flag for parsing or baseline issues"
+required:
+  - study_id
+  - title
+  - authors
+  - abstract
+  - pdf_url
+  - doi
+  - publication_year
+  - mechanism
+  - has_baseline
+  - metric_type
+  - value
+  - unit
+  - has_variance
+  - parsing_flag
+additionalProperties: false
+description: "Schema for the extracted_metrics.csv file containing study metadata and quantitative metrics"

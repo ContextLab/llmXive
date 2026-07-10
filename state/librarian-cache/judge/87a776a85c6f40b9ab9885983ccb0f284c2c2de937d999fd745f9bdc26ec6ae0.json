@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.15413",
+  "judged_at": "2026-07-10T07:54:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "The paper focuses on Fully Homomorphic Encryption (FHE) for centralized SQL databases, which is a distinct cryptographic mechanism and system architecture from Federated Learning (FL), where the core challenge is distributed model training without sharing raw data. While both fall under the broad umbrella of \"privacy-preserving computation,\" the paper does not address the specific protocols, communication patterns, or aggregation mechanisms unique to FL, nor does it measure the same variables or",
+  "relevant": false
+}

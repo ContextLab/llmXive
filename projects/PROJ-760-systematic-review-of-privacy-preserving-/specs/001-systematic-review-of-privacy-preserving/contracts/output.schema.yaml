@@ -1,0 +1,118 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Summary Output"
+type: object
+properties:
+  summary:
+    type: string
+    description: "Main findings of the systematic review"
+  study_counts:
+    type: object
+    properties:
+      DP:
+        type: integer
+        description: "Number of studies using Differential Privacy"
+      SecureAgg:
+        type: integer
+        description: "Number of studies using Secure Aggregation"
+      FHE:
+        type: integer
+        description: "Number of studies using Homomorphic Encryption"
+      Hybrid:
+        type: integer
+        description: "Number of studies using Hybrid mechanisms"
+    required:
+      - DP
+      - SecureAgg
+      - FHE
+      - Hybrid
+    description: "Count of studies per mechanism category"
+  analysis_type:
+    type: string
+    enum:
+      - "Meta-Regression"
+      - "Descriptive Review"
+    description: "Type of analysis performed for each metric"
+  effect_sizes:
+    type: array
+    items:
+      type: object
+      properties:
+        mechanism:
+          type: string
+          enum:
+            - "DP"
+            - "SecureAgg"
+            - "FHE"
+            - "Hybrid"
+          description: "Privacy mechanism"
+        metric:
+          type: string
+          enum:
+            - "communication_overhead"
+            - "convergence_speed"
+            - "accuracy_loss"
+            - "computational_cost"
+          description: "Performance metric"
+        effect_size:
+          type: number
+          description: "Computed effect size (Hedges' g) if applicable"
+        ci_lower:
+          type: number
+          description: "Lower bound of 95% confidence interval"
+        ci_upper:
+          type: number
+          description: "Upper bound of 95% confidence interval"
+        n_studies:
+          type: integer
+          description: "Number of studies included in the effect size calculation"
+      required:
+        - mechanism
+        - metric
+        - n_studies
+    description: "Effect sizes and confidence intervals for each mechanism and metric"
+  regression_results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric:
+          type: string
+          description: "Performance metric analyzed"
+        mechanism:
+          type: string
+          description: "Mechanism compared to reference"
+        coefficient:
+          type: number
+          description: "Regression coefficient (effect of mechanism)"
+        p_value:
+          type: number
+          description: "P-value of the coefficient"
+        corrected_p_value:
+          type: number
+          description: "Benjamini-Hochberg corrected p-value"
+      required:
+        - metric
+        - mechanism
+        - coefficient
+        - p_value
+        - corrected_p_value
+    description: "Results of the random-effects meta-regression"
+  figures:
+    type: array
+    items:
+      type: string
+      format: uri
+    description: "Links to generated figures (forest plots, bar charts, scatter plots)"
+  flags:
+    type: array
+    items:
+      type: string
+    description: "Flags for insufficient data, missing variance, or other warnings"
+required:
+  - summary
+  - study_counts
+  - analysis_type
+  - figures
+  - flags
+additionalProperties: false
+description: "Schema for the results_summary.md file containing the final report"
