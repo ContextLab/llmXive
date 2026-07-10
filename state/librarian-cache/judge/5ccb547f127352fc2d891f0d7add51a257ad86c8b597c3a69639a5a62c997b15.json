@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1310.5166",
+  "judged_at": "2026-07-10T08:50:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) and (b) because it investigates the relationship between transcription factor binding and genomic variation (specifically sites with \"predicted higher binding affinity\" and functional consequences), which directly addresses the user's interest in non-coding variant effects on TF binding affinities, even though the primary focus is on the functional output (gene expression) rather than a direct biophysical measurement of affinity changes.",
+  "relevant": true
+}

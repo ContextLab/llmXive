@@ -1,0 +1,635 @@
+{
+  "fetched_at": "2026-07-10T08:50:06Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities",
+      "target_n": 5
+    },
+    "duration_seconds": 55.709,
+    "ended_at": "2026-07-10T08:50:06Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "impact of non-coding variants on transcription factor binding"
+        ],
+        [
+          2,
+          "regulatory variant effects on TF-DNA interaction"
+        ],
+        [
+          3,
+          "non-coding mutation influence on transcription factor affinity"
+        ],
+        [
+          4,
+          "functional consequences of non-coding SNPs on gene regulation"
+        ],
+        [
+          5,
+          "transcription factor binding site disruption by variants"
+        ],
+        [
+          6,
+          "allele-specific transcription factor binding"
+        ],
+        [
+          7,
+          "non-coding genetic variation and regulatory element activity"
+        ],
+        [
+          8,
+          "predictive modeling of variant effects on TF binding"
+        ],
+        [
+          9,
+          "cis-regulatory variant impact on protein-DNA binding"
+        ],
+        [
+          10,
+          "deep learning approaches for non-coding variant interpretation"
+        ],
+        [
+          11,
+          "chromatin accessibility changes due to non-coding mutations"
+        ],
+        [
+          12,
+          "transcription factor motif disruption by genetic variants"
+        ],
+        [
+          13,
+          "quantitative assessment of regulatory variant effects"
+        ],
+        [
+          14,
+          "non-coding variant prioritization for transcription factor binding"
+        ],
+        [
+          15,
+          "in silico prediction of TF binding affinity changes"
+        ],
+        [
+          16,
+          "enhancer variant effects on transcription factor recruitment"
+        ],
+        [
+          17,
+          "structural basis of variant-induced TF binding alterations"
+        ],
+        [
+          18,
+          "genome-wide analysis of non-coding variant regulatory impact"
+        ],
+        [
+          19,
+          "epigenetic modification effects on transcription factor binding"
+        ],
+        [
+          20,
+          "machine learning models for predicting non-coding variant effects"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities biology": 0,
+        "impact of non-coding variants on transcription factor binding": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "non-coding SNP motif disruption ChIP-seq",
+      "ENCODE DNase-seq ATAC-seq motif footprinting",
+      "deep learning variant effect predictor in silico mutagenesis",
+      "transcription factor binding site affinity Kd dissociation constant",
+      "allele-specific binding regulatory element causality"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1310.5166"
+      ]
+    },
+    "per_query_hit_count": {
+      "ENCODE DNase-seq ATAC-seq motif footprinting": 3,
+      "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities biology": 3,
+      "allele-specific binding regulatory element causality": 3,
+      "deep learning variant effect predictor in silico mutagenesis": 3,
+      "non-coding SNP motif disruption ChIP-seq": 3,
+      "transcription factor binding site affinity Kd dissociation constant": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-10T08:49:10Z",
+    "term_input": {
+      "normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+      "raw": "Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Binding Affinities biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Extensive divergence of transcription factor binding in Drosophila embryos with highly conserved gene expression",
+          "claimed_authors": [
+            "Mathilde Paris",
+            "Tommy Kaplan",
+            "Xiao Yong Li",
+            "Jacqueline E. Villalta",
+            "Susan E. Lott",
+            "Michael B. Eisen"
+          ],
+          "claimed_title": "Extensive divergence of transcription factor binding in Drosophila embryos with highly conserved gene expression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0216"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Extensive divergence of transcription factor binding in Drosophila embryos with highly conserved gene expression')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Critical Assessment of Genome Interpretation (CAGI) aims to advance the state of the art for computational prediction of genetic variant impact, particularly those relevant to disease. The five complete editions of the CAGI community experiment comprised 50 challenges, in which participants made blind predictions of phenotypes from genetic data, and these were evaluated by independent assessors. Overall, results show that while current methods are imperfect, they have major utility for research and clinical applications. Missense variant interpretation methods are able to estimate biochemical effects with increasing accuracy. Performance is particularly strong for clinical pathogenic variants, including some difficult-to-diagnose cases, and extends to interpretation of cancer-related variants. Assessment of methods for regulatory variants and complex trait disease risk is less definitive, and indicates performance potentially suitable for auxiliary use in the clinic. Emerging methods and increasingly large, robust datasets for training and assessment promise further progress ahead.",
+          "claimed_authors": [
+            "The Critical Assessment of Genome Interpretation Consortium"
+          ],
+          "claimed_title": "CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.05897"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='CAGI, the Critical Assessment of Genome Interpretation, establishes progress and prospects for computational genetic variant interpretation methods')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the surge in the number of variants of uncertain significance (VUS) reported in ClinVar in recent years, there is an imperative to resolve VUS at scale. Multiplexed assays of variant effect (MAVEs), which allow the functional consequence of 100s to 1000s of genetic variants to be measured in a single experiment, are emerging as a powerful source of evidence which can be used in clinical gene variant classification. Increasingly, multiple published MAVEs are available for the same gene, sometimes measuring different aspects of variant impact. When multiple functional roles of a gene need to be considered, combining data from multiple MAVEs may provide a more comprehensive measure of the consequence of a genetic variant, which could impact variant classifications. Here, we provide guidance for combining such multiplexed functional data, incorporating a stepwise process from data curation and collection to model generation and validation. We demonstrate the potential and pitfalls of this approach by showing the integration of multiplexed functional data from five MAVEs for the gene TP53, two MAVEs for the gene LDLR and two MAVEs for PTEN. We also present a web applet that allows users to test various methods for combining score sets from multiple assays, calculate integrated functional scores for all variants, and assess whether combining data enables the application of stronger evidence for pathogenicity or benignity. By following these steps with appropriate guardrails, researchers can maximize the value of MAVEs, strengthen the functional evidence for clinical variant classification, and potentially uncover novel mechanisms of pathogenicity for clinically relevant genes.",
+          "claimed_authors": [
+            "Atlas of Variant Effects Alliance",
+            " :",
+            "Jeffrey D. Calhoun",
+            "Moez Dawood",
+            "Charlie F. Rowlands",
+            "Shawn Fayer",
+            "Elizabeth J. Radford",
+            "Abbye E. McEwen",
+            "Malvika Tejura",
+            "Clare Turnbull",
+            "Amanda B. Spurdle",
+            "Lea M. Starita",
+            "Sujatha Jagannathan"
+          ],
+          "claimed_title": "Combining multiplexed functional data to improve variant classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.18810"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Combining multiplexed functional data to improve variant classification')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motif discovery is a core problem in computational biology, traditionally formulated as a likelihood optimization task that returns a single dominant motif from a DNA sequence dataset. However, regulatory sequence data admit multiple plausible motif explanations, reflecting underlying biological heterogeneity. In this work, we frame motif discovery as a quality-diversity problem and apply the MAP-Elites algorithm to evolve position weight matrix motifs under a likelihood-based fitness objective while explicitly preserving diversity across biologically meaningful dimensions. We evaluate MAP-Elites using three complementary behavioral characterizations that capture trade-offs between motif specificity, compositional structure, coverage, and robustness. Experiments on human CTCF liver ChIP-seq data aligned to the human reference genome compare MAP-Elites against a standard motif discovery tool, MEME, under matched evaluation criteria across stratified dataset subsets. Results show that MAP-Elites recovers multiple high-quality motif variants with fitness comparable to MEME's strongest solutions while revealing structured diversity obscured by single-solution approaches.",
+          "claimed_authors": [
+            "Alejandro Medina",
+            "Mary Lauren Benton"
+          ],
+          "claimed_title": "Motif Diversity in Human Liver ChIP-seq Data Using MAP-Elites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.17808"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Motif Diversity in Human Liver ChIP-seq Data Using MAP-Elites')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing models and metrics that can address resilience against disruptions is vital to ensure power grid reliability and that adequate recovery and adaptation mechanisms are in place. In this paper, we propose a novel disruption mapping approach and apply it to the publicly available U.S. Department of Energy DOE-417 Electric Emergency and Disturbance Report to holistically analyze the origin of anomalous events and their propagation through the cyber, physical and human domains. We show that capturing the disruption process onset has implications for quantifying, mitigating, and reporting power grid resilience.",
+          "claimed_authors": [
+            "Maureen S. Golan",
+            "Javad Mohammadi"
+          ],
+          "claimed_title": "Mapping Disruption Sources in the Power Grid and Implications for Resilience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08146"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Mapping Disruption Sources in the Power Grid and Implications for Resilience')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ChIP-seq, which combines chromatin immunoprecipitation with massively parallel short-read sequencing, can profile in vivo genome-wide transcription factor-DNA association with higher sensitivity, specificity and spatial resolution than ChIP-chip. While it presents new opportunities for research, ChIP-seq poses new challenges for statistical analysis that derive from the complexity of the biological systems characterized and the variability and biases in its digital sequence data. We propose a method called PICS (Probabilistic Inference for ChIP-seq) for extracting information from ChIP-seq aligned-read data in order to identify regions bound by transcription factors. PICS identifies enriched regions by modeling local concentrations of directional reads, and uses DNA fragment length prior information to discriminate closely adjacent binding events via a Bayesian hierarchical t-mixture model. Its per-event fragment length estimates also allow it to remove from analysis regions that have atypical lengths. PICS uses pre-calculated, whole-genome read mappability profiles and a truncated t-distribution to adjust binding event models for reads that are missing due to local genome repetitiveness. It estimates uncertainties in model parameters that can be used to define confidence regions on binding event locations and to filter estimates. Finally, PICS calculates a per-event enrichment score relative to a control sample, and can use a control sample to estimate a false discovery rate. We compared PICS to the alternative methods MACS, QuEST, and CisGenome, using published GABP and FOXA1 data sets from human cell lines, and found that PICS' predicted binding sites were more consistent with computationally predicted binding motifs.",
+          "claimed_authors": [
+            "Xuekui Zhang",
+            "Gordon Robertson",
+            "Martin Krzywinski",
+            "Kaida Ning",
+            "Arnaud Droit",
+            "Steven Jones",
+            "Raphael Gottardo"
+          ],
+          "claimed_title": "PICS: Probabilistic Inference for ChIP-seq",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0903.3206"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='PICS: Probabilistic Inference for ChIP-seq')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modeling multiple sampling densities within a hierarchical framework enables borrowing of information across samples. These density random effects can act as kernels in latent variable models to represent exchangeable subgroups or clusters. A key feature of these kernels is the (functional) covariance they induce, which determines how densities are grouped in mixture models. Our motivating problem is clustering chromatin accessibility profiles from high-throughput DNase-seq experiments to detect transcription factor (TF) binding. TF binding typically produces footprint profiles with spatial patterns, creating long-range dependency across genomic locations. Existing nonparametric hierarchical models impose restrictive covariance assumptions and cannot accommodate such dependencies, often leading to biologically uninformative clusters. We propose a nonparametric density kernel flexible enough to capture diverse covariance structures and adaptive to various spatial patterns of TF footprints. The kernel specifies dyadic tree splitting probabilities via a multivariate logit-normal model with a sparse precision matrix. Bayesian inference for latent variable models using this kernel is implemented through Gibbs sampling with Polya-Gamma augmentation. Extensive simulations show that our kernel substantially improves clustering accuracy. We apply the proposed mixture model to DNase-seq data from the ENCODE project, which results in biologically meaningful clusters corresponding to binding events of two common TFs.",
+          "claimed_authors": [
+            "Yuliang Xu",
+            "Kaixuan Luo",
+            "Li Ma"
+          ],
+          "claimed_title": "A tree-based kernel for densities and its applications in clustering DNase-seq profiles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.15480"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='A tree-based kernel for densities and its applications in clustering DNase-seq profiles')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid advancement of single-cell ATAC sequencing (scATAC-seq) technologies holds great promise for investigating the heterogeneity of epigenetic landscapes at the cellular level. The amplification process in scATAC-seq experiments often introduces noise due to dropout events, which results in extreme sparsity that hinders accurate analysis. Consequently, there is a significant demand for the generation of high-quality scATAC-seq data in silico. Furthermore, current methodologies are typically task-specific, lacking a versatile framework capable of handling multiple tasks within a single model. In this work, we propose ATAC-Diff, a versatile framework, which is based on a latent diffusion model conditioned on the latent auxiliary variables to adapt for various tasks. ATAC-Diff is the first diffusion model for the scATAC-seq data generation and analysis, composed of auxiliary modules encoding the latent high-level variables to enable the model to learn the semantic information to sample high-quality data. Gaussian Mixture Model (GMM) as the latent prior and auxiliary decoder, the yield variables reserve the refined genomic information beneficial for downstream analyses. Another innovation is the incorporation of mutual information between observed and hidden variables as a regularization term to prevent the model from decoupling from latent variables. Through extensive experiments, we demonstrate that ATAC-Diff achieves high performance in both generation and analysis tasks, outperforming state-of-the-art models.",
+          "claimed_authors": [
+            "Lei Huang",
+            "Lei Xiong",
+            "Na Sun",
+            "Zunpeng Liu",
+            "Ka-Chun Wong",
+            "Manolis Kellis"
+          ],
+          "claimed_title": "A versatile informative diffusion model for single-cell ATAC-seq data generation and analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.14801"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='A versatile informative diffusion model for single-cell ATAC-seq data generation and analysis')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-Image-to-Video (TI2V) generation aims to generate a video from an image following a text description, which is also referred to as text-guided image animation. Most existing methods struggle to generate videos that align well with the text prompts, particularly when motion is specified. To overcome this limitation, we introduce MotiF, a simple yet effective approach that directs the model's learning to the regions with more motion, thereby improving the text alignment and motion generation. We use optical flow to generate a motion heatmap and weight the loss according to the intensity of the motion. This modified objective leads to noticeable improvements and complements existing methods that utilize motion priors as model inputs. Additionally, due to the lack of a diverse benchmark for evaluating TI2V generation, we propose TI2V Bench, a dataset consists of 320 image-text pairs for robust evaluation. We present a human evaluation protocol that asks the annotators to select an overall preference between two videos followed by their justifications. Through a comprehensive evaluation on TI2V Bench, MotiF outperforms nine open-sourced models, achieving an average preference of 72%. The TI2V Bench and additional results are released in https://wang-sj16.github.io/motif/.",
+          "claimed_authors": [
+            "Shijie Wang",
+            "Samaneh Azadi",
+            "Rohit Girdhar",
+            "Saketh Rambhatla",
+            "Chen Sun",
+            "Xi Yin"
+          ],
+          "claimed_title": "MotiF: Making Text Count in Image Animation with Motion Focal Loss",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.16153"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='MotiF: Making Text Count in Image Animation with Motion Focal Loss')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Determination of binding affinity of proteins in the formation of protein complexes requires sophisticated, expensive and time-consuming experimentation which can be replaced with computational methods. Most computational prediction techniques require protein structures which limit their applicability to protein complexes with known structures. In this work, we explore sequence based protein binding affinity prediction using machine learning. Our paper highlights the fact that the generalization performance of even the state of the art sequence-only predictor of binding affinity is far from satisfactory and that the development of effective and practical methods in this domain is still an open problem. We also propose a novel sequence-only predictor of binding affinity called ISLAND which gives better accuracy than existing methods over the same validation set as well as on external independent test dataset. A cloud-based webserver implementation of ISLAND and its Python code are available at the URL: http://faculty.pieas.edu.pk/fayyaz/software.html#island.",
+          "claimed_authors": [
+            "Wajid Arshad Abbasi",
+            "Fahad Ul Hassan",
+            "Adiba Yaseen",
+            "Fayyaz Ul Amir Afsar Minhas"
+          ],
+          "claimed_title": "ISLAND: In-Silico Prediction of Proteins Binding Affinity Using Sequence Descriptors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10540"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='ISLAND: In-Silico Prediction of Proteins Binding Affinity Using Sequence Descriptors')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The regulation of a gene depends on the binding of transcription factors to specific sites located in the regulatory region of the gene. The generation of these binding sites and of cooperativity between them are essential building blocks in the evolution of complex regulatory networks. We study a theoretical model for the sequence evolution of binding sites by point mutations. The approach is based on biophysical models for the binding of transcription factors to DNA. Hence we derive empirically grounded fitness landscapes, which enter a population genetics model including mutations, genetic drift, and selection. We show that the selection for factor binding generically leads to specific correlations between nucleotide frequencies at different positions of a binding site. We demonstrate the possibility of rapid adaptive evolution generating a new binding site for a given transcription factor by point mutations. The evolutionary time required is estimated in terms of the neutral (background) mutation rate, the selection coefficient, and the effective population size. The efficiency of binding site formation is seen to depend on two joint conditions: the binding site motif must be short enough and the promoter region must be long enough. These constraints on promoter architecture are indeed seen in eukaryotic systems. Furthermore, we analyse the adaptive evolution of genetic switches and of signal integration through binding cooperativity between different sites. Experimental tests of this picture involving the statistics of polymorphisms and phylogenies of sites are discussed.",
+          "claimed_authors": [
+            "Johannes Berg",
+            "Stana Willmann",
+            "Michael Lässig"
+          ],
+          "claimed_title": "Adaptive evolution of transcription factor binding sites",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "cond-mat/0301574"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Adaptive evolution of transcription factor binding sites')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Regulatory texts are inherently long and complex, presenting significant challenges for information retrieval systems in supporting regulatory officers with compliance tasks. This paper introduces a hybrid information retrieval system that combines lexical and semantic search techniques to extract relevant information from large regulatory corpora. The system integrates a fine-tuned sentence transformer model with the traditional BM25 algorithm to achieve both semantic precision and lexical coverage. To generate accurate and comprehensive responses, retrieved passages are synthesized using Large Language Models (LLMs) within a Retrieval Augmented Generation (RAG) framework. Experimental results demonstrate that the hybrid system significantly outperforms standalone lexical and semantic approaches, with notable improvements in Recall@10 and MAP@10. By openly sharing our fine-tuned model and methodology, we aim to advance the development of robust natural language processing tools for compliance-driven applications in regulatory domains.",
+          "claimed_authors": [
+            "Jhon Rayo",
+            "Raul de la Rosa",
+            "Mario Garrido"
+          ],
+          "claimed_title": "A Hybrid Approach to Information Retrieval and Answer Generation for Regulatory Texts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.16767"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='A Hybrid Approach to Information Retrieval and Answer Generation for Regulatory Texts')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our goal is to estimate causal interactions in multivariate time series. Using vector autoregressive (VAR) models, these can be defined based on non-vanishing coefficients belonging to respective time-lagged instances. As in most cases a parsimonious causality structure is assumed, a promising approach to causal discovery consists in fitting VAR models with an additional sparsity-promoting regularization. Along this line we here propose that sparsity should be enforced for the subgroups of coefficients that belong to each pair of time series, as the absence of a causal relation requires the coefficients for all time-lags to become jointly zero. Such behavior can be achieved by means of l1-l2-norm regularized regression, for which an efficient active set solver has been proposed recently. Our method is shown to outperform standard methods in recovering simulated causality graphs. The results are on par with a second novel approach which uses multiple statistical testing.",
+          "claimed_authors": [
+            "Stefan Haufe",
+            "Guido Nolte",
+            "Klaus-Robert Mueller",
+            "Nicole Kraemer"
+          ],
+          "claimed_title": "Sparse Causal Discovery in Multivariate Time Series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.2234"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Systematic Assessment of Non-Coding Variant Effects on Transcription Factor Bind', candidate_title='Sparse Causal Discovery in Multivariate Time Series')",
+        "failed_at": "2026-07-10T08:49:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adam H. Porter",
+            "Norman A. Johnson",
+            "Alexander Y. Tulchinsky"
+          ],
+          "title": "Competitive binding of transcription factors drives Mendelian dominance in regulatory genetic pathways",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1606.06668",
+        "summary": "We report a new mechanism for allelic dominance in regulatory genetic interactions that we call binding dominance. We investigated a biophysical model of gene regulation, where the fractional occupancy of a transcription factor (TF) on the cis-regulated promoter site it binds to is determined by binding energy (-ΔG) and TF dosage. Transcription and gene expression proceed when the TF is bound to the promoter. In diploids, individuals may be heterozygous at the cis-site, at the TF's coding region, or at the TF's own promoter, which determines allele-specific dosage. We find that when the TF's coding region is heterozygous, TF alleles compete for occupancy at the cis sites and the tighter-binding TF is dominant in proportion to the difference in binding strength. When the TF's own promoter is heterozygous, the TF produced at the higher dosage is also dominant. Cis-site heterozygotes have additive expression and therefore codominant phenotypes. Binding dominance propagates to affect the expression of downstream loci and it is sensitive in both magnitude and direction to genetic background, but its detectability often attenuates. While binding dominance is inevitable at the molecular level, it is difficult to detect in the phenotype under some biophysical conditions, more so when TF dosage is high and allele-specific binding affinities are similar. A body of empirical research on the biophysics of TF binding demonstrates the plausibility of this mechanism of dominance, but studies of gene expression under competitive binding in heterozygotes in a diversity of genetic backgrounds are needed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1606.06668",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mathilde Paris",
+            "Tommy Kaplan",
+            "Xiao Yong Li",
+            "Jacqueline E. Villalta",
+            "Susan E. Lott",
+            "Michael B. Eisen"
+          ],
+          "title": "Extensive divergence of transcription factor binding in Drosophila embryos with highly conserved gene expression",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1303.0216",
+        "summary": "Extensive divergence of transcription factor binding in Drosophila embryos with highly conserved gene expression",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1303.0216",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "I. E. Vorontsov",
+            "I. V. Kulakovskiy",
+            "G. Khimulya",
+            "E. N. Lukianova",
+            "D. D. Nikolaeva",
+            "I. A. Eliseeva",
+            "V. J. Makeev"
+          ],
+          "title": "Negative selection maintains transcription factor binding motifs in human cancer",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1511.02842",
+        "summary": "Somatic mutations in cancer cells affect various genomic elements disrupting important cell functions. In particular, mutations in DNA binding sites recognized by transcription factors can alter regulator binding affinities and expression of target genes. A number of promoter mutations have been linked with an increased risk of cancer, mutations in binding sites of selected transcription factors have been found under positive selection. However, negative selection of mutations in coding regions is elusive and significance of negative selection in non-coding regions remains controversial.\n  Here we present analysis of transcription factors with binding sites co-localized with non-coding variants. To avoid statistical bias we account for mutation signatures of different cancer types. For many transcription factors, including multiple members of FOX, HOX, and NR families, we show that human cancers accumulate fewer mutations than expected by chance that increase or decrease affinity of binding motifs. Such conservation of motifs is even more exhibited in DNase accessible regions.\n  Our data demonstrate negative selection against binding sites alterations and suggest that this selection pressure protects cancer cells from rewiring of regulatory circuits. Further analysis of transcription factors and the respective conserved binding motifs can reveal cell regulatory pathways crucial for the survivability of various human cancers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1511.02842",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Darren A. Cusanovich",
+            "Bryan Pavlovic",
+            "Jonathan K. Pritchard",
+            "Yoav Gilad"
+          ],
+          "title": "The Functional Consequences of Variation in Transcription Factor Binding",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1310.5166",
+        "summary": "One goal of human genetics is to understand how the information for precise and dynamic gene expression programs is encoded in the genome. The interactions of transcription factors (TFs) with DNA regulatory elements clearly play an important role in determining gene expression outputs, yet the regulatory logic underlying functional transcription factor binding is poorly understood. Many studies have focused on characterizing the genomic locations of TF binding, yet it is unclear to what extent TF binding at any specific locus has functional consequences with respect to gene expression output. To evaluate the context of functional TF binding we knocked down 59 TFs and chromatin modifiers in one HapMap lymphoblastoid cell line. We then identified genes whose expression was affected by the knockdowns. We intersected the gene expression data with transcription factor binding data (based on ChIP-seq and DNase-seq) within 10 kb of the transcription start sites of expressed genes. This combination of data allowed us to infer functional TF binding. On average, 14.7% of genes bound by a factor were differentially expressed following the knockdown of that factor, suggesting that most interactions between TF and chromatin do not result in measurable changes in gene expression levels of putative target genes. We found that functional TF binding is enriched in regulatory elements that harbor a large number of TF binding sites, at sites with predicted higher binding affinity, and at sites that are enriched in genomic regions annotated as active enhancers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1310.5166",
+          "http_status": 200,
+          "pdf_sample_score": 0.3325,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Johannes Berg",
+            "Stana Willmann",
+            "Michael Lässig"
+          ],
+          "title": "Adaptive evolution of transcription factor binding sites",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "cond-mat/0301574",
+        "summary": "The regulation of a gene depends on the binding of transcription factors to specific sites located in the regulatory region of the gene. The generation of these binding sites and of cooperativity between them are essential building blocks in the evolution of complex regulatory networks. We study a theoretical model for the sequence evolution of binding sites by point mutations. The approach is based on biophysical models for the binding of transcription factors to DNA. Hence we derive empirically grounded fitness landscapes, which enter a population genetics model including mutations, genetic drift, and selection. We show that the selection for factor binding generically leads to specific correlations between nucleotide frequencies at different positions of a binding site. We demonstrate the possibility of rapid adaptive evolution generating a new binding site for a given transcription factor by point mutations. The evolutionary time required is estimated in terms of the neutral (background) mutation rate, the selection coefficient, and the effective population size. The efficiency of binding site formation is seen to depend on two joint conditions: the binding site motif must be short enough and the promoter region must be long enough. These constraints on promoter architecture are indeed seen in eukaryotic systems. Furthermore, we analyse the adaptive evolution of genetic switches and of signal integration through binding cooperativity between different sites. Experimental tests of this picture involving the statistics of polymorphisms and phylogenies of sites are discussed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0301574",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Denis Michel"
+          ],
+          "title": "A role for ATP-dependent chromatin remodeling in the hierarchical cooperativity between noninteracting transcription factors",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1509.07440",
+        "summary": "Chromatin remodeling machineries are abundant and diverse in eukaryotic cells. They have been involved in a variety of situations such as histone exchange and DNA repair, but their importance in gene expression remains unclear. Although the influence of nucleosome position on the regulation of gene expression is generally envisioned under the quasi-equilibrium perspective, it is proposed that given the ATP-dependence of chromatin remodeling enzymes, certain mechanisms necessitate non-equilibrium treatments. Examination of the celebrated chromatin remodeling system of the mouse mammary tumor virus, in which the binding of transcription factors opens the way to other ones, reveals that breaking equilibrium offers a subtle mode of transcription factor cooperativity, avoids molecular trapping phenomena and allows to reconcile previously conflicting experimental data. This mechanism provides a control lever of promoter responsiveness to transcription factor combinations, challenging the classical view of the unilateral influence of pioneer on secondary transcription factors.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1509.07440",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T08:49:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

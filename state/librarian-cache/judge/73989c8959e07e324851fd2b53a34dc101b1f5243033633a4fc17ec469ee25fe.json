@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1511.02842",
+  "judged_at": "2026-07-10T08:49:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) because it empirically measures the effect of non-coding variants on transcription factor binding affinities (specifically analyzing how mutations increase or decrease motif affinity), which is the core mechanism the user is investigating, even though the study context is cancer evolution rather than a general systematic assessment. It also aligns with criterion (b) by providing data on the dependent variable (binding affinity changes) for the user's specified ",
+  "relevant": true
+}

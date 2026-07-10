@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+description: "Schema for a single score record (SNP-TF pair)."
+properties:
+  snp_id:
+    type: "string"
+    description: "Unique identifier for the SNP (e.g., 'chr1:1234:A:G')."
+  tf_id:
+    type: "string"
+    description: "Identifier of the Transcription Factor (from JASPAR)."
+  score_ref:
+    type: "number"
+    description: "Log-odds binding score for the reference allele."
+  score_alt:
+    type: "number"
+    description: "Log-odds binding score for the alternate allele."
+  delta_score:
+    type: "number"
+    description: "Difference in binding affinity (score_alt - score_ref)."
+  context_seq_ref:
+    type: "string"
+    pattern: "^[ACGT]+$"
+    description: "Sequence context (dynamic window) for the reference allele."
+  context_seq_alt:
+    type: "string"
+    pattern: "^[ACGT]+$"
+    description: "Sequence context (dynamic window) for the alternate allele."
+  window_size:
+    type: "integer"
+    description: "Total window size in bp (dynamic, PWM-length dependent)."
+required:
+  - "snp_id"
+  - "tf_id"
+  - "score_ref"
+  - "score_alt"
+  - "delta_score"
+  - "context_seq_ref"
+  - "context_seq_alt"
+  - "window_size"
+additionalProperties: false

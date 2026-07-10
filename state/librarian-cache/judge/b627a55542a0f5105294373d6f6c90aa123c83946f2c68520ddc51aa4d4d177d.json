@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1606.06668",
+  "judged_at": "2026-07-10T08:49:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) as it investigates the same biological mechanism (transcription factor binding affinities and fractional occupancy) and explicitly models the effect of genetic variants (heterozygosity at cis-sites or TF coding regions) on these affinities, which is the core subject of the user's question. It also meets criterion (b) by measuring the dependent variable (binding affinity/energy) in the context of genetic variation, providing essential biophysical evidence for ho",
+  "relevant": true
+}

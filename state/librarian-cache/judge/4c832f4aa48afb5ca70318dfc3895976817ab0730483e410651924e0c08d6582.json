@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0301574",
+  "judged_at": "2026-07-10T08:50:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) as it employs biophysical models to study the sequence evolution of transcription factor binding sites, directly addressing the mechanism of how non-coding variants (point mutations) affect binding affinities and the resulting fitness landscapes. It also aligns with criterion (f) by providing foundational theoretical work on the relationship between sequence variation and binding site function, which is essential context for a systematic assessment of variant e",
+  "relevant": true
+}

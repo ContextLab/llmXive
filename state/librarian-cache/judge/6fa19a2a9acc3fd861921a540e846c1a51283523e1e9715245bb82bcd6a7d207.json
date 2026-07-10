@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1303.0216",
+  "judged_at": "2026-07-10T08:49:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) as it directly measures the biological mechanism of transcription factor binding affinities and their variation (divergence) in a specific model organism, which is the core subject of the user's question regarding non-coding variant effects on binding. It also aligns with criterion (e) by providing an empirical study on the canonical population (Drosophila embryos) used to investigate how sequence changes impact regulatory binding despite conserved expression.",
+  "relevant": true
+}

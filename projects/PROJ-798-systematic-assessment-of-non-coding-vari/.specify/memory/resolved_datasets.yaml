@@ -1,0 +1,783 @@
+resolved_at: '2026-07-10T08:58:47.911997+00:00'
+datasets:
+- intent: SNPs
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_png/32955953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3332765
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4017836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17375732
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7053677
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14800106
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1106623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405711
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_silico_i_characterization_of_MC4R_variants_reveals_insights_into_Setmelanotide_pharmacogenomics_and_personalized_medicine_for_obesity/32451204
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/_i_In_silico_i_characterization_of_MC4R_variants_reveals_insights_into_Setmelanotide_pharmacogenomics_and_personalized_medicine_for_obesity/32451204/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/6G1OBG
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12750653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14750745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5555945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19412362
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20557405
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20557405
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1106623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405711
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://entrepot.recherche.data.gouv.fr/file.xhtml?persistentId=doi:10.57745/NTUYAP
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChillyMango/mafia-preschool/resolve/main/dataset.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/iahlt/arabic_ner_mafat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/mafzal/SOAP-notes/fc13ca9b1583fd4f16359a22cc7053eeb6d75f76/test.csv?%2Fdatasets%2Fmafzal%2FSOAP-notes%2Fresolve%2Fmain%2Ftest.csv=&etag=%223bb828601c78142ad80bdde75923fb14a3d29baf%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ChillyMango/mafia-preschool/resolve/main/dataset.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iahlt/arabic_ner_mafat/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Long_non-coding_RNAs_and_their_potential_role_in_predicting_immunotherapy_response_and_prognosis_a_systematic_review_docx/32955956
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16907933
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10760191
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10493047
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8062771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.cambridge.org/core/journals/genetics-research/article/patterns-of-evolution-of-genes-disrupted-in-expression-in-drosophila-species-hybrids/C6DF24AE75BDB35B5747D143DC6D58D1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21279019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21279019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Neonatal_genetic_sequencing_as_a_first-tier_option_a_real-world_clinical_implementation_study_in_Northern_China/32946844/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GWAS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gonzalobenegas/gwas/resolve/main/features/CADD.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 45474
+      parsed: true
+  - url: https://huggingface.co/datasets/gonzalobenegas/siraj_gwas_highpip/resolve/main/features/Borzoi_L2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gonzalobenegas/siraj_gwas_highpip_emvar/resolve/main/features/Enformer_absDelta.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gonzalobenegas/gwas/resolve/main/features/CADD.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gonzalobenegas/siraj_gwas_highpip/resolve/main/features/Borzoi_L2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gonzalobenegas/siraj_gwas_highpip_emvar/resolve/main/features/Enformer_absDelta.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/suyashss/gwas_genes/resolve/main/combined/eval-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yhqu/gwas_causal_gene/resolve/main/gwas_causal_gene.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13941202
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7516709
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7543748
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20640630
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21291745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/153099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Uncovering_superior_alleles_and_genetic_loci_for_yield-related_traits_in_mungbean_Vigna_radiata_L_Wilczek_through_a_genome-wide_association_study/8586286/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Uncovering_superior_alleles_and_genetic_loci_for_yield-related_traits_in_mungbean_Vigna_radiata_L_Wilczek_through_a_genome-wide_association_study/8586286
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FTP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/youssefMakled/RTSP_FTP_SMTP_DNS_PROTOCOL_GRAMMAR_DATASET/resolve/main/RTSP_FTP_SMTP_DNS_PROTOCOL_GRAMMAR_DATASET.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4100
+      parsed: true
+  - url: https://huggingface.co/datasets/dgambettaphd/D_llm3_gen0_run0_W_doc1000_synt64_FTP/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dgambettaphd/D_llm3_gen1_run0_W_doc1000_synt64_FTP/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Farisya/ft-poc/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/youssefMakled/RTSP_FTP_SMTP_DNS_PROTOCOL_GRAMMAR_DATASET/resolve/main/RTSP_FTP_SMTP_DNS_PROTOCOL_GRAMMAR_DATASET.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dgambettaphd/D_llm3_gen0_run0_W_doc1000_synt64_FTP/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dgambettaphd/D_llm3_gen1_run0_W_doc1000_synt64_FTP/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dgambettaphd/D_llm3_gen2_run0_W_doc1000_synt64_FTP/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Techeng_Island_Mangrove_Dataset/32899871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19206321
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11898895
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13305679
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijere.iaescore.com/index.php/IJERE/article/view/20709
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/200884
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21270936
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wc4h7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/d9djq/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/3mfbc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21257486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JASPAR
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Effect_of_airway_constriction_on_ventilation_inhomogeneity_multiple-breath_washout_indices_and_intrapulmonary_reverse_flow/32923559
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16920060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16919843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16919600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17416190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14207730
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21012140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21012140
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218456
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21218456
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128051
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PWMs
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://hsrc-repository.figshare.com/articles/report/Institutionalizing_tracer_studies_to_assess_the_impact_of_workplace-based_training_reflections_on_feasibility/32382201
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iapress.org/index.php/soic/article/view/2699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2024.1446748/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18018211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4621689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/neurology/articles/10.3389/fneur.2026.1708066/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/handle/20.500.12422/223633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/m5phf/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/243806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/handle/20.500.12422/248953
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jf5dh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENCODE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_and_codes_of_paper_Study_on_the_Efficiency_of_Industry-University-Research_Collaborative_Innovation_in_China_Based_on_a_Two-Stage_Game_Cross-Efficiency_Model_Incorporating_Shapley_Value_/32955860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bridges.monash.edu/articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Enhancing_Productivity_Applications_for_People_who_are_Blind_with_AI_Assistance/32955938
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/16414829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://amsacta.unibo.it/id/eprint/7046/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3564813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19153349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21292356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21292356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155512
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1138295
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363317
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BED
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pcuenq/lsun-bedrooms/resolve/main/data/test-00000-of-00001-7c2280a6897e2462.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Intelligent-Systems/BEDLAM/resolve/main/20221010_3-10_500_batch01hand_zoom_suburb_d/ground_truth/20221010_3-10_500_batch01hand_zoom_suburb_d_gt.tar.gz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/pcuenq/lsun-bedrooms/resolve/main/data/test-00000-of-00001-7c2280a6897e2462.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/bedrock123/burrito-x/4f87750aef9005d3d4caace42096a05d197f5dd3/m2rncvif2arzs1w3q44gfn%2Fimages.cv_m2rncvif2arzs1w3q44gfn%2Freadme.txt?%2Fdatasets%2Fbedrock123%2Fburrito-x%2Fresolve%2Fmain%2Fm2rncvif2arzs1w3q44gfn%2Fimages.cv_m2rncvif2arzs1w3q44gfn%2Freadme.txt=&etag=%22b06db331ca56af63c5580298e2d8833d9048f291%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Keeping_Pace_with_Evolving_APIs_via_Continual_Learning_in_LLMs_How_Far_Are_We_/31868494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_and_codes_of_paper_Study_on_the_Efficiency_of_Industry-University-Research_Collaborative_Innovation_in_China_Based_on_a_Two-Stage_Game_Cross-Efficiency_Model_Incorporating_Shapley_Value_/32955860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/ECSAFGAN_model_weights/32955959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/report/How_well_matched_are_South_African_workers_to_their_jobs_a_comprehensive_analysis_of_education_and_skills_mismatch/32382198
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_ETI_EMDEs_dataset_STATA_and_Python_code_for_constructing_the_Energy_Transition_Index_for_Emerging_Market_and_Developing_Economies_2000-2023/32955830
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01728045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7929930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7921820
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3270958
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14228315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aisberg.unibg.it//handle/10446/103435
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26262/heal.auth.ir.374945
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
+      port=80): Max retries exceeded with url: /record/374945 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
+      port=80) at 0x7f6e15be3890>, ''Connection to ikee.lib.auth.gr timed out. (connect
+      timeout=20.0)''))'

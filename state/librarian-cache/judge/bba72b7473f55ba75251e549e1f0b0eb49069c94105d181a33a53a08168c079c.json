@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1509.07440",
+  "judged_at": "2026-07-10T08:50:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic assessment of non-coding variant effects on transcription factor binding affinities biology",
+  "rationale": "This paper satisfies criterion (a) as it investigates the mechanism of transcription factor binding and cooperativity, which is the core biological process underlying the user's question about variant effects on binding affinities, even though it focuses on the role of chromatin remodeling rather than specific non-coding variants. It also meets criterion (b) by measuring the dependent variable (transcription factor binding) in the relevant domain (eukaryotic gene regulation), providing essential",
+  "relevant": true
+}
