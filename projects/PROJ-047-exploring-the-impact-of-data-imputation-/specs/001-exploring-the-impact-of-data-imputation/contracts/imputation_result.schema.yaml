@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ImputationResult"
+description: "Schema for the output of an imputation method."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Reference to the parent SyntheticDataset run_id."
+  method:
+    type: "string"
+    description: "Imputation method used."
+    enum:
+      - "mean"
+      - "knn"
+      - "mice"
+  convergence_status:
+    type: "string"
+    description: "Status of the imputation algorithm."
+    enum:
+      - "success"
+      - "failed"
+      - "max_iter_reached"
+  iterations:
+    type: "integer"
+    description: "Number of iterations performed (relevant for MICE)."
+  runtime_ms:
+    type: "number"
+    description: "Time taken for imputation in milliseconds."
+  imputed_file_path:
+    type: "string"
+    description: "Relative path to the CSV file containing the imputed data."
+required:
+  - run_id
+  - method
+  - convergence_status
+  - imputed_file_path
+additionalProperties: false

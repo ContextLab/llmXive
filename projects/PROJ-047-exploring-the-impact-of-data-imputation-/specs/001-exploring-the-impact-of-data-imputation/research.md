@@ -1,96 +1,84 @@
 # Research: Exploring the Impact of Data Imputation Methods on Causal Inference
 
-## Problem Definition
+## Executive Summary
 
-The research question investigates how standard imputation methods (Mean, KNN, MICE) distort causal effect estimates when the missingness mechanism is Missing Not At Random (MNAR). Specifically, when the probability of missingness in the outcome variable depends on the unobserved outcome values themselves, standard methods that assume Missing At Random (MAR) or Missing Completely At Random (MCAR) are theoretically expected to produce biased estimates. This project aims to quantify that bias and identify the threshold of MNAR strength where standard methods fail catastrophically.
+This research investigates the robustness of standard imputation methods (Mean, KNN, MICE) under Missing Not At Random (MNAR) conditions in causal inference. By simulating data with known ground-truth Average Treatment Effects (ATE) and injecting missingness dependent on unobserved outcomes, we quantify the bias introduced when standard MAR-based assumptions are violated. The study sweeps the MNAR parameter $\beta$ to identify failure thresholds and compares Inverse Probability Weighting (IPW) vs. Propensity Score Matching (PSM) to assess estimator interaction.
 
 ## Dataset Strategy
 
-**Strategy**: Synthetic Data Generation.  
-**Rationale**: No external real-world dataset exists with a verified, parameterized MNAR mechanism where the ground-truth ATE is known. External datasets (e.g., the "Verified datasets" list provided) contain MNAR *labels* or *imputed* versions but do not provide the underlying ground truth required to calculate bias ($|\hat{\tau} - \tau_{true}|$).  
-**Implementation**:
-- **Source**: Synthetic generation via `code/generate_data.py`.
-- **Variables**: Binary Treatment ($T$), Continuous Outcome ($Y$), Continuous Confounders ($X$).
-- **Ground Truth**: The ATE ($\tau_{true}$) is defined by the structural parameters of the data generation process.
-- **MNAR Mechanism**: Missingness indicator $M$ is generated via $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta Y)$.
-- **Fidelity Check**: Instead of attempting to recover $\beta$ from observed data (which is impossible under MNAR), we verify the mechanism by correlating $M$ with the *latent* (true) $Y$ during generation. This is a valid simulation-only check.
+**Synthetic Data Generation**:
+This study relies entirely on **synthetically generated data** to ensure control over the MNAR mechanism and the ground-truth ATE. No external real-world datasets are used for the primary analysis because real-world MNAR mechanisms are unobservable and ground-truth ATEs are unknown.
 
-**Verified Datasets Reference**:
-*Note: As per the "Dataset-variable fit" assumption in the spec and the lack of verified MNAR ground-truth datasets in the provided list, no external dataset URLs are cited for the primary analysis. The "Verified datasets" list contains generic MNAR or imputation-related datasets that lack the necessary ground-truth causal parameters for this specific simulation study.*
+*   **Source**: `code/simulation/scm_generator.py` (Custom implementation).
+*   **Rationale**: As per FR-001 and Constitution Principle VI, the "ground truth" is the parameter of the generative model. External datasets (even those listed in the verified block like `pppereira3/HW4_REGRESSION_mnar`) are unsuitable because:
+    1.  They do not provide the *true* unobserved $Y$ values required to verify the MNAR mechanism's exact parameters.
+    2.  They lack a known, fixed ATE for bias calculation.
+    3.  They may have complex, undocumented missingness patterns that cannot be precisely parameterized by $\beta$.
+
+**Verified Datasets Note**:
+The verified datasets block contains sources for MNAR data (e.g., `pppereira3/HW4_REGRESSION_mnar`), but these are **NOT** used for the primary simulation. They may be referenced in `research.md` for context on existing MNAR datasets, but the core experimental data is generated locally to satisfy the "Synthetic Ground Truth Integrity" principle.
 
 ## Methodology
 
-### 1. Data Generation (FR-001, FR-002)
-- **Model**: Linear Structural Causal Model (SCM).
-  - $X \sim \mathcal{N}(0, I)$
-  - $T = \mathbb{I}(\gamma^T X + \epsilon_T > 0)$ (Binary treatment)
-  - $Y = \tau_{true} T + \delta^T X + \epsilon_Y$ (Continuous outcome)
-- **MNAR Injection**:
-  - **Target Missingness Rate**: Fix a target rate (e.g., $r = 0.30$).
-  - **Solve for $\alpha$**: Given $\beta$ and target $r$, numerically solve for $\alpha$ such that $E[M] \approx r$. This decouples the missingness *proportion* from the MNAR *strength* ($\beta$).
-  - Calculate $M$ for each observation: $M_i \sim \text{Bernoulli}(\text{logit}^{-1}(\alpha + \beta Y_i))$.
-  - Mask $Y_i$ if $M_i = 1$.
-- **Parameters**:
-  - $\tau_{true} = 2.0$ (Fixed ground truth).
-  - $\beta \in \{0.1, 0.5, 1.0, 2.0\}$ (Sensitivity sweep).
-  - $N = 1000$ per replication.
-  - Replications = 200.
+### 1. Synthetic Data Generation (FR-001, US-1)
+*   **Model**: Structural Causal Model (SCM) with binary treatment $T$, continuous outcome $Y$, and confounders $X$.
+*   **Ground Truth**: The ATE ($\tau_{true}$) is explicitly set (e.g., 0.5) during generation.
+*   **MNAR Mechanism**: Missingness $M$ is generated via logistic regression: $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta Y)$.
+    *   $\beta$ controls the strength of MNAR.
+    *   **$\beta=0$ corresponds to MAR (control)**.
+ * **Dynamic Tuning of $\alpha$**: For each $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$, the intercept $\alpha$ is dynamically adjusted to target a **fixed missingness rate** (e.g., [deferred]). This ensures that the effect of $\beta$ is isolated from the effect of missingness volume.
+    *   **Verification**: All runs are included in the analysis regardless of the Spearman correlation between $M$ and unobserved $Y$. No arbitrary threshold (e.g., $\rho > 0.5$) is used to discard runs, allowing the sensitivity analysis to capture the full spectrum of MNAR strength, including subtle effects. The acceptance criteria in the spec (US-1) regarding $\rho > 0.5$ is a verification of the *mechanism generation* (ensuring the code works) but is NOT applied as a filter to the final dataset for sensitivity analysis.
+*   **Bias Definition**: The 'bias' metric is defined as the absolute difference between the estimator on imputed data and the **known generative parameter** ($\tau_{true}$), not an empirical estimate from observed data. This avoids tautological confusion about identifiability under MNAR. The observed data under MNAR is inherently biased; the study measures how much the imputation methods fail to recover the *generative parameter*.
 
-### 2. Imputation Strategies (FR-003)
-- **Mean Imputation**: Replace missing $Y$ with $\bar{Y}_{obs}$.
-- **KNN Imputation**: $k=5$ neighbors based on $X$ and observed $Y$.
-- **MICE**: 5 iterations, assuming MAR (using `IterativeImputer` or `fancyimpute` MICE).
-- **Constraint**: All methods run on CPU. MICE convergence failures will be caught, logged, and the replication flagged/excluded.
+### 2. Imputation Pipeline (FR-003, US-2)
+*   **Methods**:
+    *   **Mean**: Simple mean imputation (baseline).
+    *   **KNN**: k-Nearest Neighbors ($k=5$) using Euclidean distance.
+    *   **MICE**: Multivariate Imputation by Chained Equations (using `IterativeImputer` in scikit-learn with `RandomForestRegressor` or `BayesianRidge`).
+*   **Constraint**: All methods run on CPU. No GPU acceleration.
 
-### 3. Causal Estimation (FR-004)
-- **Baselines**:
-  - **Oracle**: Estimate ATE on *complete* data (no missingness). This represents the best possible estimator performance.
-  - **Complete Case**: Estimate ATE on data with missing rows removed (Listwise Deletion). This represents standard practice without imputation.
-- **Imputed Estimates**:
-  - Apply IPW and PSM to each imputed dataset.
-  - **Interpretation**: The "Bias" metric is defined as $|\hat{\tau}_{imp} - \tau_{true}|$. This captures **Total Deviation** (imputation error + estimator failure under MNAR).
-  - **Isolation**: By comparing $\hat{\tau}_{imp}$ to $\hat{\tau}_{oracle}$, we can estimate the specific error introduced by the imputation step.
+### 3. Causal Estimation (FR-004, US-2)
+*   **IPW**: Inverse Probability Weighting using propensity scores estimated via logistic regression on **imputed data**.
+*   **PSM**: Propensity Score Matching (1:1 nearest neighbor matching) on **imputed data**.
+*   **Handling MNAR Bias in Propensity Scores**: The plan explicitly acknowledges that under MNAR, the imputation introduces bias into the propensity scores (since $Y$ influences $M$, and $M$ influences the imputed $Y$, which influences $T$ estimation if $T$ is correlated with $Y$). This bias is an expected component of the total error being measured. No attempt is made to restrict to complete cases, as that would defeat the purpose of testing imputation methods. The study measures the total bias (imputation + estimation) relative to the generative parameter.
 
-### 4. Statistical Analysis (FR-005, FR-006, FR-007)
-- **Bias Calculation**: $Bias = |\hat{\tau} - \tau_{true}|$.
-- **RMSE**: $\sqrt{Bias^2 + Var(\hat{\tau})}$.
-- **CI Coverage**: Calculate the confidence interval for each estimate. Coverage = proportion of replications where $\tau_{true} \in [CI_{lower}, CI_{upper}]$.
-- **Repeated-Measures ART ANOVA**: Use Aligned Rank Transform with **Seed** as a blocking factor (or Random Effect in a Mixed Model) to test $H_0$: Bias distributions are equal across imputation methods, accounting for the non-independence of methods within the same seed.
-- **Sensitivity Plot**: Bias vs. $\beta$ for each method.
-- **Breakdown Point**: Identify $\beta$ where Mean Imputation Bias > 10% of $\tau_{true}$.
-- **Variance Check**: Verify that the variance of bias across replications is non-trivial (not zero) to ensure the ANOVA tests a real distribution.
+### 4. Bias Quantification & Statistical Testing (FR-005, FR-006, US-3)
+*   **Metrics**:
+    *   Absolute Bias: $|\hat{\tau} - \tau_{true}|$
+    *   RMSE: $\sqrt{\frac{1}{n}\sum(\hat{\tau}_i - \tau_{true})^2}$
+    *   Coverage Rate: Proportion of 95% CIs containing $\tau_{true}$.
+*   **Statistical Tests**:
+    *   **Default**: **Friedman test** for comparing bias across 3 methods (Mean, KNN, MICE) within each beta level. The Shapiro-Wilk test has been removed to avoid 'test of assumptions' bias.
+    *   **Post-hoc**: **Nemenyi test** for pairwise comparisons if Friedman test is significant ($p < 0.05$).
+    *   **Robustness**: Bootstrap CIs for median differences.
+*   **Sensitivity Analysis**: Spearman rank correlation ($\rho$) between $\beta$ and mean absolute bias. Expect $\rho > 0.9$.
 
 ## Statistical Rigor & Assumptions
 
-- **Multiple Comparisons**: Since the primary test is the omnibus Repeated-Measures ART ANOVA (one test per $\beta$ level), family-wise error is controlled. If post-hoc pairwise comparisons are performed, Bonferroni correction will be applied.
-- **Power**: 200 replications are assumed sufficient to detect moderate effect sizes in bias distributions ($p < 0.05$). If power is low, the limitation will be explicitly stated.
-- **Causal Framing**: Claims are strictly about the *recovery of the known ground truth* in a simulation. No causal claims about real-world populations are made.
-- **Collinearity**: Synthetic $X$ variables will be generated with controlled correlation ($\rho < 0.7$) to avoid VIF > 10.
-- **MNAR Validity**: The logistic model is the standard parametric form for MNAR in simulation literature (Little & Rubin).
-- **Estimator Limitations**: Explicitly acknowledged that IPW/PSM on imputed data do not correct for MNAR; the study measures the *total* error resulting from this mismatch.
+*   **Multiple Comparisons**: When comparing 3 methods $\times$ 2 estimators, we apply the **Nemenyi test** (a non-parametric post-hoc test) for pairwise comparisons following a significant Friedman test.
+* **Sample Size/Power**: We target **200 replications per beta level** ([deferred] total runs). This is a **simulation study**, so power is driven by the number of replications (200 per level) to stabilize the bias estimate, not by the sample size of a single dataset.
+*   **Causal Assumptions**:
+    *   The study acknowledges that under MNAR, the true ATE is **not identifiable** from observed data.
+    *   Claims are strictly about the *bias relative to the generative parameter*, not about recovering a real-world causal effect.
+    *   No causal claims are made about the external world; the "truth" is the simulation parameter.
+*   **Collinearity**: VIF checks are performed. Runs with VIF > 10 are flagged/excluded to prevent unstable estimates (Edge Case).
+*   **Measurement Validity**: The instruments are the synthetic variables themselves, defined by the SCM. The "validity" is ensured by the deterministic generation code.
 
 ## Compute Feasibility
 
-- **Hardware**: GitHub Actions free tier (multi-core CPU, 7GB RAM).
-- **Strategy**:
-  - Data generation and imputation are vectorized (NumPy/Pandas).
-  - MICE iterations are limited to a sufficient number to ensure convergence.
-  - KNN $k=5$ is computationally light for $N=1000$.
-  - Total runtime estimated: < 2 hours for 200 replications (well within 6h limit).
-  - No GPU required; all libraries (`scikit-learn`, `statsmodels`, `linearmodels`) have CPU wheels.
+*   **Hardware**: GitHub Actions Free Tier (multi-core CPU, substantial RAM).
+*   **Strategy**:
+    *   Data generation and imputation are vectorized (numpy/pandas).
+    *   MICE uses `IterativeImputer` with a limited number of iterations and a lightweight estimator (Ridge).
+    *   Causal estimation uses `statsmodels` (IPW) and `causalinference` or custom PSM (efficient numpy implementation).
+ * **Runtime**: [deferred] runs total. Estimated time per run: [deferred] (CPU). Total: [deferred].
+    *   **Memory**: $N=1000$ datasets are small (~1MB). A sufficient number of runs fits easily in standard system memory..
+    *   **No GPU**: All libraries (scikit-learn, statsmodels) default to CPU.
 
-## Risks & Mitigations
+## Decision Rationale
 
-- **Risk**: MICE fails to converge.
-  - **Mitigation**: Catch exception, log seed, retry with 10 iterations or exclude from ANOVA with a flag.
-- **Risk**: Extreme sparsity (>90% missing) causes estimator failure.
-  - **Mitigation**: Check missingness rate; if >90%, flag result as "unreliable" but do not crash.
-- **Risk**: VIF > 10 in confounders.
-  - **Mitigation**: Regenerate $X$ if VIF > 10 detected.
-
-## References
-
-- Little, R. J., & Rubin, D. B. (2019). *Statistical Analysis with Missing Data*. Wiley.
-- Rubin, D. B. (1976). Inference and missing data. *Biometrika*.
-- Wobbrock, J. O., et al. (2011). The Aligned Rank Transform for Nonparametric Factorial Analyses. *UIST*.
-
+*   **Why Synthetic?**: Real MNAR datasets do not have known ground truth. Without known $\tau_{true}$, bias cannot be calculated.
+*   **Why IPW & PSM?**: To isolate imputation error from estimator error (Constitution Principle VII).
+*   **Why Friedman/Nemenyi?**: To rigorously test if differences in bias are statistically significant, accounting for the repeated-measures nature of the simulation (same seed, different methods) without relying on normality assumptions.
+*   **Why 200 Replications per Level?**: To ensure statistical power for the Friedman test and to stabilize the bias estimates for the sensitivity analysis.
+*   **Why Dynamic $\alpha$?**: To isolate the effect of the MNAR mechanism ($\beta$) from the effect of missingness volume.

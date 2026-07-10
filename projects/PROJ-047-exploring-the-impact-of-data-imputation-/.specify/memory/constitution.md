@@ -37,17 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `updated_at` timestamp.
 
-### VI. MNAR Simulation Fidelity
+### VI. Synthetic Ground Truth Integrity
 
-All synthetic datasets MUST be generated using a structural causal model with a binary treatment, outcome, and confounders where the ground-truth Average Treatment Effect (ATE) is explicitly known. Missingness mechanisms MUST be parameterized via a logistic model where the probability of missingness depends on the unobserved outcome values, ensuring the simulation strictly adheres to the Missing Not At Random (MNAR) definition rather than Missing At Random (MAR) assumptions.
+Because this project relies on simulated data to quantify bias under Missing Not At Random (MNAR) conditions, the synthetic data generation scripts MUST explicitly encode the true Average Treatment Effect (ATE) and the specific MNAR mechanism parameters (e.g., the logistic coefficient $\beta$) used to induce missingness. The `code/` directory MUST contain a deterministic function to regenerate the "ground truth" values for any given random seed, ensuring that the bias calculation ($|\hat{\tau}_{imp} - \tau_{true}|$) is mathematically verifiable against the known truth rather than an external dataset.
 
-*Justification: Derived from "Methodology sketch" (Data Generation and MNAR Mechanism Injection) and "Research question," which define the core experimental setup as simulating MNAR mechanisms where missingness depends on unobserved values to test standard imputation methods.*
+### VII. Causal Estimation Robustness Verification
 
-### VII. Bias Quantification Rigor
-
-Every reported causal effect estimate MUST include the absolute bias relative to the ground-truth ATE and the Root Mean Squared Error (RMSE). Statistical significance of bias differences across imputation methods (Mean, KNN, MICE) MUST be validated via repeated-measures ANOVA or Friedman test with $p < 0.05$, and 95% confidence interval coverage rates MUST be computed to assess validity under MNAR-induced bias.
-
-*Justification: Derived from "Methodology sketch" (Bias Quantification, Statistical Testing, Coverage Analysis) and "Expected results," which mandate specific statistical tests and metrics to quantify the divergence between estimated and true ATEs across simulation replications.*
+To prevent conflating imputation error with causal estimation error, the project MUST report bias metrics for both Inverse Probability Weighting (IPW) and Propensity Score Matching (PSM) across all imputation strategies. If a specific imputation method (e.g., Mean, MICE, or KNN) yields statistically significant bias divergence between the two causal estimators, that result MUST be flagged as an interaction effect between the imputation failure mode and the causal identification strategy, rather than solely an imputation artifact.
 
 ## Reproducibility Requirements
 

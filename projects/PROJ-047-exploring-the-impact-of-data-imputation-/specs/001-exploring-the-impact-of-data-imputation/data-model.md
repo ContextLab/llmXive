@@ -2,80 +2,79 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships for the simulation pipeline. All data is stored in CSV or Parquet format under `data/`.
+This document defines the data structures used in the simulation study. All data is stored in `data/` directory, with raw synthetic data in `data/raw/` and processed results in `data/processed/` and `data/results/`.
 
 ## Entities
 
 ### 1. SyntheticDataset
-Represents a single generated dataset with missingness.
-- **Attributes**:
-  - `seed`: Integer (Unique identifier for the replication).
-  - `N`: Integer (Sample size, fixed at 1000).
-  - `beta`: Float (MNAR strength parameter).
-  - `alpha`: Float (Intercept parameter, solved for target missingness rate).
-  - `target_missing_rate`: Float (Target proportion of missing data).
-  - `tau_true`: Float (Ground truth ATE).
-  - `treatment`: Binary (0/1).
-  - `outcome`: Float (Continuous, may contain NaN).
-  - `confounders`: Vector (Floats, e.g., `x1`, `x2`, `x3`).
-  - `missingness_indicator`: Binary (1 if missing, 0 if observed).
+Represents a single generated instance of the SCM.
 
-### 2. ImputedDataset
-Represents a dataset after imputation.
-- **Attributes**:
-  - `source_seed`: Integer (Links to `SyntheticDataset.seed`).
-  - `method`: String (Mean, KNN, MICE).
-  - `data`: Full dataset (Floats, no NaN).
-  - `convergence_status`: Boolean (True if MICE converged, N/A for others).
+*   **Attributes**:
+    *   `run_id` (str): Unique identifier (e.g., `seed_123_beta_0.5`).
+    *   `seed` (int): Random seed used for generation.
+    *   `n_samples` (int): Number of samples (default 1000).
+    *   `tau_true` (float): Ground-truth ATE.
+    *   `beta` (float): MNAR parameter ($\beta$).
+    *   `alpha` (float): Intercept used in the MNAR logistic model (tuned to achieve target missingness rate).
+    *   `data` (DataFrame): Columns: `T` (treatment), `Y` (outcome, partially missing), `X1`, `X2` (confounders), `M` (missingness indicator).
+ * `missingness_rate` (float): Proportion of missing $Y$ (targeted to be [deferred]).
+    *   `correlation_M_Y` (float): Spearman correlation between $M$ and unobserved $Y$ (computed before masking).
+    *   `vif_max` (float): Maximum Variance Inflation Factor for confounders.
+
+### 2. ImputationResult
+Represents the output of an imputation method applied to a `SyntheticDataset`.
+
+*   **Attributes**:
+    *   `run_id` (str): Reference to parent `SyntheticDataset`.
+    *   `method` (str): "mean", "knn", "mice".
+    *   `imputed_data` (DataFrame): Complete dataset (no missing values).
+    *   `convergence_status` (str): "success", "failed", "max_iter_reached".
+    *   `iterations` (int): Number of iterations (for MICE).
+    *   `runtime_ms` (float): Time taken for imputation.
 
 ### 3. CausalEstimate
-Represents the result of an estimation step.
-- **Attributes**:
-  - `seed`: Integer.
-  - `method`: String (Mean, KNN, MICE).
-  - `estimator`: String (IPW, PSM).
-  - `estimated_ate`: Float.
-  - `standard_error`: Float.
-  - `ci_lower`: Float (95% CI lower bound).
-  - `ci_upper`: Float (95% CI upper bound).
-  - `bias`: Float (Absolute difference from `tau_true`).
-  - `rmse`: Float.
-  - `beta`: Float (MNAR strength).
-  - `alpha`: Float (Intercept).
-  - `coverage_indicator`: Boolean (True if `tau_true` is within `[ci_lower, ci_upper]`).
-  - `baseline_ate`: Float (ATE from Oracle/Complete Case baseline for this seed).
-  - `imputation_bias`: Float (Difference between `estimated_ate` and `baseline_ate`).
+Represents the final ATE calculation from an imputed dataset.
 
-## File Structure
+*   **Attributes**:
+    *   `run_id` (str): Reference to parent.
+    *   `method` (str): Imputation method.
+    *   `estimator` (str): "ipw", "psm".
+    *   `ate_est` (float): Estimated ATE.
+    *   `se` (float): Standard error.
+    *   `ci_lower` (float): 95% CI lower bound.
+    *   `ci_upper` (float): 95% CI upper bound.
+    *   `bias` (float): $|\hat{\tau} - \tau_{true}|$.
+    *   `covered` (bool): True if $\tau_{true} \in [ci\_lower, ci\_upper]$.
 
-```text
-data/
-├── raw/
-│   ├── synthetic_seed_{seed}_beta_{beta}.csv   # Generated data with NaN
-│   └── ...
-├── processed/
-│   ├── imputed_seed_{seed}_method_{method}.csv # Imputed data
-│   └── ...
-└── results/
-    ├── estimates.csv                            # Aggregated CausalEstimate table
-    ├── anova_results.json                       # Repeated-Measures ART ANOVA F-stat, p-value
-    ├── coverage_results.json                    # CI coverage rates per method
-    └── sensitivity_plot.png                     # Bias vs Beta chart
-```
+## Aggregated Results
 
-## Data Contracts
+### SimulationSummary
+Aggregated results across all runs for a specific $\beta$.
 
-### Input/Output Schema
+*   **Attributes**:
+    *   `beta` (float): MNAR parameter.
+    *   `method` (str): Imputation method.
+    *   `estimator` (str): Causal estimator.
+    *   `n_runs` (int): Number of successful runs (target 200).
+    *   `mean_bias` (float): Mean absolute bias.
+    *   `std_bias` (float): Std dev of bias.
+    *   `coverage_rate` (float): Proportion of CIs covering $\tau_{true}$.
+    *   `p_value` (float): P-value from Friedman test.
 
-The `code/` scripts must adhere to the following schemas (detailed in `contracts/`).
-- **Generation Output**: `SyntheticDataset` schema.
-- **Imputation Input**: `SyntheticDataset` schema.
-- **Imputation Output**: `ImputedDataset` schema.
-- **Estimation Input**: `ImputedDataset` schema.
-- **Estimation Output**: `CausalEstimate` schema.
+### SensitivityAnalysis
+Results of the $\beta$ sweep.
 
-## Versioning
+*   **Attributes**:
+    *   `beta` (float): Value in sweep.
+    *   `method` (str): Imputation method.
+    *   `mean_bias` (float): Mean bias at this $\beta$.
+    *   `coverage_rate` (float): Coverage at this $\beta$.
+    *   `trend_correlation` (float): Spearman $\rho$ of bias vs. $\beta$ (computed over the sweep).
 
-- **v1.0**: Initial schema definition.
-- **Hashing**: All files in `data/` will be checksummed (SHA-256) and recorded in `state/...yaml`.
+## File Paths
 
+*   `data/raw/synth_{seed}_{beta}.csv`: Raw synthetic data with missingness.
+*   `data/processed/{method}_{seed}_{beta}.csv`: Imputed data.
+*   `data/results/estimates_{seed}_{beta}.csv`: Causal estimates.
+*   `data/results/summary_{beta}.csv`: Aggregated bias metrics.
+*   `data/results/sensitivity_analysis.csv`: Final sweep results.

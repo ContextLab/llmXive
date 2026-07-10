@@ -1,65 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: CausalEstimate
-description: Schema for the final ATE estimates and bias metrics.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CausalEstimate"
+description: "Schema for a single causal effect estimate."
+type: "object"
 properties:
-  seed:
-    type: integer
-    description: "Replication seed."
+  run_id:
+    type: "string"
+    description: "Reference to the parent SyntheticDataset run_id."
   method:
-    type: string
-    enum: ["Mean", "KNN", "MICE"]
+    type: "string"
     description: "Imputation method used."
+    enum:
+      - "mean"
+      - "knn"
+      - "mice"
   estimator:
-    type: string
-    enum: ["IPW", "PSM"]
-    description: "Causal estimator used."
-  estimated_ate:
-    type: number
+    type: "string"
+    description: "Causal estimation method."
+    enum:
+      - "ipw"
+      - "psm"
+  ate_est:
+    type: "number"
     description: "Estimated Average Treatment Effect."
-  standard_error:
-    type: number
+  se:
+    type: "number"
     description: "Standard error of the estimate."
   ci_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval."
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
   ci_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval."
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
   bias:
-    type: number
-    description: "Absolute bias (|estimated_ate - tau_true|)."
-  rmse:
-    type: number
-    description: "Root Mean Squared Error."
-  beta:
-    type: number
-    description: "MNAR strength parameter used."
-  alpha:
-    type: number
-    description: "Intercept parameter used for missingness generation."
-  coverage_indicator:
-    type: boolean
+    type: "number"
+    description: "Absolute bias: |ate_est - tau_true|."
+  covered:
+    type: "boolean"
     description: "True if tau_true is within [ci_lower, ci_upper]."
-  baseline_ate:
-    type: number
-    description: "ATE from the Oracle/Complete Case baseline for this seed."
-  imputation_bias:
-    type: number
-    description: "Difference between estimated_ate and baseline_ate."
+  tau_true:
+    type: "number"
+    description: "Ground-truth ATE for this run (for reference)."
 required:
-  - seed
+  - run_id
   - method
   - estimator
-  - estimated_ate
-  - standard_error
+  - ate_est
+  - se
   - ci_lower
   - ci_upper
   - bias
-  - rmse
-  - beta
-  - alpha
-  - coverage_indicator
-  - baseline_ate
-  - imputation_bias
+  - covered
+  - tau_true
 additionalProperties: false

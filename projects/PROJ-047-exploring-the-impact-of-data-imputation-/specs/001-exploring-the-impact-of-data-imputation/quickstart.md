@@ -2,61 +2,64 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local environment with 7GB+ RAM).
+*   Python 3.11+
+*   Git
+*   Access to a terminal with sufficient free RAM and CPU cores.
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory.
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-047-exploring-the-impact-of-data-imputation-
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-047-exploring-the-impact-of-data-imputation-
+    ```
 
-2. **Create a virtual environment** and install dependencies.
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: This installs `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `matplotlib`, and `pytest`.*
 
 ## Running the Simulation
 
-### Step 1: Generate Data (Single Replication Test)
-Run a single replication to verify the data generation pipeline.
+### 1. Run a Single Simulation (Debug Mode)
+To test the pipeline with a single seed and $\beta$ value:
 ```bash
-python code/generate_data.py --seed 42 --beta 0.5 --n 1000
+python code/main.py --seed 42 --beta 0.5 --runs 1
 ```
-*Output*: `data/raw/synthetic_seed_42_beta_0.5.csv`
+*   Output: `data/raw/synth_42_0.5.csv`, `data/processed/`, `data/results/estimates_42_0.5.csv`.
 
-### Step 2: Run Full Simulation (200 Replications)
-Execute the full pipeline (Generation → Imputation → Estimation → Analysis).
+### 2. Run the Full Sensitivity Analysis
+To run the full study (200 runs per $\beta$, 5 $\beta$ values = 1,000 total runs):
 ```bash
-python code/run_simulation.py --replications 200 --seeds 1-200 --betas 0.1,0.5,1.0,2.0
+python code/main.py --full-sweep
 ```
-*Output*:
-- `data/raw/` (200 files)
-- `data/processed/` (Imputed files)
-- `data/results/estimates.csv`
-- `data/results/anova_results.json`
-- `data/results/sensitivity_plot.png`
+* **Expected Runtime**: [deferred] on a standard CPU.
+*   **Output**: `data/results/sensitivity_analysis.csv`, `data/results/summary_plots/`.
 
-### Step 3: Verify Results
-Check the ANOVA results to see if methods differ significantly.
+### 3. Verify Results
+Check the generated summary file:
 ```bash
-cat data/results/anova_results.json
+python -c "import pandas as pd; df = pd.read_csv('data/results/sensitivity_analysis.csv'); print(df[['beta', 'method', 'mean_bias', 'coverage_rate']].head())"
 ```
-*Expected*: A JSON object containing `f_statistic` and `p_value`. If `p_value < 0.05`, the methods are significantly different.
 
-## Testing
+## Reproducibility Check
 
-Run the unit tests to ensure data generation and imputation logic is correct.
+To ensure reproducibility, run the simulation with a fixed seed and compare the output hash:
 ```bash
-pytest tests/
+python code/main.py --seed 12345 --beta 0.5 --runs 1
+sha256sum data/results/estimates_12345_0.5.csv
 ```
+The hash should match the recorded hash in `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml`.
 
 ## Troubleshooting
 
-- **MICE Convergence Failure**: If the pipeline logs "MICE failed to converge", check `data/processed/` for the specific seed. The script will exclude this replication from the ANOVA but log the event.
-- **Memory Error**: Ensure you are not running the full 200 replications on a machine with <7GB RAM. The script is optimized for the GitHub Actions free tier.
+*   **Memory Error**: Reduce `N_SAMPLES` in `code/simulation/config.py` (default value).
+*   **Convergence Warning (MICE)**: Increase `max_iter` in `code/analysis/imputation.py` or switch to `BayesianRidge` estimator.
+*   **Runtime Exceeds 6h**: Reduce the number of replications in `code/simulation/config.py` from a higher baseline to a lower count. (note: this affects statistical power).
