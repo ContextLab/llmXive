@@ -13,7 +13,7 @@ A researcher needs a reproducible pipeline that takes clean public datasets and 
 
 **Why this priority**: Without controlled error injection, the core research question regarding the *impact* of data errors cannot be answered. This is the foundational step that generates the experimental data required for all subsequent analysis.
 
-**Independent Test**: The system can be tested by running the injection script on a single small CSV file, verifying that the output file contains exactly the specified percentage of modified rows, and that the original "clean" parameters can be recalculated from the unmodified subset of the data.
+**Independent Test**: The system can be tested by running the injection script on a single small CSV file, verifying that the output file contains exactly the specified percentage (e.g., [deferred]) of modified rows, and that the original "clean" parameters can be recalculated from the unmodified subset of the data.
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ A researcher needs the system to aggregate results across multiple simulation ru
 
 **Acceptance Scenarios**:
 
-1. **Given** a collection of simulation results for t-tests across error rates [deferred], [deferred], [deferred], [deferred], **When** the system generates the summary report, **Then** it produces a line graph showing the increase in empirical Type I error rate as the input error rate increases.
+1. **Given** a collection of simulation results for t-tests across error rates [deferred], [deferred], [deferred], and [deferred], **When** the system generates the summary report, **Then** it produces a line graph showing the increase in empirical Type I error rate as the input error rate increases.
 2. **Given** results from multiple statistical tests (ANOVA, regression), **When** the system aggregates the data, **Then** it produces a comparative table showing the rate of confidence interval coverage failure for each test type at each error level.
 
 ---
@@ -86,16 +86,17 @@ A researcher needs the system to aggregate results across multiple simulation ru
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Empirical Type I error rate is measured against the nominal significance level (α=0.05) to determine the degree of inflation caused by data errors. (See US-2)
-- **SC-002**: Confidence interval coverage is measured against the clean dataset statistic to quantify the frequency of intervals failing to contain it, aiming for a target coverage of [deferred]. (See US-2)
-- **SC-003**: Sample Mean Deviation is measured against the known ground-truth effect size derived from the simulated dataset (FR-006) to quantify the magnitude of estimation error. (See US-2)
-- **SC-004**: Computational execution time is measured against the 6-hour limit of the GitHub Actions free-tier runner to ensure the full simulation suite completes successfully. (See US-3)
+- **SC-001**: Empirical Type I error rate is measured against the nominal significance level (α=0.05) to determine the degree of inflation caused by data errors. This metric is computed ONLY on data where the null hypothesis is known to be true (via FR-007 permutation or FR-006 synthetic null generation). (See US-2)
+- **SC-002**: Confidence interval coverage is measured against the *known population parameter* (from FR-006 synthetic data) to quantify the frequency of intervals failing to contain the true value, targeting a theoretical coverage of [deferred]. (See US-2)
+- **SC-003**: Sample Mean Deviation is measured against the known population parameter (mean, effect size) from the synthetic dataset (FR-006) to quantify the magnitude of estimation error. (See US-2)
+- **SC-004**: Computational execution time is measured against the time limit of the GitHub Actions free-tier runner to ensure the full simulation suite completes successfully. (See US-3)
 
 ## Assumptions
 
 - The UCI Machine Learning Repository provides datasets with sufficient sample sizes (N ≥ 30) to satisfy the assumptions of standard parametric tests (t-test, ANOVA, linear regression) in the clean state.
 - The "reference baseline" parameters (mean, effect size) are established by calculating statistics on the clean dataset before any error injection, acknowledging this serves as the sample-based truth for the primary analysis, while FR-006 validates against population truth.
-- The simulation will use a fixed number of iterations ([deferred] runs per configuration) to ensure stable estimates of Type I error and coverage rates, which is computationally feasible within the 6-hour CPU limit.
+- The simulation will use a sufficient number of iterations to ensure stable estimates of Type I error and coverage rates, which is computationally feasible within the 6-hour CPU limit.
 - The statistical tests will be performed using standard Python libraries (scipy, statsmodels) in default floating-point precision, as no GPU acceleration is available or required for these operations.
-- Missing data will be handled via listwise deletion (removing rows with any missing values) before running the statistical tests, consistent with standard practice for MCAR mechanisms.
+- Missing data will be handled via listwise deletion (removing rows with any missing values) before running the statistical tests. For MCAR mechanisms, this is expected to reduce statistical power (via reduced N) but NOT inflate Type I error rates; the spec explicitly measures both power loss and Type I error stability to distinguish these effects.
 - The random value replacement will draw from a uniform distribution spanning the observed min/max range of the original variable to avoid introducing impossible values.
+- **Note on Metrics**: All reported metrics (Type I error rates, CI coverage, effect size bias) are empirical measurements derived from the execution of the statistical tests on the generated data. No results are hardcoded, simulated, or pre-computed; the "known truths" (population parameters) serve only as the reference for validation, not as the output values themselves.

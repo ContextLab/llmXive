@@ -1,71 +1,70 @@
 # Research: Evaluating the Robustness of Statistical Methods to Common Data Errors
 
-## Overview
+## Objective
 
-This research phase defines the methodology, dataset strategy, and statistical framework for evaluating the robustness of standard statistical tests to common data errors. The goal is to generate empirical evidence on how Type I error rates, confidence interval coverage, and effect size bias degrade as data quality decreases.
+To quantify the degradation of statistical inference (Type I error inflation, CI coverage loss, effect size bias) when standard tests are applied to datasets with controlled errors.
 
 ## Dataset Strategy
 
-The project will utilize a mix of verified public datasets from the `# Verified datasets` block and synthetic data to ensure ground-truth parameters are known.
+The project utilizes datasets from the `# Verified datasets` block. Since the spec requires diverse data (numerical/categorical) and the verified list contains a mix of formats, the strategy is:
 
-| Dataset Name | Source URL | Type | Variables Used | Rationale |
-|--------------|------------|------|----------------|-----------|
-| UCI HAR (Test) | `https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv` | Numerical | Accelerometer/gyroscope features, Activity Label | High-dimensional numerical data. **Grouping**: Activity label (6 classes) for ANOVA. **Note**: For Type I error, labels will be permuted to establish a true null. For Power analysis, original labels are used. |
-| UCI Shopper | `https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet` | Mixed | Time Spent, Purchase Amount (validated), Categorical flags | Contains numerical and categorical variables. **Validation**: Script checks for 'Purchase Amount' or 'Time Spent' numeric columns. If missing, fallback to synthetic data for regression. |
-| MCAR (Malawi) | `https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet` | Numerical | Household income, asset counts | Real-world survey data for MCAR missingness simulation. |
-| Synthetic Null | N/A (Generated) | Numerical | N/A | Generated via `code/generate_synthetic.py` to establish true null hypothesis (no effect) for valid Type I error measurement. |
-| Synthetic Effect | N/A (Generated) | Numerical | N/A | Generated with known effect size to validate bias measurements and CI coverage (ground truth known). |
+| Dataset Source | URL | Type | Usage |
+|----------------|-----|------|-------|
+| UCI HAR (CSV) | ` | Numerical (Activity Recognition) | T-test, ANOVA on sensor features. |
+| UCI Shopper (Parquet) | ` | Mixed (Categorical/Numerical) | Chi-squared (categorical), Regression (numerical). |
+| UCI DROP (Parquet) | ` | Mixed (Reading Comprehension) | Regression, ANOVA on derived scores. |
+| Malawi Socio-Economic Survey (Parquet) | ` | Numerical/Socio-economic | Baseline for *injecting* MCAR errors (Standard survey data). |
+| UCI Wine Quality (Red) (CSV) | `https://huggingface.co/datasets/UCI/wine-quality/resolve/main/winequality-red.csv` | Numerical (Quality Ratings) | ANOVA (comparing pH/alcohol across quality levels). |
 
-**Note**: 'UCI DROP' has been removed from the primary list as it is a text-based NLP dataset not suitable for direct numerical statistical testing without complex feature extraction. The plan relies on synthetic data for pure numerical regression validation if UCI Shopper lacks the required variables.
+**Note on Variable Fit**: The spec requires testing specific statistical assumptions (e.g., normality for t-test). The implementation will include a pre-processing step to verify variable types and sample sizes (N ≥ 30) before applying tests. If a dataset lacks a required variable type (e.g., no categorical column for Chi-squared), that specific test-dataset combination is skipped, and the reason is logged.
 
-**Note**: Only verified datasets from the provided block are used. If a dataset lacks specific variable types, synthetic data is generated (FR-006) rather than fabricating data or using unverified sources.
+## Methodology
 
-## Statistical Methodology
+### 1. Ground Truth Generation (FR-006, FR-007)
 
-### Error Injection Protocol
-Per Constitution Principle VI, errors will be injected at varying rates:
-1.  **Random Value Replacement**: Numerical values replaced with uniform random draws from the observed min/max range.
-2.  **Category Misclassification**: Categorical values swapped with other valid categories at random.
-3.  **MCAR Missingness**: Values replaced with `NaN` randomly across the dataset.
+To ensure valid measurement of Type I error and Bias, we distinguish between two data generation modes:
 
-### Statistical Tests
-The following tests will be executed on both clean and corrupted data:
--   **t-test**: For comparing means of two groups (using synthetic or binning-derived groups if necessary).
--   **ANOVA**: For comparing means of >2 groups (using HAR activity labels).
--   **Chi-squared**: For independence of categorical variables.
--   **Linear Regression**: For continuous outcome prediction.
+- **Null Generation (for Type I Error)**: Generate synthetic datasets where the Null Hypothesis is **TRUE** (e.g., $\mu_1 = \mu_2$ for t-test, all group means equal for ANOVA). Error injection is applied to these datasets to measure the rate of false rejections.
+- **Effect Generation (for Power/Bias)**: Generate synthetic datasets where the Alternative Hypothesis is **TRUE** (e.g., $\mu_1 \neq \mu_2$ with a known effect size $\delta$). Error injection is applied to measure the bias in the estimated effect size and the loss of power.
 
-### Metrics Calculation
--   **Type I Error Rate**: Proportion of simulations where $p < 0.05$ under a **True Null**.
-    -   *Synthetic Data*: Null is known by construction (mean=0).
-    -   *Real Data*: Null is established **only** via label permutation (shuffling outcome vs. predictors) to break existing associations.
--   **CI Coverage**: Proportion of 95% confidence intervals that contain the **true population parameter**.
-    -   *Synthetic Data*: True parameter is known (FR-006).
-    -   *Real Data*: **Not calculated** against sample mean (circular validation). Instead, we measure **Estimate Stability** (variance of coefficients across error rates) and **Bias relative to a robust bootstrap baseline** (high-iteration bootstrap on clean data).
--   **Effect Size Bias**: Absolute difference between estimated effect size and true effect size (synthetic only) or bootstrap baseline (real data).
+**Real-World Data Handling**: For real-world datasets, the "Ground Truth" is approximated by the **Clean Sample Estimate**. Bias and Coverage for real-world data are calculated relative to the statistics derived from the clean version of the *same* dataset (treating the clean sample as the best available proxy), while synthetic data uses the known population parameters. This distinction is critical: Real-World results measure *relative degradation* (Clean vs. Corrupted), while Synthetic results measure *absolute accuracy* against truth.
 
-### Power and Sample Size
-Given the 6-hour runtime limit on free-tier CI, the simulation targets **1,000 iterations** per configuration to achieve a standard error of a minimal magnitude for Type I error (sufficient to distinguish 0.05 from 0.07). If runtime exceeds a predefined threshold, the iteration count will be reduced. as a fallback, with a note in the results acknowledging the wider confidence intervals. This is a necessary trade-off between statistical precision and computational feasibility.
+### 2. Error Injection (FR-002)
 
-## Decision Log
+- **Rates**: [deferred], [deferred], [deferred], [deferred].
+- **Mechanisms**:
+ - *Random Value Replacement*: Replace $X_{ij}$ with $U(\min(X), \max(X))$. This introduces a uniform component, potentially violating normality assumptions. The study explicitly tests robustness to this specific distributional shift.
+ - *Category Misclassification*: Swap category labels with probability $p$.
+ - *MCAR Missingness*: Set $X_{ij} = \text{NaN}$ with probability $p$.
 
-| Decision | Rationale |
-|----------|-----------|
-| Use Synthetic Data for Null Hypothesis | Real datasets rarely have a known "true null" without permutation. Generating synthetic data with known parameters (FR-006, FR-007) ensures valid Type I error measurement. |
-| MCAR via Listwise Deletion | Consistent with standard practice for MCAR mechanisms and avoids bias from imputation in this robustness study. |
-| Uniform Distribution for Replacement | Prevents introducing impossible values (e.g., negative age) while maximizing noise impact. |
-| [deferred] Iterations (Target) | Balances statistical stability (SE ~0.007) with the 6-hour runtime constraint. Fallback to 500 if needed. |
-| HAR Analysis Strategy | HAR will be used for ANOVA (Power degradation) and Type I error (via label permutation). Original labels are not used for Type I error as the null is false. |
+### 3. Statistical Analysis (FR-003)
 
-## Limitations
+- **Tests**: `scipy.stats.ttest_ind`, `scipy.stats.f_oneway`, `scipy.stats.chi2_contingency`, `statsmodels.OLS`.
+- **Handling**: Listwise deletion for missing data (MCAR).
 
--   **Runtime Constraints**: The simulation is limited to a sufficient number of iterations per configuration. If this exceeds 6 hours, the iteration count is reduced to 500, increasing the uncertainty of the degradation metrics.
--   **Dataset Availability**: Only verified datasets from the provided block are used. If a dataset lacks specific variable types, synthetic data is used.
--   **Computational Power**: No GPU acceleration is available; all operations must be CPU-tractable.
--   **Real-Data CI Coverage**: True CI coverage cannot be measured for real-world datasets as the population parameter is unknown. We substitute this with Estimate Stability and Bootstrap Bias metrics.
+### 4. Metric Calculation (FR-004, SC-001, SC-002, SC-003)
 
-## References
+- **Type I Error**: Proportion of rejections ($p < 0.05$) under true null (Synthetic Null Data).
+- **CI Coverage**: Proportion of 95% CIs containing the **Original Clean Truth** (Synthetic Population Parameter or Clean Sample Estimate).
+- **Bias**: $| \hat{\theta}_{corrupted} - \theta_{clean\_truth} |$. *Note: Bias is always measured against the original clean truth, never the corrupted parameter.*
+- **Power**: Proportion of rejections under true alternative.
+- **Effective Sample Size**: Mean N remaining after listwise deletion.
 
--   UCI HAR Dataset: `https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
--   UCI Shopper Dataset: `https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet`
--   MCAR Malawi Dataset: `https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet`
+## Statistical Rigor & Assumptions
+
+- **Power & Sample Size**:
+ - **Minimum N**: Iterations where listwise deletion results in $N < 30$ are **skipped** and logged. This ensures Type I error is only measured where the test assumptions (approximate normality via CLT) are likely to hold.
+ - **Power Loss**: We explicitly report "Effective N" and "Power Estimate" alongside Type I error. For MCAR, listwise deletion reduces power (fewer rejections) but should not inflate Type I error. Distinguishing these prevents the conflation of power loss with error inflation.
+- **Multiple Comparisons**: Not applicable for the primary metric aggregation (we are measuring the *rate* of error, not testing a hypothesis about the rate itself). However, if comparing degradation curves, Bonferroni correction will be applied.
+- **Causal Claims**: None. This is a simulation of data corruption. The "degradation" is a measured phenomenon, not a causal claim about real-world data collection.
+- **Distributional Assumptions**: The "Random Value Replacement" mechanism introduces non-normality. The study explicitly acknowledges that observed degradation may be due to the violation of the normality assumption caused by the error injection itself. Results are interpreted as "Robustness to Non-Normality induced by Data Error".
+- **Measurement Validity**: Standard parametric tests are used; their validity relies on assumptions (normality, homoscedasticity) which are checked on the *clean* synthetic data.
+
+## Compute Feasibility
+
+- **Hardware**: 2 CPU, 7GB RAM.
+- **Strategy**:
+ - Datasets are small (typically < 100MB).
+ - Simulations are parallelized across CPU cores using `multiprocessing` (limit to 2 workers).
+ - Iterations capped to ensure < 6h runtime.
+ - No GPU libraries (e.g., PyTorch) used; `scipy` and `statsmodels` are CPU-native.

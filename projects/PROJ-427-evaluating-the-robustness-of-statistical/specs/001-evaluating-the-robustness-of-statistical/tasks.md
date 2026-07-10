@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project directory structure with exact tree: `data/raw`, `data/derived`, `code`, `results`, `tests`. **MUST include creating empty `__init__.py` files in `code/` and `tests/` directories** to ensure Python package recognition.
-- [ ] T002 [P] Initialize Python 3.11 project with dependencies: pandas, numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml, pytest
+- [ ] T001 [P] Create project directory structure with exact tree: `data/raw`, `data/processed`, `code`, `results`, `tests`. **MUST include creating empty `__init__.py` files in `code/` and `tests/` directories** to ensure Python package recognition. **Note**: The path `data/processed` is used for error-injected data as per Plan.md Project Structure, replacing the previous `data/derived` convention.
+- [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml, pytest
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -56,7 +56,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining valid tabular dataset structures
-- [ ] T005 [P] Create `contracts/injection.schema.yaml` defining error types (replacement, misclassification, MCAR) and rates [0.01, 0.05, 0.10, 0.20]
+- [ ] T005a [P] Create `contracts/injection.schema.yaml` defining error types (replacement, misclassification, MCAR) and rates `[0.01, 0.05, 0.10, 0.20]`. **MUST explicitly state that these rates must be applied to ALL three error types** (replacement, misclassification, MCAR) as required by FR-002 and Constitution Principle VI.
+- [ ] T005b [P] [TDD] Write a unit test in `tests/unit/test_schema_validation.py` that loads `contracts/injection.schema.yaml` and asserts that the `error_rates` field exactly matches `[0.01, 0.05, 0.10, 0.20]`. **This test must be written BEFORE implementation tasks T020-T022 to ensure schema consistency.**
 - [ ] T006 [P] Create `contracts/result.schema.yaml` defining output metrics (p-value, CI bounds, effect size, Type I flag)
 - [ ] T007 [P] Create `code/download.py` skeleton (empty file with imports and main function stub)
 - [ ] T008 [P] Create `code/inject.py` skeleton (empty file with imports and main function stub)
@@ -64,8 +65,8 @@
 - [ ] T010 [P] Create `code/simulate.py` skeleton (empty file with imports and main function stub)
 - [ ] T011 [P] Create `code/visualize.py` skeleton (empty file with imports and main function stub)
 - [ ] T012 [P] Create `code/main.py` skeleton (CLI entry point stub)
-- [ ] T013 [P] [FR-006] Implement `code/simulate.py` to generate synthetic datasets with **known population parameters** across a grid: iterate over `effect_sizes=[0.2, 0.5, 0.8]` and `variances=[1.0, 2.0]` (mean=0 fixed). Output CSVs to `data/derived/synthetic_grid/` and write a `synthetic_metadata.json` file mapping each file to its exact parameters (mean, variance, effect_size) for downstream consumption.
-- [ ] T014 [P] [FR-007] Implement `code/simulate.py` to generate null-hypothesis datasets using **BOTH** methods: (1) label permutation and (2) equal-mean simulation. Output both sets of CSVs to `data/derived/null_hypothesis/` and log the method used for each file.
+- [ ] T013 [P] [FR-006] Implement `code/simulate.py` to generate synthetic datasets with **known population parameters** across an expanded grid: iterate over `effect_sizes=[0.2, 0.5, 0.8]`, `variances=[1.0, 2.0, 4.0]`, **`sample_sizes=[30, 100, 500]`**, and **`skewness=[0, 1, -1]`**. Output CSVs to `data/processed/synthetic_grid/` and write a `synthetic_metadata.json` file mapping each file to its exact parameters (mean, variance, effect_size, sample_size, skewness) for downstream consumption.
+- [ ] T014 [P] [FR-007] Implement `code/simulate.py` to generate null-hypothesis datasets using **BOTH** methods: (1) label permutation and (2) equal-mean simulation. Output both sets of CSVs to `data/processed/null_hypothesis/` and log the method used for each file.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,15 +85,20 @@
 - [ ] T015 [P] [US1] Unit test for `code/inject.py` random value replacement logic in `tests/unit/test_injection.py`. **Function name**: `test_replacement_preserves_distribution`. **Assertion**: `assert injected_count == total_rows * rate` and `assert original_mean == unmodified_subset_mean`.
 - [ ] T016 [P] [US1] Unit test for `code/inject.py` category misclassification logic in `tests/unit/test_injection.py`. **Function name**: `test_misclassification_shifts_frequencies`. **Assertion**: `assert abs(new_freq - expected_shifted_freq) < tolerance`.
 - [ ] T017 [P] [US1] Unit test for `code/inject.py` MCAR missingness logic in `tests/unit/test_injection.py`. **Function name**: `test_mcar_introduces_nans`. **Assertion**: `assert nan_count == total_cells * rate`.
-- [ ] T018 [P] [US1] Integration test verifying `code/download.py` correctly validates datasets against `contracts/dataset.schema.yaml` in `tests/integration/test_download.py`. **Function name**: `test_download_validates_schema`.
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/download.py` to fetch **10 specific diverse public datasets** from UCI (Iris, Wine, Wine Quality, Adult, Heart Disease, Breast Cancer, Ionosphere, Vehicle, SPECTF, Seeds). **MUST use explicit URLs or `datasets.load_dataset()` calls** for each. Ensure N ≥ 30. Do NOT read from `research.md` at runtime.
-- [ ] T020 [US1] Implement `code/inject.py` to replace values from a uniform distribution spanning observed min/max, **explicitly iterating over `error_rates = [0.01, 0.05, 0.10, 0.20]`** for each dataset.
-- [ ] T021 [US1] Implement `code/inject.py` to misclassify categorical values based on observed frequency distributions, **explicitly iterating over `error_rates = [0.01, 0.05, 0.10, 0.20]`** for each dataset.
-- [ ] T022 [US1] Implement `code/inject.py` to introduce MCAR missingness (NaN) randomly across rows/columns, **explicitly iterating over `error_rates = [0.01, 0.05, 0.10, 0.20]`** for each dataset.
-- [ ] T023 [US1] Ensure `code/inject.py` logs the specific error rate and seed for every generated file in `data/derived/`.
+- [ ] T018a [P] [US1] Write stubs for integration tests for `code/download.py` schema validation in `tests/integration/test_download.py`. **Function name**: `test_download_validates_schema`. **Note**: This task creates the test file that will assert `code/download.py` validates datasets against `contracts/dataset.schema.yaml` once T019 is implemented. No dependency on T019 completion required for file creation (TDD flow).
+- [ ] T019 [US1] Implement `code/download.py` to fetch **5-10 diverse public datasets** from UCI. **Initial list**: Iris, Wine, Wine Quality, Adult, Heart Disease, Breast Cancer, Ionosphere, Vehicle, SPECTF, Seeds. **Algorithm**: 
+    1. Load the initial list.
+    2. Verify diversity: count numerical-only, categorical-only, and mixed datasets.
+    3. **If diversity constraint (at least 2 numerical-only, 2 categorical-only) is NOT met**: Dynamically fetch additional datasets from the UCI Machine Learning Repository API (using `datasets.load_dataset()` or direct CSV fetch) until the constraint is satisfied.
+    4. Save all valid datasets to `data/raw/` with checksums.
+    **MUST use explicit URLs or `datasets.load_dataset()` calls for each.** Do NOT read from `research.md` at runtime.
+- [ ] T020 [US1] Implement `code/inject.py` to replace values from a uniform distribution spanning observed min/max, **explicitly iterating over `error_rates = [, 0.05, 0.10, 0.20]`** for each dataset. Output to `data/processed/`.
+- [ ] T021 [US1] Implement `code/inject.py` to misclassify categorical values based on observed frequency distributions, **explicitly iterating over `error_rates = [0.01, 0.05, 0.10, 0.20]`** for each dataset. Output to `data/processed/`.
+- [ ] T022 [US1] Implement `code/inject.py` to introduce MCAR missingness (NaN) randomly across rows/columns, **explicitly iterating over `error_rates = [0.01, 0.05, 0.10, 0.20]`** for each dataset. Output to `data/processed/`.
+- [ ] T023 [US1] Ensure `code/inject.py` logs the specific error rate and seed for every generated file in `data/processed/`.
 - [ ] T024 [US1] Add validation logic to ensure injected data adheres to `contracts/injection.schema.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -113,13 +119,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T028 [P] [US2] Implement `code/analyze.py` to perform t-tests and ANOVA on numerical subsets, handling small N gracefully.
-- [ ] T029 [P] [US2] Implement `code/analyze.py` to perform chi-squared tests on categorical subsets, skipping invalid combinations.
-- [ ] T030 [US2] Implement `code/analyze.py` to perform linear regression and calculate **Sample Mean Deviation** against the **known ground-truth effect size** read dynamically from `synthetic_metadata.json` (generated by T013), not hardcoded values.
-- [ ] T031 [US2] **Prerequisite Step**: Implement **listwise deletion** in `code/analyze.py`: explicitly call `df.dropna()` to remove rows with any NaN values **BEFORE** executing any statistical tests (T028/T029), as per spec assumptions.
-- [ ] T032 [US2] Ensure `code/analyze.py` outputs results conforming to `contracts/result.schema.yaml` (p-value, CI, effect size, Type I flag).
-- [ ] T033 [US2] Implement `code/simulate.py` full nested loop logic: iterate through datasets × error_types × **`error_rates = [0.01, 0.05, 0.10, 0.20]`** × iterations. **(Dependency: Requires T024 completion)**.
-- [ ] T034 [US2] Implement aggregation logic in `code/simulate.py` to calculate empirical Type I error rates (proportion of rejections) across iterations.
+- [ ] T028 [US2] Implement `code/analyze.py` to perform **all** statistical tests. **MUST implement four distinct functions**: `run_ttest()`, `run_anova()`, `run_chi_squared()`, `run_regression()`. **Input Scope**: Must process **BOTH** `data/raw/` (clean datasets) AND `data/processed/` (corrupted datasets generated by T030). **Dependency**: T019 (clean data) and T024 (injection validation). **Logic**: For corrupted data, this task MUST execute **after** T030 (Data Generation) completes the injection loop. **Output**: Save individual test results (p-value, CI, effect size) to `results/raw_metrics/` for each dataset/error combination.
+- [ ] T029a [US2] [Prerequisite] Implement **listwise deletion** utility function in `code/analyze.py` named `handle_missing_data()`. **Action**: Explicitly call `df.dropna()` to remove rows with any NaN values **BEFORE** executing any statistical tests. **MUST calculate and output a `power_loss_metric` (sample size reduction)** to explicitly distinguish power loss from Type I error stability, as required by Spec Assumptions. **Dependency**: T028 (Analysis logic) must call this function. **Note**: This is a distinct helper task to ensure T028 remains focused on statistical logic.
+- [ ] T029b [US2] [Validation] Implement logic in `code/analyze.py` to calculate **Sample Mean Deviation** against the **known ground-truth effect size** read dynamically from `synthetic_metadata.json` (generated by T013). **MUST explicitly read the 'effect_size' field from metadata.** **MUST also calculate and output `ci_coverage_frequency` (proportion of intervals containing the true value)** to satisfy SC-002. **Explicit Verification**: Calculate the deviation from the theoretical high coverage target and assert it is within a tight tolerance. **Input Scope**: Must process **BOTH** clean and corrupted datasets. **Requires T030 (corrupted data generation) for the corrupted subset.**
+- [ ] T030 [US2] **Data Generation & Injection Loop**: Implement `code/simulate.py` full nested loop logic: iterate through datasets × error_types × **`error_rates = [0.01, 0.05, 0.10, 0.20]`** × iterations. **Dependency**: Requires T024 (injection validation) and T028 (Analysis logic for clean baseline). **Action**: Generates the corrupted datasets required for T028 to analyze. **Output**: Writes corrupted CSVs to `data/processed/` and logs generation parameters. **Note**: This task generates data but does NOT perform aggregation; aggregation is handled in T032.
+- [ ] T032 [US2] Implement aggregation logic in `code/simulate.py` to calculate empirical Type I error rates (proportion of rejections) AND **confidence interval coverage rates** (proportion of intervals containing the true population parameter) across iterations. **MUST output `ci_coverage_rate`** to satisfy FR-004 and SC-002. **Requires T030 (full simulation loop) and T028 (Analysis results)** to be complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -133,16 +137,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T035 [P] [US3] Unit test for `code/visualize.py` line graph generation in `tests/unit/test_visualize.py`. **Function name**: `test_plot_generates_file`. **Assertion**: `assert os.path.exists(output_path)`.
-- [ ] T036 [P] [US3] Unit test for `code/visualize.py` summary table generation in `tests/unit/test_visualize.py`. **Function name**: `test_table_generates_correct_rows`. **Assertion**: `assert len(rows) == expected_count`.
+- [ ] T033 [P] [US3] Unit test for `code/visualize.py` line graph generation in `tests/unit/test_visualize.py`. **Function name**: `test_plot_generates_file`. **Assertion**: `assert os.path.exists(output_path)`.
+- [ ] T034 [P] [US3] Unit test for `code/visualize.py` summary table generation in `tests/unit/test_visualize.py`. **Function name**: `test_table_generates_correct_rows`. **Assertion**: `assert len(rows) == expected_count`.
 
 ### Implementation for User Story 3
 
-- [ ] T037 [P] [US3] Implement `code/visualize.py` to plot degradation curves (Error Rate vs. Type I Error) for each test type.
-- [ ] T038 [P] [US3] Implement `code/visualize.py` to plot degradation curves (Error Rate vs. CI Coverage) for each test type.
-- [ ] T039 [US3] Implement `code/visualize.py` to generate comparative summary tables showing coverage failure rates across tests and error levels.
-- [ ] T040 [US3] Ensure all plots are saved to `results/` with descriptive filenames including dataset and error type.
-- [ ] T041 [US3] Implement a final aggregation step in `code/main.py` to compile all results into a single `results/summary.json`.
+- [ ] T035 [P] [US3] Implement `code/visualize.py` to plot degradation curves (Error Rate vs. Type I Error) for each test type.
+- [ ] T036 [P] [US3] Implement `code/visualize.py` to plot degradation curves (Error Rate vs. CI Coverage) for each test type.
+- [ ] T037 [US3] Implement `code/visualize.py` to generate comparative summary tables showing coverage failure rates across tests and error levels.
+- [ ] T038 [US3] Ensure all plots are saved to `results/` with descriptive filenames including dataset and error type.
+- [ ] T039 [US3] Implement a final aggregation step in `code/main.py` to compile all results into a single `results/summary.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -152,11 +156,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T042 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T043 [P] Implement chunked reading in `code/download.py` and `code/inject.py` to ensure memory usage < 7GB on CI
-- [ ] T044 [P] Implement a **pre-run benchmark** step in `code/simulate.py` to calculate a fixed `MAX_ITERATIONS` constant that guarantees the **full** simulation suite completes within 6 hours. **DO NOT** use dynamic runtime limiting that cuts off iterations; use the benchmark to set a safe, deterministic iteration count upfront.
-- [ ] T045 [P] Additional unit tests for edge cases (N < 10, categorical-only data for t-test) in `tests/unit/`
-- [ ] T046 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T040 [P] Documentation updates in `README.md` and `quickstart.md`
+- [ ] T041 [P] Implement chunked reading in `code/download.py` and `code/inject.py` to ensure memory usage < 7GB on CI
+- [ ] T042 [P] Implement a **pre-run benchmark** step in `code/simulate.py` to calculate a fixed `MAX_ITERATIONS` constant that guarantees the **full** simulation suite completes within 6 hours. **DO NOT** use dynamic runtime limiting that cuts off iterations; use the benchmark to set a safe, deterministic iteration count upfront.
+- [ ] T043 [P] Additional unit tests for edge cases (N < 10, categorical-only data for t-test) in `tests/unit/`
+- [ ] T044 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -174,7 +178,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 data injection logic (T024) for full simulation loop (T033), but analysis scripts (T028-T032) can run on existing clean data.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 data injection logic (T024) for full simulation loop (T030), but analysis scripts (T028-T029b) can run on existing clean data (`data/raw`).
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 analysis results
 
 ### Within Each User Story
@@ -190,9 +194,9 @@
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] (T004-T014) can run in parallel (within Phase 2)
 - Once Foundational phase completes:
-  - T019-T024 (US1) can run in parallel
-  - T028-T032 (US2 analysis logic) can run in parallel (on clean data)
-  - T033 (Full simulation loop) must wait for T024 (US1 completion)
+  - T018a-T024 (US1) can run in parallel
+  - T028-T029b (US2 analysis logic) can run in parallel (on clean data `data/raw`)
+  - T030 (Full simulation loop) must wait for T024 (US1 completion) and T028 (Analysis logic)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
@@ -239,7 +243,7 @@ With multiple developers:
    - Developer A: User Story 1 (Data Injection)
    - Developer B: User Story 2 (Statistical Analysis logic on clean data)
    - Developer C: User Story 3 (Visualization logic)
-3. Full simulation loop (T033) starts only after Developer A completes T024.
+3. Full simulation loop (T030) starts only after Developer A completes T024 and Developer B completes T028 (clean baseline).
 4. Stories complete and integrate independently
 
 ---
@@ -254,10 +258,17 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All tasks must run on CPU-only CI (no GPU, no 8-bit quantization, no large LLMs). Use `scipy` and `statsmodels` in default precision.
-- **CRITICAL**: Dataset downloads must use real URLs (UCI) or `datasets.load_dataset()`. No fake/synthetic data for inputs. T019 explicitly lists 10 datasets.
-- **CRITICAL**: Ensure simulation iterations are deterministic and complete within 6 hours via pre-run benchmark (T044).
-- **CRITICAL**: Explicitly implement listwise deletion (dropna) for missing data handling (T031) BEFORE running tests.
+- **CRITICAL**: Dataset downloads must use real URLs (UCI) or `datasets.load_dataset()`. No fake/synthetic data for inputs. T019 explicitly lists 10 datasets but includes a verification step for diversity and a fallback mechanism.
+- **CRITICAL**: Ensure simulation iterations are deterministic and complete within 6 hours via pre-run benchmark (T042).
+- **CRITICAL**: Explicitly implement listwise deletion (dropna) for missing data handling (T029a) BEFORE running tests, and measure power loss.
 - **CRITICAL**: Explicitly iterate over error_rates = [0.01, 0.05, 0.10, 0.20] in all relevant tasks.
-- **CRITICAL**: Synthetic data generation (T013) must use a grid of parameters, not a single hardcoded set.
+- **CRITICAL**: Synthetic data generation (T013) must use an expanded grid (effect_size, variance, sample_size, skewness) for robust validation.
 - **CRITICAL**: Null-hypothesis generation (T014) must implement BOTH methods.
-- **CRITICAL**: Validation metrics (T030) must read truth from `synthetic_metadata.json`, not hardcoded values.
+- **CRITICAL**: Validation metrics (T029b) must read truth from `synthetic_metadata.json`, not hardcoded values, and MUST include CI coverage calculation and 95% target verification.
+- **CRITICAL**: T030 (Simulation Loop) MUST precede T028 (Analysis of corrupted data) to ensure data availability. Clean data analysis can proceed earlier.
+- **CRITICAL**: T032 explicitly calculates CI coverage rates to satisfy FR-004 and SC-002.
+- **CRITICAL**: All paths must use `data/processed` for injected data as per Plan.md, not `data/derived`.
+- **CRITICAL**: T005b ensures schema consistency via unit test.
+- **CRITICAL**: T028 is now a SINGLE task implementing ALL statistical tests to avoid duplication ambiguity.
+- **CRITICAL**: T029a is a distinct prerequisite task for listwise deletion, resolving the duplicate task concern.
+- **CRITICAL**: T030 is pure data generation; T032 is pure aggregation, resolving the circular dependency concern.

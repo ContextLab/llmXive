@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InferenceMetricSchema"
+description: "Schema for individual inference metric records."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["t_test", "anova", "chi_squared", "linear_regression"]
+    description: "Type of statistical test performed."
+  dataset_id:
+    type: "string"
+    description: "ID of the dataset used."
+  error_config_id:
+    type: "string"
+    description: "ID of the error configuration used."
+  iteration_id:
+    type: "integer"
+    minimum: 1
+    description: "Iteration number for simulation."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower:
+    type: "number"
+  ci_upper:
+    type: "number"
+  effect_size:
+    type: "number"
+  type_i_error_event:
+    type: "integer"
+    enum: [0, 1]
+    description: "1 if null rejected and null is true, 0 otherwise."
+  ci_coverage_event:
+    type: "integer"
+    enum: [0, 1]
+    description: "1 if true parameter in CI, 0 otherwise."
+required: ["test_type", "dataset_id", "error_config_id", "iteration_id", "p_value", "type_i_error_event", "ci_coverage_event"]

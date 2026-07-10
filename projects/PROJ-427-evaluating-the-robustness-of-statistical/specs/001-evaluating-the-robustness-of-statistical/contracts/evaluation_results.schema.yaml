@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Results Schema
+description: Schema for the aggregated metrics output by the statistical robustness simulation.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      version:
+        type: string
+      total_iterations:
+        type: integer
+        minimum: 1
+    required:
+      - generated_at
+      - version
+      - total_iterations
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        test_type:
+          type: string
+          enum:
+            - t_test
+            - anova
+            - chi_squared
+            - linear_regression
+        error_type:
+          type: string
+          enum:
+            - replacement
+            - misclassification
+            - mcar
+        error_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        metric_type:
+          type: string
+          enum:
+            - type_i_error
+            - ci_coverage
+            - effect_size_bias
+        value:
+          type: number
+        n_iterations:
+          type: integer
+          minimum: 1
+      required:
+        - test_type
+        - error_type
+        - error_rate
+        - metric_type
+        - value
+        - n_iterations
+required:
+  - metadata
+  - results

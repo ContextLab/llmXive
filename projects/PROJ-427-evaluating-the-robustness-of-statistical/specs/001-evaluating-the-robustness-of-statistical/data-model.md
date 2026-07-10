@@ -2,57 +2,58 @@
 
 ## Overview
 
-This document defines the data structures used throughout the simulation pipeline. It ensures consistency between data ingestion, error injection, statistical testing, and result aggregation.
+This document defines the data structures used for input configuration, intermediate error-injected datasets, and output metrics. All data is persisted in `data/` and `results/` directories.
 
 ## Entities
 
-### 1. Dataset
-A collection of observations with known ground-truth parameters.
--   **Source**: Verified URL or synthetic generator.
--   **Type**: Numerical, Categorical, or Mixed.
--   **Attributes**: `dataset_id`, `source_url`, `original_checksum`, `variable_list`.
+### 1. Dataset Metadata
+Represents the source and characteristics of a raw dataset.
+- `id`: Unique identifier (e.g., `uci_har`).
+- `source_url`: Verified URL.
+- `type`: `numerical`, `categorical`, or `mixed`.
+- `checksum`: SHA-256 hash of the raw file.
+- `sample_size`: Number of rows.
 
 ### 2. ErrorConfiguration
-Parameters defining the error injection process.
--   **Attributes**: `error_type` (replacement, misclassification, mcar), `rate` (0.01, 0.05, 0.10, 0.20), `seed`.
+Defines a specific error injection scenario.
+- `dataset_id`: Reference to Dataset Metadata.
+- `error_type`: `replacement`, `misclassification`, `mcar`.
+- `rate`: Float (0.01, 0.05, 0.10, 0.20).
+- `seed`: Integer for reproducibility.
+- `generated_path`: Path to the processed CSV/Parquet.
 
-### 3. InferenceMetric
-A result record containing the outcome of a statistical test.
--   **Attributes**: `test_type`, `error_rate`, `p_value`, `ci_lower`, `ci_upper`, `effect_size`, `type_i_error_flag` (boolean), `ci_coverage_flag` (boolean), `seed`.
+### 3. InferenceResult
+A single record of a statistical test execution.
+- `run_id`: Unique identifier for the simulation run.
+- `dataset_id`: Reference.
+- `error_config_id`: Reference.
+- `test_type`: `t_test`, `anova`, `chi_squared`, `regression`.
+- `metric_type`: `type_i_error`, `ci_coverage`, `effect_size_bias`.
+- `value`: Float (the calculated metric).
+- `true_parameter`: Float (the ground truth used for comparison).
+- `p_value`: Float.
+- `ci_lower`: Float.
+- `ci_upper`: Float.
+- `rejection`: Boolean (1 if $p < 0.05$).
 
-### 4. DegradationCurve
-Aggregated results for visualization.
--   **Attributes**: `test_type`, `error_type`, `error_rates` (list), `type_i_error_rates` (list), `ci_coverage_rates` (list), `effect_size_bias` (list).
+### 4. AggregatedMetrics
+Summary statistics for a specific condition (Test + Error Type + Rate).
+- `test_type`: String.
+- `error_type`: String.
+- `rate`: Float.
+- `mean_type_i_error`: Float.
+- `mean_ci_coverage`: Float.
+- `mean_bias`: Float.
+- `n_iterations`: Integer.
 
-## Data Flow
+## File Formats
 
-1.  **Raw Data**: Downloaded from verified URLs and stored in `data/raw/`.
-2.  **Processed Data**: Error-injected versions stored in `data/processed/` with filenames encoding the error configuration (e.g., `dataset_id_error_type_rate_seed.csv`).
-3.  **Results**: Test outcomes stored in `results/metrics/` as JSON/CSV.
-4.  **Plots**: Visualizations stored in `results/plots/` as PNG.
-
-## Schema Definitions
-
-### Input Dataset Schema (CSV/Parquet)
--   `variable_name`: String (column name)
--   `variable_type`: String (numerical, categorical)
--   `values`: List of values (numeric or string)
-
-### Output Metrics Schema (JSON)
--   `dataset_id`: String
--   `test_type`: String (t-test, anova, chi-squared, linear_regression)
--   `error_type`: String (replacement, misclassification, mcar)
--   `error_rate`: Float
--   `p_value`: Float
--   `ci_lower`: Float
--   `ci_upper`: Float
--   `effect_size`: Float
--   `type_i_error`: Boolean
--   `ci_coverage`: Boolean
--   `seed`: Integer
+- **Raw Data**: CSV or Parquet (as per source).
+- **Processed Data**: CSV (to ensure compatibility with `scipy`/`statsmodels` and easy inspection).
+- **Results**: JSON (for easy aggregation and plotting).
 
 ## Constraints
 
--   **No In-Place Modification**: Raw data is never modified. All transformations produce new files.
--   **Checksums**: Every file in `data/raw` and `data/processed` must have a corresponding checksum record.
--   **Reproducibility**: All random seeds must be recorded in the metadata of each processed dataset and result.
+- **No PII**: All datasets are verified public; no personal data is committed.
+- **Immutability**: Raw files are never overwritten.
+- **Schema Validation**: All output JSONs must conform to the contracts defined in `contracts/`.

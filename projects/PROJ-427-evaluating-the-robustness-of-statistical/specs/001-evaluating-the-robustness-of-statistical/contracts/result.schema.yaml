@@ -52,8 +52,8 @@ properties:
     type: string
     enum:
       - synthetic_population
-      - sample_baseline
-    description: "Source of the ground truth value (synthetic or observed sample)"
+      - fitted_model
+    description: "Source of the ground truth value (synthetic or fitted parametric model)"
   truth_value:
     type: number
     description: "The ground truth value used for coverage/bias calculation"

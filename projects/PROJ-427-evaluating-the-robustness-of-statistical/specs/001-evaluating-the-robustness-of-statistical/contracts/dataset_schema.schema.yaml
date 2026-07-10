@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetSchema"
+description: "Schema for validated dataset files used in the robustness study."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "Verified URL from the project's dataset list."
+  file_path:
+    type: "string"
+    description: "Relative path to the file in data/."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the file."
+  variables:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        type:
+          type: "string"
+          enum: ["numerical", "categorical", "identifier"]
+        missing_rate:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+      required: ["name", "type"]
+  sample_size:
+    type: "integer"
+    minimum: 1
+required: ["dataset_id", "source_url", "file_path", "checksum", "variables", "sample_size"]

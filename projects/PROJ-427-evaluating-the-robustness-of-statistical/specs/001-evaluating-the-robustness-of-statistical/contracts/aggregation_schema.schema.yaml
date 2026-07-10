@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AggregateResultSchema"
+description: "Schema for aggregated metrics across iterations."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["t_test", "anova", "chi_squared", "linear_regression"]
+  error_type:
+    type: "string"
+    enum: ["replacement", "misclassification", "mcar"]
+  rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  empirical_type_i_error:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  ci_coverage_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+  mean_effect_size_bias:
+    type: "number"
+  num_iterations:
+    type: "integer"
+    minimum: 1
+required: ["test_type", "error_type", "rate", "empirical_type_i_error", "ci_coverage_rate", "num_iterations"]
