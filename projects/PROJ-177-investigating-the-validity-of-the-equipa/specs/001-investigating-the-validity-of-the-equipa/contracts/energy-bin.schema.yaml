@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnergyBin"
+description: "Aggregated statistics for a specific frequency and material combination."
+type: "object"
+properties:
+  frequency_bin:
+    type: "string"
+    description: "Frequency bin label (e.g., '5Hz', '10Hz')."
+  material_type:
+    type: "string"
+    description: "Material of the particle (e.g., 'steel', 'glass')."
+  n_frames:
+    type: "integer"
+    minimum: 0
+    description: "Number of frames in this bin."
+  mean_E_trans:
+    type: "number"
+    description: "Mean translational kinetic energy in Joules."
+  mean_E_rot:
+    type: "number"
+    description: "Mean rotational kinetic energy in Joules."
+  std_E_trans:
+    type: "number"
+    description: "Standard deviation of translational kinetic energy."
+  std_E_rot:
+    type: "number"
+    description: "Standard deviation of rotational kinetic energy."
+  mean_diff_E:
+    type: "number"
+    description: "Mean difference between translational and rotational energy (E_trans - E_rot)."
+  std_diff_E:
+    type: "number"
+    description: "Standard deviation of the difference (E_trans - E_rot)."
+  ratio_mean:
+    type: "number"
+    description: "Ratio of mean translational to mean rotational energy."
+  t_statistic:
+    type: "number"
+    description: "t-statistic from the Paired t-test."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the paired t-test."
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Holm-Bonferroni corrected p-value."
+  ks_statistic:
+    type: "number"
+    description: "KS statistic comparing observed distribution to theoretical."
+  ks_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "KS test p-value."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value_corrected < alpha (default 0.05)."
+required:
+  - frequency_bin
+  - material_type
+  - n_frames
+  - mean_E_trans
+  - mean_E_rot
+  - ratio_mean
+  - t_statistic
+  - p_value_raw
+  - p_value_corrected
+  - ks_statistic
+  - ks_p_value
+  - is_significant
+additionalProperties: false
