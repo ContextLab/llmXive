@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T23:25:37.121749Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-281-the-impact-of-perceived-control-over-dig
-last_run_id: 5271e25c-93eb-4652-8f49-2dbb1f02ac1c
+last_run_id: 2bad8c12-212b-4539-b73b-6356226ea2c5
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig
 title: The Impact of Perceived Control Over Digital Environments on Anxiety
-updated_at: '2026-07-10T13:08:46.846208Z'
+updated_at: '2026-07-10T19:45:44.372415Z'
