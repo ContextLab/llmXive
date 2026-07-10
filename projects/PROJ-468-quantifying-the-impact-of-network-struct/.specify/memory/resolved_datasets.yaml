@@ -1,0 +1,182 @@
+resolved_at: '2026-07-10T00:29:42.124816+00:00'
+datasets:
+- intent: DEM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/IliaLarchenko/vla_demo/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33908
+      parsed: true
+  - url: https://huggingface.co/datasets/philipjohnbasile/glm52-demolition-data/resolve/main/calib/calib_v4.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 139643
+      parsed: true
+  - url: https://huggingface.co/datasets/obaydata/openclaw-trajectories-demo/resolve/main/qa_overview.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/IliaLarchenko/vla_demo/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/philipjohnbasile/glm52-demolition-data/resolve/main/calib/calib_v4.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/amathislab/demo_dataset/resolve/main/MyoBimanualArm/gmr/BioMotionLab_NTroje/rub039/0022_throwing_hard1_poses.npz
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/obaydata/openclaw-trajectories-demo/resolve/main/qa_overview.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/danelcsb/locateanything-job-demo-warehouse/resolve/main/metadata.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/preprint/Call_08148045378_School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_081480453/32952779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention/32943818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Call_08148045378_School_of_Basic_Midwifery_Awgu_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_0814/32952776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Strain-Specific_Biotransformation_of_Grape_Marc_by_Lactic_Acid_Bacteria_Genomic_Validation_and_Gut_Microbiota_Modulation/32952773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Raw_data_set_for_phiKZ_essentiality_TnSuperpool_and_JukAB_dataset_PfJuk_with_EH4_as_negative_control_empty_Tn7_site_/32952401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601511745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5744192
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4494082
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7310554
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.thieme-connect.de/products/ejournals/abstract/10.1055/s-0028-1137605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://e-publishing.cern.ch/index.php/prise/article/view/1846
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26192/q35yx
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 405'
+  - url: https://yareta.unige.ch/archives/98b1b0fb-9f5c-4726-9be1-36915ba2b27c
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/d9423df4-860c-40f7-a10a-e71505cbebf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/ca4612d0-ad31-41d1-90d6-f60ecda67fbe
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention_2nd_edition_/32943788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Call_08148045378_School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_081480453/32952779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention/32943818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Call_08148045378_School_of_Basic_Midwifery_Awgu_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_0814/32952776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Strain-Specific_Biotransformation_of_Grape_Marc_by_Lactic_Acid_Bacteria_Genomic_Validation_and_Gut_Microbiota_Modulation/32952773
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26192/q4v07
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 405'
+  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283573
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283573
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

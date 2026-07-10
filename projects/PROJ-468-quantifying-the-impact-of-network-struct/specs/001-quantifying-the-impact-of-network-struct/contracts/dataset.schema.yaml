@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Extracted Metrics Dataset Schema"
+description: "Schema for the intermediate CSV file containing network metrics and dissipation rates per timestep."
+type: "object"
+properties:
+  header:
+    type: "array"
+    description: "Column names of the CSV file."
+    items:
+      type: "string"
+    enum:
+      - "timestep"
+      - "mean_coordination"
+      - "clustering_coeff"
+      - "force_heterogeneity"
+      - "dissipation_rate"
+      - "driving_amplitude"
+      - "volume_fraction"
+      - "is_steady_state"
+  rows:
+    type: "array"
+    description: "Data rows corresponding to the header."
+    items:
+      type: "object"
+      properties:
+        timestep:
+          type: "integer"
+          description: "Simulation time step index."
+        mean_coordination:
+          type: "number"
+          description: "Average number of contacts per particle."
+          minimum: 0
+        clustering_coeff:
+          type: "number"
+          description: "Average clustering coefficient of the network."
+          minimum: 0
+          maximum: 1
+        force_heterogeneity:
+          type: "number"
+          description: "Coefficient of Variation (CV) of contact forces. WARNING: This metric is functionally dependent on the same force vector used to calculate dissipation_rate. Do not interpret as an independent causal predictor."
+          minimum: 0
+        dissipation_rate:
+          type: "number"
+          description: "Energy loss rate (sum of force × relative velocity). WARNING: This metric is functionally dependent on the same force vector used to calculate force_heterogeneity. Do not interpret as an independent outcome."
+        driving_amplitude:
+          type: "number"
+          description: "External driving parameter."
+        volume_fraction:
+          type: "number"
+          description: "System volume fraction."
+        is_steady_state:
+          type: "boolean"
+          description: "Flag indicating if the timestep is in a steady-state window (based on Kinetic Energy variance)."
+      required:
+        - "timestep"
+        - "mean_coordination"
+        - "clustering_coeff"
+        - "force_heterogeneity"
+        - "dissipation_rate"
+        - "driving_amplitude"
+        - "is_steady_state"
+required:
+  - "header"
+  - "rows"
