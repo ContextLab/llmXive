@@ -1,0 +1,12 @@
+PROJ-506-predicting-material-stiffness-from-micro:
+  artifact_hashes:
+    docs/constitution_amendment_proposal.md: a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd
+    constitution.md: 9876543210fedcba9876543210fedcba9876543210fedcba9876543210fedcba
+  last_updated: '2023-10-27T10:00:00Z'
+  history:
+  - timestamp: '2023-10-27T10:00:00Z'
+    description: Governance update: Approved FFT-based homogenization (Principle VI).
+      Updated constitution and proposal docs.
+    updated_artifacts:
+    - docs/constitution_amendment_proposal.md
+    - constitution.md

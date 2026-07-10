@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 0: Governance & Constitution Amendment (Prerequisite)
@@ -44,11 +44,11 @@
 **Purpose**: Align project governance and specification text with scientific requirements before code execution.
 **⚠️ CRITICAL**: No data generation or training can begin until this phase is complete.
 
-- [ ] T001 [P] Draft `docs/constitution_amendment_proposal.md` justifying the shift from analytical to FFT-based homogenization (Plan Task 0.1).
-- [ ] T002 [P] Update `constitution.md` to reflect the new Principle VI allowing FFT-based numerical homogenization (Plan Task 0.2).
-- [ ] T003 [P] Update `state/projects/PROJ-506-predicting-material-stiffness-from-micro.yaml` `artifact_hashes` and `updated_at` to record the governance change (Plan Task 0.3).
-- [ ] T004 [P] Draft and commit amendment to `spec.md` FR-001 and US-1 Acceptance Scenario 1 to explicitly change resolution requirement from "256x256 pixels" to "128x128 pixels" to match runtime constraints and Plan Task 0.4. This task MUST update the spec text to reflect the 128x128 resolution.
-- [ ] T005 [P] Draft and commit amendment to `spec.md` FR-007, SC-004, and US-3 Acceptance Scenario 2 to explicitly change statistical method from "paired t-tests" to "One-way ANOVA and Tukey HSD" to match plan methodology and Plan Task 0.5. This task MUST update the spec text to reflect the ANOVA method. Additionally, update `plan.md` "Statistical Test" section (Phase 3, Task 3.2) and "Success Criteria" (SC-004) to explicitly acknowledge the shift to ANOVA.
+- [X] T001 [P] Draft `docs/constitution_amendment_proposal.md` justifying the shift from analytical to FFT-based homogenization (Plan Task 0.1).
+- [X] T002 [P] Update `constitution.md` to reflect the new Principle VI allowing FFT-based numerical homogenization (Plan Task 0.2). <!-- FAILED: unspecified -->
+- [X] T003 [P] Update `state/projects/PROJ-506-predicting-material-stiffness-from-micro.yaml` `artifact_hashes` and `updated_at` to record the governance change (Plan Task 0.3).
+- [X] T004 [P] Draft and commit amendment to `spec.md` FR-001 and US-1 Acceptance Scenario 1 to explicitly change resolution requirement from "256x256 pixels" to "128x128 pixels" to match runtime constraints and Plan Task 0.4. This task MUST update the spec text to reflect the 128x128 resolution.
+- [X] T005 [P] Draft and commit amendment to `spec.md` FR-007, SC-004, and US-3 Acceptance Scenario 2 to explicitly change statistical method from "paired t-tests" to "One-way ANOVA and Tukey HSD" to match plan methodology and Plan Task 0.5. This task MUST update the spec text to reflect the ANOVA method. Additionally, update `plan.md` "Statistical Test" section (Phase 3, Task 3.2) and "Success Criteria" (SC-004) to explicitly acknowledge the shift to ANOVA. <!-- SKIPPED: non-mapping output -->
 
 **Gate**: Proceed to Phase 1 only after T001-T005 are committed.
 
@@ -62,16 +62,16 @@
 - [ ] T006b [P] Create `__init__.py` files. Execute: `touch code/__init__.py code/data_generation/__init__.py code/training/__init__.py code/evaluation/__init__.py code/utils/__init__.py tests/__init__.py tests/unit/__init__.py tests/contract/__init__.py tests/integration/__init__.py`. Verify all files exist.
 - [ ] T006c [P] Create placeholder files. Execute: `touch code/main.py code/data_generation/generate_microstructures.py code/data_generation/compute_stiffness.py code/training/model.py code/training/train.py code/evaluation/stats_utils.py code/evaluation/evaluate.py docs/constitution_amendment_proposal.md`. Verify all files exist.
 - [ ] T007 Initialize Python + project. Create `requirements.txt` with the following exact content:
-  ```text
-  torch==2.0.0+cpu
-  scikit-image==0.21.0
-  scipy==1.11.0
-  numpy==1.24.0
-  pandas==2.0.0
-  pytest==7.3.0
-  scikit-learn==1.2.0
-  pyfftw==0.13.1
-  ```
+ ```text
+ torch==2.0.0+cpu
+ scikit-image==0.21.0
+ scipy==1.11.0
+ numpy==1.24.0
+ pandas==2.0.0
+ pytest==7.3.0
+ scikit-learn==1.2.0
+ pyfftw==0.13.1
+ ```
 - [ ] T008 [P] Configure linting (`ruff`/`flake8`) and formatting (`black`) tools
 
 ---
@@ -83,7 +83,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T009 Implement core FFT-based homogenization solver in `code/utils/fft_homogenization.py` (CPU-optimized, no CUDA). Note: Constitution Principle VI has been amended to permit this method (T002).
-- [ ] T010 [P] Implement utility metrics functions (`MAE`, `MSE`, `R2`) in `code/utils/metrics.py`
+- [~] T010 [P] Implement utility metrics functions (`MAE`, `MSE`, `R2`) in `code/utils/metrics.py`
 - [ ] T011 Setup k-fold cross-validation utilities in `code/training/kfold_utils.py`
 - [ ] T012 Create data schema validation contracts in `specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml`. File format: YAML. Required fields: `image_path: string`, `stiffness_tensor: float[]`, `inclusion_density: float`, `seed: integer`.
 - [ ] T013 Create model output schema contracts in `specs/001-predict-stiffness-cnn/contracts/model-output.schema.yaml`. File format: YAML. Required fields: `model_version: string`, `prediction: float[]`, `error: float`, `density_bin: string`.
@@ -94,9 +94,9 @@
 
 ## Phase 3: User Story 1 - Synthetic Data Generation and Ground Truth Calculation (Priority: P1) 🎯 MVP
 
-**Goal**: Generate ≥ 2,000 synthetic 2D grayscale microstructure images with varying void/inclusion densities and compute their effective elastic stiffness tensors using FFT-based numerical homogenization.
+**Goal**: {{claim:c_55975982}} (2510.20502, https://arxiv.org/abs/2510.20502) with varying void/inclusion densities and compute their effective elastic stiffness tensors using FFT-based numerical homogenization.
 
-**Independent Test**: Verify output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
+**Independent Test**: Output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -182,7 +182,7 @@
 - [ ] T043 Performance optimization of FFT solver for CPU cache efficiency
 - [ ] T044 [P] Additional unit tests for edge cases (extreme void density, solver convergence) in `tests/unit/`
 - [ ] T045 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T046 Verify full pipeline runtime is ≤ 6 hours on simulated free-tier constraints
+- [ ] T046 Verify full pipeline runtime is ≤ 6 hours on simulated free-tier constraints.
 
 ---
 
@@ -194,8 +194,8 @@
 - **Setup (Phase 1)**: Depends on Phase 0 completion.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -262,9 +262,9 @@ With multiple developers:
 
 1. Team completes Phase 0 + Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

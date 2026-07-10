@@ -1,0 +1,10 @@
+torch==2.0.0+cpu
+scikit-image==0.21.0
+scipy==1.11.0
+numpy==1.24.0
+pandas==2.0.0
+pytest==7.3.0
+scikit-learn==1.2.0
+pyfftw==0.13.1
+ruff==0.1.6
+black==23.11.0

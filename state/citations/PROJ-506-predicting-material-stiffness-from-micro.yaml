@@ -32,3 +32,15 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
   verified_at: '2026-07-09T14:09:16.396152Z'
+- artifact_hash: 97d08589a5af376af922b1103ad33c0b114d094a9cb9a26c18807fd5cb2f0602
+  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2510.20502] Predicting the 3D microstructure of SOFC anodes from
+    2D SEM images using stochastic microstructure modeling and CNNs'
+  kind: url
+  value: https://arxiv.org/abs/2510.20502
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2510.20502
+  verified_at: '2026-07-10T17:46:53.486977Z'
