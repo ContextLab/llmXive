@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CosmicRayFluxDataset"
+description: "Schema for the aligned cosmic ray flux and solar activity dataset."
+type: "object"
+properties:
+  date:
+    type: "string"
+    format: "date"
+    description: "Date of the observation (YYYY-MM-DD)."
+  species:
+    type: "string"
+    enum:
+      - "proton"
+      - "helium"
+      - "heavy"
+    description: "Particle species."
+  rigidity_bin:
+    type: "string"
+    description: "Rigidity bin (e.g., \"1-2 GV\")."
+  flux_value:
+    type: "number"
+    description: "Differential flux value."
+  uncertainty:
+    type: "number"
+    description: "Statistical uncertainty."
+  sunspot_number:
+    type: "number"
+    description: "Daily sunspot number."
+  source:
+    type: "string"
+    description: "Data source (e.g., \"AMS-02\", \"NOAA/SWPC\")."
+  time_resolution:
+    type: "string"
+    description: "Temporal resolution of the data (e.g., \"daily\", \"weekly\", \"monthly\")."
+required:
+  - "date"
+  - "species"
+  - "rigidity_bin"
+  - "flux_value"
+  - "sunspot_number"
+  - "source"
+  - "time_resolution"
+additionalProperties: false
+examples:
+  - date: "2011-01-01"
+    species: "proton"
+    rigidity_bin: "1-2 GV"
+    flux_value: 1234.56
+    uncertainty: 12.34
+    sunspot_number: 50.0
+    source: "AMS-02"
+    time_resolution: "daily"

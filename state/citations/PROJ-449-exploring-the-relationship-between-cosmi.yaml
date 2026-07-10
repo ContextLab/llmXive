@@ -1,1 +1,11 @@
-[]
+- artifact_hash: c7598d7ba8b1ef990f617119ca140125fdf039cd9d7ed3d0b2df6e351fd0ed6e
+  artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.swpc.noaa.gov/products/daily-sunspot-number
+  verification_status: mismatch
+  verified_against_url: https://www.spaceweather.gov/products/daily-sunspot-number
+  verified_at: '2026-07-10T06:19:52.473418Z'

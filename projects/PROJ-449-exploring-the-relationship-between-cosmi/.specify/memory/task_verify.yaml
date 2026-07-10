@@ -1,0 +1,5 @@
+T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`): 1
+? 'T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scikit-learn`,
+  `scipy`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`, `pytest`'
+: 1
+T003 [P] Configure linting (flake8/black) and formatting tools: 1

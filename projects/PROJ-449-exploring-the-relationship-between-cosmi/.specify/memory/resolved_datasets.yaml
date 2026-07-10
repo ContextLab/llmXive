@@ -1,0 +1,355 @@
+resolved_at: '2026-07-10T06:10:41.203618+00:00'
+datasets:
+- intent: CNO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CyberHarem/cnoc_na_riabh_yaraan_doo_fgo/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1500
+      parsed: true
+  - url: https://huggingface.co/datasets/kmpartner/dataset-cnop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kmpartner/dataset-cnop-co01/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/GeorgiaTech/cnotesum/23c7bf3fcda4fa2e163abbfc6f50753e7c222ed8/cnotessum.json?%2Fdatasets%2FGeorgiaTech%2Fcnotesum%2Fresolve%2Fmain%2Fcnotessum.json=&etag=%22eb934fa5a10a2903c4977ffcfdaa2ebd1afd6b5b%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/CyberHarem/cnoc_na_riabh_yaraan_doo_fgo/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/kmpartner/dataset-cnop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kmpartner/dataset-cnop-co01/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Meta-Optical_Encoder_for_Image_Segmentation/32955333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Stabilization_of_Lithium_Sulfur_Batteries_via_In_Situ-Formed_Organic_Inorganic_Hybrid_Cathode_Electrolyte_Interfaces/32955327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Microplastic_contamination_in_the_pristine_waters_of_Tilicho_Lake_Nepal_A_groundbreaking_study_in_the_high-altitude_himalayas/32955278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/The_Australian_Secondary_Students_and_Sexual_Health_Survey_1992-2025_Impact_Report/32943914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Aflibercept_with_and_without_laser_therapy_in_diabetic_macular_edema_a_systematic_review_and_meta-analysis/32955312
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5434028
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15223889
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18073637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4401808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4252746
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08179
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140906
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21249153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AMS-02
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Integrating_machine_learning_molecular_docking_and_100-ns_molecular_dynamics_simulations_to_identify_SLC6A4_and_DPP4_as_direct_targets_of_koumine_in_ulcerative_colitis/32955131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Meta-Optical_Encoder_for_Image_Segmentation/32955333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Stabilization_of_Lithium_Sulfur_Batteries_via_In_Situ-Formed_Organic_Inorganic_Hybrid_Cathode_Electrolyte_Interfaces/32955327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Microplastic_contamination_in_the_pristine_waters_of_Tilicho_Lake_Nepal_A_groundbreaking_study_in_the_high-altitude_himalayas/32955278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/The_Australian_Secondary_Students_and_Sexual_Health_Survey_1992-2025_Impact_Report/32943914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1254314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18381215
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18249366
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5121/ams.2018.5102
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/7952765
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20522434
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20522434
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.11700
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2412.18872
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21230752
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 225573
+      parsed: true
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 70
+      parsed: true
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 114547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-oceanservice.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Integrating_machine_learning_molecular_docking_and_100-ns_molecular_dynamics_simulations_to_identify_SLC6A4_and_DPP4_as_direct_targets_of_koumine_in_ulcerative_colitis/32955131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Meta-Optical_Encoder_for_Image_Segmentation/32955333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Stabilization_of_Lithium_Sulfur_Batteries_via_In_Situ-Formed_Organic_Inorganic_Hybrid_Cathode_Electrolyte_Interfaces/32955327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Microplastic_contamination_in_the_pristine_waters_of_Tilicho_Lake_Nepal_A_groundbreaking_study_in_the_high-altitude_himalayas/32955278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/The_Australian_Secondary_Students_and_Sexual_Health_Survey_1992-2025_Impact_Report/32943914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18893503
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7505022
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.135212/slp
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/5787067
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14816488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21288800
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21288800
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15120774
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15120774
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.08487
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SWPC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/juliensimon/swpc-alerts/resolve/main/data/swpc_alerts.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12116
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/656e1730665d15428ae81d25/61d2da029d1efef243bda4a6dda34715077b1e77da0e00146344708f5b029f80?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27swpc_alpaca_data_zh_51k.json%3B+filename%3D%22swpc_alpaca_data_zh_51k.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1783667399&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU2ZTE3MzA2NjVkMTU0MjhhZTgxZDI1LzYxZDJkYTAyOWQxZWZlZjI0M2JkYTRhNmRkYTM0NzE1MDc3YjFlNzdkYTBlMDAxNDYzNDQ3MDhmNWIwMjlmODBcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c3dwY19hbHBhY2FfZGF0YV96aF81MWsuanNvbiUzQitmaWxlbmFtZSUzRCUyMnN3cGNfYWxwYWNhX2RhdGFfemhfNTFrLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNjY3Mzk5fX19XX0_&Signature=MEUCIQCx8zrNIDqpMlJtnlBtne72Q7~Mo3aS~pMW5vCZ9OpdZwIgJe6pOeOLFDwo4wNpT3g8N2X~SvqX0Nj4tnZMwUiT86c_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/vinidiol/swpc_test_llama2_Xk/626eeb22e5d5969b95383c22e000ce3f8bb7c6d3/swpc_test_llama2_Xk.json?%2Fdatasets%2Fvinidiol%2Fswpc_test_llama2_Xk%2Fresolve%2Fmain%2Fswpc_test_llama2_Xk.json=&etag=%226bec4ddf51e7fcb754d905e95748d00c157bffa4%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/juliensimon/swpc-alerts/resolve/main/data/swpc_alerts.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Data_and_code_for_Integrating_machine_learning_molecular_docking_and_100-ns_molecular_dynamics_simulations_to_identify_SLC6A4_and_DPP4_as_direct_targets_of_koumine_in_ulcerative_colitis/32955131
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Meta-Optical_Encoder_for_Image_Segmentation/32955333
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Stabilization_of_Lithium_Sulfur_Batteries_via_In_Situ-Formed_Organic_Inorganic_Hybrid_Cathode_Electrolyte_Interfaces/32955327
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Microplastic_contamination_in_the_pristine_waters_of_Tilicho_Lake_Nepal_A_groundbreaking_study_in_the_high-altitude_himalayas/32955278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/The_Australian_Secondary_Students_and_Sexual_Health_Survey_1992-2025_Impact_Report/32943914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7948683
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6773024
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8247230
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1307495
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4603369
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254585
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21254585
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21234459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20999011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

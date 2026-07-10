@@ -24,17 +24,17 @@ The researcher MUST be able to download daily averaged, rigidity-binned differen
 
 ### User Story 2 - Compute Composition Ratios and Correlation with Solar Activity (Priority: P2)
 
-The researcher MUST be able to compute composition ratios (He/p, Fe/p) from the unified dataset and perform time-lagged Pearson/Spearman correlation analyses against sunspot numbers (±12 months lag) to identify phase relationships. Additionally, the system MUST perform a control analysis correlating absolute, rigidity-normalized fluxes to distinguish true differential modulation from spurious correlations.
+The researcher MUST be able to compute composition ratios (He/p, Fe/p) from the unified dataset and perform time-lagged Pearson/Spearman correlation analyses against sunspot numbers (±12 months lag) to identify phase relationships. Additionally, the system MUST perform a control analysis correlating absolute, rigidity-normalized fluxes to measure the baseline modulation magnitude and compare it against the ratio-based findings to distinguish species-dependent transport effects from general solar modulation.
 
-**Why this priority**: This implements the core scientific hypothesis testing. It moves from raw data to the primary statistical evidence required to answer the research question regarding differential modulation patterns, while explicitly controlling for mathematical coupling artifacts.
+**Why this priority**: This implements the core scientific hypothesis testing. It moves from raw data to the primary statistical evidence required to answer the research question regarding differential modulation patterns. Crucially, it treats the correlation of absolute fluxes as the baseline physical phenomenon (solar modulation) rather than a statistical artifact, and explicitly validates rigidity-dependence by analyzing correlations **per rigidity bin** and deriving modulation amplitudes as a function of rigidity.
 
-**Independent Test**: The system generates a correlation matrix and a set of time-lag plots for both ratios and absolute fluxes. The test passes if the output includes correlation coefficients for lags ranging from -12 to +12 months for both He/p and Fe/p ratios AND absolute fluxes against sunspot numbers, and if the statistical significance (p-value) is calculated for each.
+**Independent Test**: The system generates a correlation matrix and a set of time-lag plots for both ratios and absolute fluxes. The test passes if the output includes correlation coefficients for lags ranging from -12 to +12 months for both He/p and Fe/p ratios AND absolute fluxes against sunspot numbers, calculated **per rigidity bin**, and if the statistical significance (p-value) is calculated for each.
 
 **Acceptance Scenarios**:
 
-1. **Given** a unified dataset with fluxes and sunspot numbers, **When** the correlation analysis runs, **Then** the system calculates and reports the Pearson correlation coefficient and p-value for the He/p ratio against sunspot numbers for all lags between -12 and +12 months.
-2. **Given** the same dataset, **When** the analysis runs for heavy nuclei, **Then** the system calculates and reports the Spearman correlation coefficient and p-value for the Fe/p ratio against sunspot numbers for the same lag range, distinguishing between linear and monotonic relationships.
-3. **Given** the unified dataset, **When** the control analysis runs, **Then** the system calculates correlation coefficients for absolute, rigidity-normalized fluxes against sunspot numbers to verify that observed ratio modulations are not solely driven by the denominator (proton) flux.
+1. **Given** a unified dataset with fluxes and sunspot numbers, **When** the correlation analysis runs, **Then** the system calculates and reports the Pearson correlation coefficient and p-value for the He/p ratio against sunspot numbers for all lags between -12 and +12 months **for each rigidity bin**.
+2. **Given** the same dataset, **When** the analysis runs for heavy nuclei, **Then** the system calculates and reports the Spearman correlation coefficient and p-value for the Fe/p ratio against sunspot numbers for the same lag range, **per rigidity bin**, distinguishing between linear and monotonic relationships.
+3. **Given** the unified dataset, **When** the control analysis runs, **Then** the system calculates correlation coefficients for absolute, rigidity-normalized fluxes against sunspot numbers **per rigidity bin** to establish the baseline modulation magnitude. The system MUST then derive modulation amplitudes from these time-series and analyze the trend of these amplitudes against rigidity to validate the rigidity-dependence of the modulation.
 
 ---
 
@@ -44,19 +44,19 @@ The researcher MUST be able to validate the statistical robustness of the observ
 
 **Why this priority**: This adds scientific rigor and methodological soundness. It addresses the "multiplicity & power" and "measurement validity" concerns by ensuring the observed patterns are not statistical artifacts and provides a quantitative comparison to physical models.
 
-**Independent Test**: The system outputs confidence intervals (95%) for the correlation coefficients derived from 1000 bootstrap iterations and generates a fitted curve for the diffusion model. The test passes if the confidence intervals are calculated and the model fitting converges within the 6-hour compute limit.
+**Independent Test**: The system outputs confidence intervals for the correlation coefficients derived from 1000 bootstrap iterations and generates a fitted curve for the diffusion model. The test passes if the confidence intervals are calculated and the model fitting converges within the 6-hour compute limit.
 
 **Acceptance Scenarios**:
 
 1. **Given** the correlation results from User Story 2, **When** the bootstrap resampling process runs (n=1000), **Then** the system outputs the 95% confidence interval for the maximum correlation coefficient found in User Story 2, ensuring the interval is calculated to test against the null hypothesis.
-2. **Given** the modulation amplitudes derived from the time-series, **When** the least-squares optimization for the rigidity-dependent diffusion model runs, **Then** the system outputs the fitted parameters and the residual error, confirming the model explains a statistically significant portion of the variance.
+2. **Given** the modulation amplitudes derived from the time-series (calculated as the peak-to-trough difference of a sinusoidal fit to the time-series for each rigidity bin), **When** the least-squares optimization for the rigidity-dependent diffusion model runs, **Then** the system outputs the fitted parameters and the residual error, confirming the model explains a statistically significant portion of the variance.
 
 ---
 
 ### Edge Cases
 
 - **Data Gap Handling**: What happens if AMS-02 data is missing for a continuous period > 30 days (e.g., instrument maintenance)? The system must flag this as a "Data Gap" and exclude the affected period from the correlation analysis rather than interpolating, to avoid biasing the solar cycle phase.
-- **Solar Cycle Transition**: How does the system handle the ambiguous boundary between Solar Cycle 24 and 25? The analysis must treat the transition period (2019-2020) as a distinct phase with its own lag analysis or explicitly note the potential for reduced statistical power in this specific window.
+- **Solar Cycle Transition**: How does the system handle the ambiguous boundary between Solar Cycle 24 and 25? The analysis must treat the transition period as a distinct phase with its own lag analysis or explicitly note the potential for reduced statistical power in this specific window.
 - **Zero Flux Events**: How does the system handle days with zero reported flux for heavy nuclei (rare but possible in specific energy bins)? The system must log these as "Below Detection Limit" and exclude them from the ratio calculation to prevent division-by-zero or skewing the mean.
 
 ## Requirements
@@ -66,11 +66,11 @@ The researcher MUST be able to validate the statistical robustness of the observ
 - **FR-001**: System MUST retrieve daily averaged, rigidity-binned differential flux data for protons, helium, and CNO/Fe nuclei from the AMS-02 public repository for the period 2011-01-01 to 2024-12-31 (See US-1).
 - **FR-002**: System MUST download and align concurrent sunspot number data from NOAA/SWPC with the cosmic ray flux data at a daily resolution (See US-1).
 - **FR-003**: System MUST compute composition ratios (He/p and Fe/p) from the aligned flux data, excluding any data points where the denominator flux is zero or missing, and explicitly logging these exclusions as "Below Detection Limit" consistent with the Edge Cases definition (See US-2).
-- **FR-004**: System MUST perform Pearson and Spearman correlation analyses between the composition ratios and sunspot numbers across a time-lag window of ±12 months (See US-2).
+- **FR-004**: System MUST perform Pearson and Spearman correlation analyses between the composition ratios and sunspot numbers across a time-lag window of ±12 months **for each rigidity bin** (See US-2).
 - **FR-005**: System MUST execute bootstrap resampling with n=1000 iterations to estimate 95% confidence intervals for the calculated correlation coefficients (See US-3).
-- **FR-006**: System MUST fit a rigidity-dependent diffusion model to the observed modulation amplitudes using least-squares optimization and report the R² value (See US-3).
+- **FR-006**: System MUST derive modulation amplitudes by fitting a sinusoidal model to the time-series for each rigidity bin and extracting the peak-to-trough difference, then fit a rigidity-dependent diffusion model to these amplitudes using least-squares optimization and report the R² value (See US-3).
 - **FR-007**: System MUST explicitly flag any data gaps > 30 days in the source datasets and exclude them from the primary statistical analysis to prevent bias (See Edge Cases).
-- **FR-008**: System MUST perform a control correlation analysis using absolute, rigidity-normalized fluxes against sunspot numbers to distinguish true differential modulation from spurious correlations caused by a shared denominator (See US-2).
+- **FR-008**: System MUST perform a control correlation analysis using absolute, rigidity-normalized fluxes against sunspot numbers **per rigidity bin** to establish the baseline modulation magnitude against which ratio-based differential modulation is compared. The system MUST analyze the trend of these baseline amplitudes against rigidity to validate the rigidity-dependence of the modulation (See US-2).
 
 ### Key Entities
 
@@ -91,13 +91,13 @@ The researcher MUST be able to validate the statistical robustness of the observ
 - **SC-003**: The width of the 95% confidence interval derived from bootstrap resampling is measured against the stability of the correlation coefficient; specifically, the criterion tests whether the interval includes zero to validate the null hypothesis (See FR-005).
 - **SC-004**: The R² value of the fitted rigidity-dependent diffusion model is measured against the observed variance to confirm the model explains a statistically significant portion of the modulation amplitude, with the specific threshold deferred to the research phase (See FR-006).
 - **SC-005**: The total compute time for the full analysis pipeline (retrieval, alignment, correlation, bootstrap, fitting) is measured against the 6-hour limit of the GitHub Actions free-tier runner (See Assumptions).
-- **SC-006**: The correlation coefficients derived from the absolute, rigidity-normalized flux control analysis (FR-008) are measured against the ratio-based correlations to confirm that observed modulations are not solely driven by the denominator flux (See FR-008).
+- **SC-006**: The correlation coefficients derived from the absolute, rigidity-normalized flux control analysis (FR-008) are measured against the ratio-based correlations to confirm that observed modulations are distinct from the baseline modulation magnitude (See FR-008).
 
 ## Assumptions
 
 - **Data Availability**: The AMS-02 public data repository contains continuous daily averaged, rigidity-binned differential flux data for protons, helium, and CNO/Fe nuclei from 2011 to 2024. If specific energy bins are missing, the analysis will default to the most populated rigidity bin available for each species.
 - **Computational Constraints**: The entire analysis pipeline, including 1000 bootstrap iterations and least-squares fitting, will complete within the 6-hour time limit and 7 GB RAM constraint of a GitHub Actions free-tier runner using CPU-only methods (no GPU acceleration).
 - **Methodological Framing**: Since the study is observational (no random assignment), all findings regarding the relationship between solar activity and cosmic ray composition will be framed as **associational** correlations, not causal effects, unless the data reveals a specific identification strategy (e.g., natural experiment) which is not currently assumed.
-- **Variable Fit**: The AMS-02 dataset is assumed to contain all necessary variables (fluxes for specific species) and the NOAA/SWPC dataset contains the necessary solar activity indices. If a specific variable required for a refined analysis is missing, a `[NEEDS CLARIFICATION]` marker will be generated.
+- **Variable Fit**: The AMS-02 dataset is assumed to contain all necessary variables (fluxes for specific species) and the NOAA/SWPC dataset contains the necessary solar activity indices. **If a specific variable required for a refined analysis is missing, the system MUST default to the most populated rigidity bin available for that species, as defined in the Data Availability assumption, and log this fallback action.**
 - **Threshold Justification**: The time-lag window of ±12 months is selected based on the approximate duration of a solar cycle phase transition and is justified as sufficient to capture the delayed response of cosmic rays to solar wind changes; a sensitivity analysis will sweep lags in {6, 9, 12, 15} months to ensure robustness.
 - **Collinearity**: Since He/p and Fe/p ratios share the proton flux as a denominator, they are definitionally related; the analysis will not claim independent predictive effects for both simultaneously but will treat them as distinct indicators of modulation magnitude, requiring a collinearity diagnostic (VIF) if used in a joint model. The control analysis (FR-008) is explicitly designed to deconvolve the proton flux contribution to test the specific hypothesis of species-dependent transport.

@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`)** — No evidence of the required directories (`code/`, `tests/`, `data/`) or any files within them was provided; without seeing these artifacts we cannot confirm that the project structure was actually created. The implementer must supply a directory listing or the actual folders with content to satisfy the task.
+- **T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`, `pytest`** — No project scaffold, configuration file, or dependency list (e.g., `pyproject.toml`, `requirements.txt`, or `environment.yml`) is present. The required Python 3.11 project with the specified libraries has not been provided.
+- **T003 [P] Configure linting (flake8/black) and formatting tools** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings) or scripts to set up flake8/black are present. The claim provides no artifact demonstrating that linting and formatting tools have been configured for the project.
