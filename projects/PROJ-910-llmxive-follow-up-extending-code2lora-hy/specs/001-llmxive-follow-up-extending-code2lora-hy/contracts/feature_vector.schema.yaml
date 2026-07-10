@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Vector Schema"
+description: "Schema for AST-derived feature vectors used as input to the hypernetwork."
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Foreign key to the repository."
+  cyclomatic_complexity:
+    type: "number"
+    description: "Average cyclomatic complexity across all files in the repository."
+  depth_of_inheritance:
+    type: "number"
+    description: "Average depth of inheritance tree."
+  import_centrality:
+    type: "number"
+    description: "Degree centrality of the import graph."
+  token_histogram:
+    type: "object"
+    description: "Frequency distribution of token types."
+    additionalProperties:
+      type: "integer"
+  parsing_metadata:
+    type: "object"
+    description: "Metadata about the parsing process."
+    properties:
+      total_files:
+        type: "integer"
+      files_skipped:
+        type: "integer"
+      errors:
+        type: "array"
+        items:
+          type: "string"
+    required:
+      - total_files
+      - files_skipped
+      - errors
+required:
+  - repo_id
+  - cyclomatic_complexity
+  - depth_of_inheritance
+  - import_centrality
+  - token_histogram
+  - parsing_metadata
+additionalProperties: false

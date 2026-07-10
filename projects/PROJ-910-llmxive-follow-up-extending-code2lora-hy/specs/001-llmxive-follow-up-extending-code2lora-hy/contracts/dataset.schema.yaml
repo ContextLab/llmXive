@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RepoPeftBench Dataset Schema"
+description: "Schema for the RepoPeftBench parquet dataset used in the AST-based adapter generation pipeline."
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique identifier for the repository (e.g., commit hash or repo slug)."
+  commit_hash:
+    type: "string"
+    description: "Git commit hash associated with the repository state."
+  source_files:
+    type: "array"
+    description: "List of Python source file paths in the repository."
+    items:
+      type: "string"
+      pattern: "^[^\\n]*\\.py$"
+  test_assertions:
+    type: "array"
+    description: "List of ground-truth assertion statements for evaluation."
+    items:
+      type: "string"
+  language:
+    type: "string"
+    description: "Programming language of the repository."
+    const: "python"
+required:
+  - repo_id
+  - commit_hash
+  - source_files
+  - test_assertions
+  - language
+additionalProperties: false

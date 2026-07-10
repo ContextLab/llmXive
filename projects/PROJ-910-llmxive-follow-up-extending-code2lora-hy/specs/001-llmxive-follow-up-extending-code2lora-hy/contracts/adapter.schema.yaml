@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Adapter Metadata Schema"
+description: "Schema for metadata associated with a generated LoRA adapter."
+type: "object"
+properties:
+  adapter_id:
+    type: "string"
+    description: "Unique identifier for the adapter."
+  repo_id:
+    type: "string"
+    description: "Foreign key to the repository."
+  base_model:
+    type: "string"
+    description: "Name and version of the base LLM used."
+  hypernetwork_config:
+    type: "object"
+    description: "Configuration of the MLP projection layer."
+    properties:
+      input_dim:
+        type: "integer"
+      hidden_dims:
+        type: "array"
+        items:
+          type: "integer"
+      output_dim:
+        type: "integer"
+      activation:
+        type: "string"
+        const: "relu"
+    required:
+      - input_dim
+      - hidden_dims
+      - output_dim
+      - activation
+  weights_path:
+    type: "string"
+    description: "Relative path to the adapter weights file (.safetensors or .bin)."
+  generation_time_ms:
+    type: "number"
+    description: "Time taken to generate the adapter in milliseconds."
+  accuracy:
+    type: "number"
+    description: "Exact-match score on the test set (post-evaluation)."
+  status:
+    type: "string"
+    description: "Status of the adapter generation."
+    enum:
+      - "generated"
+      - "failed"
+      - "partial"
+required:
+  - adapter_id
+  - repo_id
+  - base_model
+  - hypernetwork_config
+  - weights_path
+  - generation_time_ms
+  - status
+additionalProperties: false

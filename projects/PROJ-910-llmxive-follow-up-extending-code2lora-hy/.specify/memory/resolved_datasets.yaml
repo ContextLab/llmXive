@@ -1,0 +1,57 @@
+resolved_at: '2026-07-10T18:14:00.724040+00:00'
+datasets:
+- intent: RepoPeftBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/code2lora/repopeftbench-ood/resolve/main/commits/ood_test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/code2lora/repopeftbench-ood/resolve/main/commits/ood_test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Sequence-_and_Size-Dependent_Interactions_between_Cysteine-Functionalized_CdTe_Nanoparticles_and_DNA/32961348
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Fe-Doping-Regulated_CoMoO_sub_4_sub_with_Synergistically_Optimized_Co_sup_2_sup_Co_sup_3_sup_Ratio_and_Oxygen_Vacancies_for_Highly_Sensitive_Hg_sup_2_sup_Detection/32961345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/N_Terminal_Amine_Chemistry_Influences_Synuclein_Interactions_with_Lipid_Bilayers/32961342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Selenized_Polysaccharides_Exert_Immunotherapy_Enhancement_by_Reprogramming_Macrophage_Polarization_A_Comparative_Study_of_Selenium_Forms/32961339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/A_Reversible_Smoothing_Framework_for_Degenerate_Riemannian_Metrics/32669178
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20592878
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20592878
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20592878
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20592390
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.06492
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
