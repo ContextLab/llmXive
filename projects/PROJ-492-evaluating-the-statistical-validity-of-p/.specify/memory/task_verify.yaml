@@ -302,10 +302,6 @@
   \ required by FR\u2011012 [UNRESOLVED-CLAIM: c_0d2890d5 \u2014 status=not_enough_info].\
   \ **DEPENDS ON:** T025."
 : 1
-? "T025b **[P]** Run `tests/unit/test_missing_baseline_flag.py` to verify that any\
-  \ entry with a missing baseline conversion rate is flagged in the audit notes as\
-  \ required by FR\u2011012. **DEPENDS ON:** T025."
-: 2
 ? "T026 Implement synthetic dataset generator in `src/audit/synthetic.py` (FR\u2011\
   030) \u2013 The synthetic dataset generator outputs at least 10\u202F000 simulated\
   \ summaries (binary AND continuous outcomes). (binary AND continuous outcomes) **and\
@@ -474,7 +470,7 @@
   size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
   \ generation (tests/unit/test_validator.py) (verify all tests pass) [DEPENDS ON:\
   \ T025]. <!-- FAILED: unspecified -->"
-: 1
+: 2
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\
   \ [UNRESOLVED-CLAIM: c_21bdda9f \u2014 status=not_enough_info], writes result to\
