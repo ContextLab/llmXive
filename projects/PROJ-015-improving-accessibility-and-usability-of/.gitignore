@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# Virtual Environment
 venv/
 ENV/
 env/
@@ -32,15 +32,14 @@ env/
 *.swo
 
 # Data
-data/raw/*.json
-data/processed/*.csv
-data/processed/*.txt
+data/raw/*
 !data/raw/.gitkeep
+data/processed/*
 !data/processed/.gitkeep
 
 # Logs
-*.log
 logs/
+*.log
 
 # OS
 .DS_Store

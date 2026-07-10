@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: detect-private-key
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=88, --extend-ignore=E203]
+  - repo: local
+    hooks:
+      - id: verify-seed
+        name: Verify Random Seed
+        entry: python code/utils/verify_seed.py
+        language: python
+        files: \.py$
+        pass_filenames: false
+        additional_dependencies: []
+      - id: check-imports
+        name: Check Import Consistency
+        entry: python code/utils/check_imports.py
+        language: python
+        files: \.py$
+        pass_filenames: false
+        additional_dependencies: []

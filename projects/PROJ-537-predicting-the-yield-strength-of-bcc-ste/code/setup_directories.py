@@ -1,17 +1,13 @@
-"""
-Setup script for PROJ-537: Predicting the Yield Strength of BCC Steels.
-Creates the required project directory structure as specified in T001.
-"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Define the project root (current working directory)
-    project_root = Path.cwd()
+    """Create the standard project directory structure."""
+    base_dir = Path(__file__).resolve().parent.parent
     
-    # Define all required directories relative to the project root
-    required_dirs = [
+    # Define the required directories relative to the project root
+    directories = [
         "code",
         "data",
         "data/raw",
@@ -26,31 +22,18 @@ def main():
     ]
     
     created_count = 0
-    existing_count = 0
-    
-    print(f"Creating project directories for {project_root}...")
-    
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            # Check if it is a directory
-            if full_path.is_dir():
-                print(f"  [SKIP] {dir_path} (already exists)")
-                existing_count += 1
-            else:
-                print(f"  [ERROR] {dir_path} exists but is not a directory")
-                return 1
-        else:
-            # Create the directory and any necessary parents
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [CREATE] {dir_path}")
+    for dir_name in directories:
+        target_path = base_dir / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
             created_count += 1
+        else:
+            # Ensure it is actually a directory, not a file
+            if not target_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {target_path}")
     
-    print(f"\nSetup complete.")
-    print(f"  Created: {created_count} directories")
-    print(f"  Skipped: {existing_count} directories")
-    
+    print(f"Directory setup complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

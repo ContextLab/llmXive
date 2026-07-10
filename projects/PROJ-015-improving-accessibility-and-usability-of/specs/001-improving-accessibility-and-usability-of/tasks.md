@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (scipy, matplotlib, pandas, jupyter, streamlit)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-015-improving-accessibility-and-usability-of/`)
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (scipy, matplotlib, pandas, jupyter, streamlit)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -57,12 +57,12 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Setup data directory structure: `data/raw/` (immutable), `data/processed/`
+- [X] T004 Setup data directory structure: `data/raw/` (immutable), `data/processed/`
 - [X] T005 [P] Implement checksumming utility for raw data integrity in `code/utils/checksum.py`
 - [X] T006 [P] Setup random seed fixing infrastructure in `code/utils/seed.py`
 - [X] T007 Create base data models (`Participant`, `Session`, `Metric`) in `code/models/data_models.py` with explicit attributes: `Participant` (id, disability_type, interface_sequence), `Session` (session_id, participant_id, interface_type, start_time, end_time, error_count, explanation_engagement_time_seconds, sus_score, skip_count, status), `Metric` (metric_name, interface_type, mean, std_dev, p_value, confidence_interval, test_method).
-- [ ] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [~] T009 Setup environment configuration management for study parameters in `code/config/settings.py`
+- [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
+- [ ] T009 Setup environment configuration management for study parameters in `code/config/settings.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -121,9 +121,9 @@ expected <block end>, but found ':'
 - [~] T022 [P] [US2] Implement Shapiro-Wilk normality test on difference scores in `code/analysis/stat_utils.py`.
 - [~] T023 [P] [US2] Implement Repeated Measures ANOVA for Completion Time, Error Count, and SUS in `code/analysis/stat_utils.py`. Explicitly exclude `explanation_engagement_time` from inferential testing (descriptive only) per Plan Phase 3, as comparing to a constant zero is tautological.
 - [~] T023b [P] [US2] Implement descriptive statistics reporting (mean, std) for `explanation_engagement_time` in `code/analysis/stat_utils.py` and output to `data/processed/descriptive_stats.csv`.
-- [ ] T024 [P] [US2] Implement Holm-Bonferroni correction for multiple comparisons in `code/analysis/stat_utils.py`.
-- [ ] T025 [US2] Create the main analysis script `code/analysis/run_analysis.py` that orchestrates cleaning, testing, and output generation.
-- [ ] T026 [US2] Generate `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size.
+- [~] T024 [P] [US2] Implement Holm-Bonferroni correction for multiple comparisons in `code/analysis/stat_utils.py`.
+- [~] T025 [US2] Create the main analysis script `code/analysis/run_analysis.py` that orchestrates cleaning, testing, and output generation. <!-- FAILED: unspecified -->
+- [~] T026 [US2] Generate `data/processed/metrics_summary.csv` with F-statistic, p-value, adjusted p-value, and effect size.
 
 **Checkpoint**: The system can process raw data into statistically valid summary metrics with proper corrections.
 
@@ -137,10 +137,10 @@ expected <block end>, but found ':'
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement visualization functions using `matplotlib` for box plots with error bars in `code/analysis/visualizer.py` (depends on T026 metrics_summary.csv).
-- [ ] T028 [P] [US3] Create the master Jupyter notebook `code/analysis.ipynb` with cells for: Data Loading, Cleaning, Statistical Analysis, Visualization, and Reporting.
-- [ ] T029 [US3] Ensure `code/analysis.ipynb` is fully executable from raw data to final figures on CPU-only environment, automatically resolving checksummed raw data files defined in T019 without manual path adjustments.
-- [ ] T030 [US3] Generate a summary report text file `data/processed/report_summary.txt` including: (1) actual N achieved, (2) power limitation flags for underpowered subgroups (even if aggregate N >= 30), and (3) exclusion reasons for incomplete sessions.
+- [~] T027 [P] [US3] Implement visualization functions using `matplotlib` for box plots with error bars in `code/analysis/visualizer.py` (depends on T026 metrics_summary.csv).
+- [~] T028 [P] [US3] Create the master Jupyter notebook `code/analysis.ipynb` with cells for: Data Loading, Cleaning, Statistical Analysis, Visualization, and Reporting.
+- [~] T029 [US3] Ensure `code/analysis.ipynb` is fully executable from raw data to final figures on CPU-only environment, automatically resolving checksummed raw data files defined in T019 without manual path adjustments.
+- [~] T030 [US3] Generate a summary report text file `data/processed/report_summary.txt` including: (1) actual N achieved, (2) power limitation flags for underpowered subgroups (even if aggregate N >= 30), and (3) exclusion reasons for incomplete sessions.
 
 **Checkpoint**: The entire pipeline is reproducible via a single notebook, producing publication-ready figures.
 
@@ -150,9 +150,9 @@ expected <block end>, but found ':'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T032 Code cleanup and refactoring
-- [ ] T033 Performance optimization across all stories
+- [~] T031 [P] Documentation updates in `README.md` and `docs/`
+- [~] T032 Code cleanup and refactoring <!-- ATOMIZE: requested -->
+- [~] T033 Performance optimization across all stories
 - [ ] T034 [P] Additional unit tests for statistical functions in `tests/unit/test_stat_utils.py`
 - [ ] T035 Run quickstart.md validation
 

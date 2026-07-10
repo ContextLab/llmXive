@@ -1,2 +1,3 @@
-# This directory stores immutable raw session data.
-# Do not modify files here manually; use the data collection pipeline.
+# This directory stores immutable raw data files.
+# Do not modify files here once generated.
+# Use checksums to verify integrity.

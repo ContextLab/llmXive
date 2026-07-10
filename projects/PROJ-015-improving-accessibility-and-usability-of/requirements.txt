@@ -2,17 +2,17 @@
 numpy>=1.24.0
 pandas>=2.0.0
 scipy>=1.10.0
-
-# Visualization
 matplotlib>=3.7.0
 
-# Interactive/Notebook
+# Visualization & UI
+streamlit>=1.22.0
+
+# Environment & Jupyter
 jupyter>=1.0.0
 
-# Web App
-streamlit>=1.24.0
-
-# Development
+# Linting & Formatting
 ruff>=0.1.0
 black>=23.0.0
-pytest>=7.0.0
+
+# Performance & Profiling (Standard library used, but optional tools)
+# No extra dependencies needed for the optimization logic itself.

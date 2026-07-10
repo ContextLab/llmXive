@@ -979,6 +979,10 @@
     "classified_at": "2026-07-03T07:29:12Z",
     "verdict": false
   },
+  "PROJ-912-llmxive-follow-up-extending-audio-intera::1.6.0": {
+    "classified_at": "2026-07-10T00:52:56Z",
+    "verdict": false
+  },
   "PROJ-917-llmxive-follow-up-extending-kvarn-varian::1.6.0": {
     "classified_at": "2026-07-03T18:57:00Z",
     "verdict": false
@@ -1017,6 +1021,10 @@
   },
   "PROJ-957-llmxive-follow-up-extending-researchclaw::1.6.0": {
     "classified_at": "2026-07-06T16:46:37Z",
+    "verdict": false
+  },
+  "PROJ-958-llmxive-follow-up-extending-qwen-image-a::1.6.0": {
+    "classified_at": "2026-07-10T01:11:42Z",
     "verdict": false
   },
   "PROJ-961-llmxive-follow-up-extending-videokr-towa::1.6.0": {

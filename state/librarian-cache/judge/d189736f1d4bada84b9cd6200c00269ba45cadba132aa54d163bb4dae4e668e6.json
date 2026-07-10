@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.02768",
+  "judged_at": "2026-07-10T00:53:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"audio interaction model\" computer science",
+  "rationale": "This paper belongs in the literature review because it directly addresses the \"Audio Interaction Model\" domain by proposing a specific architecture (DeSTA2.5-Audio) and methodology (self-generated cross-modal alignment) for Large Audio Language Models, satisfying criteria (a) for same-mechanism evidence and (d) as a foundational reference for current LALM development strategies.",
+  "relevant": true
+}

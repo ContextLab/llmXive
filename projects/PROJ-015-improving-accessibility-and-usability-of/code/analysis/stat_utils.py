@@ -4,233 +4,267 @@ from scipy import stats
 from typing import Dict, Any, List, Optional
 from utils.logger import get_logger
 import os
-from pathlib import Path
 
 logger = get_logger(__name__)
 
 class StatUtils:
     """
-    Utility class for statistical analysis methods used in the research pipeline.
+    Utility class for statistical analysis methods required by the study.
     """
 
     @staticmethod
-    def run_shapiro_wilk(data: pd.Series) -> Dict[str, float]:
+    def shapiro_wilk(data: pd.Series) -> Dict[str, float]:
         """
-        Perform Shapiro-Wilk normality test on a sample.
+        Perform Shapiro-Wilk normality test.
 
         Args:
-            data: A pandas Series containing the sample data.
+            data: Series of difference scores.
 
         Returns:
-            Dictionary with 'statistic' and 'pvalue'.
+            Dict with 'statistic' and 'pvalue'.
         """
         if len(data) < 3:
-            logger.warning("Sample size too small for Shapiro-Wilk test (< 3).")
+            logger.warning("Shapiro-Wilk requires at least 3 samples.")
             return {"statistic": np.nan, "pvalue": np.nan}
 
         stat, p_value = stats.shapiro(data)
         return {"statistic": float(stat), "pvalue": float(p_value)}
 
     @staticmethod
-    def run_repeated_measures_anova(df: pd.DataFrame, 
-                                    within_subject_col: str, 
-                                    dependent_col: str, 
-                                    subject_col: str = 'participant_id') -> Dict[str, Any]:
+    def repeated_measures_anova(df: pd.DataFrame, 
+                                within_subject_col: str, 
+                                between_subject_col: str, 
+                                value_col: str) -> Dict[str, Any]:
         """
-        Perform Repeated Measures ANOVA using scipy.stats.f_oneway on 
-        differences or by reshaping if strictly necessary, but for 
-        standard implementation without pingouin, we approximate or 
-        calculate manually if data structure permits.
+        Perform Repeated Measures ANOVA using pingouin-style logic 
+        but implemented with scipy/numpy to avoid extra dependencies.
         
-        Note: scipy.stats.f_oneway is for independent samples. 
-        For Repeated Measures without pingouin, we often calculate 
-        the F-statistic manually or use a simplified approach.
+        Note: For a true repeated measures ANOVA, we typically need
+        the 'pingouin' library. Since we are constrained to scipy/stats,
+        we will implement a simplified version or use a paired t-test
+        approach if only two conditions exist (Traditional vs Explainable).
         
-        However, per project constraints (scipy only), we will implement
-        a manual calculation for the F-statistic if the data is in wide format,
-        or perform the test on the difference scores if comparing two conditions.
+        Given the study design (Traditional vs Explainable), we have exactly
+        2 conditions. Therefore, a Paired T-Test on the difference is 
+        statistically equivalent to a 1-way Repeated Measures ANOVA with 2 levels.
         
-        For this implementation, assuming a comparison between two conditions 
-        (Traditional vs Explainable) for a single metric, we can use a paired t-test
-        which is mathematically equivalent to RM-ANOVA for 2 levels.
+        However, to satisfy the task requirement of "Repeated Measures ANOVA",
+        we will attempt to use scipy's f_oneway if we treat it as independent
+        (which is incorrect for within-subjects) OR we will calculate the 
+        F-statistic manually for the 2-level case.
         
-        If >2 levels are needed, a full manual implementation is complex.
-        Given the context of "Traditional vs Explainable", we assume 2 levels.
+        For 2 levels: F = t^2 where t is the paired t-statistic.
         
         Args:
-            df: DataFrame with columns for subject, condition, and metric.
+            df: DataFrame with columns for subject, condition, and value.
             within_subject_col: Column name for the condition (e.g., 'interface_type').
-            dependent_col: Column name for the metric (e.g., 'completion_time').
-            subject_col: Column name for the participant ID.
-
-        Returns:
-            Dictionary with F-statistic, p-value, and method description.
-        """
-        if within_subject_col not in df.columns or dependent_col not in df.columns or subject_col not in df.columns:
-            raise ValueError(f"Required columns {within_subject_col}, {dependent_col}, {subject_col} not found in DataFrame.")
-
-        unique_conditions = df[within_subject_col].unique()
+            between_subject_col: Column name for the participant ID.
+            value_col: Column name for the metric.
         
-        if len(unique_conditions) == 2:
-            # Paired t-test is equivalent to RM-ANOVA for 2 conditions
-            cond_a = df[df[within_subject_col] == unique_conditions[0]][dependent_col]
-            cond_b = df[df[within_subject_col] == unique_conditions[1]][dependent_col]
-            
-            # Ensure they are paired (same participants)
-            # Assuming the dataframe is already filtered or sorted such that 
-            # rows correspond to the same participant in the same order, 
-            # or we merge by subject.
-            # A safer approach: pivot to wide format
-            try:
-                wide_df = df.pivot_table(index=subject_col, columns=within_subject_col, values=dependent_col)
-                t_stat, p_val = stats.ttest_rel(wide_df[unique_conditions[0]], wide_df[unique_conditions[1]])
-                return {
-                    "F_statistic": float(t_stat**2), # F = t^2 for 2 groups
-                    "p_value": float(p_val),
-                    "method": "Paired t-test (equivalent to RM-ANOVA for 2 conditions)",
-                    "degrees_of_freedom": len(wide_df) - 1
-                }
-            except Exception as e:
-                logger.error(f"Failed to pivot data for paired t-test: {e}")
-                return {"F_statistic": np.nan, "p_value": np.nan, "error": str(e)}
-        else:
-            # For >2 conditions, scipy doesn't have a direct RM-ANOVA.
-            # We would need to calculate manually or use a different library.
-            # For now, we return a placeholder or raise an error if strict compliance is needed.
-            # Given the task context (Traditional vs Explainable), 2 conditions is expected.
-            logger.warning(f"RM-ANOVA for >2 conditions not fully implemented in scipy-only mode. Found {len(unique_conditions)} conditions.")
-            return {"F_statistic": np.nan, "p_value": np.nan, "method": "Not implemented for >2 conditions without pingouin"}
+        Returns:
+            Dict with 'F', 'p_value', 'dof', 'dof_error', 'ss_between', 'ss_within'.
+        """
+        # Pivot to wide format for paired test
+        wide_df = df.pivot_table(
+            index=between_subject_col, 
+            columns=within_subject_col, 
+            values=value_col
+        )
+        
+        # Drop rows with missing data in either condition
+        wide_df = wide_df.dropna()
+        
+        if wide_df.shape[0] < 2:
+            logger.error("Not enough participants with complete data for ANOVA.")
+            return {
+                "F": np.nan, "p_value": np.nan, "dof": np.nan, 
+                "dof_error": np.nan, "ss_between": np.nan, "ss_within": np.nan,
+                "method": "insufficient_data"
+            }
+        
+        # Extract the two columns (assuming exactly two conditions)
+        if wide_df.shape[1] != 2:
+            # Fallback for >2 conditions would require a more complex manual implementation
+            # or external library. For this study, we expect 2.
+            logger.warning(f"Expected 2 conditions, found {wide_df.shape[1]}. Using t-test logic for 2 groups only.")
+            # If somehow more, we can't easily do RM-ANOVA with just scipy without complex matrix math.
+            # We will assume 2 for this specific task context.
+            return {
+                "F": np.nan, "p_value": np.nan, "dof": np.nan, 
+                "dof_error": np.nan, "ss_between": np.nan, "ss_within": np.nan,
+                "method": "unsupported_levels"
+            }
+
+        col1, col2 = wide_df.columns
+        x = wide_df[col1].values
+        y = wide_df[col2].values
+
+        # Paired t-test
+        t_stat, p_val = stats.ttest_rel(x, y)
+        
+        # For 2 conditions, F = t^2
+        f_stat = t_stat ** 2
+        
+        # Degrees of freedom
+        n = len(x)
+        dof = 1  # k - 1 where k=2
+        dof_error = n - 1
+        
+        # Sum of Squares (simplified for 2 groups)
+        # SS_total = sum((x - grand_mean)^2) + ...
+        # SS_between = n * sum((group_mean - grand_mean)^2)
+        # SS_within = SS_total - SS_between
+        
+        grand_mean = np.mean(np.concatenate([x, y]))
+        mean1, mean2 = np.mean(x), np.mean(y)
+        
+        ss_between = n * ((mean1 - grand_mean)**2 + (mean2 - grand_mean)**2)
+        
+        # SS_within is the sum of squared deviations within each group from their mean
+        ss_within = np.sum((x - mean1)**2) + np.sum((y - mean2)**2)
+        
+        return {
+            "F": float(f_stat),
+            "p_value": float(p_val),
+            "dof": int(dof),
+            "dof_error": int(dof_error),
+            "ss_between": float(ss_between),
+            "ss_within": float(ss_within),
+            "method": "paired_t_squared"
+        }
 
     @staticmethod
-    def calculate_descriptive_stats(df: pd.DataFrame, metric_name: str, group_col: Optional[str] = None) -> pd.DataFrame:
+    def holm_bonferroni(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
         """
-        Calculate descriptive statistics (mean, std, count, min, max) for a metric.
-        Optionally grouped by a specific column (e.g., interface_type).
-
+        Apply Holm-Bonferroni correction for multiple comparisons.
+        
+        The Holm-Bonferroni method is a step-down procedure that is 
+        more powerful than the standard Bonferroni correction.
+        
+        Steps:
+        1. Sort p-values in ascending order.
+        2. For the i-th smallest p-value (i=1 to m), compare to alpha / (m - i + 1).
+        3. If p_i > alpha / (m - i + 1), stop; all remaining are non-significant.
+        4. Otherwise, reject the null hypothesis for this test.
+        
         Args:
-            df: Input DataFrame.
-            metric_name: Name of the column to calculate stats for.
-            group_col: Optional column name to group by.
-
+            p_values: List of raw p-values from statistical tests.
+            alpha: Significance level (default 0.05).
+        
         Returns:
-            DataFrame with descriptive statistics.
+            Dict containing:
+            - 'adjusted_p_values': List of adjusted p-values (or bounds).
+            - 'significant': List of booleans indicating significance.
+            - 'method': 'holm_bonferroni'
         """
-        if metric_name not in df.columns:
-            raise ValueError(f"Metric '{metric_name}' not found in DataFrame.")
+        if not p_values:
+            return {
+                "adjusted_p_values": [],
+                "significant": [],
+                "method": "holm_bonferroni"
+            }
 
-        if group_col:
-            if group_col not in df.columns:
-                raise ValueError(f"Group column '{group_col}' not found in DataFrame.")
-            stats_df = df.groupby(group_col)[metric_name].agg(['mean', 'std', 'count', 'min', 'max']).reset_index()
-            stats_df.columns = [group_col, 'mean', 'std', 'count', 'min', 'max']
-        else:
-            stats_df = df[metric_name].agg(['mean', 'std', 'count', 'min', 'max']).to_frame().T
-            stats_df.columns = ['mean', 'std', 'count', 'min', 'max']
-
-        return stats_df
+        m = len(p_values)
+        
+        # Create a list of (original_index, p_value)
+        indexed_p_values = list(enumerate(p_values))
+        
+        # Sort by p-value
+        sorted_p_values = sorted(indexed_p_values, key=lambda x: x[1])
+        
+        adjusted_p_values = [0.0] * m
+        significant = [False] * m
+        
+        # Calculate adjusted p-values
+        # The adjusted p-value for the i-th sorted p-value is max( (m-i+1)*p_i, adjusted_p_{i-1} )
+        # But for the boolean decision, we can just use the threshold comparison.
+        
+        # We need to map back to original order for the return
+        # Let's compute the adjusted p-values first
+        
+        # Step 1: Sort
+        sorted_indices = [i for i, p in sorted_p_values]
+        sorted_vals = [p for i, p in sorted_p_values]
+        
+        # Step 2: Compute adjusted p-values (monotonicity constraint)
+        # Holm's adjusted p-value for rank i (1-based) is (m - i + 1) * p_i
+        # But must be non-decreasing.
+        
+        adj_vals = []
+        current_max = 0.0
+        
+        for i, p in enumerate(sorted_vals):
+            # i is 0-based rank. Rank in formula is i+1.
+            # Factor = m - (i+1) + 1 = m - i
+            factor = m - i
+            adj_p = p * factor
+            if adj_p > 1.0:
+                adj_p = 1.0
+            if adj_p < current_max:
+                adj_p = current_max
+            current_max = adj_p
+            adj_vals.append(adj_p)
+        
+        # Map back to original order
+        final_adj_p = [0.0] * m
+        final_sig = [False] * m
+        
+        for idx, adj_p in zip(sorted_indices, adj_vals):
+            final_adj_p[idx] = adj_p
+            final_sig[idx] = adj_p < alpha
+        
+        return {
+            "adjusted_p_values": final_adj_p,
+            "significant": final_sig,
+            "method": "holm_bonferroni"
+        }
 
     @staticmethod
-    def generate_descriptive_stats_report(raw_data_dir: str, output_path: str) -> bool:
+    def calculate_effect_size_r_squared(ss_between: float, ss_within: float) -> float:
         """
-        Generates a descriptive statistics report for 'explanation_engagement_time'.
-        This metric is descriptive only (no inferential testing).
-        
-        Reads raw session JSON files from raw_data_dir, aggregates the data,
-        and calculates mean/std per interface type.
-        
-        Args:
-            raw_data_dir: Path to the directory containing session JSON files.
-            output_path: Path to save the resulting CSV file.
-            
-        Returns:
-            True if successful, False otherwise.
+        Calculate partial eta-squared (effect size) for ANOVA.
+        eta^2 = SS_between / (SS_between + SS_within)
         """
-        logger.info(f"Generating descriptive stats report from {raw_data_dir} to {output_path}")
-        
-        try:
-            # Ensure output directory exists
-            output_dir = os.path.dirname(output_path)
-            if output_dir:
-                os.makedirs(output_dir, exist_ok=True)
-
-            # Load all raw session files
-            session_files = list(Path(raw_data_dir).glob("session_*.json"))
-            if not session_files:
-                logger.warning(f"No session files found in {raw_data_dir}")
-                # Create empty report
-                df_empty = pd.DataFrame(columns=['interface_type', 'metric_name', 'mean', 'std', 'count', 'min', 'max'])
-                df_empty.to_csv(output_path, index=False)
-                return True
-
-            data_records = []
-            
-            for file_path in session_files:
-                try:
-                    with open(file_path, 'r') as f:
-                        session_data = json.load(f)
-                    
-                    # Extract metrics
-                    # Structure assumed based on T019: raw_data_logger
-                    # Expected keys: 'participant_id', 'interface_type', 'metrics'
-                    # metrics: {'completion_time': ..., 'error_count': ..., 'explanation_engagement_time': ...}
-                    
-                    if 'metrics' in session_data and 'explanation_engagement_time' in session_data['metrics']:
-                        record = {
-                            'participant_id': session_data.get('participant_id'),
-                            'session_id': session_data.get('session_id'),
-                            'interface_type': session_data.get('interface_type'),
-                            'explanation_engagement_time': session_data['metrics']['explanation_engagement_time']
-                        }
-                        data_records.append(record)
-                except Exception as e:
-                    logger.warning(f"Could not parse {file_path}: {e}")
-                    continue
-
-            if not data_records:
-                logger.warning("No valid records with 'explanation_engagement_time' found.")
-                df_empty = pd.DataFrame(columns=['interface_type', 'metric_name', 'mean', 'std', 'count', 'min', 'max'])
-                df_empty.to_csv(output_path, index=False)
-                return True
-
-            df = pd.DataFrame(data_records)
-            
-            # Calculate descriptive stats grouped by interface_type
-            # Per task: mean, std for explanation_engagement_time
-            stats_df = df.groupby('interface_type')['explanation_engagement_time'].agg(['mean', 'std', 'count', 'min', 'max']).reset_index()
-            stats_df.columns = ['interface_type', 'metric_name', 'mean', 'std', 'count', 'min', 'max']
-            stats_df['metric_name'] = 'explanation_engagement_time' # Explicitly name the metric
-
-            # Reorder columns for clarity
-            cols = ['interface_type', 'metric_name', 'mean', 'std', 'count', 'min', 'max']
-            stats_df = stats_df[cols]
-
-            stats_df.to_csv(output_path, index=False)
-            logger.info(f"Descriptive stats report saved to {output_path}")
-            return True
-
-        except Exception as e:
-            logger.error(f"Error generating descriptive stats report: {e}")
-            return False
+        if ss_within + ss_between == 0:
+            return 0.0
+        return ss_between / (ss_between + ss_within)
 
 def main():
     """
-    Entry point for running the statistical utilities directly.
-    Primarily used for testing or standalone execution of specific analyses.
+    Main entry point for testing statistical utilities.
     """
-    import sys
-    from config.settings import get_settings
+    logger.info("Running StatUtils main() for demonstration.")
     
-    settings = get_settings()
-    raw_data_dir = settings.get('raw_data_dir', 'data/raw')
-    output_path = settings.get('descriptive_stats_output', 'data/processed/descriptive_stats.csv')
+    # Example usage of Holm-Bonferroni
+    sample_p_values = [0.001, 0.02, 0.04, 0.06, 0.10]
+    result = StatUtils.holm_bonferroni(sample_p_values)
     
-    success = StatUtils.generate_descriptive_stats_report(raw_data_dir, output_path)
-    if success:
-        print(f"Descriptive stats report generated successfully at {output_path}")
-        return 0
-    else:
-        print("Failed to generate descriptive stats report.")
-        return 1
+    logger.info(f"Raw p-values: {sample_p_values}")
+    logger.info(f"Adjusted p-values: {result['adjusted_p_values']}")
+    logger.info(f"Significant (alpha=0.05): {result['significant']}")
+    
+    # Example usage of ANOVA
+    # Create dummy data
+    data = {
+        'participant_id': [1, 2, 3, 4, 5],
+        'interface_type': ['Traditional', 'Explainable', 'Traditional', 'Explainable', 'Traditional'],
+        'completion_time': [10, 8, 12, 9, 11] * 2 # Simplified
+    }
+    # Re-construct for proper wide format
+    df = pd.DataFrame({
+        'participant_id': [1, 1, 2, 2, 3, 3],
+        'interface_type': ['Traditional', 'Explainable'] * 3,
+        'value': [10, 8, 12, 9, 11, 10]
+    })
+    
+    anova_res = StatUtils.repeated_measures_anova(
+        df, 
+        within_subject_col='interface_type', 
+        between_subject_col='participant_id', 
+        value_col='value'
+    )
+    
+    logger.info(f"ANOVA Result: {anova_res}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

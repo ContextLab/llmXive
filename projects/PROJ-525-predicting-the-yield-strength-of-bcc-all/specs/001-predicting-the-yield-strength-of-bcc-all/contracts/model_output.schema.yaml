@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the model evaluation results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+      - "Ridge"
+    description: "Type of model used."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error in MPa."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error in MPa."
+  confidence_interval:
+    type: "array"
+    description: "95% CI for R²."
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+  feature_importance:
+    type: "array"
+    description: "Top 5 features by importance."
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance:
+          type: "number"
+      required:
+        - feature_name
+        - importance
+  validation_method:
+    type: "string"
+    description: "Validation method used (e.g., Repeated5FoldCV)."
+required:
+  - model_type
+  - r_squared
+  - mae
+  - rmse
+  - confidence_interval
+  - feature_importance
+  - validation_method
+additionalProperties: false

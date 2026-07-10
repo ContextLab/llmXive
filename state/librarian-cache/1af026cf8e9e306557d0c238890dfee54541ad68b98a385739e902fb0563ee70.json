@@ -1,0 +1,579 @@
+{
+  "fetched_at": "2026-07-10T01:12:06Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generat\"",
+      "target_n": 5
+    },
+    "duration_seconds": 453.191,
+    "ended_at": "2026-07-10T01:12:06Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multimodal agent frameworks for image generation"
+        ],
+        [
+          2,
+          "context-aware visual content creation with LLMs"
+        ],
+        [
+          3,
+          "bridging semantic gaps in generative AI workflows"
+        ],
+        [
+          4,
+          "real-world image synthesis via language agents"
+        ],
+        [
+          5,
+          "Qwen multimodal extensions for visual tasks"
+        ],
+        [
+          6,
+          "agentic workflows for computer vision and generation"
+        ],
+        [
+          7,
+          "large language model integration with image generators"
+        ],
+        [
+          8,
+          "contextual reasoning in generative image models"
+        ],
+        [
+          9,
+          "vision-language models for real-world image creation"
+        ],
+        [
+          10,
+          "iterative prompt refinement for image synthesis agents"
+        ],
+        [
+          11,
+          "multimodal large language model (MLLM) agent architectures"
+        ],
+        [
+          12,
+          "semantic alignment in text-to-image generation pipelines"
+        ],
+        [
+          13,
+          "autonomous agents for complex visual generation tasks"
+        ],
+        [
+          14,
+          "enhancing image generator context with LLM planning"
+        ],
+        [
+          15,
+          "cross-modal consistency in generative AI systems"
+        ],
+        [
+          16,
+          "language-guided image generation with memory mechanisms"
+        ],
+        [
+          17,
+          "adaptive context windows for visual generative agents"
+        ],
+        [
+          18,
+          "end-to-end multimodal agent systems for content creation"
+        ],
+        [
+          19,
+          "reasoning-based image generation using foundation models"
+        ],
+        [
+          20,
+          "next-token prediction for visual agent decision making"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generat\" computer science": 0,
+        "multimodal agent frameworks for image generation": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal agent image generation context window",
+      "Qwen-VL image-to-text synthesis benchmarks",
+      "visual reasoning long-horizon planning agents",
+      "multimodal perplexity generation fidelity evaluation",
+      "training data leakage vision-language contamination"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.08487"
+      ]
+    },
+    "per_query_hit_count": {
+      "Qwen-VL image-to-text synthesis benchmarks": 3,
+      "llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generat\" computer science": 0,
+      "multimodal agent image generation context window": 0,
+      "multimodal perplexity generation fidelity evaluation": 3,
+      "training data leakage vision-language contamination": 3,
+      "visual reasoning long-horizon planning agents": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1910.10504",
+          "rationale": "The paper focuses on medical image segmentation (liver) using specific CNN architectures (HED-Mask R-CNN) for clinical diagnosis, which is an off-domain application compared to the user's question about extending a real-world image generation agent (Qwen-Image-Agent) for LLMs. While both involve computer vision and deep learning, the paper does not address the mechanism of context bridging, image generation, or the specific LLM-agent framework required for the user's research, failing all inclus",
+          "title": "Liver Segmentation from Multimodal Images using HED-Mask R-CNN"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-10T01:04:33Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"qwen-image-agent: bridging the context gap in real-world image generat\" computer science",
+      "raw": "llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real-World Image Generat\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we introduce the Qwen-VL series, a set of large-scale vision-language models (LVLMs) designed to perceive and understand both texts and images. Starting from the Qwen-LM as a foundation, we endow it with visual capacity by the meticulously designed (i) visual receptor, (ii) input-output interface, (iii) 3-stage training pipeline, and (iv) multilingual multimodal cleaned corpus. Beyond the conventional image description and question-answering, we implement the grounding and text-reading ability of Qwen-VLs by aligning image-caption-box tuples. The resulting models, including Qwen-VL and Qwen-VL-Chat, set new records for generalist models under similar model scales on a broad range of visual-centric benchmarks (e.g., image captioning, question answering, visual grounding) and different settings (e.g., zero-shot, few-shot). Moreover, on real-world dialog benchmarks, our instruction-tuned Qwen-VL-Chat also demonstrates superiority compared to existing vision-language chatbots. Code, demo and models are available at https://github.com/QwenLM/Qwen-VL.",
+          "claimed_authors": [
+            "Jinze Bai",
+            "Shuai Bai",
+            "Shusheng Yang",
+            "Shijie Wang",
+            "Sinan Tan",
+            "Peng Wang",
+            "Junyang Lin",
+            "Chang Zhou",
+            "Jingren Zhou"
+          ],
+          "claimed_title": "Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.12966"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Qwen-Image, an image generation foundation model in the Qwen series that achieves significant advances in complex text rendering and precise image editing. To address the challenges of complex text rendering, we design a comprehensive data pipeline that includes large-scale data collection, filtering, annotation, synthesis, and balancing. Moreover, we adopt a progressive training strategy that starts with non-text-to-text rendering, evolves from simple to complex textual inputs, and gradually scales up to paragraph-level descriptions. This curriculum learning approach substantially enhances the model's native text rendering capabilities. As a result, Qwen-Image not only performs exceptionally well in alphabetic languages such as English, but also achieves remarkable progress on more challenging logographic languages like Chinese. To enhance image editing consistency, we introduce an improved multi-task training paradigm that incorporates not only traditional text-to-image (T2I) and text-image-to-image (TI2I) tasks but also image-to-image (I2I) reconstruction, effectively aligning the latent representations between Qwen2.5-VL and MMDiT. Furthermore, we separately feed the original image into Qwen2.5-VL and the VAE encoder to obtain semantic and reconstructive representations, respectively. This dual-encoding mechanism enables the editing module to strike a balance between preserving semantic consistency and maintaining visual fidelity. Qwen-Image achieves state-of-the-art performance, demonstrating its strong capabilities in both image generation and editing across multiple benchmarks.",
+          "claimed_authors": [
+            "Chenfei Wu",
+            "Jiahao Li",
+            "Jingren Zhou",
+            "Junyang Lin",
+            "Kaiyuan Gao",
+            "Kun Yan",
+            "Sheng-ming Yin",
+            "Shuai Bai",
+            "Xiao Xu",
+            "Yilei Chen",
+            "Yuxiang Chen",
+            "Zecheng Tang",
+            "Zekai Zhang",
+            "Zhengyi Wang",
+            "An Yang",
+            "Bowen Yu",
+            "Chen Cheng",
+            "Dayiheng Liu",
+            "Deqing Li",
+            "Hang Zhang",
+            "Hao Meng",
+            "Hu Wei",
+            "Jingyuan Ni",
+            "Kai Chen",
+            "Kuan Cao",
+            "Liang Peng",
+            "Lin Qu",
+            "Minggang Wu",
+            "Peng Wang",
+            "Shuting Yu",
+            "Tingkun Wen",
+            "Wensen Feng",
+            "Xiaoxiao Xu",
+            "Yi Wang",
+            "Yichang Zhang",
+            "Yongqiang Zhu",
+            "Yujia Wu",
+            "Yuxuan Cai",
+            "Zenan Liu"
+          ],
+          "claimed_title": "Qwen-Image Technical Report",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.02324"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Qwen-Image Technical Report')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The requirement of large amounts of annotated images has become one grand challenge while training deep neural network models for various visual detection and recognition tasks. This paper presents a novel image synthesis technique that aims to generate a large amount of annotated scene text images for training accurate and robust scene text detection and recognition models. The proposed technique consists of three innovative designs. First, it realizes \"semantic coherent\" synthesis by embedding texts at semantically sensible regions within the background image, where the semantic coherence is achieved by leveraging the semantic annotations of objects and image regions that have been created in the prior semantic segmentation research. Second, it exploits visual saliency to determine the embedding locations within each semantic sensible region, which coincides with the fact that texts are often placed around homogeneous regions for better visibility in scenes. Third, it designs an adaptive text appearance model that determines the color and brightness of embedded texts by learning from the feature of real scene text images adaptively. The proposed technique has been evaluated over five public datasets and the experiments show its superior performance in training accurate and robust scene text detection and recognition models.",
+          "claimed_authors": [
+            "Fangneng Zhan",
+            "Shijian Lu",
+            "Chuhui Xue"
+          ],
+          "claimed_title": "Verisimilar Image Synthesis for Accurate Detection and Recognition of Texts in Scenes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.03021"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Verisimilar Image Synthesis for Accurate Detection and Recognition of Texts in Scenes')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As language models are increasingly deployed for complex autonomous tasks, their ability to reason accurately over longer horizons becomes critical. An essential component of this ability is planning and managing a long, complex chain-of-thought (CoT). We introduce LongCoT, a scalable benchmark of 2,500 expert-designed problems spanning chemistry, mathematics, computer science, chess, and logic to isolate and directly measure the long-horizon CoT reasoning capabilities of frontier models. Problems consist of a short input with a verifiable answer; solving them requires navigating a graph of interdependent steps that span tens to hundreds of thousands of reasoning tokens. Each local step is individually tractable for frontier models, so failures reflect long-horizon reasoning limitations. At release, the best models achieve <10% accuracy (GPT 5.2: 9.8%; Gemini 3 Pro: 6.1%) on LongCoT, revealing a substantial gap in current capabilities. Overall, LongCoT provides a rigorous measure of long-horizon reasoning, tracking the ability of frontier models to reason reliably over extended periods.",
+          "claimed_authors": [
+            "Sumeet Ramesh Motwani",
+            "Daniel Nichols",
+            "Charles London",
+            "Peggy Li",
+            "Fabio Pizzati",
+            "Acer Blake",
+            "Hasan Hammoud",
+            "Tavish McDonald",
+            "Akshat Naik",
+            "Alesia Ivanova",
+            "Vignesh Baskaran",
+            "Ivan Laptev",
+            "Ruben Glatt",
+            "Tal Ben-Nun",
+            "Philip Torr",
+            "Natasha Jaques",
+            "Ameya Prabhu",
+            "Brian Bartoldson",
+            "Bhavya Kailkhura",
+            "Christian Schroeder de Witt"
+          ],
+          "claimed_title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14140"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demonstrate remarkable reasoning capabilities, yet their performance often deteriorates sharply in long-horizon tasks, exhibiting systematic breakdown beyond certain scales. Conventional explanations primarily attribute this phenomenon to task complexity, such as combinatorial search explosion or long-term credit assignment challenges. In this work, we argue that these explanations are incomplete: even in linear, unbranched tasks without semantic ambiguity, autoregressive execution is subject to an intrinsic stability limit.\n  We propose that the fundamental constraint on long-horizon reasoning arises from process-level instability in autoregressive generation rather than solely from search or task complexity, reframing long-horizon reasoning as a problem of structural governance. We derive Theorem~A, showing that decision advantage in single-path autoregressive reasoning decays exponentially with execution length, imposing a fundamental bound on maintainable reasoning chains. This result implies a structural consequence: stable long-horizon reasoning requires discrete segmentation, naturally inducing graph-like execution structures such as directed acyclic graphs (DAGs).\n  Empirical studies in both synthetic environments and real TextWorld tasks reveal observable performance cliffs consistent with theoretical predictions. Our findings provide a dynamical perspective on long-horizon reasoning failure and suggest new limitations on maintaining long-term coherence under purely autoregressive architectures. Furthermore, we highlight that short-horizon evaluation protocols may obscure structural instability, indicating a potential shift from scaling toward structured governance in future reasoning systems.",
+          "claimed_authors": [
+            "Hsien-Jyh Liao"
+          ],
+          "claimed_title": "Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06413"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models excel at short-horizon reasoning tasks, but performance drops as reasoning horizon lengths increase. Existing approaches to combat this rely on inference-time scaffolding or costly step-level supervision, neither of which scales easily. In this work, we introduce a scalable method to bootstrap long-horizon reasoning capabilities using only existing, abundant short-horizon data. Our approach synthetically composes simple problems into complex, multi-step dependency chains of arbitrary length. We train models on this data using outcome-only rewards under a curriculum that automatically increases in complexity, allowing RL training to be scaled much further without saturating. Empirically, our method generalizes remarkably well: curriculum training on composed 6th-grade level math problems (GSM8K) boosts accuracy on longer, competition-level benchmarks (GSM-Symbolic, MATH-500, AIME) by up to 2.06x. It also transfers significantly to diverse out-of-distribution ReasoningGym domains and long-context benchmarks, indicating broader generalization. Importantly, our long-horizon improvements are significantly higher than baselines even at high pass@k, showing that models can learn new reasoning paths under RL. Theoretically, we show that curriculum RL with outcome rewards achieves an exponential improvement in sample complexity over full-horizon training, providing training signal comparable to dense supervision. h1 therefore introduces an efficient path towards scaling RL for long-horizon problems using only existing data.",
+          "claimed_authors": [
+            "Sumeet Ramesh Motwani",
+            "Alesia Ivanova",
+            "Ziyang Cai",
+            "Philip Torr",
+            "Riashat Islam",
+            "Shital Shah",
+            "Christian Schroeder de Witt",
+            "Charles London"
+          ],
+          "claimed_title": "h1: Bootstrapping LLMs to Reason over Longer Horizons via Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.07312"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='h1: Bootstrapping LLMs to Reason over Longer Horizons via Reinforcement Learning')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10483"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in open-source vision-language models (VLMs) offer new opportunities for understanding complex and subjective multimodal phenomena such as sarcasm. In this work, we evaluate seven state-of-the-art VLMs - BLIP2, InstructBLIP, OpenFlamingo, LLaVA, PaliGemma, Gemma3, and Qwen-VL - on their ability to detect multimodal sarcasm using zero-, one-, and few-shot prompting. Furthermore, we evaluate the models' capabilities in generating explanations to sarcastic instances. We evaluate the capabilities of VLMs on three benchmark sarcasm datasets (Muse, MMSD2.0, and SarcNet). Our primary objectives are twofold: (1) to quantify each model's performance in detecting sarcastic image-caption pairs, and (2) to assess their ability to generate human-quality explanations that highlight the visual-textual incongruities driving sarcasm. Our results indicate that, while current models achieve moderate success in binary sarcasm detection, they are still not able to generate high-quality explanations without task-specific finetuning.",
+          "claimed_authors": [
+            "Saroj Basnet",
+            "Shafkat Farabi",
+            "Tharindu Ranasinghe",
+            "Diptesh Kanoji",
+            "Marcos Zampieri"
+          ],
+          "claimed_title": "Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.11852"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report introduces PixelBytes Embedding, a novel approach for unified multimodal representation learning. Our method captures diverse inputs in a single, cohesive representation, enabling emergent properties for multimodal sequence generation, particularly for text and pixelated images. Inspired by state-of-the-art sequence models such as Image Transformers, PixelCNN, and Mamba-Bytes, PixelBytes aims to address the challenges of integrating different data types. We explore various model architectures, including Recurrent Neural Networks (RNNs), State Space Models (SSMs), and Attention-based models, focusing on bidirectional processing and our innovative PxBy embedding technique. Our experiments, conducted on a specialized PixelBytes Pok{é}mon dataset, demonstrate that bidirectional sequence models with PxBy embedding and convolutional layers can generate coherent multimodal sequences. This work contributes to the advancement of integrated AI models capable of understanding and generating multimodal data in a unified manner.",
+          "claimed_authors": [
+            "Fabien Furfaro"
+          ],
+          "claimed_title": "PixelBytes: Catching Unified Embedding for Multimodal Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.15512"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='PixelBytes: Catching Unified Embedding for Multimodal Generation')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper surveys vision-language pre-training (VLP) methods for multimodal intelligence that have been developed in the last few years. We group these approaches into three categories: ($i$) VLP for image-text tasks, such as image captioning, image-text retrieval, visual question answering, and visual grounding; ($ii$) VLP for core computer vision tasks, such as (open-set) image classification, object detection, and segmentation; and ($iii$) VLP for video-text tasks, such as video captioning, video-text retrieval, and video question answering. For each category, we present a comprehensive review of state-of-the-art methods, and discuss the progress that has been made and challenges still being faced, using specific systems and models as case studies. In addition, for each category, we discuss advanced topics being actively explored in the research community, such as big foundation models, unified modeling, in-context few-shot learning, knowledge, robustness, and computer vision in the wild, to name a few.",
+          "claimed_authors": [
+            "Zhe Gan",
+            "Linjie Li",
+            "Chunyuan Li",
+            "Lijuan Wang",
+            "Zicheng Liu",
+            "Jianfeng Gao"
+          ],
+          "claimed_title": "Vision-Language Pre-training: Basics, Recent Advances, and Future Trends",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.09263"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Vision-Language Pre-training: Basics, Recent Advances, and Future Trends')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Qwen-Image-Agent: Bridging the Context Gap in Real', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-10T01:11:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shuang Chen",
+            "Quanxin Shou",
+            "Hangting Chen",
+            "Yucheng Zhou",
+            "Kaituo Feng",
+            "Wenbo Hu",
+            "Yi-Fan Zhang",
+            "Yunlong Lin",
+            "Wenxuan Huang",
+            "Mingyang Song",
+            "Dasen Dai",
+            "Bolin Jiang",
+            "Manyuan Zhang",
+            "Shi-Xue Zhang",
+            "Zhengkai Jiang",
+            "Lucas Wang",
+            "Zhao Zhong",
+            "Yu Cheng",
+            "Nanyun Peng"
+          ],
+          "title": "Unify-Agent: A Unified Multimodal Agent for World-Grounded Image Synthesis",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.29620",
+        "summary": "Unified multimodal models provide a natural and promising architecture for understanding diverse and complex real-world knowledge while generating high-quality images. However, they still rely primarily on frozen parametric knowledge, which makes them struggle with real-world image generation involving long-tail and knowledge-intensive concepts. Inspired by the broad success of agents on real-world tasks, we explore agentic modeling to address this limitation. Specifically, we present Unify-Agent, a unified multimodal agent for world-grounded image synthesis, which reframes image generation as an agentic pipeline consisting of prompt understanding, multimodal evidence searching, grounded recaptioning, and final synthesis. To train our model, we construct a tailored multimodal data pipeline and curate 143K high-quality agent trajectories for world-grounded image synthesis, enabling effective supervision over the full agentic generation process. We further introduce FactIP, a benchmark covering 12 categories of culturally significant and long-tail factual concepts that explicitly requires external knowledge grounding. Extensive experiments show that our proposed Unify-Agent substantially improves over its base unified model across diverse benchmarks and real world generation tasks, while approaching the world knowledge capabilities of the strongest closed-source models. As an early exploration of agent-based modeling for world-grounded image synthesis, our work highlights the value of tightly coupling reasoning, searching, and generation for reliable open-world agentic image synthesis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.29620",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T01:11:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Hoopes",
+            "Neel Dey",
+            "Victor Ion Butoi",
+            "John V. Guttag",
+            "Adrian V. Dalca"
+          ],
+          "title": "VoxelPrompt: A Vision Agent for End-to-End Medical Image Analysis",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.08397",
+        "summary": "We present VoxelPrompt, an end-to-end image analysis agent that tackles free-form radiological tasks. Given any number of volumetric medical images and a natural language prompt, VoxelPrompt integrates a language model that generates executable code to invoke a jointly-trained, adaptable vision network. This code further carries out analytical steps to address practical quantitative aims, such as measuring the growth of a tumor across visits. The pipelines generated by VoxelPrompt automate analyses that currently require practitioners to painstakingly combine multiple specialized vision and statistical tools. We evaluate VoxelPrompt using diverse neuroimaging tasks and show that it can delineate hundreds of anatomical and pathological features, measure complex morphological properties, and perform open-language analysis of lesion characteristics. VoxelPrompt performs these objectives with an accuracy similar to that of specialist single-task models for image analysis, while facilitating a broad range of compositional biomedical workflows.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.08397",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T01:11:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qian Wang",
+            "Ziqi Huang",
+            "Ruoxi Jia",
+            "Paul Debevec",
+            "Ning Yu"
+          ],
+          "title": "MAViS: A Multi-Agent Framework for Long-Sequence Video Storytelling",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.08487",
+        "summary": "Despite recent advances, long-sequence video generation frameworks still suffer from significant limitations: poor assistive capability, suboptimal visual quality, and limited expressiveness. To mitigate these limitations, we propose MAViS, a multi-agent collaborative framework designed to assist in long-sequence video storytelling by efficiently translating ideas into visual narratives. MAViS orchestrates specialized agents across multiple stages, including script writing, shot designing, character modeling, keyframe generation, video animation, and audio generation. In each stage, agents operate under the 3E Principle -- Explore, Examine, and Enhance -- to ensure the completeness of intermediate outputs. Considering the capability limitations of current generative models, we propose the Script Writing Guidelines to optimize compatibility between scripts and generative tools. Experimental results demonstrate that MAViS achieves state-of-the-art performance in assistive capability, visual quality, and video expressiveness. Its modular framework further enables scalability with diverse generative models and tools. With just a brief idea description, MAViS enables users to rapidly explore diverse visual storytelling and creative directions for sequential video generation by efficiently producing high-quality, complete long-sequence videos. To the best of our knowledge, MAViS is the only framework that provides multimodal design output -- videos with narratives and background music.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.08487",
+          "http_status": 200,
+          "pdf_sample_score": 0.2534,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T01:11:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabien Furfaro"
+          ],
+          "title": "PixelBytes: Catching Unified Embedding for Multimodal Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.15512",
+        "summary": "This report introduces PixelBytes Embedding, a novel approach for unified multimodal representation learning. Our method captures diverse inputs in a single, cohesive representation, enabling emergent properties for multimodal sequence generation, particularly for text and pixelated images. Inspired by state-of-the-art sequence models such as Image Transformers, PixelCNN, and Mamba-Bytes, PixelBytes aims to address the challenges of integrating different data types. We explore various model architectures, including Recurrent Neural Networks (RNNs), State Space Models (SSMs), and Attention-based models, focusing on bidirectional processing and our innovative PxBy embedding technique. Our experiments, conducted on a specialized PixelBytes Pok{é}mon dataset, demonstrate that bidirectional sequence models with PxBy embedding and convolutional layers can generate coherent multimodal sequences. This work contributes to the advancement of integrated AI models capable of understanding and generating multimodal data in a unified manner.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.15512",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T01:11:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"qwen-image-agent: bridging the context gap in real-world image generat\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

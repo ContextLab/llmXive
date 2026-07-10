@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project directories: `code/`, `data/`, `data/raw/`, `data/intermediate/`, `data/processed/`, `data/provenance/`, `data/results/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [ ] T002 [P] Create `code/requirements.txt` with pinned versions for `pandas`, `scikit-learn`, `requests`, `numpy`, `shap`, `pyyaml`, `mp-api`, `pytest`
+- [X] T002 [P] Create `code/requirements.txt` with pinned versions for `pandas`, `scikit-learn`, `requests`, `numpy`, `shap`, `pyyaml`, `mp-api`, `pytest`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 - [ ] T004 [P] Setup Git hooks for pre-commit checks (seeds, imports)
 
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/config.py` with paths, seeds (42), and API key handling
+- [X] T005 Implement `code/config.py` with paths, seeds (42), and API key handling
 - [X] T006 Implement `code/utils/logging.py` with structured logging for provenance
-- [~] T007 Implement `code/utils/checksums.py` to generate SHA-256 for `data/` artifacts
+- [X] T007 Implement `code/utils/checksums.py` to generate SHA-256 for `data/` artifacts
 - [~] T008 Create `contracts/` schema files: `dataset.schema.yaml`, `output.schema.yaml`
 - [~] T009 Implement `code/main.py` orchestration skeleton with error handling for `ERR_INSUFFICIENT_DATA`
 
@@ -105,17 +105,17 @@
 
 - [~] T021 [P] [US2] Unit test for feature encoding (one-hot, fractions) in `tests/unit/test_features.py`
 - [~] T022 [P] [US2] Unit test for statistical power calculation in `tests/unit/test_power_analysis.py`
-- [ ] T023 [P] [US2] Integration test for nested CV loop in `tests/integration/test_cv_loop.py`
+- [~] T023 [P] [US2] Integration test for nested CV loop in `tests/integration/test_cv_loop.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/modeling/features.py` to encode composition (one-hot, atomic fractions) and normalize DFT descriptors
-- [ ] T025 [US2] Implement `code/modeling/features.py` to calculate Variance Inflation Factors (VIF) and report multicollinearity
-- [ ] T026 [US2] Implement `code/modeling/train.py` to train Random Forest with k-fold CV (composition-only baseline)
-- [ ] T027 [US2] Implement `code/modeling/train.py` to train Random Forest with composition + DFT descriptors
-- [ ] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
-- [ ] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
-- [ ] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
+- [~] T024 [US2] Implement `code/modeling/features.py` to encode composition (one-hot, atomic fractions) and normalize DFT descriptors
+- [~] T025 [US2] Implement `code/modeling/features.py` to calculate Variance Inflation Factors (VIF) and report multicollinearity
+- [~] T026 [US2] Implement `code/modeling/train.py` to train Random Forest with k-fold CV (composition-only baseline)
+- [~] T027 [US2] Implement `code/modeling/train.py` to train Random Forest with composition + DFT descriptors
+- [~] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
+- [~] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
+- [~] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
 - [ ] T031 [US2] Calculate and report Pearson correlation between Shear Modulus and Yield Strength (SC-001, FR-005) using `data/intermediate/merged.csv` as input and write to `output.json`
 - [ ] T032 [US2] Write final metrics to `data/results/output.json` conforming to `contracts/output.schema.yaml`
 

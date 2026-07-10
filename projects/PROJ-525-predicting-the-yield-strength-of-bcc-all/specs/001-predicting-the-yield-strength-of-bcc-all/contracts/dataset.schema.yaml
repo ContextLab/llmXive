@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BCC Alloy Dataset Schema"
+description: "Schema for the filtered and engineered BCC alloy dataset."
+type: "object"
+properties:
+  system_id:
+    type: "string"
+    description: "Unique identifier for the alloy."
+  elemental_composition:
+    type: "object"
+    description: "Atomic fractions of elements."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  yield_strength:
+    type: "number"
+    description: "Yield strength in MPa."
+    minimum: 0
+  crystal_structure:
+    type: "string"
+    enum:
+      - "BCC"
+    description: "Must be BCC."
+  delta_radius:
+    type: "number"
+    description: "Atomic radius mismatch percentage."
+  vec:
+    type: "number"
+    description: "Valence Electron Concentration."
+  mixing_entropy:
+    type: "number"
+    description: "Mixing entropy in J/mol-K."
+  mixing_enthalpy:
+    type: "number"
+    description: "Mixing enthalpy in kJ/mol."
+  electronegativity_diff:
+    type: "number"
+    description: "Electronegativity difference."
+  ilr_features:
+    type: "array"
+    description: "Isometric Log-Ratio transformed features."
+    items:
+      type: "number"
+  feature_source:
+    type: "string"
+    description: "Source of interaction parameters for enthalpy."
+required:
+  - system_id
+  - elemental_composition
+  - yield_strength
+  - crystal_structure
+  - delta_radius
+  - vec
+  - mixing_entropy
+  - mixing_enthalpy
+  - ilr_features
+additionalProperties: false

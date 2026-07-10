@@ -1,76 +1,102 @@
 """
-Setup script to initialize the project's data directory structure.
+Data Directory Structure Setup Module.
 
-Creates:
-  - data/raw/ (immutable raw data storage)
-  - data/processed/ (derived/analyzed data storage)
+This module ensures the required directory structure for the research pipeline
+exists, specifically:
+- data/raw/ (immutable storage for raw session logs)
+- data/processed/ (storage for cleaned data and analysis results)
 
-Also creates a .gitkeep file in each to ensure they are tracked by git.
+It also sets appropriate permissions to enforce immutability on the raw data
+directory where possible.
 """
 import os
 import stat
 import sys
 from pathlib import Path
+from typing import List, Optional
 
-
+# Import from sibling utils to ensure consistent project root resolution
+# We assume the project root is the parent of 'code'
 def get_project_root() -> Path:
-    """
-    Determine the project root directory.
-    Assumes this script is located at code/setup/setup_data_dirs.py.
-    """
+    """Determine the project root directory."""
     current_file = Path(__file__).resolve()
-    # Navigate up two levels: code/setup -> code -> project_root
-    return current_file.parent.parent.parent
+    # Project root is typically two levels up from code/setup/setup_data_dirs.py
+    # or we can look for a marker file.
+    # Standard convention: <root>/code/setup/...
+    root = current_file.parent.parent.parent
+    return root
 
-
-def ensure_directory(dir_path: Path, immutable: bool = False) -> None:
+def ensure_directory(path: Path, make_immutable: bool = False) -> bool:
     """
-    Ensure a directory exists. If it doesn't, create it and a .gitkeep file.
-    
+    Ensure a directory exists. If it doesn't, create it.
+
     Args:
-        dir_path: The path to the directory to create.
-        immutable: If True, sets read-only permissions on the directory 
-                   (simulating immutability for raw data).
-    """
-    if not dir_path.exists():
-        dir_path.mkdir(parents=True, exist_ok=True)
-        gitkeep_path = dir_path / ".gitkeep"
-        gitkeep_path.touch()
-        print(f"Created directory: {dir_path}")
-        
-        if immutable:
-            # On Unix-like systems, set read-only permissions
-            # Note: On Windows, this logic is less straightforward but 
-            # the concept of immutability is primarily logical here.
-            try:
-                current_perms = os.stat(dir_path).st_mode
-                # Remove write permissions for owner, group, and others
-                os.chmod(dir_path, current_perms & ~stat.S_IWUSR & ~stat.S_IWGRP & ~stat.S_IWOTH)
-                print(f"Set read-only permissions on: {dir_path}")
-            except OSError as e:
-                print(f"Warning: Could not set immutable permissions on {dir_path}: {e}")
-    else:
-        print(f"Directory already exists: {dir_path}")
+        path: The Path object for the directory to ensure.
+        make_immutable: If True, attempt to remove write permissions
+                        on the directory to enforce immutability.
 
+    Returns:
+        True if the directory exists or was created successfully, False otherwise.
+    """
+    try:
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            if make_immutable:
+                # Remove write permissions for owner, group, and others
+                # This is a best-effort approach for immutability on POSIX systems
+                current_perms = path.stat().st_mode
+                # Remove write bits: w = 2 (owner), 2 (group), 2 (others) -> 0o222
+                # We want to keep read (4) and execute (1) for directories.
+                # New mode = old mode & ~0o222
+                read_exec_only = current_perms & ~0o222
+                os.chmod(path, read_exec_only)
+            return True
+        return True
+    except PermissionError:
+        print(f"Permission denied: Could not create or modify permissions for {path}")
+        return False
+    except Exception as e:
+        print(f"Error ensuring directory {path}: {e}")
+        return False
 
 def main() -> None:
-    """Main entry point to setup data directories."""
+    """
+    Main entry point to set up the data directory structure.
+    Creates:
+    - data/raw/ (immutable)
+    - data/processed/
+    """
     root = get_project_root()
     data_dir = root / "data"
     raw_dir = data_dir / "raw"
     processed_dir = data_dir / "processed"
 
-    print(f"Project root detected at: {root}")
-    print(f"Setting up data directories under: {data_dir}")
+    print(f"Project Root: {root}")
+    print(f"Setting up data directories in: {data_dir}")
 
-    # Create raw directory (immutable)
-    ensure_directory(raw_dir, immutable=True)
-    
-    # Create processed directory (mutable)
-    ensure_directory(processed_dir, immutable=False)
+    success = True
 
-    print("Data directory structure setup complete.")
+    # Ensure base data directory
+    if not ensure_directory(data_dir):
+        success = False
 
+    # Ensure raw directory (immutable)
+    if not ensure_directory(raw_dir, make_immutable=True):
+        success = False
+    else:
+        print(f"Created/Verified: {raw_dir} (immutable)")
+
+    # Ensure processed directory
+    if not ensure_directory(processed_dir):
+        success = False
+    else:
+        print(f"Created/Verified: {processed_dir}")
+
+    if success:
+        print("Data directory structure setup complete.")
+    else:
+        print("Data directory structure setup failed with errors.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
