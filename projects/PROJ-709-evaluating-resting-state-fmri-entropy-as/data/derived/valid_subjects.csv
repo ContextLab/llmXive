@@ -1,0 +1,3 @@
+subject_id,n_timepoints,mean_fd
+# Valid subjects list will be populated when data_loader.py runs
+# Format: subject_id, n_timepoints, mean_fd

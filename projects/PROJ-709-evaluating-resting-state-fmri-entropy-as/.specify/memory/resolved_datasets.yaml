@@ -1,4 +1,4 @@
-resolved_at: '2026-07-08T22:01:00.177025+00:00'
+resolved_at: '2026-07-10T11:18:09.034695+00:00'
 datasets:
 - intent: ADHD-200
   status: unresolved
@@ -8,23 +8,26 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
-  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+  - url: https://repository.rcsi.com/articles/journal_contribution/Prognostic_factors_for_adulthood_psychosis_in_adolescent_psychiatry_services_a_longitudinal_total_birth_cohort_study/32947469
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Prognostic_factors_for_adulthood_psychosis_in_adolescent_psychiatry_services_a_longitudinal_total_birth_cohort_study/32947469
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/online_resource/Religious_animal_slaughter_immigration_and_global_trade_in_post-Brexit_Britain/32816894
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+  - url: https://figshare.com/articles/preprint/The_Domestic_Emission_Engine_How_Laundering_and_Drying_Release_Microfibers/32956544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Development_and_validation_of_a_clinical_prediction_model_for_postcontrast_acute_kidney_injury_in_patients_with_postoperative_acute_kidney_injury_of_acute_Stanford_type_A_aortic_dissection_docx/32956589
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Sustained_low_micromolar_hydrogen_peroxide_exposure_induces_sequential_red_blood_cell_dysfunction_tif/32956574
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -94,23 +97,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+  - url: https://tandf.figshare.com/articles/journal_contribution/_My_aim_is_to_contribute_to_a_meaningful_life_Experiences_of_physiotherapists_treating_children_and_adolescents_with_cerebral_palsy_experiencing_pain_a_qualitative_study/32956607
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+  - url: https://acs.figshare.com/articles/media/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956606
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+  - url: https://acs.figshare.com/articles/media/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+  - url: https://acs.figshare.com/articles/journal_contribution/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956600
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+  - url: https://acs.figshare.com/articles/journal_contribution/A_ROS-Responsive_Doxorubicin-Loaded_Liposomal_Strategy_Reduces_Postablation_Electrical_Conduction_Recovery_in_a_CARTO-Guided_Canine_Right_Atrial_Model/32956597
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -134,23 +137,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/35sxv/
+  - url: https://openneuro.org/datasets/ds008014/versions/1.0.0
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007354/versions/2.0.0
+  - url: https://zenodo.org/records/19656049
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008136/versions/1.0.0
+  - url: https://zenodo.org/records/19656049
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008066/versions/1.0.0
+  - url: https://openneuro.org/datasets/ds008162/versions/1.0.3
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds007058/versions/1.2.0
+  - url: https://openneuro.org/datasets/ds008162/versions/1.0.2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -158,23 +161,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+  - url: https://tandf.figshare.com/articles/dataset/Edible_Films_and_Coatings_with_Compostable_End-of-Life_Properties_as_Functional_Alternatives_to_Conventional_Flexible_Plastics_in_Food_Packaging/32956610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+  - url: https://tandf.figshare.com/articles/journal_contribution/_My_aim_is_to_contribute_to_a_meaningful_life_Experiences_of_physiotherapists_treating_children_and_adolescents_with_cerebral_palsy_experiencing_pain_a_qualitative_study/32956607
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+  - url: https://acs.figshare.com/articles/media/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956606
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+  - url: https://acs.figshare.com/articles/media/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956603
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+  - url: https://acs.figshare.com/articles/journal_contribution/Curvature_Fluctuations_of_Asymmetric_Photopolymerized_Networks_Impact_of_Solvent-Mediated_Interfacial_Exchanges/32956600
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -186,15 +189,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://reference-global.com/article/10.21307/sjcapp-2013-002
+  - url: https://doi.org/10.21307/sjcapp-2013-002
     source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
   - url: https://zenodo.org/records/15052754
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://reference-global.com/article/10.21307/sjcapp-2014-002
+  - url: https://zenodo.org/records/16178294
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -206,7 +209,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://boris-portal.unibe.ch/handle/20.500.12422/247933
+  - url: https://boris-portal.unibe.ch/entities/publication/a50174d2-73b6-4f6e-ac19-6a3dcb066f76
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -244,23 +247,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_3_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_4_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956622
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+  - url: https://frontiersin.figshare.com/articles/media/Supplementary_file_1_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_mov/32956625
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956616
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+  - url: https://tandf.figshare.com/articles/dataset/Edible_Films_and_Coatings_with_Compostable_End-of-Life_Properties_as_Functional_Alternatives_to_Conventional_Flexible_Plastics_in_Food_Packaging/32956610
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -268,23 +271,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5653600
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14857391
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14857335
+  - url: https://zenodo.org/records/5653600
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3823451
+  - url: https://zenodo.org/records/6430401
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21267970
+  - url: https://zenodo.org/records/6524616
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/6d94a006-57e6-4612-8832-fbd22c0c1e47
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.07694
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -292,15 +299,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384/2
+  - url: https://zenodo.org/records/21267970
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/HCP_32k_fs_LR_template_for_pycortex/32939384
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -349,23 +352,26 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/thesis/Supplemental_Materials_for_Impact_of_Active_Learning_on_Student_Understanding_in_Introductory_Atmospheric_Science_Laboratories_/32942546
+  - url: https://repository.rcsi.com/articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_3_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956619
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.mq.edu.au/articles/thesis/Effects_of_Host_Plants_and_Environmental_Factors_on_Biology_and_Pheromone_Production_of_Fall_Armyworm_Spodoptera_frugiperda_/32014020
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_4_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956622
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_3_raw_images_and_raw_data/32928575
+  - url: https://frontiersin.figshare.com/articles/media/Supplementary_file_1_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_mov/32956625
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Supplemental_Figures_raw_data/32928590
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Sub-lethal_imidacloprid_alters_honey_bee_brain_and_C_elegans_presynaptic_acetylcholine_transporters_and_postsynaptic_acetylcholine_receptor_density_-_Figure_2_raw_images_and_raw_data/32928524
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_2_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956616
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -389,23 +395,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/t9xea/
+  - url: https://researchdata.durham.ac.uk/files/r1pr76f348b
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/pfuza/
+  - url: https://researchdata.durham.ac.uk/files/r2hx11xf281
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://search.vivli.org/doiLanding/studies/00004775/isLanding
+  - url: https://arrow.tudublin.ie/ijap/vol14/iss1/8/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://search.vivli.org/doiLanding/dataPackages/PR00004775.0
+  - url: https://osf.io/cpk7e/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://search.vivli.org/doiLanding/dataPackages/PR00004773.0
+  - url: https://osf.io/5pzfs/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

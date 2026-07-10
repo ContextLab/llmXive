@@ -2,51 +2,67 @@
 
 ## Overview
 
-This document defines the data structures, schemas, and transformations used in the pipeline. All data is stored in local files (`data/`) and loaded into Pandas DataFrames or NumPy arrays during processing.
+This document defines the data structures used in the project, ensuring alignment with the `spec.md` and the `plan.md`. The data model is designed to be lightweight, compatible with the CPU-only CI environment, and strictly typed via YAML schemas.
 
 ## Core Entities
 
 ### 1. Subject
 Represents a single participant.
-- **Attributes**: `subject_id` (str), `diagnosis` (str: "ADHD" or "Control"), `adhd_rs_total` (float), `adhd_rs_inattention` (float), `adhd_rs_hyperactivity` (float), `fd_mean` (float), `volumes_post_scrub` (int), `scrub_fraction` (float).
-- **Constraints**: `volumes_post_scrub` >= 100. `adhd_rs_total` must be present for regression analysis.
+*   `subject_id`: String (Unique identifier).
+*   `diagnosis`: String ("ADHD" or "Control").
+*   `adhd_rs_score`: Float (Total score, optional).
+*   `subscale_inattention`: Float (Optional).
+*   `subscale_hyperactivity`: Float (Optional).
+*   `mean_fd`: Float (Mean Framewise Displacement).
+*   `scrub_fraction`: Float (Fraction of volumes removed).
+*   `exclusion_reason`: String (Optional, e.g., "short_time_series", "missing_phenotype").
 
-### 2. Parcel
-Represents a region of interest in the Schaefer 200 atlas.
-- **Attributes**: `parcel_index` (int: 0-199), `parcel_name` (str).
-- **Derived**: `entropy_value` (float).
+### 2. ParcelTimeSeries
+Represents the preprocessed BOLD signal for a single parcel.
+*   `subject_id`: String.
+*   `parcel_id`: Integer (1-200).
+*   `time_series`: List[Float] (Length N=120).
+*   `entropy_value`: Float (Computed Sample Entropy).
+*   `variance`: Float (Variance of the time series).
+*   `imputed`: Boolean (True if entropy was imputed due to zero variance).
 
 ### 3. FeatureMatrix
-The primary input for modeling.
-- **Shape**: (N_subjects, 200 + 50 + 1).
-- **Columns**: `subject_id`, `parcel_01`...`parcel_200` (Entropy), `pca_comp_01`...`pca_comp_50` (Connectivity), `scrub_fraction` (Covariate).
-- **Handling**: Missing values (zero variance parcels) are imputed with the median entropy of that parcel across the cohort (FR-009).
+The aggregated feature set for modeling.
+*   `subject_id`: String.
+*   `entropy_features`: List[Float] (Length 200).
+*   `connectivity_features`: List[Float] (Length 200, PCA reduced).
+*   `label_continuous`: Float (ADHD-RS score).
+*   `label_binary`: Integer (0=Control, 1=ADHD).
+*   `selected_features`: List[Integer] (Indices of features selected after RFE/L1).
 
-### 4. ConnectivityMatrix (Baseline)
-- **Shape**: (N_subjects, 200, 200).
-- **Processing**: Flattened to [deferred] features, then reduced to **50 PCA components** (retaining >95% variance) to ensure non-tautological comparison.
-- **Storage**: `connectivity_pca_features.csv` (N_subjects, 50).
-
-### 5. ModelOutput
-- **Attributes**: `model_type` (str), `metric` (str: "r", "AUC"), `mean_score` (float), `std_score` (float), `p_value` (float), `ci_lower` (float), `ci_upper` (float), `p_value_nested_test` (float).
+### 4. ModelMetrics
+Results from cross-validation and testing.
+*   `model_type`: String ("entropy", "connectivity", "combined").
+*   `metric_type`: String ("pearson_r", "auc").
+*   `mean_value`: Float.
+*   `std_value`: Float.
+*   `p_value_permutation`: Float.
+*   `fdr_significant_parcels`: List[Integer].
 
 ## Data Flow
 
-1.  **Raw Data**: NIfTI files (4D) + Phenotypic CSV (from OpenNeuro ds000305).
-2.  **Preprocessed**: Scrubbed time series -> **Truncate to N=120** -> SD Calculation -> Entropy Calculation.
-3.  **Features**: Entropy matrix (N x 200) + Connectivity PCA matrix (N x 50) + `scrub_fraction` covariate.
-4.  **Models**: Cross-validated metrics + Permutation p-values + Nested Model Test p-values.
-5.  **Reports**: JSON/CSV summaries + Plots (PNG) + `motion_confound_report.json`.
+1.  **Raw Data** (fMRI NIfTI, Phenotype CSV) -> **Preprocessing** (Scrubbing, Truncation, Motion Regression) -> **Parcel Time Series**.
+2.  **Parcel Time Series** -> **Entropy Calculation** -> **Entropy Feature Vector**.
+3.  **Parcel Time Series** -> **Connectivity Matrix** -> **PCA** -> **Connectivity Feature Vector**.
+4.  **Feature Vectors** -> **Feature Selection** -> **Reduced Feature Vector**.
+5.  **Reduced Feature Vectors** + **Labels** -> **Model Training** -> **ModelMetrics**.
 
-## Storage Strategy
+## Storage Format
 
-- **Raw**: `data/raw/*.nii.gz`, `data/raw/phenotype.csv`
-- **Processed**: `data/processed/subject_entropy_features.csv`, `data/processed/connectivity_pca.csv`
-- **Derived**: `data/derived/model_metrics.json`, `data/derived/permutation_results.csv`, `data/derived/motion_confound_report.json`, `data/derived/significant_parcels.csv`
-- **Logs**: `exclusions.log` (FR-007)
+All intermediate and final data will be stored in **CSV** (for tabular data) and **NIfTI** (for imaging, if retained).
+*   `data/processed/subject_entropy_features.csv`: The primary feature matrix.
+*   `data/processed/exclusions.log`: Log of excluded subjects.
+*   `data/processed/model_metrics.json`: Aggregated performance metrics.
 
-## Assumptions
+## Validation Rules
 
-- All NIfTI files are in MNI space and aligned with the Schaefer 200 atlas.
-- Phenotypic data is clean and matches subject IDs in the imaging data.
-- No PII is stored in the processed data files.
+*   **Entropy Range**: Values must be in [0.1, 1.5].
+*   **Time Series Length**: Exactly 120 for all included subjects.
+*   **Missing Values**: Must be imputed (median) before modeling.
+*   **Diagnosis**: Must be binary (0/1) for classification tasks.
+*   **Motion Confound**: If |r(entropy, FD)| > 0.3, a warning is logged.

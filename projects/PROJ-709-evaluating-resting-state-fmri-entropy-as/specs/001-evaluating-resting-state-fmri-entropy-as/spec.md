@@ -58,19 +58,19 @@ As a researcher, I need to validate the model results via permutation testing an
 - **Short Time Series**: If a subject has fewer than 100 time points after motion scrubbing, the system MUST exclude the subject and log the exclusion to `exclusions.log` with the subject ID and reason.
 - **Missing Phenotypic Data**: If a subject has missing ADHD-RS scores, the system MUST exclude them from the regression analysis but retain them for binary diagnosis if the diagnostic label is present.
 - **Zero Variance Parcels**: If a parcel has zero variance in the time series (e.g., signal dropouts), the system MUST set the entropy to the median value of that parcel across the cohort and log the event.
-- **Motion Confound**: If the correlation between entropy features and Framewise Displacement (FD) exceeds |0.3|, the system MUST flag the result as potentially confounded by motion in the final report.
+- **Motion Confound**: If the correlation between entropy features and Framewise Displacement (FD) exceeds a predefined significance threshold, the system MUST flag the result as potentially confounded by motion in the final report..
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: The system MUST compute sample entropy for every parcel in the Schaefer 200 atlas for every subject that meets the validity criteria (≥100 time points post-scrubbing), using embedding dimension m=2 and tolerance r=0.2 * standard deviation (See US-1).
-- **FR-002**: The system MUST implement a 5-fold stratified cross-validation loop that preserves the balance of diagnostic labels (ADHD vs. Control) in each fold (See US-2).
-- **FR-003**: The system MUST train and evaluate three distinct models: (1) Entropy-only, (2) Connectivity-only, and (3) Combined Entropy+Connectivity, storing all cross-validated metrics (See US-2).
-- **FR-004**: The system MUST perform 1,000 permutation tests by shuffling outcome labels while maintaining the feature matrix structure to derive empirical p-values (See US-3).
-- **FR-005**: The system MUST execute a sensitivity analysis sweeping the entropy tolerance parameter `r` over the set {0.15, 0.20, 0.25} and report the resulting performance variance (See US-3).
+- **FR-002**: The system MUST implement a stratified cross-validation loop that preserves the balance of diagnostic labels (ADHD vs. Control) in each fold. (See US-2).
+- **FR-003**: The system MUST train and evaluate three distinct models: () Entropy-only, (2) Connectivity-only, and (3) Combined Entropy+Connectivity, storing all cross-validated metrics (See US-2).
+- **FR-004**: The system MUST perform a sufficient number of permutation tests by shuffling outcome labels while maintaining the feature matrix structure to derive empirical p-values. (See US-3).
+- **FR-005**: The system MUST execute a sensitivity analysis sweeping the entropy tolerance parameter `r` over a representative range of values and report the resulting performance variance. (See US-3).
 - **FR-006**: The system MUST apply False Discovery Rate (FDR) correction to the parcel-level statistical tests to control for multiple comparisons (See US-3).
-- **FR-007**: The system MUST exclude subjects with fewer than 100 time points after motion scrubbing and log the exclusion to `exclusions.log` with the subject ID and reason (See US-1 Edge Cases).
+- **FR-007**: The system MUST exclude subjects with insufficient time points after motion scrubbing and log the exclusion to `exclusions.log` with the subject ID and reason. (See US-1 Edge Cases).
 - **FR-008**: The system MUST compute the baseline connectivity features by calculating the full 200x200 functional connectivity matrix ([deferred] features) for each subject, then applying Principal Component Analysis (PCA) to reduce the dimensionality to 200 components (See US-2).
 - **FR-009**: The system MUST impute missing or zero-variance parcel entropy values using the median entropy value of that specific parcel across the entire cohort (See US-1 Edge Cases).
 - **FR-010**: The system MUST calculate the standard deviation (SD) used for the entropy tolerance parameter `r` using ONLY the time points remaining after motion scrubbing (See US-1).

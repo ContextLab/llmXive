@@ -1,0 +1,21 @@
+? 'T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`,
+  `data/derived/`, `tests/`, and `docs/` directories; create `code/__init__.py` and
+  `.gitkeep` files in data directories.'
+: 2
+? 'T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install
+  dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`).
+  <!-- FAILED: unspecified -->'
+: 1
+? 'T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install
+  dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`).
+  <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->'
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+? 'T005 [P] Implement `code/data_loader.py` to fetch ADHD dataset `ds000305` from
+  OpenNeuro; verify checksums using SHA256 and write `data/raw/checksums.sha256`;
+  implement logic to filter subjects with < 100 time points (post-scrubbing simulation)
+  and log exclusions to `data/raw/exclusions.log` with headers: subject_id, reason,
+  fd_mean; **MUST write the filtered list of valid subjects to `data/derived/valid_subjects.csv`
+  to satisfy Constitution Principle III (Data Hygiene)**.'
+: 2
+'T007 Create base data structures: `Subject` (NIfTI path, phenotypic data), `Parcel` (index, mask), `EntropyFeature`': 1

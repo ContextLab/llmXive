@@ -1,50 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Entropy Features Schema"
-description: "Schema for the subject_entropy_features.csv output file containing Sample Entropy values for each Schaefer 200 parcel."
+description: "Schema for the subject_entropy_features.csv file containing parcel-wise Sample Entropy values."
 type: "object"
 properties:
-  header:
-    type: "object"
-    description: "Column names"
-    properties:
-      subject_id:
-        type: "string"
-        description: "Unique identifier for the subject"
-      parcel_01:
-        type: "number"
-        description: "Sample Entropy for parcel 1"
-      parcel_200:
-        type: "number"
-        description: "Sample Entropy for parcel 200"
-    required:
-      - "subject_id"
-      - "parcel_01"
-      - "parcel_200"
-  constraints:
-    type: "object"
-    properties:
-      entropy_range:
-        type: "string"
-        description: "Expected range of entropy values"
-        const: "0.1 to 1.5"
-      missing_values:
-        type: "string"
-        description: "Policy for missing values"
-        const: "Imputed with median of parcel across cohort"
-      motion_confound_threshold:
-        type: "string"
-        description: "Maximum allowed correlation between entropy and FD"
-        const: "|r| < 0.3"
-      processing_order:
-        type: "string"
-        description: "Order of operations for SD and Entropy"
-        const: "Truncate to N=120 -> Calculate SD -> Calculate Entropy"
-    required:
-      - "entropy_range"
-      - "missing_values"
-      - "motion_confound_threshold"
-      - "processing_order"
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  parcel_01:
+    type: "number"
+    description: "Sample Entropy for parcel 1."
+    minimum: 0.0
+    maximum: 2.0
+  parcel_02:
+    type: "number"
+    description: "Sample Entropy for parcel 2."
+    minimum: 0.0
+    maximum: 2.0
+  parcel_200:
+    type: "number"
+    description: "Sample Entropy for parcel 200."
+    minimum: 0.0
+    maximum: 2.0
+  diagnosis:
+    type: "string"
+    description: "Diagnostic label (ADHD or Control)."
+    enum: ["ADHD", "Control"]
+  adhd_rs_score:
+    type: "number"
+    description: "Total ADHD-RS score (may be null if missing)."
+    minimum: 0.0
+  mean_fd:
+    type: "number"
+    description: "Mean Framewise Displacement."
+    minimum: 0.0
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable."
 required:
-  - "header"
-  - "constraints"
+  - subject_id
+  - parcel_01
+  - parcel_200
+  - diagnosis
 additionalProperties: false

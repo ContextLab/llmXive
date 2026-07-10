@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Connectivity Features Schema"
+description: "Schema for the connectivity feature matrix (200 PCA components)."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  pc_01:
+    type: "number"
+    description: "Principal Component 1 from connectivity matrix."
+  pc_02:
+    type: "number"
+    description: "Principal Component 2 from connectivity matrix."
+  pc_200:
+    type: "number"
+    description: "Principal Component 200 from connectivity matrix."
+  diagnosis:
+    type: "string"
+    description: "Diagnostic label (ADHD or Control)."
+    enum: ["ADHD", "Control"]
+required:
+  - subject_id
+  - pc_01
+  - pc_200
+  - diagnosis
+additionalProperties: false

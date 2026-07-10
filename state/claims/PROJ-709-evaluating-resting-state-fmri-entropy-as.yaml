@@ -1,0 +1,252 @@
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: ADHD dataset ds000305 used from OpenNeuro
+  claim_id: c_6a83437d
+  context: Implement code/data_loader.py to fetch ADHD dataset ds000305 from OpenNeuro;
+    verify checksums using SHA256...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ADHD_dataset_ds000305_used_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The study uses the ADHD dataset ds000305 from OpenNeuro.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:45:23Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Subjects with <100 time points excluded
+  claim_id: c_27e3c5dd
+  context: '...implement logic to filter subjects with < 100 time points (post-scrubbing
+    simulation) and log exclusions...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_%3C100_time_points_excluded
+  kind: magnitude
+  raw_text: Subjects with fewer than 100 time points after scrubbing are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:46:28Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Time series truncated to 120 volumes
+  claim_id: c_effced33
+  context: 'Implement code/preprocessing.py: Subsample/Truncate valid subjects to
+    exactly N=120 volumes (FR-011).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Valid fMRI time series are subsampled or truncated to exactly 120 volumes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:46:43Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Sample Entropy m=2
+  claim_id: c_44baafb1
+  context: 'Implement code/config.py defining hyperparameters: m=2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample Entropy is computed with embedding dimension m=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:47:03Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: FD threshold 0.2mm for scrubbing
+  claim_id: c_e13913f2
+  context: 'Implement code/preprocessing.py: Calculate Framewise Displacement (FD),
+    scrub volumes > 0.2mm...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FD_threshold_0.2mm_for_scrubbing
+  kind: magnitude
+  raw_text: Volumes with Framewise Displacement (FD) greater than 0.2mm are scrubbed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:47:34Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Atlas with 200 parcels
+  claim_id: c_95c1bc62
+  context: 'Implement code/config.py defining hyperparameters: atlas_n=200...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses a brain atlas with 200 parcels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:48:27Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: PCA reduces connectivity to 200 components
+  claim_id: c_89bfb65c
+  context: 'Implement code/connectivity_engine.py: Apply PCA to reduce the 200x200
+    connectivity matrix to 200 components...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PCA is applied to reduce the connectivity matrix to 200 components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:48:52Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Connectivity features reduced to 20-50
+  claim_id: c_76de6191
+  context: Perform Feature Selection (RFE or L) on the 200 PCA components to reduce
+    the feature space to a stable subset (20-50 features)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature selection reduces the connectivity feature space to a subset of
+    20-50 features.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:49:13Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: 1000 permutation iterations
+  claim_id: c_ed508891
+  context: 'Independent Test: Run permutation (1000 iter) and sensitivity sweep...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:49:39Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep r in 0.15, 0.20, 0.25
+  claim_id: c_a6bfd4ae
+  context: "Implement code/validation.py: Sweep r \u2208 {0.15, 0.20, 0.25} and calculate\
+    \ performance variance..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps the r parameter across values 0.15, 0.20,
+    and 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:50:42Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Flag if |r| >= 0.3 for entropy-FD correlation
+  claim_id: c_e8c11a16
+  context: "Implement code/validation.py: Calculate correlation between mean entropy\
+    \ and mean FD; flag if |r| \u2265 0.3..."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3 for entropy-FD correlation'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Flag_if_r_%3E=_0.3_for_entropy-FD_correlation
+    source_value: https://en.wikipedia.org/wiki/Flag_if_r_>=_0.3_for_entropy-FD_correlation
+    subject: Flag if
+  kind: relational
+  raw_text: A correlation between mean entropy and mean FD with absolute value >=
+    0.3 is flagged as a potential confound.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:51:02Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: "Verify if \u0394r >= 0.05"
+  claim_id: c_df26cf81
+  context: "Calculate the raw difference in mean Pearson correlation (\u0394r) between\
+    \ Entropy-only and Connectivity-only models; verify if \u0394r \u2265 0.05..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A difference in mean Pearson correlation (\u0394r) of 0.05 or greater\
+    \ between Entropy-only and Connectivity-only models is verified."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:51:30Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: "Verify if 95% CI lower bound for \u0394AUC >= 0.05"
+  claim_id: c_f55b7054
+  context: "Extract the lower bound of the 95% CI and verify if it is \u2265 0.05..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The lower bound of the 95% confidence interval for \u0394AUC is verified\
+    \ to be >= 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:51:43Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Performance test on 50 subjects
+  claim_id: c_f20ae3b2
+  context: Run code/main.py --subset on 50 subjects, measure wall-clock time...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization test runs on a subset of 50 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:52:02Z'
+- artifact_path: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as/tasks.md
+  attempts: 1
+  canonical: Fail if runtime > 6h
+  claim_id: c_15f85979
+  context: '...fail if > 6h (Plan: ''Performance Goals'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance optimization test fails if wall-clock time exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T11:52:17Z'
