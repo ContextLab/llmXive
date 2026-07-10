@@ -1,0 +1,729 @@
+resolved_at: '2026-07-10T01:24:41.731303+00:00'
+datasets:
+- intent: ATE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/atenglens/taiwanese_english_translation/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ateffal/softskills/resolve/main/softskills_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ateebak/sidewalk-imagery/resolve/main/data/train-00000-of-00001-044fbf87a900da2c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/69ec8a7023951f22475c419c/f64a122d051825e71abf02e718dfd22eaa00f9accc15cf246783241908e13d7c?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_dataset_augmented_v9_boundary.csv%3B+filename%3D%22final_dataset_augmented_v9_boundary.csv%22%3B&Expires=1783650074&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjllYzhhNzAyMzk1MWYyMjQ3NWM0MTljL2Y2NGExMjJkMDUxODI1ZTcxYWJmMDJlNzE4ZGZkMjJlYWEwMGY5YWNjYzE1Y2YyNDY3ODMyNDE5MDhlMTNkN2NcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZmluYWxfZGF0YXNldF9hdWdtZW50ZWRfdjlfYm91bmRhcnkuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM2NTAwNzR9fX1dfQ__&Signature=MEQCH1QAWCbUvG6yguFMGJH7uf1Vk1R4e81jlSw27NofMpYCIQCWIcJsrIdVVaM1Ce9OMrMGoqsDoMieAQai-SItXlhJEw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/atenglens/taiwanese_english_translation/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ateffal/softskills/resolve/main/softskills_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ateebak/sidewalk-imagery/resolve/main/data/train-00000-of-00001-044fbf87a900da2c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Confidence_and_Competence_-_Going_further_with_65_000_Years_A_Short_History_of_Australian_Art/32952905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mapping_the_Morphological_Landscape_of_Dry_Hydrophilic_Brushes/32952900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3827021
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6396507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3547974
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7629625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4535943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/7a5d6ff2-e600-4d82-8ab5-8d17ebfdfffc
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Efficient_estimation_of_data_combination_models_by_the_method_of_auxiliary_to_study_tilting_AST_a_href_afn0001_target_blank_a_/1407387/3
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/n037t-sns20
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MNAR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pppereira3/HW4_REGRESSION_mnar/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 247704
+      parsed: true
+  - url: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar_mean_imputed/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pppereira3/HW4_REGRESSION_mnar/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar_mean_imputed/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pppereira3/HW4_REGRESSION_mnar_mean_imputed/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar_iter_imputed/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Confidence_and_Competence_-_Going_further_with_65_000_Years_A_Short_History_of_Australian_Art/32952905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mapping_the_Morphological_Landscape_of_Dry_Hydrophilic_Brushes/32952900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18414975
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1186/s12874-020-01180-y
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18161866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/ijai.v14.i4.pp2876-2888
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/3782678
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21277101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21277101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://refubium.fu-berlin.de/handle/fub188/53064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.05806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2312.07380
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: KNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/Mega-Fast-KNN-Captioning/resolve/main/blip2-knn-200m.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/wentingzhao/knn-prompt-datastore/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hscrown/knndata/resolve/main/KNN-Data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 254700
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/Mega-Fast-KNN-Captioning/resolve/main/blip2-knn-200m.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/wentingzhao/knn-prompt-datastore/resolve/main/data/train-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hscrown/knndata/resolve/main/KNN-Data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Confidence_and_Competence_-_Going_further_with_65_000_Years_A_Short_History_of_Australian_Art/32952905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mapping_the_Morphological_Landscape_of_Dry_Hydrophilic_Brushes/32952900
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19466367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.7272/Q6KK991S
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17937157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10996347
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.g05350g
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284008
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284008
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283245
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.34740/kaggle/dsv/17828382
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: MICE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 52723
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Confidence_and_Competence_-_Going_further_with_65_000_Years_A_Short_History_of_Australian_Art/32952905
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6240985
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14833120
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4813200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10578501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2rbnzs857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/35e15bad-aae6-4ca7-acbd-d23010ed3ff2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/fa9c8d93-6c06-4e6b-91a4-49fb9f02d7af
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/0af5bfc8-78db-4f3d-93d0-10a4c1f757bf
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/de90c299-5bfd-409b-8a5b-2e92d1f76342
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/22121310/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://www.openml.org/data/get_csv/22122393/mice.csv
+    source: openml
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+- intent: IPW
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mai-ll/ipw-sft-trajectories/resolve/main/all_correct_trajectories.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/simonpf/ipwg_spr_gmi_test/resolve/main/files.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 23629
+      parsed: true
+  - url: https://huggingface.co/datasets/iPwnds/finanalyst-training-data/resolve/main/training_data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 235894
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/simonpf/ipwg_spr_gmi_test/resolve/main/files.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/mai-ll/ipw-sft-trajectories/resolve/main/all_correct_trajectories.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/iPwnds/finanalyst-training-data/resolve/main/training_data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/iPwnds/finanalyst-training-data-final/resolve/main/training_data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/iPwnds/Project-Silkworm/resolve/main/data/dataset.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/GKTLF/30127018
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7528553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jstage.jst.go.jp/article/jahes/38/1/38_46/_article
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12558540
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7268661
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.jstage.jst.go.jp/article/sesj/35/5/35_350508/_article
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140979
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9kpn6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.07235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224886
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21224886
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PSM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_42_70b/resolve/main/2023-08-09T19:07:45.652340/details_harness|arc:challenge|25_2023-08-09T19:07:45.652340.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_007_13b/resolve/main/2023-08-09T13:37:17.110700/details_harness|arc:challenge|25_2023-08-09T13:37:17.110700.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_420/resolve/main/2023-08-09T21:30:53.861982/details_harness|arc:challenge|25_2023-08-09T21:30:53.861982.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_42_70b/resolve/main/2023-08-09T19:07:45.652340/details_harness|arc:challenge|25_2023-08-09T19:07:45.652340.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_007_13b/resolve/main/2023-08-09T13:37:17.110700/details_harness|arc:challenge|25_2023-08-09T13:37:17.110700.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__model_420/resolve/main/2023-08-09T21:30:53.861982/details_harness|arc:challenge|25_2023-08-09T21:30:53.861982.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__orca_mini_13b/resolve/main/2023-08-09T09:53:33.020588/details_harness|arc:challenge|25_2023-08-09T09:53:33.020588.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_psmathur__orca_mini_7b/resolve/main/2023-07-19T16:32:16.099234/details_harness|arc:challenge|25_2023-07-19T16:32:16.099234.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16946164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7773500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20071721
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11108987
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3578978
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20729045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20729045
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/74755/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=92f9f35f3fa64b348f5786e6afb4dfa4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/collections/Non-elective_colectomy_for_diverticulitis_in_the_U_S_a_retrospective_comparison_of_robotic_laparoscopic_and_open_approaches/8583747
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SyntheticDataset
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 33525
+      parsed: true
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 47385
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/coding-Jay/Synthetic-Datasets-Unity-CV/resolve/main/NewDatasetProduced0.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/ProGamerGov/synthetic-dataset-1m-dalle3-high-quality-captions/216b8becd8c112e2a87c08f9ce8f2d65247c8c09/source_column_values.txt?%2Fdatasets%2FProGamerGov%2Fsynthetic-dataset-1m-dalle3-high-quality-captions%2Fresolve%2Fmain%2Fsource_column_values.txt=&etag=%2287adfe3c7ae472408d4b8a63db1de1ca0e0865b2%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset1/resolve/main/syntheticdata.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tomaszj321/syntheticdataset4/resolve/main/syntheticdata4.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kamilakesbi/synthetic_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_cost_analysis_of_remifentanil_and_fentanyl_for_analgosedation_in_mechanically_ventilated_patients_in_intensive_care_Post_hoc_analysis_of_an_open-labelled_pilot_randomised_controlled_study/32952908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16809493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18733015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18733015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ImputationResult
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Tidal_Mixing_on_the_Antarctic_Continental_Slope_Enhances_Ocean_Heat_Transport_With_Implications_for_Sea_Ice/32952812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/School_of_Psychiatric_Nursing_Eket_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registr/32952917
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/School_of_Post_Basic_Midwifery_Urua-Akpan_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_/32952890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.unimelb.edu.au/articles/online_resource/Bridging_Now_to_Next_-_Coming_to_know_hear_and_understand_65_000_Years_A_Short_History_of_Australian_Art/32952914
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Phenylpropanoids_from_i_Rhodiola_fastigiata_i_Hook_f_Thomson_Fu_Crassulaceae_and_their_antiplasmodial_activities/32952897
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

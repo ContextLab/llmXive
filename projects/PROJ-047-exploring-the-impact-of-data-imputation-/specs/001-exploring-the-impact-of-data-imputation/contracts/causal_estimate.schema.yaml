@@ -1,0 +1,65 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CausalEstimate
+description: Schema for the final ATE estimates and bias metrics.
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Replication seed."
+  method:
+    type: string
+    enum: ["Mean", "KNN", "MICE"]
+    description: "Imputation method used."
+  estimator:
+    type: string
+    enum: ["IPW", "PSM"]
+    description: "Causal estimator used."
+  estimated_ate:
+    type: number
+    description: "Estimated Average Treatment Effect."
+  standard_error:
+    type: number
+    description: "Standard error of the estimate."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% Confidence Interval."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% Confidence Interval."
+  bias:
+    type: number
+    description: "Absolute bias (|estimated_ate - tau_true|)."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  beta:
+    type: number
+    description: "MNAR strength parameter used."
+  alpha:
+    type: number
+    description: "Intercept parameter used for missingness generation."
+  coverage_indicator:
+    type: boolean
+    description: "True if tau_true is within [ci_lower, ci_upper]."
+  baseline_ate:
+    type: number
+    description: "ATE from the Oracle/Complete Case baseline for this seed."
+  imputation_bias:
+    type: number
+    description: "Difference between estimated_ate and baseline_ate."
+required:
+  - seed
+  - method
+  - estimator
+  - estimated_ate
+  - standard_error
+  - ci_lower
+  - ci_upper
+  - bias
+  - rmse
+  - beta
+  - alpha
+  - coverage_indicator
+  - baseline_ate
+  - imputation_bias
+additionalProperties: false

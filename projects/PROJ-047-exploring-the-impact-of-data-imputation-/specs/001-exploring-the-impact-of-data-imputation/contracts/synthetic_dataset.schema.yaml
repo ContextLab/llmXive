@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SyntheticDataset
+description: Schema for generated synthetic data with MNAR missingness.
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Unique random seed for this replication."
+  N:
+    type: integer
+    description: "Sample size (e.g., 1000)."
+  beta:
+    type: number
+    description: "MNAR strength parameter (e.g., 0.5)."
+  tau_true:
+    type: number
+    description: "Ground truth Average Treatment Effect."
+  treatment:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    description: "Binary treatment variable."
+  outcome:
+    type: array
+    items:
+      oneOf:
+        - type: number
+        - type: "null"
+    description: "Continuous outcome variable (may contain nulls for missing)."
+  confounders:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Matrix of continuous confounders (N x K)."
+  missingness_indicator:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    description: "Binary indicator (1 if missing, 0 if observed)."
+required:
+  - seed
+  - N
+  - beta
+  - tau_true
+  - treatment
+  - outcome
+  - confounders
+  - missingness_indicator
+additionalProperties: false
