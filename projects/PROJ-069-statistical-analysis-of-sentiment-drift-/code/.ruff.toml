@@ -1,0 +1,3 @@
+# Extends pyproject.toml but can override specific rules if needed.
+# Currently, we rely on the configuration in pyproject.toml.
+target-version = "py311"

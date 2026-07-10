@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T006 [P] Implement `code/update_state.py` to automatically update `state/projects/...yaml` with artifact hashes for `data/raw/`, `data/processed/`, `data/metadata/`, and `code/` using SHA-256** — The provided `code/update_state.py` stops abruptly at the definition of `update_project_state` and is truncated, so the core logic that writes the computed SHA‑256 hashes to a `state/projects/...yaml` file is missing. Consequently the script does not fulfill the requirement to automatically update the state file.
+- **T007 [P] Setup environment configuration management (`.env` handling for FRED API keys, HF token)** — No .env handling code, configuration files, or documentation were provided; the claim lacks any tangible artifact demonstrating that FRED API keys and HuggingFace token are managed via environment variables. The required setup is missing.

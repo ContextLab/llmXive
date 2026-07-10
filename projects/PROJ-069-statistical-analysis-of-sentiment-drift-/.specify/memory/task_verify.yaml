@@ -1,0 +1,5 @@
+? T006 [P] Implement `code/update_state.py` to automatically update `state/projects/...yaml`
+  with artifact hashes for `data/raw/`, `data/processed/`, `data/metadata/`, and `code/`
+  using SHA-256
+: 2
+T007 [P] Setup environment configuration management (`.env` handling for FRED API keys, HF token): 2

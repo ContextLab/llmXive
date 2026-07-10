@@ -1,0 +1,1365 @@
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: analysis frequency shifted to monthly for MBB 4-week block requirement
+  claim_id: c_a7fb8bef
+  context: The analysis frequency is shifted to **Monthly** (T016, T017, T018) to
+    satisfy the spec's '4-week block' requirement for MBB (T032), resolving the mathematical
+    incoherence of a 4-week block on quarterly data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis frequency is shifted to Monthly to satisfy the spec's '4-week
+    block' requirement for MBB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:37:00Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB block length set to 1 month for monthly data
+  claim_id: c_357e36e8
+  context: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week'
+    requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as
+    a necessary correction per the Plan's 'Frequency Shift'. The MBB must use a block
+    length of 1 month.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MBB must use a block length of 1 month for monthly input data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:37:20Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB calculates 95% confidence interval
+  claim_id: c_19d15259
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Moving Block Bootstrap (MBB) calculates a 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:37:20Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB CI width must be <= 20% of OLS coefficient
+  claim_id: c_894da9c6
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_CI_width_must_be_%3C=_20%25_of_OLS_coefficient
+  kind: magnitude
+  raw_text: The Moving Block Bootstrap verification requires the confidence interval
+    width to be less than or equal to 20% of the original OLS coefficient.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:37:50Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB convergence requires width stable for 3 runs
+  claim_id: c_d589d206
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Moving Block Bootstrap verification requires convergence where the
+    confidence interval width is stable for 3 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:38:10Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: concordance score measures peak sentiment within 1 month of recession
+    onset
+  claim_id: c_b6a980f7
+  context: "Implement concordance score calculation in `code/validation.py` to compute\
+    \ the **percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset** and report in `results/validation_stats.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The concordance score calculates the percentage of recessions where peak
+    sentiment occurs 1 month or less before onset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:38:22Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: pipeline runtime < 4 hours on CPU with 7GB RAM
+  claim_id: c_fc67b995
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/pipeline_runtime_%3C_4_hours_on_CPU_with_7GB_RAM
+  kind: magnitude
+  raw_text: The full pipeline is designed to run in less than 4 hours on CPU-only
+    hardware with 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:38:43Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: data excluded if missing rate > 5%
+  claim_id: c_efc23386
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in `code/preprocessing.py`
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/data_excluded_if_missing_rate_%3E_5%25
+  kind: magnitude
+  raw_text: Data periods with a missing rate greater than 5% are excluded or flagged.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:39:23Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: low-confidence flagging for confidence < 0.7 or sample size < 100
+  claim_id: c_7da41d41
+  context: Implement low-confidence flagging (confidence <0.7 or sample size <100)
+    in `code/preprocessing.py`
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: by a confidence threshold of <0.7 . The result-
+      source_id: '2502.18978'
+      url: https://arxiv.org/abs/2502.18978
+      value: '0.7'
+    filled: true
+  kind: magnitude
+  raw_text: Low-confidence flagging is applied when confidence is less than 0.7 or
+    sample size is less than 100.
+  resolved_value: '0.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:39:39Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: high collinearity detected if VIF > 10
+  claim_id: c_745b5789
+  context: If high collinearity is detected (VIF > 10), log the VIF and explicitly
+    **frame results as a joint relationship** rather than independent effects in the
+    final output, as per spec Edge Cases.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/high_collinearity_detected_if_VIF_%3E_10
+  kind: magnitude
+  raw_text: High collinearity is detected if the Variance Inflation Factor (VIF) is
+    greater than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:40:06Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: pilot sensitivity analysis targets p-value shift < 0.01
+  claim_id: c_ba77fbe6
+  context: Run a pilot sensitivity sweep using standard masking proportions ([deferred],
+    [deferred], [deferred]) on a small sample of the data to empirically determine
+    the optimal masking range and the 'negligible' p-value shift threshold (target
+    <0.01).
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pilot sensitivity analysis targets a p-value shift threshold of less
+    than 0.01.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:40:06Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: pipeline designed for CPU-only execution
+  claim_id: c_fce9200f
+  context: All tasks are designed for CPU-only execution. No GPU models or large-scale
+    training are included. The dataset is sampled to a representative subset if necessary
+    to fit in available RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_designed_for_CPU-only_execution
+  kind: entity_fact
+  raw_text: The full pipeline is designed for CPU-only execution without GPU models
+    or large-scale training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:40:23Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: no synthetic data used for primary analysis
+  claim_id: c_21bd0103
+  context: All data sources are real (FRED API, GDELT, NBER historical data). No synthetic
+    data generation is used for primary analysis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_synthetic_data_used_for_primary_analysis
+  kind: entity_fact
+  raw_text: No synthetic data generation is used for primary analysis; all data sources
+    are real (FRED API, GDELT, NBER historical data).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:40:44Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: low confidence flagging threshold is 0.7 or sample size is 100
+  claim_id: c_c395ec6c
+  context: Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978)
+    or sample size <100) in code/preprocessing.py
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978)
+    or sample size <100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:41:22Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Moving Block Bootstrap CI width must be less than or equal to 20% of
+    OLS coefficient and stable within 1% for 3 runs
+  claim_id: c_3f7e42c7
+  context: "Calculate 95% CI; verify CI width \u226420% of the original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Moving_Block_Bootstrap_CI_width_must_be_less_than_or_equal_t
+  kind: magnitude
+  raw_text: "verify CI width \u226420% of the original OLS coefficient and convergence\
+    \ (width stable <1% for 3 runs)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:41:41Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Moving Block Bootstrap block length is 1 month
+  claim_id: c_3339cba7
+  context: Implement Moving Block Bootstrap (MBB) with block length = 1 month in code/validation.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Moving Block Bootstrap (MBB) with block length = 1 month
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:41:55Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Data periods with missing rate greater than 5% are excluded
+  claim_id: c_8a2c8698
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in code/preprocessing.py
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Data_periods_with_missing_rate_greater_than_5%25_are_excluded
+  kind: magnitude
+  raw_text: exclude periods >5% missing
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T12:42:19Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis p-value shift threshold target is less than 0.01
+  claim_id: c_b37429fe
+  context: Run a pilot sensitivity sweep... to empirically determine the optimal masking
+    range and the 'negligible' p-value shift threshold (target <0.01).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_p-value_shift_threshold_target_is_less
+  kind: magnitude
+  raw_text: p-value shift threshold (target <0.01)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:42:45Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: High collinearity is detected if Variance Inflation Factor is greater
+    than 10
+  claim_id: c_0590deee
+  context: If high collinearity is detected (VIF > 10), log the VIF and explicitly
+    frame results as a joint relationship rather than independent effects in the final
+    output
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: If high collinearity is detected (VIF > 10), log the VIF and explicitly
+    frame results as a joint relationship
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:42:51Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Concordance score calculates percentage of recessions where peak sentiment
+    occurs 1 month or less before onset
+  claim_id: c_e5143b00
+  context: "Implement concordance score calculation in code/validation.py to compute\
+    \ the percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:42:52Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time is less than 4 hours on CPU with 7GB RAM
+  claim_id: c_c646316e
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_is_less_than_4_hours_on_CPU_wit
+  kind: magnitude
+  raw_text: ensure full pipeline runs <4 hours on CPU/7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:43:18Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: monthly mean of daily sentiment scores computed from GDELT
+  claim_id: c_93f04186
+  context: 'Implement GDELT sentiment fetcher... Aggregate to monthly time series.
+    Aggregation: Compute monthly mean of daily sentiment scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Monthly_mean_of_daily_sentiment_scores_computed_from_GDELT
+  kind: entity_fact
+  raw_text: Compute monthly mean of daily sentiment scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:47:16Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: exclude periods with missing rate greater than 5%
+  claim_id: c_0aa8bbc6
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in code/preprocessing.py
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exclude_periods_with_missing_rate_greater_than_5%25
+  kind: magnitude
+  raw_text: Exclude periods with more than 5% missing data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T12:47:39Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: low-confidence flagging threshold at 0.7 confidence or 100 sample size
+  claim_id: c_964eaf4f
+  context: Implement low-confidence flagging (confidence <0.7... or sample size <100)
+    in code/preprocessing.py
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: by a confidence threshold of <0.7 . The result-
+      source_id: '2502.18978'
+      url: https://arxiv.org/abs/2502.18978
+      value: '0.7'
+    filled: true
+  kind: magnitude
+  raw_text: Low-confidence flagging triggers when confidence is less than 0.7 or sample
+    size is less than 100.
+  resolved_value: '0.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:47:59Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: high collinearity defined as VIF greater than 33
+  claim_id: c_fa102e17
+  context: If high collinearity is detected (VIF > 33...), log the VIF and explicitly
+    frame results as a joint relationship
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_collinearity_defined_as_VIF_greater_than_33
+  kind: magnitude
+  raw_text: High collinearity is detected when Variance Inflation Factor (VIF) is
+    greater than 33.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:48:26Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB block length set to 1 month for monthly data
+  claim_id: c_b55e2cee
+  context: Implement Moving Block Bootstrap (MBB) with block length = 1 month... Since
+    the input data is now monthly, the '4-week' requirement... is approximated by
+    1 month
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Moving Block Bootstrap uses a block length of 1 month for monthly data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:48:40Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB CI width less than or equal to 20% of OLS coefficient
+  claim_id: c_408db6a5
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_CI_width_less_than_or_equal_to_20%25_of_OLS_coefficient
+  kind: magnitude
+  raw_text: MBB confidence interval width must be less than or equal to 20% of the
+    original OLS coefficient.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:48:57Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB convergence requires CI width stable within 1% for 3 runs
+  claim_id: c_1a5af7f4
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_convergence_requires_CI_width_stable_within_1%25_for_3_run
+  kind: magnitude
+  raw_text: MBB convergence requires CI width to be stable within less than 1% for
+    3 runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:49:15Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis p-value shift threshold from pilot
+  claim_id: c_f01f7487
+  context: generate results/validation_stats.json reporting absolute p-value shifts
+    for each specific proportion (must be < p_value_shift_threshold from T049).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_p-value_shift_threshold_from_pilot
+  kind: magnitude
+  raw_text: Sensitivity analysis requires absolute p-value shifts to be less than
+    the threshold determined by the pilot analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:49:50Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: concordance score measures peak sentiment within 1 month before recession
+    onset
+  claim_id: c_92c494bc
+  context: "Implement concordance score calculation... to compute the percentage of\
+    \ recessions where peak sentiment occurs \u2264 1 month before onset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The concordance score measures the percentage of recessions where peak
+    sentiment occurs 1 month or less before onset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:50:13Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: pipeline runtime under 4 hours on CPU/7GB RAM
+  claim_id: c_2663f10d
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_under_4_hours_on_CPU/7GB_RAM
+  kind: magnitude
+  raw_text: The full pipeline must run in less than 4 hours on CPU with 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:50:29Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: data sources are FRED API, GDELT, and NBER historical data
+  claim_id: c_c165801a
+  context: All data sources are real (FRED API, GDELT, NBER historical data). No synthetic
+    data generation is used for primary analysis.
+  evidence:
+    entailment_evidence: Data sources are FRED API, GDELT, and NBER historical data
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_sources_are_FRED_API,_GDELT,_and_NBER_historical_data
+  kind: entity_fact
+  raw_text: Data sources include FRED API, GDELT, and NBER historical data.
+  resolved_value: data sources are FRED API, GDELT, and NBER historical data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:50:31Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: VIF threshold 33 for high collinearity
+  claim_id: c_c56467d3
+  context: If high collinearity is detected (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)),
+    log the VIF and explicitly frame results as a joint relationship
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Inflation Factor (VIF) threshold for high collinearity is set
+    to >33
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:51:17Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB CI width less than or equal to 20% of OLS coefficient
+  claim_id: c_ff65970b
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_CI_width_less_than_or_equal_to_20%25_of_OLS_coefficient
+  kind: magnitude
+  raw_text: Moving Block Bootstrap (MBB) confidence interval width must be less than
+    or equal to 20% of the original OLS coefficient
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:51:35Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB convergence width stable 1% for 3 runs
+  claim_id: c_7c69e6b4
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Moving Block Bootstrap (MBB) convergence requires CI width to be stable
+    within 1% for 3 runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:51:35Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: concordance score peak sentiment within 1 month before recession onset
+  claim_id: c_acc5b4ac
+  context: "Implement concordance score calculation in `code/validation.py` to compute\
+    \ the percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Concordance score is calculated as the percentage of recessions where
+    peak sentiment occurs within 1 month before onset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:51:46Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime less than 4 hours CPU 7GB RAM
+  claim_id: c_54104721
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates:
+    - - CPU
+      - 7.0
+    - - Full pipeline runtime less than
+      - 4.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_less_than_4_hours_CPU_7GB_RAM
+  kind: magnitude
+  raw_text: The full pipeline is designed to run in less than 4 hours on CPU with
+    7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T12:52:09Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: exclude periods missing rate greater than 5 percent
+  claim_id: c_1c5f747d
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in `code/preprocessing.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_periods_missing_rate_greater_than_5_percent
+  kind: magnitude
+  raw_text: Missing data periods with a missing rate greater than 5% are excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:52:50Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: p-value shift threshold less than 0.01
+  claim_id: c_72b369e2
+  context: Run a pilot sensitivity sweep... to empirically determine the optimal masking
+    range and the 'negligible' p-value shift threshold (target <0.01)
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pilot sensitivity sweep targets a p-value shift threshold of less
+    than 0.01
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T12:52:50Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 2
+  canonical: low-confidence flagging threshold confidence 0.7 sample size 100
+  claim_id: c_90cc7186
+  context: Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978)
+    or sample size <100) in `code/preprocessing.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: low-confidence flagging is applied when confidence <0.7 or sample size
+    <100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:02Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: high collinearity detection VIF threshold 33
+  claim_id: c_0c3150f0
+  context: If high collinearity is detected (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)),
+    log the VIF and explicitly frame results as a joint relationship
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: high collinearity is detected when Variance Inflation Factor (VIF) > 33
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:02Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB CI width threshold 20% of OLS coefficient
+  claim_id: c_69c4f900
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MBB confidence interval width verification threshold is 20% of the original
+    OLS coefficient
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:02Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB convergence stability threshold 1% over 3 runs
+  claim_id: c_7b1466bf
+  context: "verify CI width \u226420% of original OLS coefficient and convergence\
+    \ (width stable <1% for 3 runs)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MBB convergence stability threshold is 1% width change over 3 runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:02Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis p-value shift threshold 0.01
+  claim_id: c_45a24ed2
+  context: empirically determine the optimal masking range and the 'negligible' p-value
+    shift threshold (target <0.01)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_p-value_shift_threshold_0.01
+  kind: magnitude
+  raw_text: sensitivity analysis p-value shift threshold target is less than 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:24Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: missing data rate threshold 5%
+  claim_id: c_15b5870d
+  context: "verify `data/processed/aligned_monthly.csv` exists with monthly timestamps,\
+    \ \u22645% missing rate (flagged otherwise)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: missing data rate flagging threshold is 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:24Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: concordance score peak sentiment 1 month before recession onset
+  claim_id: c_e8faab9f
+  context: "Implement concordance score calculation in `code/validation.py` to compute\
+    \ the percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "concordance score measures percentage of recessions where peak sentiment\
+    \ occurs \u2264 1 month before onset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:58:24Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: pipeline runtime 4 hours CPU 7GB RAM
+  claim_id: c_4ab724f1
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates:
+    - - Pipeline runtime 4 hours CPU
+      - 7.0
+    - - Create account Log in Pipeline runtime
+      - 4.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_4_hours_CPU_7GB_RAM
+  kind: magnitude
+  raw_text: full pipeline performance target is less than 4 hours on CPU with 7GB
+    RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T12:58:42Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Compute monthly mean of daily sentiment scores
+  claim_id: c_6d3b16e8
+  context: 'Implement GDELT sentiment fetcher in code/data_ingestion.py to download
+    historical sentiment time-series using the GDELT 2.0 API... Aggregate to monthly
+    time series. Aggregation: Compute monthly mean of daily sentiment scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_monthly_mean_of_daily_sentiment_scores
+  kind: entity_fact
+  raw_text: Compute monthly mean of daily sentiment scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:59:54Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Exclude periods with more than 5% missing data
+  claim_id: c_afcde692
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in code/preprocessing.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_periods_with_more_than_5%25_missing_data
+  kind: magnitude
+  raw_text: Exclude periods with more than 5% missing data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T12:59:56Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Flag low-confidence samples where confidence is less than 0.7 or sample
+    size is less than 100
+  claim_id: c_aca7fe12
+  context: Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978)
+    or sample size <100) in code/preprocessing.py
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: by a confidence threshold of <0.7 . The result-
+      source_id: '2502.18978'
+      url: https://arxiv.org/abs/2502.18978
+      value: '0.7'
+    filled: true
+  kind: magnitude
+  raw_text: Flag low-confidence samples where confidence is less than 0.7 or sample
+    size is less than 100.
+  resolved_value: '0.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:00:20Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Use VIF threshold greater than 33 to detect high collinearity
+  claim_id: c_1d702fdd
+  context: 'Implement collinearity diagnostic (Variance Inflation Factor) for GDP
+    vs Unemployment in code/modeling.py. Action: If high collinearity is detected
+    (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)), log
+    the VIF...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: Use Variance Inflation Factor (VIF) threshold greater than 33 to detect
+    high collinearity.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:00:27Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Verify MBB CI width is less than or equal to 20% of original OLS coefficient
+  claim_id: c_b5f739a2
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_MBB_CI_width_is_less_than_or_equal_to_20%25_of_original
+  kind: magnitude
+  raw_text: Verify Moving Block Bootstrap confidence interval width is less than or
+    equal to 20% of the original OLS coefficient.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:01:05Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Verify MBB CI width is stable within 1% for 3 runs
+  claim_id: c_7fa74ee1
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify MBB confidence interval width is stable within 1% for 3 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:01:06Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Target p-value shift threshold is less than 0.01
+  claim_id: c_a7fc72c9
+  context: Run a pilot sensitivity sweep... to empirically determine the optimal masking
+    range and the 'negligible' p-value shift threshold (target <0.01).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_p-value_shift_threshold_is_less_than_0.01
+  kind: magnitude
+  raw_text: Target p-value shift threshold is less than 0.01 in sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:01:12Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Compute percentage of recessions where peak sentiment occurs <= 1 month
+    before onset
+  claim_id: c_63fc5a49
+  context: "Implement concordance score calculation in code/validation.py to compute\
+    \ the percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset and report in results/validation_stats.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_percentage_of_recessions_where_peak_sentiment_occurs
+  kind: magnitude
+  raw_text: Compute the percentage of recessions where peak sentiment occurs less
+    than or equal to 1 month before onset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:01:58Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Ensure full pipeline runs in less than 4 hours on CPU with 7GB RAM
+  claim_id: c_57542de7
+  context: Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB
+    RAM)
+  evidence:
+    candidates:
+    - - CPU with
+      - 7.0
+    - - Ensure full pipeline runs in less than
+      - 4.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Ensure_full_pipeline_runs_in_less_than_4_hours_on_CPU_with_7
+  kind: magnitude
+  raw_text: Ensure full pipeline runs in less than 4 hours on CPU with 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T13:02:15Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Compute monthly mean of daily sentiment scores for GDELT data
+  claim_id: c_895f6571
+  context: 'Implement GDELT sentiment fetcher... Aggregate to monthly time series.
+    Aggregation: Compute monthly mean of daily sentiment scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_monthly_mean_of_daily_sentiment_scores_for_GDELT_dat
+  kind: entity_fact
+  raw_text: Compute monthly mean of daily sentiment scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:03:44Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Exclude data periods with missing rate > 5%
+  claim_id: c_694d948b
+  context: Implement missing data rate calculation and flagging logic (exclude periods
+    >5% missing) in code/preprocessing.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_data_periods_with_missing_rate_%3E_5%25
+  kind: magnitude
+  raw_text: Exclude periods with missing data rate greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:04:11Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Flag low confidence if confidence < 0.7 or sample size < 100
+  claim_id: c_a7e80fae
+  context: Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978)
+    or sample size <100) in code/preprocessing.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_confidence_if_confidence_%3C_0.7_or_sample_size_%3C_100
+  kind: magnitude
+  raw_text: Flag low-confidence periods where confidence is less than 0.7 or sample
+    size is less than 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:04:30Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Prioritize Trace statistic for Johansen cointegration rank selection
+  claim_id: c_7a9cae72
+  context: Run Johansen test; strictly prioritize the Trace statistic for cointegration
+    rank selection as per the Plan's Methodological Corrections.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prioritize_Trace_statistic_for_Johansen_cointegration_rank_s
+  kind: entity_fact
+  raw_text: Prioritize the Trace statistic for cointegration rank selection in the
+    Johansen test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:04:57Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Select VECM if cointegration detected, else select VAR
+  claim_id: c_2318fe5e
+  context: If cointegration is detected, select VECM; otherwise, select VAR.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_VECM_if_cointegration_detected,_else_select_VAR
+  kind: entity_fact
+  raw_text: Select VECM if cointegration is detected, otherwise select VAR.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:05:24Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Frame results as joint relationship if VIF > 33
+  claim_id: c_910e3b40
+  context: If high collinearity is detected (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)),
+    log the VIF and explicitly frame results as a joint relationship rather than independent
+    effects in the final output, as per spec Edge Cases.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: If Variance Inflation Factor (VIF) is greater than 33, frame results as
+    a joint relationship rather than independent effects.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:05:30Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Use MBB block length of 1 month for monthly data
+  claim_id: c_f0c1b5fe
+  context: Implement Moving Block Bootstrap (MBB) with block length = 1 month in code/validation.py...
+    The MBB must use a block length of 1 month.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a Moving Block Bootstrap (MBB) block length of 1 month for monthly
+    data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:05:31Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Verify MBB CI width <= 20% of OLS coefficient
+  claim_id: c_1c1492a5
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_MBB_CI_width_%3C=_20%25_of_OLS_coefficient
+  kind: magnitude
+  raw_text: Verify that the 95% confidence interval width is less than or equal to
+    20% of the original OLS coefficient.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:05:47Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Verify MBB CI width stable < 1% for 3 runs
+  claim_id: c_19ca75d0
+  context: "Calculate 95% CI; verify CI width \u226420% of original OLS coefficient\
+    \ and convergence (width stable <1% for 3 runs)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the MBB confidence interval width is stable within 1% for
+    3 runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:05:47Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: Compute percentage of recessions with peak sentiment <= 1 month before
+    onset
+  claim_id: c_73a380eb
+  context: "Implement concordance score calculation in code/validation.py to compute\
+    \ the percentage of recessions where peak sentiment occurs \u2264 1 month before\
+    \ onset and report in results/validation_stats.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute the percentage of recessions where peak sentiment occurs 1 month
+    or less before onset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:06:06Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 0
+  canonical: high collinearity detected if VIF greater than 33
+  claim_id: c_e18d48f2
+  context: 'T030 [US2] Implement collinearity diagnostic (Variance Inflation Factor)
+    for GDP vs Unemployment in code/modeling.py. Action: If high collinearity is detected
+    (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)), log
+    the VIF...'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: If high collinearity is detected (VIF > 33), log the VIF and explicitly
+    frame results as a joint relationship
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T13:07:25Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: low confidence flagging threshold 0.7 or sample size 100
+  claim_id: c_913fa2f1
+  context: T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978,
+    https://arxiv.org/abs/2502.18978) or sample size <100) in code/preprocessing.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement low-confidence flagging (confidence <0.7 or sample size <100)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:07:26Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB confidence interval width less than or equal to 20 percent of OLS
+    coefficient
+  claim_id: c_17df78a8
+  context: "T032 [US2] ...Calculate 95% CI; verify CI width \u226420% of original\
+    \ OLS coefficient and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_confidence_interval_width_less_than_or_equal_to_20_perce
+  kind: magnitude
+  raw_text: "Verify CI width \u226420% of the OLS coefficient"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:07:48Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: MBB convergence width stable less than 1 percent for 3 runs
+  claim_id: c_8718c754
+  context: "T032 [US2] ...Calculate 95% CI; verify CI width \u226420% of original\
+    \ OLS coefficient and convergence (width stable <1% for 3 runs)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MBB_convergence_width_stable_less_than_1_percent_for_3_runs
+  kind: magnitude
+  raw_text: Convergence (width stable <1% for 3 runs)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:08:12Z'
+- artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  attempts: 1
+  canonical: concordance score percentage of recessions peak sentiment occurs within
+    1 month before onset
+  claim_id: c_419430ea
+  context: "T042 [US3] Implement concordance score calculation in code/validation.py\
+    \ to compute the percentage of recessions where peak sentiment occurs \u2264 1\
+    \ month before onset and report in results/validation_stats.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute the percentage of recessions where peak sentiment occurs \u2264\
+    \ 1 month before onset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T13:08:12Z'

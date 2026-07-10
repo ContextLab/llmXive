@@ -1,0 +1,38 @@
+# Core dependencies for llmXive Sentiment Drift Project
+# Generated for reproducibility per Constitution Principle I
+
+# Environment management
+python-dotenv==1.0.1 \
+    --hash=sha256:e5e1e6a0e5b5c0e5c5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5
+
+# Data processing and analysis
+pandas==2.2.2 \
+    --hash=sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b
+numpy==1.26.4 \
+    --hash=sha256:2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b
+
+# Statistical modeling
+statsmodels==0.14.2 \
+    --hash=sha256:3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c
+scikit-learn==1.5.0 \
+    --hash=sha256:4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d
+
+# Data ingestion
+requests==2.32.3 \
+    --hash=sha256:5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e
+fredapi==0.5.1 \
+    --hash=sha256:6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f
+
+# Visualization
+matplotlib==3.9.0 \
+    --hash=sha256:7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a
+
+# Schema validation
+pydantic==2.7.4 \
+    --hash=sha256:8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b
+
+# Testing
+pytest==8.2.2 \
+    --hash=sha256:9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+
+# Note: Hash values are placeholders. Run `pip-compile --generate-hashes requirements.in` to get real hashes.

@@ -9,3 +9,26 @@
   verification_status: pending
   verified_against_url: https://www.nber.org/research/business-cycle-dating
   verified_at: '2026-07-09T20:17:21.493831Z'
+- artifact_hash: bba6d86093ef34bd939b3e8b91bea80e34e43fdefa13f555e394a5526232ebe9
+  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2502.18978] Low-Confidence Gold: Refining Low-Confidence Samples
+    for Efficient Instruction Tuning'
+  kind: url
+  value: https://arxiv.org/abs/2502.18978
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2502.18978
+  verified_at: '2026-07-10T13:07:12.834773Z'
+- artifact_hash: bba6d86093ef34bd939b3e8b91bea80e34e43fdefa13f555e394a5526232ebe9
+  artifact_path: projects/PROJ-069-statistical-analysis-of-sentiment-drift-/specs/001-statistical-analysis-of-sentiment-drift/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-07-10T13:07:12.834773Z'

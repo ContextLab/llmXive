@@ -1,0 +1,20 @@
+# Core Data Science & Modeling
+pandas>=2.0.0
+numpy>=1.24.0
+statsmodels>=0.14.0
+scikit-learn>=1.3.0
+
+# Data Ingestion & APIs
+requests>=2.31.0
+fredapi>=0.5.1
+pygdelt>=2.0.0
+
+# Validation & Statistics
+scipy>=1.11.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Utilities
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+pip-tools>=7.3.0

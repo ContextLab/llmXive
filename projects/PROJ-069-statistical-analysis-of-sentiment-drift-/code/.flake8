@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E501, B008
+exclude = .git,__pycache__,venv,.venv,build,dist
+per-file-ignores =
+    tests/*:S101
