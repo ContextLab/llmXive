@@ -1,0 +1,7 @@
+T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory: 1
+'T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested -->': 1
+? 'T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root
+  directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
+: 2

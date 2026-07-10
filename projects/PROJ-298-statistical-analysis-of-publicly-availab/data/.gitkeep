@@ -1,0 +1,3 @@
+# This directory is managed by the llmXive pipeline.
+# It contains raw, processed, events, and taxonomy data.
+# Do not commit large binary files directly; use .gitkeep or .gitignore rules.

@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->** — No evidence of a `projects/PROJ-298-statistical-analysis-of-publicly-availab/` directory (or any files within it) is present; the response only contains a feature specification description, not the required filesystem artifact. The required root directory is missing.
+- **T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-298-statistical-analysis-of-publicly-availab/`** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or pre‑commit hook scripts) are present in the `projects/PROJ-298-statistical-analysis-of-publicly-availab/` directory, nor any evidence that flake8/black have been set up. The required artifacts are missing, so the task is not satisfied.

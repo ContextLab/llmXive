@@ -1,0 +1,3 @@
+# This directory is reserved for Jupyter notebooks used in the research pipeline.
+# Notebooks should be created by implementing tasks in Phase 3+.
+# Do not commit large output files; use .gitignore for *.ipynb_checkpoints.
