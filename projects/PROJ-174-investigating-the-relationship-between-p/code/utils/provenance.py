@@ -79,3 +79,23 @@ def write_meta(
     
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta_dict, f, indent=2, sort_keys=True)
+
+def generate_provenance_for_dataset(dataset_path: str, source_id: str) -> str:
+    """
+    Convenience function to generate provenance metadata for a dataset file.
+    
+    Args:
+        dataset_path: Path to the dataset file.
+        source_id: Identifier for the data source.
+        
+    Returns:
+        Path to the generated metadata file.
+    """
+    meta_dict = {
+        "dataset_id": os.path.basename(dataset_path),
+        "source": source_id,
+        "processing_version": "1.0.0"
+    }
+    write_meta(dataset_path, meta_dict, source=source_id)
+    base, _ = os.path.splitext(dataset_path)
+    return f"{base}_meta.json"

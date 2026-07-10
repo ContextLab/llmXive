@@ -60,7 +60,7 @@
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `mne`, `pyyaml`, `tqdm`, `opencv-python-headless`, `requests`, `datasets`, `python-dotenv`, `radon`
 - [X] T002b [P] Setup Python 3.11 virtual environment in `code/` and install dependencies
 - [X] T003 [P] Create `code/.flake8` and `code/pyproject.toml` with linting rules (max-line-length=88, etc.); verify by running `black --check code/` and ensuring exit code 0
-- [ ] T004 [P] Create `code/config.yaml` with keys: `seeds` (int), `thresholds` (dict), `paths` (dict); verify by parsing in a test script `tests/test_config.py`
+- [X] T004 [P] Create `code/config.yaml` with keys: `seeds` (int), `thresholds` (dict), `paths` (dict); verify by parsing in a test script `tests/test_config.py`
 - [ ] T005 Setup logging infrastructure: Initialize `code/logging_config.py` to write to `code/logs/preprocess.log` and initialize `results/quality_report.csv` with headers `[exclusion_type, count]`; verify by asserting file creation and column presence. **Note: This task must complete before T002c and T017.**
 - [ ] T006 [P] Create `code/data_model.py` defining classes: `Dataset(subject_id, trial_id, timestamp, pupil_diameter, x, y, search_time, target_salience, fixation_count)` and `ModelResult(coefficients, std_errors, p_values, log_likelihood)`
 - [ ] T007 [P] Implement `code/utils/provenance.py` with functions `hash_file(path)` and `write_meta(path, meta_dict)`; verify by generating `data/raw/*_meta.json` with keys `[hash, timestamp, source]`
@@ -68,7 +68,7 @@
 
 ### Data Verification Hard Gate (MUST precede US1/US2/US3)
 
-- [ ] T002c [P] Implement `code/verify_data_availability.py`: Parse the `# Verified datasets` block in `plan.md`.
+- [X] T002c [P] Implement `code/verify_data_availability.py`: Parse the `# Verified datasets` block in `plan.md`.
  - **Logic**: If the block is empty OR contains ONLY invalid sources (e.g., fMRI datasets like ds001734/2642 identified by content type in plan.md), HALT (Exit 1) with message "ERROR: No verified eye-tracking dataset found. Pipeline cannot proceed."
  - **Logic**: If valid eye-tracking datasets are found, download to `data/raw/`.
  - **Constraint**: Do NOT hardcode specific ID rejections; rely on the content of `plan.md`'s 'Verified datasets' block.

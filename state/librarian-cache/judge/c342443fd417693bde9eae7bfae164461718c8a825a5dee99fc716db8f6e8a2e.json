@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.08355",
+  "judged_at": "2026-07-10T21:34:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for \"in-context learning\" and \"meta-learning\" techniques, and criterion (a) by investigating the same core mechanism (in-context world/task modeling) applied to a different domain (protein sequences vs. robotic control), which is essential for a literature review comparing cross-domain applications of the method.",
+  "relevant": true
+}

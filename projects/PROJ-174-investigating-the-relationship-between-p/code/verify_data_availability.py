@@ -1,9 +1,9 @@
 """
-Verify data availability for the pupil dilation study.
+verify_data_availability.py
 
-Parses the '# Verified datasets' block in plan.md to identify valid
-eye-tracking datasets. Downloads valid datasets to data/raw/ if not present.
-Halts execution if no valid eye-tracking datasets are found.
+Parses the '# Verified datasets' block in plan.md to determine if valid
+eye-tracking datasets are available. If no valid source is found, the script
+halts with exit code 1. If valid sources exist, it downloads them to data/raw/.
 """
 import os
 import sys
@@ -11,275 +11,232 @@ import re
 import json
 import hashlib
 import logging
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime, timezone
 import requests
-from tqdm import tqdm
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.provenance import hash_file, write_meta
-
-# Setup logging
+# Configure logging for this script
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-PLAN_MD_PATH = project_root / "plan.md"
-DATA_RAW_DIR = project_root / "data" / "raw"
+PLAN_MD_PATH = Path("plan.md")
+DATA_RAW_DIR = Path("data/raw")
 META_SUFFIX = "_meta.json"
-
-# Valid content types for eye-tracking datasets
-VALID_CONTENT_TYPES = [
-    "eye-tracking",
-    "eyetracking",
-    "pupil",
-    "pupillometry"
-]
-
-# Invalid content types (e.g., fMRI, EEG)
-INVALID_CONTENT_TYPES = [
-    "fMRI",
-    "fmri",
-    "MRI",
-    "mri",
-    "EEG",
-    "eeg",
-    "MEG",
-    "meg"
-]
+EYE_TRACKING_KEYWORDS = ["eye-tracking", "eyetracking", "pupil", "gaze"]
+INVALID_CONTENT_TYPES = ["fMRI", "structural", "diffusion", "EEG", "MEG"]
 
 def parse_verified_datasets_block(plan_path: Path) -> List[Dict[str, Any]]:
     """
-    Parse the '# Verified datasets' block from plan.md.
+    Parses the '# Verified datasets' block from plan.md.
     
-    Returns a list of dictionaries containing dataset information.
+    Returns a list of dictionaries containing dataset metadata (id, url, type).
+    Returns an empty list if the block is not found or empty.
     """
     if not plan_path.exists():
         logger.error(f"Plan file not found: {plan_path}")
         return []
-    
+
     with open(plan_path, 'r', encoding='utf-8') as f:
         content = f.read()
-    
-    # Find the '# Verified datasets' block
-    # Pattern: starts with "# Verified datasets" and ends before next major section or end of file
-    pattern = r'# Verified datasets\s*\n(.*?)(?=\n#|\n##|\Z)'
+
+    # Regex to find the block starting with '# Verified datasets'
+    # and capturing everything until the next top-level header or end of file
+    pattern = r'#\s*Verified datasets\s*\n(.*?)(?=\n#|\Z)'
     match = re.search(pattern, content, re.DOTALL | re.IGNORECASE)
-    
+
     if not match:
         logger.warning("No '# Verified datasets' block found in plan.md")
         return []
-    
+
     block_content = match.group(1).strip()
+    
+    if not block_content:
+        logger.warning("The '# Verified datasets' block is empty.")
+        return []
+
     datasets = []
-    
-    # Parse dataset entries (assuming format: - ID: description or similar)
-    # Common formats:
-    # - ds001234: description
-    # - ID: ds001234 | type: eye-tracking | ...
-    # - OpenNeuro: ds001234
-    
     lines = block_content.split('\n')
-    current_dataset = {}
+    
+    current_entry = {}
     
     for line in lines:
         line = line.strip()
         if not line or line.startswith('#'):
             continue
         
-        # Check for new dataset entry (starts with - or bullet)
-        if line.startswith('-') or line.startswith('*'):
-            # Save previous dataset if exists
-            if current_dataset:
-                datasets.append(current_dataset)
-            current_dataset = {}
+        # Parse key-value pairs (e.g., "- ID: ds000001")
+        if line.startswith('-'):
+            # If we have a pending entry, save it
+            if current_entry and current_entry.get('id'):
+                datasets.append(current_entry)
+            current_entry = {}
             line = line[1:].strip()
         
-        # Parse key-value pairs
         if ':' in line:
             key, value = line.split(':', 1)
             key = key.strip().lower()
             value = value.strip()
-            
-            if key in ['id', 'dataset', 'openneuro', 'ds']:
-                current_dataset['id'] = value
-            elif key in ['type', 'content_type', 'modality']:
-                current_dataset['content_type'] = value
-            elif key in ['description', 'desc']:
-                current_dataset['description'] = value
-            elif key in ['url', 'download_url']:
-                current_dataset['url'] = value
-            elif key in ['format', 'data_format']:
-                current_dataset['format'] = value
-        elif current_dataset and 'id' not in current_dataset:
-            # If line looks like an ID without a key
-            if re.match(r'^ds\d+$', line) or re.match(r'^[a-z0-9]{6,}$', line, re.IGNORECASE):
-                current_dataset['id'] = line
-    
-    # Add last dataset if exists
-    if current_dataset:
-        datasets.append(current_dataset)
-    
+            current_entry[key] = value
+
+    # Append the last entry
+    if current_entry and current_entry.get('id'):
+        datasets.append(current_entry)
+
     return datasets
 
-def is_valid_eye_tracking_dataset(dataset: Dict[str, Any]) -> bool:
+def is_valid_eye_tracking_dataset(dataset_info: Dict[str, Any]) -> bool:
     """
-    Check if a dataset is a valid eye-tracking dataset.
+    Checks if a dataset entry represents a valid eye-tracking source.
     
-    Returns True if the dataset contains eye-tracking data, False otherwise.
+    Criteria:
+    1. Must contain eye-tracking related keywords in type or description.
+    2. Must NOT be an fMRI or other non-eye-tracking modality.
     """
-    if not dataset.get('id'):
+    if not dataset_info:
         return False
-    
-    content_type = dataset.get('content_type', '').lower()
-    
-    # Check if it's explicitly marked as invalid
-    for invalid_type in INVALID_CONTENT_TYPES:
-        if invalid_type.lower() in content_type:
-            return False
-    
-    # Check if it's explicitly marked as valid
-    for valid_type in VALID_CONTENT_TYPES:
-        if valid_type in content_type:
-            return True
-    
-    # If content type is not specified, try to infer from description
-    description = dataset.get('description', '').lower()
-    for valid_type in VALID_CONTENT_TYPES:
-        if valid_type in description:
-            return True
-    
-    # Default to invalid if we can't determine
-    return False
 
-def download_dataset(dataset_id: str, output_dir: Path) -> Tuple[bool, str]:
+    # Check for invalid content types
+    desc = (dataset_info.get('type', '') + ' ' + dataset_info.get('description', '')).lower()
+    for invalid in INVALID_CONTENT_TYPES:
+        if invalid.lower() in desc:
+            logger.info(f"Rejecting dataset {dataset_info.get('id')}: contains invalid content type '{invalid}'")
+            return False
+
+    # Check for valid eye-tracking indicators
+    is_eye_tracking = False
+    for keyword in EYE_TRACKING_KEYWORDS:
+        if keyword in desc:
+            is_eye_tracking = True
+            break
+    
+    # If no explicit keyword found but it has a URL and ID, we might need to verify further
+    # For now, we rely on the plan.md content description.
+    if not is_eye_tracking:
+        logger.info(f"Rejecting dataset {dataset_info.get('id')}: no eye-tracking keywords found")
+        return False
+
+    return True
+
+def hash_file(file_path: Path) -> str:
+    """Calculates SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Error hashing file {file_path}: {e}")
+        return ""
+
+def write_meta(file_path: Path, meta_dict: Dict[str, Any]) -> None:
+    """Writes metadata JSON file alongside the data file."""
+    meta_path = file_path.with_suffix(file_path.suffix + META_SUFFIX)
+    meta_dict['timestamp'] = str(Path(file_path).stat().st_mtime) # Simplified timestamp
+    with open(meta_path, 'w', encoding='utf-8') as f:
+        json.dump(meta_dict, f, indent=2)
+    logger.info(f"Wrote metadata to {meta_path}")
+
+def download_dataset(dataset_info: Dict[str, Any], target_dir: Path) -> bool:
     """
-    Download a dataset from OpenNeuro or other sources.
-    
-    Returns (success, message).
+    Downloads a dataset from a URL to the target directory.
+    Returns True on success, False on failure.
     """
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
+    url = dataset_info.get('url')
+    ds_id = dataset_info.get('id', 'unknown')
     
-    dataset_dir = output_dir / dataset_id
-    
-    # Check if already downloaded
-    if dataset_dir.exists() and any(dataset_dir.iterdir()):
-        logger.info(f"Dataset {dataset_id} already exists at {dataset_dir}")
-        return True, f"Dataset {dataset_id} already exists"
-    
-    # Try to download from OpenNeuro
-    openneuro_url = f"https://datasets.openneuro.org/datasets/{dataset_id}/versions/latest/download"
-    
-    logger.info(f"Attempting to download {dataset_id} from OpenNeuro...")
+    if not url:
+        logger.warning(f"No URL provided for dataset {ds_id}")
+        return False
+
+    logger.info(f"Downloading dataset {ds_id} from {url}...")
     
     try:
-        response = requests.get(openneuro_url, stream=True, timeout=300)
+        response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
         
-        # Get file size for progress bar
-        total_size = int(response.headers.get('content-length', 0))
+        # Determine filename from URL or use ID
+        filename = url.split('/')[-1]
+        if not filename:
+            filename = f"{ds_id}.zip"
         
-        # Create a zip file path
-        zip_path = dataset_dir.parent / f"{dataset_id}.zip"
+        local_path = target_dir / filename
         
-        with open(zip_path, 'wb') as f, tqdm(
-            desc=dataset_id,
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as pbar:
+        with open(local_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
-                    pbar.update(len(chunk))
         
-        # Extract the zip file
-        import zipfile
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(dataset_dir)
-        
-        # Remove the zip file
-        zip_path.unlink()
-        
-        logger.info(f"Successfully downloaded {dataset_id}")
-        
-        # Generate metadata
-        meta_path = dataset_dir / f"{dataset_id}{META_SUFFIX}"
+        # Generate hash and metadata
+        file_hash = hash_file(local_path)
         meta = {
-            'hash': hash_file(str(dataset_dir)),
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'source': 'openneuro',
-            'dataset_id': dataset_id
+            "id": ds_id,
+            "source": url,
+            "hash": file_hash,
+            "type": dataset_info.get('type', 'unknown')
         }
-        write_meta(str(meta_path), meta)
+        write_meta(local_path, meta)
         
-        return True, f"Successfully downloaded {dataset_id}"
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {dataset_id} from OpenNeuro: {e}")
-        return False, f"Failed to download {dataset_id}: {e}"
-    except Exception as e:
-        logger.error(f"Unexpected error downloading {dataset_id}: {e}")
-        return False, f"Unexpected error downloading {dataset_id}: {e}"
+        logger.info(f"Successfully downloaded and verified {ds_id} ({local_path.name})")
+        return True
 
-def verify_data_availability() -> int:
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to download dataset {ds_id}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error downloading {ds_id}: {e}")
+        return False
+
+def verify_data_availability() -> bool:
     """
-    Main function to verify data availability.
+    Main entry point for data verification.
     
-    Returns:
-        0: Success (valid datasets found and downloaded)
-        1: Failure (no valid datasets found)
+    1. Parses plan.md for verified datasets.
+    2. Filters for valid eye-tracking datasets.
+    3. If none found, exits with code 1.
+    4. If found, downloads them to data/raw/.
     """
     logger.info("Starting data availability verification...")
     
-    # Parse verified datasets from plan.md
+    # Ensure data/raw directory exists
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Parse plan.md
     datasets = parse_verified_datasets_block(PLAN_MD_PATH)
     
     if not datasets:
-        logger.error("No datasets found in '# Verified datasets' block")
-        print("ERROR: No verified datasets found in plan.md. Pipeline cannot proceed.")
-        return 1
-    
-    logger.info(f"Found {len(datasets)} dataset(s) in plan.md")
-    
-    # Filter for valid eye-tracking datasets
+        logger.error("ERROR: No verified datasets found in plan.md. Pipeline cannot proceed.")
+        return False
+
     valid_datasets = [d for d in datasets if is_valid_eye_tracking_dataset(d)]
     
     if not valid_datasets:
-        logger.error("No valid eye-tracking datasets found")
-        print("ERROR: No verified eye-tracking dataset found. Pipeline cannot proceed.")
-        return 1
+        logger.error("ERROR: No verified eye-tracking dataset found. Pipeline cannot proceed.")
+        logger.error("All found datasets were either fMRI or lacked eye-tracking indicators.")
+        return False
+
+    logger.info(f"Found {len(valid_datasets)} valid eye-tracking dataset(s).")
     
-    logger.info(f"Found {len(valid_datasets)} valid eye-tracking dataset(s)")
-    
-    # Download valid datasets
     success_count = 0
-    for dataset in valid_datasets:
-        dataset_id = dataset['id']
-        success, message = download_dataset(dataset_id, DATA_RAW_DIR)
-        if success:
+    for ds in valid_datasets:
+        if download_dataset(ds, DATA_RAW_DIR):
             success_count += 1
-        else:
-            logger.error(message)
     
     if success_count == 0:
-        logger.error("Failed to download any valid datasets")
-        print("ERROR: Failed to download any valid eye-tracking datasets. Pipeline cannot proceed.")
-        return 1
-    
-    logger.info(f"Successfully downloaded {success_count}/{len(valid_datasets)} valid datasets")
-    print(f"SUCCESS: Found and downloaded {success_count} valid eye-tracking dataset(s)")
-    return 0
+        logger.error("ERROR: Failed to download any valid datasets.")
+        return False
+
+    logger.info(f"Successfully downloaded {success_count} dataset(s). Verification passed.")
+    return True
+
+def main():
+    """CLI entry point."""
+    success = verify_data_availability()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    exit_code = verify_data_availability()
-    sys.exit(exit_code)
+    main()

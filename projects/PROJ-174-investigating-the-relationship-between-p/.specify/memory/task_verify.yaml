@@ -1,22 +1,18 @@
-'T002c [P] Implement `code/verify_data_availability.py`: Parse the `# Verified datasets` block in `plan.md`.': 1
-? 'T004 [P] Create `code/config.yaml` with keys: `seeds` (int), `thresholds` (dict),
-  `paths` (dict); verify by parsing in a test script `tests/test_config.py`'
-: 2
 ? 'T005 Setup logging infrastructure: Initialize `code/logging_config.py` to write
   to `code/logs/preprocess.log` and initialize `results/quality_report.csv` with headers
   `[exclusion_type, count]`; verify by asserting file creation and column presence.
   **Note: This task must complete before T002c and T017.**'
-: 1
+: 2
 ? 'T006 [P] Create `code/data_model.py` defining classes: `Dataset(subject_id, trial_id,
   timestamp, pupil_diameter, x, y, search_time, target_salience, fixation_count)`
   and `ModelResult(coefficients, std_errors, p_values, log_likelihood)`'
-: 1
+: 2
 ? T007 [P] Implement `code/utils/provenance.py` with functions `hash_file(path)` and
   `write_meta(path, meta_dict)`; verify by generating `data/raw/*_meta.json` with
   keys `[hash, timestamp, source]`
-: 1
+: 2
 ? 'T008 [P] Configure environment variables: Create `code/.env.example` with keys:
   `DATA_PATH`, `OPENNEURO_API_KEY`, `LOG_LEVEL`; update `code/main.py` (created in
   T018) to load these keys via `python-dotenv`; verify script fails gracefully with
   error message if keys are missing.'
-: 1
+: 2

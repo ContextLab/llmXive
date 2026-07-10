@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1711.10137",
+  "judged_at": "2026-07-10T21:34:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the mechanism of \"world modeling\" for robotic control and navigation, which is the core subject of the user's follow-up question on extending \"In-Context World Modeling for Robotic Control.\" Although the specific technique (interactive replay vs. in-context learning) differs, the paper provides essential prior work on the same biological/algorithmic construct (world models) within the exact same domain (robotic control).",
+  "relevant": true
+}

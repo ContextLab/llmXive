@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.02454",
+  "judged_at": "2026-07-10T21:35:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the same core mechanism (training robotic control policies within a learned world model) and measures the same dependent variable (real-robot performance) as the user's question regarding \"In-Context World Modeling for Robotic Control,\" even though it focuses on RL finetuning rather than the specific \"In-Context\" prompting mechanism. It represents the canonical prior work on the efficacy of world models for robotic control tha",
+  "relevant": true
+}

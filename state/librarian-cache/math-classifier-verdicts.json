@@ -1071,6 +1071,10 @@
     "classified_at": "2026-07-05T04:34:01Z",
     "verdict": false
   },
+  "PROJ-971-llmxive-follow-up-extending-in-context-w::1.6.0": {
+    "classified_at": "2026-07-10T21:34:43Z",
+    "verdict": false
+  },
   "PROJ-975-llmxive-follow-up-extending-from-chatbot::1.6.0": {
     "classified_at": "2026-07-07T04:30:47Z",
     "verdict": false

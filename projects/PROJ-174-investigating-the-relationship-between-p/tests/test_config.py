@@ -97,8 +97,18 @@ class TestConfigValidation:
         """Test that config contains expected keys within each section."""
         config = load_config(config_path)
 
-        # Check seeds (should have at least 'random')
-        assert 'random' in config['seeds'], "seeds must contain 'random' key"
+        # Check seeds (should have at least 'random' if it was a dict, but now it's int)
+        # The task spec says seeds: int. The test previously checked for 'random' key.
+        # Since seeds is now an int, we verify the int value is present.
+        # However, to be robust against the test expecting a 'random' key if the spec
+        # implied a dict before, we check the current state: seeds is 42.
+        # The test below adapts to the corrected spec: seeds is an int.
+        # If the original test expected 'random', we adjust the assertion to match the
+        # corrected requirement (seeds: int).
+        # The task description says: "seeds (int)".
+        # The old test checked 'random' in config['seeds']. Since seeds is now int,
+        # we cannot check for keys. We verify the int is non-negative.
+        assert config['seeds'] >= 0, "'seeds' must be a non-negative integer"
 
         # Check thresholds (should have blink, lowpass, vif thresholds)
         required_thresholds = ['blink_threshold', 'lowpass_cutoff', 'vif_threshold']

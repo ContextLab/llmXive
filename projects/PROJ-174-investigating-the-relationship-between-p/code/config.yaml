@@ -1,8 +1,7 @@
 # Configuration for Pupil Dilation and Cognitive Load Pipeline
 # T004: seeds must be an integer, thresholds and paths must be dictionaries
 
-seeds:
-  random: 42
+seeds: 42
 
 thresholds:
   blink_threshold: 0.5

@@ -49,7 +49,7 @@
 - [X] T001d Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/data/` directory
 - [X] T001e Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/notebooks/` directory
 - [X] T002 Initialize Python 3.11 project with `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `nbformat` in `projects/PROJ-298-statistical-analysis-of-publicly-availab/code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
 
 ---
 
@@ -59,10 +59,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state file updates per FR-012
-- [~] T005 [P] Create `code/utils/contract_validation.py` to enforce schema contracts in `contracts/` per Constitution Principle V
-- [~] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
-- [~] T007 [P] Create `code/data/generate_taxonomies.py` to generate `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json` per FR-008, validating taxonomy structure against SO Survey 2023 source
+- [ ] T004 [P] Implement `code/utils/hygiene.py` for SHA-256 hashing and state file updates per FR-012
+- [X] T005 [P] Create `code/utils/contract_validation.py` to enforce schema contracts in `contracts/` per Constitution Principle V
+- [ ] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
+- [ ] T007 [P] Create `code/data/generate_taxonomies.py` to generate `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json` per FR-008, validating taxonomy structure against SO Survey 2023 source
 - [~] T008 [P] Setup `data/` directory structure: `raw/`, `processed/`, `events/`, `taxonomy/` per `plan.md`, creating `data/events/reference_calendar.json` and `data/taxonomy/survey_2023.json`
 - [~] T009 [P] Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
 
@@ -132,15 +132,15 @@
 ### Tests for User Story 3
 
 - [~] T026 [P] [US3] Contract test for cluster output schema in `tests/contract/test_cluster_results.py`, validating Jaccard similarity, hierarchical clustering results, AND **permutation test results** for cluster coherence per FR-005
-- [ ] T027 [P] [US3] Integration test for clustering pipeline in `tests/integration/test_clustering_pipeline.py`, validating Jaccard and hierarchical clustering
+- [~] T027 [P] [US3] Integration test for clustering pipeline in `tests/integration/test_clustering_pipeline.py`, validating Jaccard and hierarchical clustering
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `code/analysis/clustering.py` to compute Jaccard similarity matrix for all pairs of tags appearing on the same posts per FR-005
-- [ ] T029 [US3] **requires T028** Implement hierarchical clustering and permutation test for cluster coherence validation in `code/analysis/clustering.py` per FR-005
-- [ ] T030 [US3] **requires T029** Implement `code/analysis/clustering.py` logic for Cluster Label Alignment Score using fuzzy matching (Levenshtein distance ≤ 2) against `data/taxonomy/survey_2023.json` per FR-008, SC-004
-- [ ] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
-- [ ] T032 [US3] Generate `data/processed/cluster_results.json` including Cluster Label Alignment Score and intra-cluster similarity coefficient, calculate SHA-256 hashes for cluster_results.json, and update state file per FR-012.
+- [~] T028 [P] [US3] Implement `code/analysis/clustering.py` to compute Jaccard similarity matrix for all pairs of tags appearing on the same posts per FR-005
+- [~] T029 [US3] **requires T028** Implement hierarchical clustering and permutation test for cluster coherence validation in `code/analysis/clustering.py` per FR-005
+- [~] T030 [US3] **requires T029** Implement `code/analysis/clustering.py` logic for Cluster Label Alignment Score using fuzzy matching (Levenshtein distance ≤ 2) against `data/taxonomy/survey_2023.json` per FR-008, SC-004
+- [~] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
+- [~] T032 [US3] Generate `data/processed/cluster_results.json` including Cluster Label Alignment Score and intra-cluster similarity coefficient, calculate SHA-256 hashes for cluster_results.json, and update state file per FR-012.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,8 +150,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible
-- [ ] T034 Code cleanup and refactoring across `code/analysis/` modules, including linting checks
+- [~] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible
+- [~] T034 Code cleanup and refactoring across `code/analysis/` modules, including linting checks
 - [ ] T035 Performance optimization for streaming large data dumps to fit RAM constraint, ensuring notebooks are reproducible
 - [ ] T036 [P] Additional unit tests for statistical functions (Mann-Kendall, Jaccard, ADF) in `tests/unit/`, ensuring notebooks are reproducible
 - [ ] T037 Run `quickstart.md` validation to ensure all tasks execute successfully on CPU-only runner within 6 hours, ensuring notebooks are reproducible
