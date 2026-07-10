@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project code structure: `projects/PROJ-346-investigating-the-correlation-between-gu/code/`, `projects/PROJ-346-investigating-the-correlation-between-gu/tests/`
-- [ ] T001b [P] Create project data structure: `projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/`, `data/processed/`, `data/qc/`
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, statsmodels, seaborn, matplotlib, requests, pyyaml) and configure linting (flake8/black)
+- [X] T001a [P] Create project code structure: `projects/PROJ-346-investigating-the-correlation-between-gu/code/`, `projects/PROJ-346-investigating-the-correlation-between-gu/tests/`
+- [X] T001b [P] Create project data structure: `projects/PROJ-346-investigating-the-correlation-between-gu/data/raw/`, `data/processed/`, `data/qc/`
+- [X] T002 [P] Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, scikit-learn, statsmodels, seaborn, matplotlib, requests, pyyaml) and configure linting (flake8/black)
 
 ---
 
@@ -36,9 +36,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Setup environment variable management for dataset URLs (AGP, NHANES, UK Biobank)
-- [ ] T004 [P] Implement `code/utils.py` with shared constants (read thresholds, abundance filters, age strata) and logging helpers
-- [ ] T005 [P] Setup data schema validation using Pydantic or simple dict checks for `MicrobialTaxa` and `CognitiveScore` entities; output schema definitions to `contracts/dataset.schema.yaml` before T011 runs
+- [X] T003 [P] Setup environment variable management for dataset URLs (AGP, NHANES, UK Biobank)
+- [X] T004 [P] Implement `code/utils.py` with shared constants (read thresholds, abundance filters, age strata) and logging helpers
+- [X] T005 [P] Setup data schema validation using Pydantic or simple dict checks for `MicrobialTaxa` and `CognitiveScore` entities; output schema definitions to `contracts/dataset.schema.yaml` before T011 runs
 - [ ] T006 [P] Create base data loading functions in `code/utils.py` with retry logic (retry up to 3 times with exponential backoff) for API failures
 - [ ] T007 [P] Configure `pytest` configuration and basic test runner script
 
@@ -58,18 +58,18 @@
 - [ ] T012 [US1] Implement `code/01_ingest.py` logic to fetch cognitive data from ANY valid source defined in spec FR-002 (NHANES Cognitive Battery or UK Biobank Field 20002) and save raw parquet. **MUST use UK Biobank Field 20002 or NHANES as primary source.**
 - [ ] T013 [US1] Implement `code/02_preprocess.py` to load cognitive data, handle missing values via MICE (per FR-002), compute z-scores, and save processed parquet
 - [ ] T014 [US1] Implement `code/02_preprocess.py` logic to attempt individual-level merge of microbiome and cognitive data; if failed, invoke `code/07_gap_report.py` (T017)
-- [ ] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
-- [ ] T016 [US1] Add validation to ensure output parquet files match `contracts/dataset.schema.yaml`
-- [ ] T017 [US1] Implement `code/07_gap_report.py` to execute the **Data Gap Report** path (FR-008 as redefined in plan.md): **DO NOT perform statistical synthesis**; instead, generate a structured "Data Gap Report" artifact documenting the inability to link individual-level data, logging the specific reason, and marking SC-001/SC-004 as "Not Measurable". This is the terminal step of Phase 3.
+- [~] T015 [US1] Implement `code/02_preprocess.py` logic to add robust outlier filtering (z-score > 3) with logging to `data/qc/filtering_log.json`
+- [~] T016 [US1] Add validation to ensure output parquet files match `contracts/dataset.schema.yaml`
+- [~] T017 [US1] Implement `code/07_gap_report.py` to execute the **Data Gap Report** path (FR-008 as redefined in plan.md): **DO NOT perform statistical synthesis**; instead, generate a structured "Data Gap Report" artifact documenting the inability to link individual-level data, logging the specific reason, and marking SC-001/SC-004 as "Not Measurable". This is the terminal step of Phase 3.
 
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to verify specific logic.
 > Note: These tasks depend on the existence of implementation code (T011-T017) to run, even if they fail.
 
-- [ ] T008a [US1] Unit test for data filtering logic in `tests/unit/test_filtering.py` (specifically `test_remove_low_read_samples` and `test_remove_rare_taxa`)
-- [ ] T009a [US1] Unit test for MICE imputation in `tests/unit/test_imputation.py` (specifically `test_mice_missing_values` and `test_zscore_normalization`)
-- [ ] T010a [US1] Integration test for data merge logic in `tests/integration/test_merge.py` (specifically `test_linkage_failure_detection` and `test_gap_report_trigger`)
+- [~] T008a [US1] Unit test for data filtering logic in `tests/unit/test_filtering.py` (specifically `test_remove_low_read_samples` and `test_remove_rare_taxa`)
+- [~] T009a [US1] Unit test for MICE imputation in `tests/unit/test_imputation.py` (specifically `test_mice_missing_values` and `test_zscore_normalization`)
+- [~] T010a [US1] Integration test for data merge logic in `tests/integration/test_merge.py` (specifically `test_linkage_failure_detection` and `test_gap_report_trigger`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (or correctly report data gap)
 
@@ -85,17 +85,17 @@
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T018 [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`
-- [ ] T019 [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_fdr.py`
-- [ ] T020 [US2] Unit test for LASSO/Elastic Net regression in `tests/unit/test_regression.py`
+- [~] T018 [US2] Unit test for Spearman correlation calculation in `tests/unit/test_correlation.py`
+- [~] T019 [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/unit/test_fdr.py`
+- [~] T020 [US2] Unit test for LASSO/Elastic Net regression in `tests/unit/test_regression.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
-- [ ] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
-- [ ] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
-- [ ] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
-- [ ] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
+- [~] T021 [US2] Implement `code/03_correlation.py` to compute Spearman rank correlations between taxa and cognitive scores (FR-003)
+- [~] T022 [US2] Implement `code/03_correlation.py` logic to apply Benjamini-Hochberg FDR correction and flag significant taxa (q < 0.05) (FR-004)
+- [~] T023 [US2] Implement `code/04_regression.py` to fit LASSO/Elastic Net models with CLR-transformed taxa, age, sex, BMI (FR-005). **MUST check for `data/processed/merged_dataset.parquet`; if missing, skip execution and log "N/A - Data Gap" to prevent runtime errors.**
+- [~] T025 [US2] Ensure all outputs include explicit "associational" framing labels (FR-005, SC-005)
+- [~] T026 [US2] Save correlation matrix and regression results to `data/processed/` with metadata
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (or correctly report N/A due to data gap)
 
@@ -111,16 +111,16 @@
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T027 [US3] Unit test for age stratification logic in `tests/unit/test_stratification.py`
-- [ ] T028 [US3] Unit test for normalization comparison (DESeq2 vs rarefaction) in `tests/unit/test_normalization.py`
+- [~] T027 [US3] Unit test for age stratification logic in `tests/unit/test_stratification.py`
+- [~] T028 [US3] Unit test for normalization comparison (DESeq2 vs rarefaction) in `tests/unit/test_normalization.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/05_sensitivity.py` to stratify correlations by age groups (<40, ≥40-<60, ≥60) (FR-006); Check for `data/processed/merged_dataset.parquet`; skip if missing
-- [ ] T030 [US3] Implement `code/05_sensitivity.py` to compare significant taxa counts across normalization methods (DESeq2 vs rarefaction); Check for `data/processed/merged_dataset.parquet`; skip if missing
-- [ ] T031 [US3] Implement `code/06_visualize.py` to generate heatmap of taxa-cognition correlation matrix (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
-- [ ] T032 [US3] Implement `code/06_visualize.py` to generate forest plot of regression coefficients with confidence intervals (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
-- [ ] T033 [US3] Ensure all visualizations include clear labels for age groups and confidence intervals
+- [~] T029 [US3] Implement `code/05_sensitivity.py` to stratify correlations by age groups (<40, ≥40-<60, ≥60) (FR-006); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [~] T030 [US3] Implement `code/05_sensitivity.py` to compare significant taxa counts across normalization methods (DESeq2 vs rarefaction); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [~] T031 [US3] Implement `code/06_visualize.py` to generate heatmap of taxa-cognition correlation matrix (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [~] T032 [US3] Implement `code/06_visualize.py` to generate forest plot of regression coefficients with confidence intervals (FR-007); Check for `data/processed/merged_dataset.parquet`; skip if missing
+- [~] T033 [US3] Ensure all visualizations include clear labels for age groups and confidence intervals
 
 **Checkpoint**: All user stories should now be independently functional (or correctly report N/A due to data gap)
 
@@ -130,11 +130,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `README.md` explaining the FR-008 fallback behavior (Data Gap Report)
-- [ ] T035 Code cleanup and refactoring for CPU efficiency (memory chunking if needed)
-- [ ] T036 [P] Performance optimization: Implement memory chunking in `code/03_correlation.py` to ensure pipeline runs within 6 hours on N=10,000 samples (SC-003) for both full analysis and data gap paths
-- [ ] T037 [P] Additional unit tests for edge cases (zero significant taxa, rate-limiting) in `tests/unit/`
-- [ ] T038 Security hardening: Sanitize all external URLs and file paths
+- [~] T034 [P] Documentation updates in `README.md` explaining the FR-008 fallback behavior (Data Gap Report)
+- [~] T035 Code cleanup and refactoring for CPU efficiency (memory chunking if needed) <!-- SKIPPED: non-mapping output -->
+- [~] T036 [P] Performance optimization: Implement memory chunking in `code/03_correlation.py` to ensure pipeline runs within 6 hours on N=10,000 samples (SC-003) for both full analysis and data gap paths
+- [~] T037 [P] Additional unit tests for edge cases (zero significant taxa, rate-limiting) in `tests/unit/`
+- [~] T038 Security hardening: Sanitize all external URLs and file paths
 - [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
@@ -146,8 +146,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -214,9 +214,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Ingestion)
-   - Developer B: User Story 2 (Correlation/Regression) - *Note: Can develop logic, but execution depends on US1 outcome (T017)*
-   - Developer C: User Story 3 (Sensitivity/Vis) - *Note: Can develop logic, but execution depends on US1 outcome (T017)*
+ - Developer A: User Story 1 (Ingestion)
+ - Developer B: User Story 2 (Correlation/Regression) - *Note: Can develop logic, but execution depends on US1 outcome (T017)*
+ - Developer C: User Story 3 (Sensitivity/Vis) - *Note: Can develop logic, but execution depends on US1 outcome (T017)*
 3. Stories complete and integrate independently. If data gap, US2/US3 correctly report N/A.
 
 ---

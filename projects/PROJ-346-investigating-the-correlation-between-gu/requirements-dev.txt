@@ -1,0 +1,13 @@
+# Development dependencies for PROJ-346
+# Core project dependencies (from requirements.txt)
+-r requirements.txt
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Code quality
+flake8>=6.0.0
+black>=23.0.0
+mypy>=1.0.0
