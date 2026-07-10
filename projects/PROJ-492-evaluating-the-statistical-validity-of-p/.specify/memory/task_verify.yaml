@@ -184,9 +184,6 @@
   \ (FR\u2011024) (verify `manifest.json` contains SHA256 hashes) [UNRESOLVED-CLAIM:\
   \ c_01c292d1 \u2014 status=not_enough_info] [DEPENDS ON: T007]."
 : 1
-? T018 URL ingestion and deduplication in `src/audit/ingestor.py` (reads `input/urls.csv`)
-  ({{claim:c_811db4e0}}). **DEPENDS ON:** None.
-: 1
 ? "T019 HTML fetching with retries and timeout in `src/audit/fetcher.py` (uses `requests`)\
   \ (verify fetched HTML files are saved to `data/raw/` [UNRESOLVED-CLAIM: c_17f9398e\
   \ \u2014 status=not_enough_info]). **DEPENDS ON:** T018."
@@ -213,6 +210,11 @@
   \ status=not_enough_info] (run validation script `tests/unit/test_provenance_schema.py`).\
   \ **DEPENDS ON:** T020c."
 : 1
+? "T021 Unit tests for extractor covering missing metric, inequality p\u2011value,\
+  \ malformed HTML, conflicting sample sizes (tests/unit/test_extractor.py) (verify\
+  \ all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS\
+  \ ON: T020]."
+: 1
 ? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
   \ (detect binary vs continuous only, no extra test\u2011type handling) (verify detector\
   \ returns correct type)."
@@ -222,6 +224,10 @@
   \ per FR\u2011012) (verify reconstructed values match known fixtures). [UNRESOLVED-CLAIM:\
   \ c_cac1757f \u2014 status=not_enough_info] **DEPENDS ON:** T062 (Monte\u2011Carlo\
   \ validation) **AND** T022."
+: 1
+? "T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py)\
+  \ (verify all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info])\
+  \ [DEPENDS ON: T023]."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
@@ -452,6 +458,12 @@
   \ c_ec0a1ff1 \u2014 status=not_enough_info], effect\u2011size > 5\u202F%, inequality\
   \ handling, sample\u2011size mismatch with data_quality_warning generation (tests/unit/test_validator.py)\
   \ (verify all tests pass) [DEPENDS ON: T025]."
+: 1
+? "T027 Unit tests for validator covering absolute p\u2011difference > 0.05, effect\u2011\
+  size > 5\u202F%, inequality handling, sample\u2011size mismatch with data_quality_warning\
+  \ generation (tests/unit/test_validator.py) (verify all tests pass [UNRESOLVED-CLAIM:\
+  \ c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS ON: T025]. <!-- FAILED: unspecified\
+  \ -->"
 : 1
 ? "T028 Implement power\u2011analysis utility in `src/audit/power_analysis.py` (FR\u2011\
   025) that computes the minimum N given baseline, detectable effect, \u03B1 and power\

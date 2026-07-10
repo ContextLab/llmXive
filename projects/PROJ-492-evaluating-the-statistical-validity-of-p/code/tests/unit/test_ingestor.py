@@ -1,10 +1,10 @@
-"""Unit tests for the URL ingestion and deduplication module."""
-
-import pytest
-import tempfile
+"""
+Unit tests for the URL Ingestion and Deduplication module (T018).
+"""
 import csv
+import tempfile
 from pathlib import Path
-
+import pytest
 from code.src.audit.ingestor import (
     read_urls_from_csv,
     deduplicate_urls,
@@ -14,188 +14,144 @@ from code.src.audit.ingestor import (
 
 
 class TestReadUrlsFromCsv:
-    """Tests for read_urls_from_csv function."""
-
     def test_read_valid_csv(self, tmp_path):
-        """Test reading URLs from a valid CSV file."""
         input_file = tmp_path / "urls.csv"
-        with open(input_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['url'])
-            writer.writeheader()
-            writer.writerow({'url': 'https://example.com/test1'})
-            writer.writerow({'url': 'https://example.com/test2'})
-
-        urls = read_urls_from_csv(str(input_file))
+        input_file.write_text("url,source_id\nhttps://example.com/test,1\nhttps://another.com,2\n")
+        
+        urls = read_urls_from_csv(input_file)
+        
         assert len(urls) == 2
-        assert urls[0] == 'https://example.com/test1'
-        assert urls[1] == 'https://example.com/test2'
+        assert urls[0] == ("https://example.com/test", "1")
+        assert urls[1] == ("https://another.com", "2")
 
-    def test_read_csv_with_empty_urls(self, tmp_path):
-        """Test that empty URLs are skipped."""
+    def test_read_csv_with_missing_source_id(self, tmp_path):
         input_file = tmp_path / "urls.csv"
-        with open(input_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['url'])
-            writer.writeheader()
-            writer.writerow({'url': 'https://example.com/test1'})
-            writer.writerow({'url': ''})
-            writer.writerow({'url': '   '})
-            writer.writerow({'url': 'https://example.com/test2'})
+        input_file.write_text("url\nhttps://example.com/test\n")
+        
+        urls = read_urls_from_csv(input_file)
+        
+        assert len(urls) == 1
+        assert urls[0] == ("https://example.com/test", None)
 
-        urls = read_urls_from_csv(str(input_file))
-        assert len(urls) == 2
+    def test_read_empty_url_skipped(self, tmp_path):
+        input_file = tmp_path / "urls.csv"
+        input_file.write_text("url\n\nhttps://example.com/test\n")
+        
+        urls = read_urls_from_csv(input_file)
+        
+        assert len(urls) == 1
+        assert urls[0] == ("https://example.com/test", None)
 
-    def test_read_nonexistent_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing file."""
+    def test_read_invalid_protocol_skipped(self, tmp_path):
+        input_file = tmp_path / "urls.csv"
+        input_file.write_text("url\nftp://example.com/test\nhttps://example.com/test\n")
+        
+        urls = read_urls_from_csv(input_file)
+        
+        assert len(urls) == 1
+        assert urls[0] == ("https://example.com/test", None)
+
+    def test_file_not_found(self, tmp_path):
         with pytest.raises(FileNotFoundError):
-            read_urls_from_csv(str(tmp_path / "nonexistent.csv"))
+            read_urls_from_csv(tmp_path / "nonexistent.csv")
 
-    def test_read_invalid_csv_format(self, tmp_path):
-        """Test that ValueError is raised for invalid CSV format."""
+    def test_missing_url_column(self, tmp_path):
         input_file = tmp_path / "urls.csv"
-        with open(input_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['name'])
-            writer.writeheader()
-            writer.writerow({'name': 'test'})
-
+        input_file.write_text("link\nhttps://example.com\n")
+        
         with pytest.raises(ValueError):
-            read_urls_from_csv(str(input_file))
+            read_urls_from_csv(input_file)
 
 
 class TestDeduplicateUrls:
-    """Tests for deduplicate_urls function."""
-
-    def test_deduplicate_case_sensitive(self):
-        """Test case-sensitive deduplication."""
+    def test_no_duplicates(self):
         urls = [
-            'https://example.com/test',
-            'https://example.com/Test',
-            'https://example.com/TEST',
-            'https://example.com/other'
+            ("https://example.com/a", "1"),
+            ("https://example.com/b", "2"),
+            ("https://other.com", "3")
         ]
-        deduplicated, count = deduplicate_urls(urls, case_insensitive=False)
-        assert len(deduplicated) == 4
-        assert count == 0
+        result = deduplicate_urls(urls)
+        assert len(result) == 3
+        assert result == urls
 
-    def test_deduplicate_case_insensitive(self):
-        """Test case-insensitive deduplication."""
+    def test_exact_duplicates(self):
         urls = [
-            'https://example.com/test',
-            'https://example.com/Test',
-            'https://example.com/TEST',
-            'https://example.com/other'
+            ("https://example.com/a", "1"),
+            ("https://example.com/a", "2"), # Duplicate URL
+            ("https://other.com", "3")
         ]
-        deduplicated, count = deduplicate_urls(urls, case_insensitive=True)
-        assert len(deduplicated) == 2
-        assert count == 2
+        result = deduplicate_urls(urls)
+        assert len(result) == 2
+        assert result[0] == ("https://example.com/a", "1") # Keeps first
 
-    def test_deduplicate_empty_list(self):
-        """Test deduplication of empty list."""
-        urls = []
-        deduplicated, count = deduplicate_urls(urls)
-        assert len(deduplicated) == 0
-        assert count == 0
-
-    def test_deduplicate_no_duplicates(self):
-        """Test deduplication when there are no duplicates."""
+    def test_case_insensitive_duplicates(self):
         urls = [
-            'https://example.com/test1',
-            'https://example.com/test2',
-            'https://example.com/test3'
+            ("https://Example.com/a", "1"),
+            ("https://example.com/a", "2"), # Duplicate (case insensitive)
+            ("https://other.com", "3")
         ]
-        deduplicated, count = deduplicate_urls(urls)
-        assert len(deduplicated) == 3
-        assert count == 0
+        result = deduplicate_urls(urls)
+        assert len(result) == 2
+        assert result[0] == ("https://Example.com/a", "1")
 
-    def test_deduplicate_all_duplicates(self):
-        """Test deduplication when all URLs are duplicates."""
+    def test_trailing_slash_duplicates(self):
         urls = [
-            'https://example.com/test',
-            'https://example.com/test',
-            'https://example.com/test'
+            ("https://example.com/a/", "1"),
+            ("https://example.com/a", "2"), # Duplicate (trailing slash)
+            ("https://other.com", "3")
         ]
-        deduplicated, count = deduplicate_urls(urls)
-        assert len(deduplicated) == 1
-        assert count == 2
+        result = deduplicate_urls(urls)
+        assert len(result) == 2
+        assert result[0] == ("https://example.com/a/", "1")
+
+    def test_empty_list(self):
+        assert deduplicate_urls([]) == []
 
 
 class TestWriteUrlsToCsv:
-    """Tests for write_urls_to_csv function."""
-
-    def test_write_urls(self, tmp_path):
-        """Test writing URLs to CSV file."""
-        output_file = tmp_path / "output.csv"
+    def test_write_valid_urls(self, tmp_path):
         urls = [
-            'https://example.com/test1',
-            'https://example.com/test2'
+            ("https://example.com/a", "1"),
+            ("https://example.com/b", None)
         ]
-        write_urls_to_csv(urls, str(output_file))
-
+        output_file = tmp_path / "out.csv"
+        
+        write_urls_to_csv(urls, output_file)
+        
         assert output_file.exists()
         with open(output_file, 'r') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
-            assert len(rows) == 2
-            assert rows[0]['url'] == 'https://example.com/test1'
-            assert rows[0]['domain'] == 'example.com'
-
-    def test_write_creates_parent_directory(self, tmp_path):
-        """Test that write_urls_to_csv creates parent directories."""
-        output_file = tmp_path / "subdir" / "nested" / "output.csv"
-        urls = ['https://example.com/test']
-        write_urls_to_csv(urls, str(output_file))
-
-        assert output_file.exists()
-
-    def test_write_empty_list(self, tmp_path):
-        """Test writing empty URL list."""
-        output_file = tmp_path / "output.csv"
-        write_urls_to_csv([], str(output_file))
-
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            assert len(rows) == 0
-
+        
+        assert len(rows) == 2
+        assert rows[0]['url'] == "https://example.com/a"
+        assert rows[0]['source_id'] == "1"
+        assert rows[1]['url'] == "https://example.com/b"
+        assert rows[1]['source_id'] == "" # None becomes empty string
 
 class TestIngestAndDeduplicate:
-    """Tests for the main ingest_and_deduplicate function."""
-
     def test_full_pipeline(self, tmp_path):
-        """Test the complete ingestion and deduplication pipeline."""
-        # Create input file
         input_file = tmp_path / "input.csv"
-        with open(input_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['url'])
-            writer.writeheader()
-            writer.writerow({'url': 'https://example.com/test1'})
-            writer.writerow({'url': 'https://example.com/test2'})
-            writer.writerow({'url': 'https://example.com/test1'})  # duplicate
-            writer.writerow({'url': 'https://other.com/test'})
-
         output_file = tmp_path / "output.csv"
-
-        stats = ingest_and_deduplicate(str(input_file), str(output_file))
-
-        assert stats['total_urls_read'] == 4
-        assert stats['unique_urls'] == 3
-        assert stats['duplicates_removed'] == 1
+        
+        # Create input with duplicates
+        input_file.write_text(
+            "url,source_id\n"
+            "https://example.com/1,1\n"
+            "https://example.com/1,2\n" # Duplicate
+            "https://other.com,3\n"
+        )
+        
+        result = ingest_and_deduplicate(input_file, output_file)
+        
+        assert len(result) == 2
         assert output_file.exists()
-
-    def test_pipeline_preserves_first_occurrence(self, tmp_path):
-        """Test that the first occurrence of a URL is preserved."""
-        input_file = tmp_path / "input.csv"
-        with open(input_file, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['url'])
-            writer.writeheader()
-            writer.writerow({'url': 'https://example.com/test'})
-            writer.writerow({'url': 'https://example.com/TEST'})  # duplicate
-
-        output_file = tmp_path / "output.csv"
-        ingest_and_deduplicate(str(input_file), str(output_file))
-
+        
+        # Verify output content
         with open(output_file, 'r') as f:
             reader = csv.DictReader(f)
             rows = list(reader)
-            assert len(rows) == 1
-            assert rows[0]['url'] == 'https://example.com/test'
+        
+        assert len(rows) == 2
+        assert rows[0]['url'] == "https://example.com/1"
+        assert rows[1]['url'] == "https://other.com"

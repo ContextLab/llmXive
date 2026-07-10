@@ -1,169 +1,181 @@
-"""URL ingestion and deduplication module for A/B test audit pipeline.
-
-This module reads URLs from an input CSV file, deduplicates them,
-and writes the deduplicated list to an output CSV file.
 """
+URL Ingestion and Deduplication Module (T018).
 
+Reads a CSV file containing URLs, deduplicates them based on domain and path,
+and writes the cleaned list back to a CSV file.
+"""
 import csv
-import os
+import logging
 from pathlib import Path
 from typing import List, Set, Tuple, Optional
+
 from code.src.utils.logger import get_default_logger, AuditLogger
 from code.src.utils.helpers import domain_from_url
 
 
-def read_urls_from_csv(input_path: str) -> List[str]:
-    """Read URLs from a CSV file.
+def read_urls_from_csv(input_path: Path) -> List[Tuple[str, Optional[str]]]:
+    """
+    Reads URLs from a CSV file.
+
+    Expected CSV format:
+    - Header: 'url' or 'url,source_id'
+    - If 'source_id' is missing, it defaults to None.
 
     Args:
-        input_path: Path to the input CSV file containing URLs.
+        input_path: Path to the input CSV file.
 
     Returns:
-        List of URLs read from the CSV file.
+        List of tuples (url, source_id).
 
     Raises:
         FileNotFoundError: If the input file does not exist.
         ValueError: If the CSV format is invalid.
     """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input URL file not found: {input_path}")
+
     logger = get_default_logger()
-    logger.info(f"Reading URLs from {input_path}")
-
-    input_file = Path(input_path)
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_path}", error_code="ERR-001")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
     urls = []
-    with open(input_file, 'r', encoding='utf-8', newline='') as f:
+
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        # Check if 'url' column exists
-        if reader.fieldnames is None or 'url' not in reader.fieldnames:
-            logger.error(f"Invalid CSV format: missing 'url' column", error_code="ERR-002")
-            raise ValueError("CSV must contain a 'url' column")
+        if 'url' not in reader.fieldnames:
+            raise ValueError(f"CSV must contain a 'url' column. Found: {reader.fieldnames}")
 
         for row_num, row in enumerate(reader, start=2):
             url = row['url'].strip()
-            if url:  # Skip empty URLs
-                urls.append(url)
+            if not url:
+                logger.warning(f"Row {row_num}: Empty URL skipped.")
+                continue
+            
+            source_id = row.get('source_id', '').strip() or None
+            
+            # Basic validation
+            if not url.startswith(('http://', 'https://')):
+                logger.warning(f"Row {row_num}: URL '{url}' does not start with http(s), skipping.")
+                continue
 
-    logger.info(f"Read {len(urls)} URLs from {input_path}")
+            urls.append((url, source_id))
+
+    logger.info(f"Read {len(urls)} valid URLs from {input_path}.")
     return urls
 
 
-def deduplicate_urls(urls: List[str], case_insensitive: bool = True) -> Tuple[List[str], int]:
-    """Deduplicate a list of URLs.
+def deduplicate_urls(urls: List[Tuple[str, Optional[str]]]) -> List[Tuple[str, Optional[str]]]:
+    """
+    Deduplicates a list of (url, source_id) tuples.
+
+    Deduplication logic:
+    1. Normalize URL: lowercase scheme and domain, remove trailing slashes.
+    2. Keep the first occurrence of a unique URL.
+    3. If a duplicate is found, log a warning.
 
     Args:
-        urls: List of URLs to deduplicate.
-        case_insensitive: If True, treat URLs as case-insensitive for deduplication.
+        urls: List of (url, source_id) tuples.
 
     Returns:
-        Tuple of (deduplicated URL list, count of duplicates removed).
+        List of unique (url, source_id) tuples.
     """
     logger = get_default_logger()
+    seen_urls: Set[str] = set()
+    unique_urls: List[Tuple[str, Optional[str]]] = []
+    duplicates_count = 0
 
-    seen: Set[str] = set()
-    deduplicated: List[str] = []
-    duplicates_removed = 0
+    for url, source_id in urls:
+        # Normalize for comparison
+        normalized = url.lower().rstrip('/')
+        
+        if normalized in seen_urls:
+            duplicates_count += 1
+            logger.debug(f"Duplicate URL detected: {url} (kept first occurrence)")
+            continue
 
-    for url in urls:
-        if case_insensitive:
-            key = url.lower()
-        else:
-            key = url
+        seen_urls.add(normalized)
+        unique_urls.append((url, source_id))
 
-        if key not in seen:
-            seen.add(key)
-            deduplicated.append(url)
-        else:
-            duplicates_removed += 1
-            logger.debug(f"Duplicate URL removed: {url}")
-
-    logger.info(f"Deduplicated {len(urls)} URLs -> {len(deduplicated)} unique URLs ({duplicates_removed} duplicates removed)")
-    return deduplicated, duplicates_removed
+    if duplicates_count > 0:
+        logger.warning(f"Removed {duplicates_count} duplicate URLs.")
+    
+    logger.info(f"Deduplication complete. {len(unique_urls)} unique URLs remaining.")
+    return unique_urls
 
 
-def write_urls_to_csv(urls: List[str], output_path: str, metadata: Optional[dict] = None) -> None:
-    """Write deduplicated URLs to a CSV file.
+def write_urls_to_csv(urls: List[Tuple[str, Optional[str]]], output_path: Path) -> None:
+    """
+    Writes the list of URLs to a CSV file.
 
     Args:
-        urls: List of URLs to write.
+        urls: List of (url, source_id) tuples.
         output_path: Path to the output CSV file.
-        metadata: Optional metadata to include in the CSV.
     """
-    logger = get_default_logger()
-    logger.info(f"Writing {len(urls)} URLs to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['url', 'source_id'])
+        for url, source_id in urls:
+            # Handle None source_id by writing empty string
+            sid = source_id if source_id is not None else ''
+            writer.writerow([url, sid])
 
-    with open(output_file, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['url', 'domain'])
-        writer.writeheader()
-
-        for url in urls:
-            domain = domain_from_url(url)
-            writer.writerow({
-                'url': url,
-                'domain': domain if domain else ''
-            })
-
-    logger.info(f"Wrote {len(urls)} URLs to {output_path}")
+    logging.info(f"Wrote {len(urls)} URLs to {output_path}")
 
 
-def ingest_and_deduplicate(input_path: str, output_path: str) -> dict:
-    """Main entry point for URL ingestion and deduplication.
+def ingest_and_deduplicate(input_path: Path, output_path: Path) -> List[Tuple[str, Optional[str]]]:
+    """
+    Main entry point for the ingestion and deduplication pipeline.
 
-    Reads URLs from input CSV, deduplicates them, and writes to output CSV.
+    1. Reads URLs from input_path.
+    2. Deduplicates them.
+    3. Writes results to output_path.
 
     Args:
-        input_path: Path to input CSV file.
-        output_path: Path to output CSV file.
+        input_path: Path to the input CSV.
+        output_path: Path to the output CSV.
 
     Returns:
-        Dictionary with ingestion statistics.
+        List of deduplicated (url, source_id) tuples.
     """
     logger = get_default_logger()
-    logger.info("Starting URL ingestion and deduplication")
+    logger.info(f"Starting ingestion from {input_path} to {output_path}")
 
-    # Read URLs
-    urls = read_urls_from_csv(input_path)
-
-    # Deduplicate
-    deduplicated_urls, duplicates_removed = deduplicate_urls(urls)
-
-    # Write output
-    write_urls_to_csv(deduplicated_urls, output_path)
-
-    stats = {
-        'input_file': input_path,
-        'output_file': output_path,
-        'total_urls_read': len(urls),
-        'unique_urls': len(deduplicated_urls),
-        'duplicates_removed': duplicates_removed
-    }
-
-    logger.info(f"URL ingestion complete: {stats}")
-    return stats
+    try:
+        urls = read_urls_from_csv(input_path)
+        unique_urls = deduplicate_urls(urls)
+        write_urls_to_csv(unique_urls, output_path)
+        logger.info("Ingestion and deduplication completed successfully.")
+        return unique_urls
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}", exc_info=True)
+        raise
 
 
-def main():
-    """Main entry point for CLI usage."""
+def main() -> None:
+    """
+    CLI entry point for T018.
+    Expects arguments: --input <path> --output <path>
+    """
     import argparse
+    import sys
 
-    parser = argparse.ArgumentParser(description='Ingest and deduplicate A/B test URLs')
-    parser.add_argument('--input', '-i', default='input/urls.csv',
-                      help='Input CSV file path (default: input/urls.csv)')
-    parser.add_argument('--output', '-o', default='output/urls_deduped.csv',
-                      help='Output CSV file path (default: output/urls_deduped.csv)')
-
+    parser = argparse.ArgumentParser(description="Ingest and deduplicate URLs for A/B test audit.")
+    parser.add_argument('--input', type=str, required=True, help='Path to input CSV with URLs')
+    parser.add_argument('--output', type=str, required=True, help='Path to output CSV for deduplicated URLs')
+    
     args = parser.parse_args()
 
-    stats = ingest_and_deduplicate(args.input, args.output)
-    print(f"Ingestion complete: {stats}")
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
-    return 0
+    try:
+        ingest_and_deduplicate(input_path, output_path)
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Fatal error during ingestion: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()
