@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T22:28:12.516646Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-277-predicting-the-impact-of-alloying-on-hig
-last_run_id: c6408359-904b-4a21-bd0c-9754de4222c8
+last_run_id: 706e38c2-534e-414d-ab87-ba9c3c7062ae
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-277-predicting-the-impact-of-alloying-on-hig/specs/001-predicting-the-impact-of-alloying-on-hig
 title: Predicting the Impact of Alloying on High-Temperature Oxidation Resistance
-updated_at: '2026-07-10T02:50:47.422833Z'
+updated_at: '2026-07-10T19:01:20.327774Z'

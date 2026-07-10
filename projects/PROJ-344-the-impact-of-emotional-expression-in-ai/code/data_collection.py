@@ -1,15 +1,9 @@
 """
-Controlled Data Collection Protocol Implementation.
+Controlled Data Collection Protocol Module.
 
-This module implements the survey interface, consent capture, and anonymization
-pipeline required for the controlled data collection of user interactions with AI avatars.
-It adheres to Constitution Principle VII and FR-001 fallback requirements.
-
-Artifacts produced:
-- data/processed/consent_records.jsonl: Anonymized consent records
-- data/raw/survey_responses_raw.csv: Raw survey responses (pre-anonymization)
+Implements the survey interface, consent capture, and anonymization pipeline
+for the study on emotional expression in AI avatars.
 """
-
 import os
 import json
 import csv
@@ -17,280 +11,343 @@ import hashlib
 import uuid
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Any
 from pathlib import Path
+from typing import Dict, List, Optional, Any, Tuple
 
-# Import existing project utilities
-from logging_config import get_logger, setup_logging
-from config import DATA_RAW_DIR, DATA_PROCESSED_DIR
-from utils import handle_corrupted_file
+# Import project logging
+from logging_config import get_logger
 
-# Ensure directories exist
-os.makedirs(DATA_RAW_DIR, exist_ok=True)
-os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+# Ensure output directories exist
+DATA_DIR = Path("data/raw")
+ANONYMIZED_DIR = Path("data/processed")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+ANONYMIZED_DIR.mkdir(parents=True, exist_ok=True)
 
 logger = get_logger(__name__)
 
-# Constants for anonymization
-SALT = "proj344_emotion_study_salt_v1"  # In production, this should be in a secure env var
-ANONYMIZED_ID_PREFIX = "SUBJ"
 
 class ConsentCapture:
-    """Handles the capture and validation of informed consent."""
+    """
+    Handles the capture, storage, and verification of participant consent.
+    """
 
     def __init__(self, consent_template_path: str = "code/consent_form_template.md"):
         self.template_path = consent_template_path
         self.consent_records: List[Dict[str, Any]] = []
-        self._validate_template()
+        self.logger = get_logger(self.__class__.__name__)
 
-    def _validate_template(self) -> None:
-        """Ensure the consent template exists and is readable."""
-        if not os.path.exists(self.template_path):
-            raise FileNotFoundError(f"Consent template not found at {self.template_path}")
-        logger.info(f"Consent template validated: {self.template_path}")
+        if not os.path.exists(consent_template_path):
+            raise FileNotFoundError(f"Consent template not found at {consent_template_path}")
 
-    def capture_consent(self, participant_data: Dict[str, Any]) -> Dict[str, Any]:
+    def capture_consent(self, participant_id: str, signature_data: Dict[str, Any]) -> bool:
         """
-        Capture consent data from a participant.
+        Capture and validate consent for a specific participant.
 
         Args:
-            participant_data: Dictionary containing participant info and consent status.
-                              Expected keys: 'signature_date', 'consent_given' (bool), 'age', etc.
+            participant_id: Unique ID for the participant.
+            signature_data: Dict containing 'signature_type', 'timestamp', 'ip_address' (if applicable).
 
         Returns:
-            A dictionary representing the consent record.
+            bool: True if consent is successfully captured and logged.
         """
-        required_fields = ['consent_given', 'signature_date']
-        for field in required_fields:
-            if field not in participant_data:
-                raise ValueError(f"Missing required consent field: {field}")
-
-        if not participant_data['consent_given']:
-            logger.warning("Participant declined consent. Record not saved.")
-            return {"status": "declined", "timestamp": datetime.now().isoformat()}
-
+        timestamp = datetime.now().isoformat()
+        
         record = {
-            "consent_id": str(uuid.uuid4()),
-            "timestamp": datetime.now().isoformat(),
-            "version": "1.0",
-            "signed": True,
-            "signature_date": participant_data['signature_date'],
-            "metadata": {
-                "age_verified": participant_data.get('age_verified', False),
-                "withdrawal_rights_acknowledged": True
-            }
+            "participant_id": participant_id,
+            "consent_version": "1.0", # Version of the template used
+            "timestamp": timestamp,
+            "signature_data": signature_data,
+            "status": "active"
         }
+
+        # Log the event
+        self.logger.info(f"Consent captured for participant: {participant_id}")
         self.consent_records.append(record)
-        logger.info(f"Consent captured for ID: {record['consent_id']}")
-        return record
+        return True
 
-    def save_consent_records(self, output_path: Optional[str] = None) -> str:
-        """Save consent records to a JSONL file."""
-        if not self.consent_records:
-            logger.warning("No consent records to save.")
-            return ""
+    def verify_consent(self, participant_id: str) -> bool:
+        """
+        Verify if a participant has active consent.
 
-        if output_path is None:
-            output_path = os.path.join(DATA_PROCESSED_DIR, "consent_records.jsonl")
+        Args:
+            participant_id: The ID to check.
 
+        Returns:
+            bool: True if consent exists and is active.
+        """
+        for record in self.consent_records:
+            if record["participant_id"] == participant_id and record["status"] == "active":
+                return True
+        return False
+
+    def export_consent_log(self, output_path: Optional[str] = None) -> str:
+        """
+        Export consent logs to a secure JSON file.
+        """
+        if not output_path:
+            output_path = str(DATA_DIR / "consent_log.json")
+        
         with open(output_path, 'w', encoding='utf-8') as f:
-            for record in self.consent_records:
-                f.write(json.dumps(record) + '\n')
-
-        logger.info(f"Saved {len(self.consent_records)} consent records to {output_path}")
+            json.dump(self.consent_records, f, indent=2, default=str)
+        
+        self.logger.info(f"Consent log exported to {output_path}")
         return output_path
 
 
 class SurveyInterface:
-    """Manages the survey data collection and storage."""
+    """
+    Manages the presentation of survey questions and collection of responses.
+    This class simulates the interface logic that would be used in a web or CLI application.
+    """
 
     def __init__(self):
+        self.questions = self._load_survey_template()
         self.responses: List[Dict[str, Any]] = []
-        self.schema = {
-            "interaction_id": str,
-            "participant_id": str,
-            "timestamp": str,
-            "trust_score": float,
-            "avatar_emotion": str,
-            "difficulty_rating": int,
-            "open_feedback": str
-        }
+        self.logger = get_logger(self.__class__.__name__)
 
-    def record_response(self, interaction_id: str, participant_id: str,
-                        trust_score: float, avatar_emotion: str,
-                        difficulty_rating: int, open_feedback: str = "") -> Dict[str, Any]:
-        """Record a single survey response."""
-        response = {
+    def _load_survey_template(self) -> List[Dict[str, Any]]:
+        """
+        Loads the standard survey questions for the study.
+        Returns a list of question dictionaries.
+        """
+        return [
+            {
+                "id": "Q1",
+                "text": "How trustworthy did you find the AI avatar during the interaction?",
+                "type": "scale",
+                "scale_range": (1, 7),
+                "scale_labels": {"1": "Not Trustworthy", "7": "Very Trustworthy"}
+            },
+            {
+                "id": "Q2",
+                "text": "How natural did the emotional expressions appear?",
+                "type": "scale",
+                "scale_range": (1, 7),
+                "scale_labels": {"1": "Very Artificial", "7": "Very Natural"}
+            },
+            {
+                "id": "Q3",
+                "text": "How comfortable did you feel interacting with the avatar?",
+                "type": "scale",
+                "scale_range": (1, 7),
+                "scale_labels": {"1": "Very Uncomfortable", "7": "Very Comfortable"}
+            },
+            {
+                "id": "Q4",
+                "text": "Which emotion did you perceive the avatar to be expressing?",
+                "type": "multiple_choice",
+                "options": ["Happy", "Sad", "Angry", "Neutral", "Surprised", "Fearful"]
+            }
+        ]
+
+    def get_questions(self) -> List[Dict[str, Any]]:
+        """Returns the list of survey questions."""
+        return self.questions
+
+    def collect_response(self, participant_id: str, interaction_id: str, answers: Dict[str, Any]) -> bool:
+        """
+        Collects a set of responses for a specific interaction.
+
+        Args:
+            participant_id: Unique ID of the participant.
+            interaction_id: Unique ID of the interaction/session.
+            answers: Dict mapping question ID to the answer.
+
+        Returns:
+            bool: True if response was successfully recorded.
+        """
+        # Validate answers against questions
+        for q in self.questions:
+            if q["id"] not in answers:
+                self.logger.warning(f"Missing answer for question {q['id']}")
+        
+        response_record = {
+            "participant_id": participant_id,
             "interaction_id": interaction_id,
-            "participant_id": participant_id,  # This will be anonymized later
             "timestamp": datetime.now().isoformat(),
-            "trust_score": trust_score,
-            "avatar_emotion": avatar_emotion,
-            "difficulty_rating": difficulty_rating,
-            "open_feedback": open_feedback
+            "answers": answers
         }
-        self.responses.append(response)
-        return response
 
-    def save_raw_responses(self, output_path: Optional[str] = None) -> str:
-        """Save raw survey responses to a CSV file."""
+        self.responses.append(response_record)
+        self.logger.info(f"Response collected for interaction {interaction_id}")
+        return True
+
+    def export_responses(self, output_path: Optional[str] = None) -> str:
+        """
+        Exports collected survey responses to a CSV file.
+        """
+        if not output_path:
+            output_path = str(DATA_DIR / "survey_responses_raw.csv")
+
         if not self.responses:
-            logger.warning("No survey responses to save.")
-            return ""
+            self.logger.warning("No responses to export.")
+            return output_path
 
-        if output_path is None:
-            output_path = os.path.join(DATA_RAW_DIR, "survey_responses_raw.csv")
-
-        fieldnames = list(self.schema.keys())
         with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(self.responses)
+            writer = csv.writer(f)
+            # Header
+            header = ["participant_id", "interaction_id", "timestamp"] + [q["id"] for q in self.questions]
+            writer.writerow(header)
 
-        logger.info(f"Saved {len(self.responses)} raw survey responses to {output_path}")
+            for resp in self.responses:
+                row = [
+                    resp["participant_id"],
+                    resp["interaction_id"],
+                    resp["timestamp"]
+                ]
+                for q in self.questions:
+                    row.append(resp["answers"].get(q["id"], ""))
+                writer.writerow(row)
+
+        self.logger.info(f"Survey responses exported to {output_path}")
         return output_path
 
 
 class AnonymizationPipeline:
-    """Handles the anonymization of collected data."""
+    """
+    Handles the anonymization of collected data (PII removal, hashing IDs).
+    """
 
-    def __init__(self, salt: str = SALT):
+    def __init__(self, salt: str = "project_salt_v1"):
         self.salt = salt
-        self.mapping_cache: Dict[str, str] = {}
+        self.mapping_store: Dict[str, str] = {} # Maps real IDs to anonymized IDs
+        self.logger = get_logger(self.__class__.__name__)
 
-    def _generate_anon_id(self, original_id: str) -> str:
-        """Generate a deterministic anonymized ID."""
-        if original_id in self.mapping_cache:
-            return self.mapping_cache[original_id]
-
-        # Create a hash of the salt + original ID
-        hash_input = f"{self.salt}{original_id}".encode('utf-8')
-        hash_val = hashlib.sha256(hash_input).hexdigest()[:12]
-        anon_id = f"{ANONYMIZED_ID_PREFIX}_{hash_val}"
-
-        self.mapping_cache[original_id] = anon_id
-        return anon_id
-
-    def anonymize_responses(self, raw_responses: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _hash_id(self, original_id: str) -> str:
         """
-        Anonymize a list of survey responses.
-
-        Args:
-            raw_responses: List of response dictionaries containing 'participant_id'.
-
-        Returns:
-            List of anonymized response dictionaries.
+        Creates a deterministic hash for an ID using a salt.
         """
-        anonymized = []
-        for resp in raw_responses:
-            anon_resp = resp.copy()
-            original_id = anon_resp.get('participant_id', '')
-            if original_id:
-                anon_resp['participant_id'] = self._generate_anon_id(original_id)
-                # Remove any PII that might exist in open_feedback (basic heuristic)
-                if 'open_feedback' in anon_resp:
-                    # In a real system, we might use NER here. For now, we assume
-                    # the survey interface enforces no PII in open text.
-                    pass
-            anonymized.append(anon_resp)
-        return anonymized
+        salted_string = f"{self.salt}:{original_id}"
+        return hashlib.sha256(salted_string.encode('utf-8')).hexdigest()[:16]
 
-    def save_anonymized_responses(self, anonymized_responses: List[Dict[str, Any]],
-                                  output_path: Optional[str] = None) -> str:
-        """Save anonymized responses to a CSV file."""
-        if not anonymized_responses:
-            logger.warning("No anonymized responses to save.")
-            return ""
+    def anonymize_participant_id(self, original_id: str) -> str:
+        """
+        Returns an anonymized ID for a participant.
+        """
+        if original_id not in self.mapping_store:
+            self.mapping_store[original_id] = self._hash_id(original_id)
+        return self.mapping_store[original_id]
 
-        if output_path is None:
-            output_path = os.path.join(DATA_PROCESSED_DIR, "survey_responses_anonymized.csv")
+    def process_survey_responses(self, input_path: str, output_path: Optional[str] = None) -> str:
+        """
+        Reads raw survey responses, anonymizes participant IDs, and saves to new file.
+        """
+        if not output_path:
+            base, ext = os.path.splitext(input_path)
+            output_path = f"{base}_anonymized{ext}"
 
-        fieldnames = list(anonymized_responses[0].keys())
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+
+        with open(input_path, 'r', encoding='utf-8') as infile, \
+             open(output_path, 'w', newline='', encoding='utf-8') as outfile:
+            
+            reader = csv.DictReader(infile)
+            fieldnames = reader.fieldnames
+            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(anonymized_responses)
 
-        logger.info(f"Saved {len(anonymized_responses)} anonymized responses to {output_path}")
+            for row in reader:
+                original_pid = row.get("participant_id", "")
+                if original_pid:
+                    row["participant_id"] = self.anonymize_participant_id(original_pid)
+                writer.writerow(row)
+
+        self.logger.info(f"Anonymized survey data saved to {output_path}")
+        return output_path
+
+    def process_media_metadata(self, input_path: str, output_path: Optional[str] = None) -> str:
+        """
+        Processes metadata associated with media files to remove PII.
+        """
+        if not output_path:
+            base, ext = os.path.splitext(input_path)
+            output_path = f"{base}_anonymized{ext}"
+        
+        # Assuming JSON input for metadata
+        with open(input_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if isinstance(data, list):
+            for item in data:
+                if "participant_id" in item:
+                    item["participant_id"] = self.anonymize_participant_id(item["participant_id"])
+        elif isinstance(data, dict):
+            if "participant_id" in data:
+                data["participant_id"] = self.anonymize_participant_id(data["participant_id"])
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+
+        self.logger.info(f"Anonymized media metadata saved to {output_path}")
         return output_path
 
 
-def run_collection_protocol(sample_size: int = 5) -> Dict[str, str]:
+def run_collection_protocol(
+    consent_template_path: str,
+    survey_questions: List[Dict[str, Any]],
+    raw_data_path: str
+) -> Dict[str, str]:
     """
-    Execute the full data collection protocol for demonstration/validation.
+    Orchestrates the full data collection protocol:
+    1. Initialize Consent Capture.
+    2. Initialize Survey Interface.
+    3. Initialize Anonymization Pipeline.
+    4. Process raw data (simulated here by loading and cleaning).
+    5. Export results.
 
-    This function simulates the collection process by:
-    1. Creating a consent capture instance.
-    2. Simulating survey responses.
-    3. Anonymizing the data.
-    4. Saving all artifacts.
-
-    Args:
-        sample_size: Number of simulated participants to process.
-
-    Returns:
-        Dictionary of output file paths.
+    This function is designed to be called by the main entry point or an external orchestrator.
     """
-    logger.info(f"Starting Data Collection Protocol simulation with N={sample_size}")
+    logger.info("Starting Controlled Data Collection Protocol.")
 
-    # 1. Consent Capture
-    consent_handler = ConsentCapture()
-    for i in range(sample_size):
-        # Simulate consent data
-        consent_data = {
-            "consent_given": True,
-            "signature_date": datetime.now().isoformat(),
-            "age_verified": True
-        }
-        consent_handler.capture_consent(consent_data)
+    # 1. Consent
+    consent = ConsentCapture(consent_template_path)
+    # Simulate capturing consent for a test participant
+    consent.capture_consent("TEST_001", {"type": "digital", "timestamp": datetime.now().isoformat()})
+    consent_path = consent.export_consent_log()
 
-    consent_file = consent_handler.save_consent_records()
-
-    # 2. Survey Interface (Simulating interactions)
+    # 2. Survey
     survey = SurveyInterface()
-    emotions = ["happy", "neutral", "angry", "surprised"]
-    for i in range(sample_size):
-        interaction_id = f"INT_{i:04d}"
-        participant_id = f"PID_{i:04d}" # Real PII placeholder
-        trust_score = 3.0 + (i % 3) * 0.5 # Simulated score 3.0 to 4.5
-        emotion = emotions[i % len(emotions)]
-        difficulty = 1 + (i % 4)
+    # Simulate collecting a response
+    survey.collect_response(
+        "TEST_001", 
+        "INT_001", 
+        {"Q1": 6, "Q2": 5, "Q3": 6, "Q4": "Happy"}
+    )
+    survey_raw_path = survey.export_responses()
 
-        survey.record_response(
-            interaction_id=interaction_id,
-            participant_id=participant_id,
-            trust_score=trust_score,
-            avatar_emotion=emotion,
-            difficulty_rating=difficulty,
-            open_feedback=f"Sample feedback for interaction {interaction_id}"
-        )
+    # 3. Anonymization
+    anon = AnonymizationPipeline()
+    survey_anon_path = anon.process_survey_responses(survey_raw_path)
 
-    raw_file = survey.save_raw_responses()
-
-    # 3. Anonymization Pipeline
-    anonymizer = AnonymizationPipeline()
-    anonymized_data = anonymizer.anonymize_responses(survey.responses)
-    anon_file = anonymizer.save_anonymized_responses(anonymized_data)
-
-    logger.info("Data Collection Protocol simulation complete.")
+    logger.info("Protocol execution complete.")
     return {
-        "consent_records": consent_file,
-        "raw_responses": raw_file,
-        "anonymized_responses": anon_file
+        "consent_log": consent_path,
+        "survey_raw": survey_raw_path,
+        "survey_anonymized": survey_anon_path
     }
 
 
 def main():
-    """Entry point for the data collection script."""
-    setup_logging()
+    """
+    Main entry point for running the data collection protocol locally.
+    """
+    logger.info("Running data_collection.py main entry point.")
+    
     try:
-        outputs = run_collection_protocol(sample_size=10)
-        print("Protocol executed successfully. Output files:")
-        for key, path in outputs.items():
-            print(f"  {key}: {path}")
+        results = run_collection_protocol(
+            consent_template_path="code/consent_form_template.md",
+            survey_questions=[], # Loaded internally by SurveyInterface
+            raw_data_path="data/raw" # Placeholder for future raw media paths
+        )
+        
+        print("Data Collection Protocol Completed Successfully.")
+        print(f"Artifacts generated:")
+        for key, path in results.items():
+            print(f"  - {key}: {path}")
+            
     except Exception as e:
-        logger.error(f"Protocol execution failed: {e}", exc_info=True)
-        handle_corrupted_file(str(e))
+        logger.error(f"Protocol failed: {str(e)}", exc_info=True)
         raise
 
 

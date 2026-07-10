@@ -1,82 +1,111 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelOutput"
-description: "Schema for model training outputs and metrics."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: FinalReport
+type: object
 properties:
-  model_metrics:
-    type: "object"
+  model_performance:
+    type: object
     properties:
-      best_model_name:
-        type: "string"
-        description: "Name of the best performing model (e.g., 'RandomForest')."
-      mae_tg:
-        type: "number"
-        description: "Mean Absolute Error for Tg on test set."
+      best_model:
+        type: string
+        description: "Name of the best model (RF or XGBoost)"
+      mae_tg_residual:
+        type: number
+        description: "Mean Absolute Error for Tg_residual (if available)"
       mae_modulus:
-        type: "number"
-        description: "Mean Absolute Error for Modulus on test set."
-      baseline_mae_tg:
-        type: "number"
-        description: "MAE of linear baseline for Tg."
-      baseline_mae_modulus:
-        type: "number"
-        description: "MAE of linear baseline for Modulus."
-      p_value_tg:
-        type: "number"
-        description: "P-value from permutation test or t-test for Tg."
-      p_value_modulus:
-        type: "number"
-        description: "P-value from permutation test or t-test for Modulus."
-      vif_sensitivity_delta_mae:
-        type: "number"
-        description: "Change in MAE after excluding highest VIF feature."
-      vif_sensitivity_baseline_mae:
-        type: "number"
-        description: "Baseline MAE before VIF exclusion."
+        type: number
+        description: "Mean Absolute Error for Young's Modulus (if available)"
+      linear_baseline_mae_tg:
+        type: number
+        description: "Linear baseline MAE for Tg_residual"
+      linear_baseline_mae_modulus:
+        type: number
+        description: "Linear baseline MAE for Young's Modulus"
+      paired_t_test_p_value:
+        type: number
+        description: "P-value from paired t-test comparing ML vs. Linear"
+      null_hypothesis_rejected:
+        type: boolean
+        description: "True if p-value < 0.05 (after correction)"
+      data_insufficient:
+        type: boolean
+        description: "True if N < 100 or no target data available"
     required:
-      - best_model_name
-      - mae_tg
+      - best_model
+      - mae_tg_residual
       - mae_modulus
-      - baseline_mae_tg
-      - baseline_mae_modulus
-      - p_value_tg
-      - p_value_modulus
-      - vif_sensitivity_delta_mae
-      - vif_sensitivity_baseline_mae
+      - linear_baseline_mae_tg
+      - linear_baseline_mae_modulus
+      - paired_t_test_p_value
+      - null_hypothesis_rejected
+      - data_insufficient
   feature_importance:
-    type: "array"
-    description: "Top 10 features by importance."
-    items:
-      type: "object"
-      properties:
-        feature_name:
-          type: "string"
-        importance_score:
-          type: "number"
-      required:
-        - feature_name
-        - importance_score
-  stability_analysis:
-    type: "object"
+    type: object
     properties:
-      top_10_frequency:
-        type: "array"
-        description: "Frequency of each feature appearing in top 10 across 5 runs."
+      top_features:
+        type: array
         items:
-          type: "object"
+          type: object
           properties:
             feature_name:
-              type: "string"
-            frequency:
-              type: "integer"
-              minimum: 0
-              maximum: 5
+              type: string
+            frequency_in_top_10:
+              type: integer
+              description: "Frequency of appearing in top-10 across 5 runs"
           required:
             - feature_name
-            - frequency
+            - frequency_in_top_10
+      stability_score:
+        type: number
+        description: "Percentage of top-10 features with frequency >= 80%"
     required:
-      - top_10_frequency
+      - top_features
+      - stability_score
+  data_quality:
+    type: object
+    properties:
+      total_records:
+        type: integer
+      valid_records:
+        type: integer
+      ingestion_success_rate:
+        type: number
+        description: "Percentage of records successfully harmonized"
+      descriptor_completeness:
+        type: number
+        description: "Percentage of rows with >= 15 non-null descriptors"
+      union_dedup_pass_rate:
+        type: number
+        description: "Percentage of union (deduplicated) records passing validation (SC-004)"
+    required:
+      - total_records
+      - valid_records
+      - ingestion_success_rate
+      - descriptor_completeness
+      - union_dedup_pass_rate
+  validation_checks:
+    type: object
+    properties:
+      vif_analysis_performed:
+        type: boolean
+      vif_sensitivity_reported:
+        type: boolean
+      multiple_comparison_corrected:
+        type: boolean
+      rate_limit_recovery_verified:
+        type: boolean
+        description: "True if SC-009 test passed (5 errors within 30s)"
+      source_stratified_split:
+        type: boolean
+        description: "True if split was stratified by source (FR-016)"
+    required:
+      - vif_analysis_performed
+      - vif_sensitivity_reported
+      - multiple_comparison_corrected
+      - rate_limit_recovery_verified
+      - source_stratified_split
 required:
-  - model_metrics
+  - model_performance
   - feature_importance
-  - stability_analysis
+  - data_quality
+  - validation_checks
+additionalProperties: false

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T002 Initialize Python project with pinned dependencies by generating `code/requirements.txt` containing pinned versions for openface, librosa, scikit-learn, statsmodels, pandas, matplotlib, seaborn, synthpop
 - [X] T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root
 
@@ -59,7 +59,7 @@
 - [X] T005 Implement data validation logic in `code/config.py` and `code/validators.py` to enforce FR-001 (schema check, metadata presence)
 - [X] T006 Setup deterministic logging and state tracking by creating `state/` directory and `code/logging_config.py` with specific logging format
 - [X] T007 Implement error handling framework by creating `code/utils.py` with a `handle_corrupted_file()` function that logs to logger and returns None for specific error conditions (corrupted media, missing metadata)
-- [ ] T012c [P] [US1] Implement Controlled Data Collection Protocol by creating `code/data_collection.py` (survey interface, consent capture, anonymization pipeline) and `code/consent_form_template.md` as version-controlled artifacts per Constitution Principle VII and FR-001 fallback
+- [X] T012c [P] [US1] Implement Controlled Data Collection Protocol by creating `code/data_collection.py` (survey interface, consent capture, anonymization pipeline) and `code/consent_form_template.md` as version-controlled artifacts per Constitution Principle VII and FR-001 fallback
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,8 +80,8 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI data OR generate synthetic time-series via `synthpop` if no real data exists (adhering to FR-001 fallback), calling validator from T005
-- [~] T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py` as a placeholder script that logs a warning and halts execution if real data is required, directing the user to manual IRB steps (do NOT automate IRB logic)
+- [ ] T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI data OR generate synthetic time-series via `synthpop` if no real data exists (adhering to FR-001 fallback), calling validator from T005
+- [ ] T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py` as a placeholder script that logs a warning and halts execution if real data is required, directing the user to manual IRB steps (do NOT automate IRB logic)
 - [~] T013 [P] [US1] Implement facial feature extraction in `code/extract_facial.py` using OpenFace (CPU binary) for video frames
 - [~] T014 [P] [US1] Implement vocal prosody extraction in `code/extract_vocal.py` using librosa for pitch, energy, tempo from audio tracks
 - [~] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004, consuming `data/processed/features.csv` produced by T013/T014 (WAIT FOR T013/T014 COMPLETION)

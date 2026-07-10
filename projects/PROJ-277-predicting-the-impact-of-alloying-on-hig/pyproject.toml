@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predicting-oxidation-resistance"
+version = "0.1.0"
+description = "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "llmXive Research Team", email = "research@llmxive.example"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "shap>=0.43.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "statsmodels>=0.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.1.0",
+    "pre-commit>=3.5.0",
+]
+
+[project.scripts]
+oxidation-pipeline = "code.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "logs",
+    "build",
+    "dist",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[project.urls]
+Repository = "https://github.com/llmxive/proj-277-oxidation-resistance"
+Issues = "https://github.com/llmxive/proj-277-oxidation-resistance/issues"

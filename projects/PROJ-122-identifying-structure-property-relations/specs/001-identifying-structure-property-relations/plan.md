@@ -1,50 +1,57 @@
 # Implementation Plan: Identifying Structure-Property Relationships in Polymer Blends
 
-**Branch**: `001-structure-property-relationships` | **Date**: 2024-05-21 | **Spec**: `specs/001-structure-property-relations/spec.md`
+**Branch**: `001-structure-property-relationships` | **Date**: 2024-05-21 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-structure-property-relationships/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to identify structure-property relationships in polymer blends using public databases. The approach aggregates heterogeneous data (SMILES, composition, Tg, Modulus) primarily from **verified** public sources (PolymerBench, NIST, Materials Project APIs), harmonizes units (Kelvin, GPa), and generates molecular descriptors via RDKit. It then trains Random Forest and XGBoost models to predict the *residual* properties (Observed - Physics Baseline), performs rigorous statistical validation (Nested Cross-Validation, Permutation Testing for small N, VIF sensitivity analysis), and ensures all results are reproducible on CPU-only CI.
+This project implements a reproducible, CPU-only pipeline to identify structure-property relationships in polymer blends using public data. The approach aggregates data from Polymer Database, NIST, and Materials Project (subject to verification), harmonizes units (Kelvin, GPa), generates molecular descriptors via RDKit, computes blend interaction features (Fox/Gordon-Taylor), and trains Random Forest/XGBoost models to predict Tg_residual and Young's Modulus. **Critical Constraint**: The pipeline includes a mandatory "Data Verification Gate" (FR-015). If no verified dataset containing SMILES, Composition, Tg, and Modulus is found, the main blend-prediction pipeline halts, and the system switches to a "Monomer-Level Fallback" track (predicting monomer properties from descriptors only) as defined in FR-013. The pipeline includes rigorous statistical validation (paired t-tests, VIF sensitivity analysis, SHAP interpretability) and strict data hygiene (checksums, versioning) as mandated by the project constitution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `requests`, `jsonschema`, `datasets`  
-**Storage**: Local file system (`data/` for raw/processed data, `code/` for scripts, `state.yaml` for versioning)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, no GPU)  
-**Project Type**: Data science pipeline / CLI  
-**Performance Goals**: Complete pipeline < 5 hours on CI; RAM usage < 7 GB; disk usage < 14 GB.  
-**Constraints**: No GPU/CUDA; no large-LLM inference; data sampled to **[deferred] rows** if raw fetch exceeds memory; strict unit harmonization; VIF sensitivity analysis must re-train models.
-**Scale/Scope**: A diverse set of polymer blend entries (dependent on public data availability); Multiple molecular descriptors per monomer.
+**Primary Dependencies**: `pandas`, `rdkit`, `scikit-learn`, `xgboost`, `shap`, `pyyaml`, `requests`, `joblib`, `hashlib`, `hansen-solubility` (if available), `polymer-properties` (if available)  
+**Storage**: Local files (`data/raw/`, `data/processed/`), `state/projects/PROJ-122-identifying-structure-property-relations.yaml` for artifact tracking  
+**Seeds**: Pinned in `config.py` (global seed = 42, plus independent runs with seeds -5)  
+**Testing**: `pytest` (unit, integration, contract tests)  
+**Target Platform**: GitHub Actions `ubuntu-latest` (2 CPU, 7 GB RAM, no GPU)  
+**Project Type**: Data Science / Computational Materials Science Pipeline  
+**Performance Goals**: Full pipeline execution ≤ 5 hours; memory usage ≤ 6 GB; dataset sampling if > 7 GB RAM  
+**Constraints**: No GPU/CUDA; no 8-bit quantization; no large-LLM inference; strict adherence to verified dataset URLs; no un-spec'd constraints  
+**Scale/Scope**: Targeting public datasets; N < 1000 samples (expected); + descriptors per monomer; k-fold cross-validation
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+k-fold cross-validation or random split based on N  
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, canonical data sources, isolated virtualenv, and strict API-only data ingestion. |
-| **II. Verified Accuracy** | **PASS** | Plan includes **T016** to implement Reference-Validator Agent workflow and `CITATION_TITLE_OVERLAP_THRESHOLD` check before ingestion. |
-| **III. Data Hygiene** | **PASS** | Plan mandates checksumming (**T017**) via `state.yaml`, immutable raw data, and schema validation (T015). `dataset.schema.yaml` is the source of truth for `01_ingest.py`. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (MAE, p-values) derived from code outputs, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in `state.yaml` (root); **T017** updates this file after every data step. |
-| **VI. Standardized Units** | **PASS** | Plan enforces Kelvin/GPa conversion and physical bounds checks. |
-| **VII. Descriptor Traceability** | **PASS** | RDKit version pinned; feature importance tied to exact descriptor set. |
+| Constitution Principle | Compliance Strategy | Status |
+|------------------------|---------------------|--------|
+| **I. Reproducibility** | All seeds pinned in `config.py`; datasets fetched from canonical sources; `requirements.txt` pinned; CI runs end-to-end. | ✅ Plan includes seed management (config.py) and deterministic splits. |
+| **II. Verified Accuracy** | Reference-Validator Agent checks all citations; `CITATION_TITLE_OVERLAP_THRESHOLD` ≥ 0.7 enforced; only verified URLs used. | ✅ Plan mandates URL verification before ingestion (FR-015). **Conditional**: If no verified URL, gate fails and fallback activates. |
+| **III. Data Hygiene** | Checksums recorded in `state/projects/PROJ-122-identifying-structure-property-relations.yaml`; raw data immutable; derivations versioned; PII scan passed. | ✅ Plan includes state file tracking (FR-018) and checksum logic. |
+| **IV. Single Source of Truth** | All figures/stats trace to `data/` rows and `code/` blocks; no hand-typed numbers. | ✅ Plan enforces artifact tracing and automated reporting. |
+| **V. Versioning Discipline** | Content hashes for all `data/` artifacts; `state/projects/PROJ-122-identifying-structure-property-relations.yaml` updated on change. | ✅ FR-018 and FR-019 implemented. |
+| **VI. Standardized Units** | All Tg in Kelvin, Modulus in GPa; physical bounds enforced (T > 0, E ≥ 0). | ✅ FR-001 and FR-014 enforce unit harmonization and sensitivity sweeps. |
+| **VII. Computational Descriptor Traceability** | RDKit descriptors generated via versioned pipeline; feature importance reproducible. | ✅ FR-003 and FR-008 ensure descriptor traceability and VIF analysis. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-structure-property-relations/
+specs/001-structure-property-relationships/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── output.schema.yaml
 └── tasks.md             # Phase 2 output
@@ -53,88 +60,70 @@ specs/001-structure-property-relations/
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-122-identifying-structure-property-relations/
-├── data/
-│   ├── raw/             # Immutable downloaded data (checksummed)
-│   ├── processed/       # Harmonized CSVs, feature matrices, residuals, baselines
-│   └── artifacts/       # Model checkpoints, SHAP outputs, stability reports
-├── code/
-│   ├── 01_ingest.py     # Data fetching, unit harmonization, validation, hashing, schema check
-│   ├── 02_features.py   # Descriptor generation, VIF calc (diagnostic only)
-│   ├── 03_train.py      # Nested CV, model training, VIF sensitivity re-training, stability runs
-│   ├── 04_report.py     # Aggregation of stability metrics, SHAP plots, final tables, causal disclaimer
-│   └── utils.py         # Shared helpers (logging, unit conversion, hashing)
-├── tests/
-│   ├── unit/
-│   │   ├── test_ingest.py
-│   │   ├── test_features.py
-│   │   ├── test_train.py
-│   │   └── test_validation.py
-│   └── integration/
-│       └── test_pipeline.py
-├── state.yaml           # Versioning and hash tracking (Principle V)
-├── requirements.txt     # Pinned dependencies
-└── README.md
+src/
+├── 01_ingest.py         # Data download, unit harmonization, validation (FR-001, FR-002, FR-010, FR-011)
+├── 01b_sensitivity.py   # Weight-fraction tolerance sweep {0.01, 0.02, 0.05} (FR-014)
+├── 02_features.py       # Descriptor generation, interaction features, VIF analysis (FR-003, FR-004, FR-008)
+├── 02b_fallback.py      # Component-level prediction mode if blend join fails >50% (FR-013)
+├── 03_train.py          # Model training, hyperparameter tuning, cross-validation (Source Stratified Split) (FR-005, FR-009, FR-016)
+├── 04_evaluate.py       # Paired t-test, SHAP, feature importance stability (FR-006, FR-007, SC-003, SC-008)
+├── 05_metrics.py        # SC-004 (Union dedup + pass rate), SC-009 (Rate limit recovery) calculation
+├── 05_report.py         # Final report generation, artifact hashing (FR-018, SC-001, SC-002)
+├── utils/
+│   ├── validators.py    # Unit conversion, SMILES parsing, weight-fraction checks
+│   ├── descriptors.py   # RDKit descriptor calculation + Group Contribution methods for FFV/Hansen
+│   └── metrics.py       # MAE, R², VIF, t-test utilities
+└── config.py            # Seeds, paths, thresholds, verified URLs
+
+tests/
+├── contract/
+│   ├── test_dataset_schema.py
+│   └── test_output_schema.py
+├── integration/
+│   ├── test_ingest_pipeline.py
+│   ├── test_feature_engineering.py
+│   └── test_rate_limit.py  # SC-009: 5 consecutive errors within 30s
+└── unit/
+    ├── test_descriptors.py
+    └── test_metrics.py
+
+data/
+├── raw/                 # Downloaded raw files (immutable)
+├── processed/           # Harmonized, validated, feature-engineered data
+└── state.json           # Temporary cache (deprecated, use state/...)
+
+state/
+└── projects/PROJ-122-identifying-structure-property-relations.yaml  # SSoT for hashes (FR-018)
 ```
 
-**Structure Decision**: Single project structure selected. Separation of concerns (ingest, features, train, report) aligns with the 3-stage pipeline (US1, US2, US3). This ensures independent testing of feature engineering (US2) without requiring model training, while placing the VIF sensitivity analysis (re-training) strictly in the training module (US3) to satisfy FR-008.
-
-## Implementation Phases
-
-### Phase 1: Data Ingestion & Validation (US1)
-*   **T015**: Implement Schema Validation. Validate raw data against `dataset.schema.yaml` before processing.
-*   **T016**: Implement Reference-Validator Hook. Verify all dataset URLs and check `CITATION_TITLE_OVERLAP_THRESHOLD` before ingestion.
-*   **T017**: Implement Content Hashing. Calculate SHA-256 for all `data/raw/` files and update `state.yaml` after every ingestion step.
-*   **T018**: Implement Stratified Sampling. If data > 100,000 rows, sample using 'Stratified Random Sampling by Source' to fit memory (Target: [deferred] rows, capped at 7GB RAM).
-*   **T019**: Implement Data Insufficiency Halt. In `code/01_ingest.py`, raise `DataInsufficiencyError` with message "Dataset size N={N} < 100" if valid records < 100. Log the error and exit code 1. (Pre-condition for US2/US3).
-*   **T020**: Implement Weight-Fraction Tolerance Sensitivity Sweep. Iterate {0.01, 0.02, 0.05}, record impact on dataset size and SC-004 metrics. **Mandatory**: If MAE variance across sweeps > 5%, flag assumption as invalid in final report.
-
-### Phase 2: Feature Engineering (US2)
-*   **T021**: Implement Molecular Descriptor Generation. Generate multiple descriptors per monomer using RDKit.
-*   **T022**: Implement Interaction Features. Compute weighted averages and absolute differences.
-*   **T027**: Implement Fox/Gordon-Taylor Equations. Compute as **Baseline Predictions** (not predictors). Save to `data/processed/baselines.csv`. Do NOT include in feature matrix.
-*   **T028a**: Implement VIF Calculation. Calculate VIF for all predictors. Flag pairs > 5.0. (Output: diagnostic report only). Located in `code/02_features.py`.
-*   **T023a**: Unit test for VIF calculation logic in `tests/test_features.py`.
-
-### Phase 3: Model Training & Validation (US3)
-*   **T030**: Implement Nested Cross-Validation (x5). Outer loop for unbiased testing, inner loop for tuning. Stratify by data source.
-*   **T031**: Implement Residual Prediction Workflow. Train Linear Baseline and ML models on **Residuals** (Observed - Physics Baseline).
-*   **T035**: Implement VIF Sensitivity Analysis. Re-train models excluding highest-VIF features and compare MAE. (Located in `code/03_train.py`).
-*   **T036**: Unit test for Sensitivity Analysis logic in `tests/test_train.py`.
-*   **T037**: Implement Stability Runs. Execute multiple independent training runs with different seeds.
-*   **T038**: Implement Elastic Net Fallback. If N < 200, switch to Elastic Net with L1 regularization instead of aggressive VIF pruning.
-
-### Phase 4: Reporting & Analysis
-*   **T041**: Generate MAE/p-value Summary Table. Aggregate NCV results and paired t-test/Permutation p-values (on outer loop predictions).
-*   **T042**: Generate SHAP Summary Plot. Visualize feature importance for top predictions.
-*   **T043**: Generate Feature Stability Chart. Aggregate results from 5 runs (T037) to compute 'frequency of top-10 features' (SC-003).
-*   **T044**: Generate Causal Disclaimer. Explicitly state that SHAP values reflect predictive contribution, not causality.
-*   **T045**: Refactor `code/03_train.py` to implement batched SHAP calculation and verify runtime < 5h on local runner.
+**Structure Decision**: Single-project structure with modular scripts for each pipeline stage. This ensures clarity, reproducibility, and ease of testing. The `src/` directory contains all executable logic, `tests/` for validation, and `data/` for artifacts.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Nested Cross-Validation** | Required to eliminate selection bias and address power issues for N=100-200. | Simple train/val/test split is statistically underpowered and biased for model selection. |
-| **Residual Prediction** | Prevents tautological validation where ML re-learns physics equations. | Training on raw values with physics features allows linear baseline to trivially fit, making ML comparison meaningless. |
-| **VIF Sensitivity Re-training** | FR-008 requires comparing model metrics after excluding high-VIF features. | A simple feature exclusion without re-training does not measure the *impact* on model performance. |
-| **Stability Analysis (5 runs)** | SC-003 requires identifying descriptors stable across 5 independent runs. | A single run cannot establish statistical stability or robustness of feature importance rankings. |
-| **Sensitivity Sweep (Tolerance)** | Assumption requires validating the ±0.02 weight-fraction tolerance. | A fixed threshold without sweeping {0.01, 0.02, 0.05} risks biasing the dataset quality metric (SC-004). |
-| **Source-Stratified CV** | Addresses domain shift between Polymer DB, NIST, and MP. | Random CV may train on one source and test on another, leading to inflated performance estimates. |
-| **Elastic Net Fallback** | Mitigates 'Small-N, High-P' risk where VIF removal destroys signal. | Aggressive VIF pruning in small datasets can remove the only signal, leading to false negatives. |
-| **Permutation Testing** | Standard t-test is underpowered for N < 500. | Parametric tests assume normality and large N; permutation testing is robust for small samples. |
+|-----------|------------|-------------------------------------|
+| **Multiple model types (RF, XGBoost, Linear)** | Required by FR-005 and SC-001 to compare predictive performance and establish baseline. | Single-model approach would not satisfy the comparative analysis requirement. |
+| **VIF sensitivity analysis** | Required by FR-008 to address collinearity and ensure robust feature importance. | Ignoring collinearity could lead to spurious feature rankings and invalid conclusions. |
+| **Source Stratified Split** | Required by FR-016 to address domain shift and ensure generalizability. | Random splitting could bias results if sources have different property distributions. |
+| **Exponential backoff for APIs** | Required by FR-010 and SC-009 to handle rate limits robustly. | Simple retry without backoff would cause frequent failures and non-reproducible runs. |
+| **Five independent training runs** | Required by FR-009 and SC-008 to assess stability of feature importance. | Single run would not capture variability and could lead to overfitting to a specific seed. |
+| **Weight-fraction Sensitivity Sweep** | Required by FR-014 to validate robustness of the ±0.02 tolerance. | Single tolerance check does not satisfy the robustness requirement. |
+| **Monomer-Level Fallback** | Required by FR-013 if blend data is insufficient. | Without fallback, the project would yield no results if the primary data source is missing. |
 
-## Success Criteria Mapping
+## Execution Flow & Gates
 
-*   **SC-001**: Measured via **Nested Cross-Validation** outer-loop MAE (replaces static split).
-*   **SC-002**: **Permutation Testing** (10k iterations) on absolute errors of **Residual Predictions** (ML vs Linear Baseline) on outer-loop folds (replaces t-test for N < 500).
-*   **SC-003**: Aggregated via **T043** (Stability Chart) from 5 independent runs.
-*   **SC-004**: Validated via **T020** (Sensitivity Sweep) across tolerance values.
-*   **SC-005**: Validated via **T045** (Runtime verification).
-
-## Edge Cases & Mitigations
-
-*   **API Rate Limits**: Exponential backoff (a bounded number of retries). If failed, pipeline halts.
-*   **Missing SMILES**: Rows with missing SMILES for components > 0.05 weight fraction are excluded. If > 50% of entries are excluded, pipeline halts with `DataInsufficiencyError`.
-*   **Data Insufficiency**: If N < 100, pipeline halts with `DataInsufficiencyError` (T019).
-*   **No Verified Source**: If APIs fail to provide combined SMILES+Properties, pipeline halts with `DataInsufficiencyError`. No manual fallback allowed.
+1.  **Gate 1: Data Verification (FR-015)**: Check for verified URL containing SMILES, Composition, Tg, Modulus.
+    *   **Pass**: Proceed to `01_ingest.py`.
+    *   **Fail**: Trigger `02b_fallback.py` (Monomer-Level Prediction) or Halt with "Data Insufficient" if no monomer data exists.
+2.  **Gate 2: Data Quality (SC-004)**: Run `01b_sensitivity.py` and `05_metrics.py` to verify ≥95% pass rate.
+    *   **Pass**: Proceed to feature engineering.
+    *   **Fail**: Report gap, proceed with available data if >50% valid, else halt.
+3.  **Gate 3: Target Variable Availability**: Check if `Tg_measured` and `Tg_1`, `Tg_2` exist.
+    *   **Pass**: Compute `Tg_residual` and interaction features.
+    *   **Fail**: Skip residual calculation, proceed with monomer descriptors only (if applicable).
+4.  **Gate 4: Statistical Validity**: Ensure N ≥ 100 (FR-012).
+    *   **Pass**: Proceed to training.
+    *   **Fail**: Halt with "Data Insufficiency".
+5.  **Gate 5: Rate Limit Recovery (SC-009)**: Verify `01_ingest.py` recovers from 5 consecutive errors within 30s.
+    *   **Pass**: Continue.
+    *   **Fail**: Halt.

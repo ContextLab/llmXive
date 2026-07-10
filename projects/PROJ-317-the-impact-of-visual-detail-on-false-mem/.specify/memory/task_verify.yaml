@@ -3,17 +3,17 @@
   width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED:
   unspecified -->'
 : 2
-? 'T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`:
-  Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced
-  texture variance compared to input in the masked region. <!-- FAILED: unspecified
-  -->'
-: 2
-? "T013 [P] [US1] Integration test for full pipeline (generate \u2192 manipulate \u2192\
-  \ metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`.\
-  \ Assert that multiple manipulated images and 1 metadata file are created for each\
-  \ input. <!-- FAILED: unspecified -->"
-: 2
+? 'T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`:
+  Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height,
+  width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified -->'
+: 1
 ? 'T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`:
   Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline
   images. <!-- FAILED: unspecified -->'
+: 2
+? 'T018 [US1] Implement ''skip and log'' logic for manipulation failures in `code/stimuli/manipulator.py`:
+  If manipulation fails for an image, skip the image entirely (do not attempt metadata
+  generation) and log the error to `data/logs/manipulation_errors.log` as required
+  by Edge Cases.'
 : 1

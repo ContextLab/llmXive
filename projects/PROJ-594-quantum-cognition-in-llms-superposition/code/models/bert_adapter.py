@@ -1,279 +1,230 @@
-"""
-Complex-valued BERT Adapter for Quantum Cognition in LLMs.
-
-This module implements the core adapter logic:
-1. Linear projection of real-valued hidden states to complex space (R^d -> C^d).
-2. Context-dependent phase shift operations.
-3. Superposition (vector addition) and Born rule probability calculation.
-4. Softmax normalization for final probabilities.
-
-The implementation strictly follows the quantum-inspired formalism:
-- States are represented as complex vectors (amplitudes).
-- Probabilities are derived via the Born rule (squared magnitude).
-- Interference arises from the cross-term in the squared magnitude of the sum.
-"""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Tuple, Optional, Dict, Any
+import os
+import sys
 
-# Import shared utilities from the project API surface
-from utils.complex_ops import to_complex, phase_shift, vector_add, born_rule
-from utils.logging import detect_nan_inf, safe_normalize
-
+# Import from sibling modules in the same project structure
+from ..utils.complex_ops import to_complex, phase_shift, vector_add, born_rule, interference_cross_term
+from ..utils.logging import detect_nan_inf, safe_normalize
+from .loss_utils import compute_phase_penalty_loss, verify_gradient_direction
 
 class ComplexLinearProjection(nn.Module):
     """
-    Projects real-valued hidden states to complex-valued space.
-    
-    Maps input R^d to C^d by learning separate real and imaginary weight matrices.
-    Output shape: [batch, seq_len, hidden] with dtype torch.complex64.
+    Projects real-valued hidden states to complex vectors.
+    Maps R^d -> C^d by learning separate real and imaginary linear projections.
     """
-    def __init__(self, hidden_size: int):
+    def __init__(self, input_dim: int, output_dim: int):
         super().__init__()
-        self.hidden_size = hidden_size
+        self.real_proj = nn.Linear(input_dim, output_dim)
+        self.imag_proj = nn.Linear(input_dim, output_dim)
         
-        # Learnable parameters for real and imaginary components
-        self.weight_real = nn.Parameter(torch.empty(hidden_size, hidden_size))
-        self.bias_real = nn.Parameter(torch.empty(hidden_size))
-        self.weight_imag = nn.Parameter(torch.empty(hidden_size, hidden_size))
-        self.bias_imag = nn.Parameter(torch.empty(hidden_size))
-        
-        self.reset_parameters()
-
-    def reset_parameters(self) -> None:
-        """Initialize weights using Xavier uniform."""
-        nn.init.xavier_uniform_(self.weight_real)
-        nn.init.xavier_uniform_(self.weight_imag)
-        nn.init.zeros_(self.bias_real)
-        nn.init.zeros_(self.bias_imag)
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            x: Real-valued input tensor of shape [batch, seq_len, hidden]
-        
+            x: Real-valued tensor of shape [batch, seq_len, input_dim]
         Returns:
-            Complex-valued tensor of shape [batch, seq_len, hidden] (dtype: complex64)
+            Complex tensor of shape [batch, seq_len, output_dim] with dtype torch.complex64
         """
-        # Ensure input is float32 for complex construction
-        if x.dtype != torch.float32:
-            x = x.float()
-        
-        # Compute real and imaginary parts
-        real_part = F.linear(x, self.weight_real, self.bias_real)
-        imag_part = F.linear(x, self.weight_imag, self.bias_imag)
-        
-        # Combine into complex tensor
+        real_part = self.real_proj(x)
+        imag_part = self.imag_proj(x)
         return torch.complex(real_part, imag_part)
-
 
 class ContextDependentPhaseShift(nn.Module):
     """
     Implements context-dependent phase shift operator U_c.
-    
     Computes a context embedding via attention pooling over sentence tokens,
-    projects it to rotation angles theta, and applies a diagonal phase shift exp(i*theta).
-    
-    The phase shift is applied element-wise to the complex vector.
+    projects to rotation angle theta, and applies diagonal phase shift exp(i*theta).
     """
-    def __init__(self, hidden_size: int):
+    def __init__(self, hidden_dim: int):
         super().__init__()
-        self.hidden_size = hidden_size
+        self.attention_pool = nn.MultiheadAttention(
+            embed_dim=hidden_dim, 
+            num_heads=4, 
+            batch_first=True
+        )
+        self.theta_proj = nn.Linear(hidden_dim, hidden_dim)
         
-        # Attention pooling layer to compute context vector
-        self.context_attention = nn.Linear(hidden_size, 1)
-        
-        # Projection from context vector to phase angles (one per hidden dimension)
-        self.phase_projection = nn.Linear(hidden_size, hidden_size)
-
-    def forward(self, x: torch.Tensor, context_mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            x: Complex-valued input tensor of shape [batch, seq_len, hidden]
-            context_mask: Optional boolean mask of shape [batch, seq_len] indicating valid tokens
-        
+            x: Real-valued tensor of shape [batch, seq_len, hidden_dim]
         Returns:
-            Phase-shifted complex tensor of shape [batch, seq_len, hidden]
+            Complex tensor of shape [batch, seq_len, hidden_dim] with phase shifts applied
         """
-        if x.dtype != torch.complex64:
-            x = x.to(torch.complex64)
+        batch_size, seq_len, hidden_dim = x.shape
         
-        batch_size, seq_len, hidden = x.shape
+        # Create a single context token (learnable or mean-pooled)
+        # Here we use a simple mean pooling over sequence dimension for context
+        context = x.mean(dim=1, keepdim=True)  # [batch, 1, hidden_dim]
         
-        # Extract real part for context computation (phase depends on magnitude/content)
-        real_input = x.real
+        # Project context to rotation angles
+        theta = self.theta_proj(context)  # [batch, 1, hidden_dim]
+        theta = theta.squeeze(1)  # [batch, hidden_dim]
         
-        # Compute attention scores for context pooling
-        attn_scores = self.context_attention(real_input)  # [batch, seq_len, 1]
+        # Apply phase shift to each token in the sequence
+        # Expand theta to match sequence length
+        theta_expanded = theta.unsqueeze(1)  # [batch, 1, hidden_dim]
         
-        if context_mask is not None:
-            # Apply mask to attention scores
-            attn_scores = attn_scores.masked_fill(~context_mask.unsqueeze(-1), float('-inf'))
+        # Create phase shift matrix: exp(i * theta)
+        phase_shifts = torch.exp(1j * theta_expanded)  # [batch, 1, hidden_dim] complex
         
-        # Softmax to get attention weights
-        attn_weights = F.softmax(attn_scores, dim=1)  # [batch, seq_len, 1]
+        # Broadcast to all sequence positions
+        phase_shifts = phase_shifts.expand(-1, seq_len, -1)  # [batch, seq_len, hidden_dim]
         
-        # Compute context vector as weighted sum of token representations
-        context_vector = torch.sum(attn_weights * real_input, dim=1)  # [batch, hidden]
+        # Apply phase shift: multiply each token by the phase factor
+        # First convert x to complex
+        x_complex = to_complex(x)  # [batch, seq_len, hidden_dim] complex
         
-        # Project context to phase angles
-        theta = self.phase_projection(context_vector)  # [batch, hidden]
-        
-        # Expand theta to match x dimensions [batch, 1, hidden] -> [batch, seq_len, hidden]
-        theta_expanded = theta.unsqueeze(1).expand(-1, seq_len, -1)
-        
-        # Create phase shift factor: exp(i * theta)
-        phase_factor = torch.exp(1j * theta_expanded)
-        
-        # Apply phase shift: element-wise multiplication
-        output = x * phase_factor
+        # Element-wise multiplication for diagonal phase shift
+        output = x_complex * phase_shifts
         
         return output
 
-
 class BERTComplexAdapter(nn.Module):
     """
-    Full Complex-Valued Adapter for BERT.
-    
-    Implements the complete pipeline:
-    1. Projection: R^d -> C^d
-    2. Phase Shift: Context-dependent rotation
-    3. Superposition: Vector addition of alternative interpretations
-    4. Measurement: Born rule + Softmax normalization
-    
-    This adapter is designed to be inserted into a frozen BERT model's hidden states
-    to enable quantum-inspired ambiguity resolution.
+    Full quantum-inspired adapter for BERT hidden states.
+    Implements:
+    1. Complex linear projection R^d -> C^d
+    2. Context-dependent phase shift U_c
+    3. Superposition (vector addition)
+    4. Born rule probability calculation
+    5. Softmax normalization
     """
-    def __init__(self, hidden_size: int):
+    def __init__(self, hidden_dim: int, num_classes: int = 2):
         super().__init__()
-        self.hidden_size = hidden_size
+        self.hidden_dim = hidden_dim
+        self.num_classes = num_classes
         
-        # Core components
-        self.projection = ComplexLinearProjection(hidden_size)
-        self.phase_shift = ContextDependentPhaseShift(hidden_size)
+        # Complex linear projection
+        self.complex_proj = ComplexLinearProjection(hidden_dim, hidden_dim)
         
-    def forward(
-        self, 
-        hidden_states: torch.Tensor,
-        alt_interpretations: Optional[torch.Tensor] = None,
-        context_mask: Optional[torch.Tensor] = None
-    ) -> Dict[str, torch.Tensor]:
+        # Context-dependent phase shift
+        self.phase_shift = ContextDependentPhaseShift(hidden_dim)
+        
+        # Learnable parameters for ambiguity detection
+        self.ambiguity_head = nn.Linear(hidden_dim, 1)
+        
+    def forward(self, hidden_states: torch.Tensor, 
+                context_states: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
         """
-        Forward pass of the complex adapter.
+        Args:
+            hidden_states: Real-valued tensor [batch, seq_len, hidden_dim]
+            context_states: Optional context tensor for phase shift computation
+        Returns:
+            Tuple of (final_probabilities, intermediate_states_dict)
+        """
+        # Step 1: Complex linear projection
+        complex_states = self.complex_proj(hidden_states)  # [batch, seq_len, hidden_dim] complex
+        
+        # Step 2: Context-dependent phase shift
+        shifted_states = self.phase_shift(hidden_states)  # [batch, seq_len, hidden_dim] complex
+        
+        # Step 3: Superposition (vector addition of original complex and shifted states)
+        superposed_states = vector_add(complex_states, shifted_states)  # [batch, seq_len, hidden_dim] complex
+        
+        # Step 4: Born rule - compute squared magnitude
+        raw_probs = born_rule(superposed_states)  # [batch, seq_len, hidden_dim] real
+        
+        # Step 5: Softmax normalization across classes (assuming last dim is classes)
+        # For binary classification, we take the last two dimensions as class probabilities
+        if raw_probs.shape[-1] >= 2:
+            # Take the last two dimensions as class scores
+            class_scores = raw_probs[..., -2:]  # [batch, seq_len, 2]
+            final_probs = F.softmax(class_scores, dim=-1)  # [batch, seq_len, 2]
+        else:
+            final_probs = F.softmax(raw_probs, dim=-1)
+        
+        # Collect intermediate states for analysis
+        intermediate_states = {
+            'complex_states': complex_states,
+            'shifted_states': shifted_states,
+            'superposed_states': superposed_states,
+            'raw_probs': raw_probs,
+            'final_probs': final_probs
+        }
+        
+        return final_probs, intermediate_states
+    
+    def compute_loss(self, hidden_states: torch.Tensor, 
+                    labels: torch.Tensor, 
+                    lambda_penalty: float = 0.5) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Compute training loss with phase penalty for ambiguous tokens.
         
         Args:
-            hidden_states: Real-valued BERT hidden states [batch, seq_len, hidden]
-            alt_interpretations: Optional alternative interpretation states [batch, seq_len, hidden]
-            context_mask: Optional mask for valid tokens [batch, seq_len]
+            hidden_states: Real-valued tensor [batch, seq_len, hidden_dim]
+            labels: Ground truth labels [batch, seq_len] or [batch]
+            lambda_penalty: Weight for phase penalty term (default 0.5)
         
         Returns:
-            Dictionary containing:
-              - 'complex_state': The processed complex state [batch, seq_len, hidden]
-              - 'probabilities': Final probabilities via Born rule + softmax [batch, seq_len, 2]
-              - 'cross_term': Interference cross-term values [batch, seq_len]
+            Tuple of (total_loss, phase_penalty_loss)
         """
-        # Step 1: Project real hidden states to complex space
-        complex_state = self.projection(hidden_states)
+        # Forward pass to get probabilities
+        final_probs, intermediate_states = self.forward(hidden_states)
         
-        # Step 2: Apply context-dependent phase shift
-        if context_mask is not None:
-            # Ensure mask is boolean
-            if context_mask.dtype != torch.bool:
-                context_mask = context_mask.bool()
+        # Standard cross-entropy loss
+        # Reshape for loss computation
+        batch_size = final_probs.shape[0]
         
-        shifted_state = self.phase_shift(complex_state, context_mask)
-        
-        # Step 3: Handle alternative interpretations for superposition
-        if alt_interpretations is not None:
-            # Project alternative interpretation to complex space
-            alt_complex = self.projection(alt_interpretations)
-            alt_shifted = self.phase_shift(alt_complex, context_mask)
-            
-            # Superposition: vector addition
-            superposed_state = vector_add(shifted_state, alt_shifted)
-            
-            # Calculate interference cross-term
-            # Cross-term = 2 * Re(c1 * conj(c2))
-            cross_term = 2 * torch.real(shifted_state * torch.conj(alt_shifted))
-            cross_term = torch.sum(cross_term, dim=-1)  # Sum over hidden dimension
+        # Assume binary classification: take first class probability
+        if final_probs.shape[-1] == 2:
+            pred_probs = final_probs[..., 0]  # [batch, seq_len]
         else:
-            superposed_state = shifted_state
-            cross_term = torch.zeros_like(hidden_states[..., 0])
+            pred_probs = final_probs[..., 0]
         
-        # Step 4: Born rule (squared magnitude)
-        # P_raw = ||c||^2
-        p_raw = born_rule(superposed_state)
+        # Compute cross-entropy loss
+        ce_loss = F.cross_entropy(
+            final_probs.view(-1, final_probs.shape[-1]),
+            labels.view(-1),
+            reduction='mean'
+        )
         
-        # Step 5: Softmax normalization for final probabilities
-        # If we have two interpretations (original + alt), we normalize over them
-        if alt_interpretations is not None:
-            # Stack probabilities: [batch, seq_len, 2]
-            p_original = born_rule(shifted_state)
-            p_alt = born_rule(alt_shifted)
-            probs = torch.stack([p_original, p_alt], dim=-1)
-            probs_normalized = F.softmax(probs, dim=-1)
-        else:
-            # Single interpretation: probability is 1.0 (or normalized over sequence)
-            probs_normalized = torch.ones_like(p_raw).unsqueeze(-1)
+        # Compute phase penalty loss for ambiguous tokens
+        phase_penalty_loss = compute_phase_penalty_loss(
+            intermediate_states['superposed_states'],
+            lambda_penalty=lambda_penalty
+        )
         
-        # Safety checks
-        detect_nan_inf(p_raw, "Born rule output")
-        detect_nan_inf(probs_normalized, "Probability output")
+        # Total loss
+        total_loss = ce_loss + lambda_penalty * phase_penalty_loss
         
-        return {
-            'complex_state': superposed_state,
-            'probabilities': probs_normalized,
-            'cross_term': cross_term,
-            'p_raw': p_raw
-        }
-
+        return total_loss, phase_penalty_loss
 
 def main():
     """
-    Simple demonstration of the BERTComplexAdapter.
-    
-    This function creates a dummy input, runs it through the adapter,
-    and prints the resulting shapes and a sample of the probabilities.
+    Example usage and testing of the BERTComplexAdapter.
     """
-    # Configuration
-    batch_size = 2
+    # Initialize model
+    model = BERTComplexAdapter(hidden_dim=768, num_classes=2)
+    
+    # Create dummy input
+    batch_size = 4
     seq_len = 10
-    hidden_size = 768  # BERT base hidden size
+    hidden_dim = 768
     
-    # Create dummy real-valued hidden states (simulating BERT output)
-    hidden_states = torch.randn(batch_size, seq_len, hidden_size)
+    hidden_states = torch.randn(batch_size, seq_len, hidden_dim)
+    labels = torch.randint(0, 2, (batch_size, seq_len))
     
-    # Create dummy alternative interpretations (e.g., different sense embeddings)
-    alt_interpretations = torch.randn(batch_size, seq_len, hidden_size)
+    # Forward pass
+    final_probs, intermediate_states = model(hidden_states)
+    print(f"Output probabilities shape: {final_probs.shape}")
+    print(f"Intermediate states keys: {intermediate_states.keys()}")
     
-    # Create dummy context mask (all True for simplicity)
-    context_mask = torch.ones(batch_size, seq_len, dtype=torch.bool)
+    # Compute loss
+    total_loss, phase_penalty_loss = model.compute_loss(hidden_states, labels)
+    print(f"Total loss: {total_loss.item():.4f}")
+    print(f"Phase penalty loss: {phase_penalty_loss.item():.4f}")
     
-    # Initialize adapter
-    adapter = BERTComplexAdapter(hidden_size)
+    # Test gradient flow
+    total_loss.backward()
+    print("Gradient computation successful!")
     
-    # Run forward pass
-    output = adapter(
-        hidden_states=hidden_states,
-        alt_interpretations=alt_interpretations,
-        context_mask=context_mask
-    )
-    
-    # Print results
-    print("=== BERT Complex Adapter Demo ===")
-    print(f"Input shape: {hidden_states.shape}")
-    print(f"Complex state shape: {output['complex_state'].shape}")
-    print(f"Probabilities shape: {output['probabilities'].shape}")
-    print(f"Cross-term shape: {output['cross_term'].shape}")
-    print(f"\nSample probabilities (batch 0, token 0): {output['probabilities'][0, 0]}")
-    print(f"Sample cross-term (batch 0, token 0): {output['cross_term'][0, 0].item():.4f}")
-    
-    # Verify probability sums to 1
-    prob_sum = torch.sum(output['probabilities'], dim=-1)
-    print(f"Probability sum (should be ~1.0): {prob_sum[0, 0].item():.4f}")
-
+    # Verify gradient direction for phase penalty
+    test_phases = torch.randn(batch_size, seq_len, hidden_dim)
+    gradient_direction = verify_gradient_direction(test_phases)
+    print(f"Gradient direction test: {gradient_direction}")
 
 if __name__ == "__main__":
     main()

@@ -82,16 +82,16 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height, width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED: unspecified -->
-- [ ] T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced texture variance compared to input in the masked region. <!-- FAILED: unspecified -->
-- [ ] T013 [P] [US1] Integration test for full pipeline (generate → manipulate → metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`. Assert that multiple manipulated images and 1 metadata file are created for each input. <!-- FAILED: unspecified -->
+- [ ] T011 [P] [US1] Unit test for image enhancement logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_add_minor_objects()`. Assert that `output_image.shape == (height, width, 3)` and `object_count == 5` after calling `add_minor_objects()`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T012 [P] [US1] Unit test for image reduction logic in `tests/unit/test_stimuli_manipulator.py`: Implement `test_remove_minor_elements()`. Assert that `output_image` has reduced texture variance compared to input in the masked region. <!-- FAILED: unspecified -->
+- [X] T013 [P] [US1] Integration test for full pipeline (generate → manipulate → metadata) in `tests/integration/test_stimuli_pipeline.py`: Implement `test_full_pipeline()`. Assert that multiple manipulated images and 1 metadata file are created for each input. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
 - [ ] T015 [P] [US1] Implement enhanced detail compositing in `code/stimuli/manipulator.py`: Use PIL/Pillow to overlay a small number of minor object PNG assets onto baseline images. <!-- FAILED: unspecified -->
 - [X] T016 [P] [US1] Implement reduced detail manipulation in `code/stimuli/manipulator.py`: Use Gaussian blur (radius=5) or masking to remove minor elements from baseline images.
-- [~] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
-- [~] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
+- [X] T017 [US1] Implement stimulus metadata generation (YAML) per Constitution VII in `code/stimuli/metadata.py`.
+- [ ] T018 [US1] Implement 'skip and log' logic for manipulation failures in `code/stimuli/manipulator.py`: If manipulation fails for an image, skip the image entirely (do not attempt metadata generation) and log the error to `data/logs/manipulation_errors.log` as required by Edge Cases.
 - [~] T019 [US1] Add error handling for missing metadata and failed fetches in `code/data/loader.py`: If a real dataset fetch (if implemented) fails or metadata is missing, skip the image and log the error.
 - [~] T020 [US1] Add CLI entry point for running the manipulation pipeline in `code/cli.py`
 - [~] T021 [P] [US1] Implement Real Dataset Fetcher (Optional) in `code/data/loader.py`: If a verified Visual Genome URL is provided in config, fetch real images. Handle 'missing metadata' edge case by skipping and logging.

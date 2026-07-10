@@ -1,0 +1,8 @@
+? T001a [P] Create directory tree structure `projects/PROJ-277-predicting-oxidation-resistance/`
+  (code/, data/, tests/, logs/)
+: 1
+T001b [P] Create empty `__init__.py` files for all Python packages in `projects/PROJ-277-predicting-oxidation-resistance/`: 1
+T001c [P] Create empty `.gitignore` with Python/DS patterns in `projects/PROJ-277-predicting-oxidation-resistance/`: 1
+? T002b [P] Create `pyproject.toml` or `setup.cfg` for project metadata in `projects/PROJ-277-predicting-oxidation-resistance/`
+: 1
+T003a [P] Configure flake8 and black settings in `projects/PROJ-277-predicting-oxidation-resistance/pyproject.toml`: 1

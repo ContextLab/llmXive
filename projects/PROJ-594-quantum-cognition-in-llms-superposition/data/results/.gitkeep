@@ -1,3 +1,2 @@
-# This directory stores experimental results (metrics, reports, figures).
-# It is tracked by git but contains no actual files yet.
-.
+# This file ensures the directory is tracked by git.
+# All experimental results (JSON, CSV, figures) will be written here.

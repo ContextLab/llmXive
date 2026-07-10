@@ -1,58 +1,47 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PolymerBlendDataset"
-description: "Schema for the harmonized polymer blend dataset."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: PolymerBlendDataset
+type: object
 properties:
-  records:
-    type: "array"
+  blend_id:
+    type: string
+    description: "Unique identifier for the blend"
+  source:
+    type: string
+    description: "Source of the data (e.g., NIST, PolymerDB)"
+  components:
+    type: array
     items:
-      type: "object"
+      type: object
       properties:
-        id:
-          type: "string"
-          description: "Unique identifier for the blend entry."
-        components:
-          type: "array"
-          description: "List of components in the blend."
-          items:
-            type: "object"
-            properties:
-              smiles:
-                type: "string"
-                description: "SMILES string of the component."
-              weight_fraction:
-                type: "number"
-                minimum: 0.0
-                maximum: 1.0
-                description: "Weight fraction of the component."
-            required:
-              - smiles
-              - weight_fraction
-        tg_k:
-          type: "number"
-          description: "Glass Transition Temperature in Kelvin."
-          minimum: 0.0
-        youngs_modulus_gpa:
-          type: "number"
-          description: "Young's Modulus in GPa."
-          minimum: 0.0
-        source:
-          type: "string"
-          description: "Source dataset name."
-        validation_status:
-          type: "string"
-          enum:
-            - "valid"
-            - "invalid_units"
-            - "invalid_smiles"
-            - "invalid_composition"
-          description: "Validation status of the record."
+        smiles:
+          type: string
+          description: "SMILES string for the component"
+        weight_fraction:
+          type: number
+          description: "Weight fraction of the component (0.0 to 1.0)"
       required:
-        - id
-        - components
-        - tg_k
-        - youngs_modulus_gpa
-        - source
-        - validation_status
+        - smiles
+        - weight_fraction
+  Tg_K:
+    type: number
+    description: "Glass Transition Temperature in Kelvin"
+    minimum: 0
+  Modulus_GPa:
+    type: number
+    description: "Young's Modulus in Gigapascals"
+    minimum: 0
+  is_valid:
+    type: boolean
+    description: "True if all validation checks passed"
+  has_target:
+    type: boolean
+    description: "True if Tg_measured and Tg_1, Tg_2 exist for residual calculation"
 required:
-  - records
+  - blend_id
+  - source
+  - components
+  - Tg_K
+  - Modulus_GPa
+  - is_valid
+  - has_target
+additionalProperties: false

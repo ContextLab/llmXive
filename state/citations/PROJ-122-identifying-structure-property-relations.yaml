@@ -1,23 +1,44 @@
-- artifact_hash: 6abacefdc7033511aff2a521361f25233e318b66107f2aa88184eb86348b9c28
+- artifact_hash: 1e56270aeb1801e53ce783c1f4184f30a912ca37e6b0d6dcd579ae45556e4b20
   artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "MKEChem/mke-novel-druglike-smiles \xB7 Datasets at Hugging Face"
+  fetched_title: nist.jsonl
   kind: url
-  value: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/...`
+  value: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl`
   verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles
-  verified_at: '2026-07-08T21:45:43.964794Z'
-- artifact_hash: 6abacefdc7033511aff2a521361f25233e318b66107f2aa88184eb86348b9c28
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/rkreddyp/nist_800_53/521fcc861fd85b5bfd52171041ccbd4d3d7fb963/nist.jsonl?%2Fdatasets%2Frkreddyp%2Fnist_800_53%2Fresolve%2Fmain%2Fnist.jsonl=&etag=%22a9ac1847956294e9cd774eee73e72f56c9323076%22
+  verified_at: '2026-07-10T19:16:06.126167Z'
+- artifact_hash: 1e56270aeb1801e53ce783c1f4184f30a912ca37e6b0d6dcd579ae45556e4b20
   artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: "fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors\
-    \ \xB7 Datasets at Hugging Face"
+  fetched_title: preview_100_molecules.csv
   kind: url
-  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/...`
+  value: https://huggingface.co/datasets/MKEChem/mke-novel-druglike-smiles/resolve/main/preview_100_molecules.csv`
   verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors
-  verified_at: '2026-07-08T21:45:43.964794Z'
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/MKEChem/mke-novel-druglike-smiles/bb210ac2211b5deef4bd657e358526d36a6b407b/preview_100_molecules.csv?%2Fdatasets%2FMKEChem%2Fmke-novel-druglike-smiles%2Fresolve%2Fmain%2Fpreview_100_molecules.csv=&etag=%22907c505431605bb865026076d1c9a94d49c1ba0e%22
+  verified_at: '2026-07-10T19:16:06.126167Z'
+- artifact_hash: 1e56270aeb1801e53ce783c1f4184f30a912ca37e6b0d6dcd579ae45556e4b20
+  artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/fabikru/chembl-2025-randomized-smiles-cleaned-rdkit-descriptors/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67f936282a27347d7152f248/fdee916ffc0fe277c8fc069720c777adc7315d078281cb4dc3f709675b0c437e?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783714566&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdmOTM2MjgyYTI3MzQ3ZDcxNTJmMjQ4L2ZkZWU5MTZmZmMwZmUyNzdjOGZjMDY5NzIwYzc3N2FkYzczMTVkMDc4MjgxY2I0ZGMzZjcwOTY3NWIwYzQzN2VcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM3MTQ1NjZ9fX1dfQ__&Signature=MEUCIDMk8bnIC4jtgXlDmyxS84lOapVVcq3BARbtD2Ua7D94AiEAlcQM6OYLNQhqM8mn0%7EtpreKZH3F5LGm0Mo42KAqucKM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T19:16:06.126167Z'
+- artifact_hash: 805eea6e9657c18ffc451e2195b79358221a0dce7dfc753ec6dbf9f8e335b758
+  artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmXive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmXive
+  verified_at: '2026-07-10T19:16:11.735581Z'

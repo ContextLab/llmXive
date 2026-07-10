@@ -1,78 +1,88 @@
 # Quickstart: Identifying Structure-Property Relationships in Polymer Blends
 
-## Prerequisites
+## 1. Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to the Polymer Database, NIST, and Materials Project APIs (or pre-downloaded data in `data/raw/`).
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI execution)
+- **Verified dataset URL** for polymer blend data (SMILES, Composition, Tg, Modulus) — *Currently unavailable; see `research.md`*.
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-122-identifying-structure-property-relations
-    ```
-
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Data Preparation
-
-1.  **Fetch Data**:
-    Run the ingestion script. It will attempt to fetch from APIs. If APIs are unreachable, it will look for `data/raw/polymer_db.csv`, `data/raw/nist.json`, etc.
-    ```bash
-    python code/01_ingest.py
-    ```
-    *Output*: `data/processed/harmonized.csv`
-
-2.  **Verify Data**:
-    Check the log for excluded rows (invalid SMILES, bad composition).
-    ```bash
-    cat logs/ingest.log
-    ```
-
-## Feature Engineering
-
-Generate molecular descriptors and interaction features:
 ```bash
-python code/02_features.py
-```
-*Output*: `data/processed/features.parquet`
+# Clone the repository
+git clone
+cd llmXive/projects/PROJ-122-identifying-structure-property-relations
 
-## Model Training & Validation
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
-Train models, perform VIF sensitivity analysis, and run stability checks:
-```bash
-python code/03_train.py
-```
-*Output*: `data/artifacts/models/`, `data/artifacts/shap_values.csv`, `data/artifacts/stability_report.json`
-
-## Reporting
-
-Generate the final summary table, SHAP plots, and stability charts:
-```bash
-python code/04_report.py
-```
-*Output*: `data/artifacts/final_report.md`, `data/artifacts/plots/`
-
-## Testing
-
-Run unit and integration tests:
-```bash
-pytest tests/
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-## Troubleshooting
+## 3. Data Setup
 
-*   **Data Insufficiency**: If `N < 100`, the pipeline halts with `DataInsufficiencyError`.
-*   **API Rate Limits**: The script implements exponential backoff. If it fails after 5 retries, check your API key or network.
-*   **Memory Error**: If running out of RAM, reduce the `n_estimators` in `code/03_train.py` or sample the dataset in `code/01_ingest.py`.
+**Critical Note**: No verified dataset exists for the required polymer blend data. The pipeline will halt at the ingestion step if no valid source is provided.
+
+To proceed, you must:
+1. **Provide a verified URL** for a dataset containing SMILES, Composition, Tg, and Modulus for polymer blends.
+2. **Update `config.py`** with the dataset URL.
+3. **Run the ingestion script**:
+ ```bash
+ python src/01_ingest.py
+ ```
+
+If no verified URL is provided, the script will exit with:
+```
+ERROR: No verified source found for polymer blend data with SMILES, Composition, Tg, and Modulus.
+```
+The system will then attempt to switch to the **Monomer-Level Fallback** mode if monomer data is available.
+
+## 4. Running the Pipeline
+
+```bash
+# Step 1: Ingest and harmonize data
+python src/01_ingest.py
+
+# Step 2: Sensitivity sweep (Weight-fraction tolerance)
+python src/01b_sensitivity.py
+
+# Step 3: Generate features (or fallback)
+python src/02_features.py
+# OR if fallback triggered:
+python src/02b_fallback.py
+
+# Step 4: Train models (Source Stratified Split)
+python src/03_train.py
+
+# Step 5: Evaluate and report
+python src/04_evaluate.py
+python src/05_metrics.py
+python src/05_report.py
+```
+
+## 5. Verification
+
+- **Contract Tests**: Run `pytest tests/contract/` to validate schemas.
+- **Integration Tests**: Run `pytest tests/integration/` to test pipeline stages.
+- **Unit Tests**: Run `pytest tests/unit/` to test utilities.
+- **Rate Limit Test**: Run `pytest tests/integration/test_rate_limit.py` to verify SC-009.
+
+## 6. Troubleshooting
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `No verified source found` | Missing dataset URL | Provide a verified URL for polymer blend data. |
+| `Data Insufficiency` | N < 100 | Collect more data or adjust spec. |
+| `Memory Error` | Dataset too large | Enable stratified sampling (FR-017). |
+| `VIF > 10` | High collinearity | Exclude predictor with highest VIF (FR-008). |
+| `Runtime > 5 hours` | Too slow | Optimize code or sample data. |
+| `Target Variable Missing` | Tg_measured not found | Skip residual calculation; report gap. |
+
+## 7. Output
+
+- `data/processed/final_report.json`: Contains MAE, R², p-values, feature importances, and stability metrics.
+- `state/projects/PROJ-122-identifying-structure-property-relations.yaml`: Artifact hashes and versioning info.
+- `logs/`: Execution logs for debugging.

@@ -1,0 +1,15 @@
+# Core Data Science & Machine Learning
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.0
+statsmodels==0.14.2
+
+# Interpretability & Visualization
+shap==0.45.0
+matplotlib==3.9.0
+
+# Configuration & I/O
+pyyaml==6.0.1
+
+# Data Fetching
+requests==2.32.3

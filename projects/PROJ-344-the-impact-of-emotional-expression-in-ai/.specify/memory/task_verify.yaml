@@ -12,13 +12,22 @@
   tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
 : 1
+? 'T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/`
+  by executing `mkdir -p data/raw data/processed data/features code tests/contract
+  tests/unit tests/integration outputs state` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
 ? T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
   against `contracts/dataset_schema.yaml`
-: 1
+: 2
 ? T011 [P] [US1] Unit test for cross-correlation logic with mocked time-series from
   `tests/fixtures/mock_timeseries.npy` in `tests/unit/test_compute_metrics.py`
-: 1
-? T012c [P] [US1] Implement Controlled Data Collection Protocol by creating `code/data_collection.py`
-  (survey interface, consent capture, anonymization pipeline) and `code/consent_form_template.md`
-  as version-controlled artifacts per Constitution Principle VII and FR-001 fallback
 : 2
+? T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI
+  data OR generate synthetic time-series via `synthpop` if no real data exists (adhering
+  to FR-001 fallback), calling validator from T005
+: 1
+? T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py`
+  as a placeholder script that logs a warning and halts execution if real data is
+  required, directing the user to manual IRB steps (do NOT automate IRB logic)
+: 1
