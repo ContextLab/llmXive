@@ -1,104 +1,168 @@
 """
-Unit tests for the outcome-type detection heuristics (T022).
+Unit tests for outcome-type detection heuristics.
 """
-
 import pytest
-from code.src.models.data_models import ABTestSummary
 from code.src.audit.test_type_detector import (
     detect_outcome_type,
-    detect_outcome_types_for_batch,
-    OUTCOME_TYPE_BINARY,
-    OUTCOME_TYPE_CONTINUOUS,
-    OUTCOME_TYPE_UNKNOWN,
+    detect_outcome_type_from_summaries,
+    OUTCOME_BINARY,
+    OUTCOME_CONTINUOUS,
+    OUTCOME_UNKNOWN
 )
 
+class TestOutcomeTypeDetection:
+    """Test suite for outcome type detection heuristics."""
 
-def test_detect_binary_from_conversions():
-    """Test that presence of conversions fields triggers binary detection."""
-    summary = ABTestSummary(
-        source_url="http://example.com/test1",
-        conversions_control=100,
-        conversions_treatment=120,
-        sample_size_control=1000,
-        sample_size_treatment=1000,
-        p_value=0.03,
-    )
-    assert detect_outcome_type(summary) == OUTCOME_TYPE_BINARY
+    def test_binary_with_conversion_rates(self):
+        """Binary outcome detected when conversion rates are present."""
+        summary = {
+            "baseline_conversion": 0.05,
+            "treatment_conversion": 0.07,
+            "n_baseline": 1000,
+            "n_treatment": 1000
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_BINARY
+        assert "Conversion" in note or "rate" in note.lower()
 
+    def test_continuous_with_means(self):
+        """Continuous outcome detected when means and stds are present."""
+        summary = {
+            "mean_control": 10.5,
+            "mean_treatment": 12.3,
+            "std_control": 2.1,
+            "std_treatment": 2.5,
+            "n_control": 50,
+            "n_treatment": 50
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_CONTINUOUS
+        assert "Mean" in note or "standard deviation" in note.lower()
 
-def test_detect_continuous_from_means():
-    """Test that presence of mean fields triggers continuous detection."""
-    summary = ABTestSummary(
-        source_url="http://example.com/test2",
-        mean_control=5.5,
-        mean_treatment=6.2,
-        std_control=1.0,
-        std_treatment=1.2,
-        sample_size_control=50,
-        sample_size_treatment=50,
-        p_value=0.01,
-    )
-    assert detect_outcome_type(summary) == OUTCOME_TYPE_CONTINUOUS
+    def test_explicit_binary_type(self):
+        """Binary outcome detected from explicit type indicator."""
+        summary = {
+            "outcome_type": "binary",
+            "p_value": 0.03
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_BINARY
 
+    def test_explicit_continuous_type(self):
+        """Continuous outcome detected from explicit type indicator."""
+        summary = {
+            "metric_type": "continuous",
+            "test_type": "t-test"
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_CONTINUOUS
 
-def test_binary_takes_precedence_over_continuous():
-    """Test that if both are present, binary is chosen."""
-    summary = ABTestSummary(
-        source_url="http://example.com/test3",
-        conversions_control=100,
-        conversions_treatment=120,
-        mean_control=5.5,
-        mean_treatment=6.2,
-        sample_size_control=1000,
-        sample_size_treatment=1000,
-        p_value=0.03,
-    )
-    assert detect_outcome_type(summary) == OUTCOME_TYPE_BINARY
+    def test_z_test_indicates_binary(self):
+        """Z-test indication leads to binary classification."""
+        summary = {
+            "test_type": "two-proportion z-test",
+            "effect_size": 0.02
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_BINARY
 
+    def test_welch_t_test_indicates_continuous(self):
+        """Welch t-test indication leads to continuous classification."""
+        summary = {
+            "test_type": "Welch's t-test",
+            "effect_size": 1.5
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_CONTINUOUS
 
-def test_unknown_when_neither_present():
-    """Test that unknown is returned if neither conversions nor means are present."""
-    summary = ABTestSummary(
-        source_url="http://example.com/test4",
-        sample_size_control=100,
-        sample_size_treatment=100,
-        p_value=0.05,
-    )
-    assert detect_outcome_type(summary) == OUTCOME_TYPE_UNKNOWN
+    def test_unknown_type_when_no_indicators(self):
+        """Unknown type returned when no indicators are present."""
+        summary = {
+            "p_value": 0.04
+        }
+        outcome_type, note = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_UNKNOWN
 
+    def test_invalid_summary_format(self):
+        """Unknown type returned for invalid summary format."""
+        outcome_type, note = detect_outcome_type("not a dict")
+        assert outcome_type == OUTCOME_UNKNOWN
 
-def test_batch_detection():
-    """Test batch detection returns correct list of tuples."""
-    summaries = [
-        ABTestSummary(
-            source_url="http://a.com",
-            conversions_control=10,
-            conversions_treatment=20,
-            sample_size_control=100,
-            sample_size_treatment=100,
-            p_value=0.1,
-        ),
-        ABTestSummary(
-            source_url="http://b.com",
-            mean_control=1.0,
-            mean_treatment=2.0,
-            std_control=0.5,
-            std_treatment=0.5,
-            sample_size_control=50,
-            sample_size_treatment=50,
-            p_value=0.05,
-        ),
-        ABTestSummary(
-            source_url="http://c.com",
-            sample_size_control=10,
-            sample_size_treatment=10,
-            p_value=0.2,
-        ),
-    ]
+    def test_null_summary(self):
+        """Unknown type returned for None summary."""
+        outcome_type, note = detect_outcome_type(None)
+        assert outcome_type == OUTCOME_UNKNOWN
 
-    results = detect_outcome_types_for_batch(summaries)
+    def test_detection_statistics(self):
+        """Test detection statistics across multiple summaries."""
+        summaries = [
+            {"baseline_conversion": 0.05},
+            {"mean_control": 10.0},
+            {"outcome_type": "binary"},
+            {"p_value": 0.05}
+        ]
+        results = detect_outcome_type_from_summaries(summaries)
+        
+        assert results['total_count'] == 4
+        assert results['binary_count'] == 2
+        assert results['continuous_count'] == 1
+        assert results['unknown_count'] == 1
+        assert len(results['detections']) == 4
 
-    assert len(results) == 3
-    assert results[0][1] == OUTCOME_TYPE_BINARY
-    assert results[1][1] == OUTCOME_TYPE_CONTINUOUS
-    assert results[2][1] == OUTCOME_TYPE_UNKNOWN
+    def test_multiple_conversion_field_variants(self):
+        """Test various conversion field names trigger binary detection."""
+        test_cases = [
+            {"baseline_conversion": 0.05},
+            {"treatment_conversion": 0.07},
+            {"control_conversion": 0.05, "variant_conversion": 0.07},
+            {"baseline_rate": 0.05},
+            {"control_rate": 0.05},
+            {"baseline_conversions": 50, "treatment_conversions": 70}
+        ]
+        
+        for summary in test_cases:
+            outcome_type, _ = detect_outcome_type(summary)
+            assert outcome_type == OUTCOME_BINARY, f"Failed for {summary}"
+
+    def test_multiple_continuous_field_variants(self):
+        """Test various mean/std field names trigger continuous detection."""
+        test_cases = [
+            {"mean_control": 10.0, "mean_treatment": 12.0},
+            {"mean_baseline": 10.0, "mean_variant": 12.0},
+            {"std_control": 1.0, "std_treatment": 1.5},
+            {"standard_deviation_control": 1.0, "standard_deviation_treatment": 1.5}
+        ]
+        
+        for summary in test_cases:
+            outcome_type, _ = detect_outcome_type(summary)
+            assert outcome_type == OUTCOME_CONTINUOUS, f"Failed for {summary}"
+
+    def test_effect_size_type_proportion(self):
+        """Effect size type 'proportion' triggers binary detection."""
+        summary = {
+            "effect_size_type": "risk difference",
+            "effect_size": 0.02
+        }
+        outcome_type, _ = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_BINARY
+
+    def test_effect_size_type_mean(self):
+        """Effect size type 'mean difference' with value > 1 triggers continuous."""
+        summary = {
+            "effect_size_type": "mean difference",
+            "effect_size": 2.5
+        }
+        outcome_type, _ = detect_outcome_type(summary)
+        assert outcome_type == OUTCOME_CONTINUOUS
+
+    def test_effect_size_in_range_0_to_1(self):
+        """Effect size in [0,1] range with large N suggests binary."""
+        summary = {
+            "n_control": 5000,
+            "n_treatment": 5000,
+            "effect_size": 0.03,
+            "p_value": 0.01
+        }
+        outcome_type, _ = detect_outcome_type(summary)
+        # Should be binary due to small effect size with large N
+        assert outcome_type == OUTCOME_BINARY

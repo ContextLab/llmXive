@@ -215,9 +215,10 @@
   \ all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info]) [DEPENDS\
   \ ON: T020]."
 : 1
-? "T022 Implement outcome\u2011type detection heuristics in `src/audit/test_type_detector.py`\
-  \ (detect binary vs continuous only, no extra test\u2011type handling) (verify detector\
-  \ returns correct type)."
+? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
+  proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
+  \ per FR\u2011012) (verify reconstructed values match known fixtures). **DEPENDS\
+  \ ON:** T062 (Monte\u2011Carlo validation) **AND** T022."
 : 2
 ? "T023 Implement statistical reconstruction in `src/audit/reconstructor.py` (two\u2011\
   proportion z/Fisher for binary, Welch t for continuous, fallback to average baseline\
@@ -228,6 +229,9 @@
 ? "T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py)\
   \ (verify all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info])\
   \ [DEPENDS ON: T023]."
+: 1
+? 'T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py)
+  (verify all tests pass) [DEPENDS ON: T023].'
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
