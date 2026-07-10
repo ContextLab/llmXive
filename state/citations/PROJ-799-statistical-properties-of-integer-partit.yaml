@@ -1,1 +1,11 @@
-[]
+- artifact_hash: d473f258c5a27bb9c484c00d835184e38b869acc1d28986667ef76313f726c51
+  artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Cross-validation - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Cross-validation_
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Cross-validation
+  verified_at: '2026-07-10T20:40:26.909459Z'

@@ -1,0 +1,13 @@
+? 'T001a [P] Create directory structure: `projects/PROJ-799-statistical-properties-of-integer-partit/`
+  with subdirs `code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`,
+  `tests/`, `tests/data/`, `docs/`, `state/projects/`'
+: 2
+? 'T001b [P] Create placeholder files: `README.md`, `.gitignore`, `requirements.txt`
+  (empty initially), `state/projects/PROJ-799.yaml` (empty initially)'
+: 1
+? T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, scikit-learn,
+  statsmodels, matplotlib, pandas, pygam)
+: 1
+? T003 [P] Configure linting (flake8/black) and formatting tools scoped specifically
+  to `projects/PROJ-799-statistical-properties-of-integer-partit/code/`
+: 1

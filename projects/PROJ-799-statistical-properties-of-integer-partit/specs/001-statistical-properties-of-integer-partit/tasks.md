@@ -35,8 +35,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes (memory optimized)
-- [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based strictly on the **distinct-partition variant** of Meinardus' theorem (verified Roth & Szekeres 1954 expansion), using **leading-order term only**. Generating function: $\prod (1+q^p)$. Explicitly document the leading-order formula used.
+- [X] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes (memory optimized)
+- [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based strictly on the **distinct-partition variant** of Meinardus' theorem (verified Roth & Szekeres 1954 expansion), using **leading-order term only**. Generating function: $\prod (1+q^p)$. [UNRESOLVED-CLAIM: c_dfbfb274 — status=not_enough_info] Explicitly document the leading-order formula used.
 - [ ] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`
 - [ ] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`)
 - [ ] T008 [P] Generate reference data: Create `tests/data/reference_values.csv` containing exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** to serve as ground truth for T009 and T011.
@@ -60,17 +60,17 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `code/generate_partitions.py`:
-  - Use 1D `int64` array for DP to count partitions into distinct primes.
-  - Iterate primes only (skip composites) to enforce distinct prime constraint.
-  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
-  - Calculate $Q_{as}(n)$ using the verified Roth & Szekeres formula (distinct parts, leading order). **Explicit Formula**: $Q_{as}(n) \approx \frac{1}{2\sqrt{3} n^{3/4}} \exp\left(\pi \sqrt{\frac{2n}{3} \sum_{p} \frac{1}{p^2}}\right)$ (leading order for distinct primes).
-  - Clamp $Q_{as}(n)$ to min $10^{-10}$ to prevent log(0).
-  - **Load `tests/data/reference_values.csv` and assert exact integer match for all n in [1, 100] (SC-003).**
-  - **Requires T008 to complete.**
+ - Use 1D `int64` array for DP to count partitions into distinct primes.
+ - Iterate primes only (skip composites) to enforce distinct prime constraint.
+ - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
+ - Calculate $Q_{as}(n)$ using the verified Roth & Szekeres formula (distinct parts, leading order). **Explicit Formula**: $Q_{as}(n) \approx \frac{1}{2\sqrt{3} n^{3/4}} \exp\left(\pi \sqrt{\frac{2n}{3} \sum_{p} \frac{1}{p^2}}\right)$ (leading order for distinct primes).
+ - Clamp $Q_{as}(n)$ to min $10^{-10}$ to prevent log(0). [UNRESOLVED-CLAIM: c_f6a35ffc — status=not_enough_info]
+ - **Load `tests/data/reference_values.csv` and assert exact integer match for all n in [1, 100] (SC-003).**
+ - **Requires T008 to complete.**
 - [ ] T012 [US1] Implement `code/generate_partitions.py` data export:
-  - Write `data/raw/partitions_raw.csv` with columns: `n`, `p_P_n`, `Q_as_n`.
-  - Generate SHA-256 checksum and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.generate_partitions_raw` (format: hex string).
-  - Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
+ - {{claim:c_7ae9333f}}
+ - Generate SHA-256 checksum and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.generate_partitions_raw` (format: hex string).
+ - Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
 - [ ] T013 [US1] Add validation logic to `generate_partitions.py` to skip $n$ where $p_{\mathcal{P}}(n)=0$ or $Q_{as}(n) \le 0$ for log-residual calculation.
 
 **Checkpoint**: US1 functional. Data generation complete.
@@ -92,25 +92,25 @@
 ### Implementation for User Story 2
 
 - [ ] T016a [US2] Implement `code/feature_engineering.py`:
-  - Load `data/raw/partitions_raw.csv`.
-  - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$.
-  - Generate features: $\pi(n)$ (via precomputed sieve), $1/\ln(n)$.
-  - Calculate 'distance to nearest prime' as the **absolute difference to the closest prime (either smaller or larger than n)**. If equidistant, the distance value is unique.
-  - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies.
-  - Save `data/processed/features.csv`.
-  - **Requires T012 completion.**
+ - Load `data/raw/partitions_raw.csv`.
+ - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$. [UNRESOLVED-CLAIM: c_53699e55 — status=not_enough_info]
+ - Generate features: $\pi(n)$ (via precomputed sieve), $1/\ln(n)$.
+ - Calculate 'distance to nearest prime' as the **absolute difference to the closest prime (either smaller or larger than n)**. If equidistant, the distance value is unique.
+ - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies. [UNRESOLVED-CLAIM: c_6a84ed19 — status=not_enough_info]
+ - Save `data/processed/features.csv`.
+ - **Requires T012 completion.**
 - [ ] T016b [P] [US2] Validate `data/processed/features.csv`: Verify 'distance to nearest prime' and oscillatory terms are present and non-null before regression.
 - [ ] T017a [US2] Implement `code/regression_model.py` (Full Model):
-  - Fit Generalized Additive Model (GAM) or Linear Regression with splines for density terms.
-  - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005.** Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.
-  - Output coefficients, p-values, $R^2$ to `data/processed/model_results.json`.
+ - Fit Generalized Additive Model (GAM) or Linear Regression with splines for density terms.
+ - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005.** Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.
+ - Output coefficients, p-values, $R^2$ to `data/processed/model_results.json`.
 - [ ] T017b [US2] Implement `code/regression_model.py` (Null Model):
-  - Fit an intercept-only (null) model.
-  - Compare null model performance against the full model to verify systematic bias (FR-008).
-  - Include null model stats in `data/processed/model_results.json`.
+ - Fit an intercept-only (null) model.
+ - Compare null model performance against the full model to verify systematic bias (FR-008).
+ - Include null model stats in `data/processed/model_results.json`.
 - [ ] T017c [US2] Implement `code/regression_model.py` P-value Correction:
-  - Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005, SC-005).
-  - Write corrected p-values to `data/processed/model_results.json`.
+ - Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005, SC-005).
+ - Write corrected p-values to `data/processed/model_results.json`.
 
 **Checkpoint**: US2 functional. Statistical model trained and validated.
 
@@ -118,29 +118,29 @@
 
 ## Phase 5: User Story 3 - Validate Model Robustness and Visualize Convergence (Priority: P3)
 
-**Goal**: Perform k-fold cross-validation. and generate visualizations to confirm generalizability.
+**Goal**: {{claim:c_cc435133}} (Wikipedia: Cross-validation (statistics), https://en.wikipedia.org/wiki/Cross-validation_(statistics)). and generate visualizations to confirm generalizability.
 
-**Independent Test**: Verify CV MSE is reported and plot is generated.
+**Independent Test**: Verify CV MSE is reported and plot is generated. [UNRESOLVED-CLAIM: c_104d09fb — status=not_enough_info]
 
 ### Tests for User Story 3
 
-- [ ] T022 [P] [US3] Contract test: Verify that k-fold cross-validation returns k MSE values and a mean, as described in standard validation frameworks (Bishop; Arlot & Celisse). in `tests/test_visualize_results.py`
+- [ ] T022 [P] [US3] Contract test: Verify that k-fold cross-validation returns k MSE values and a mean, as described in standard validation frameworks (Bishop; Arlot & Celisse). [UNRESOLVED-CLAIM: c_1d05d6c2 — status=not_enough_info] in `tests/test_visualize_results.py`
 - [ ] T023a [P] [US3] Integration test: Verify plot generation produces a valid PNG/PDF file in `tests/test_visualize_results.py`
 - [ ] T023b [P] [US3] Time-budget test: Verify total pipeline (DP + Model + Plot) completes within 6 hours (SC-004).
 
 ### Implementation for User Story 3
 
 - [ ] T024 [US3] Implement `code/regression_model.py` (CV logic):
-  - Perform k-fold cross-validation on the fitted model.
-  - Record MSE for each fold and mean MSE.
-  - (Depends on T022 passing).
-  - **Requires T017c completion.**
+ - {{claim:c_cc435133}} on the fitted model.
+ - Record MSE for each fold and mean MSE.
+ - (Depends on T022 passing).
+ - **Requires T017c completion.**
 - [ ] T025 [US3] Implement `code/visualize_results.py`:
-  - Plot $n$ (x-axis) vs $R(n)$ (raw residuals) and fitted correction term.
-  - Highlight regions of high prime density vs. gaps.
-  - Save plot to `data/processed/residual_convergence.png`.
+ - Plot $n$ (x-axis) vs $R(n)$ (raw residuals) and fitted correction term.
+ - Highlight regions of high prime density vs. gaps.
+ - Save plot to `data/processed/residual_convergence.png`.
 - [ ] T026 [US3] Implement `code/visualize_results.py`:
-  - Generate residual vs. fitted plot to check for homoscedasticity.
+ - Generate residual vs. fitted plot to check for homoscedasticity.
 
 **Checkpoint**: US3 functional. All visualizations and CV metrics ready.
 
@@ -166,9 +166,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - **US1 (P1) must complete before US2 (P2) and US3 (P3) due to data dependencies.**
-  - **US2 strictly requires `data/raw/partitions_raw.csv` produced by US1.**
-  - **US3 strictly requires `data/processed/model_results.json` produced by US2.**
+ - **US1 (P1) must complete before US2 (P2) and US3 (P3) due to data dependencies.**
+ - **US2 strictly requires `data/raw/partitions_raw.csv` produced by US1.**
+ - **US3 strictly requires `data/processed/model_results.json` produced by US2.**
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -200,11 +200,11 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 
 1. **Team completes Setup + Foundational together**.
 2. **Once Foundational is done**:
-   - **Developer A: User Story 1 (Data Generation)**.
-   - **Wait for US1 completion** (Data artifact `partitions_raw.csv` must exist).
-   - **Developer B: User Story 2 (Feature Engineering & Modeling)**. (Cannot start until US1 data exists).
-   - **Wait for US2 completion** (Data artifact `model_results.json` must exist).
-   - **Developer C: User Story 3 (Visualization)**. (Cannot start until US2 data exists).
+ - **Developer A: User Story 1 (Data Generation)**.
+ - **Wait for US1 completion** (Data artifact `partitions_raw.csv` must exist).
+ - **Developer B: User Story 2 (Feature Engineering & Modeling)**. (Cannot start until US1 data exists).
+ - **Wait for US2 completion** (Data artifact `model_results.json` must exist).
+ - **Developer C: User Story 3 (Visualization)**. (Cannot start until US2 data exists).
 3. Stories complete and integrate sequentially based on data flow.
 
 ---
