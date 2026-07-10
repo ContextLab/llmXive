@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.30534",
+  "judged_at": "2026-07-10T14:26:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"orca: the world is in your mind\" computer science",
+  "rationale": "This paper is the foundational source for the \"Orca\" model and the \"Next-State-Prediction\" paradigm explicitly referenced in the user's question, satisfying category (d) as the canonical reference for the specific framework the user intends to extend. Additionally, it provides the empirical baseline and mechanism description (category a and c) necessary for any follow-up research on this specific architecture.",
+  "relevant": true
+}

@@ -1,0 +1,11 @@
+- artifact_hash: ef3c079fad04c47b854c0edb2cb4dc811e06b83cec46b03a27c3c99bd5ce317a
+  artifact_path: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67e62aa67dac83cb62dbeb68/56dfb335c9b1ba64858f209c312c0679964a3d5c6320deb1457b008fe0b28e85?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&user_id=public&Expires=1783698722&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjdlNjJhYTY3ZGFjODNjYjYyZGJlYjY4LzU2ZGZiMzM1YzliMWJhNjQ4NThmMjA5YzMxMmMwNjc5OTY0YTNkNWM2MzIwZGViMTQ1N2IwMDhmZTBiMjhlODVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY5ODcyMn19fV19&Signature=MEUCIDuKT4IYsiXpicUXYzbkccXGjCcY7IEnvxe-4ffyuiG5AiEAi3CFAzImAaYKaKKHNcnea0%7ERLh6cClAIaC7JmhVDKmM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T14:52:02.643228Z'

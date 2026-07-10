@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LatentVector Schema"
+description: "Schema for extracted Orca latent vectors and counterfactual edits."
+type: "object"
+properties:
+  scenario_id:
+    type: "string"
+    description: "Foreign key to PhysicalScenario."
+  vector_type:
+    type: "string"
+    enum:
+      - "full"
+      - "conscious"
+      - "unconscious"
+    description: "Type of latent vector."
+  embedding:
+    type: "array"
+    items:
+      type: "number"
+    description: "The latent vector values (floats)."
+  is_valid:
+    type: "boolean"
+    description: "True if extraction succeeded."
+  modified_vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "The counterfactually modified vector (if applicable)."
+  operation:
+    type: "string"
+    enum:
+      - "subtraction"
+      - "masking"
+    description: "Operation used for counterfactual injection."
+  concept_token:
+    type: "string"
+    description: "The token or component manipulated."
+  flag_ambiguous:
+    type: "boolean"
+    description: "True if the prompt was ambiguous."
+required:
+  - scenario_id
+  - vector_type
+  - embedding
+  - is_valid
+additionalProperties: false

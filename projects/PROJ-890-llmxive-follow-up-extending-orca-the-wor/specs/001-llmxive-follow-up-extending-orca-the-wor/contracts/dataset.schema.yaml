@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PhysicalScenario Dataset Schema"
+description: "Schema for the curated PhysicalScenario dataset containing video metadata and counterfactual prompts."
+type: "object"
+properties:
+  video_id:
+    type: "string"
+    description: "Unique identifier for the video clip."
+  interaction_type:
+    type: "string"
+    description: "Category of physical interaction (e.g., 'falling', 'collision')."
+  counterfactual_prompt:
+    type: "string"
+    description: "Manual annotation of the counterfactual scenario (e.g., 'remove gravity')."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "skipped"
+      - "ambiguous"
+    description: "Processing status of the scenario."
+  file_path:
+    type: "string"
+    description: "Path to the raw video file or URL."
+required:
+  - video_id
+  - interaction_type
+  - counterfactual_prompt
+  - status
+additionalProperties: false

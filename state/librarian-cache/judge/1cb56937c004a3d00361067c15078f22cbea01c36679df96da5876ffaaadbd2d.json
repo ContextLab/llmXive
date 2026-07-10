@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.08804",
+  "judged_at": "2026-07-10T14:26:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"orca: the world is in your mind\" computer science",
+  "rationale": "The paper proposes a theoretical framework for \"Cognitive Dissonance AI\" to enhance human critical thinking, which is a distinct construct from the user's question regarding the technical extension of the \"Orca\" LLM architecture or the specific \"llmXive\" follow-up work. It fails all inclusion criteria (a-f) as it does not measure the same mechanism, variables, or domain, nor does it serve as a foundational methodology for the specific LLM engineering question; instead, it falls under the rejecti",
+  "relevant": false
+}

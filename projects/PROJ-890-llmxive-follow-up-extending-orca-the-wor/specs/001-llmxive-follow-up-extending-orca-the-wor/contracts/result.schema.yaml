@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReadoutModelOutput Schema"
+description: "Schema for model training results and predictions."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "DecisionTree"
+      - "LinearProbe"
+    description: "Type of readout model."
+  input_type:
+    type: "string"
+    enum:
+      - "Latent"
+      - "Pixel"
+      - "Unconscious"
+    description: "Type of input data."
+  scenario_id:
+    type: "string"
+    description: "Foreign key to PhysicalScenario."
+  predicted_outcome:
+    type: "string"
+    description: "Predicted label (e.g., 'falls', 'floats')."
+  actual_outcome:
+    type: "string"
+    description: "Ground truth label from physics engine."
+  correct:
+    type: "boolean"
+    description: "Whether the prediction matched the ground truth."
+required:
+  - model_type
+  - input_type
+  - scenario_id
+  - predicted_outcome
+  - actual_outcome
+  - correct
+additionalProperties: false
