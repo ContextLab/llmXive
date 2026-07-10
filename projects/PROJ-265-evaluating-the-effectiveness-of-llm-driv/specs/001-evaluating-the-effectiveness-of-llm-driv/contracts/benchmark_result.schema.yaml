@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkResult Schema"
+description: "Schema for benchmark result data (execution time and memory)"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the benchmark result"
+  function_pair_id:
+    type: "string"
+    description: "Reference to FunctionPair"
+  version:
+    type: "string"
+    enum:
+      - "original"
+      - "simplified"
+    description: "Whether this is the original or simplified version"
+  iteration:
+    type: "integer"
+    description: "Iteration number (1–100)"
+  cpu_time_ms:
+    type: "number"
+    description: "CPU time in milliseconds"
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory in megabytes"
+  timeout:
+    type: "boolean"
+    description: "Whether execution timed out"
+  memory_limit_exceeded:
+    type: "boolean"
+    description: "Whether memory limit was exceeded"
+required:
+  - "id"
+  - "function_pair_id"
+  - "version"
+  - "iteration"
+  - "cpu_time_ms"
+  - "peak_memory_mb"
+  - "timeout"
+  - "memory_limit_exceeded"
+additionalProperties: false

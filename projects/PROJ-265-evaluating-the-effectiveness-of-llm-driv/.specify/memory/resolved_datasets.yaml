@@ -1,0 +1,212 @@
+resolved_at: '2026-07-10T19:53:33.890981+00:00'
+datasets:
+- intent: CodeSearchNet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/code-search-net/code_search_net/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/espejelomar/code_search_net_python_10000_examples/resolve/main/codesearchnet_10000_python_examples.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kejian/codesearchnet-python-raw-457k/resolve/main/data/train-00000-of-00003-a17d5a115f8766d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Language_of_Stress_Essay_The_Alignment_Problem_Is_an_Architecture_Problem/32961533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dual-parameter_interferometric_measurement_using_orbital_angular_momentum_beams_-_7963109_pdf/32869499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Engineering_geometrical_optical_singularities_inverse_design_of_3D_asymmetric_caustic_surfaces_-_7943919_pdf/32677044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/Visualization_1_gif/32033289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/Visualization_2_gif/32033316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7857872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7908468
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13755783
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7016108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5547824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.16046
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/108137
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/71524-gap-gen-guided-automatic-python-code-generation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/30127-bag-of-words-baselines-for-semantic-code-search
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19248328
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&user_id=public&Expires=1783716792&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlN2I5NmU2ZjViMTA2MjVmOTJhNmMxLzE3OTk0Y2M4ZGUyM2UwMWNkMjZiMjEyMTc0YTA0ODQ5Y2ZlYjY0YzUxNTdiM2UyZTM3YzAzOWMxNzhkNjdjNzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS0wMDAwMC1vZi0wMDAwMS5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmRhdGEtMDAwMDAtb2YtMDAwMDEuYXJyb3clMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzcxNjc5Mn19fV19&Signature=MEUCIQC3e8Q1m0Z1ONAExPLUiXtC52~jh1F9nuH~imRnGi9XZAIgKTlLWnXPnl15VgKXbS5rpQz6kKrBw-VCoHXHkLJHK80_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Instruct-hf/resolve/main/2023-08-25T17:15:30.693025/details_harness|arc:challenge|25_2023-08-25T17:15:30.693025.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/Language_of_Stress_Essay_The_Alignment_Problem_Is_an_Architecture_Problem/32961533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Dual-parameter_interferometric_measurement_using_orbital_angular_momentum_beams_-_7963109_pdf/32869499
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Engineering_geometrical_optical_singularities_inverse_design_of_3D_asymmetric_caustic_surfaces_-_7943919_pdf/32677044
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/Visualization_1_gif/32033289
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/media/Visualization_2_gif/32033316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11062815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10390998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13921403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17204500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21283809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.04582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02825
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248148
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
