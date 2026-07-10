@@ -12,13 +12,13 @@ This feature implements a computational pipeline to assess how Signal-to-Noise R
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `astropy`, `scikit-learn`, `pyyaml`, `statsmodels`  
 **Storage**: Local filesystem (CSV/Parquet) within `data/` and `code/`  
 **Testing**: `pytest` (unit tests for filtering logic, integration tests for full pipeline)  
-**Target Platform**: Ubuntu-latest (GitHub Actions Runner: 2 CPU, 7GB RAM, No GPU)  
+**Target Platform**: Ubuntu-latest (GitHub Actions Runner: Multiple CPU cores, GB RAM, No GPU)  
 **Project Type**: Data Analysis CLI / Script Suite  
 **Performance Goals**: Runtime ≤ 6 hours; Memory ≤ 6GB (peak); Disk ≤ 12GB  
 **Constraints**: No GPU/CUDA; Chunked data loading; Deterministic random seeds; No causal claims.  
 **Scale/Scope**: Grid size: 16 (SNR) × 7 (Morph) = 112 threshold combinations. Dataset: SLFC (a medium-to-large scale dataset).
 
-> **Note on Dataset Feasibility**: The spec references a 12GB DES Year 3 Gold catalog. The verified datasets block does **not** contain a direct link to the DES Year 3 Gold catalog with pre-computed `morphology_score`. The implementation will use the **Strong Lens Finding Challenge (SLFC)** dataset as the *validated proxy* for the DES context. SLFC contains real image cutouts with known labels (lens/non-lens) and features (SNR, morphology) or allows their extraction. This ensures that "purity" and "detection rates" are calculated against real, independent ground truth, not fabricated data.
+> **Note on Dataset Feasibility**: The spec references a DES Year 3 Gold catalog. The verified datasets block does **not** contain a direct link to the DES Year 3 Gold catalog with pre-computed `morphology_score`. The implementation will use the **Strong Lens Finding Challenge (SLFC)** dataset as the *validated proxy* for the DES context. SLFC contains real image cutouts with known labels (lens/non-lens) and features (SNR, morphology) or allows their extraction. This ensures that "purity" and "detection rates" are calculated against real, independent ground truth, not fabricated data.
 
 ## Constitution Check
 
@@ -98,7 +98,7 @@ projects/PROJ-285-assessing-the-impact-of-data-filtering-o/
 - **T005b**: **Measure and Log Memory**: Actively track peak RAM usage during loading and filtering. Output to `data/processed/memory_profile.csv` to satisfy SC-005. This task explicitly focuses on the measurement/verification of the footprint.
 
 ### Phase 1: Threshold Grid & Purity (T010, T011)
-- **T010**: Iterate through the defined grid (SNR 5-20, Morph 0.3-0.9).
+- **T010**: Iterate through the defined grid (SNR 5-20, Morph -0.9).
 - **T011**: For each grid point, calculate detection counts (passing threshold) and Purity (TP/(TP+FP)) using the *real* SLFC labels (lens vs. non-lens). Output `detection_matrix.csv`.
 
 ### Phase 2: Statistical Analysis (T020, T021)

@@ -1,0 +1,74 @@
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: SLFC dataset is verified proxy for DES
+  claim_id: c_faae43e8
+  context: 'Real Data: This project uses the **Strong Lens Finding Challenge (SLFC)**
+    dataset as the verified proxy for DES (Plan Assumption).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SLFC_dataset_is_verified_proxy_for_DES
+  kind: entity_fact
+  raw_text: The Strong Lens Finding Challenge (SLFC) dataset is used as the verified
+    proxy for DES.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:15:13Z'
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: Project uses Benjamini-Yekutieli FDR correction
+  claim_id: c_66e07497
+  context: 'Statistical Methodology: This project strictly follows `spec.md` FR-005
+    (Benjamini-Yekutieli) and Plan Complexity Tracking (Cumulative Link Models)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_Benjamini-Yekutieli_FDR_correction
+  kind: entity_fact
+  raw_text: The project strictly follows the Benjamini-Yekutieli (BY) FDR correction
+    for p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:15:48Z'
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: Cumulative Link Models used for detection distribution comparison
+  claim_id: c_f22daa05
+  context: 'Statistical Methodology: This project strictly follows `spec.md` FR-005
+    (Benjamini-Yekutieli) and Plan Complexity Tracking (Cumulative Link Models)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cumulative_Link_Models_used_for_detection_distribution_compa
+  kind: entity_fact
+  raw_text: Cumulative Link Models (CLM) are used to compare detection distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:16:39Z'
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: Processing chunked to fit 6GB RAM limit
+  claim_id: c_94f8bbb7
+  context: 'Performance: Ensure all processing is chunked to fit within 6GB RAM limit
+    (SC-005, Plan Constraints).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Processing_chunked_to_fit_6GB_RAM_limit
+  kind: entity_fact
+  raw_text: All processing is chunked to fit within a 6GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:17:19Z'
