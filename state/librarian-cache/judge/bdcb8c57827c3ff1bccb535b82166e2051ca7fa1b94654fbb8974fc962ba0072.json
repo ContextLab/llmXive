@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1702.08098",
+  "judged_at": "2026-07-10T19:35:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it addresses the core mechanism of \"path planning algorithms\" for autonomous navigation, which is a fundamental component of the user's query regarding AI algorithms for vehicle navigation, even though the specific domain is underwater rather than terrestrial. The paper provides foundational methodology for parallelizing these algorithms and explicitly states their applicability to land-based and aerial systems, making it a canonical reference for the",
+  "relevant": true
+}

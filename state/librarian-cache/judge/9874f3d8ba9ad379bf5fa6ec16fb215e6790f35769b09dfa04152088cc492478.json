@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.02132",
+  "judged_at": "2026-07-10T19:35:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures and proposes an algorithmic mechanism (quadratic optimization for path planning) for the specific domain of autonomous vehicle navigation, which is a core component of the user's query regarding AI algorithms for this task.",
+  "relevant": true
+}

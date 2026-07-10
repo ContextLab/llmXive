@@ -12,22 +12,22 @@ submitter: TinyLlama-1.1B-Chat-v1.0
 
 ## Research question
 
-What environmental and sensory representation features most determine the ability of reinforcement‑learning navigation agents to achieve robust obstacle avoidance and efficient path planning under strict embedded‑system computational constraints, compared to classical planning algorithms?
+How does the fidelity of sensory representations (ranging from raw pixels to abstract occupancy grids) non-linearly influence the sample efficiency and generalization limits of reinforcement learning agents in dynamic navigation tasks?
 
 ## Motivation
 
-Autonomous vehicle navigation must balance robustness with the severe computational limits of embedded hardware. While classical planners (e.g., A*, Pure Pursuit) are computationally efficient, they often struggle with unstructured environments. Conversely, deep reinforcement learning (DRL) offers adaptability but typically demands resources exceeding standard embedded capabilities. This research addresses the critical gap in understanding which specific sensory representations allow DRL to match classical efficiency without sacrificing robustness, enabling truly deployable AI navigation.
+Autonomous navigation on embedded hardware requires balancing the adaptability of deep reinforcement learning (DRL) with severe computational constraints. While classical planners are efficient, they lack robustness in unstructured settings. This research investigates whether specific, lightweight sensory abstractions can bridge this gap, enabling DRL to match classical efficiency without sacrificing safety, thereby defining the practical lower bound for sensory input fidelity in embedded DRL navigation.
 
 ## Related work
 
-- [Understanding Domain Randomization for Sim-to-real Transfer (2021)](https://arxiv.org/abs/2110.03239) — Establishes that domain randomization is essential for transferring RL policies from simulation to reality, directly relevant to training robust agents under constrained conditions.
-- [A Comprehensive Survey of PID and Pure Pursuit Control Algorithms for Autonomous Vehicle Navigation (2024)](https://arxiv.org/abs/2409.09848) — Provides the baseline classical control strategies (Pure Pursuit) against which the proposed lightweight DRL agents will be compared for path planning efficiency.
-- [Control Strategies for Autonomous Vehicles (2020)](https://arxiv.org/abs/2011.08729) — Offers a theoretical framework for control strategies in autonomous systems, defining the performance metrics and safety constraints that the DRL agent must satisfy.
-- [Enhancing Autonomous Navigation by Imaging Hidden Objects using Single-Photon LiDAR (2024)](https://arxiv.org/abs/2410.03555) — Highlights the importance of specific sensory modalities (LiDAR) for robustness in limited visibility, informing the selection of sensory representations to test in the DRL agent.
+- [3D Point Cloud Processing and Learning for Autonomous Driving](https://arxiv.org/abs/2003.00601) — Establishes the foundational methods for converting raw LiDAR point clouds into structured representations (like occupancy grids), which are critical for reducing input dimensionality in the proposed ablation study.
+- [Understanding Domain Randomization for Sim-to-real Transfer](https://arxiv.org/abs/2110.03239) — Provides the necessary theoretical framework for training robust policies in simulation that can generalize to real-world conditions, ensuring the validity of results derived from synthetic sensory abstractions.
+- [Optimal Vehicle Path Planning Using Quadratic Optimization for Baidu Apollo Open Platform](https://arxiv.org/abs/2112.02132) — Details modern classical path planning techniques that serve as the primary non-learning baseline for comparing the sample efficiency and robustness of the proposed DRL agents.
+- [Control Strategies for Autonomous Vehicles](https://arxiv.org/abs/2011.08729) — Offers the control-theoretic perspective and safety constraints required to define the performance metrics and failure modes against which the RL agents will be evaluated.
 
 ## Expected results
 
-We expect to identify that specific, lightweight sensory abstractions (e.g., occupancy grids derived from sparse LiDAR) enable DRL agents to achieve collision rates comparable to Pure Pursuit while maintaining inference latency under 50ms on CPU-only hardware. The study will demonstrate that the choice of sensory representation is a stronger determinant of embedded performance than the complexity of the neural network architecture itself.
+We expect to find that moderate abstractions (e.g., 2D occupancy grids) significantly improve sample efficiency and inference speed on CPU-only hardware compared to raw pixel inputs, while maintaining collision rates comparable to classical baselines. The study will identify a specific threshold of information density below which robustness degrades sharply, establishing a practical lower bound for sensory input in embedded DRL navigation.
 
 ## Methodology sketch
 
@@ -50,41 +50,24 @@ We expect to identify that specific, lightweight sensory abstractions (e.g., occ
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-03T13:02:49Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T19:36:43Z
 **Outcome**: success_after_expansion
 **Original term**: Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics
-**Verified citation count**: 5
+**Verified citation count**: 8
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics | 0 |
-| 1 | autonomous vehicle navigation algorithms | 4 |
-| 2 | self-driving car perception and planning | 0 |
-| 3 | robot motion planning for autonomous vehicles | 0 |
-| 4 | deep reinforcement learning for autonomous driving | 0 |
-| 5 | sensor fusion in autonomous navigation | 0 |
-| 6 | SLAM algorithms for self-driving cars | 0 |
-| 7 | path planning algorithms for autonomous vehicles | 0 |
-| 8 | computer vision for autonomous vehicle navigation | 0 |
-| 9 | end-to-end deep learning for autonomous driving | 0 |
-| 10 | obstacle avoidance in autonomous vehicles | 0 |
-| 11 | trajectory prediction for autonomous driving | 0 |
-| 12 | LiDAR-based navigation for autonomous vehicles | 0 |
-| 13 | behavioral cloning for autonomous vehicles | 0 |
-| 14 | reinforcement learning for robotic navigation | 0 |
-| 15 | autonomous driving control systems | 0 |
-| 16 | visual odometry for self-driving cars | 0 |
-| 17 | multi-modal sensor fusion for autonomous navigation | 0 |
-| 18 | decision making algorithms for autonomous vehicles | 0 |
-| 19 | real-time navigation for autonomous robots | 0 |
-| 20 | autonomous vehicle localization and mapping | 0 |
+| 0 (initial) | Robotic Artificial Intelligence Algorithms for Autonomous Vehicle Navigation robotics | 8 |
 
 ### Verified citations
 
 1. **Quantum Artificial Intelligence for Secure Autonomous Vehicle Navigation: An Architectural Proposal** (2025). Hemanth Kannamarlapudi, Sowmya Chintalapudi. arXiv. [2506.16000](https://arxiv.org/abs/2506.16000). PDF-sampled: No.
-2. **Understanding Domain Randomization for Sim-to-real Transfer** (2021). Xiaoyu Chen, Jiachen Hu, Chi Jin, Lihong Li, Liwei Wang. arXiv. [2110.03239](https://arxiv.org/abs/2110.03239). PDF-sampled: No.
-3. **A Comprehensive Survey of PID and Pure Pursuit Control Algorithms for Autonomous Vehicle Navigation** (2024). Harshit Jain, Priyal Babel. arXiv. [2409.09848](https://arxiv.org/abs/2409.09848). PDF-sampled: No.
-4. **Enhancing Autonomous Navigation by Imaging Hidden Objects using Single-Photon LiDAR** (2024). Aaron Young, Nevindu M. Batagoda, Harry Zhang, Akshat Dave, Adithya Pediredla, et al.. arXiv. [2410.03555](https://arxiv.org/abs/2410.03555). PDF-sampled: No.
-5. **Control Strategies for Autonomous Vehicles** (2020). Chinmay Vilas Samak, Tanmay Vilas Samak, Sivanathan Kandhasamy. arXiv. [2011.08729](https://arxiv.org/abs/2011.08729). PDF-sampled: No.
+2. **3D Point Cloud Processing and Learning for Autonomous Driving** (2020). Siheng Chen, Baoan Liu, Chen Feng, Carlos Vallespi-Gonzalez, Carl Wellington. arXiv. [2003.00601](https://arxiv.org/abs/2003.00601). PDF-sampled: No.
+3. **Understanding Domain Randomization for Sim-to-real Transfer** (2021). Xiaoyu Chen, Jiachen Hu, Chi Jin, Lihong Li, Liwei Wang. arXiv. [2110.03239](https://arxiv.org/abs/2110.03239). PDF-sampled: No.
+4. **An Exact Algorithm for a Fuel-Constrained Autonomous Vehicle Path Planning Problem** (2016). Kaarthik Sundar, Saravanan Venkatachalam, Sivakumar Rathinam. arXiv. [1604.08464](https://arxiv.org/abs/1604.08464). PDF-sampled: No.
+5. **Optimal Vehicle Path Planning Using Quadratic Optimization for Baidu Apollo Open Platform** (2021). Yajia Zhang, Hongyi Sun, Jinyun Zhou, Jiacheng Pan, Jiangtao Hu, et al.. arXiv. [2112.02132](https://arxiv.org/abs/2112.02132). PDF-sampled: No.
+6. **Altruistic Maneuver Planning for Cooperative Autonomous Vehicles Using Multi-agent Advantage Actor-Critic** (2021). Behrad Toghi, Rodolfo Valiente, Dorsa Sadigh, Ramtin Pedarsani, Yaser P. Fallah. arXiv. [2107.05664](https://arxiv.org/abs/2107.05664). PDF-sampled: No.
+7. **Opportunities to Parallelize Path Planning Algorithms for Autonomous Underwater Vehicles** (2017). Mike Eichhorn, Ulrich Kremer. arXiv. [1702.08098](https://arxiv.org/abs/1702.08098). PDF-sampled: No.
+8. **Control Strategies for Autonomous Vehicles** (2020). Chinmay Vilas Samak, Tanmay Vilas Samak, Sivanathan Kandhasamy. arXiv. [2011.08729](https://arxiv.org/abs/2011.08729). PDF-sampled: No.

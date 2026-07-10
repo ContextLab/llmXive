@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.05664",
+  "judged_at": "2026-07-10T19:35:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it presents a specific robotic AI algorithm (Multi-agent Advantage Actor-Critic) applied to the exact domain of autonomous vehicle navigation and maneuver planning, directly measuring the mechanism of cooperative decision-making in mixed-autonomy traffic.",
+  "relevant": true
+}

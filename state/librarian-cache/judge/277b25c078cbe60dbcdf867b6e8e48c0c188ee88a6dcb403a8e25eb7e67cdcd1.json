@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.00601",
+  "judged_at": "2026-07-10T19:35:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it reviews the specific algorithms (3D point cloud processing and learning) and sensor mechanisms (LiDAR) that constitute the core \"Robotic Artificial Intelligence\" stack for the \"Autonomous Vehicle Navigation\" domain, serving as a foundational reference for the perception and localization modules essential to navigation.",
+  "relevant": true
+}

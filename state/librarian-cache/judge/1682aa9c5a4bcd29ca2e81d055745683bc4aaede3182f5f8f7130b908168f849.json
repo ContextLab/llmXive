@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1604.08464",
+  "judged_at": "2026-07-10T19:35:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robotic artificial intelligence algorithms for autonomous vehicle navigation robotics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"Autonomous Vehicle Navigation\" component of the user's question, specifically addressing the path planning algorithmic challenge (a core sub-problem of navigation) using exact optimization techniques. While it focuses on fuel constraints rather than general AI perception or control, it provides the canonical algorithmic framework for route determination in autonomous vehicle systems, which is essential for a lite",
+  "relevant": true
+}
