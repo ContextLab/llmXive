@@ -1,64 +1,91 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Extracted Metrics Dataset Schema"
-description: "Schema for the intermediate CSV file containing network metrics and dissipation rates per timestep."
-type: "object"
+title: "Processed Granular Metrics Schema"
+description: "Schema for the output of the extraction phase (FR-001 to FR-003). One row per timestep."
+type: object
 properties:
-  header:
-    type: "array"
-    description: "Column names of the CSV file."
+  metadata:
+    type: object
+    properties:
+      source_file:
+        type: string
+        description: "Name of the input DEM file."
+      particle_count:
+        type: integer
+        description: "Total number of particles in the simulation."
+      driving_amplitude:
+        type: number
+        description: "Amplitude of the driving boundary."
+      friction_coeff:
+        type: number
+        description: "Friction coefficient used in simulation."
+      extraction_timestamp:
+        type: string
+        description: "ISO timestamp of extraction."
+      validation_status:
+        type: string
+        enum:
+          - "CODE_VALIDATED"
+          - "SCIENTIFIC_VALIDATED"
+          - "PENDING_REAL_DATA"
+        description: "Status of the data source."
+    required:
+      - source_file
+      - particle_count
+      - driving_amplitude
+      - validation_status
+  data:
+    type: array
     items:
-      type: "string"
-    enum:
-      - "timestep"
-      - "mean_coordination"
-      - "clustering_coeff"
-      - "force_heterogeneity"
-      - "dissipation_rate"
-      - "driving_amplitude"
-      - "volume_fraction"
-      - "is_steady_state"
-  rows:
-    type: "array"
-    description: "Data rows corresponding to the header."
-    items:
-      type: "object"
+      type: object
       properties:
         timestep:
-          type: "integer"
-          description: "Simulation time step index."
-        mean_coordination:
-          type: "number"
-          description: "Average number of contacts per particle."
-          minimum: 0
+          type: integer
+          description: "Simulation timestep index."
+        coordination_number:
+          type: number
+          description: "Mean coordination number (average degree)."
         clustering_coeff:
-          type: "number"
-          description: "Average clustering coefficient of the network."
-          minimum: 0
-          maximum: 1
+          type: number
+          description: "Average clustering coefficient."
         force_heterogeneity:
-          type: "number"
-          description: "Coefficient of Variation (CV) of contact forces. WARNING: This metric is functionally dependent on the same force vector used to calculate dissipation_rate. Do not interpret as an independent causal predictor."
-          minimum: 0
-        dissipation_rate:
-          type: "number"
-          description: "Energy loss rate (sum of force × relative velocity). WARNING: This metric is functionally dependent on the same force vector used to calculate force_heterogeneity. Do not interpret as an independent outcome."
+          type: number
+          description: "Coefficient of variation of contact forces."
+        dissipation_rate_abs:
+          type: number
+          description: "Absolute energy dissipation rate (Work - DeltaE)."
+        dissipation_rate_norm:
+          type: number
+          description: "Normalized energy dissipation rate (Abs / Work)."
         driving_amplitude:
-          type: "number"
-          description: "External driving parameter."
-        volume_fraction:
-          type: "number"
-          description: "System volume fraction."
-        is_steady_state:
-          type: "boolean"
-          description: "Flag indicating if the timestep is in a steady-state window (based on Kinetic Energy variance)."
+          type: number
+          description: "Current driving amplitude."
+        degree_distribution_entropy:
+          type: number
+          description: "FR-009: Topology-only metric (entropy)."
+        force_chain_percolation:
+          type: number
+          description: "FR-009: Force-only metric (percolation)."
+        flags:
+          type: array
+          items:
+            type: string
+            enum:
+              - "UNRELIABLE"
+              - "ESTIMATED"
+              - "STATIC"
+              - "MISSING_FORCES"
+          description: "Flags indicating data quality issues."
       required:
-        - "timestep"
-        - "mean_coordination"
-        - "clustering_coeff"
-        - "force_heterogeneity"
-        - "dissipation_rate"
-        - "driving_amplitude"
-        - "is_steady_state"
+        - timestep
+        - coordination_number
+        - clustering_coeff
+        - force_heterogeneity
+        - dissipation_rate_abs
+        - dissipation_rate_norm
+        - driving_amplitude
+        - flags
+        - degree_distribution_entropy
+        - force_chain_percolation
 required:
-  - "header"
-  - "rows"
+  - metadata
+  - data

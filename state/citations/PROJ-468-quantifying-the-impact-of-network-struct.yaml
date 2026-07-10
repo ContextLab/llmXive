@@ -1,4 +1,4 @@
-- artifact_hash: 34558ac3b83ef3edbbb39afaa1ff1d7f7d717f56ed70450c5518d662b31717cd
+- artifact_hash: e54d3f45525c0f2bfb809e5e59413fc922cdf0129d126d1ee6de210f7dffc9d1
   artifact_path: projects/PROJ-468-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,9 +7,9 @@
   kind: url
   value: https://huggingface.co/datasets/IliaLarchenko/vla_demo/resolve/main/data/chunk-000/episode_000000.parquet`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68ac6ef87ab0824cebb2eb7b/dba111568cb11473673862682b2d96a2b1684910179a4f2bddf9382057c1733d?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27episode_000000.parquet%3B+filename%3D%22episode_000000.parquet%22%3B&Expires=1783648304&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhhYzZlZjg3YWIwODI0Y2ViYjJlYjdiL2RiYTExMTU2OGNiMTE0NzM2NzM4NjI2ODJiMmQ5NmEyYjE2ODQ5MTAxNzlhNGYyYmRkZjkzODIwNTdjMTczM2RcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZXBpc29kZV8wMDAwMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmVwaXNvZGVfMDAwMDAwLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY0ODMwNH19fV19&Signature=MEQCIA9f%7Ej%7EeR58YYeXcyJF4-bFvVi6g24AD4Cc3e8gxmxomAiAjUSEHFWQ8S%7EmH%7ESeLdp4LMTdLkrBSxMUR899JwjRy2A__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-10T00:51:44.470685Z'
-- artifact_hash: 34558ac3b83ef3edbbb39afaa1ff1d7f7d717f56ed70450c5518d662b31717cd
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/68ac6ef87ab0824cebb2eb7b/dba111568cb11473673862682b2d96a2b1684910179a4f2bddf9382057c1733d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27episode_000000.parquet%3B+filename%3D%22episode_000000.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783648093&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhhYzZlZjg3YWIwODI0Y2ViYjJlYjdiL2RiYTExMTU2OGNiMTE0NzM2NzM4NjI2ODJiMmQ5NmEyYjE2ODQ5MTAxNzlhNGYyYmRkZjkzODIwNTdjMTczM2RcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZXBpc29kZV8wMDAwMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmVwaXNvZGVfMDAwMDAwLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY0ODA5M319fV19&Signature=MEQCIDL4kPQJy-gXSOA5Yu61c4FAvqORVSLYkPC4nJ5HjyesAiBKhVTalORIjxdW%7E0ulsiA3tXK8TUc%7E2UJ8LmMom-oOyw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T00:48:13.449170Z'
+- artifact_hash: e54d3f45525c0f2bfb809e5e59413fc922cdf0129d126d1ee6de210f7dffc9d1
   artifact_path: projects/PROJ-468-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/research.md
   cite_id: c-002
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://huggingface.co/datasets/philipjohnbasile/glm52-demolition-data/resolve/main/calib/calib_v4.jsonl`
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/philipjohnbasile/glm52-demolition-data/9c2d273ca6651ca92242cb5ae46bedf0dd8001d0/calib%2Fcalib_v4.jsonl?%2Fdatasets%2Fphilipjohnbasile%2Fglm52-demolition-data%2Fresolve%2Fmain%2Fcalib%2Fcalib_v4.jsonl=&etag=%22b56ef340147a67fe9463118767dd7fd16e603502%22
-  verified_at: '2026-07-10T00:51:44.470685Z'
-- artifact_hash: 34558ac3b83ef3edbbb39afaa1ff1d7f7d717f56ed70450c5518d662b31717cd
+  verified_at: '2026-07-10T00:48:13.449170Z'
+- artifact_hash: e54d3f45525c0f2bfb809e5e59413fc922cdf0129d126d1ee6de210f7dffc9d1
   artifact_path: projects/PROJ-468-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/research.md
   cite_id: c-003
   cited_authors: []
@@ -30,8 +30,8 @@
   value: https://huggingface.co/datasets/obaydata/openclaw-trajectories-demo/resolve/main/qa_overview.jsonl`
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/obaydata/openclaw-trajectories-demo/8d912bf76d1dd0649d19b867015b9395dfe6503e/qa_overview.jsonl?%2Fdatasets%2Fobaydata%2Fopenclaw-trajectories-demo%2Fresolve%2Fmain%2Fqa_overview.jsonl=&etag=%22d87662f28ee3dbae3e9a731a0d9333865e2dcb92%22
-  verified_at: '2026-07-10T00:51:44.470685Z'
-- artifact_hash: 34558ac3b83ef3edbbb39afaa1ff1d7f7d717f56ed70450c5518d662b31717cd
+  verified_at: '2026-07-10T00:48:13.449170Z'
+- artifact_hash: e54d3f45525c0f2bfb809e5e59413fc922cdf0129d126d1ee6de210f7dffc9d1
   artifact_path: projects/PROJ-468-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/research.md
   cite_id: c-004
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json`
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/P2SAMAPA/p2-etf-functional-anova-results/ab66418d2512562f99763e50575a2bd193eb923c/functional_anova_2026-05-19.json?%2Fdatasets%2FP2SAMAPA%2Fp2-etf-functional-anova-results%2Fresolve%2Fmain%2Ffunctional_anova_2026-05-19.json=&etag=%2201fff0768cdf9ee211af561c87088fd962cf384c%22
-  verified_at: '2026-07-10T00:51:44.470685Z'
+  verified_at: '2026-07-10T00:48:13.449170Z'

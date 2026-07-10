@@ -1,130 +1,119 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the final JSON output containing statistical results and diagnostics."
-type: "object"
+description: "Schema for the output of the analysis phase (FR-004 to FR-010). Contains statistical summaries."
+type: object
 properties:
-  run_id:
-    type: "string"
-    description: "Unique identifier for the run."
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO8601 timestamp of the analysis."
-  correlations:
-    type: "array"
-    description: "List of correlation results for each metric."
-    items:
-      type: "object"
-      properties:
-        metric:
-          type: "string"
-          enum: ["mean_coordination", "clustering_coeff", "force_heterogeneity"]
-        method:
-          type: "string"
-          enum: ["pearson", "spearman"]
-        coefficient:
-          type: "number"
-        p_value:
-          type: "number"
-          minimum: 0
-          maximum: 1
-        significant:
-          type: "boolean"
-          description: "True if p_value < 0.01."
-      required:
-        - "metric"
-        - "method"
-        - "coefficient"
-        - "p_value"
-        - "significant"
-  regression:
-    type: "object"
-    description: "Results of the GLS/Newey-West regression. Note: force_heterogeneity is excluded from this model."
+  correlation_analysis:
+    type: object
+    properties:
+      coordination_dissipation:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          pearson_p:
+            type: number
+          spearman_r:
+            type: number
+          spearman_p:
+            type: number
+      clustering_dissipation:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          pearson_p:
+            type: number
+          spearman_r:
+            type: number
+          spearman_p:
+            type: number
+      heterogeneity_dissipation:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          pearson_p:
+            type: number
+          spearman_r:
+            type: number
+          spearman_p:
+            type: number
+  regression_analysis:
+    type: object
     properties:
       model_type:
-        type: "string"
-        enum: ["GLS", "Newey-West"]
+        type: string
+        enum:
+          - "GLS_AR1"
+          - "Newey-West"
+          - "Quantile_Median"
+          - "Quantile_90"
       coefficients:
-        type: "object"
-        properties:
-          intercept:
-            type: "number"
-          mean_coordination:
-            type: "number"
-          clustering_coeff:
-            type: "number"
-          driving_amplitude:
-            type: "number"
-          interaction_amplitude_coordination:
-            type: "number"
-        required:
-          - "intercept"
-          - "mean_coordination"
-          - "clustering_coeff"
-          - "driving_amplitude"
-          - "interaction_amplitude_coordination"
-      std_errors:
-        type: "object"
-        additionalProperties:
-          type: "number"
+        type: object
+        description: "Map of predictor name to coefficient estimate. MUST include 'driving_amplitude' as a control variable."
+      standard_errors:
+        type: object
+        description: "Map of predictor name to corrected standard error."
+      adjusted_r_squared:
+        type: number
       p_values:
-        type: "object"
-        additionalProperties:
-          type: "number"
-      adj_r_squared:
-        type: "number"
-      vif_scores:
-        type: "object"
-        additionalProperties:
-          type: "number"
-    required:
-      - "model_type"
-      - "coefficients"
-      - "adj_r_squared"
+        type: object
+        description: "Map of predictor name to p-value."
+      stationarity_check:
+        type: object
+        properties:
+          adf_statistic:
+            type: number
+          adf_p_value:
+            type: number
+          is_stationary:
+            type: boolean
+      segments:
+        type: array
+        description: "Results for each segment if non-stationary data was split."
+        items:
+          type: object
+          properties:
+            segment_id:
+              type: integer
+            adjusted_r_squared:
+              type: number
+            p_values:
+              type: object
+      robustness_checks:
+        type: object
+        properties:
+          gam_nonlinearity_p:
+            type: number
+            description: "P-value for GAM non-linearity check."
+          ks_normality_p:
+            type: number
+            description: "P-value for Kolmogorov-Smirnov normality test."
+          quantile_regression_coefficients:
+            type: object
+            description: "Coefficients from Quantile Regression (median/90th)."
   validation:
-    type: "object"
-    description: "Cross-dataset validation results."
+    type: object
     properties:
-      anova_p_value:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      generalizable:
-        type: "boolean"
-        description: "True if anova_p_value > 0.05."
-      slope_consistency:
-        type: "string"
-        enum: ["Generalizable across amplitudes", "Non-generalizable"]
-    required:
-      - "anova_p_value"
-      - "generalizable"
-      - "slope_consistency"
-  diagnostics:
-    type: "object"
-    description: "System performance and data quality diagnostics."
-    properties:
-      steady_state_windows:
-        type: "integer"
-      total_timesteps:
-        type: "integer"
-      memory_peak_gb:
-        type: "number"
-      runtime_seconds:
-        type: "number"
-      runtime_status:
-        type: "string"
-        enum: ["PASS", "FAIL", "TRUNCATED"]
-        description: "Indicates compliance with SC-005 (runtime limit)."
-    required:
-      - "steady_state_windows"
-      - "total_timesteps"
-      - "memory_peak_gb"
-      - "runtime_seconds"
-      - "runtime_status"
+      anova_slope_test:
+        type: object
+        properties:
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+          is_consistent:
+            type: boolean
+            description: "True if p > 0.05 (slopes not significantly different). Used for SC-003."
+      data_validity_status:
+        type: string
+        enum:
+          - "CODE_VALIDATED"
+          - "SCIENTIFIC_VALIDATED"
+          - "PENDING_REAL_DATA"
+        description: "Explicit status of the data source validity."
 required:
-  - "run_id"
-  - "timestamp"
-  - "correlations"
-  - "regression"
-  - "validation"
-  - "diagnostics"
+  - correlation_analysis
+  - regression_analysis
+  - validation

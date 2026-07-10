@@ -18,8 +18,8 @@ As a researcher, I need the system to ingest raw DEM simulation output files, ex
 **Acceptance Scenarios**:
 
 1. **Given** a valid Yade-DEM output file containing particle positions and contact forces, **When** the extraction script is executed, **Then** a structured dataset is produced with rows for each timestep containing the mean coordination number, clustering coefficient, force heterogeneity, and calculated energy dissipation rate.
-2. **Given** a simulation file with missing force data for specific contacts, **When** the extraction script runs, **Then** the system logs a warning for the affected timesteps and excludes the entire timestep if >50% of contacts are missing; otherwise, it imputes missing forces as 0.0 and retains the timestep.
-3. **Given** a dataset of [deferred] number of particles processed on a GitHub Actions free-tier runner (2 vCPU), **When** the script runs, **Then** the memory usage target is ≤ 6GB and the runtime target is ≤ A duration of approximately half an hour. for the small-scale test case; if these targets are exceeded, the system triggers subsampling per FR-010. Note: The production trigger for subsampling is estimated memory > 6.5GB or estimated runtime > 5.5 hours (see FR-010).
+2. **Given** a simulation file with missing force data for specific contacts, **When** the extraction script runs, **Then** the system logs a warning for the affected timesteps. If >50% of the *total expected contacts* for that timestep are missing, the entire timestep is excluded. If <50% are missing, missing forces are imputed as 0.0, the force heterogeneity metric is marked as 'UNRELIABLE', and the dissipation calculation proceeds but is flagged as 'ESTIMATED'.
+3. **Given** a dataset of [deferred] particles processed on a GitHub Actions free-tier runner (2 vCPU), **When** the script runs, **Then** the memory usage target is ≤ 7GB and the runtime target is ≤ 6 hours; if these targets are exceeded, the system triggers subsampling per FR-008.
 
 ---
 
@@ -56,7 +56,7 @@ As a researcher, I need the system to validate the observed correlations across 
 ### Edge Cases
 
 - **Boundary Condition**: What happens when the driving amplitude is zero (static packing)? The system must detect this and calculate dissipation as the absolute sum of kinetic and potential energy changes (|ΔKE + ΔPE|) rather than dividing by zero work input, or flag the dataset as "static" if both work and energy change are zero.
-- **Error Scenario**: How does the system handle a simulation where the contact network is disconnected (isolated particles)? The system must handle `NaN` values for clustering coefficient gracefully by excluding the timestep if >50% of contacts are missing; otherwise, it imputes missing forces as 0.0. For force heterogeneity, if all edges have zero forces, the metric is set to 0.0.
+- **Error Scenario**: How does the system handle a simulation where the contact network is disconnected (isolated particles)? The system must handle `NaN` values for clustering coefficient gracefully by excluding the timestep if >50% of system-wide contacts are missing. If <50% are missing, the clustering coefficient is set to 0.0 (representing no clustering) rather than imputing forces, as force imputation does not resolve topological NaNs.
 - **Data Volume**: What happens if the simulation output file is corrupted or truncated mid-write? The system must validate the file integrity before processing and abort with a clear error message rather than producing partial, misleading results.
 
 ## Requirements
@@ -65,15 +65,16 @@ As a researcher, I need the system to validate the observed correlations across 
 
 - **FR-001**: System MUST parse Yade-DEM output files to extract particle positions, contact forces, and total energy at each timestep. Edges in the contact network MUST be defined by geometric overlap > 0, regardless of force magnitude, to ensure independence from the dissipation outcome (See US-1). Topology metrics (coordination, clustering) are derived solely from this binary graph.
 - **FR-002**: System MUST calculate the mean coordination number and clustering coefficient for the contact network at every timestep (See US-1).
-- **FR-003**: System MUST calculate the force heterogeneity (coefficient of variation of contact forces) for every timestep. If forces are imputed as 0.0 or are zero, the coefficient of variation is calculated only over edges with non-zero forces; if all edges are zero, the metric is set to 0.0 (See US-1).
-- **FR-004**: System MUST compute the energy dissipation rate using the sum of force × relative velocity over all contacts (internal damping model). This calculation is independent of the external Work_Input term, which is retained only as a control variable (See US-1).
-- **FR-005**: System MUST perform Pearson and Spearman correlation analyses between each network metric (coordination, clustering, force heterogeneity) and the dissipation rate (See US-2).
-- **FR-006**: System MUST execute a Generalized Least Squares (GLS) regression with AR(1) error structure (or Newey-West corrected OLS) to determine the combined predictive power of network metrics on dissipation rate, accounting for temporal autocorrelation (See US-2).
-- **FR-007**: System MUST include driving amplitude as a control variable in the regression model to account for confounding effects (See US-2).
-- **FR-008**: System MUST validate correlation consistency across multiple datasets using a mixed-effects model or ANOVA to test for slope differences (See US-3).
-- **FR-009**: System MUST generate a PDF report containing scatter plots with regression lines, residual diagnostics, and a correlation heatmap (See US-3).
-- **FR-010**: System MUST enforce a memory cap and a runtime limit to ensure resource efficiency. Subsampling MUST trigger automatically if estimated memory > 6.5GB or estimated runtime > 5.5 hours (providing a safety buffer before the 7GB/6h hard limits) (See US-1).
-- **FR-011**: System MUST detect and exclude non-steady-state transients by identifying windows where the rolling variance of dissipation rate exceeds a significant threshold over 100 timesteps; analysis is restricted to steady-state windows only (See US-2).
+- **FR-002b**: System MUST calculate the force heterogeneity (coefficient of variation of contact forces) for every timestep (See US-1).
+- **FR-003**: System MUST compute the energy dissipation rate using the equation: Dissipation = Work_Input - (ΔKE + ΔPE). Work_Input is calculated directly from the driving boundary parameters (e.g., wall velocity) in the input file. If Work_Input is zero, Dissipation = |ΔKE + ΔPE|. The result is normalized by the timestep interval. The final metric used for correlation is the *normalized* dissipation rate (Dissipation / Work_Input) to avoid tautology with driving input (See US-1).
+- **FR-004**: System MUST perform Pearson and Spearman correlation analyses between each network metric (coordination, clustering, force heterogeneity) and the *normalized* dissipation rate. Rows flagged as 'ESTIMATED' or 'UNRELIABLE' MUST be excluded from this analysis (See US-2).
+- **FR-005**: System MUST execute a Generalized Least Squares (GLS) regression with AR(1) error structure (or Newey-West corrected OLS) to determine the combined predictive power of network metrics on dissipation rate, accounting for temporal autocorrelation (See US-2).
+- **FR-005b**: System MUST include driving amplitude as a control variable in the regression model to account for confounding effects (See US-2).
+- **FR-006**: System MUST validate correlation consistency across multiple datasets using a mixed-effects model or ANOVA to test for slope differences (See US-3).
+- **FR-007**: System MUST generate a PDF report containing scatter plots with regression lines, residual diagnostics, and a correlation heatmap (See US-3).
+- **FR-008**: System MUST enforce a memory cap and a runtime limit to ensure resource efficiency. Subsampling MUST trigger automatically if the estimated memory usage exceeds a predefined high threshold or estimated runtime exceeds a substantial duration. The estimation MUST be performed by a linear extrapolation from a small initial portion of the file. (See US-1).
+- **FR-009**: System MUST calculate a 'Topology-Only' metric (e.g., degree distribution) and a 'Force-Only' metric to distinguish between structural connectivity and force transmission, ensuring the analysis is not circular (See US-2).
+- **FR-010**: System MUST perform an Augmented Dickey-Fuller (ADF) test on the time series. If non-stationarity is detected (p > 0.05), the data MUST be segmented into quasi-stationary windows (e.g., a suitable number of timesteps) and the regression performed on each segment, with results aggregated (See US-2).
 
 ### Key Entities
 
@@ -88,17 +89,17 @@ As a researcher, I need the system to validate the observed correlations across 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation/research phase.
 
 - **SC-001**: The system MUST output the p-value for the correlation test; the pipeline flags results with p < 0.01 as significant (See US-2).
-- **SC-002**: The adjusted R-squared value of the multiple linear regression model is measured against a baseline of 0.0; the result is considered successful if adjusted R-squared > 0.1 or if the model is significantly better than a null model (p < 0.05) (See US-2).
-- **SC-003**: The consistency of correlation slopes across datasets is measured against the result of an ANOVA test; the system outputs the ANOVA p-value; if p > 0.05, the report flags the result as "Generalizable across amplitudes", otherwise "Non-generalizable" (See US-3).
-- **SC-004**: The memory footprint of the analysis pipeline is measured against the free-tier runner's memory limit., requiring successful completion without OOM errors (See US-1).
-- **SC-005**: The total runtime of the end-to-end pipeline (extraction + analysis + visualization) is measured against a predefined time limit per GitHub Actions job (See US-1).
+- **SC-002**: The adjusted R-squared value of the multiple linear regression model is measured against a baseline of zero. to determine the proportion of variance in dissipation explained by network topology (See US-2).
+- **SC-003**: The consistency of correlation slopes across datasets is measured against the result of an ANOVA test (p > 0.05 required to claim generalizability across driving amplitudes) (See US-3).
+- **SC-004**: The memory footprint of the analysis pipeline is measured against the free-tier runner limit., requiring successful completion without OOM errors. This limit applies to the *actual* runtime memory usage after any subsampling triggered by FR-008 (See US-1).
+- **SC-005**: The total runtime of the end-to-end pipeline (extraction + analysis + visualization) is measured against a predefined job duration limit per GitHub Actions job. This limit applies to the *actual* runtime after any subsampling triggered by FR-008 (See US-1).
 
 ## Assumptions
 
-- **Dataset Availability**: Publicly available DEM datasets (e.g., from Yade-DEM or OpenGRAN) exist and contain the necessary variables: particle positions, contact forces, and total energy, with no gaps in the variable list, consistent with standard Yade-DEM output schemas.
+- **Dataset Availability**: Publicly available DEM datasets (e.g., from Yade-DEM or OpenGRAN) exist and contain the necessary variables: particle positions, contact forces, and total energy. If these variables are missing, the system will fail gracefully with a clear error message.
 - **Observational Framing**: The analysis is strictly observational; findings will be framed as "associations" between network topology and dissipation, not causal effects, as there is no random assignment of network structures.
-- **Compute Constraints**: The entire analysis (including subsampling if necessary) will fit within the free-tier CI limits (multiple CPU cores, Substantial RAM, a limited time window). using CPU-tractable methods (scikit-learn, scipy) without GPU acceleration or 8-bit quantization.
+- **Compute Constraints**: The entire analysis (including subsampling if necessary) will fit within the free-tier CI limits (a small number of CPU cores, limited RAM, 6 hours). using CPU-tractable methods (scikit-learn, scipy) without GPU acceleration or 8-bit quantization.
 - **Threshold Justification**: The significance threshold for statistical tests is fixed at p < 0.01, based on standard physics literature conventions for multiple hypothesis correction (Bonferroni or FDR will be applied if >5 tests are run).
 - **Sensitivity Analysis**: A sensitivity analysis will be performed by sweeping the subsampling fraction across a range of values (e.g., full, partial) to ensure results are robust, as no specific cutoff was defined in the idea.
-- **Measurement Validity**: The "force heterogeneity" metric (coefficient of variation) is a validated proxy for network stress distribution in granular physics, citing Majmudar & Behringer (year) and related literature.
+- **Measurement Validity**: The "force heterogeneity" metric (coefficient of variation) is a validated proxy for network stress distribution in granular physics, citing Majmudar & Behringer (2005) and related literature.
 - **Predictor Collinearity**: Coordination number and clustering coefficient may be definitionally related (bounded by local density); the analysis will treat them as a joint descriptive set rather than claiming independent causal effects, and will include a Variance Inflation Factor (VIF) diagnostic.

@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan (`projects/PROJ-468-quantifying-the-impact-of-network-struct/`): 1
+T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 [P] Create `data/` directory structure (`raw/`, `processed/`) and `results/` in root: 1
+T005 [P] Create `code/` directory structure with `__init__.py`: 1
+T006 [P] Create `tests/` directory structure (`unit/`, `integration/`) with `__init__.py`: 1

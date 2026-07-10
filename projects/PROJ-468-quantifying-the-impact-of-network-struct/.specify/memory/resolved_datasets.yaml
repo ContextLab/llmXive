@@ -1,4 +1,4 @@
-resolved_at: '2026-07-10T00:29:42.124816+00:00'
+resolved_at: '2026-07-10T00:39:41.874074+00:00'
 datasets:
 - intent: DEM
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/preprint/Call_08148045378_School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_081480453/32952779
+  - url: https://dro.deakin.edu.au/articles/media/More_than_40_of_elite_sport_coaches_we_surveyed_suffered_mental_ill_health_They_need_our_support_not_stigma/32943734
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention/32943818
+  - url: https://figshare.com/articles/online_resource/School_of_Nursing_Amachara_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Be/32952791
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Call_08148045378_School_of_Basic_Midwifery_Awgu_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_0814/32952776
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Bef/32952746
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Strain-Specific_Biotransformation_of_Grape_Marc_by_Lactic_Acid_Bacteria_Genomic_Validation_and_Gut_Microbiota_Modulation/32952773
+  - url: https://figshare.com/articles/preprint/School_of_Nursing_Eku_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Before_/32952782
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Raw_data_set_for_phiKZ_essentiality_TnSuperpool_and_JukAB_dataset_PfJuk_with_EH4_as_negative_control_empty_Tn7_site_/32952401
+  - url: https://curate.nd.edu/articles/educational_resource/_b_The_Role_of_Literacy_An_Overview_of_Literacy_Around_the_World_and_its_Impact_on_Global_Development_b_/32949944
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -85,6 +85,21 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://www.pedocs.de/frontdoor.php?source_opus=33256
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.pedocs.de/frontdoor.php?source_opus=33255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.pedocs.de/frontdoor.php?source_opus=33254
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''www.pedocs.de'', port=443): Max retries exceeded
+      with url: /frontdoor.php?source_opus=33254 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.pedocs.de'',
+      port=443) at 0x7f62a85abc90>, ''Connection to www.pedocs.de timed out. (connect
+      timeout=20)''))'
   - url: https://e-publishing.cern.ch/index.php/prise/article/view/1846
     source: datacite
     status: wrong_format
@@ -93,18 +108,6 @@ datasets:
     source: datacite
     status: unreachable
     reason: 'reachability failed: HTTP 405'
-  - url: https://yareta.unige.ch/archives/98b1b0fb-9f5c-4726-9be1-36915ba2b27c
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/d9423df4-860c-40f7-a10a-e71505cbebf1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/ca4612d0-ad31-41d1-90d6-f60ecda67fbe
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: ANOVA
   status: verified
   candidates:
@@ -120,23 +123,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention_2nd_edition_/32943788
+  - url: https://dro.deakin.edu.au/articles/media/_We_don_t_have_a_cultural_place_for_men_as_victims_why_men_often_don_t_tell_anyone_about_sexual_abuse/32943716
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Call_08148045378_School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_081480453/32952779
+  - url: https://figshare.com/articles/figure/School_of_Post_Basic_Midwifery_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Reg/32952794
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/report/What_works_for_mental_health_in_sporting_teams_An_evidence_guide_for_best_practice_in_mental_health_promotion_and_early_intervention/32943818
+  - url: https://dro.deakin.edu.au/articles/media/More_than_40_of_elite_sport_coaches_we_surveyed_suffered_mental_ill_health_They_need_our_support_not_stigma/32943734
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Call_08148045378_School_of_Basic_Midwifery_Awgu_2026_2027_Post-UTME_Form_Diploma_Form_and_part-time_form_is_out_call_08148045378_08148045378_08148045378_DR_Ayo_for_Guideline_on_how_to_apply_and_register_properly_before_the_closing_date_0814/32952776
+  - url: https://figshare.com/articles/online_resource/School_of_Nursing_Amachara_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Be/32952791
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Strain-Specific_Biotransformation_of_Grape_Marc_by_Lactic_Acid_Bacteria_Genomic_Validation_and_Gut_Microbiota_Modulation/32952773
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Umuahia_2026_2027_Post-UTME_Form_Diploma_Form_And_Part-time_Form_Is_Out_Now_Call_08148045378_08148045378_To_Apply_Call_The_Office_Of_The_Admin_08148045378_For_Further_Information_On_How_To_Make_Your_Proper_Registration_Bef/32952746
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -164,11 +167,11 @@ datasets:
     source: datacite
     status: unreachable
     reason: 'reachability failed: HTTP 405'
-  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183/1
+  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183
+  - url: https://tandf.figshare.com/articles/dataset/Psychiatric_Nurse-Led_Assertiveness_Therapy_A_Standardized_Protocol_for_the_Reduction_of_Violent_Behavior_in_Schizophrenia/31946183/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

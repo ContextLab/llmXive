@@ -1,17 +1,16 @@
-# Quickstart: Quantifying the Impact of Network Structure on Energy Dissipation in Driven Granular Materials
+# Quickstart: Quantifying the Impact of Network Structure on Energy Dissipation
 
 ## Prerequisites
-
-- Python 3.10 or higher
+- Python 3.11+
 - Git
-- Access to a GitHub Actions runner (for CI) or a local Linux environment with ≥7GB RAM.
+- GitHub Actions runner (for CI execution) or local Linux environment.
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-468-quantifying-the-impact-of-network-struct/code
+    cd projects/PROJ-468-quantifying-the-impact-of-network-struct
     ```
 
 2.  **Create a virtual environment**:
@@ -22,47 +21,49 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Note: `requirements.txt` pins specific versions to ensure reproducibility.*
+
+## Data Preparation
+
+Since no verified granular DEM dataset is available in the provided list, the pipeline supports **Synthetic Data for Code Validation** only.
+
+1.  **Generate synthetic data (Code Validation Only)**:
+    ```bash
+    python code/generate_synthetic_data.py --output data/raw/synthetic_demo.parquet
+    ```
+    *Note: This script creates a small-scale DEM simulation output with random particle positions and forces for testing the pipeline logic. **Results from this data are NOT scientifically valid.**.*
+
+2.  **Verify data integrity**:
+    ```bash
+    python code/utils.py --check data/raw/synthetic_demo.parquet
+    ```
 
 ## Running the Pipeline
 
-### Option A: Synthetic Test (Recommended for First Run)
-
-This generates a small-scale synthetic DEM dataset and runs the full pipeline to verify functionality.
+Execute the full analysis pipeline:
 
 ```bash
-python main.py --mode synthetic --output data/processed/synthetic_results.json
+python code/main.py --input data/raw/synthetic_demo.parquet --output results/
 ```
 
-- **Expected Output**: A `synthetic_results.json` file and a `synthetic_report.pdf` in `data/processed/`.
-- **Runtime**: [deferred].
-- **Memory**: < 1GB.
+**Options**:
+- `--input`: Path to the raw DEM output file (Parquet/CSV).
+- `--output`: Directory for processed data and reports.
+- `--max-memory`: Override the memory cap (default: 6GB).
+- `--validation-mode`: Set to `code` (synthetic) or `science` (requires real data). Default: `code`.
 
-### Option B: Real Data Analysis
+## Expected Outputs
 
-1.  **Prepare Data**: Place your Yade-DEM output file (e.g., `simulation.csv`) in `data/raw/`.
-2.  **Run Pipeline**:
-    ```bash
-    python main.py --input data/raw/simulation.csv --output data/processed/real_results.json
-    ```
-3.  **Check Logs**: Monitor `logs/pipeline.log` for warnings about missing data or subsampling triggers.
-
-## Verifying Results
-
-1.  **Check Metrics**: Open `data/processed/metrics_<run_id>.csv` to ensure non-null values for `mean_coordination`, `clustering_coeff`, and `dissipation_rate`.
-2.  **Review Report**: Open `data/processed/report_<run_id>.pdf` to visualize correlations and regression diagnostics.
-3.  **Validate JSON**: Ensure `analysis_results_<run_id>.json` contains `p_values` < 0.01 for significant findings.
+After successful execution, the `results/` directory will contain:
+- `processed_metrics.csv`: Time-series of network metrics and dissipation (with metadata header).
+- `regression_results.json`: Statistical summary (coefficients, p-values, R-squared, ANOVA, GAM/Quantile checks).
+- `report.pdf`: Publication-ready PDF with scatter plots, heatmaps, and diagnostics.
+- `validation_report.json`: Explicit status of "Code Validated" vs "Scientific Validated".
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter `MemoryError`, the system should have automatically triggered subsampling. If not, reduce the input file size or increase the `--subsample-ratio` flag.
-- **Missing Forces**: The system logs a warning if >50% of contacts are missing in a timestep. Such timesteps are excluded.
-- **Static Packing**: If driving amplitude is zero, the system calculates dissipation as `|ΔKE + ΔPE|`.
-
-## Next Steps
-
-- **Customization**: Modify `code/extraction/network_metrics.py` to add new topological metrics.
-- **Extended Analysis**: Add new datasets to `data/raw/` and run the validation module for cross-dataset comparison.
-- **Publication**: Use the generated PDF report as a draft for your scientific paper.
+- **OOM Error**: The pipeline automatically triggers subsampling. If the error persists, reduce `--max-memory` or use a smaller input file.
+- **Non-Stationary Data**: If the ADF test fails, the pipeline will segment the data into windows. Check `results/regression_results.json` for per-window results.
+- **Missing Variables**: If the input file lacks `contact_forces`, the script will abort with a clear error message.
+- **Circularity Warning**: If `dissipation_rate_norm` is used, the report will include a warning about potential tautology.
