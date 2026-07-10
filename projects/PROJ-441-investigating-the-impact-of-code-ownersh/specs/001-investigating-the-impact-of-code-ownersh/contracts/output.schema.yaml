@@ -1,0 +1,144 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for final regression and sensitivity analysis results"
+type: "object"
+properties:
+  regression_results:
+    type: "object"
+    properties:
+      model_summary:
+        type: "object"
+        properties:
+          r_squared:
+            type: "number"
+          adj_r_squared:
+            type: "number"
+          f_statistic:
+            type: "number"
+          p_value_f:
+            type: "number"
+          model_type:
+            type: "string"
+            enum:
+              - "LinearMixedEffects"
+              - "OLS"
+        required:
+          - r_squared
+          - f_statistic
+          - p_value_f
+          - model_type
+      coefficients:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            predictor:
+              type: "string"
+            coefficient:
+              type: "number"
+            std_error:
+              type: "number"
+            t_statistic:
+              type: "number"
+            p_value:
+              type: "number"
+          required:
+            - predictor
+            - coefficient
+            - p_value
+      vif_scores:
+        type: "object"
+        additionalProperties:
+          type: "number"
+      residual_normality:
+        type: "object"
+        properties:
+          test:
+            type: "string"
+            enum:
+              - "Shapiro-Wilk"
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - test
+          - statistic
+          - p_value
+      non_linearity_test:
+        type: "object"
+        properties:
+          test:
+            type: "string"
+            enum:
+              - "LikelihoodRatioTest"
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          conclusion:
+            type: "string"
+            enum:
+              - "Linear"
+              - "Non-Linear"
+        required:
+          - test
+          - statistic
+          - p_value
+          - conclusion
+    required:
+      - model_summary
+      - coefficients
+      - vif_scores
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      windows:
+        type: "array"
+        items:
+          type: "integer"
+          enum:
+            - 100
+            - 500
+      coefficients_by_window:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            window_size:
+              type: "integer"
+            gini_coefficient_value:
+              type: "number"
+            p_value:
+              type: "number"
+          required:
+            - window_size
+            - gini_coefficient_value
+            - p_value
+    required:
+      - windows
+      - coefficients_by_window
+  execution_stats:
+    type: "object"
+    properties:
+      total_repos_processed:
+        type: "integer"
+      total_snippets_processed:
+        type: "integer"
+      inference_failures:
+        type: "integer"
+      runtime_seconds:
+        type: "number"
+      fallback_triggered:
+        type: "boolean"
+        description: "True if snippet count was reduced due to time/memory constraints"
+    required:
+      - total_repos_processed
+      - total_snippets_processed
+      - runtime_seconds
+      - fallback_triggered
+required:
+  - regression_results
+  - sensitivity_analysis
+  - execution_stats
+additionalProperties: false

@@ -1,0 +1,312 @@
+resolved_at: '2026-07-10T11:23:56.629161+00:00'
+datasets:
+- intent: StarCoder2-3B
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bigcode__starcoder2-3b/resolve/main/2024-04-02T20-35-05.231245/details_harness|arc:challenge|25_2024-04-02T20-35-05.231245.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/acmc/jailbreaks_dataset_with_perplexity_bigcode_starcoder2-3b_bigcode_starcoder2-7b/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_bigcode__starcoder2-3b/resolve/main/2024-04-02T20-35-05.231245/details_harness|arc:challenge|25_2024-04-02T20-35-05.231245.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard/bigcode__starcoder2-3b-details/resolve/main/bigcode__starcoder2-3b/results_2024-06-15T14-40-53.333616.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/acmc/jailbreaks_dataset_with_perplexity_bigcode_starcoder2-3b_bigcode_starcoder2-7b/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard/ontocord__starcoder2_3b-AutoRedteam-details/resolve/main/ontocord__starcoder2_3b-AutoRedteam/samples_leaderboard_bbh_boolean_expressions_2025-01-27T17-29-06.742376.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://repository.rcsi.com/articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Multimodal_salvage_therapy_for_locally_advanced_esophageal_cancer_recurrence_after_failed_post-ESD_surveillance_a_case_report_docx/32956640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ESS-X/32956583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_3_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.v8c8h23
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18699015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17747449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15557753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15368686
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.25987
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20352085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20352085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.01147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/SERSEM_Selective_Entropy-Weighted_Scoring_for_Membership_Inference_in_Code_Language_Models/31911933/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BLEU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/dousey/culture_bleuet/resolve/main/data/train-00000-of-00001-bbebcaa107c49829.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bleugreen/typescript-chunks/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/bleugreen/typescript-instruct/resolve/main/ts-instruct.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.rcsi.com/articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Multimodal_salvage_therapy_for_locally_advanced_esophageal_cancer_recurrence_after_failed_post-ESD_surveillance_a_case_report_docx/32956640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ESS-X/32956583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_3_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10317906
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17096816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10305972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5794093
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15268586
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/09c2df12-0d49-4cc3-8b49-d6d0c916ab20
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15228609
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cudl.colorado.edu/luna/servlet/verify?redirectUrl=https%3A%2F%2Fcudl.colorado.edu%2Fluna%2Fservlet%2Fdetail%2FUCBOULDERCB1~53~53~1098806~141469&helpUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FBrowsing%2Band%2BViewing%2BMedia%23BrowsingandViewingMedia-BrowsingandViewingMedia&showTip=false&showTipAdvancedSearch=false&advancedSearchUrl=https%3A%2F%2Fdocumentation.lunaimaging.com%2Fdisplay%2FV75D%2FSearching%23Searching-Searching
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/140924
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 108838
+      parsed: true
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.rcsi.com/articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Clinical_outcomes_of_peritoneal_dialysis_in_Southeast_Asia_a_scoping_review_protocol_with_a_focused_North_American_comparator/32947520
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Multimodal_salvage_therapy_for_locally_advanced_esophageal_cancer_recurrence_after_failed_post-ESD_surveillance_a_case_report_docx/32956640
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/ESS-X/32956583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Integrating_artificial_intelligence_into_dental_student_assessments_current_future_status/32947517
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://frontiersin.figshare.com/articles/figure/Supplementary_file_3_Emerging_insights_into_infective_endocarditis_in_the_era_of_transcatheter_aortic_valve_implantation_gif/32956619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19212142518
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18610551604
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19141981601
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21294940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284867
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21284867
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21281742
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

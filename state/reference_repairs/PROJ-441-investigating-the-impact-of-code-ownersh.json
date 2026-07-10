@@ -1,0 +1,26 @@
+[
+  {
+    "repaired_at": "2026-07-10T11:26:26.132613+00:00",
+    "project": "PROJ-441-investigating-the-impact-of-code-ownersh",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/code_x_glue_ct_code_to_text",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet",
+        "intent": "code glue ct to text CodeXGLUE Ground truth pairs Description for BLEU calculation. datasets library HuggingFace Needs Verification : The prompt's \"Verified datasets\" block"
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-07-10T11:28:42.312873+00:00",
+    "project": "PROJ-441-investigating-the-impact-of-code-ownersh",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/code_x_glue_ct_code_to_text",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/ravithejads/sample_bleu_data/resolve/main/data/test-00000-of-00001.parquet",
+        "intent": "code glue ct to text LLM Ground Truth pairs for BLEU calculation. CodeXGLUE via datasets library Verified : The dataset is available Hugging Face"
+      }
+    ]
+  }
+]

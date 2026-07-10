@@ -1,0 +1,98 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for processed dataset artifacts in data/processed/"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+      source_repos:
+        type: "array"
+        items:
+          type: "string"
+      model_id:
+        type: "string"
+    required:
+      - generated_at
+      - source_repos
+      - model_id
+  ownership_metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        repo_url:
+          type: "string"
+        gini_coefficient:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        developer_count:
+          type: "integer"
+          minimum: 0
+        max_author_share:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        window_size:
+          type: "integer"
+          enum:
+            - 100
+            - 500
+        target_commit_sha:
+          type: "string"
+          pattern: "^[a-f0-9]{40}$"
+      required:
+        - repo_url
+        - gini_coefficient
+        - developer_count
+        - max_author_share
+        - window_size
+        - target_commit_sha
+  code_snippets:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        snippet_id:
+          type: "string"
+        repo_url:
+          type: "string"
+        file_path:
+          type: "string"
+        cyclomatic_complexity:
+          type: "integer"
+          minimum: 0
+        documentation_density:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        ground_truth_pair:
+          type: "object"
+          properties:
+            input_code:
+              type: "string"
+            expected_output:
+              type: "string"
+          required:
+            - input_code
+            - expected_output
+        target_commit_sha:
+          type: "string"
+          pattern: "^[a-f0-9]{40}$"
+      required:
+        - snippet_id
+        - repo_url
+        - file_path
+        - cyclomatic_complexity
+        - documentation_density
+        - ground_truth_pair
+        - target_commit_sha
+required:
+  - metadata
+  - ownership_metrics
+  - code_snippets
+additionalProperties: false
