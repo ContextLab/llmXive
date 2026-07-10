@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-10T01:38:58.330384Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1024-robodojo-a-unified-sim-and-real-benchmar
-last_run_id: null
+last_run_id: 6952d39b-5fef-473a-a77d-5507d3cc9189
 last_run_status: null
 points_paper: {}
 points_research: {}
