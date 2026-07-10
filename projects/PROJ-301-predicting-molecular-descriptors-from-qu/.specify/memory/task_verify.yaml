@@ -1,0 +1,11 @@
+? T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`,
+  `data/results`, `tests/`, `utils/`)
+: 2
+? T002 Initialize Python 3.11 project with `requirements.txt` (pins `rdkit`, `scikit-learn`,
+  `pandas`, `numpy`, `pyarrow`, `tqdm`, `huggingface_hub`, `matplotlib`, `seaborn`,
+  `scipy`)
+: 2
+T003 [P] Configure linting (`ruff`) and formatting (`black`) tools: 2
+"T004 Implement `utils/memory_monitor.py` to track RAM usage and trigger downsampling if \u2265 6.5 GB": 2
+T005 [P] Implement `utils/parsers.py` for SMILES conversion and XYZ parsing (with error handling for malformed molecules): 2
+T006 Create base data model classes for `Molecule`, `FeatureSet`, and `ModelResult` in `code/utils/models.py`: 2

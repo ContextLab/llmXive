@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a comparative machine learning pipeline to predict molecular descriptors (dipole moment, HOMO, LUMO) from the QM9 dataset. The approach contrasts 2D topological representations (Morgan fingerprints) against 3D geometric representations (graph features derived from DFT-optimized coordinates) using Random Forest Regressors. The plan ensures strict adherence to the project's computational constraints (CPU-only, 7GB RAM, 6h runtime) and addresses the specific "failure boundary" hypothesis by quantifying relative error increases between the two model families.
+This feature implements a comparative machine learning pipeline to predict molecular descriptors (dipole moment, HOMO, LUMO) from the QM9 dataset. The approach contrasts 2D topological representations (Morgan fingerprints) against 3D geometric representations (graph features derived from DFT-optimized coordinates) using Random Forest Regressors. The plan ensures strict adherence to the project's computational constraints (CPU-only, limited RAM, 6h runtime) and addresses the specific "failure boundary" hypothesis by quantifying relative error increases between the two model families.
 
 ## Technical Context
 

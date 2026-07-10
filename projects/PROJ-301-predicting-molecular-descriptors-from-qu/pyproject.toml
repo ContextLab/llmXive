@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qm9-descriptor-prediction"
+version = "0.1.0"
+description = "Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "rdkit",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "pyarrow",
+    "tqdm",
+    "huggingface_hub",
+    "matplotlib",
+    "seaborn",
+    "scipy",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["code.*", "code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | artifacts
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+include = ["code/**/*.py", "tests/**/*.py"]
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "artifacts",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex (handled by separate complexity check if needed)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "utils"]
+force-sort-within-sections = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

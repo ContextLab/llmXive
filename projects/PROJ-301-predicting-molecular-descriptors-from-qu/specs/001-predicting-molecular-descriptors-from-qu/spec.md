@@ -69,7 +69,7 @@ The system must compute the relative error increase between the D and D models f
 - **FR-004**: System MUST calculate Mean Absolute Error (MAE) and Root Mean Square Error (RMSE) for each model against the DFT reference values (dipole moment, HOMO, LUMO). (See US-3)
 - **FR-005**: System MUST compute the relative error increase (2D vs 3D) for each descriptor and generate parity plots (Predicted vs. DFT) to visualize performance differences, explicitly noting that the 3D model uses DFT-optimized geometries as input. (See US-3)
 - **FR-006**: System MUST monitor memory usage during execution and enforce a hard limit of sufficient RAM, downsampling the dataset if the limit is ≥ 6.5 GB. (See US-1)
-- **FR-007**: System MUST calculate and report the theoretical lower bound (identity mapping error) for the 3D model to quantify the complexity of the geometry-to-property mapping and contextualize the 3D model's performance. (See US-3)
+- **FR-007**: System MUST calculate and report the theoretical lower bound (identity mapping error) for the D model to quantify the complexity of the geometry-to-property mapping and contextualize the 3D model's performance. (See US-3)
 
 ### Key Entities
 
