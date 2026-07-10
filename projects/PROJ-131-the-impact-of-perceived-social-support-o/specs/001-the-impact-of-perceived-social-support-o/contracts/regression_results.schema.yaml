@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results Schema"
+description: "Schema for the output of the robust linear regression analysis."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model (e.g., 'depression_binary')."
+  outcome_variable:
+    type: "string"
+    description: "Name of the dependent variable."
+  exposure_type:
+    type: "string"
+    enum:
+      - "binary"
+      - "continuous"
+    description: "Type of harassment exposure used in the model."
+  interaction_coefficient:
+    type: "number"
+    description: "The beta coefficient for the interaction term (Support x Harassment)."
+  interaction_se:
+    type: "number"
+    description: "Standard error of the interaction coefficient."
+  interaction_pvalue:
+    type: "number"
+    description: "Raw p-value for the interaction term."
+  interaction_ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bias-corrected bootstrapped CI."
+  interaction_ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bias-corrected bootstrapped CI."
+  fdr_adjusted_pvalue:
+    type: "number"
+    description: "P-value adjusted using Benjamini-Hochberg procedure."
+required:
+  - "model_id"
+  - "outcome_variable"
+  - "exposure_type"
+  - "interaction_coefficient"
+  - "interaction_se"
+  - "interaction_pvalue"
+  - "interaction_ci_lower"
+  - "interaction_ci_upper"
+  - "fdr_adjusted_pvalue"
+additionalProperties: false

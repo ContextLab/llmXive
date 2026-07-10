@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 3d254b7452322ff1f5bdd811189ba45a7db5df5846ed57c2113546d23c98cbb8
+  artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OSF
+  kind: url
+  value: https://osf.io/...`
+  verification_status: pending
+  verified_against_url: https://osf.io/
+  verified_at: '2026-07-10T08:05:48.053508Z'

@@ -1,0 +1,259 @@
+resolved_at: '2026-07-10T07:34:59.954937+00:00'
+datasets:
+- intent: GSS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RukawaY/gs_scenes/resolve/main/dynamic_nav/dynamic_nav.scene_dataset_config.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 714
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RukawaY/gs_scenes/resolve/main/dynamic_nav/dynamic_nav.scene_dataset_config.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/CSV_files_of_Evaluation_of_1_Random_forest_based_overload_prediction_scheme_2_Prevalent_schemes/32285838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Social_Entrepreneurship_Value_Creation_and_Sustainable_Impact_An_Integrative_Review_of_the_Literature_up_to_2022_and_a_Conceptual_Framework_Proposal_b_/32955353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QTP_Juniperus/32932622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Analysis_of_PTEN_Antagonistic_Peptides_PAPs_in_Neuronal_Growth_and_Traumatic_Brain_Injury_TBI_/32955368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5781768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/jac/article-lookup/doi/10.1093/jac/dkw455
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/1744-7917.70058
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.29pb4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s12035-017-0506-6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c4f6s/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uzsaj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/cr5b6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y28qb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21268727
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SocialSupport
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/CSV_files_of_Evaluation_of_1_Random_forest_based_overload_prediction_scheme_2_Prevalent_schemes/32285838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Social_Entrepreneurship_Value_Creation_and_Sustainable_Impact_An_Integrative_Review_of_the_Literature_up_to_2022_and_a_Conceptual_Framework_Proposal_b_/32955353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QTP_Juniperus/32932622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Analysis_of_PTEN_Antagonistic_Peptides_PAPs_in_Neuronal_Growth_and_Traumatic_Brain_Injury_TBI_/32955368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18763711
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19081608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10154533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13993123
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20368589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/sz7ry/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20506733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20506733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/104128
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Howdy_Robo-Partner_exploring_artificial_companionship_and_its_stress-alleviating_potential_for_service_employees/26777179
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HarassmentExposure
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/CSV_files_of_Evaluation_of_1_Random_forest_based_overload_prediction_scheme_2_Prevalent_schemes/32285838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Social_Entrepreneurship_Value_Creation_and_Sustainable_Impact_An_Integrative_Review_of_the_Literature_up_to_2022_and_a_Conceptual_Framework_Proposal_b_/32955353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QTP_Juniperus/32932622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Analysis_of_PTEN_Antagonistic_Peptides_PAPs_in_Neuronal_Growth_and_Traumatic_Brain_Injury_TBI_/32955368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MISSING-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/CSV_files_of_Evaluation_of_1_Random_forest_based_overload_prediction_scheme_2_Prevalent_schemes/32285838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Zero-Infinity_Dimensional_Recursion_ZIDR_A_Conceptual_and_Mathematical_Framework_for_a_Static_Universe/32899571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_Social_Entrepreneurship_Value_Creation_and_Sustainable_Impact_An_Integrative_Review_of_the_Literature_up_to_2022_and_a_Conceptual_Framework_Proposal_b_/32955353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/QTP_Juniperus/32932622
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Analysis_of_PTEN_Antagonistic_Peptides_PAPs_in_Neuronal_Growth_and_Traumatic_Brain_Injury_TBI_/32955368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18317095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.15dv41nw0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.hdr7sqvfc
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21278101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CES-D
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: GAD-7
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: PCL-5
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: PTSD
+  status: unresolved
+  candidates: []
+  candidates_tried: []
