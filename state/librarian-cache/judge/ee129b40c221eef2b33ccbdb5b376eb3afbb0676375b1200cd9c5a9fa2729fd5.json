@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1605.08857",
+  "judged_at": "2026-07-10T21:55:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "The paper focuses on video key frame extraction using entropy for video annotation, which is a distinct construct from the user's question regarding KV-cache quantization and error accumulation in Large Language Models (LLMs). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"entropy\" or \"key\" appearing in unrelated contexts) and is \"Off-domain entirely\" as it addresses computer vision/video processing rather than LLM inference opt",
+  "relevant": false
+}

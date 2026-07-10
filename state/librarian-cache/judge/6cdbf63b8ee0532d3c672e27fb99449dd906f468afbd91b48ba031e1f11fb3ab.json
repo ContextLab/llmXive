@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.07144",
+  "judged_at": "2026-07-10T21:55:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "This paper directly addresses the user's research question by extending the specific work on \"KVarN\" (Variance-Normalized KV-Cache Quantization) to a new storage mechanism, explicitly measuring the same biological/algorithmic mechanism (KV-cache quantization error accumulation and memory cost) and variables (perplexity cost, quantization asymmetry) on the same domain (LLM inference). It satisfies criteria (a) and (b) as it studies the exact same system and variables, even though it proposes a co",
+  "relevant": true
+}

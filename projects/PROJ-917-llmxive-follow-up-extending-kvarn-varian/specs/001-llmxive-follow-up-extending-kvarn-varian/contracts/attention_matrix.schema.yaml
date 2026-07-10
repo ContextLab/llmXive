@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AttentionStep"
+description: "Schema for a single step in an attention trajectory, including dynamic properties."
+type: "object"
+properties:
+  step_index:
+    type: "integer"
+    minimum: 0
+    maximum: 999
+    description: "The step index in the trajectory (0 to 999)."
+  properties:
+    type: "object"
+    properties:
+      mean:
+        type: "number"
+        description: "Mean of the matrix elements."
+      variance:
+        type: "number"
+        description: "Variance of the matrix elements."
+      skewness:
+        type: "number"
+        description: "Skewness of the matrix elements."
+      kurtosis:
+        type: "number"
+        description: "Kurtosis of the matrix elements."
+      sparsity:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Proportion of zero elements."
+      epsilon_applied:
+        type: "number"
+        description: "The epsilon floor used for normalization."
+    required:
+      - mean
+      - variance
+      - skewness
+      - kurtosis
+      - sparsity
+      - epsilon_applied
+  derived:
+    type: "object"
+    properties:
+      scaling_factor_gt:
+        type: "number"
+        description: "Ground truth scaling factor from Sequential Sinkhorn."
+      scaling_factor_pred:
+        type: "number"
+        nullable: true
+        description: "Predicted scaling factor by MLP (optional)."
+      sinkhorn_converged:
+        type: "boolean"
+        description: "Whether the Sequential Sinkhorn solver converged."
+      cumulative_error_state:
+        type: "number"
+        description: "Accumulated quantization error from previous steps."
+    required:
+      - scaling_factor_gt
+      - sinkhorn_converged
+      - cumulative_error_state
+required:
+  - step_index
+  - properties
+  - derived
+additionalProperties: false

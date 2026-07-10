@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-03T18:57:42Z",
+  "fetched_at": "2026-07-10T21:55:19Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accum\"",
       "target_n": 5
     },
-    "duration_seconds": 71.509,
-    "ended_at": "2026-07-03T18:57:42Z",
+    "duration_seconds": 57.135,
+    "ended_at": "2026-07-10T21:55:19Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "KV-cache quantization error accumulation"
+          "KV cache quantization error accumulation"
         ],
         [
           2,
-          "variance-normalized quantization for LLM inference"
+          "variance-normalized key-value quantization"
         ],
         [
           3,
-          "mitigating quantization drift in transformer KV caches"
+          "low-precision KV cache for large language models"
         ],
         [
           4,
-          "low-bit KV-cache compression techniques"
+          "mitigating quantization drift in transformer inference"
         ],
         [
           5,
-          "error correction in quantized attention mechanisms"
+          "dynamic KV cache quantization strategies"
         ],
         [
           6,
-          "dynamic KV-cache quantization strategies"
+          "error propagation in quantized attention mechanisms"
         ],
         [
           7,
-          "precision reduction for large language model serving"
+          "efficient LLM inference via KV cache compression"
         ],
         [
           8,
-          "activation-aware KV-cache quantization"
+          "adaptive quantization for transformer key-value states"
         ],
         [
           9,
-          "floating-point to integer KV-cache conversion"
+          "reducing inference latency with quantized KV caches"
         ],
         [
           10,
-          "stability of quantized transformer inference"
+          "numerical stability in quantized large language models"
         ],
         [
           11,
-          "memory-efficient attention with quantized keys and values"
+          "post-training quantization of KV cache"
         ],
         [
           12,
-          "adaptive quantization for LLM context windows"
+          "outlier-aware KV cache quantization"
         ],
         [
           13,
-          "rounding error propagation in transformer models"
+          "memory-efficient attention mechanisms for LLMs"
         ],
         [
           14,
-          "post-training quantization for KV states"
+          "quantization-aware training for KV cache reduction"
         ],
         [
           15,
-          "quantization-aware training for attention caches"
+          "long-context inference with compressed KV states"
         ],
         [
           16,
-          "reducing quantization noise in long-context LLMs"
+          "minimizing reconstruction error in quantized attention"
         ],
         [
           17,
-          "efficient inference via KV-cache bit-width reduction"
+          "hardware-aware KV cache quantization for LLMs"
         ],
         [
           18,
-          "statistical normalization methods for model quantization"
+          "sequence length scaling with quantized key-value pairs"
         ],
         [
           19,
-          "hardware-aware KV-cache quantization schemes"
+          "trade-offs between KV cache precision and model accuracy"
         ],
         [
           20,
-          "trade-offs between KV-cache precision and model accuracy"
+          "real-time quantization of transformer hidden states"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "KV-cache quantization error accumulation": 3,
+        "KV cache quantization error accumulation": 3,
         "llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accum\" computer science": 0,
-        "variance-normalized quantization for LLM inference": 5
+        "variance-normalized key-value quantization": 4
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "KV cache quantization error accumulation mitigation",
-      "LLM inference memory bandwidth bottleneck optimization",
-      "KVarN variance normalization attention head",
-      "perplexity degradation long context sequence",
-      "numerical stability floating point precision loss"
+      "KV cache quantization error propagation",
+      "variance normalized cache compression LLM",
+      "KVarN error accumulation mitigation",
+      "inference latency memory footprint quantization",
+      "numerical stability recurrent attention mechanisms"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,16 +121,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2306.00978"
+        "2402.12065"
       ]
     },
     "per_query_hit_count": {
-      "KV cache quantization error accumulation mitigation": 3,
-      "KVarN variance normalization attention head": 2,
-      "LLM inference memory bandwidth bottleneck optimization": 3,
+      "KV cache quantization error propagation": 3,
+      "KVarN error accumulation mitigation": 3,
+      "inference latency memory footprint quantization": 3,
       "llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accum\" computer science": 3,
-      "numerical stability floating point precision loss": 3,
-      "perplexity degradation long context sequence": 3
+      "numerical stability recurrent attention mechanisms": 3,
+      "variance normalized cache compression LLM": 2
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,19 +138,19 @@
       "rejected_count": 2,
       "rejections": [
         {
-          "primary_pointer": "2507.05228",
-          "rationale": "The paper focuses on privacy-preserving inference protocols (SMPC, sharding) and security attacks, which is a distinct construct from the user's question regarding KV-cache quantization and error accumulation mitigation. While both relate to LLM inference efficiency, the mechanisms, variables, and research goals are entirely different, failing to meet any inclusion criteria (a-f) and falling under the \"Distinct construct\" rejection rule.",
-          "title": "Cascade: Token-Sharded Private LLM Inference"
+          "primary_pointer": "1904.12068",
+          "rationale": "The paper focuses on authenticated data storage and security using hardware enclaves (Intel SGX) for key-value stores, which is a distinct construct from the user's question about \"KV-Cache Quantization\" for reducing error accumulation in Large Language Model inference. While both mention \"key-value\" concepts, the former addresses data integrity and security in cloud databases, whereas the latter addresses memory optimization and numerical precision in neural network attention mechanisms, satisf",
+          "title": "Authenticated Key-Value Stores with Hardware Enclaves"
         },
         {
-          "primary_pointer": "2505.18332",
-          "rationale": "The paper focuses on security vulnerabilities in permutation-based privacy schemes for LLM inference, which is a distinct construct from the user's question regarding variance-normalized KV-cache quantization and error accumulation mitigation. While both topics involve LLM inference optimization, the mechanisms (cryptographic obfuscation vs. numerical quantization), variables (privacy leakage vs. quantization error), and domains (security vs. model efficiency) are entirely separate, failing to m",
-          "title": "An Attack to Break Permutation-Based Private Third-Party Inference Schemes for LLMs"
+          "primary_pointer": "1605.08857",
+          "rationale": "The paper focuses on video key frame extraction using entropy for video annotation, which is a distinct construct from the user's question regarding KV-cache quantization and error accumulation in Large Language Models (LLMs). This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"entropy\" or \"key\" appearing in unrelated contexts) and is \"Off-domain entirely\" as it addresses computer vision/video processing rather than LLM inference opt",
+          "title": "Video Key Frame Extraction using Entropy value as Global and Local Feature"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-03T18:56:30Z",
+    "started_at": "2026-07-10T21:54:22Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
       "raw": "llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization Mitigates Error Accum\" computer science"
@@ -169,7 +169,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -188,7 +188,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +206,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -223,7 +223,7 @@
           "primary_pointer": "2604.24971"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='PolyKV: A Shared Asymmetrically-Compressed KV Cache Pool for Multi-Agent LLM Inference')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -246,7 +246,26 @@
           "primary_pointer": "2605.08840"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='ReST-KV: Robust KV Cache Eviction with Layer-wise Output Reconstruction and Spatial-Temporal Smoothing')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The key-value (KV) cache is a major bottleneck in long-context inference, where memory and computation grow with sequence length. Existing KV eviction methods reduce this cost but typically degrade performance relative to full-cache inference. Our key insight is that full-cache attention is not always optimal: in long contexts, irrelevant tokens can dilute attention away from useful evidence, so selective, learnable eviction can improve generation rather than merely approximate the full cache. We introduce a global retention-based KV eviction method that learns each token's future utility under a unified memory budget. Lightweight retention gates assign utility scores to cached KV entries, and a shared final scoring projection calibrates these scores across all layers and heads. This enables a single global eviction policy in which tokens from different layers, heads, and modalities compete directly for cache capacity. We further provide theoretical analysis showing that preferentially retaining useful tokens reduces attention dilution, and we justify geometric retention as a query-agnostic proxy for future utility. Across diverse long-context language and vision-language reasoning, and multi-turn dialogue benchmarks, our method substantially reduces KV memory while matching or surpassing full-cache inference. These results suggest that learned, globally calibrated KV eviction is not only a compression technique, but also a mechanism for improving long-context reasoning.",
+          "claimed_authors": [
+            "Ngoc Bui",
+            "Hieu Trung Nguyen",
+            "Arman Cohan",
+            "Rex Ying"
+          ],
+          "claimed_title": "Make Each Token Count: Towards Improving Long-Context Performance with KV Cache Eviction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.09649"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Make Each Token Count: Towards Improving Long-Context Performance with KV Cache Eviction')",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -320,7 +339,99 @@
           "primary_pointer": "2606.05868"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores a new version of the Levenberg-Marquardt algorithm used for Tensor Canonical Polyadic (CP) decomposition with an emphasis on image compression and reconstruction. Tensor computation, especially CP decomposition, holds significant applications in data compression and analysis. In this study, we formulate CP as a nonlinear least squares optimization problem. Then, we present an iterative Levenberg-Marquardt (LM) based algorithm for computing the CP decomposition. Ultimately, we test the algorithm on various datasets, including randomly generated tensors and RGB images. The proposed method proves to be both efficient and effective, offering a reduced computational burden when compared to the traditional Levenberg-Marquardt technique.",
+          "claimed_authors": [
+            "Ramin Goudarzi Karim",
+            "Dipak Dulal",
+            "Carmeliza Navasca"
+          ],
+          "claimed_title": "Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.04670"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Modified Levenberg-Marquardt Algorithm For Tensor CP Decomposition in Image Compression')",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study explores the potential to enhance the reflectance of solar insolation by the human settlement and grassland components of the Earth's terrestrial surface as a climate change mitigation measure. Preliminary estimates derived using a static radiative transfer model indicate that such efforts could amplify the planetary albedo enough to offset the current global annual average level of radiative forcing caused by anthropogenic greenhouse gases by as much as 30 percent or 0.76 W/m2. Terrestrial albedo amplification may thus extend, by about 25 years, the time available to advance the development and use of low-emission energy conversion technologies which ultimately remain essential to mitigate long-term climate change. However, additional study is needed to confirm the estimates reported here and to assess the economic and environmental impacts of active land-surface albedo amplification as a climate change mitigation measure.",
+          "claimed_authors": [
+            "Robert M. Hamwey"
+          ],
+          "claimed_title": "Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "physics/0512170"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Active Amplification of the Terrestrial Albedo to Mitigate Climate Change: An Exploratory Study')",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Due to numerous limitations including restrictive qubit topologies, short coherence times and prohibitively high noise floors, few quantum chemistry experiments performed on existing noisy intermediate-scale quantum hardware have achieved the high bar of chemical precision, namely energy errors to within 1.6 mHa of full configuration interaction. To have any hope of doing so, we must layer contemporary resource reduction techniques with best-in-class error mitigation methods; in particular, we combine the techniques of qubit tapering and the contextual subspace variational quantum eigensolver with several error mitigation strategies comprised of measurement-error mitigation, symmetry verification, zero-noise extrapolation and dual-state purification. We benchmark these strategies across a suite of eight 27-qubit IBM Falcon series quantum processors, taking preparation of the HCl molecule's ground state as our testbed.",
+          "claimed_authors": [
+            "Tim Weaving",
+            "Alexis Ralli",
+            "William M. Kirby",
+            "Peter J. Love",
+            "Sauro Succi",
+            "Peter V. Coveney"
+          ],
+          "claimed_title": "Benchmarking Noisy Intermediate Scale Quantum Error Mitigation Strategies for Ground State Preparation of the HCl Molecule",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.00445"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Benchmarking Noisy Intermediate Scale Quantum Error Mitigation Strategies for Ground State Preparation of the HCl Molecule')",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Global warming imposes us to reflect on the way we carry research, embarking on the obligation to minimize the environmental impact of our research programs, with the reduction of our travel footprint being one of the easiest actions to implement, thanks to the advance of digital technology. The X-ray Integral Field Unit (X-IFU), the cryogenic spectrometer of the Athena space X-ray observatory of the European Space Agency will be developed by a large international consortium. The travel footprint associated with the development of the X-IFU is to be minimized. For that purpose, a travel footprint calculator has been developed and first released to the X-IFU consortium members. The calculator uses seven different emission factors and methods differing by up to a factor of ~5 for the same flying distance. The observed differences illustrate the lack of standards and regulations for computing the footprint of flight travels and are explained primarily, though partly, by different accountings of non-CO2 effects. The calculator enables us to compute the travel footprint of a large set of travels and can help identify a meeting place that minimizes the overall travel footprint for a large set of possible city hosts, e.g. cities with large airports. The calculator also includes the option for a minimum distance above which flying is considered the most suitable transport option ; below that chosen distance, the emission of train journeys are considered. To demonstrate its full capabilities, the calculator is first run on one of the largest scientific meetings; the fall meeting of the AGU and meetings of the IPCC for which it is used to compute the location that would minimize the travel footprint. Then the travel footprint of X-IFU is estimated to be ~500 tons of CO2-eq/yr. With this paper, the on-line travel footprint calculator is released to the science community (abridged).",
+          "claimed_authors": [
+            "Didier Barret"
+          ],
+          "claimed_title": "Estimating, monitoring and minimizing the travel footprint associated with the development of the Athena X-ray Integral Field Unit -- An on-line travel footprint calculator released to the science community",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.05603"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Estimating, monitoring and minimizing the travel footprint associated with the development of the Athena X-ray Integral Field Unit -- An on-line travel footprint calculator released to the science community')",
+        "failed_at": "2026-07-10T21:54:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper summarizes the idea of Tiered-Latency DRAM, which was published in HPCA 2013. The key goal of TL-DRAM is to provide low DRAM latency at low cost, a critical problem in modern memory systems. To this end, TL-DRAM introduces heterogeneity into the design of a DRAM subarray by segmenting the bitlines, thereby creating a low-latency, low-energy, low-capacity portion in the subarray (called the near segment), which is close to the sense amplifiers, and a high-latency, high-energy, high-capacity portion, which is farther away from the sense amplifiers. Thus, DRAM becomes heterogeneous with a small portion having lower latency and a large portion having higher latency. Various techniques can be employed to take advantage of the low-latency near segment and this new heterogeneous DRAM substrate, including hardware-based caching and software based caching and memory allocation of frequently used data in the near segment. Evaluations with simple such techniques show significant performance and energy-efficiency benefits.",
+          "claimed_authors": [
+            "Donghyuk Lee",
+            "Yoongu Kim",
+            "Vivek Seshadri",
+            "Jamie Liu",
+            "Lavanya Subramanian",
+            "Onur Mutlu"
+          ],
+          "claimed_title": "Tiered-Latency DRAM (TL-DRAM)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.06903"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Tiered-Latency DRAM (TL-DRAM)')",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
@@ -336,175 +447,57 @@
           "primary_pointer": "2601.05960"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Distilling Feedback into Memory-as-a-Tool')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_abstract": "We explore solutions for automated labeling of content in bug trackers and customer support systems. In order to do that, we classify content in terms of several criteria, such as priority or product area. In the first part of the paper, we provide an overview of existing methods used for text classification. These methods fall into two categories - the ones that rely on neural networks and the ones that don't. We evaluate results of several solutions of both kinds. In the second part of the paper we present our own recurrent neural network solution based on hierarchical attention paradigm. It consists of several Hierarchical Attention network blocks with varying Gated Recurrent Unit cell sizes and a complementary shallow network that goes alongside. Lastly, we evaluate above-mentioned methods when predicting fields from two datasets - Arch Linux bug tracker and Chromium bug tracker. Our contributions include a comprehensive benchmark between a variety of methods on relevant datasets; a novel solution that outperforms previous generation methods; and two new datasets that are made public for further research.",
           "claimed_authors": [
-            "Vu Trung Hieu"
+            "Volodymyr Lyubinets",
+            "Taras Boiko",
+            "Deon Nicholas"
           ],
-          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_title": "Automated labeling of bugs and tickets using attention-based mechanisms in recurrent neural networks",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1808.06100"
+          "primary_pointer": "1807.02892"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='On the solution existence and stability of polynomial optimization problems')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Automated labeling of bugs and tickets using attention-based mechanisms in recurrent neural networks')",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The leading approaches in language modeling are all obsessed with TV shows of my youth - namely Transformers and Sesame Street. Transformers this, Transformers that, and over here a bonfire worth of GPU-TPU-neuromorphic wafer scale silicon. We opt for the lazy path of old and proven techniques with a fancy crypto inspired acronym: the Single Headed Attention RNN (SHA-RNN). The author's lone goal is to show that the entire field might have evolved a different direction if we had instead been obsessed with a slightly different acronym and slightly different result. We take a previously strong language model based only on boring LSTMs and get it to within a stone's throw of a stone's throw of state-of-the-art byte level language model results on enwik8. This work has undergone no intensive hyperparameter optimization and lived entirely on a commodity desktop machine that made the author's small studio apartment far too warm in the midst of a San Franciscan summer. The final results are achievable in plus or minus 24 hours on a single GPU as the author is impatient. The attention mechanism is also readily extended to large contexts with minimal computation. Take that Sesame Street.",
+          "claimed_abstract": "Measures generated by Iterated Function Systems composed of uncountably many one--dimensional affine maps are studied. We present numerical techniques as well as rigorous results that establish whether these measures are absolutely or singular continuous.",
           "claimed_authors": [
-            "Stephen Merity"
+            "Giorgio Mantica"
           ],
-          "claimed_title": "Single Headed Attention RNN: Stop Thinking With Your Head",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.11423"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Single Headed Attention RNN: Stop Thinking With Your Head')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Some transformer attention heads appear to function as membership testers, dedicating themselves to answering the question \"has this token appeared before in the context?\" We identify these heads across four language models (GPT-2 small, medium, and large; Pythia-160M) and show that they form a spectrum of membership-testing strategies. Two heads (L0H1 and L0H5 in GPT-2 small) function as high-precision membership filters with false positive rates of 0-4\\% even at 180 unique context tokens -- well above the $d_\\text{head} = 64$ bit capacity of a classical Bloom filter. A third head (L1H11) shows the classic Bloom filter capacity curve: its false positive rate follows the theoretical formula $p \\approx (1 - e^{-kn/m})^k$ with $R^2 = 1.0$ and fitted capacity $m \\approx 5$ bits, saturating by $n \\approx 20$ unique tokens. A fourth head initially identified as a Bloom filter (L3H0) was reclassified as a general prefix-attention head after confound controls revealed its apparent capacity curve was a sequence-length artifact. Together, the three genuine membership-testing heads form a multi-resolution system concentrated in early layers (0-1), taxonomically distinct from induction and previous-token heads, with false positive rates that decay monotonically with embedding distance -- consistent with distance-sensitive Bloom filters. These heads generalize broadly: they respond to any repeated token type, not just repeated names, with 43\\% higher generalization than duplicate-token-only heads. Ablation reveals these heads contribute to both repeated and novel token processing, indicating that membership testing coexists with broader computational roles. The reclassification of L3H0 through confound controls strengthens rather than weakens the case: the surviving heads withstand the scrutiny that eliminated a false positive in our own analysis.",
-          "claimed_authors": [
-            "Peter Balogh"
-          ],
-          "claimed_title": "The Anxiety of Influence: Bloom Filters in Transformer Attention Heads",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.17526"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='The Anxiety of Influence: Bloom Filters in Transformer Attention Heads')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Diffusion Large Language Models (dLLMs) deliver strong long-context processing capability in a non-autoregressive decoding paradigm. However, the considerable computational cost of bidirectional full attention limits the inference efficiency. Although sparse attention is promising, existing methods remain ineffective. This stems from the need to estimate attention importance for tokens yet to be decoded, while the unmasked token positions are unknown during diffusion. In this paper, we present Focus-dLLM, a novel training-free attention sparsification framework tailored for accurate and efficient long-context dLLM inference. Based on the finding that token confidence strongly correlates across adjacent steps, we first design a past confidence-guided indicator to predict unmasked regions. Built upon this, we propose a sink-aware pruning strategy to accurately estimate and remove redundant attention computation, while preserving highly influential attention sinks. To further reduce overhead, this strategy reuses identified sink locations across layers, leveraging the observed cross-layer consistency. Experimental results show that our method offers more than $29\\times$ lossless speedup under $32K$ context length. The code is publicly available at: https://github.com/Longxmas/Focus-dLLM",
-          "claimed_authors": [
-            "Lingkun Long",
-            "Yushi Huang",
-            "Shihao Bai",
-            "Ruihao Gong",
-            "Jun Zhang",
-            "Ao Zhou",
-            "Jianlei Yang"
-          ],
-          "claimed_title": "Focus-dLLM: Accelerating Long-Context Diffusion LLM Inference via Confidence-Guided Context Focusing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.02159"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Focus-dLLM: Accelerating Long-Context Diffusion LLM Inference via Confidence-Guided Context Focusing')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Synthesizing consistent and coherent long video remains a fundamental challenge. Existing methods suffer from semantic drift and narrative collapse over long horizons. We present A$^2$RD, an Agentic Auto-Regressive Diffusion architecture that decouples creative synthesis from consistency enforcement. A$^2$RD formulates long video synthesis as a closed-loop process that synthesizes and self-improves video segment-by-segment through a Retrieve--Synthesize--Refine--Update cycle. It comprises three core components: (i) Multimodal Video Memory that tracks video progression across modalities; (ii) Adaptive Segment Generation that switches among generation modes for natural progression and visual consistency; and (iii) Hierarchical Test-Time Self-Improvement that self-improves each segment at frame and video levels to prevent error propagation. We further introduce LVBench-C, a challenging benchmark with non-linear entity and environment transitions to stress-test long-horizon consistency. Across public and LVBench-C benchmarks spanning one- to ten-minute videos, A$^2$RD outperforms state-of-the-art baselines by up to 30% in consistency and 20% in narrative coherence. Human evaluations corroborate these gains while also highlighting notable improvements in motion and transition smoothness.",
-          "claimed_authors": [
-            "Do Xuan Long",
-            "Yale Song",
-            "Min-Yen Kan",
-            "Tomas Pfister",
-            "Long T. Le"
-          ],
-          "claimed_title": "A$^2$RD: Agentic Autoregressive Diffusion for Long Video Consistency",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2605.06924"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='A$^2$RD: Agentic Autoregressive Diffusion for Long Video Consistency')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Long-context inference for Large Language Models (LLMs) is heavily limited by high computational demands. While several existing methods optimize attention computation, they still process the full set of hidden states at each layer, limiting overall efficiency. In this work, we propose SlimInfer, an innovative framework that aims to accelerate inference by directly pruning less critical prompt tokens during the forward pass. Our key insight is an information diffusion phenomenon: As information from critical tokens propagates through layers, it becomes distributed across the entire sequence. This diffusion process suggests that LLMs can maintain their semantic integrity when excessive tokens, even including these critical ones, are pruned in hidden states. Motivated by this, SlimInfer introduces a dynamic fine-grained pruning mechanism that accurately removes redundant tokens of hidden state at intermediate layers. This layer-wise pruning naturally enables an asynchronous KV cache manager that prefetches required token blocks without complex predictors, reducing both memory usage and I/O costs. Extensive experiments show that SlimInfer can achieve up to $\\mathbf{2.53\\times}$ time-to-first-token (TTFT) speedup and $\\mathbf{1.88\\times}$ end-to-end latency reduction for LLaMA3.1-8B-Instruct on a single RTX 4090, without sacrificing performance on LongBench. Our code is available at https://github.com/Longxmas/SlimInfer.",
-          "claimed_authors": [
-            "Lingkun Long",
-            "Rubing Yang",
-            "Yushi Huang",
-            "Desheng Hui",
-            "Ao Zhou",
-            "Jianlei Yang"
-          ],
-          "claimed_title": "SlimInfer: Accelerating Long-Context LLM Inference via Dynamic Token Pruning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.06447"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='SlimInfer: Accelerating Long-Context LLM Inference via Dynamic Token Pruning')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "For scientific computations on a digital computer the set of real number is usually approximated by a finite set F of \"floating-point\" numbers. We compare the numerical accuracy possible with difference choices of F having approximately the same range and requiring the same word length. In particular, we compare different choices of base (or radix) in the usual floating-point systems. The emphasis is on the choice of F, not on the details of the number representation or the arithmetic, but both rounded and truncated arithmetic are considered. Theoretical results are given, and some simulations of typical floating-point computations (forming sums, solving systems of linear equations, finding eigenvalues) are described. If the leading fraction bit of a normalized base 2 number is not stored explicitly (saving a bit), and the criterion is to minimize the mean square roundoff error, then base 2 is best. If unnormalized numbers are allowed, so the first bit must be stored explicitly, then base 4 (or sometimes base 8) is the best of the usual systems.",
-          "claimed_authors": [
-            "Richard P. Brent"
-          ],
-          "claimed_title": "On the precision attainable with various floating-point number systems",
+          "claimed_title": "Dynamical Systems and Numerical Analysis: the Study of Measures generated by Uncountable I.F.S",
           "claimed_venue": "arXiv",
           "claimed_year": 2010,
-          "primary_pointer": "1004.3374"
+          "primary_pointer": "1005.3395"
         },
-        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='On the precision attainable with various floating-point number systems')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Dynamical Systems and Numerical Analysis: the Study of Measures generated by Uncountable I.F.S')",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mondrian Forests are a powerful data stream classification method, but their large memory footprint makes them ill-suited for low-resource platforms such as connected objects. We explored using reduced-precision floating-point representations to lower memory consumption and evaluated its effect on classification performance. We applied the Mondrian Forest implementation provided by OrpailleCC, a C++ collection of data stream algorithms, to two canonical datasets in human activity recognition: Recofit and Banos \\emph{et al}. Results show that the precision of floating-point values used by tree nodes can be reduced from 64 bits to 8 bits with no significant difference in F1 score. In some cases, reduced precision was shown to improve classification performance, presumably due to its regularization effect. We conclude that numerical precision is a relevant hyperparameter in the Mondrian Forest, and that commonly-used double precision values may not be necessary for optimal performance. Future work will evaluate the generalizability of these findings to other data stream classifiers.",
+          "claimed_abstract": "We couple the L1 discretization for Caputo derivative in time with spectral Galerkin method in space to devise a scheme that solves quasilinear subdiffusion equations. Both the diffusivity and the source are allowed to be nonlinear functions of the solution. We prove method's stability and convergence with spectral accuracy in space. The temporal order depends on solution's regularity in time. Further, we support our results with numerical simulations that utilize parallelism for spatial discretization. Moreover, as a side result we find asymptotic exact values of error constants along with their remainders for discretizations of Caputo derivative and fractional integrals. These constants are the smallest possible which improves the previously established results from the literature.",
           "claimed_authors": [
-            "Marc Vicuna",
-            "Martin Khannouz",
-            "Gregory Kiar",
-            "Yohan Chatelain",
-            "Tristan Glatard"
+            "Łukasz Płociniczak"
           ],
-          "claimed_title": "Reducing numerical precision preserves classification accuracy in Mondrian Forests",
+          "claimed_title": "A linear Galerkin numerical method for a quasilinear subdiffusion equation",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2106.14340"
+          "primary_pointer": "2107.10057"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='Reducing numerical precision preserves classification accuracy in Mondrian Forests')",
-        "failed_at": "2026-07-03T18:57:00Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Convolutional neural networks (CNN) have become a ubiquitous algorithm with growing applications in mobile and edge settings. We describe a compute-in-memory (CIM) technique called FPIRM using Racetrack Memory (RM) to accelerate CNNs for edge systems. Using transverse read, a technique that can determine the number of '1's multiple adjacent domains, FPIRM can efficiently implement multi-operand bulk-bitwise and addition computations, and two-operand multiplication. We discuss how FPIRM can implement both variable precision integer and floating point arithmetic. This allows both CNN inference and on-device training without expensive data movement to the cloud. Based on these functions we demonstrate implementation of several CNNs with back propagation using RM CIM and compare these to state-of-the-art implementations of CIM inference and training in Field-Programmable Gate Arrays. During training FPIRM improves by 2$\\times$ the efficiency, by reducing the energy consumption by at least 27% and increasing the throughput by at least 18% against FPGA.",
-          "claimed_authors": [
-            "Sébastien Ollivier",
-            "Xinyi Zhang",
-            "Yue Tang",
-            "Chayanika Choudhuri",
-            "Jingtong Hu",
-            "Alex K. Jones"
-          ],
-          "claimed_title": "FPIRM: Floating-point Processing in Racetrack Memories",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2204.13788"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='FPIRM: Floating-point Processing in Racetrack Memories')",
-        "failed_at": "2026-07-03T18:57:00Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"KVarN: Variance-Normalized KV-Cache Quantization M', candidate_title='A linear Galerkin numerical method for a quasilinear subdiffusion equation')",
+        "failed_at": "2026-07-10T21:54:51Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -536,7 +529,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:00Z"
+          "verified_at": "2026-07-10T21:54:51Z"
         }
       },
       {
@@ -562,108 +555,83 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:08Z"
+          "verified_at": "2026-07-10T21:54:59Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Utkarsh Saxena",
-            "Kaushik Roy"
+            "Vladimir Gusev"
           ],
-          "title": "KVLinC : KV Cache Quantization with Hadamard Rotation and Linear Correction",
+          "title": "Fractal KV-Cache Archives: Lossless Symbolic Storage with In-Place Retrieval for Long-Context LLM Inference",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2026
         },
-        "primary_pointer": "2510.05373",
-        "summary": "Quantizing the key-value (KV) cache is a promising strategy for improving the inference efficiency of large language models (LLMs). However, aggressive quantization to very low precision (e.g., 2 bits) introduces significant errors in the stored key and value tensors, which propagate through the dot-product attention mechanism and ultimately degrade generation quality. To address this, we propose KVLinC, a framework to mitigate attention errors introduced by KV cache quantization in the extreme low-precision regime. KVLinC combines a Hadamard rotation, which reduces quantization error in values, with lightweight linear correction adapters that explicitly compensate for errors introduced by quantized keys. Across extensive evaluations on the LLaMA, Qwen2.5, and Qwen3 model families, KVLinC consistently matches or surpasses strong baselines while achieving higher KV-cache compression. Furthermore, we implement a custom attention kernel that results in upto 2.55x faster inference compared to Flash Attention baseline, enabling efficient long-context LLM inference.",
+        "primary_pointer": "2607.07144",
+        "summary": "The key-value (KV) cache dominates the memory cost of long-context autoregressive inference, and a growing body of work compresses it through quantization, eviction, or offloading. We study a complementary question: once a position's KV state has been quantized to codebook indices, how should the resulting symbol stream be stored, and can the storage layer do more than store? A family of contractive iterated-map codes that serialize a symbol sequence into a sequence of low-dimensional real vectors is revisited, and it is shown that they form a natural archive format for a quantized KV cache with the following features. The method provides exactly the access pattern a growing cache requires. It is lossless, it runs in linear time, and supports O(1) random access and O(1) amortized append. A controlled study of the quantizer feeding this archive is conducted on GPT-2 with 1024-token contexts. Keeping a small exact window (4 attention sinks + 32 recent tokens) and archiving the rest, per-head residual vector quantization reduces the archived cache by 36-54x relative to an fp16 cache at a perplexity cost of 11-15%, and we quantify a sharp key/value asymmetry -- quantizing keys is roughly 4x more damaging than quantizing values, consistent with prior low-bit KV work -- and use it to allocate bits in a hybrid scheme. Finally, we show the archive is simultaneously a search index: approximate substring queries execute directly on the stored vectors, and matched context is decoded from the matched vector without ever materializing the surrounding text. We release all code; every number reproduces from a single command on a laptop CPU.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2510.05373",
+          "final_url": "https://arxiv.org/abs/2607.07144",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:08Z"
+          "verified_at": "2026-07-10T21:54:59Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Yuxuan Yue",
+            "Zhihang Yuan",
+            "Haojie Duanmu",
+            "Sifan Zhou",
+            "Jianlong Wu",
+            "Liqiang Nie"
           ],
-          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "title": "WKVQuant: Quantizing Weight and Key/Value Cache for Large Language Models Gains More",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2606.05868",
-        "summary": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+        "primary_pointer": "2402.12065",
+        "summary": "Large Language Models (LLMs) face significant deployment challenges due to their substantial memory requirements and the computational demands of auto-regressive text generation process. This paper addresses these challenges by focusing on the quantization of LLMs, a technique that reduces memory consumption by converting model parameters and activations into low-bit integers. We critically analyze the existing quantization approaches, identifying their limitations in balancing the accuracy and efficiency of the quantized LLMs. To advance beyond these limitations, we propose WKVQuant, a PTQ framework especially designed for quantizing weights and the key/value (KV) cache of LLMs. Specifically, we incorporates past-only quantization to improve the computation of attention. Additionally, we introduce two-dimensional quantization strategy to handle the distribution of KV cache, along with a cross-block reconstruction regularization for parameter optimization. Experiments show that WKVQuant achieves almost comparable memory savings to weight-activation quantization, while also approaching the performance of weight-only quantization.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.05868",
+          "final_url": "https://arxiv.org/abs/2402.12065",
+          "http_status": 200,
+          "pdf_sample_score": 0.225,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T21:55:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yifei Gao",
+            "Jie Ou",
+            "Lei Wang",
+            "Jun Cheng",
+            "Mengchu Zhou"
+          ],
+          "title": "Compensate Quantization Errors+: Quantized Models Are Inquisitive Learners",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.15508",
+        "summary": "The quantization of large language models (LLMs) has been a prominent research area aimed at enabling their lightweight deployment in practice. Existing research about LLM's quantization has mainly explored the interplay between weights and activations, or employing auxiliary components while neglecting the necessity of adjusting weights during quantization. Consequently, original weight distributions frequently fail to yield desired results after round-to-nearest (RTN) quantization. Even though incorporating techniques such as mixed precision and low-rank error approximation in LLM's quantization can yield improved results, they inevitably introduce additional computational overhead. On the other hand, traditional techniques for weight quantization, such as Generative Post-Training Quantization, rely on manually tweaking weight distributions to minimize local errors, but they fall short of achieving globally optimal outcomes. Although the recently proposed Learnable Singular-value Increment improves global weight quantization by modifying weight distributions, it disrupts the original distribution considerably. This introduces pronounced bias toward the training data and can degrade downstream task performance. In this paper, we introduce Singular-value Diagonal Expansion, a more nuanced approach to refining weight distributions to achieve better quantization alignment. Furthermore, we introduce Cross-layer Learning that improves overall quantization outcomes by distributing errors more evenly across layers. Our plug-and-play weight-quantization methods demonstrate substantial performance improvements over state-of-the-art approaches, including OmniQuant, DuQuant, and PrefixQuant.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.15508",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.4,
@@ -671,68 +639,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:13Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Ji Lin",
-            "Jiaming Tang",
-            "Haotian Tang",
-            "Shang Yang",
-            "Wei-Ming Chen",
-            "Wei-Chen Wang",
-            "Guangxuan Xiao",
-            "Xingyu Dang",
-            "Chuang Gan",
-            "Song Han"
-          ],
-          "title": "AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration",
-          "venue": "arXiv",
-          "year": 2023
-        },
-        "primary_pointer": "2306.00978",
-        "summary": "Large language models (LLMs) have transformed numerous AI applications. On-device LLM is becoming increasingly important: running LLMs locally on edge devices can reduce the cloud computing cost and protect users' privacy. However, the astronomical model size and the limited hardware resource pose significant deployment challenges. We propose Activation-aware Weight Quantization (AWQ), a hardware-friendly approach for LLM low-bit weight-only quantization. AWQ finds that not all weights in an LLM are equally important. Protecting only 1% salient weights can greatly reduce quantization error. To identify salient weight channels, we should refer to the activation distribution, not weights. To avoid the hardware-inefficient mix-precision quantization, we mathematically derive that scaling up the salient channels can reduce the quantization error. AWQ employs an equivalent transformation to scale the salient weight channels to protect them. The scale is determined by collecting the activation statistics offline. AWQ does not rely on any backpropagation or reconstruction, so it generalizes to different domains and modalities without overfitting the calibration set. AWQ outperforms existing work on various language modeling and domain-specific benchmarks (coding and math). Thanks to better generalization, it achieves excellent quantization performance for instruction-tuned LMs and, for the first time, multi-modal LMs. Alongside AWQ, we implement TinyChat, an efficient and flexible inference framework tailored for 4-bit on-device LLM/VLMs. With kernel fusion and platform-aware weight packing, TinyChat offers more than 3x speedup over the Huggingface FP16 implementation on both desktop and mobile GPUs. It also democratizes the deployment of the 70B Llama-2 model on mobile GPUs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2306.00978",
-          "http_status": 200,
-          "pdf_sample_score": 0.3121,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:17Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yidong Chen",
-            "Chengyu Shi",
-            "Jiahao Liu"
-          ],
-          "title": "W4A4 Quantization for Inference on Wan2.2-I2V-A14B",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2606.29337",
-        "summary": "We summarize our submission to Sub-Challenge 1: W4A4 Quantization for Inference (HiF4 / MXFP4) of the ICME 2026 Low-Bit-width Large-Model Quantization Challenge. The sub-challenge targets 4-bit weight and 4-bit activation inference on Wan-AI/Wan2.2-I2V-A14B under HiF4 or MXFP4 numerical formats. We adapt two complementary ideas from LLM quantization, MixQ-style mixed precision for sparse activation outliers and SmoothQuant-style per-channel smoothing, together with block-wise HiF4 packing for Wan2.2 feed-forward linear layers. Calibration on representative OpenS2V-5M batches identifies heavy-tailed activation channels; smoothing rebalances dynamic range before W4A4 rounding; and a dual-branch GEMM preserves outlier columns in higher precision while the bulk of channels use strict W4A4. On official VBench I2V metrics, our pipeline stays within 2-3.5 percent of FP16 on most quality axes and improves motion smoothness, outperforming a native HiFloat4 baseline that degrades roughly 5 percent relative to FP16 across all reported scores.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.29337",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-03T18:57:18Z"
+          "verified_at": "2026-07-10T21:55:05Z"
         }
       }
     ]

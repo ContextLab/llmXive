@@ -1,0 +1,226 @@
+resolved_at: '2026-07-10T22:01:39.283941+00:00'
+datasets:
+- intent: KVarN
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/SETTING_THE_CHARTERED_BANKER_PROFESSIONAL_EXAMINATION_PAPERS_pdf207_80_KB/32961719
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Health_Risk_Assessment_of_Dietary_Arsenic_Exposure_and_Selenium_Deficiency_in_Tibet_Based_on_In_Vitro_Gastrointestinal_Simulation/32961723
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Explicitly_Incorporating_Prior_Knowledge_into_Bayesian_Optimization_for_Materials_Design/32961720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3808488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.03458
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://glis.fao.org/glis/doi/10.18730/1KBH2~
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://glis.fao.org/glis/doi/10.18730/1KBH1*
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://glis.fao.org/glis/doi/10.18730/1JW8HE
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://glis.fao.org/glis/doi/10.18730/1KBH0Z
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MLP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mikezhu888/ml_papers_abstracts/resolve/main/data/train-00000-of-00001-d9a274137f7fc7c8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-board-yuki-archive-html-text/resolve/main/mlp-2.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/tekkithorse/mlp-show-scripts/resolve/main/archive.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/SETTING_THE_CHARTERED_BANKER_PROFESSIONAL_EXAMINATION_PAPERS_pdf207_80_KB/32961719
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Health_Risk_Assessment_of_Dietary_Arsenic_Exposure_and_Selenium_Deficiency_in_Tibet_Based_on_In_Vitro_Gastrointestinal_Simulation/32961723
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Explicitly_Incorporating_Prior_Knowledge_into_Bayesian_Optimization_for_Materials_Design/32961720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1050921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19568101
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5514903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13996740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3755136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_ViT_Architecture_model_ViT-Base_16_b_/32961593
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/_b_ViT_Architecture_model_ViT-Base_16_b_/32961593/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20142764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20142764
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21299180
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-hackaton-backup/resolve/main/data/train-00000-of-00002-361bf44604a417c2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-autoclean/resolve/main/data/train-00000-of-00001-bc33606a4db4e29f.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/mserras/alpaca-es-hackaton-backup/resolve/main/data/train-00000-of-00002-361bf44604a417c2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/SETTING_THE_CHARTERED_BANKER_PROFESSIONAL_EXAMINATION_PAPERS_pdf207_80_KB/32961719
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Health_Risk_Assessment_of_Dietary_Arsenic_Exposure_and_Selenium_Deficiency_in_Tibet_Based_on_In_Vitro_Gastrointestinal_Simulation/32961723
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Explicitly_Incorporating_Prior_Knowledge_into_Bayesian_Optimization_for_Materials_Design/32961720
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3413785
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3407328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14616644
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19518645
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7641223
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21295442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21294996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21292904
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21292904
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dmphub.uc3prd.cdlib.net/dmps/10.48321/D12FC13A68
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
