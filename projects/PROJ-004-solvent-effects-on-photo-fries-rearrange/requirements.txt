@@ -1,0 +1,12 @@
+numpy
+scipy
+pandas
+scikit-learn
+pyyaml
+pymatgen
+matplotlib
+seaborn
+pymc
+arviz
+ruff
+black

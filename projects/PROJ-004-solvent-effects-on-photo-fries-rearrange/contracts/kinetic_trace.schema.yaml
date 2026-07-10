@@ -1,0 +1,85 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Kinetic Trace Data Schema
+description: |
+  Schema for validating transient-absorption kinetic trace data.
+  This schema ensures that raw and processed traces contain necessary metadata
+  for reproducibility and environmental compliance (Rosalind Franklin review).
+  It defines the structure for individual trace records and batch metadata.
+type: object
+required:
+  - trace_id
+  - solvent_name
+  - timestamp_utc
+  - time_series
+  - absorbance_series
+  - environmental_context
+properties:
+  trace_id:
+    type: string
+    description: Unique identifier for this specific trace run
+    pattern: "^TR-[0-9]{4}-[A-Z0-9]{6}$"
+  solvent_name:
+    type: string
+    description: Name of the solvent used, must match `solvents.yaml`
+  timestamp_utc:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of data acquisition start
+  temperature_celsius:
+    type: number
+    description: Sample temperature during acquisition
+    metadata:
+      tolerance: "±0.1°C"
+  relative_humidity_percent:
+    type: number
+    description: Ambient relative humidity during acquisition
+    minimum: 0
+    maximum: 100
+    metadata:
+      tolerance: "±2% RH"
+  instrument_model:
+    type: string
+    description: Model of the transient absorption spectrometer
+  laser_wavelength_nm:
+    type: number
+    description: Excitation laser wavelength
+    minimum: 100
+    maximum: 10000
+  detector_wavelength_nm:
+    type: number
+    description: Monitoring wavelength for absorbance
+    minimum: 100
+    maximum: 10000
+  time_series:
+    type: array
+    description: Array of time points (microseconds) relative to laser pulse
+    items:
+      type: number
+    minItems: 10
+  absorbance_series:
+    type: array
+    description: Array of absorbance values corresponding to time_series
+    items:
+      type: number
+    minItems: 10
+  calibration_factor:
+    type: number
+    description: Applied calibration factor for detector response
+    minimum: 0
+  environmental_context:
+    type: object
+    description: Detailed environmental logging block
+    required:
+      - lab_humidity
+      - sample_cell_temp
+    properties:
+      lab_humidity:
+        type: number
+        minimum: 0
+        maximum: 100
+      sample_cell_temp:
+        type: number
+      barometric_pressure_hpa:
+        type: number
+    additionalProperties: false
+additionalProperties: false

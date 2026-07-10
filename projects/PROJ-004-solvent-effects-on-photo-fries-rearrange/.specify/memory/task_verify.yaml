@@ -1,0 +1,4 @@
+? T009 Implement `code/config.py` to enforce CPU-only execution constraints and define
+  file paths for `data/raw/`, `data/compute/`, `data/processed/`
+: 1
+T010 [P] Create `tests/unit/test_loaders.py` to verify solvent property loading against versioned lookup table: 1

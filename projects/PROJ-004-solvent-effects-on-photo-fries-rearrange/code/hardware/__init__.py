@@ -1,0 +1,3 @@
+"""
+Hardware interface subpackage.
+"""

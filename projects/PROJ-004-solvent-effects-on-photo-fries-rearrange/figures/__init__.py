@@ -1,0 +1,3 @@
+"""
+Figures and plots directory.
+"""

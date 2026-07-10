@@ -1,0 +1,47 @@
+metadata:
+  name: "Solvent Dielectric Constants"
+  version: "1.0.0"
+  source: "NIST Standard Reference Database"
+  date_retrieved: "2026-05-16"
+  description: "Versioned lookup table for solvent dielectric constants used in Photo-Fries rearrangement kinetics."
+
+solvents:
+  - name: "Hexane"
+    dielectric_constant: 1.88
+    source_id: "NIST-SRD-102-He"
+    notes: "Non-polar reference solvent."
+
+  - name: "Toluene"
+    dielectric_constant: 2.38
+    source_id: "NIST-SRD-102-To"
+    notes: "Aromatic, low polarity."
+
+  - name: "Diethyl Ether"
+    dielectric_constant: 4.33
+    source_id: "NIST-SRD-102-DEE"
+    notes: "Moderately polar, aprotic."
+
+  - name: "Ethyl Acetate"
+    dielectric_constant: 6.02
+    source_id: "NIST-SRD-102-EA"
+    notes: "Polar aprotic, common in photochemistry."
+
+  - name: "Acetone"
+    dielectric_constant: 20.7
+    source_id: "NIST-SRD-102-Ac"
+    notes: "Polar aprotic, high dielectric."
+
+  - name: "Ethanol"
+    dielectric_constant: 24.3
+    source_id: "NIST-SRD-102-EtOH"
+    notes: "Polar protic."
+
+  - name: "Acetonitrile"
+    dielectric_constant: 37.5
+    source_id: "NIST-SRD-102-AN"
+    notes: "Highly polar aprotic."
+
+  - name: "Methanol"
+    dielectric_constant: 33.0
+    source_id: "NIST-SRD-102-MeOH"
+    notes: "Highly polar protic."

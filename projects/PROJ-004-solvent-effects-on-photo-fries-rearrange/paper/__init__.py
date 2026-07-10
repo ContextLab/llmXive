@@ -1,0 +1,3 @@
+"""
+Paper generation directory.
+"""
