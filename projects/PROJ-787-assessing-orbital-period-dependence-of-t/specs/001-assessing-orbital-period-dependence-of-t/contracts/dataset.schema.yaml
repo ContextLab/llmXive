@@ -1,47 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PlanetRecord"
-description: "Schema for a single cleaned exoplanet record from the Kepler catalog."
-type: object
+title: "Kepler Planet Dataset Schema"
+description: "Schema for the filtered Kepler DR25 dataset used in the analysis."
+type: "object"
 properties:
   planet_id:
-    type: string
-    description: "Unique identifier for the planet (e.g., 'Kepler-10b')."
+    type: "string"
+    description: "Unique identifier for the planet."
   radius:
-    type: number
-    description: "Planet radius in Earth radii (R_earth)."
-    minimum: 0
+    type: "number"
+    description: "Planet radius in Earth radii."
   radius_uncertainty:
-    type: number
-    description: "Uncertainty in the radius measurement."
-    minimum: 0
+    type: "number"
+    description: "Uncertainty in planet radius."
   period:
-    type: number
+    type: "number"
     description: "Orbital period in days."
-    minimum: 0
   period_uncertainty:
-    type: number
-    description: "Uncertainty in the period measurement."
-    minimum: 0
+    type: "number"
+    description: "Uncertainty in orbital period."
   stellar_radius:
-    type: number
-    description: "Host star radius in Solar radii."
-    minimum: 0
+    type: "number"
+    description: "Stellar radius in solar radii."
   stellar_mass:
-    type: number
-    description: "Host star mass in Solar masses."
-    minimum: 0
+    type: "number"
+    description: "Stellar mass in solar masses."
   stellar_temp:
-    type: number
-    description: "Host star effective temperature in Kelvin."
-    minimum: 0
-  completeness_weight:
-    type: number
-    description: "Weight derived from detection efficiency model."
-    minimum: 0
-    maximum: 1
-  log_period:
-    type: number
-    description: "Log10 of the orbital period."
+    type: "number"
+    description: "Stellar effective temperature in Kelvin."
 required:
   - planet_id
   - radius
@@ -51,6 +36,4 @@ required:
   - stellar_radius
   - stellar_mass
   - stellar_temp
-  - completeness_weight
-  - log_period
 additionalProperties: false

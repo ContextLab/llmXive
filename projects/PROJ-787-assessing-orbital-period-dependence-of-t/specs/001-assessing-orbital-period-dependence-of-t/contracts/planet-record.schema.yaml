@@ -13,7 +13,7 @@ required:
   - stellar_temp
   - log_period
   - log_period_uncertainty
-  - completeness_weight
+  - completeness_value
   - confirmed
 properties:
   planet_id:
@@ -53,10 +53,11 @@ properties:
   log_period_uncertainty:
     type: number
     description: "Uncertainty in log10(period)"
-  completeness_weight:
+  completeness_value:
     type: number
-    description: "Weight derived from detection efficiency model"
+    description: "Interpolated completeness map value at (period, radius). Used as a covariate."
     minimum: 0
+    maximum: 1
   confirmed:
     type: boolean
     description: "Whether the planet is confirmed"

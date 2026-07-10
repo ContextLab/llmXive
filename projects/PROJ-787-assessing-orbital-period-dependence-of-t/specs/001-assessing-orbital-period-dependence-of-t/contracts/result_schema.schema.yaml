@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GapAnalysisResult"
+description: "Schema for the final output of the gap analysis."
+type: "object"
+properties:
+  measured_slope:
+    type: "number"
+    description: "Slope of log(R_gap) vs log(P)."
+  slope_uncertainty:
+    type: "number"
+    description: "Standard error of the slope."
+  posterior_photoevaporation:
+    type: "number"
+    description: "Posterior probability comparing measured slope to Owen & Wu model (Monte Carlo)."
+  posterior_core_powered:
+    type: "number"
+    description: "Posterior probability comparing measured slope to Ginzburg model (Monte Carlo)."
+  validation_status:
+    type: "string"
+    enum:
+      - "pass"
+      - "fail"
+    description: "Status of KDE validation (gap within GMM CI)."
+  sensitivity_status:
+    type: "string"
+    enum:
+      - "pass"
+      - "fail"
+    description: "Status of synthetic data recovery test."
+required:
+  - measured_slope
+  - slope_uncertainty
+  - posterior_photoevaporation
+  - posterior_core_powered
+  - validation_status
+  - sensitivity_status
+additionalProperties: false

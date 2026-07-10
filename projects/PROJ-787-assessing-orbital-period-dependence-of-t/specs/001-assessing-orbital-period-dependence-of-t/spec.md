@@ -45,13 +45,13 @@
 
 **Why this priority**: This is the final synthesis step that answers the primary research question. It requires aggregating the results from the previous steps and performing the final statistical inference.
 
-**Independent Test**: The regression and comparison logic can be independently tested by feeding it a mock dataset of gap locations with known slopes and verifying that the z-test correctly identifies consistency or inconsistency with the theoretical distributions.
+**Independent Test**: The regression and comparison logic can be independently tested by feeding it a mock dataset of gap locations with known slopes and verifying that the Monte Carlo simulation correctly identifies consistency or inconsistency with the theoretical distributions.
 
 **Acceptance Scenarios**:
 
 1. **Given** a set of gap locations with associated confidence intervals across multiple period bins, **When** the weighted linear regression is performed (using weighted mean periods), **Then** the slope and its 95% confidence interval are calculated.
-2. **Given** the measured slope and its uncertainty, **When** a z-test is performed against the Monte Carlo propagated theoretical distributions, **Then** the system outputs a p-value indicating statistical consistency or inconsistency.
-3. **Given** the analysis is complete, **When** the final report is generated, **Then** it explicitly states which theoretical mechanism (if any) is favored based on the measured slope and includes the kernel density estimation (KDE) validation results, where the KDE gap location must fall within the GMM 95% confidence interval to pass.
+2. **Given** the measured slope and its uncertainty, **When** a Monte Carlo simulation is performed using theoretical parameter distributions, **Then** the system outputs a p-value indicating statistical consistency or inconsistency.
+3. **Given** the analysis is complete, **When** the final report is generated, **Then** it explicitly states which theoretical mechanism (if any) is favored based on the measured slope and includes the kernel density estimation (KDE) validation results, where the KDE gap location must fall within the GMM 95% confidence interval to pass (See FR-008).
 
 ### Edge Cases
 
@@ -66,10 +66,10 @@
 - **FR-001**: System MUST download the Kepler DR25 catalog and Kepler Input Catalog via HTTPS and parse them into a unified DataFrame (See US-1).
 - **FR-002**: System MUST filter the dataset to retain only confirmed planets with radius uncertainty <20% and period uncertainty <1% (See US-1).
 - **FR-003**: System MUST bin the filtered planets by orbital period using a set of log-spaced bins covering 0.7 to 2.0 log(days), which corresponds to the 5–100 day range. If a bin contains <30 planets, it MUST be merged with the adjacent bin with the closest period. The regression MUST use the weighted mean period of the planets in each bin (weighted by inverse variance of the gap location estimate) to mitigate binning bias (See US-2).
-- **FR-004**: System MUST fit a two-component Gaussian Mixture Model (GMM) to the radius distribution within each valid period bin to identify the gap location. Initialization MUST use K-Means++ with multiple random seeds, selecting the model with the lowest Bayesian Information Criterion (BIC) to ensure reproducibility. The BIC difference between the 2-component model and the 1-component model MUST be calculated; a difference < 10 indicates unimodality and triggers bin merging. A minimum peak separation of ≥ 0.1 R_earth MUST be enforced to prevent overfitting (See US-2).
-- **FR-005**: System MUST perform a sufficient number of bootstrap resamples for each bin to estimate the uncertainty of the gap location (See US-2).
+- **FR-004**: System MUST fit a two-component Gaussian Mixture Model (GMM) to the radius distribution within each valid period bin to identify the gap location. Initialization MUST use K-Means++ with multiple random seeds, selecting the model with the lowest Bayesian Information Criterion (BIC) to ensure reproducibility. The BIC difference between the 2-component model and the 1-component model MUST be calculated; a difference < 10 indicates unimodality and triggers bin merging. A minimum peak separation of ≥ 0.1 R_earth (in units of Earth radii) MUST be enforced to prevent overfitting (See US-2).
+- **FR-005**: System MUST perform 1000 bootstrap resamples for each bin to estimate the uncertainty of the gap location (See US-2).
 - **FR-006**: System MUST perform a weighted linear regression of gap radius versus log(period) (using weighted mean periods) to calculate the slope and its 95% confidence interval (See US-3).
-- **FR-007**: System MUST execute a z-test to compare the measured slope against the theoretical slope values (constants) predicted by the Owen & Wu and Ginzburg et al. models. These theoretical values MUST be treated as fixed bounds with known uncertainty ranges (e.g., ±0.05) rather than distributions generated from the input data's noise structure (See US-3).
+- **FR-007**: System MUST execute a Monte Carlo simulation to compare the measured slope against the theoretical slope distributions predicted by the Owen & Wu (2017) and Ginzburg et al. (2018) models. The theoretical slopes MUST be treated as Gaussian distributions with means and standard deviations derived from the cited literature (e.g., Owen & Wu slope mean = -0.11, std = 0.02; Ginzburg slope mean = -0.15, std = 0.03), not as fixed constants. The simulation MUST propagate these theoretical uncertainties along with the measured slope uncertainty [deferred] iterations to generate a joint distribution. Consistency is determined by calculating the overlap area between the measured and theoretical distributions; a p-value < 0.05 (Bonferroni corrected to 0.025 for two tests) indicates inconsistency (See US-3).
 - **FR-008**: System MUST validate the primary GMM results by performing kernel density estimation (KDE) with adaptive bandwidth on the cumulative distribution of radii to identify the gap location without assuming a specific parametric shape. The validation PASSES only if the KDE gap location falls within the confidence interval of the GMM estimate (See US-3).
 - **FR-009**: System MUST validate the pipeline accuracy by processing a synthetic dataset with known ground-truth gap locations and slopes, recovering them within an acceptable error margin (See US-2).
 
@@ -87,7 +87,7 @@
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The measured slope of the radius gap versus log(period) is measured against the theoretical slope values (constants) predicted by the Owen & Wu and Ginzburg et al. models to determine statistical consistency (See US-3).
+- **SC-001**: The measured slope of the radius gap versus log(period) is measured against the theoretical slope distributions (Gaussian) predicted by the Owen & Wu and Ginzburg et al. models to determine statistical consistency. Consistency is defined as the 95% confidence interval of the measured slope overlapping with the 95% credible interval of the theoretical distribution (See US-3).
 - **SC-002**: The uncertainty of the gap location in each period bin is measured against the bootstrap resampling distribution to ensure robust error estimation. (See US-2).
 - **SC-003**: The consistency of the primary GMM results is measured against the kernel density estimation (KDE) results to validate the gap-finding methodology (See US-3).
 - **SC-004**: The statistical power of each period bin is measured against a minimum threshold of sufficient planets (or merged bin equivalent) to ensure reliable bimodal detection. (See US-2).
@@ -99,8 +99,19 @@
 - **Assumption about data availability**: The Kepler DR catalog and Kepler Input Catalog are publicly accessible via the MAST archive without requiring special authentication or rate-limiting that would block automated retrieval.
 - **Assumption about dataset-variable fit**: The Kepler DR25 catalog contains all necessary variables (radius, period, uncertainties) and the Input Catalog contains the required stellar parameters (radius, mass, temperature) to compute incident flux and refine radius estimates; if specific stellar parameters are missing for a subset of stars, those planets will be excluded rather than imputed.
 - **Assumption about inference framing**: Since this analysis uses observational data from the Kepler mission without random assignment, all findings regarding the relationship between period and gap location will be framed as associational, not causal, unless a specific identification strategy is introduced in the code.
-- **Assumption about multiplicity & power**: The analysis involves multiple hypothesis tests (slope comparison against two theories); a direct comparison of p-values or likelihoods is sufficient without inflating the threshold for a two-hypothesis test. The binning strategy (minimum 30 planets) is assumed to provide sufficient power for the GMM fitting.
+- **Assumption about multiplicity & power**: The analysis involves multiple hypothesis tests (slope comparison against two theories). To control the family-wise error rate, a Bonferroni correction is applied, adjusting the significance threshold to α = 0.025 (0.05 / 2). The binning strategy (minimum 30 planets) is assumed to provide sufficient power for the GMM fitting.
 - **Assumption about threshold justification**: The decision cutoff for bin inclusion (≥30 planets) and uncertainty thresholds (<20% radius, <1% period) are based on community standards for statistical robustness in exoplanet demographics.
 - **Assumption about compute feasibility**: The entire analysis, including bootstrap iterations and GMM fitting, can be completed on a CPU-only environment with a minimal number of cores and modest RAM by using optimized vectorized operations and processing the Kepler dataset in manageable chunks if necessary, without requiring GPU acceleration or large model training.
 - **Assumption about measurement validity**: The radius and period values in the Kepler catalog are treated as validated measurements derived from the transit light curves, and the Gaussian Mixture Model is assumed to be an appropriate method for identifying the gap in the presence of measurement noise and population skewness.
 - **Assumption about predictor collinearity**: While period and radius are measured as independent observables, the regression explicitly models the functional dependence of gap location on period. The analysis MUST apply a completeness correction using the Kepler completeness map as a covariate in the regression model to account for Malmquist bias and detection limits. Period and radius are not treated as independent in the presence of selection effects.
+
+## Constitution
+
+- **Principle I**: Data integrity is paramount; no imputation of missing critical stellar parameters.
+- **Principle II**: No factual claims without primary source citation.
+- **Principle III**: All statistical thresholds must be concrete numbers.
+- **Principle IV**: Traceability from User Stories to Requirements and Success Criteria.
+- **Principle V**: Reproducibility via fixed random seeds and documented initialization.
+- **Principle VI**: Uncertainty quantification via bootstrap (minimum 1000 iterations) and Monte Carlo propagation.
+- **Principle VII**: Slope comparison to theoretical predictions MUST use a Monte Carlo simulation propagating full theoretical uncertainty distributions (Gaussian parameters from cited literature), not a z-test against fixed bounds.
+- **Principle VIII**: Validation via independent methods (KDE vs GMM) is mandatory.

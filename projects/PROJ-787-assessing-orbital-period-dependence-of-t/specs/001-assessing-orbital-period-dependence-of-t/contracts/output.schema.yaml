@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gap Analysis Result Schema"
+description: "Schema for the final output of the radius gap analysis."
+type: "object"
+properties:
+  measured_slope:
+    type: "number"
+    description: "Slope of the radius gap vs log(period)."
+  slope_uncertainty:
+    type: "number"
+    description: "95% confidence interval width of the slope."
+  p_value_photoevaporation:
+    type: "number"
+    description: "P-value for consistency with Owen & Wu (2017) model."
+  p_value_core_powered:
+    type: "number"
+    description: "P-value for consistency with Ginzburg et al. (2018) model."
+  validation_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: "Overall validation status (KDE and synthetic tests)."
+  sensitivity_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: "Result of synthetic data recovery test."
+  bins:
+    type: "array"
+    description: "List of period bin results."
+    items:
+      type: "object"
+      properties:
+        bin_center_log_period:
+          type: "number"
+        weighted_mean_log_period:
+          type: "number"
+        planet_count:
+          type: "integer"
+        gap_location:
+          type: "number"
+        gap_uncertainty:
+          type: "number"
+        gap_ci_lower:
+          type: "number"
+        gap_ci_upper:
+          type: "number"
+        is_bimodal:
+          type: "boolean"
+        kde_gap_location:
+          type: "number"
+        validation_status:
+          type: "string"
+          enum:
+            - "PASS"
+            - "FAIL"
+      required:
+        - bin_center_log_period
+        - weighted_mean_log_period
+        - planet_count
+        - gap_location
+        - gap_uncertainty
+        - gap_ci_lower
+        - gap_ci_upper
+        - is_bimodal
+        - kde_gap_location
+        - validation_status
+required:
+  - measured_slope
+  - slope_uncertainty
+  - p_value_photoevaporation
+  - p_value_core_powered
+  - validation_status
+  - sensitivity_status
+  - bins
+additionalProperties: false

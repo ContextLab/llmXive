@@ -10,14 +10,14 @@ properties:
     type: number
     description: "95% confidence interval half-width for the slope."
     minimum: 0
-  p_value_photoevaporation:
+  posterior_photoevaporation:
     type: number
-    description: "Permutation test p-value comparing measured slope to photoevaporation theory."
+    description: "Posterior probability of consistency with Photoevaporation theory (Monte Carlo)."
     minimum: 0
     maximum: 1
-  p_value_core_powered:
+  posterior_core_powered:
     type: number
-    description: "Permutation test p-value comparing measured slope to core-powered mass loss theory."
+    description: "Posterior probability of consistency with Core-Powered Mass Loss theory (Monte Carlo)."
     minimum: 0
     maximum: 1
   theoretical_dist_photoevaporation:
@@ -42,17 +42,24 @@ properties:
     enum:
       - "PASS"
       - "FAIL"
+  internal_consistency_status:
+    type: string
+    description: "Internal consistency check (KDE vs GMM). Not a validation gate."
+    enum:
+      - "PASS"
+      - "FAIL"
   vif_max:
     type: number
     description: "Maximum Variance Inflation Factor among predictors."
 required:
   - measured_slope
   - slope_uncertainty
-  - p_value_photoevaporation
-  - p_value_core_powered
+  - posterior_photoevaporation
+  - posterior_core_powered
   - theoretical_dist_photoevaporation
   - theoretical_dist_core_powered
   - validation_status
   - sensitivity_status
+  - internal_consistency_status
   - vif_max
 additionalProperties: false

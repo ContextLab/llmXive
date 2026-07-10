@@ -5,14 +5,15 @@ type: object
 required:
   - measured_slope
   - slope_uncertainty
-  - p_value_photoevaporation
-  - p_value_core_powered
+  - posterior_photoevaporation
+  - posterior_core_powered
   - validation_status
   - sensitivity_status
   - run_timestamp
   - power_analysis_status
   - theoretical_dist_photoevaporation
   - theoretical_dist_core_powered
+  - run_duration_seconds
 properties:
   measured_slope:
     type: number
@@ -21,14 +22,14 @@ properties:
     type: number
     description: "95% CI of the slope"
     minimum: 0
-  p_value_photoevaporation:
+  posterior_photoevaporation:
     type: number
-    description: "Permutation test p-value vs photoevaporation theory"
+    description: "Posterior probability vs photoevaporation theory (Monte Carlo)"
     minimum: 0
     maximum: 1
-  p_value_core_powered:
+  posterior_core_powered:
     type: number
-    description: "Permutation test p-value vs core-powered mass loss theory"
+    description: "Posterior probability vs core-powered mass loss theory (Monte Carlo)"
     minimum: 0
     maximum: 1
   validation_status:
@@ -65,4 +66,14 @@ properties:
     description: "Sampled theoretical slope distribution for core-powered mass loss."
     items:
       type: number
+  internal_consistency_status:
+    type: string
+    description: "Status of KDE vs GMM internal consistency check."
+    enum:
+      - "pass"
+      - "fail"
+  run_duration_seconds:
+    type: number
+    description: "Total runtime in seconds (for SC-005 validation)."
+    minimum: 0
 additionalProperties: false

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlanetRecord"
+description: "Schema for a single exoplanet observation after filtering."
+type: "object"
+properties:
+  planet_id:
+    type: "string"
+    description: "Unique identifier for the planet (e.g., 'Kepler-123.01')."
+  radius:
+    type: "number"
+    description: "Planet radius in Earth radii (R_earth)."
+  radius_uncertainty:
+    type: "number"
+    description: "Uncertainty in the radius measurement."
+  period:
+    type: "number"
+    description: "Orbital period in days."
+  period_uncertainty:
+    type: "number"
+    description: "Uncertainty in the period measurement."
+  stellar_radius:
+    type: "number"
+    description: "Stellar radius in solar radii (R_sun)."
+  stellar_mass:
+    type: "number"
+    description: "Stellar mass in solar masses (M_sun)."
+  stellar_temp:
+    type: "number"
+    description: "Stellar effective temperature in Kelvin."
+  log_period:
+    type: "number"
+    description: "Log10 of the orbital period."
+  log_radius:
+    type: "number"
+    description: "Log10 of the planet radius."
+required:
+  - planet_id
+  - radius
+  - radius_uncertainty
+  - period
+  - period_uncertainty
+  - stellar_radius
+  - stellar_mass
+  - stellar_temp
+  - log_period
+  - log_radius
+additionalProperties: false

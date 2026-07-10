@@ -23,9 +23,17 @@ properties:
     type: number
     description: "Half-width of the 95% confidence interval from bootstrap."
     minimum: 0
+  regression_weight:
+    type: number
+    description: "Inverse variance of the gap location estimate (1/sigma^2). Used for weighted regression."
+    minimum: 0
+  peak_separation:
+    type: number
+    description: "Separation between GMM peaks in R_earth. Must be >= 0.1."
+    minimum: 0.1
   validation_status:
     type: string
-    description: "Status of the GMM/KDE validation."
+    description: "Status of the GMM/KDE internal consistency check."
     enum:
       - "PASS"
       - "FAIL"
@@ -37,6 +45,13 @@ properties:
     type: number
     description: "Uncertainty of the KDE gap estimate."
     minimum: 0
+  status:
+    type: string
+    enum:
+      - "valid"
+      - "unresolved"
+      - "merged"
+    description: "Status of the bin analysis."
 required:
   - bin_id
   - bin_center_log_period
@@ -44,7 +59,10 @@ required:
   - planet_count
   - gap_location
   - gap_uncertainty
+  - regression_weight
+  - peak_separation
   - validation_status
   - kde_gap_location
   - kde_gap_uncertainty
+  - status
 additionalProperties: false

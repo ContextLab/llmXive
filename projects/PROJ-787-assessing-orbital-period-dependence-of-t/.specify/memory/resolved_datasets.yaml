@@ -1,26 +1,26 @@
-resolved_at: '2026-07-09T16:23:33.689146+00:00'
+resolved_at: '2026-07-10T22:32:14.625798+00:00'
 datasets:
 - intent: DR25
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
+  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Pan-Atlantic_University_Ibeju-Lekki_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949080
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
+  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
+  - url: https://figshare.com/articles/dataset/APPLYING_b_BELLS_b_b_Bells_b_b_University_b_of_Technology_is_a_private_institution_established_by_the_b_Bells_b_Educational_Foundation_It_was_granted_an_operational_license_by_the_Federal_Government_on_9th_June_2005_and_started_operating_in/32961770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -52,11 +52,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638
+  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638/1
+  - url: https://figshare.com/articles/preprint/The_Cascaded_Bias_Amplification_Framework_Operator-Theoretic_Selection_Effects_Information-Theoretic_Diagnostics_and_an_Irreducible_Uncertainty_Floor_in_Transit_Surveys/32599638
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
+  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
+  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/software/Retinex-Guided_Underwater_3D_Gaussian_Splatting_with_Pixel-Driven_Split_ting_and_Distractor_Suppression/32528268
+  - url: https://figshare.com/articles/dataset/APPLYING_b_BELLS_b_b_Bells_b_b_University_b_of_Technology_is_a_private_institution_established_by_the_b_Bells_b_Educational_Foundation_It_was_granted_an_operational_license_by_the_Federal_Government_on_9th_June_2005_and_started_operating_in/32961770
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -141,31 +141,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20229535
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/1012627
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1197324
+  - url: https://zenodo.org/records/20229535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21298137
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21222237
+  - url: https://zenodo.org/records/21298137
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21222237
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/106922
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21279842
+  - url: https://zenodo.org/records/21298179
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21279842
+  - url: https://zenodo.org/records/21298179
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -184,23 +184,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Call_09152489563_For_Caleb_University_Imota_2026_2027_Pre_Degree_Diploma_and_part-time_form_is_out_call_09152489563_/32949083
+  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Voice_as_Data_-_A_Qualitative_Inquiry_into_the_Psychological_and_Behavioral_Impacts_of_Voice_Technologies/32948393
+  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Evaluasi_Usabilitas_Website_SMK_Al_Amah_Sindulang_Menggunakan_Metode_System_Usability_Scale_SUS_/29474009
+  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ctsnet.figshare.com/articles/media/Direct_Axillary_Artery_Cannulation_With_the_Open_Seldinger_Technique/32948498
+  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://illustro-iadt.figshare.com/articles/thesis/Doing_the_Bare_Minimum_Therapy-Speak_and_Relationship_Norms_on_TikTok/32948375
+  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -208,11 +208,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -224,23 +224,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280016
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280016
+  - url: https://zenodo.org/records/21298690
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280255
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21280255
+  - url: https://zenodo.org/records/20300649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21279842
+  - url: https://zenodo.org/records/21300217
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
