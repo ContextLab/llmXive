@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CompositionDescriptor"
+description: "Schema for engineered compositional and microstructural features."
+type: "object"
+properties:
+  alloy_id:
+    type: "string"
+    description: "Foreign key to AlloyEntry."
+  avg_electronegativity:
+    type: "number"
+    description: "Weighted average electronegativity (Pauling)."
+  vec:
+    type: "number"
+    description: "Valence electron concentration."
+  atomic_radii_variance:
+    type: "number"
+    description: "Variance of atomic radii."
+  d_band_filling:
+    type: "number"
+    description: "d-band filling estimate."
+  size_mismatch:
+    type: "number"
+    description: "Atomic size mismatch metric."
+  synthesis_method_encoded:
+    type: "object"
+    description: "One-hot encoded synthesis method."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  crystal_phase_encoded:
+    type: "object"
+    description: "One-hot encoded crystal phase."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+required:
+  - alloy_id
+  - avg_electronegativity
+  - vec
+  - atomic_radii_variance
+  - d_band_filling
+  - size_mismatch
+  - synthesis_method_encoded
+  - crystal_phase_encoded
+additionalProperties: false

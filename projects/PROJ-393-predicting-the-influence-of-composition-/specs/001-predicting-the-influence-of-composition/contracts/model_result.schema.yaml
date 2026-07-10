@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for trained model outputs and validation metrics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Model algorithm used."
+    enum: ["LinearRegression", "Ridge", "RandomForest"]
+  target_variable:
+    type: "string"
+    description: "The hysteresis parameter being predicted."
+    enum: ["coercivity", "saturation"]
+  r2_cv:
+    type: "number"
+    description: "Cross-validated R² score (5-fold)."
+  mae_cv:
+    type: "number"
+    description: "Cross-validated Mean Absolute Error."
+  feature_importance:
+    type: "object"
+    description: "Top 3 features and their importance scores."
+    additionalProperties:
+      type: "number"
+  f_test_p_value:
+    type: "number"
+    description: "P-value from F-test vs. null model."
+  ci_lower:
+    type: "number"
+    description: "95% CI lower bound for R² (1000 resamples)."
+  ci_upper:
+    type: "number"
+    description: "95% CI upper bound for R² (1000 resamples)."
+  sc006_status:
+    type: "string"
+    description: "Status of SC-006 (R² >= 0.6). Marked as 'Exploratory Benchmark'."
+    enum: ["Exploratory Benchmark Met", "Exploratory Benchmark Not Met"]
+  data_scarcity_warning:
+    type: "boolean"
+    description: "True if N < 50, triggering FR-008 warning."
+  interpretation_disclaimer:
+    type: "string"
+    description: "Mandatory disclaimer: 'F-test validates statistical fit, not physical mechanism...'"
+  microstructure_note:
+    type: "string"
+    description: "Mandatory note: 'Hysteresis is heavily influenced by microstructure...'"
+  stratified_analysis_results:
+    type: "object"
+    description: "Results of stratified analysis by synthesis method (if performed)."
+  residual_confounding_check:
+    type: "string"
+    description: "Result of residual correlation check with synthesis method."
+required:
+  - model_type
+  - target_variable
+  - r2_cv
+  - mae_cv
+  - feature_importance
+  - f_test_p_value
+  - ci_lower
+  - ci_upper
+  - sc006_status
+  - data_scarcity_warning
+  - interpretation_disclaimer
+  - microstructure_note
+  - residual_confounding_check
+additionalProperties: false

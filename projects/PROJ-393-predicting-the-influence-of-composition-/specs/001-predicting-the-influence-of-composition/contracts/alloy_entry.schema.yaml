@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyEntry"
+description: "Schema for a single experimental Heusler alloy measurement."
+type: "object"
+required:
+  - "id"
+  - "composition"
+  - "hysteresis_coercivity"
+  - "hysteresis_saturation"
+  - "source_type"
+  - "is_dft"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the alloy entry."
+  composition:
+    type: "object"
+    description: "Atomic fractions of constituent elements. Sum must be 1.0."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  hysteresis_coercivity:
+    type: "number"
+    description: "Coercivity in Oersted (Oe)."
+  hysteresis_saturation:
+    type: "number"
+    description: "Saturation magnetization in emu/g."
+  source_type:
+    type: "string"
+    enum:
+      - "NIST"
+      - "Journal"
+      - "Manual"
+    description: "Origin of the data point."
+  synthesis_method:
+    type: "string"
+    description: "Method used to synthesize the alloy (e.g., 'Arc-melted')."
+  crystal_structure:
+    type: "string"
+    description: "Crystal phase (e.g., 'L2_1')."
+  is_dft:
+    type: "boolean"
+    description: "True if the data is from DFT calculation. Must be False for training targets."
+  raw_source:
+    type: "string"
+    description: "Citation or URL of the original source."
