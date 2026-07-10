@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-eval-ab-test-validity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_45659958 — status=not_enough_info]
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -62,7 +62,7 @@
 - [X] T011 Implement generic helper functions (`checksum`, `domain_from_url`, `safe_float`, `parse_inequality_p`) in `src/utils/helpers.py` (run unit test for each helper).
 - [X] T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies, enforces CPU ≤ 2 vCPU, RAM ≤ 2 GB, timeout a predefined duration, and runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010].
 - [X] T013 Create Dockerfile for optional local execution (uses only CPU‑compatible base image) (build Docker image successfully). **(No dependency on T012)**
-- [ ] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
+- [X] T014 Configure `manifest.json` generation with content hashes in `src/utils/manifest.py` (FR‑024) (verify `manifest.json` contains SHA256 hashes) [DEPENDS ON: T007].
 - [X] T015 Create `data/manual_validation/` directory structure for real‑world validation annotations (verify directory exists).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -128,7 +128,7 @@
 - [ ] T046 Unit tests for bias‑adjustment ensuring no domain exceeds 30 % proportion (tests/unit/test_bias_adjustment.py) (verify test passes).
 - [X] T047 Implement CSV summary generator in `src/audit/report_generator.py` that reads `output/audit_report.json` and writes `output/summary_report.csv` with required columns (`total_summaries`, `inconsistent_count`, `inconsistent_rate`, `bias_adjusted_rate`, `wilson_ci_lower`, `wilson_ci_upper`) (verify CSV file exists and column headers match) [DEPENDS ON: T042, T045].
 - [X] T048 Unit test that validates CSV values exactly match JSON‑derived aggregates (tests/unit/test_report_generator.py) (verify test passes) [DEPENDS ON: T047].
-- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_fba71914 — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
+- [ ] T049 The Quickstart guide covers execution on 30 URLs within 30 minutes. [UNRESOLVED-CLAIM: c_3403f83e — status=not_enough_info] (FR‑028) **and include novice‑user verification step with written confirmation log** (see T095b) (verify guide file exists and includes novice verification instructions).
 - [ ] T049b **[P]** Verify that the Quickstart execution in T049 actually runs on the default GitHub Actions runner (2 vCPU, 7 GB RAM) and records the runner environment. (depends on T049)
 - [X] T050 Implement subgroup prevalence and Fisher's exact‑test analysis (FR‑032) in `src/audit/subgroup_analysis.py` that produces `output/subgroup_report.json` with domain, year, counts, prevalence, and p‑value **and verify Bonferroni correction is applied dynamically** (constraint‑preservation‑925e1e46) (verify JSON file exists).
 - [ ] T050b **[P]** Verify that the publication year is extracted for each summary during extraction (T020c) and present in the input to `subgroup_analysis.py`. (depends on T020c)
@@ -211,9 +211,9 @@
 - [ ] T073 Verify SC‑003: {{claim:c_037cdd5e}} for each statistical test (run `src/audit/monte_carlo_validation.py`) (depends on T062) (addresses ordering‑326c451a).
 - [ ] T074 Verify SC‑005: Parsing-error rate must be 5% or less.. (run `src/audit/validator.py` and check log summary) (depends on T020) (addresses ordering‑fb2f11e6).
 - [ ] T075 Verify SC‑008: CI execution completes within 6 h, ≤ 2 GB RAM, ≤ 2 vCPU (inspect `output/resource_log.json`) (depends on T098) (addresses ordering‑6e28c95b).
-- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs.. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
+- [ ] T076 Verify SC‑013: The CI pipeline must exit with status 0 and produce manifest.json in The The CI pipeline must exit with status 0 and produce manifest.json in 99% of runs. [UNRESOLVED-CLAIM: c_a229df3b — status=not_enough_info]. (run CI locally and check); compute checksums for ALL files under `data/` (raw, processed) AND `output/` directories and record them in `data/checksums.txt` per Constitution Principle III and Principle IV (verify `data/checksums.txt` exists with SHA256 hashes) (depends on T056, T095c, T095a) (addresses ordering‑cfade9e1 and constraint‑preservation‑d467869d).
 - [ ] T077 Verify SC‑014: {{claim:c_bf752899}} (run `src/audit/prevalence.py` and inspect JSON) (depends on T042) (addresses ordering‑fb2f11e6).
-- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range... (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
+- [ ] T078 Verify SC‑015: Sensitivity analysis variation must be less than 0.02 across the baseline range. [UNRESOLVED-CLAIM: c_0c7009b0 — status=not_enough_info].. (run `src/audit/prevalence.py` and inspect results) (depends on T042) (addresses ordering‑fb2f11e6).
 - [ ] T079 Verify SC‑024: `summary_report.csv` columns and values match `audit_report.json` (run `tests/integration/test_summary_consistency.py`) (depends on T047) (addresses ordering‑fb2f11e6).
 - [ ] T080 Verify SC‑020: {{claim:c_9cebabc5}} (check `output/power_analysis.json`) (depends on T028) (addresses ordering‑fb2f11e6).
 - [ ] T081 Verify SC‑026: Monte‑Carlo validation passes for all tests (same as T073) (depends on T062) (addresses ordering‑326c451a).
