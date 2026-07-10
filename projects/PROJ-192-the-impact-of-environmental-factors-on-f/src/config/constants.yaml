@@ -1,0 +1,51 @@
+# Configuration thresholds for the Impact of Environmental Factors on Fungal Community Analysis
+# These values control statistical significance, data quality, and resource limits.
+
+statistical_thresholds:
+  # Variance Inflation Factor threshold for multicollinearity
+  # Variables with VIF > this value will be removed or combined via PCA
+  vif_threshold: 5.0
+
+  # Significance level for p-values
+  # Results with p-value < this value are considered statistically significant
+  p_value_threshold: 0.05
+
+  # Minimum adjusted p-value threshold for FDR correction (optional override)
+  p_value_adj_threshold: 0.05
+
+data_quality:
+  # Minimum number of samples required to run analysis in a stratum
+  # Strata with fewer samples will be skipped
+  min_samples: 10
+
+  # Minimum number of datasets required for Research Mode execution
+  # If fewer than this are found, the pipeline exits with a fatal error
+  min_datasets: 3
+
+resource_limits:
+  # Maximum RAM usage in Gigabytes
+  # If estimated or actual usage exceeds this, subsampling is triggered
+  max_ram_gb: 7.0
+
+  # Subsampling trigger threshold (fraction of max_ram)
+  # If usage > this fraction of max_ram, trigger subsampling
+  subsample_trigger_fraction: 0.85
+
+analysis_defaults:
+  # Number of permutations for PERMANOVA (adonis2)
+  # Uses 9999 if sample size < 20, otherwise 999
+  permutations_default: 999
+  permutations_small_sample: 9999
+
+  # Random seed for reproducibility
+  random_seed: 42
+
+file_paths:
+  # Relative path to raw sequence data
+  raw_seq_dir: "data/raw-seq"
+  # Relative path to QC processed data
+  qc_dir: "data/qc"
+  # Relative path to cleaned metadata
+  metadata_dir: "data/metadata"
+  # Relative path to analysis results
+  results_dir: "results"
