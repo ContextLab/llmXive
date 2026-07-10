@@ -1,26 +1,26 @@
-resolved_at: '2026-07-10T22:32:14.625798+00:00'
+resolved_at: '2026-07-10T22:09:42.187629+00:00'
 datasets:
 - intent: DR25
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Thermal-Dose-Driven_Boundary_Element_Optimization_of_Microwave_Hyperthermia_in_Multilayer_Biological_Tissue_b_/32961740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
+  - url: https://figshare.com/articles/dataset/_b_Gesti_n_gerencial_del_clima_organizacional_y_carga_laboral_de_enfermer_a_en_urgencias_del_sector_p_blico_b_/32961743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/APPLYING_b_BELLS_b_b_Bells_b_b_University_b_of_Technology_is_a_private_institution_established_by_the_b_Bells_b_Educational_Foundation_It_was_granted_an_operational_license_by_the_Federal_Government_on_9th_June_2005_and_started_operating_in/32961770
+  - url: https://figshare.com/articles/media/SETTING_THE_CHARTERED_BANKER_PROFESSIONAL_EXAMINATION_PAPERS_pdf207_80_KB/32961719
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -28,11 +28,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14221205
+  - url: https://zenodo.org/records/19445100
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19445100
+  - url: https://zenodo.org/records/14221205
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -109,23 +109,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
+  - url: https://figshare.com/articles/media/Reality_Drift_Visual_Index_Drift_Types_Optimization_Traps_and_Synthetic_Realness/32961749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Thermal-Dose-Driven_Boundary_Element_Optimization_of_Microwave_Hyperthermia_in_Multilayer_Biological_Tissue_b_/32961740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
+  - url: https://figshare.com/articles/dataset/_b_Gesti_n_gerencial_del_clima_organizacional_y_carga_laboral_de_enfermer_a_en_urgencias_del_sector_p_blico_b_/32961743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/APPLYING_b_BELLS_b_b_Bells_b_b_University_b_of_Technology_is_a_private_institution_established_by_the_b_Bells_b_Educational_Foundation_It_was_granted_an_operational_license_by_the_Federal_Government_on_9th_June_2005_and_started_operating_in/32961770
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -157,10 +157,13 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.zora.uzh.ch/handle/20.500.14742/106922
+  - url: https://doi.org/10.5167/uzh-98475
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.zora.uzh.ch'',
+      port=443): Max retries exceeded with url: /handle/20.500.14742/106922 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''www.zora.uzh.ch'', port=443)
+      at 0x7fc171239190>, ''Connection to www.zora.uzh.ch timed out. (connect timeout=20.0)''))'
   - url: https://zenodo.org/records/21298179
     source: datacite
     status: wrong_format
@@ -184,23 +187,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/journal_contribution/PERSPECTIVE_OF_INFORMATION_AND_COMMUNICATION_TECHNOLOGY_AS_A_WEAPON_PROMOTING_YOUTH_EMPLOYMENT/32961755
+  - url: https://figshare.com/articles/media/Reality_Drift_Visual_Index_Drift_Types_Optimization_Traps_and_Synthetic_Realness/32961749
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/A_Layered_Assessment_Pedagogy_Synchrony_Architecture_for_Adult_Learners_Instructional_Design_Template_and_Illustrative_Dataset/32961761
+  - url: https://figshare.com/articles/dataset/_b_Dataset_and_Source_Code_for_b_b_Thermal-Dose-Driven_Boundary_Element_Optimization_of_Microwave_Hyperthermia_in_Multilayer_Biological_Tissue_b_/32961740
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Semantic_Fidelity_Project_Formative_Essays_on_Meaning_Compression_and_AI_Systems/32961779
+  - url: https://figshare.com/articles/dataset/_b_Gesti_n_gerencial_del_clima_organizacional_y_carga_laboral_de_enfermer_a_en_urgencias_del_sector_p_blico_b_/32961743
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lincoln.ac.uk/articles/journal_contribution/Exploring_Prison_Safety_Insights_From_Two_Decades_of_HM_Inspectorate_of_Prisons_Surveys_in_England_and_Wales/32915849
+  - url: https://acs.figshare.com/articles/journal_contribution/Inner_Helmholtz_Plane_Engineering_via_In_Situ_Electrolyte_Polymerization_to_Enhance_the_Lithium_Metal_Anode_Stability/32961728
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Filtering_and_Smoothing_in_State-Space_Models_with_Multiple_Regimes_/32106087
+  - url: https://figshare.com/articles/journal_contribution/SIGNAL_IMAGE_VOICE_PROCESSING_COMPUTER-AIDED_DESIGN_ARCHITECTURE_SYNTHESES_VISUAL_INFORMATION_TRANSMISSION/32961725
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -216,11 +219,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

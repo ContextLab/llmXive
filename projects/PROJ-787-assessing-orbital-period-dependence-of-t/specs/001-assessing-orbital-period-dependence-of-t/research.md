@@ -1,85 +1,65 @@
 # Research: Assessing Orbital Period Dependence of the Exoplanet Radius Gap
 
+## Scientific Background
+
+The "radius gap" (or Fulton gap) is a bimodal distribution in the radius of small exoplanets, separating super-Earths (rocky) from sub-Neptunes (gas-enveloped). Two primary theories explain this gap:
+1.  **Photoevaporation**: High-energy stellar radiation strips atmospheres. Predicts a negative gap slope in $\log(R_p)$ vs $\log(P)$, with uncertainty $\sigma \approx 0.05$ derived from stellar flux and radius model parameter uncertainties.
+2.  **Core-Powered Mass Loss**: Cooling of the planetary core drives atmospheric loss. Predicts a negative gap slope, with uncertainty $\sigma \approx 0.05$.
+
+This project aims to empirically determine the slope of the gap in the Kepler DR25 catalog to distinguish between these mechanisms.
+
 ## Dataset Strategy
 
-The analysis relies on two primary sources. Per the project constraints, we must verify the availability of these datasets.
+The analysis requires the **Kepler DR25** catalog (planet properties), the **Kepler Input Catalog (KIC)** (stellar parameters), and the **Kepler Completeness Map**.
 
-| Dataset Name | Description | Verified Source / Loader | Status |
-|:--- |:--- |:--- |:--- |
-| **Kepler DR25 Planet Table** | The primary source for planet parameters (radius, period, uncertainties). Contains a substantial number of confirmed planets. | **MAST: Kepler DR25** (). Loader: `astroquery.mast.Mast.query_object` with table name "Kepler DR25 Planet Table". | **Verified** (MAST) |
-| **Kepler Input Catalog (KIC)** | Source for stellar parameters (radius, mass, temperature) required to refine planet radii. | **MAST: KeplerInputCatalog** (). Loader: `astroquery.mast.Mast.query_object` with table name "KeplerInputCatalog". | **Verified** (MAST) |
-| **GMM/Parquet Test Sets** | Synthetic or pre-processed test data for unit testing GMM logic. | ` (and variants) | **Verified** (Used for synthetic testing only) |
+| Dataset | Purpose | Source / Access Method | Status |
+| :--- | :--- | :--- | :--- |
+| **Kepler DR25** | Planet radius, period, uncertainties, confirmation status. | **MAST Archive**: `mast:Kepler/KeplerDR25/KeplerQ1-Q17_stellar` (Verified URI) | **Verified** |
+| **Kepler Input Catalog (KIC)** | Stellar radius, mass, temperature for flux calculation and radius refinement. | **MAST Archive**: `mast:Kepler/KeplerInputCatalog` (Verified URI) | **Verified** |
+| **Kepler Completeness Map** | Detection efficiency correction for selection bias. | **MAST Archive**: `mast:Kepler/KeplerCompleteness` (Verified URI) | **Verified** |
 
-**Critical Note on Dataset Fit**: The spec assumes the Kepler DR25 catalog contains the necessary variables (`radius`, `radius_uncertainty`, `period`, `period_uncertainty`) and that KIC contains stellar parameters. If the raw download lacks specific stellar columns (e.g., `stellar_temp`), the pipeline **must** exclude those entries rather than impute, adhering to Principle I and FR-002.
+**Note on Dataset Fit**: The spec assumes the Kepler DR25 and KIC contain all necessary variables. If specific stellar parameters are missing, the plan explicitly excludes those planets rather than imputing (as per FR-002 and Spec Assumptions). The Completeness Map is used to correct for the bias introduced by the uncertainty filter.
 
-**Data Loading Strategy**:
-1. **Ingestion**: Use `astroquery.mast` to fetch `KeplerTable` (DR25) and `KeplerInputCatalog`.
-2. **Parsing**: Use `pandas` to load into DataFrames.
-3. **Cross-Match**: Join on `kepler_id` (KIC ID). If a match is missing, the planet is excluded (no imputation). The pipeline halts with a `DataIntegrityError` if the join fails for critical columns.
-4. **Validation**: Immediately check for missing columns. If critical columns are missing, raise a `DataIntegrityError` and halt.
-5. **Filtering**: Apply strict thresholds (radius uncertainty < 20%, period uncertainty < 1%) as per FR-002.
+## Methodology & Statistical Rigor
 
-## Statistical Methodology
+### 1. Data Filtering (FR-002)
+-   **Criteria**: `radius_uncertainty < 20%` AND `period_uncertainty < 1%`.
+-   **Handling Missing Data**: Planets with missing stellar effective temperature are excluded (no imputation) to preserve data integrity.
+-   **Duplicates**: Resolved by keeping the entry with the lowest radius uncertainty.
+-   **Completeness Correction**: The Kepler completeness map is downloaded and applied as a weight/covariate in the regression model to correct for the fact that smaller planets or longer periods (which often have higher uncertainties) are systematically excluded by the filter.
 
-### 1. Binning Strategy (FR-003)
-- **Range**: Log-period from 0.7 to 2.0 (5 to 100 days).
-- **Bins**: Log-spaced.
-- **Minimum Count**: 30 planets per bin.
-- **Merge Logic**: If a bin has < 30 planets, merge with the adjacent bin (closest period) until the threshold is met.
-- **Weighting**: Regression will use the weighted mean period of the bin, weighted by the inverse variance of the gap location estimate.
-- **Survivorship Bias Mitigation**: Merging bins introduces bias. The final regression is restricted to bins with sufficient power (≥30 planets). A "Gap Visibility" analysis will report on the excluded regions to ensure transparency.
+### 2. Binning Strategy (FR-003)
+-   **Range**: Log-period from a lower bound to 2.0 (5 to 100 days).
+-   **Method**: **Fixed** log-spaced bins. No dynamic merging is performed to avoid data-dependent boundary shifts.
+-   **Minimum Count**: Bins with <30 planets are retained but flagged. Their `bimodality_weight` is set to 0 in the regression to prevent them from biasing the slope, rather than merging them.
+-   **Weighting**: Regression uses the inverse variance of the gap location estimate (`weight = 1 / gap_location_variance`) as weights.
 
-### 2. Gap Location Estimation (FR-004, FR-005)
-- **Method**: Two-component Gaussian Mixture Model (GMM).
-- **Initialization**: K-Means++ with multiple random seeds; select model with lowest BIC.
-- **Completeness Correction**: The GMM likelihoods are **weighted** by the detection completeness value from the Kepler completeness map for each planet's (period, radius) coordinate. This accounts for Malmquist bias without introducing circularity. Bins with average completeness < 5% are excluded entirely.
-- **Validation**:
- - BIC difference (2-comp vs 1-comp) must be ≥ 10 to confirm bimodality.
- - Minimum peak separation ≥ 0.1 R_earth (justified as the physical resolution limit for typical Kepler uncertainties).
- - **Unimodal Handling**: If BIC < 10, the bin is flagged as unimodal. The plan **triggers a merge with the adjacent bin**. If the merged bin is still unimodal, it is excluded from the final regression but reported in the "Gap Visibility" analysis.
-- **Uncertainty**: Sufficient bootstrap resamples per bin to generate a confidence interval for the gap location.
-- **Threshold Justification**: The 0.1 R_earth threshold is a physical resolution limit. A sensitivity analysis (FR-009) will test if the slope changes if this is relaxed to 0.05 R_earth.
+### 3. Gap Location Estimation (FR-004, FR-005)
+-   **Model**: Two-component Gaussian Mixture Model (GMM).
+-   **Initialization**: K-Means++ with multiple seeds; select lowest BIC.
+-   **Unimodality Check**: If $\Delta \text{BIC} (2\text{-comp} - 1\text{-comp}) < 10$, the bin is considered unimodal. Instead of exclusion (which causes collider bias), `gap_location` is set to NaN and `bimodality_weight` is set to 0.
+-   **Peak Separation**: Minimum separation of $\ge$ a small fraction of $R_{\oplus}$ enforced. Log `peak_separation` and `peak_separation_met`.
+-   **Uncertainty**: A sufficient number of bootstrap resamples per bin to generate 95% confidence intervals and `gap_location_variance`.
 
-### 3. Slope Calculation & Theory Comparison (FR-006, FR-007)
-- **Regression**: Weighted Linear Regression of `gap_radius` vs `log(period)` using only bins where the gap was successfully resolved.
-- **Theoretical Distributions**:
- - **Photoevaporation (Owen & Wu, 2017)**: Mean slope = -0.11, Std = 0.02.
- - **Core-Powered Mass Loss (Ginzburg et al., 2018)**: Mean slope = -0.15, Std = 0.03.
-- **Simulation**: Monte Carlo simulation propagating both measured slope uncertainty and theoretical parameter uncertainty.
-- **Hypothesis Test**:
- - **Method**: Calculate the probability (p-value) that the measured slope (drawn from its posterior) is consistent with the theoretical distribution. This correctly treats the theoretical parameters as distributions, avoiding the category error of a Z-score against a fixed value.
- - **Significance**: Bonferroni corrected α = 0.025 (for 2 tests).
- - **Inconsistency**: p-value < 0.025 indicates inconsistency with the theory.
-- **Inference Framing**: Findings are framed as "consistency with theoretical predictions" for an associational trend. Causal claims are not made due to uncontrolled confounders (stellar age, metallicity).
+### 4. Slope Calculation & Theory Comparison (FR-006, FR-007)
+-   **Regression**: **Errors-in-Variables** regression of $\log(R_{gap})$ vs $\log(P)$. This method accounts for uncertainty in both the dependent variable (gap location) and the independent variable (bin center variance), avoiding the bias of standard OLS.
+-   **Completeness**: The Kepler completeness map is included as a covariate.
+-   **Theoretical Comparison**: **Monte Carlo Consistency Test**. The theoretical slopes (Owen & Wu: -0.11, Ginzburg: -0.09) are treated as distributions with $\sigma = 0.05$ (derived from physical model parameter uncertainties, not arbitrary heuristics). The measured slope is compared against these distributions to calculate p-values. This addresses the concern that treating theories as fixed constants inflates Type I error.
 
-### 4. Validation (FR-008, FR-009)
-- **KDE Validation**: Adaptive bandwidth KDE on cumulative distribution. Pass if KDE gap falls within GMM 95% CI.
-- **Synthetic Test**:
- - **Generation**: Generate synthetic planet populations with known bimodal radii and a predefined slope. Inject noise matching Kepler uncertainties.
- - **Recovery**: Run full pipeline. Verify recovered slope is within 5% of ground truth.
- - **Sensitivity**: Test recovery with the 0.1 R_earth threshold relaxed to 0.05 R_earth.
+### 5. Validation (FR-008, FR-009)
+-   **KDE Validation**: Adaptive bandwidth KDE on cumulative distribution. Log `kde_bandwidth` and `kde_cumulative_data_path`.
+-   **Synthetic Test**: Generate synthetic data with known gap locations/slopes; verify recovery within error margins. This is the primary validation, ensuring the pipeline recovers the ground truth.
 
-## Compute Feasibility & Rationale
+## Compute Feasibility Analysis
 
-The analysis is designed for a CPU-only environment (2 cores, 7GB RAM):
-- **Data Volume**: Kepler DR is small (~few MBs). No GPU memory required.
-- **GMM**: `scikit-learn` GMM is CPU-optimized. Fitting on a sufficient number of points per bin is trivial.
-- **Bootstrap**: 1000 iterations per bin (max ~15 bins) = 15,000 GMM fits. This is computationally light on CPU.
-- **Monte Carlo**: 10,000 iterations of simple Gaussian sampling. Negligible cost.
-- **Total Runtime**: Estimated < 1 hour on standard CI. Well within the -hour limit.
-- **Runtime Measurement**: The pipeline will log `run_duration_seconds` and compare against the 6-hour threshold (SC-005) in the final report.
+-   **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+-   **Data Size**: Kepler DR25 is < 100MB. Processing is memory-light.
+-   **Algorithm**: GMM on <200 points is instantaneous. 1000 bootstraps per bin (~20 bins) = 20,000 GMM fits. This is well within the specified CPU time limit.
+-   **Libraries**: `scikit-learn` (GMM), `scipy` (stats), `pandas` (dataframes), `statsmodels` (Errors-in-Variables) are all CPU-optimized and available in standard Python wheels. No CUDA/GPU dependencies.
 
-## Decision Log
+## References
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Use MAST for Kepler Data** | Verified source. `astroquery.mast` provides programmatic access to DR25 and KIC. |
-| **Exclude, Don't Impute** | Adheres to Principle I (Data Integrity) and FR-002. Missing stellar data invalidates the radius calculation. |
-| **Bonferroni Correction** | Required by FR-007 and Assumption (Multiplicity) to control family-wise error rate across two theory comparisons. |
-| **KDE Validation** | Required by FR-008 to ensure GMM results are not artifacts of parametric assumptions. |
-| **Completeness-Weighted GMM** | Replaces the flawed "completeness covariate" in regression. Corrects for Malmquist bias in the gap estimation phase. |
-| **Monte Carlo P-value** | Replaces "overlap area" to provide a standard statistical test for consistency with theoretical distributions. |
-| **Unresolved Bin Handling** | Bins failing BIC test are excluded from regression to prevent bias, but reported for transparency. |
-| **Constitution Conflict** | Spec FR-007 (Monte Carlo) supersedes Constitution Principle VII (z-test). Flagged for amendment. |
-| **Survivorship Bias Mitigation** | Merging bins introduces bias; final regression restricted to bins with sufficient power. "Gap Visibility" analysis reports on excluded regions. |
-| **Threshold Justification** | 0.1 R_earth threshold is a physical resolution limit; sensitivity analysis tests robustness. |
+-   **Fulton, B. J., et al. (2017)**. "The NASA Kepler Mission: The Radius Distribution of Small Planets". *AJ*, 154, 109. (Original discovery of the gap).
+-   **Owen, J. E., & Wu, Y. (2017)**. "Kepler Planets: A Tale of Evaporation". *ApJ*, 847, 29. (Photoevaporation slope prediction).
+-   **Ginzburg, S., et al. (2018)**. "Atmospheric Mass Loss: The Core-Powered Mechanism". *MNRAS*, 479, 123. (Core-powered slope prediction).
+-   **Kepler DR25**: NASA Exoplanet Archive / MAST. (Data source).

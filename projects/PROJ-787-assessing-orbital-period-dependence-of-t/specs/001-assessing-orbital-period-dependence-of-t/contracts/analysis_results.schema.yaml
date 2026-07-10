@@ -12,12 +12,12 @@ properties:
     minimum: 0
   posterior_photoevaporation:
     type: number
-    description: "Posterior probability of consistency with Photoevaporation theory (Monte Carlo)."
+    description: "Monte Carlo p-value comparing measured slope to photoevaporation theory."
     minimum: 0
     maximum: 1
   posterior_core_powered:
     type: number
-    description: "Posterior probability of consistency with Core-Powered Mass Loss theory (Monte Carlo)."
+    description: "Monte Carlo p-value comparing measured slope to core-powered mass loss theory."
     minimum: 0
     maximum: 1
   theoretical_dist_photoevaporation:

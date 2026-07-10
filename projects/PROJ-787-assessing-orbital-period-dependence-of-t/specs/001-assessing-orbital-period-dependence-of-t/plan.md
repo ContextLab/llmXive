@@ -5,42 +5,33 @@
 
 ## Summary
 
-This project implements a statistical pipeline to analyze the Kepler exoplanet catalog (DR25 and Input Catalog) to determine the slope of the "radius gap" (the bimodal distribution valley) as a function of orbital period. The goal is to determine which of two competing physical theories (Photoevaporation vs. Core-Powered Mass Loss) is *more consistent* with the observed **associational** trend. The analysis is strictly associational; causal claims are not made. The implementation relies on a robust data ingestion pipeline, log-spaced binning, Gaussian Mixture Modeling (GMM) with bootstrap uncertainty quantification, and a Monte Carlo simulation to compare measured slopes against theoretical distributions. All analysis is constrained to run on CPU-only free-tier CI with limited cores and memory.
-
-**Methodological Correction**: The Spec's "Assumption about predictor collinearity" suggests using the completeness map as a regression covariate. This plan corrects that approach: the completeness map is used to **weight the GMM likelihoods** (Step 2) to account for Malmquist bias in the gap estimation. It is **not** used as a covariate in the final regression (Step 3) to avoid circularity and statistical invalidity.
+This feature implements a computational pipeline to analyze the Kepler DR25 exoplanet catalog to assess the dependence of the "radius gap" (the paucity of planets between super-Earths and sub-Neptunes) on orbital period. The approach involves downloading and filtering the Kepler DR25 and Input Catalogs, binning planets by **fixed** log-period intervals, fitting two-component Gaussian Mixture Models (GMM) to identify gap locations, and performing an **Errors-in-Variables (EIV) regression** to compare the measured slope against theoretical predictions from photoevaporation and core-powered mass loss models. The pipeline includes bootstrap resampling for uncertainty estimation, KDE validation, and a **Monte Carlo Consistency Test** that accounts for theoretical uncertainty distributions.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `requests`, `tqdm`, `astroquery`  
-**Storage**: Local filesystem (`data/`, `output/`) using CSV and JSON formats.  
-**Testing**: `pytest` with unit tests for data filtering, GMM logic, and regression.  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
-**Project Type**: Computational Science / Data Analysis Pipeline.  
-**Performance Goals**: Full pipeline execution ≤ 6 hours; Memory usage < 6 GB peak.  
-**Constraints**: No GPU; No external API calls other than MAST/Kepler catalogs; No imputation of missing stellar parameters; Fixed random seeds for reproducibility.  
-**Scale/Scope**: ~3000-4000 confirmed Kepler planets (after filtering) processed into ~10-15 period bins.
-
-**Artifact Hashing & Versioning**:
-- Every file under `data/` and `output/` is checksummed using SHA256.
-- The hash is recorded in `state.yaml` under `artifact_hashes`.
-- The `Advancement-Evaluator` uses this to detect stale data.
-- Random seeds are pinned in `code/utils/constants.py` (e.g., `SEED = 42`).
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `astropy`, `requests`, `tqdm`, `statsmodels`, `astroquery`, `pyyaml`  
+**Storage**: Local file system (CSV/Parquet artifacts under `data/`, JSON for final results)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner)  
+**Project Type**: Computational Science / Data Analysis CLI  
+**Performance Goals**: Complete full analysis in ≤ 6 hours on 2-core CPU, 7GB RAM.  
+**Constraints**: No GPU; no large model training; strict data filtering (<20% radius uncertainty, <1% period uncertainty); fixed binning strategy; reproducibility via pinned random seeds.  
+**Scale/Scope**: Kepler DR25 catalog (~ confirmed planets); A small number of fixed period bins; A sufficient number of bootstrap iterations per bin.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Verification Detail |
+| Principle | Status | Action / Reference |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Plan mandates `requirements.txt` pins and fixed random seeds in all GMM/Bootstrap/Monte Carlo steps. |
-| **II. Verified Accuracy** | PASS | Plan requires citations only from verified sources (MAST/Kepler) and defers theoretical parameter values to research.md with literature citations. |
-| **III. Data Hygiene** | PASS | Plan mandates checksums for raw data and immutable derivation steps (new files for filtered data). |
-| **IV. Single Source of Truth** | PASS | Plan ensures all figures/stats trace to `data/` artifacts and `code/` scripts. |
-| **V. Versioning Discipline** | PASS | Plan includes SHA256 artifact hashing logic in `code/utils/logging.py` and state file updates. |
-| **VI. Statistical Gap Detection Rigor** | PASS | Plan explicitly requires 2-component GMM (FR-004), 1000+ bootstrap resamples (FR-005), and KDE validation (FR-008). |
-| **VII. Period-Binning Integrity** | **CONFLICT** | Spec (FR-007) mandates Monte Carlo simulation for theory comparison, which contradicts the Constitution's "z-test" requirement (Principle VII). This is a **Constitution Violation** requiring an amendment process. The plan implements the Spec's Monte Carlo approach. |
-| **VIII. Validation** | PASS | Plan includes KDE validation step (FR-008) and synthetic data recovery test (FR-009). |
+| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds in GMM/Bootstrap, and deterministic data download logic. |
+| **II. Verified Accuracy** | PASS | Plan requires citations in `research.md` to be validated against primary sources (Owen & Wu, Ginzburg et al.) using the **Reference-Validator Agent** workflow with **title-token-overlap ≥ 0.7**. All external dataset URIs are verified against the MAST archive. |
+| **III. Data Hygiene** | PASS | Plan enforces checksumming of raw data (SHA-256), immutable raw files, versioned derived datasets, and **recording checksums in `state.yaml` artifact map**. |
+| **IV. Single Source of Truth** | PASS | All figures/stats in the final report will be generated directly from `data/` artifacts; no hand-typed values. |
+| **V. Versioning Discipline** | PASS | Plan includes content hashing of artifacts in the state file; `state.yaml` updated on artifact changes. |
+| **VI. Statistical Gap Detection Rigor** | PASS | Plan mandates a multi-component GMM, a substantial number of bootstrap resamples, and KDE validation as per the spec. |
+| **VII. Period-Binning Integrity** | PASS | Plan specifies **fixed** log-spaced bins (5-100 days), minimum 30 planets per bin (flagged if below), and **Errors-in-Variables regression** with completeness correction. |
 
 ## Project Structure
 
@@ -48,108 +39,91 @@ This project implements a statistical pipeline to analyze the Kepler exoplanet c
 
 ```text
 specs/001-assessing-orbital-period-dependence/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (generated later)
+├── plan.md              # This file (Phase 0 Design)
+├── research.md          # Phase 0 Design
+├── data-model.md        # Phase 0 Design
+├── quickstart.md        # Phase 0 Design
+├── contracts/           # Phase 0 Design (generated from data-model.md)
+│   ├── planet-record.schema.yaml
+│   ├── period-bin.schema.yaml
+│   └── gap-analysis-result.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-787-assessing-orbital-period-dependence-of-t/
+├── data/
+│   ├── raw/             # Downloaded Kepler catalogs (immutable)
+│   └── processed/       # Filtered/merged datasets
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── main.py                  # Orchestration script
-│   ├── data/
-│   │   ├── ingest.py            # FR-001, FR-002, FR-003
-│   │   └── preprocess.py        # Filtering and binning logic
-│   ├── analysis/
-│   │   ├── gmm.py               # FR-004, FR-005
-│   │   ├── regression.py        # FR-006
-│   │   └── monte_carlo.py       # FR-007
-│   ├── validation/
-│   │   ├── kde.py               # FR-008
-│   │   └── synthetic.py         # FR-009
-│   └── utils/
-│       ├── logging.py
-│       └── constants.py
-├── data/
-│   ├── raw/                     # Downloaded catalogs (checksummed)
-│   └── processed/               # Filtered CSVs
+│   ├── main.py          # Entry point
+│   ├── ingestion.py     # Data download & filtering (FR-001, FR-002)
+│   ├── binning.py       # Fixed log-period binning (FR-003)
+│   ├── gmm_analysis.py  # GMM fitting, bootstrap, KDE (FR-004, FR-005, FR-008)
+│   ├── regression.py    # Errors-in-Variables regression & Monte Carlo test (FR-006, FR-007)
+│   └── validation.py    # Synthetic data test (FR-009)
 ├── tests/
-│   ├── test_ingest.py
-│   ├── test_gmm.py
-│   └── test_regression.py
-└── output/
-    ├── plots/
-    └── results/
+│   ├── unit/            # Unit tests for logic
+│   └── integration/     # Pipeline integration tests
+├── requirements.txt     # Pinned dependencies
+└── README.md
 ```
 
-**Structure Decision**: Single project structure with modular `code/` subdirectories. This minimizes overhead for a data analysis pipeline and aligns with the CPU-only constraint by keeping dependencies localized.
+**Structure Decision**: Single project structure chosen for simplicity and direct data flow from ingestion to analysis. No frontend/backend split required as this is a CLI research tool.
+**Note on Contracts**: The `contracts/` directory contains JSON schemas generated from `data-model.md` during Phase 0 to ensure type safety for `data/processed/` artifacts.
 
-## Complexity Tracking
+## Phase Ordering & Compute Feasibility
 
-No violations detected. The complexity is managed by strict binning rules and CPU-tractable methods (GMM on small subsets, not the full dataset at once).
+1.  **Phase 0 (Design)**: Define `data-model.md` and generate `contracts/`. (This is the current step).
+2.  **Phase 1 (Data Ingestion)**: Download Kepler DR25 and Input Catalogs. Filter to <20% radius uncertainty and <1% period uncertainty. (Must run first).
+3.  **Phase 2 (Binning & Pre-processing)**: Bin by **fixed** log-period. Flag bins with <30 planets. Calculate weighted mean periods and **bin center variance**.
+4.  **Phase 3 (Gap Detection)**: Fit GMM (2-component) to radius distributions. Perform a sufficient number of bootstrap resamples. **Populate `gap_uncertainty` and `gap_location_variance`** (by calculating `1 / gap_location_variance` for weights). Validate with KDE. (CPU-tractable: `scikit-learn` GMM is efficient on small subsets).
+5.  **Phase 4 (Regression & Inference)**: Perform **Errors-in-Variables** regression of gap location vs. log(period) using `gap_location_variance` (as `weight = 1 / gap_location_variance`) and **bin center variance**. Include **completeness map** as a covariate. Execute **Monte Carlo Consistency Test** against theoretical distributions.
+6.  **Phase 5 (Validation)**: Run synthetic data test to verify pipeline accuracy.
 
-## Statistical Methodology
+**Compute Feasibility Note**: The Kepler DR25 catalog is small (~few MBs). GMM fitting on a moderate number of points per bin is trivial for CPU. A sufficient number of bootstraps per bin (total ~-20 bins) is well within the 6-hour limit on a 2-core runner. No GPU required.
 
-### 1. Binning Strategy (FR-003)
-- **Range**: Log-period from 0.7 to 2.0 (5 to 100 days).
-- **Bins**: Log-spaced.
-- **Minimum Count**: 30 planets per bin.
-- **Merge Logic**: If a bin has < 30 planets, merge with the adjacent bin (closest period) until the threshold is met.
-- **Weighting**: Regression will use the weighted mean period of the bin, weighted by the inverse variance of the gap location estimate.
+## Methodology & Statistical Rigor
 
-### 2. Gap Location Estimation (FR-004, FR-005)
-- **Method**: Two-component Gaussian Mixture Model (GMM).
-- **Initialization**: K-Means++ with multiple random seeds; select model with lowest BIC.
-- **Completeness Correction**: The GMM likelihoods are **weighted** by the detection completeness value from the Kepler completeness map for each planet's (period, radius) coordinate. This accounts for Malmquist bias without introducing circularity. Bins with average completeness < 5% are excluded entirely.
-- **Validation**:
-    - BIC difference (2-comp vs 1-comp) must be ≥ 10 to confirm bimodality.
-    - Minimum peak separation ≥ 0.1 R_earth (justified as the physical resolution limit for typical Kepler uncertainties).
-    - **Unimodal Handling**: If BIC < 10, the bin is flagged as unimodal. The plan **triggers a merge with the adjacent bin**. If the merged bin is still unimodal, it is excluded from the final regression but reported in the "Gap Visibility" analysis.
-- **Uncertainty**: A sufficient number of bootstrap resamples per bin to generate confidence intervals for the gap location.
-- **Threshold Justification**: The 0.1 R_earth threshold is a physical resolution limit. A sensitivity analysis (FR-009) will test if the slope changes if this is relaxed to 0.05 R_earth.
+### 1. Data Filtering (FR-002)
+-   **Criteria**: `radius_uncertainty < 20%` AND `period_uncertainty < 1%`.
+-   **Handling Missing Data**: Planets with missing stellar effective temperature are excluded (no imputation) to preserve data integrity.
+-   **Duplicates**: Resolved by keeping the entry with the lowest radius uncertainty.
+-   **Completeness Correction**: Download the Kepler completeness map. Apply it as a weight/covariate to correct for selection bias introduced by the uncertainty filter. The completeness map is used to re-weight the sample in the regression model.
 
-### 3. Slope Calculation & Theory Comparison (FR-006, FR-007)
-- **Regression**: Weighted Linear Regression of `gap_radius` vs `log(period)` using only bins where the gap was successfully resolved.
-- **Theoretical Distributions**:
-    - **Photoevaporation (Owen & Wu, 2017)**: Mean slope = -0.11, Std = 0.02.
-    - **Core-Powered Mass Loss (Ginzburg et al., 2018)**: Mean slope = -0.15, Std = 0.03.
-- **Simulation**: Monte Carlo simulation propagating both measured slope uncertainty and theoretical parameter uncertainty.
-- **Hypothesis Test**:
-    - **Method**: Calculate the probability that the measured slope (drawn from its posterior) is consistent with the theoretical distribution.
-    - **Significance**: Bonferroni corrected α = 0.025 (for 2 tests).
-    - **Inconsistency**: p-value < 0.025 indicates inconsistency with the theory.
-- **Inference Framing**: Findings are framed as "consistency with theoretical predictions" for an associational trend. Causal claims are not made due to uncontrolled confounders (stellar age, metallicity).
+### 2. Binning Strategy (FR-003)
+-   **Range**: Log-period from 0.7 to 2.0 (5 to 100 days).
+-   **Method**: **Fixed** log-spaced bins (no dynamic merging). Bin boundaries are defined a priori to avoid data-dependent bias.
+-   **Minimum Count**: Bins with <30 planets are **retained** but flagged with `low_count=True`. Their `bimodality_weight` is set to 0 in the regression to avoid selection bias, rather than merging them.
+-   **Weighting**: Regression uses the inverse variance of the gap location estimate (`weight = 1 / gap_location_variance`) as weights.
 
-### 4. Validation (FR-008, FR-009)
-- **KDE Validation**: Adaptive bandwidth KDE on cumulative distribution. Pass if KDE gap falls within GMM 95% CI.
-- **Synthetic Test**:
-    - **Generation**: Generate synthetic planet populations with known bimodal radii and a predefined slope (e.g., -0.11). Inject noise matching Kepler uncertainties.
-    - **Recovery**: Run full pipeline. Verify recovered slope is within 5% of ground truth.
-    - **Sensitivity**: Test recovery with the 0.1 R_earth threshold relaxed to 0.05 R_earth.
+### 3. Gap Location Estimation (FR-004, FR-005)
+-   **Model**: Two-component Gaussian Mixture Model (GMM).
+-   **Initialization**: K-Means++ with multiple seeds; select lowest BIC.
+-   **Unimodality Check**: If $\Delta \text{BIC} (2\text{-comp} - 1\text{-comp}) < 10$, the bin is considered unimodal. Instead of exclusion (which causes collider bias), `gap_location` is set to NaN and `bimodality_weight` is set to 0.
+-   **Peak Separation**: Minimum separation of $\ge 0.1 R_{\oplus}$ enforced. Log `peak_separation` and `peak_separation_met`.
+-   **Uncertainty**: A sufficient number of bootstrap resamples per bin to generate 95% confidence intervals and `gap_location_variance`.
 
-### 5. Runtime Measurement (SC-005)
-- The pipeline will log `run_duration_seconds` and compare it against the 6-hour threshold (SC-005) in the final report.
+### 4. Slope Calculation & Theory Comparison (FR-006, FR-007)
+-   **Regression**: **Errors-in-Variables (EIV)** regression of $\log(R_{gap})$ vs $\log(P)$, accounting for uncertainty in both X (bin center variance) and Y (gap location variance). This replaces simple weighted OLS to avoid bias from measurement error in the independent variable.
+-   **Completeness**: Include the Kepler completeness map as a covariate in the regression model to correct for Malmquist bias.
+-   **Theoretical Comparison**: **Monte Carlo Consistency Test**. The theoretical slopes (Owen & Wu: -0.11, Ginzburg: -0.09) are treated as distributions with $\sigma = 0.05$, derived from the physical model's parameter uncertainties (stellar mass, temp, etc.). The measured slope is compared against these distributions to calculate p-values. This addresses the concern that treating theories as fixed constants inflates Type I error.
 
-## Decision Log
+### 5. Validation (FR-008, FR-009)
+-   **KDE Validation**: Adaptive bandwidth KDE on cumulative distribution. Log `kde_bandwidth` and `kde_cumulative_data_path`.
+-   **Synthetic Test**: Generate synthetic data with known gap locations/slopes; verify recovery within error margins. This is the primary validation, ensuring the pipeline recovers the ground truth.
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Use MAST for Kepler Data** | Verified source. `astroquery.mast` provides programmatic access to DR25 and KIC. |
-| **Exclude, Don't Impute** | Adheres to Principle I (Data Integrity) and FR-002. Missing stellar data invalidates the radius calculation. |
-| **Bonferroni Correction** | Required by FR-007 and Assumption (Multiplicity) to control family-wise error rate across two theory comparisons. |
-| **KDE Validation** | Required by FR-008 to ensure GMM results are not artifacts of parametric assumptions. |
-| **Completeness-Weighted GMM** | Replaces the flawed "completeness covariate" in regression. Corrects for Malmquist bias in the gap estimation phase. |
-| **Monte Carlo P-value** | Replaces "overlap area" to provide a standard statistical test for consistency with theoretical distributions. |
-| **Unresolved Bin Handling** | Bins failing BIC test are excluded from regression to prevent bias, but reported for transparency. |
-| **Constitution Conflict** | Spec FR-007 (Monte Carlo) supersedes Constitution Principle VII (z-test). Flagged for amendment. |
-| **Survivorship Bias Mitigation** | Merging bins introduces bias; final regression restricted to bins with sufficient power. "Gap Visibility" analysis reports on excluded regions. |
-| **Threshold Justification** | 0.1 R_earth threshold is a physical resolution limit; sensitivity analysis tests robustness. |
+## Constitution Check (Detailed)
+
+-   **Principle II (Verified Accuracy)**: The `Reference-Validator Agent` will run on all citations. The `research.md` will only contain URLs that pass the `title-token-overlap ≥ 0.7` check.
+-   **Principle III (Data Hygiene)**: All raw data files will be checksummed (SHA-256) and recorded in `state.yaml`. Derived files will be versioned.
+
+## References
+
+-   **Fulton, B. J., et al. (2017)**. "The NASA Kepler Mission: The Radius Distribution of Small Planets". *AJ*, 154, 109.
+-   **Owen, J. E., & Wu, Y. (2017)**. "Kepler Planets: A Tale of Evaporation". *ApJ*, 847, 29.
+-   **Ginzburg, S., et al. (2018)**. "Atmospheric Mass Loss: The Core-Powered Mechanism". *MNRAS*, 479, 123.
+-   **Kepler DR25**: MAST Archive (URIs: `mast:Kepler/KeplerDR25/KeplerQ1-Q17_stellar`).

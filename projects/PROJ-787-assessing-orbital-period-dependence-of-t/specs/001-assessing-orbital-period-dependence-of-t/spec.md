@@ -13,7 +13,7 @@
 
 **Why this priority**: Without a validated, filtered dataset, no statistical analysis can proceed. This is the foundational step that enables all subsequent modeling and hypothesis testing.
 
-**Independent Test**: The pipeline can be fully tested by executing the data download and filtering scripts on a subset of the Kepler DR25 catalog and verifying that the output CSV contains only planets meeting the strict uncertainty criteria (radius <20%, period <1%) with no missing critical columns.
+**Independent Test**: The pipeline can be fully tested by executing the data download and filtering scripts on a subset of the Kepler catalog (Kepler Data Release) and verifying that the output CSV contains only planets meeting the strict uncertainty criteria (radius <20%, period <1%) with no missing critical columns.
 
 **Acceptance Scenarios**:
 
@@ -97,7 +97,7 @@
 ## Assumptions
 
 - **Assumption about data availability**: The Kepler DR catalog and Kepler Input Catalog are publicly accessible via the MAST archive without requiring special authentication or rate-limiting that would block automated retrieval.
-- **Assumption about dataset-variable fit**: The Kepler DR25 catalog contains all necessary variables (radius, period, uncertainties) and the Input Catalog contains the required stellar parameters (radius, mass, temperature) to compute incident flux and refine radius estimates; if specific stellar parameters are missing for a subset of stars, those planets will be excluded rather than imputed.
+- **Assumption about dataset-variable fit**: The Kepler catalog contains all necessary variables (radius, period, uncertainties) and the Input Catalog contains the required stellar parameters (radius, mass, temperature). to compute incident flux and refine radius estimates; if specific stellar parameters are missing for a subset of stars, those planets will be excluded rather than imputed.
 - **Assumption about inference framing**: Since this analysis uses observational data from the Kepler mission without random assignment, all findings regarding the relationship between period and gap location will be framed as associational, not causal, unless a specific identification strategy is introduced in the code.
 - **Assumption about multiplicity & power**: The analysis involves multiple hypothesis tests (slope comparison against two theories). To control the family-wise error rate, a Bonferroni correction is applied, adjusting the significance threshold to α = 0.025 (0.05 / 2). The binning strategy (minimum 30 planets) is assumed to provide sufficient power for the GMM fitting.
 - **Assumption about threshold justification**: The decision cutoff for bin inclusion (≥30 planets) and uncertainty thresholds (<20% radius, <1% period) are based on community standards for statistical robustness in exoplanet demographics.

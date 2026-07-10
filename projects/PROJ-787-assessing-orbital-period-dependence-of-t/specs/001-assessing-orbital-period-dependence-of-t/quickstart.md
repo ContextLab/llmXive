@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Access to the Kepler MAST archive (for data download).
+-   Python 3.11+
+-   `git`
+-   Internet access (to fetch Kepler data from MAST)
 
 ## Installation
 
@@ -14,7 +14,7 @@
     cd projects/PROJ-787-assessing-orbital-period-dependence-of-t
     ```
 
-2.  **Install dependencies**:
+2.  **Create a virtual environment**:
     ```bash
     pip install -r code/requirements.txt
     ```
@@ -26,8 +26,7 @@
 
 ## Running the Pipeline
 
-### Step 1: Data Ingestion (Manual or Automated)
-*Note: Due to MAST access requirements, ensure network connectivity.*
+The pipeline is executed via the main entry point:
 
 ```bash
 # This script will download and parse the Kepler DR25 and KIC catalogs
@@ -47,19 +46,25 @@ python code/main.py
 ```
 *Output*: `output/results/analysis_results.json`, `output/plots/radius_gap_distribution.png`
 
-### Step 4: Validation
-The pipeline automatically runs KDE validation and synthetic tests. Check `output/results/validation_report.json` for pass/fail status.
+This command performs the following steps in order:
+1.  **Ingestion**: Downloads Kepler DR25 and KIC from MAST (if not present), filters by uncertainty thresholds.
+2.  **Binning**: Creates log-spaced period bins, merges small bins.
+3.  **Analysis**: Fits GMMs, runs bootstraps, validates with KDE.
+4.  **Regression**: Calculates slope and compares to theories.
+5.  **Validation**: Runs synthetic test.
 
-## Testing
+**Output**: Results are saved to `data/processed/final_analysis.json` and visual plots to `data/processed/plots/`.
 
-Run the unit tests to verify GMM logic and filtering:
+## Verification
+
+To verify the pipeline against synthetic data (FR-009):
 
 ```bash
-pytest tests/ -v
+python code/validation.py --mode synthetic
 ```
 
 ## Troubleshooting
 
-- **Data Download Failures**: The `ingest.py` script includes exponential backoff. If it fails after 3 retries, check your network or MAST status.
-- **Memory Errors**: The pipeline processes data in chunks. If you encounter OOM, ensure no other heavy processes are running.
-- **Unimodal Bins**: If a bin is flagged as "unimodal" (BIC diff < 10), it is automatically merged with the adjacent bin. Check logs for merge events.
+-   **Data Download Failures**: The script retries up to 3 times with exponential backoff. If it fails, check your internet connection or MAST status.
+-   **Memory Errors**: The pipeline is optimized for 7GB RAM. If you encounter OOM, ensure no other heavy processes are running.
+-   **GMM Convergence**: If GMM fails to converge in a bin, the bin is flagged as "unresolved" and excluded from the final regression (as per spec).

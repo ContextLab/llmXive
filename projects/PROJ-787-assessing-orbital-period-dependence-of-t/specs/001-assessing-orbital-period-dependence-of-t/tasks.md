@@ -43,8 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/`, `data/raw/`, `data/processed/` directories per implementation plan structure
-- [ ] T001b [P] Create `tests/contract/`, `tests/unit/`, `paper/`, `code/ingest/`, `code/analysis/`, `code/theory/`, `code/validation/`, `code/utils/`, `code/models/` directories per implementation plan structure
+- [ ] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `tests/contract/`, `tests/unit/`, `paper/`, `code/ingest/`, `code/analysis/`, `code/theory/`, `code/validation/`, `code/utils/` directories per implementation plan structure
 
 - [ ] T002a [P] Create `code/requirements.txt` with dependencies (`pandas`, `numpy`, `scipy`, `scikit-learn`, `astropy`, `astroquery`, `pyyaml`, `pytest`, `tqdm`)
 - [ ] T002b [P] Install dependencies from `code/requirements.txt` in a virtual environment
@@ -85,12 +84,12 @@
 
 - [ ] T012a [P] [US1] Implement `code/ingest/download_dr25.py` to fetch the Kepler DR25 Planet Table (MAST Product ID: `kplr_dr25_planet`) via `astroquery.mast` with retry logic, saving to `data/raw/dr25_raw.csv` (FR-001, Assumptions: Data Availability)
 - [ ] T012b [P] [US1] Wire `code/utils/retry.py` into `code/ingest/download_dr25.py` to ensure exponential backoff is applied for the Kepler DR25 download (Edge Case: API Unavailability)
-- [ ] T012c [P] [US1] Implement `code/ingest/download_kic.py` to fetch the Kepler Input Catalog (KIC) via `astroquery.mast` with retry logic, saving to `data/raw/kic_raw.csv` (FR-001, Assumptions: Data Availability)
+- [ ] T012c [P] [US1] Implement `code/ingest/download_kic.py` to fetch the Kepler Input Catalog (KIC) (MAST Product ID: `kic_v2`) via `astroquery.mast` with retry logic, saving to `data/raw/kic_raw.csv` (FR-001, Assumptions: Data Availability)
 - [ ] T012d [P] [US1] Wire `code/utils/retry.py` into `code/ingest/download_kic.py` to ensure exponential backoff is applied for the KIC download (Edge Case: API Unavailability)
 - [ ] T013 [P] [US1] Implement `code/ingest/merge_catalogs.py` to merge Kepler DR25 (from T012a) and KIC (from T012c) on KIC ID to produce a unified DataFrame containing stellar parameters (FR-001, Ordering: Catalog Merge)
-- [ ] T014 [P] [US1] Implement `code/ingest/preprocess.py` to parse merged catalogs, filter for radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries with missing stellar effective temperature
-- [ ] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates (Edge Case: duplicates)
-- [ ] T016 [US1] Create `code/ingest/loaders.py` to load the filtered dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/filtered_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III)
+- [ ] T014 [US1] Implement `code/ingest/preprocess.py` to parse merged catalogs, filter for radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries with missing stellar effective temperature
+- [ ] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates (Edge Case: duplicates). This task depends on T014 output.
+- [ ] T016 [US1] Create `code/ingest/loaders.py` to load the filtered dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/filtered_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III). **Note**: This task depends on T014/T015 completion.
 - [ ] T017 [US1] Add validation and error handling to ensure no fabricated data or placeholder values are used (Real data requirement)
 - [ ] T018 [US1] Add logging for ingestion steps, including counts of excluded planets and reasons
 
@@ -111,15 +110,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/analysis/binning.py` to bin filtered planets by orbital period using log-spaced bins (0.7 to 2.0 log(days)) and merge bins with <30 planets with adjacent bins (FR-003, US-2)
+- [ ] T021 [US2] Implement `code/analysis/binning.py` to bin filtered planets by orbital period using log-spaced bins spanning a range of log(days). **CRITICAL**: If a bin contains <30 planets, it MUST be merged with the adjacent bin with the closest period. After merging, re-run GMM on the merged bin to generate the variance needed for downstream tasks. **Note**: Overrides Plan Methodology 2 per Spec FR-003 to enforce merging instead of flagging. (FR-003, US-2)
 - [ ] T022 [US2] Implement `code/analysis/gmm_fitter.py` to fit a two-component Gaussian Mixture Model using K-Means++ initialization with multiple random seeds, selecting the model with the lowest BIC (FR-004)
 - [ ] T023 [US2] Implement outlier handling in `code/analysis/gmm_fitter.py` to flag/exclude points >3 standard deviations from the bin's radius distribution before fitting (Edge Case: outliers)
 - [ ] T024 [US2] Implement bootstrap resampling (1000 iterations) in `code/analysis/gmm_fitter.py` to estimate the 95% confidence interval for the gap location (FR-005)
 - [ ] T025 [US2] Implement graceful failure handling in `code/analysis/gmm_fitter.py` for unimodal distributions (BIC diff < 10), flagging bins as "unresolved" rather than forcing a fit (Edge Case: unimodal)
-- [ ] T026 [US2] Implement `code/analysis/kde_sensitivity.py` to perform sensitivity analysis using KDE with adaptive bandwidth on the cumulative distribution of radii to verify GMM results are not parametric artifacts (FR-009, SC-006, Constitution Principle VI)
+- [ ] T026 [US2] Implement `code/validation/synthetic_recovery.py` to generate a synthetic dataset with known ground-truth gap locations and slopes, run the full pipeline on it, and verify that the recovered values (both slopes and gap locations) fall within an acceptable error margin. Output results to `data/processed/synthetic_validation.json`. **Note**: This task runs after T028 to validate the full pipeline. (FR-009, SC-002, SC-005)
 - [ ] T027 [US2] Implement calculation of 'weighted mean period' using inverse variance of the gap location estimate (from T024) for each bin, outputting to `data/processed/binned_stats.csv` (FR-003, Ordering: Gap Variance Flow)
 - [ ] T028 [US2] Integrate binning and GMM logic to produce `data/processed/gap_locations.csv` containing bin centers, weighted mean periods, gap locations, and uncertainties
-- [ ] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM 95% CI, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003)
+- [ ] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM 95% CI, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003, Ordering: Results Aggregation)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,7 +126,7 @@
 
 ## Phase 5: User Story 3 - Slope Calculation and Theory Comparison (Priority: P3)
 
-**Goal**: Determine the scaling relationship (slope) between gap location and orbital period, and compare it against photoevaporation and core-powered mass loss theories using a z-test on Monte Carlo generated theoretical distributions.
+**Goal**: Determine the scaling relationship (slope) between gap location and orbital period, and compare it against photoevaporation and core-powered mass loss theories using a z-test on fixed theoretical constants.
 
 **Independent Test**: The regression and comparison logic can be independently tested by feeding it a mock dataset of gap locations with known slopes and verifying that the z-test correctly identifies consistency or inconsistency with the theoretical distributions.
 
@@ -138,12 +137,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `code/analysis/regression.py` to perform weighted linear regression of gap radius vs. log(period) using weighted mean periods (from T027) (FR-006)
-- [ ] T033 [US3] Implement `code/theory/scaling_laws.py` to define the Owen & Wu (photoevaporation) and Ginzburg et al. (2018) (core-powered) scaling law equations, and `code/theory/simulate_theory.py` to generate theoretical slope distributions via Monte Carlo propagation of stellar parameter uncertainties through these equations (FR-007)
-- [ ] T034 [US3] Implement `code/theory/theory_comparison.py` to perform a z-test comparing the measured slope against the predicted theoretical distributions, calculating p-values and applying Bonferroni correction for multiple comparisons (FR-007)
-- [ ] T035 [US3] Implement sensitivity analysis in `code/analysis/sensitivity_analysis.py` to perform a grid search over planet count thresholds (25-35) AND radius uncertainty thresholds (15-25%), outputting results to `data/processed/sensitivity_analysis.csv` and verifying stability via slope variance (Assumption: threshold justification)
-- [ ] T036 [US3] Generate `paper/results.md` by aggregating p-values from T034, the slope from T032, and the KDE vs. GMM gap location comparison result from `data/processed/kde_validation.json`, explicitly writing a statement of which theory is favored based on statistical consistency (SC-001, SC-003, Ordering: Results Aggregation)
-- [ ] T037 [US3] Add runtime measurement and logging to ensure total pipeline execution remains ≤ 6 hours on CPU-only runners (SC-005)
+- [ ] T032 [US3] Implement `code/analysis/regression.py` to perform weighted linear regression of gap radius vs. log(period) using weighted mean periods (from T027). **CRITICAL**: Must include the Kepler completeness map (from T035b) as a covariate in the regression model to correct for Malmquist bias (FR-006, Assumption: predictor collinearity).
+- [ ] T033 [US3] Implement `code/theory/scaling_laws.py` to define the Owen & Wu (photoevaporation) and Ginzburg et al. (2018) (core-powered) scaling law equations as **fixed constants** with known uncertainty ranges (e.g., ±0.05). **Do NOT generate distributions via Monte Carlo**. **Note**: Overrides Plan Methodology 4 per Spec FR-007. (FR-007)
+- [ ] T034 [US3] Implement `code/theory/theory_comparison.py` to perform a **z-test** comparing the measured slope against the **fixed theoretical constants** (from T033), calculating p-values. **Do NOT apply Bonferroni correction**. **Note**: Direct p-value comparison per Spec Assumption about multiplicity; overrides Plan Methodology 4. (FR-007, Assumption: multiplicity & power)
+- [ ] T035a [US3] Implement sensitivity analysis in `code/analysis/sensitivity_analysis.py` to perform a grid search over planet count thresholds and radius uncertainty thresholds, outputting results to `data/processed/sensitivity_analysis.csv` and verifying stability via slope variance (Assumption: threshold justification)
+- [ ] T035b [US3] Implement `code/ingest/download_completeness.py` to download the Kepler completeness map from the MAST archive and save it to `data/raw/completeness_map.csv`. This data is required as a covariate for T032 (FR-006, Assumption: predictor collinearity).
+- [ ] T036 [US3] Generate `paper/results.md` by aggregating p-values from T034, the slope from T032, and the KDE vs. GMM gap location comparison result from `data/processed/kde_validation.json`, explicitly writing a statement of which theory is favored based on statistical consistency. **Note**: Depends on T032, T034, and T029. (SC-001, SC-003, Ordering: Results Aggregation)
+- [ ] T037 [US3] Add runtime measurement and logging to ensure total pipeline execution remains ≤ 6 hours on CPU-only runners. **CRITICAL**: Include a check that fails the build or flags the run with an error code if runtime exceeds 6 hours. (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 

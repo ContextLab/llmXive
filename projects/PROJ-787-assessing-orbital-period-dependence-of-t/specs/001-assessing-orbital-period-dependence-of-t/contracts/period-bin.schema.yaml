@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PeriodBin"
+description: "Represents a binned group of planets for gap analysis."
+type: "object"
+properties:
+  bin_id:
+    type: "string"
+    description: "Unique bin identifier (e.g., 'bin_0.85')"
+  bin_center_log_period:
+    type: "number"
+    description: "Center of the log-period bin"
+  weighted_mean_log_period:
+    type: "number"
+    description: "Weighted mean of log(period) for planets in bin"
+  bin_center_variance:
+    type: "number"
+    description: "Variance of log(period) within the bin (X-axis error for EIV)"
+    minimum: 0
+  planet_count:
+    type: "integer"
+    description: "Number of planets in the bin (after merging)"
+    minimum: 0
+  gap_location:
+    type: "number"
+    description: "Estimated gap radius (R_earth) from GMM"
+    nullable: true
+  gap_uncertainty:
+    type: "number"
+    description: "95% CI width for gap location (from bootstrap)"
+    minimum: 0
+  gap_location_variance:
+    type: "number"
+    description: "Variance of the gap location (from bootstrap)"
+    minimum: 0
+  inverse_gap_variance:
+    type: "number"
+    description: "Inverse variance of gap location (weight for regression)"
+    minimum: 0
+  is_unimodal:
+    type: "boolean"
+    description: "Flag if BIC diff < 10"
+  bimodality_weight:
+    type: "number"
+    description: "Weight for regression (0 if unimodal)"
+    minimum: 0
+    maximum: 1
+  low_count:
+    type: "boolean"
+    description: "Flag if planet_count < 30"
+  peak_separation:
+    type: "number"
+    description: "Separation between GMM peaks"
+  peak_separation_met:
+    type: "boolean"
+    description: "True if separation >= 0.1 R_earth"
+required:
+  - "bin_id"
+  - "bin_center_log_period"
+  - "weighted_mean_log_period"
+  - "bin_center_variance"
+  - "planet_count"
+  - "gap_location"
+  - "gap_uncertainty"
+  - "gap_location_variance"
+  - "inverse_gap_variance"
+  - "is_unimodal"
+  - "bimodality_weight"
+  - "low_count"
+  - "peak_separation"
+  - "peak_separation_met"
+additionalProperties: false

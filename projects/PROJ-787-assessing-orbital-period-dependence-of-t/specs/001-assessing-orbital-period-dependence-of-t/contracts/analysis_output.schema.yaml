@@ -11,10 +11,10 @@ properties:
     description: "Standard error of the measured slope."
   posterior_photoevaporation:
     type: number
-    description: "Posterior probability of consistency with photoevaporation model (Owen & Wu) via Monte Carlo."
-  posterior_core_powered:
+    description: "Monte Carlo p-value vs photoevaporation model (Owen & Wu)."
+  p_value_core_powered:
     type: number
-    description: "Posterior probability of consistency with core-powered mass loss model (Ginzburg et al.) via Monte Carlo."
+    description: "Monte Carlo p-value vs core-powered mass loss model (Ginzburg et al.)."
   synthetic_validation_status:
     type: string
     enum:
@@ -46,12 +46,23 @@ properties:
           type: integer
         gap_location:
           type: number
+          nullable: true
         gap_uncertainty:
+          type: number
+        gap_location_variance:
           type: number
         is_unresolved:
           type: boolean
         synthetic_validation_status:
           type: string
+        bimodality_weight:
+          type: number
+        low_count:
+          type: boolean
+        peak_separation:
+          type: number
+        peak_separation_met:
+          type: boolean
       required:
         - bin_id
         - bin_center_log_period
@@ -59,8 +70,13 @@ properties:
         - planet_count
         - gap_location
         - gap_uncertainty
+        - gap_location_variance
         - is_unresolved
         - synthetic_validation_status
+        - bimodality_weight
+        - low_count
+        - peak_separation
+        - peak_separation_met
 required:
   - measured_slope
   - slope_uncertainty

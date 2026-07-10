@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-787-assessing-orbital-period-dependence-of-t
-last_run_id: 8412a355-120e-4f68-83f6-c55a3615bf9f
+last_run_id: 448914b7-fc20-492d-bce8-3570e591fbb9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t
 title: Assessing Orbital Period Dependence of the Exoplanet Radius Gap
-updated_at: '2026-07-10T22:48:40.872915Z'
+updated_at: '2026-07-10T22:50:37.419592Z'
