@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.05037",
+  "judged_at": "2026-07-10T04:32:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+  "rationale": "This paper addresses the core mechanism of Reinforcement Learning (RL) and Inverse RL (IRL) within the domain of recommendation-like planning tasks (Wikispeedia), satisfying criteria (a) for same-mechanism evidence and (b) for measuring the independent variable (RL/IRL algorithms) in a relevant domain. Although it focuses on hierarchical strategies rather than the specific \"Proactive\" aspect of the user's query, it provides the foundational methodological context (BIHRL vs. standard BIRL) that a",
+  "relevant": true
+}

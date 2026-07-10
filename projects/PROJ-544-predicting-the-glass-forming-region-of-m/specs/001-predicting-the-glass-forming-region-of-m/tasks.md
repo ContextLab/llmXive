@@ -44,7 +44,7 @@
 - [X] T004 Implement JSON‑Schema contracts for `alloy_composition`, `descriptor_vector`, and `model_performance_record` in `contracts/` (e.g., `alloy_composition.schema.json`). <!-- foundational task; schema contracts are necessary infrastructure -->
 - [X] T005 Create `scripts/generate_synthetic_data.py` that deterministically generates a CSV `data/samples/synthetic_alloys.csv` with a substantial number of rows, balanced between glass and crystalline structures, using a fixed random seed for reproducibility
 
-The research question is: Can large language models be prompted to perform few-shot learning on a novel task with minimal examples? The method will involve prompting a large language model with varying numbers of examples and evaluating its performance on a held-out test set. (Brown et al., 2020). [UNRESOLVED-CLAIM: c_85768ab6 — status=not_enough_info] and writes the seed in a header comment. <!-- foundational task for CI testing -->
+The research question is: Can large language models be prompted to perform few-shot learning on a novel task with minimal examples? The method will involve prompting a large language model with varying numbers of examples and evaluating its performance on a held-out test set. (Brown et al., 2020). and writes the seed in a header comment. <!-- foundational task for CI testing -->
 - [X] T006 Implement `scripts/download_and_verify.py`:
  - Uses `requests` to download datasets from the ucimlrepo package and Materials Project API.
  - Verifies each file against a SHA‑ checksum listed in `data/manifest.sha256`.
@@ -91,7 +91,7 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 - [ ] T013 [US1] Extend `code/descriptors/compute.py` to **explicitly handle error cases** for invalid compositions:
  - Adds an `error_code` column (enum: `INVALID_SYMBOL`, `INVALID_STOICHIOMETRY`) and writes flagged rows to `data/derived/descriptor_vector_errors.csv`.
  - This fulfills **FR‑001**’s requirement for robust error handling of invalid inputs.
-- [ ] T014 [US1] Add structured logging in `code/descriptors/compute.py`:
+- [X] T014 [US1] Add structured logging in `code/descriptors/compute.py`:
  - Writes JSON‑Lines to `logs/computation_log.jsonl` with fields `timestamp`, `sample_id`, `step`, `status`.
 - [ ] T035 [US1] Implement `scripts/validate_descriptors.py`:
  - Compares descriptors for Cu‑Zr benchmark alloys against DScribe reference values (tolerance ±0.02) and writes a pass/fail report to `results/descriptor_benchmark_report.json`, supporting **SC‑002** verification of descriptor accuracy.
@@ -155,7 +155,7 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
  - Must run **before** any VIF‑based filtering.
 - [ ] T025 [US3] Implement `code/descriptors/vif_filter.py`:
  - Reads VIF scores from `data/derived/vif_report.json`.
- - Removes any descriptor with VIF > 5.0.
+ - Removes any descriptor with VIF > 33.
  - If **all** descriptors exceed 5.0, performs PCA on the three descriptors, retains the first two components (>90 % variance), and writes `data/derived/pca_components.csv`.
  - Outputs filtered feature file `data/derived/descriptor_vector_vif_filtered.csv`.
 - [ ] T026 [US3] Implement `code/models/importance.py`:

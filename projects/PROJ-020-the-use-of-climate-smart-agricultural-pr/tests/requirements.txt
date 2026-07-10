@@ -1,3 +1,8 @@
+# Test dependencies for llmXive research pipeline
+# These are in addition to the base requirements in code/requirements.txt
 pytest>=7.0.0
-pytest-cov>=4.0.0
-hypothesis>=6.0.0
+pytest-xdist>=3.0.0  # For parallel execution (-n auto)
+pytest-cov>=4.0.0   # For coverage reports
+pytest-timeout>=2.0.0 # For test timeouts
+hypothesis>=6.0.0   # For property-based testing (optional but recommended)
+coverage>=7.0.0     # For coverage data

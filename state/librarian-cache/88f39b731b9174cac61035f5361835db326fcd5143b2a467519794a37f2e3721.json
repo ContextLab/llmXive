@@ -1,0 +1,596 @@
+{
+  "fetched_at": "2026-07-10T04:33:01Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proactive Recommendation v\"",
+      "target_n": 5
+    },
+    "duration_seconds": 96.403,
+    "ended_at": "2026-07-10T04:33:01Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "proactive recommendation systems reinforcement learning"
+        ],
+        [
+          2,
+          "RL-based proactive content recommendation"
+        ],
+        [
+          3,
+          "deep reinforcement learning for proactive user engagement"
+        ],
+        [
+          4,
+          "proactive recommendation in conversational agents"
+        ],
+        [
+          5,
+          "sequential decision making for proactive suggestions"
+        ],
+        [
+          6,
+          "reinforcement learning for next-item prediction"
+        ],
+        [
+          7,
+          "proactive personalization using multi-armed bandits"
+        ],
+        [
+          8,
+          "anticipatory recommendation algorithms"
+        ],
+        [
+          9,
+          "user intent prediction via reinforcement learning"
+        ],
+        [
+          10,
+          "proactive agent interaction in recommender systems"
+        ],
+        [
+          11,
+          "reward shaping for proactive recommendation policies"
+        ],
+        [
+          12,
+          "online reinforcement learning for dynamic recommendations"
+        ],
+        [
+          13,
+          "proactive service delivery using machine learning"
+        ],
+        [
+          14,
+          "proactive notification systems reinforcement learning"
+        ],
+        [
+          15,
+          "context-aware proactive recommendation models"
+        ],
+        [
+          16,
+          "proactive recommendation with partial observability"
+        ],
+        [
+          17,
+          "hierarchical reinforcement learning for proactive tasks"
+        ],
+        [
+          18,
+          "proactive recommendation evaluation metrics"
+        ],
+        [
+          19,
+          "human-in-the-loop reinforcement learning for recommendations"
+        ],
+        [
+          20,
+          "proactive information retrieval systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proactive Recommendation v\" computer science": 0,
+        "proactive recommendation systems reinforcement learning": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "reinforcement learning recommendation system proactive",
+      "RLHF preference optimization recommendation",
+      "multi-armed bandit contextual recommendation",
+      "online learning user engagement click-through rate",
+      "reward model alignment recommendation policy"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1807.05037"
+      ]
+    },
+    "per_query_hit_count": {
+      "RLHF preference optimization recommendation": 3,
+      "llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proactive Recommendation v\" computer science": 3,
+      "multi-armed bandit contextual recommendation": 3,
+      "online learning user engagement click-through rate": 3,
+      "reinforcement learning recommendation system proactive": 3,
+      "reward model alignment recommendation policy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning (CRL) and task sequencing using Structural Causal Models (SCMs), which is a distinct methodological domain from the user's query about \"Proactive Recommendation\" and the specific \"ProRL\" framework. While both involve reinforcement learning, the candidate paper does not address the mechanism of proactive recommendation, the specific ProRL algorithm, or the LLM-based context implied by \"llmXive,\" failing to meet the criteria for same-mechanism",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2212.07123",
+          "rationale": "The paper focuses on applying Reinforcement Learning to the domain of \"System Identification\" (learning forward models of physical or engineering dynamics), which is an off-domain application distinct from the user's question regarding \"Proactive Recommendation\" systems. While both involve Reinforcement Learning, the paper does not address the specific mechanism, variables, or empirical population of recommendation systems, nor does it provide a foundational method for the recommendation domain ",
+          "title": "Reinforcement Learning in System Identification"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-10T04:31:24Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+      "raw": "llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proactive Recommendation v\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) has shown great promise in optimizing long-term user interest in recommender systems. However, existing RL-based recommendation methods need a large number of interactions for each user to learn a robust recommendation policy. The challenge becomes more critical when recommending to new users who have a limited number of interactions. To that end, in this paper, we address the cold-start challenge in the RL-based recommender systems by proposing a meta-level model-based reinforcement learning approach for fast user adaptation. In our approach, we learn to infer each user's preference with a user context variable that enables recommendation systems to better adapt to new users with few interactions. To improve adaptation efficiency, we learn to recover the user policy and reward from only a few interactions via an inverse reinforcement learning method to assist a meta-level recommendation agent. Moreover, we model the interaction relationship between the user model and recommendation agent from an information-theoretic perspective. Empirical results show the effectiveness of the proposed method when adapting to new users with only a single interaction sequence. We further provide a theoretical analysis of the recommendation performance bound.",
+          "claimed_authors": [
+            "Yanan Wang",
+            "Yong Ge",
+            "Li Li",
+            "Rui Chen",
+            "Tong Xu"
+          ],
+          "claimed_title": "Offline Meta-level Model-based Reinforcement Learning Approach for Cold-Start Recommendation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.02476"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Offline Meta-level Model-based Reinforcement Learning Approach for Cold-Start Recommendation')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient maintenance has always been essential for the successful application of engineering systems. However, the challenges to be overcome in the implementation of Industry 4.0 necessitate new paradigms of maintenance optimization. Machine learning techniques are becoming increasingly used in engineering and maintenance, with reinforcement learning being one of the most promising. In this paper, we propose a gamma degradation process together with a novel maintenance model in which repairs are increasingly imperfect, i.e., the beneficial effect of system repairs decreases as more repairs are performed, reflecting the degradational behavior of real-world systems. To generate maintenance policies for this system, we developed a reinforcement-learning-based agent using a Double Deep Q-Network architecture. This agent presents two important advantages: it works without a predefined preventive threshold, and it can operate in a continuous degradation state space. Our agent learns to behave in different scenarios, showing great flexibility. In addition, we performed an analysis of how changes in the main parameters of the environment affect the maintenance policy proposed by the agent. The proposed approach is demonstrated to be appropriate and to significatively improve long-run cost as compared with other common maintenance strategies.",
+          "claimed_authors": [
+            "Alberto Pliego Marugán",
+            "Jesús M. Pinar-Pérez",
+            "Fausto Pedro García Márquez"
+          ],
+          "claimed_title": "A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.20725"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate Reinforcement Learning from Human Feedback (RLHF) in the context of a general preference oracle. In particular, we do not assume the existence of a reward function and an oracle preference signal drawn from the Bradley-Terry model as most of the prior works do. We consider a standard mathematical formulation, the reverse-KL regularized minimax game between two LLMs for RLHF under general preference oracle. The learning objective of this formulation is to find a policy so that it is consistently preferred by the KL-regularized preference oracle over any competing LLMs. We show that this framework is strictly more general than the reward-based one, and propose sample-efficient algorithms for both the offline learning from a pre-collected preference dataset and online learning where we can query the preference oracle along the way of training. Empirical studies verify the effectiveness of the proposed framework.",
+          "claimed_authors": [
+            "Chenlu Ye",
+            "Wei Xiong",
+            "Yuheng Zhang",
+            "Hanze Dong",
+            "Nan Jiang",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Online Iterative Reinforcement Learning from Human Feedback with General Preference Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.07314"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Online Iterative Reinforcement Learning from Human Feedback with General Preference Model')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper studies the alignment process of generative models with Reinforcement Learning from Human Feedback (RLHF). We first identify the primary challenges of existing popular methods like offline PPO and offline DPO as lacking in strategical exploration of the environment. Then, to understand the mathematical principle of RLHF, we consider a standard mathematical formulation, the reverse-KL regularized contextual bandit for RLHF. Despite its widespread practical application, a rigorous theoretical analysis of this formulation remains open. We investigate its behavior in three distinct settings -- offline, online, and hybrid -- and propose efficient algorithms with finite-sample theoretical guarantees.\n  Moving towards practical applications, our framework, with a robust approximation of the information-theoretical policy improvement oracle, naturally gives rise to several novel RLHF algorithms. This includes an iterative version of the Direct Preference Optimization (DPO) algorithm for online settings, and a multi-step rejection sampling strategy for offline scenarios. Our empirical evaluations on real-world alignment experiment of large language model demonstrate that these proposed methods significantly surpass existing strong baselines, such as DPO and Rejection Sampling Optimization (RSO), showcasing the connections between solid theoretical foundations and their potent practical implementations.",
+          "claimed_authors": [
+            "Wei Xiong",
+            "Hanze Dong",
+            "Chenlu Ye",
+            "Ziqi Wang",
+            "Han Zhong",
+            "Heng Ji",
+            "Nan Jiang",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11456"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modeling user sequential behaviors has recently attracted increasing attention in the recommendation domain. Existing methods mostly assume coherent preference in the same sequence. However, user personalities are volatile and easily changed, and there can be multiple mixed preferences underlying user behaviors. To solve this problem, in this paper, we propose a novel sequential recommender model via decomposing and modeling user independent preferences. To achieve this goal, we highlight three practical challenges considering the inconsistent, evolving and uneven nature of the user behavior, which are seldom noticed by the previous work. For overcoming these challenges in a unified framework, we introduce a reinforcement learning module to simulate the evolution of user preference. More specifically, the action aims to allocate each item into a sub-sequence or create a new one according to how the previous items are decomposed as well as the time interval between successive behaviors. The reward is associated with the final loss of the learning objective, aiming to generate sub-sequences which can better fit the training data. We conduct extensive experiments based on six real-world datasets across different domains. Compared with the state-of-the-art methods, empirical studies manifest that our model can on average improve the performance by about 8.21%, 10.08%, 10.32%, and 9.82% on the metrics of Precision, Recall, NDCG and MRR, respectively.",
+          "claimed_authors": [
+            "Weiqi Shao",
+            "Xu Chen",
+            "Long Xia",
+            "Jiashu Zhao",
+            "Dawei Yin"
+          ],
+          "claimed_title": "Sequential Recommendation with User Evolving Preference Decomposition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.16942"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Sequential Recommendation with User Evolving Preference Decomposition')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work explores the idea of a causal contextual multi-armed bandit approach to automated marketing, where we estimate and optimize the causal (incremental) effects. Focusing on causal effect leads to better return on investment (ROI) by targeting only the persuadable customers who wouldn't have taken the action organically. Our approach draws on strengths of causal inference, uplift modeling, and multi-armed bandits. It optimizes on causal treatment effects rather than pure outcome, and incorporates counterfactual generation within data collection. Following uplift modeling results, we optimize over the incremental business metric. Multi-armed bandit methods allow us to scale to multiple treatments and to perform off-policy policy evaluation on logged data. The Thompson sampling strategy in particular enables exploration of treatments on similar customer contexts and materialization of counterfactual outcomes. Preliminary offline experiments on a retail Fashion marketing dataset show merits of our proposal.",
+          "claimed_authors": [
+            "Neela Sawant",
+            "Chitti Babu Namballa",
+            "Narayanan Sadagopan",
+            "Houssam Nassif"
+          ],
+          "claimed_title": "Contextual Multi-Armed Bandits for Causal Marketing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.01859"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Contextual Multi-Armed Bandits for Causal Marketing')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial behavioral agents are often evaluated based on their consistent behaviors and performance to take sequential actions in an environment to maximize some notion of cumulative reward. However, human decision making in real life usually involves different strategies and behavioral trajectories that lead to the same empirical outcome. Motivated by clinical literature of a wide range of neurological and psychiatric disorders, we propose here a more general and flexible parametric framework for sequential decision making that involves a two-stream reward processing mechanism. We demonstrated that this framework is flexible and unified enough to incorporate a family of problems spanning multi-armed bandits (MAB), contextual bandits (CB) and reinforcement learning (RL), which decompose the sequential decision making process in different levels. Inspired by the known reward processing abnormalities of many mental disorders, our clinically-inspired agents demonstrated interesting behavioral trajectories and comparable performance on simulated tasks with particular reward distributions, a real-world dataset capturing human decision-making in gambling tasks, and the PacMan game across different reward stationarities in a lifelong learning setting.",
+          "claimed_authors": [
+            "Baihan Lin",
+            "Guillermo Cecchi",
+            "Djallel Bouneffouf",
+            "Jenna Reinen",
+            "Irina Rish"
+          ],
+          "claimed_title": "Unified Models of Human Behavioral Agents in Bandits, Contextual Bandits and RL",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.04544"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Unified Models of Human Behavioral Agents in Bandits, Contextual Bandits and RL')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper considers a contextual bandit problem involving multiple agents, where a learner sequentially observes the contexts and the agent's reported arms, and then selects the arm that maximizes the system's overall reward. Existing work in contextual bandits assumes that agents truthfully report their arms, which is unrealistic in many real-life applications. For instance, consider an online platform with multiple sellers; some sellers may misrepresent product quality to gain an advantage, such as having the platform preferentially recommend their products to online users. To address this challenge, we propose an algorithm, COBRA, for contextual bandit problems involving strategic agents that disincentivize their strategic behavior without using any monetary incentives, while having incentive compatibility and a sub-linear regret guarantee. Our experimental results also validate the different performance aspects of our proposed algorithm.",
+          "claimed_authors": [
+            "Arun Verma",
+            "Indrajit Saha",
+            "Makoto Yokoo",
+            "Bryan Kian Hsiang Low"
+          ],
+          "claimed_title": "COBRA: Contextual Bandit Algorithm for Ensuring Truthful Strategic Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.23720"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='COBRA: Contextual Bandit Algorithm for Ensuring Truthful Strategic Agents')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The promise of learning to learn for robotics rests on the hope that by extracting some information about the learning process itself we can speed up subsequent similar learning tasks. Here, we introduce a computationally efficient online meta-learning algorithm that builds and optimizes a memory model of the optimal learning rate landscape from previously observed gradient behaviors. While performing task specific optimization, this memory of learning rates predicts how to scale currently observed gradients. After applying the gradient scaling our meta-learner updates its internal memory based on the observed effect its prediction had. Our meta-learner can be combined with any gradient-based optimizer, learns on the fly and can be transferred to new optimization tasks. In our evaluations we show that our meta-learning algorithm speeds up learning of MNIST classification and a variety of learning control tasks, either in batch or online learning settings.",
+          "claimed_authors": [
+            "Franziska Meier",
+            "Daniel Kappler",
+            "Stefan Schaal"
+          ],
+          "claimed_title": "Online Learning of a Memory for Learning Rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.06709"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Online Learning of a Memory for Learning Rates')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes a novel approach to systematically improve information interactions based solely on its wording. Following an interdisciplinary literature review, we recognized three key attributes of words that drive user engagement: (1) Novelty (2) Familiarity (3) Emotionality. Based on these attributes, we developed a model to systematically improve a given content using computational linguistics, natural language processing (NLP) and text analysis (word frequency, sentiment analysis and lexical substitution). We conducted a pilot study (n=216) in which the model was used to formalize evaluation and optimization of academic titles. A between-group design (A/B testing) was used to compare responses to the original and modified (treatment) titles. Data was collected for selection and evaluation (User Engagement Scale). The pilot results suggest that user engagement with digital information is fostered by, and perhaps dependent upon, the wording being used. They also provide empirical support that engaging content can be systematically evaluated and produced. The preliminary results show that the modified (treatment) titles had significantly higher scores for information use and user engagement (selection and evaluation). We propose that computational linguistics is a useful approach for optimizing information interactions. The empirically based insights can inform the development of digital content strategies, thereby improving the success of information interactions.elop more sophisticated interaction measures.",
+          "claimed_authors": [
+            "Nim Dvir",
+            "Ruti Gafni"
+          ],
+          "claimed_title": "Systematic improvement of user engagement with academic titles using computational linguistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.09569"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Systematic improvement of user engagement with academic titles using computational linguistics')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recommendation systems have been extensively studied by many literature in the past and are ubiquitous in online advertisement, shopping industry/e-commerce, query suggestions in search engines, and friend recommendation in social networks. Moreover, restaurant/music/product/movie/news/app recommendations are only a few of the applications of a recommender system. A small percent improvement on the CTR prediction accuracy has been mentioned to add millions of dollars of revenue to the advertisement industry. Click-Through-Rate (CTR) prediction is a special version of recommender system in which the goal is predicting whether or not a user is going to click on a recommended item. A content-based recommendation approach takes into account the past history of the user's behavior, i.e. the recommended products and the users reaction to them. So, a personalized model that recommends the right item to the right user at the right time is the key to building such a model. On the other hand, the so-called collaborative filtering approach incorporates the click history of the users who are very similar to a particular user, thereby helping the recommender to come up with a more confident prediction for that particular user by leveraging the wider knowledge of users who share their taste in a connected network of users. In this project, we are interested in building a CTR predictor using Graph Neural Networks complemented by an online learning algorithm that models such dynamic interactions. By framing the problem as a binary classification task, we have evaluated this system both on the offline models (GNN, Deep Factorization Machines) with test-AUC of 0.7417 and on the online learning model with test-AUC of 0.7585 using a sub-sampled version of Criteo public dataset consisting of 10,000 data points.",
+          "claimed_authors": [
+            "Farzaneh Rajabi",
+            "Jack Siyuan He"
+          ],
+          "claimed_title": "Click-Through Rate Prediction Using Graph Neural Networks and Online Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.03811"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Click-Through Rate Prediction Using Graph Neural Networks and Online Learning')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In natural human-to-human conversations, participants often receive feedback signals from one another based on their follow-up reactions. These reactions can include verbal responses, facial expressions, changes in emotional state, and other non-verbal cues. Similarly, in human-machine interactions, the machine can leverage the user's follow-up utterances as feedback signals to assess whether it has appropriately addressed the user's request. Therefore, we propose using the likelihood of follow-up utterances as rewards to differentiate preferred responses from less favored ones, without relying on human or commercial LLM-based preference annotations. Our proposed reward mechanism, ``Follow-up Likelihood as Reward\" (FLR), matches the performance of strong reward models trained on large-scale human or GPT-4 annotated data on 8 pairwise-preference and 4 rating-based benchmarks. Building upon the FLR mechanism, we propose to automatically mine preference data from the online generations of a base policy model. The preference data are subsequently used to boost the helpfulness of the base model through direct alignment from preference (DAP) methods, such as direct preference optimization (DPO). Lastly, we demonstrate that fine-tuning the language model that provides follow-up likelihood with natural language feedback significantly enhances FLR's performance on reward modeling benchmarks and effectiveness in aligning the base policy model's helpfulness.",
+          "claimed_authors": [
+            "Chen Zhang",
+            "Dading Chong",
+            "Feng Jiang",
+            "Chengguang Tang",
+            "Anningzhe Gao",
+            "Guohua Tang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "Aligning Language Models Using Follow-up Likelihood as Reward Signal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.13948"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Aligning Language Models Using Follow-up Likelihood as Reward Signal')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Supervised Fine-Tuning (SFT) on response demonstrations combined with Reinforcement Learning from Human Feedback (RLHF) constitutes a powerful paradigm for aligning LLM-based AI agents. However, a significant limitation of such an approach is its dependency on high-quality human annotations, making its application to intricate tasks challenging due to difficulties in obtaining consistent response demonstrations and in-distribution response preferences. This paper presents a novel approach, namely SALMON, to align base language models with minimal human supervision, using only a small set of human-defined principles, yet achieving superior performance. Central to our approach is an instructable reward model. Trained on synthetic preference data, this model can generate reward scores based on arbitrary human-defined principles. By merely adjusting these principles during the RL training phase, we gain full control over the preferences with the instructable reward model, subsequently influencing the behavior of the RL-trained policy models, and reducing the reliance on the collection of online human preferences. Applying our method to the LLaMA-2-70b base language model, we developed an AI assistant named Dromedary-2. With only 6 exemplars for in-context learning and 31 human-defined principles, Dromedary-2 significantly surpasses the performance of several state-of-the-art AI systems, including LLaMA-2-Chat-70b, on various benchmark datasets. We have open-sourced the code and model weights to encourage further research into aligning LLM-based AI agents with enhanced supervision efficiency, improved controllability, and scalable oversight.",
+          "claimed_authors": [
+            "Zhiqing Sun",
+            "Yikang Shen",
+            "Hongxin Zhang",
+            "Qinhong Zhou",
+            "Zhenfang Chen",
+            "David Cox",
+            "Yiming Yang",
+            "Chuang Gan"
+          ],
+          "claimed_title": "SALMON: Self-Alignment with Instructable Reward Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05910"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='SALMON: Self-Alignment with Instructable Reward Models')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Frictive Policy Optimization (FPO), a framework for learning language model policies that regulate not only what to say, but when and how to intervene in order to manage epistemic and normative risk. Unlike standard alignment methods that optimize surface-level preference or task utility, FPO treats clarification, verification, challenge, redirection, and refusal as explicit control actions whose purpose is to shape the evolution of belief, commitment, and uncertainty over time. We formalize alignment as a risk-sensitive epistemic control problem in which intervention decisions are selected based on their expected effect on downstream epistemic quality rather than on immediate reward alone. We introduce a compact taxonomy of frictive interventions, a structured friction functional that operationalizes multiple alignment failure modes, and a unified family of FPO methods spanning reward shaping, preference pairing, group-relative ranking, and risk-conditioned trust regions. We further propose an evaluation framework that measures epistemic competence directly through clarification behavior, calibration, contradiction repair, refusal proportionality, and information efficiency. Together, these results provide a formal and algorithmic foundation for learning agents that are aligned not only in outcome, but in epistemic conduct.",
+          "claimed_authors": [
+            "James Pustejovsky",
+            "Nikhil Krishnaswamy"
+          ],
+          "claimed_title": "Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.25136"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"ProRL: Effective Reinforcement Learning for Proact', candidate_title='Frictive Policy Optimization for LLMs: Epistemic Intervention, Risk-Sensitive Control, and Reflective Alignment')",
+        "failed_at": "2026-07-10T04:32:28Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12375",
+        "summary": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12375",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T04:32:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yanan Wang",
+            "Yong Ge",
+            "Li Li",
+            "Rui Chen",
+            "Tong Xu"
+          ],
+          "title": "Offline Meta-level Model-based Reinforcement Learning Approach for Cold-Start Recommendation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.02476",
+        "summary": "Reinforcement learning (RL) has shown great promise in optimizing long-term user interest in recommender systems. However, existing RL-based recommendation methods need a large number of interactions for each user to learn a robust recommendation policy. The challenge becomes more critical when recommending to new users who have a limited number of interactions. To that end, in this paper, we address the cold-start challenge in the RL-based recommender systems by proposing a meta-level model-based reinforcement learning approach for fast user adaptation. In our approach, we learn to infer each user's preference with a user context variable that enables recommendation systems to better adapt to new users with few interactions. To improve adaptation efficiency, we learn to recover the user policy and reward from only a few interactions via an inverse reinforcement learning method to assist a meta-level recommendation agent. Moreover, we model the interaction relationship between the user model and recommendation agent from an information-theoretic perspective. Empirical results show the effectiveness of the proposed method when adapting to new users with only a single interaction sequence. We further provide a theoretical analysis of the recommendation performance bound.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.02476",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T04:32:34Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chris Cundy",
+            "Daniel Filan"
+          ],
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1807.05037",
+        "summary": "We introduce a new generative model for human planning under the Bayesian Inverse Reinforcement Learning (BIRL) framework which takes into account the fact that humans often plan using hierarchical strategies. We describe the Bayesian Inverse Hierarchical RL (BIHRL) algorithm for inferring the values of hierarchical planners, and use an illustrative toy model to show that BIHRL retains accuracy where standard BIRL fails. Furthermore, BIHRL is able to accurately predict the goals of `Wikispeedia' game players, with inclusion of hierarchical structure in the model resulting in a large boost in accuracy. We show that BIHRL is able to significantly outperform BIRL even when we only have a weak prior on the hierarchical structure of the plans available to the agent, and discuss the significant challenges that remain for scaling up this framework to more realistic settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1807.05037",
+          "http_status": 200,
+          "pdf_sample_score": 0.18,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-10T04:32:35Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

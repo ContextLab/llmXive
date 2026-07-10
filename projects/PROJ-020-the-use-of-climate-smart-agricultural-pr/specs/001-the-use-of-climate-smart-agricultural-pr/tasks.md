@@ -45,7 +45,7 @@
 
 - [X] T001a [P] Create project directories: `code/`, `data/`, `tests/`, `specs/`
 - [X] T001b [P] Create `__init__.py` files in all `code/` sub-packages (`data/`, `analysis/`, `viz/`, `utils/`)
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
+- [X] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_2ced1680 — status=not_enough_info] with pinned dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, geopandas, matplotlib, seaborn, requests, pyyaml)
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
+- [~] T012 [P] [US1] Implement LSMS downloader in `code/data/download.py` targeting Kenya, India, Vietnam (-2023) with error handling for missing years
 - [~] T013 [P] [US1] Implement NASA POWER climate downloader in `code/data/download.py` using `requests` and nearest-neighbor spatial interpolation for gaps ≤ 3 months
 - [~] T014 [P] [US1] Implement FAOSTAT agricultural indicator downloader in `code/data/download.py`
 - [~] T015 [US1] Implement data cleaning and merging logic in `code/data/clean.py`:
@@ -117,7 +117,7 @@
  - Normalize to a unit scale.
 - [~] T024 [US2] Implement collinearity diagnostics in `code/analysis/diagnostics.py`:
  - Calculate VIF for all predictors
- - Flag predictors exceeding VIF > 5.0 (log warning, do not auto-exclude mediators)
+ - Flag predictors exceeding VIF > 5.0 [UNRESOLVED-CLAIM: c_b194fdd7 — status=not_enough_info] (log warning, do not auto-exclude mediators)
 - [~] T023 [US2] Implement Mixed-Effects Regression model in `code/analysis/model.py`: <!-- FAILED: unspecified -->
  - Include interaction terms for digital and finance access (moderation)
  - Include mediation analysis for digital/finance access (indirect effects) per Constitution Principle VII
@@ -153,7 +153,7 @@
 - [~] T032 [US3] Implement coefficient plot generation in `code/viz/plots.py` (standardized coefficients with confidence intervals)
 - [~] T033 [US3] Implement regional map generation in `code/viz/plots.py` using `geopandas` to visualize spatial distribution of CSA adoption and outcomes
 - [~] T034 [US3] Implement distribution plot generation in `code/viz/plots.py`
-- [ ] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
+- [~] T035 [US3] Implement leave-one-region-out cross-validation in `code/analysis/robustness.py` **(Must run after T023)**
 - [ ] T036 [US3] Implement bootstrap resampling with a sufficient number of iterations. in `code/analysis/robustness.py` to validate model stability and report variance estimates
 - [ ] T037 [US3] Create `code/main.py` entry point extension to orchestrate the full analysis and viz pipeline (Model → Diagnostics → Robustness → Plots)
 

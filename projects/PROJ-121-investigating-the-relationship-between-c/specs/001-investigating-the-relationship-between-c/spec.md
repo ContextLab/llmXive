@@ -1,7 +1,7 @@
 # Feature Specification: Cosmic Ray Anisotropy Solar‑Cycle Modulation
 
 **Feature Branch**: `[###-cosmic-ray-anisotropy-solar-cycle]`  
-**Created**: 2026‑06‑16  
+**Created**: 2026‑06‑24  
 **Status**: Draft  
 **Input**: User description: "Investigating the Relationship Between Cosmic Ray Anisotropy and Solar Cycle Variations"
 
@@ -77,16 +77,16 @@ A researcher wants to experiment with different temporal bin sizes (e.g., 14, 27
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the IceCube muon‑track dataset (2010‑2020) and Pierre Auger surface‑detector files from their respective open‑data portals, verifying file integrity via SHA‑256 checksums.  
-- **FR-002**: System MUST retrieve daily solar‑activity indices (sunspot number, solar‑wind speed, IMF magnitude) from NOAA NGDC, handling FTP failures with up to 3 automatic retries and exponential back‑off.  
-- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping intervals of length specified by FR‑010, and generate HEALPix Nside 64 sky maps for each interval.  
-- **FR-004**: System MUST fit spherical‑harmonic coefficients up to ℓ = 2 for each sky map and export dipole amplitude, phase, and quadrupole metrics to a CSV file with column headers `interval_start, dipole_amp, dipole_phase, quad_amp`.  
-- **FR-005**: System MUST perform, for each detector (IceCube and Pierre Auger) separately, Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block = 27 days, 10 000 resamples) and (ii) Monte‑Carlo shuffle (10 000 permutations).  
-- **FR-006**: System MUST produce a LaTeX‑based PDF report that includes (a) time‑series plots, (b) periodograms, (c) correlation heat‑maps, and (d) a concise interpretation of statistical significance, for each detector independently and optionally a combined analysis.  
-- **FR-007**: System MUST expose a single entry‑point script (`run_all.sh`) that orchestrates data acquisition, preprocessing, analysis, and reporting, invoking the modular scripts (`run_pipeline.sh`, `analyze_correlation.py`, `make_report.sh`) as sub‑steps, exiting with status 0 on success and non‑zero on any failure.  
-- **FR-008**: System MUST generate a `requirements.txt` pinning exact versions of all Python packages used (minimum Python 3.11).  
-- **FR-009**: System MUST log progress and errors to a structured `pipeline.log` file, including timestamps and retry counts.  
-- **FR-010**: System MUST allow the temporal bin size to be configurable (e.g., 14, 27, 54 days) – the default value is **27 days** (one Carrington rotation). Allowed values are **integers between 7 days and 60 days inclusive**; values that are multiples of 7 days are recommended to maintain alignment with solar‑rotation sub‑structures. This range covers common practice (half‑, single‑, and double‑Carrington bins) while preventing excessively short or long bins that would either dilute the signal or leave too few data points per interval.
+- **FR-001**: System MUST download the IceCube muon‑track dataset (2010‑2020) and Pierre Auger surface‑detector files from their respective open‑data portals, verifying file integrity via SHA‑256 checksums. (See US‑1)
+- **FR-002**: System MUST retrieve daily solar‑activity indices (sunspot number, solar‑wind speed, IMF magnitude) from NOAA NGDC, handling FTP failures with up to 3 automatic retries and exponential back‑off. (See US‑1)
+- **FR-003**: System MUST convert event timestamps to UTC Julian dates, bin events into non‑overlapping intervals of length specified by FR‑010, and generate HEALPix Nside 64 sky maps for each interval. (See US‑1)
+- **FR-004**: System MUST fit spherical‑harmonic coefficients up to ℓ = 2 for each sky map and export dipole amplitude, phase, and quadrupole metrics to a CSV file with column headers `interval_start, dipole_amp, dipole_phase, quad_amp`. (See US‑1)
+- **FR-005**: System MUST perform, for each detector (IceCube and Pierre Auger) separately, Lomb‑Scargle periodogram analysis on the dipole‑amplitude series, compute Pearson and Spearman cross‑correlations with each solar proxy, and estimate significance via (i) block‑bootstrap (block = 27 days, 10 000 resamples) and (ii) Monte‑Carlo shuffle (10 000 permutations). (See US‑2)
+- **FR-006**: System MUST apply a Bonferroni correction for the six hypothesis tests (2 detectors × 3 proxies) with an adjusted significance threshold of α = 0.0017, and declare a positive result only if |r| ≥ 0.4 **and** the corrected p‑value ≤ 0.0017 for at least one proxy–detector pair. (See US‑2)
+- **FR-007**: System MUST produce a LaTeX‑based PDF report that includes (a) time‑series plots, (b) periodograms, (c) correlation heat‑maps, and (d) a concise interpretation of statistical significance, for each detector independently and optionally a combined analysis. (See US‑3)
+- **FR-008**: System MUST expose a single entry‑point script (`run_all.sh`) that orchestrates data acquisition, preprocessing, analysis, and reporting, invoking the modular scripts (`run_pipeline.sh`, `analyze_correlation.py`, `make_report.sh`) as sub‑steps, exiting with status 0 on success and non‑zero on any failure. (See US‑3)
+- **FR-009**: System MUST generate a `requirements.txt` pinning exact versions of all Python packages used (minimum Python 3.11) and ensure all dependencies are CPU‑only (no CUDA/GPU requirements). (See US‑3)
+- **FR-010**: System MUST allow the temporal bin size to be configurable (e.g., 14, 27, 54 days) – the default value is **27 days** (one Carrington rotation). Allowed values are **integers between 7 days and 60 days inclusive**; values that are multiples of 7 days are recommended to maintain alignment with solar‑rotation sub‑structures. (See US‑4)
 
 ### Key Entities
 
@@ -98,18 +98,20 @@ A researcher wants to experiment with different temporal bin sizes (e.g., 14, 27
 
 ### Measurable Outcomes
 
-- **SC-001**: End‑to‑end pipeline completes within 6 hours on a standard GitHub Actions runner (2 CPU, 4 GB RAM) for the full 10‑year dataset.  
-- **SC-002**: Dipole‑amplitude CSV contains ≥ 115 rows (≤ 5 % missing intervals) and passes schema validation (all numeric columns non‑null).  
-- **SC-003**: Lomb‑Scargle periodogram exhibits a peak at the 11‑year frequency with power ≥ 3 σ above the median noise level, as reported in the PDF.  
-- **SC-004**: For each detector (IceCube and Pierre Auger) separately, at least one solar proxy yields a Pearson or Spearman correlation coefficient with absolute value ≥ 0.4 and a two‑sided p‑value ≤ 0.01 after block‑bootstrap correction.  
-- **SC-005**: For each detector separately, the Monte‑Carlo shuffle test returns a false‑alarm probability ≤ 0.01 for any claimed correlation, confirming statistical robustness.  
-- **SC-006**: The generated `report.pdf` compiles without LaTeX errors and is ≤ 25 pages, containing all required figures and a clear statement of whether the hypothesis is supported at ≥ 3 σ confidence.  
+- **SC-001**: End‑to‑end pipeline completes within 6 hours on a standard GitHub Actions runner (2 CPU, 4 GB RAM) for the full 10‑year dataset. (See US‑1)
+- **SC-002**: Dipole‑amplitude CSV contains ≥ 115 rows (≤ 5 % missing intervals) and passes schema validation (all numeric columns non‑null). (See US‑1)
+- **SC-003**: Lomb‑Scargle periodogram exhibits a peak at the 11‑year frequency with power ≥ 3 σ above the median noise level, as reported in the PDF. (See US‑2)
+- **SC-004**: For each detector (IceCube and Pierre Auger) separately, at least one solar proxy yields a Pearson or Spearman correlation coefficient with absolute value ≥ 0.4 and a two‑sided p‑value ≤ 0.01 after block‑bootstrap correction. (See US‑2)
+- **SC-005**: For each detector separately, the Monte‑Carlo shuffle test returns a false‑alarm probability ≤ 0.01 for any claimed correlation, confirming statistical robustness. (See US‑2)
+- **SC-006**: The generated `report.pdf` compiles without LaTeX errors and is ≤ 25 pages, containing all required figures and a clear statement of whether the hypothesis is supported at ≥ 3 σ confidence. (See US‑3)
+- **SC-007**: The analysis executes entirely on CPU without invoking CUDA libraries or requiring GPU acceleration, verified by the absence of GPU-specific error logs during the 6‑hour runner execution. (See US‑2)
 
 ## Assumptions
 
-- The IceCube and Pierre Auger open‑data portals will remain accessible for the duration of the analysis and will provide files ≤ 1 GB total.  
-- NOAA NGDC provides daily solar‑activity indices with ≤ 1 day latency and no missing days for the 2010‑2020 interval.  
-- The 27‑day Carrington rotation is an appropriate temporal resolution for capturing solar‑cycle modulation of TeV–PeV anisotropy; alternative bin sizes are optional enhancements.  
-- All Python dependencies are compatible with the Ubuntu‑22.04 environment used by GitHub Actions.  
-- Researchers using the pipeline have internet connectivity sufficient to download ≤ 1 GB of data within the 6‑hour runner limit.  
-- The statistical methods (Lomb‑Scargle, block‑bootstrap with 27‑day blocks, shuffle test) are accepted in the cosmic‑ray community for detecting periodic signals at the 11‑year scale.  
+- The IceCube and Pierre Auger open‑data portals will remain accessible for the duration of the analysis and will provide files ≤ 1 GB total.
+- NOAA NGDC provides daily solar‑activity indices with ≤ 1 day latency and no missing days for the 2010‑2020 interval.
+- The 27‑day Carrington rotation is an appropriate temporal resolution for capturing solar‑cycle modulation of TeV–PeV anisotropy; alternative bin sizes are optional enhancements.
+- All Python dependencies are compatible with the Ubuntu‑22.04 environment used by GitHub Actions.
+- Researchers using the pipeline have internet connectivity sufficient to download ≤ 1 GB of data within the 6‑hour runner limit.
+- The statistical methods (Lomb‑Scargle, block‑bootstrap with 27‑day blocks, shuffle test) are accepted in the cosmic‑ray community for detecting periodic signals at the 11‑year scale.
+- The relationship between solar activity and cosmic-ray anisotropy is observational; findings will be framed as associational correlations rather than causal effects, consistent with the lack of random assignment in the data.

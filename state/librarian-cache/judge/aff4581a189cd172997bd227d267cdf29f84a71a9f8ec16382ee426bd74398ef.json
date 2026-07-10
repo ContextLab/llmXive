@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.02910",
+  "judged_at": "2026-07-10T04:32:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+  "rationale": "The paper focuses on curriculum reinforcement learning (CRL) and task sequencing using Structural Causal Models (SCMs), which is a distinct methodological domain from the user's query about \"Proactive Recommendation\" and the specific \"ProRL\" framework. While both involve reinforcement learning, the candidate paper does not address the mechanism of proactive recommendation, the specific ProRL algorithm, or the LLM-based context implied by \"llmXive,\" failing to meet the criteria for same-mechanism",
+  "relevant": false
+}

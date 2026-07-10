@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.02476",
+  "judged_at": "2026-07-10T04:32:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (Reinforcement Learning for recommendation systems) and addresses a critical sub-domain (cold-start/new user adaptation) that is a standard prerequisite or extension topic for any research on \"Proactive Recommendation\" using RL. While it does not explicitly mention \"ProRL\" or the specific \"llmXive\" follow-up context, it provides the canonical prior work on the underlying RL methodology and the specific problem s",
+  "relevant": true
+}

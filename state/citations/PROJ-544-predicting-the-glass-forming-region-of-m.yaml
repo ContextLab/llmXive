@@ -1,4 +1,4 @@
-- artifact_hash: f5881fa9b30accaa43bd7f795f5c2e92a2119da325777487c1f5f67f07a145a8
+- artifact_hash: 0ea23753d15b84c8109823bde04a9acc5c1042b40e15af783d4e4ca176a44f15
   artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: '2106.09685'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-06-29T04:13:06.530142Z'
+  verified_at: '2026-07-10T04:45:13.370407Z'

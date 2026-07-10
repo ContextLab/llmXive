@@ -1,0 +1,5 @@
+'T012 [US1] Implement fallback logic in `code/descriptors/utils.py`:': 1
+'T013 [US1] Extend `code/descriptors/compute.py` to **explicitly handle error cases** for invalid compositions:': 1
+T015 [US2] Contract test for model performance metrics schema in `tests/contract/test_performance_schema.py`.: 1
+T016 [US2] Integration test for full training pipeline on synthetic data in `tests/integration/test_training_pipeline.py`.: 1
+'T035 [US1] Implement `scripts/validate_descriptors.py`:': 1

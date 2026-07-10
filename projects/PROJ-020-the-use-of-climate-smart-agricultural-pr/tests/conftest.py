@@ -1,44 +1,67 @@
 """
 Pytest configuration and fixtures for CPU-only execution.
+Ensures tests run within the memory and compute constraints of the CI environment.
 """
 import os
 import sys
 import pytest
 from pathlib import Path
 
-# Ensure the project root is in the path so imports work
+# Add the project root to the path for imports
+# Assumes tests/ is at the root of the project
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# CPU-only configuration enforcement
+# Force matplotlib to use non-interactive backend to prevent GUI errors in CI
+import matplotlib
+matplotlib.use('Agg')
+
+# Set environment variables to restrict CPU usage if needed by downstream libraries
 @pytest.fixture(autouse=True)
-def add_src_to_path():
-    """Add the project root to sys.path for imports."""
-    root = Path(__file__).parent.parent
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    
-    # Ensure code directory is explicitly importable
-    code_dir = root / "code"
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
-    
-    yield
-
-@pytest.fixture(scope="session", autouse=True)
-def configure_cpu_only():
+def set_cpu_environment():
     """
-    Force CPU-only execution environment for all tests.
-    Disables GPU usage and sets memory limits.
+    Fixture to enforce CPU-only execution constraints.
+    Sets environment variables to prevent GPU usage and limit threads.
     """
-    # Explicitly set environment variables for CPU-only
+    # Ensure no GPU usage for libraries like TensorFlow/PyTorch if they were introduced
     os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
     
-    # Set a reasonable memory limit for CI environments (approx 7GB as per spec)
-    # This is a soft limit hint for the test runner
-    os.environ["PYTEST_MAX_RAM_GB"] = "7"
-    
+    # Limit OpenMP threads to prevent memory oversubscription in CI
+    # Default to 2 threads for safety on limited CI runners
+    os.environ["OMP_NUM_THREADS"] = "2"
+    os.environ["MKL_NUM_THREADS"] = "2"
+    os.environ["NUMEXPR_NUM_THREADS"] = "2"
+    os.environ["OPENBLAS_NUM_THREADS"] = "2"
+
     yield
 
-@pytest.fixture
-def sample_config(tmp_path):
-    """Create a temporary config directory for tests."""
-    config_dir = tmp_path / "config"
-    config_dir.mkdir()
-    return config_dir
+    # Cleanup not strictly necessary for env vars in this scope, but good practice
+    # If specific test cleanup is needed, it can be added here
+
+@pytest.fixture(scope="session")
+def project_root():
+    """Return the project root path."""
+    return PROJECT_ROOT
+
+@pytest.fixture(scope="session")
+def data_dir(project_root):
+    """Return the data directory path."""
+    return project_root / "data"
+
+@pytest.fixture(scope="session")
+def raw_data_dir(data_dir):
+    """Return the raw data directory path."""
+    return data_dir / "raw"
+
+@pytest.fixture(scope="session")
+def processed_data_dir(data_dir):
+    """Return the processed data directory path."""
+    return data_dir / "processed"
+
+@pytest.fixture(scope="session")
+def state_dir(project_root):
+    """Return the state directory path."""
+    return project_root / "state"

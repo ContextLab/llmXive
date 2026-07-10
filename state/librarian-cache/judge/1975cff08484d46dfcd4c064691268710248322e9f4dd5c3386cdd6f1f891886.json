@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.12375",
+  "judged_at": "2026-07-10T04:32:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"prorl: effective reinforcement learning for proactive recommendation v\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for reinforcement learning exploration mechanisms (specifically value bonuses and ensemble-based optimism), which is the core technical domain of the user's question regarding \"Effective Reinforcement Learning for Proactive Recommendation.\" Additionally, it meets criterion (a) by providing evidence on the same biological/algorithmic mechanism (directed exploration via value bonuses) that the user's proposed \"ProRL\" system",
+  "relevant": true
+}

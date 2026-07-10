@@ -157,3 +157,179 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T04:13:06Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Large language models can perform few-shot learning with minimal examples
+    (Brown et al., 2020)
+  claim_id: c_583557fd
+  context: T005 task description regarding synthetic data generation and research
+    questions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The research question is: Can large language models be prompted to perform
+    few-shot learning on a novel task with minimal examples? The method will involve
+    prompting a large language model with varying numbers of examples and evaluating
+    its performance on a held-out test set. (Brown et al., 2020).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:39:50Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: LoRA (Low-Rank Adaptation of Large Language Models) is a parameter-efficient
+    fine-tuning technique (Hu et al., 2021)
+  claim_id: c_65a1f362
+  context: T007 task description regarding environment configuration and research
+    questions.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'We will explore parameter-efficient fine-tuning (PEFT) techniques, specifically
+    LoRA (Hu et al., 2021), on a moderately sized language model. References: Hu et
+    al. (2021). LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:39:58Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: "Cu-Zr benchmark alloy descriptors match DScribe reference values within\
+    \ \xB10.02 tolerance"
+  claim_id: c_1b765812
+  context: T035 task description for validating descriptors in User Story 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compares descriptors for Cu-Zr benchmark alloys against DScribe reference\
+    \ values (tolerance \xB10.02)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:40:22Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Descriptors with Variance Inflation Factor greater than 5.0 are removed
+  claim_id: c_d53a2aef
+  context: T025 task description for VIF filtering in User Story 3.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: Removes any descriptor with VIF > 5.0
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T04:40:35Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: PCA retains first two components explaining greater than 90% variance
+  claim_id: c_8ca30010
+  context: T025 task description for PCA fallback in User Story 3.
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/PCA_retains_first_two_components_explaining_greater_than_90%25
+  kind: magnitude
+  raw_text: Retains the first two components (>90 % variance)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-10T04:41:18Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Model performance evaluated at atomic size mismatch delta values of 0.01,
+    0.05, and 0.1
+  claim_id: c_9f85ded0
+  context: T027 task description for sensitivity analysis in User Story 3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Evaluates model performance across atomic size mismatch \u03B4 values\
+    \ {0.01, 0.05, 0.1}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:42:21Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Metric variance across runs acceptable if ROC-AUC standard deviation
+    is less than 0.02
+  claim_id: c_7f1bea8e
+  context: T031 task description for reproducibility check.
+  evidence:
+    asserted: '0.02'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: Verifies that metric variance across runs is within acceptable bounds
+    (e.g., ROC-AUC std < 0.02)
+  resolved_value: '2.72'
+  resolver: approximate
+  source_hash: 43f9d428e4053c6b0833b38f4a75232c81cfb415f4e254a9b7852ef8bce7bafd
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T04:42:21Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: XRD availability report flags insufficient data if fewer than 10 samples
+  claim_id: c_e1a1e443
+  context: T041 task description for validating XRD availability.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/XRD_availability_report_flags_insufficient_data_if_fewer_tha
+  kind: magnitude
+  raw_text: Writes data/derived/xrd_availability_report.json with count, list of IDs,
+    and flag insufficient if < 10 samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:43:14Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Need to locate at least 1000 experimentally labeled glass-forming compositions
+  claim_id: c_2e520db1
+  context: T042 task description for future verified alloy dataset acquisition.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Need_to_locate_at_least_1000_experimentally_labeled_glass-fo
+  kind: magnitude
+  raw_text: "Document the need to locate \u2265 1000 experimentally labeled glass-forming\
+    \ compositions from a verified source"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T04:44:29Z'
