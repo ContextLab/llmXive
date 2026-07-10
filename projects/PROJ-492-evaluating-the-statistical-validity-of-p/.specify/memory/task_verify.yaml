@@ -121,7 +121,7 @@
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_227f004c \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
   \ (verify workflow runs and respects limits) [DEPENDS ON: T010]."
-: 1
+: 2
 ? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
   \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB [UNRESOLVED-CLAIM: c_30975192 \u2014\
   \ status=not_enough_info], timeout a predefined duration, and runs audit pipeline\
@@ -225,9 +225,6 @@
   \ (verify all tests pass [UNRESOLVED-CLAIM: c_aa96c053 \u2014 status=not_enough_info])\
   \ [DEPENDS ON: T023]."
 : 1
-? 'T024 Unit tests for reconstructor with known inputs (tests/unit/test_reconstructor.py)
-  (verify all tests pass) [DEPENDS ON: T023].'
-: 2
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05 [UNRESOLVED-CLAIM: c_071edb63\
   \ \u2014 status=not_enough_info], relative effect\u2011size > 5\u202F%) **and verify\
@@ -291,6 +288,13 @@
   \ per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning messages\
   \ for sample\u2011size discrepancies, writing `output/audit_report.json`). **DEPENDS\
   \ ON:** T023."
+: 1
+? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
+  004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\
+  %) **and verify that sample\u2011size mismatch entries are excluded from aggregate\
+  \ prevalence estimates** per FR\u2011004b (generate `AuditRecord` objects with data_quality_warning\
+  \ messages for sample\u2011size discrepancies, writing `output/audit_report.json`).\
+  \ **DEPENDS ON:** T023."
 : 1
 ? "T025 Implement inconsistency validator in `src/audit/validator.py` applying FR\u2011\
   004 thresholds (absolute p\u2011difference > 0.05, relative effect\u2011size > 5\u202F\

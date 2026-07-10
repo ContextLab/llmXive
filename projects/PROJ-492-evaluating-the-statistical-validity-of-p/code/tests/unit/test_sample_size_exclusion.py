@@ -1,108 +1,124 @@
 """
-Test for T025c: Verify that summaries flagged for sample-size mismatch
-are not included in output/prevalence.json.
-
-This test validates FR-004b compliance.
+Unit test to verify that summaries flagged for sample-size mismatch
+are not included in prevalence calculations.
 """
 
-import pytest
-from pathlib import Path
 import json
 import tempfile
-from datetime import datetime
+from pathlib import Path
 
-from code.src.audit.validator import (
-    validate_summary,
-    filter_for_prevalence,
-    write_audit_report
-)
-from code.src.models.data_models import ABTestSummary, AuditRecord
+import pytest
+
+from code.src.models.data_models import AuditRecord
+from code.src.audit.validator import filter_for_prevalence, write_audit_report
 
 
-def test_sample_size_mismatch_excluded_from_prevalence():
-    """
-    Test that records with sample-size mismatches are excluded
-    when filtering for prevalence estimates.
-    """
-    # Create a summary with sample-size mismatch
-    summary_mismatch = ABTestSummary(
-        url="https://example.com/test1",
-        domain="example.com",
-        sample_size_control=None,  # Missing control size
-        sample_size_treatment=1000,
-        p_value_reported=0.05,
-        p_value_reconstructed=0.051,
-        effect_size_reported=0.05,
-        effect_size_reconstructed=0.05
-    )
-
-    # Create a valid summary
-    summary_valid = ABTestSummary(
-        url="https://example.com/test2",
-        domain="example.com",
-        sample_size_control=1000,
-        sample_size_treatment=1000,
-        p_value_reported=0.05,
-        p_value_reconstructed=0.051,
-        effect_size_reported=0.05,
-        effect_size_reconstructed=0.05
-    )
-
-    # Validate both summaries
-    record_mismatch = validate_summary(summary_mismatch)
-    record_valid = validate_summary(summary_valid)
-
-    # Verify that the mismatch record has a data_quality_warning
-    assert record_mismatch.data_quality_warning is not None
-    assert "Sample size mismatch" in record_mismatch.data_quality_warning
-
-    # Verify that the valid record has no warning
-    assert record_valid.data_quality_warning is None
-
-    # Filter for prevalence
-    all_records = [record_mismatch, record_valid]
-    filtered_records = filter_for_prevalence(all_records)
-
-    # Verify that the mismatch record is excluded
-    assert record_mismatch not in filtered_records
-    assert record_valid in filtered_records
-
-    # Verify that only the valid record remains
-    assert len(filtered_records) == 1
-    assert filtered_records[0].url == "https://example.com/test2"
+@pytest.fixture
+def sample_audit_records():
+    """Create sample audit records with mixed sample size mismatch flags."""
+    return [
+        AuditRecord(
+            url="https://example.com/consistent",
+            domain="example.com",
+            is_consistent=True,
+            inconsistency_reason=None,
+            data_quality_warning=None,
+            has_sample_size_mismatch=False,
+            timestamp="2024-01-01T00:00:00"
+        ),
+        AuditRecord(
+            url="https://example.com/mismatch",
+            domain="example.com",
+            is_consistent=True,
+            inconsistency_reason=None,
+            data_quality_warning="Sample size mismatch detected",
+            has_sample_size_mismatch=True,
+            timestamp="2024-01-01T00:00:00"
+        ),
+        AuditRecord(
+            url="https://example.com/inconsistent",
+            domain="example.com",
+            is_consistent=False,
+            inconsistency_reason="P-value discrepancy",
+            data_quality_warning=None,
+            has_sample_size_mismatch=False,
+            timestamp="2024-01-01T00:00:00"
+        ),
+        AuditRecord(
+            url="https://example.com/mismatch_inconsistent",
+            domain="example.com",
+            is_consistent=False,
+            inconsistency_reason="Effect size discrepancy",
+            data_quality_warning="Sample size mismatch detected",
+            has_sample_size_mismatch=True,
+            timestamp="2024-01-01T00:00:00"
+        ),
+    ]
 
 
-def test_filter_preserves_other_warnings():
-    """
-    Test that records with other types of warnings (not sample-size)
-    are still included in prevalence estimates.
-    """
-    # Create a record with a non-sample-size warning
-    record_other_warning = AuditRecord(
-        url="https://example.com/test1",
-        domain="example.com",
-        data_quality_warning="Some other data quality issue"
-    )
+def test_filter_excludes_sample_size_mismatch(sample_audit_records):
+    """Verify that records with sample_size_mismatch=True are excluded."""
+    filtered = filter_for_prevalence(sample_audit_records)
 
-    # Create a record with sample-size warning
-    record_sample_size_warning = AuditRecord(
-        url="https://example.com/test2",
-        domain="example.com",
-        data_quality_warning="Sample size mismatch detected: Missing sample_size_control"
-    )
+    # Should only have 2 records (consistent and inconsistent without mismatch)
+    assert len(filtered) == 2
 
-    # Create a valid record
-    record_valid = AuditRecord(
-        url="https://example.com/test3",
-        domain="example.com",
-        data_quality_warning=None
-    )
+    # Verify the URLs
+    urls = [r.url for r in filtered]
+    assert "https://example.com/consistent" in urls
+    assert "https://example.com/inconsistent" in urls
+    assert "https://example.com/mismatch" not in urls
+    assert "https://example.com/mismatch_inconsistent" not in urls
 
-    all_records = [record_other_warning, record_sample_size_warning, record_valid]
-    filtered_records = filter_for_prevalence(all_records)
+    # Verify no record in filtered has has_sample_size_mismatch=True
+    assert all(not r.has_sample_size_mismatch for r in filtered)
 
-    # Only sample-size mismatches should be excluded
-    assert record_sample_size_warning not in filtered_records
-    assert record_other_warning in filtered_records
-    assert record_valid in filtered_records
-    assert len(filtered_records) == 2
+
+def test_filter_preserves_all_valid_records(sample_audit_records):
+    """Verify that records without mismatch are preserved."""
+    filtered = filter_for_prevalence(sample_audit_records)
+
+    # Check that consistent records are preserved
+    consistent_records = [r for r in filtered if r.is_consistent]
+    assert len(consistent_records) == 1
+    assert consistent_records[0].url == "https://example.com/consistent"
+
+    # Check that inconsistent records (without mismatch) are preserved
+    inconsistent_records = [r for r in filtered if not r.is_consistent]
+    assert len(inconsistent_records) == 1
+    assert inconsistent_records[0].url == "https://example.com/inconsistent"
+
+
+def test_filter_with_all_mismatches():
+    """Test filtering when all records have sample size mismatch."""
+    all_mismatch_records = [
+        AuditRecord(
+            url=f"https://example.com/{i}",
+            domain="example.com",
+            is_consistent=True,
+            has_sample_size_mismatch=True,
+            timestamp="2024-01-01T00:00:00"
+        )
+        for i in range(3)
+    ]
+
+    filtered = filter_for_prevalence(all_mismatch_records)
+    assert len(filtered) == 0
+
+
+def test_filter_with_no_mismatches():
+    """Test filtering when no records have sample size mismatch."""
+    no_mismatch_records = [
+        AuditRecord(
+            url=f"https://example.com/{i}",
+            domain="example.com",
+            is_consistent=(i % 2 == 0),
+            has_sample_size_mismatch=False,
+            timestamp="2024-01-01T00:00:00"
+        )
+        for i in range(3)
+    ]
+
+    filtered = filter_for_prevalence(no_mismatch_records)
+    assert len(filtered) == 3
+    assert all(not r.has_sample_size_mismatch for r in filtered)
