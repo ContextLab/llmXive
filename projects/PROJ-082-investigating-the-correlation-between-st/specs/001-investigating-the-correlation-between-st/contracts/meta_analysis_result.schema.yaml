@@ -1,72 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MetaAnalysisResult"
-description: "Schema for the aggregated output of the meta-analysis pipeline."
-type: "object"
+title: MetaAnalysisResult
+type: object
 properties:
-  synthesis_mode:
-    type: "string"
-    description: "Mode of synthesis: quantitative or narrative."
-    enum: ["quantitative", "narrative"]
-  weighted_mean_r:
-    type: "number"
-    description: "Pooled correlation coefficient (back-transformed)."
-    minimum: -1.0
-    maximum: 1.0
-    nullable: true
-  ci_95_lower:
-    type: "number"
-    description: "Lower bound of 95% CI."
-    nullable: true
-  ci_95_upper:
-    type: "number"
-    description: "Upper bound of 95% CI."
-    nullable: true
+  pooled_r:
+    type: number
+    description: "Weighted mean correlation"
+  ci_lower:
+    type: number
+    description: "95% CI lower bound"
+  ci_upper:
+    type: number
+    description: "95% CI upper bound"
   i_squared:
-    type: "number"
-    description: "Heterogeneity statistic (I^2)."
-    minimum: 0.0
-    maximum: 100.0
-    nullable: true
+    type: number
+    description: "Heterogeneity statistic (must have at least 2 decimal places)"
   egger_intercept:
-    type: "number"
-    description: "Intercept from Egger's regression."
-    nullable: true
-  egger_p_value:
-    type: "number"
-    description: "P-value from Egger's regression."
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
-  bonferroni_threshold:
-    type: "number"
-    description: "Adjusted alpha threshold."
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
+    type: number
+    description: "Egger's test intercept"
+  egger_p:
+    type: number
+    description: "Egger's test p-value"
+  egger_skipped_reason:
+    type: string
+    description: "Reason for skipping Egger's test (if N<10). Must be 'Skipped: Insufficient studies (N < 10) for Egger's regression.'"
+  synthesis_mode:
+    type: string
+    enum:
+      - quantitative
+      - narrative
+    description: "Mode of synthesis"
   study_count:
-    type: "integer"
-    description: "Number of unique (Author, Year) pairs."
-    minimum: 0
+    type: integer
+    description: "Number of eligible studies"
   tract_count:
-    type: "integer"
-    description: "Number of distinct tracts."
-    minimum: 0
-  narrative_summary:
-    type: "string"
-    description: "Text summary of findings (if narrative mode)."
-    nullable: true
-  power_warning:
-    type: "string"
-    description: "Warning about low statistical power (e.g., 'Low Power')."
-    nullable: true
-  warnings:
-    type: "array"
-    description: "List of warnings."
-    items:
-      type: "string"
+    type: integer
+    description: "Number of distinct tracts"
+  bonferroni_adjusted_alpha:
+    type: number
+    description: "Adjusted alpha if applied"
+  qualitative_summary:
+    type: string
+    description: "Narrative summary (if synthesis_mode='narrative')"
 required:
-  - "synthesis_mode"
-  - "study_count"
-  - "tract_count"
-  - "warnings"
+  - synthesis_mode
+  - study_count
+  - tract_count
 additionalProperties: false

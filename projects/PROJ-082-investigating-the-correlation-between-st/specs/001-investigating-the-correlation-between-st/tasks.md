@@ -20,34 +20,31 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as a MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory: `code/`
-- [ ] T001b [P] Create directory: `tests/`
-- [ ] T001c [P] Create directory: `data/`
-- [ ] T001d [P] Create directory: `docs/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (pandas, numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml, requests, sklearn)
+- [ ] T001 [P] Initialize project directory structure: Create `code/`, `tests/`, `data/`, and `docs/` directories in a single step.
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (pandas, numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -58,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256 for input validation)
-- [ ] T006 [P] Setup configuration management: `code/utils/config.py` (seed pinning, path loading)
+- [X] T005 [P] Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256 for input validation)
+- [X] T006 [P] Setup configuration management: `code/utils/config.py` (seed pinning, path loading)
 - [ ] T007 Create base data models: `contracts/study_record.schema.yaml` and `contracts/meta_analysis_result.schema.yaml`
-- [ ] T008 [P] Implement tract harmonization logic: `code/analysis/tract_mapping.py` (JHU Atlas mapping, string normalization). **Specific Prioritization Logic**: Implement a scoring system where the 'auditory-reward pathway' (Heschl's gyrus to ventral striatum) is assigned a `priority_score` of 1.0, and all other tracts are assigned a baseline value. The system MUST filter and prioritize results by this score first.
-- [ ] T009 Setup logging infrastructure: `code/utils/logger.py` (structured logging for convergence warnings, fallbacks)
+- [ ] T008 [P] Implement tract harmonization logic: `code/analysis/tract_mapping.py` (JHU Atlas mapping, string normalization). **Constraint**: This task MUST NOT implement any prioritization or filtering logic. It must only standardize tract names. Prioritization logic is gated by the study count check in T016.
+- [~] T009 Setup logging infrastructure: `code/utils/logger.py` (structured logging for convergence warnings, fallbacks)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,24 +69,33 @@
 
 **Goal**: Extract effect sizes from CSV, handle missing data, perform random-effects meta-analysis, and trigger narrative fallback if N < 10.
 
-**Independent Test**: Run extraction script on a small, synthetic CSV of 3 mock studies with known effect sizes and verify the output JSON contains the correct weighted mean and confidence intervals calculated via `statsmodels` logic.
+**Independent Test**: Run extraction script on a small, synthetic CSV of mock studies with known effect sizes and verify the output JSON contains the correct weighted mean and confidence intervals calculated via `statsmodels` logic.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for extraction logic in `tests/unit/test_extraction.py` (verify r, n parsing)
-- [ ] T011 [P] [US1] Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py` (verify weighted mean within 0.001 tolerance)
-- [ ] T012 [P] [US1] Unit test for narrative fallback trigger in `tests/unit/test_narrative.py` (verify N < 10 skips aggregation)
+- [~] T010 [P] [US1] Unit test for extraction logic in `tests/unit/test_extraction.py` (verify r, n parsing)
+- [~] T011 [P] [US1] Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py` (verify weighted mean within 0.001 tolerance)
+- [~] T012 [P] [US1] Unit test for narrative fallback trigger in `tests/unit/test_narrative.py` (verify N < 10 skips aggregation)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/extraction/parser.py` to parse CSV/JSON inputs for r, n, tract AND qualitative descriptors. **Extraction Logic**: Use regex/keyword matching to extract 'neural circuitry' and 'preference' descriptors from raw text fields when quantitative data is missing. **Required Keywords**: `['neural circuitry', 'white matter integrity', 'music preference', 'auditory cortex', 'reward pathway', 'functional connectivity']`. **Required Regex**: `r'(pref|prefer|liking|enjoy).*?(music|auditory|sound)'`. Output includes a new column `qualitative_notes` populated by these matches.
-- [ ] T014 [US1] Implement `code/analysis/meta_analysis.py` Random-Effects model using `statsmodels` (handle convergence failure by falling back to Fixed-Effects with warning); output `study_count` artifact.
-- [ ] T015 [US1] Implement `code/analysis/narrative.py` to generate structured text summary if eligible study count < 10; consumes `qualitative_notes` from T013. **Structure Requirements**: Output MUST be a Markdown document with H2 headers: `## Study Overview`, `## Qualitative Themes`, `## Limitations`. Additionally, include a JSON metadata block at the top with keys: `study_count`, `synthesis_mode`, `timestamp`. **Depends on: T013**
-- [ ] T016 [US1] Implement `code/main.py` entry point logic: load raw CSV, run extraction, check N count, branch to quantitative or narrative mode.
-- [ ] T017 [US1] Add validation and error handling for missing effect sizes (exclude study with log entry if conversion fails).
-- [ ] T018 [US1] Handle zero-studies edge case: ensure `narrative.py` produces a valid "No studies found" summary if input CSV is empty.
+- [~] T013 [P] [US1] Implement `code/extraction/parser.py` to parse CSV/JSON inputs for r, n, tract AND qualitative descriptors. **Extraction Logic**: When direct (r, n) pairs are unavailable, implement specific logic to search for tract names (e.g., "arcuate", "cingulum", "uncinate") in proximity to directional verbs ("increased", "decreased", "correlated", "associated with") to extract "neural circuitry" and "preference" descriptors. **Fallback**: If no specific descriptors are found, include the study in the narrative pool with a `no_qualitative_data` flag. **Do NOT** use vague "broad regex" or "open-ended NLP"; the extraction must target specific neural circuitry terms defined in the spec.
+- [~] T014 [US1] Implement `code/analysis/meta_analysis.py` Random-Effects model using `statsmodels` (handle convergence failure by falling back to Fixed-Effects with warning); output `study_count` artifact.
+- [~] T015 [US1] Implement `code/analysis/narrative.py` to generate structured text summary if eligible study count < 10; consumes `qualitative_notes` from T013 AND `study_count` from T014. **Structure Requirements**:
+## Study Overview
+This study investigates the correlation between structural brain connectivity (dMRI metrics) and individual music preferences. The methodology employs a qualitative thematic analysis to identify emerging trends regarding neural circuitry. References include [Author] et al. ([Year]).
+
+## Qualitative Themes
+The analysis focuses on categorizing recurring themes regarding specific tracts (e.g., arcuate fasciculus, cingulum bundle) and their reported associations with music preference behaviors.
+
+## Limitations
+The scope is constrained by the limited number of eligible studies (N < 10), precluding quantitative meta-analysis.
+Additionally, include a JSON metadata block at the top with keys: `study_count`, `synthesis_mode`, `timestamp`. **Depends on: T013, T014**
+- [~] T016 [US1] Implement `code/main.py` entry point logic: load raw CSV, run extraction, check N count. **Gate Logic**: If N < 10, trigger narrative mode immediately. If N >= 10, proceed to quantitative analysis AND apply tract prioritization (if applicable) ONLY after the count check passes.
+- [~] T017 [US1] Add validation and error handling for missing effect sizes (exclude study with log entry if conversion fails).
+- [~] T018 [US1] Handle zero-studies edge case: ensure `narrative.py` produces a valid "No studies found" summary if input CSV is empty.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,19 +109,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for I² calculation in `tests/unit/test_heterogeneity.py` (verify precision to **exactly two decimal places** as required by SC-002, e.g., 52.34)
-- [ ] T020 [P] [US2] Unit test for Egger's regression in `tests/unit/test_bias.py` (verify p-value calculation and N < 10 skip logic; verify `egger_skipped_reason` output matches **exact string**: 'Skipped: Insufficient studies (N < 10) for Egger's regression')
+- [~] T019 [P] [US2] Unit test for I² calculation in `tests/unit/test_heterogeneity.py` (verify precision to **exactly two decimal places** as required by SC-002, e.g., 52.34)
+- [~] T020 [P] [US2] Unit test for Egger's regression in `tests/unit/test_bias.py` (verify p-value calculation and N < 10 skip logic; verify `egger_skipped_reason` output matches **exact string**: 'Skipped: Insufficient studies (N < 10) for Egger's regression')
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Output Requirement**: The code MUST output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON if skipped. **Depends on: T014**
-- [ ] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34). **Depends on: T014**
-- [ ] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**: 
-  1. If tracts are from **different studies** (independent), apply **Bonferroni correction**.
-  2. If tracts are from the **same study** (non-independent), apply **Robust Variance Estimation (RVE)**.
-  3. Apply Bonferroni correction ONLY if N ≥ 10 AND k ≥ 2 tracts (for the independent subset). If N < 10, skip and trigger narrative mode. **Depends on: T014, T008**
+- [~] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Input Verification**: Read `study_count` from T014 output JSON to determine skip condition. **Output Requirement**: If N >= 10, report the intercept and p-value. If N < 10, output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON. **Depends on: T014**
+- [~] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**. **Parallel Safety**: This task reads from T014 and writes to the heterogeneity section of the output JSON. **Depends on: T021** (to ensure atomic writes to the shared JSON artifact).
+- [ ] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
+ 1. Apply **Bonferroni correction** ONLY if N ≥ 10 AND k ≥ 2 tracts (for the independent subset).
+ 2. **Strict Requirement**: If N < 10, skip and trigger narrative mode.
+ 3. **Constraint**: Do NOT implement Robust Variance Estimation (RVE). The spec mandates Bonferroni correction only.
+ 4. Include a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence.
+ 5. **Output Requirement**: Report the **adjusted significance threshold** value in the output report. **Depends on: T014, T008**
 - [ ] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
-- [ ] T024 [US2] Add power analysis logic in `code/analysis/correction.py` (warn if N < 20 and expected r < 0.3).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,6 +158,8 @@
 - [ ] T035 [P] Additional unit tests in `tests/unit/` (coverage for p-value conversion edge cases).
 - [ ] T036 Run `quickstart.md` validation to ensure end-to-end pipeline execution.
 - [ ] T037 Verify `tasks.md` execution order matches data flow (extraction -> analysis -> visualization).
+- [ ] T038 [P] Create `data/fetcher.py` to retrieve real, public datasets from **PubMed** and **Web of Science** (or equivalent open-access repositories like OpenNeuro) for dMRI and music preference data. **Constraint**: If specific dMRI/music pairs are not found in these primary sources, implement the logic to pivot to narrative review as defined in the spec. Do NOT use NAB or UCI datasets for this specific data strategy.
+- [ ] T039 [P] Implement `tests/integration/test_real_data_flow.py` to verify the pipeline processes real dataset downloads without memory overflow.
 
 ---
 
@@ -161,8 +170,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -181,11 +190,12 @@
 
 ### Explicit Task Dependencies
 
-- **T022 (Bonferroni/RVE)**: Explicitly depends on **T008 (tract_mapping)** for harmonized tract names AND **T014** for study_count.
+- **T022 (Bonferroni)**: Explicitly depends on **T008 (tract_mapping)** for harmonized tract names AND **T014** for study_count.
 - **T021 (Egger's)**: Explicitly depends on **T014** for study_count.
-- **T021b (I²)**: Explicitly depends on **T014** for study_count.
-- **T015 (Narrative)**: Explicitly depends on **T013** for qualitative_notes.
+- **T021b (I²)**: Explicitly depends on **T021** (to ensure atomic writes) and **T014** for study_count.
+- **T015 (Narrative)**: Explicitly depends on **T013** for qualitative_notes AND **T014** for study_count.
 - **T031 (File Size)**: Explicitly depends on **T027** for plot generation.
+- **T039 (Real Data Flow)**: Explicitly depends on **T038** for dataset fetching logic.
 
 ### Parallel Opportunities
 
@@ -236,9 +246,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

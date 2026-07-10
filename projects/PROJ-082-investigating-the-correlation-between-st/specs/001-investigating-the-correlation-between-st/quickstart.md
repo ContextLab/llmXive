@@ -3,14 +3,14 @@
 ## Prerequisites
 
 - Python 3.11+
+- `pip` or `conda`
 - Git
-- (Optional) A text editor or Jupyter Notebook
 
 ## Installation
 
-1.  **Clone the repository** (if not already done):
+1.  **Clone the repository**:
     ```bash
-    git clone <repository-url>
+    git clone <repo-url>
     cd projects/PROJ-082-investigating-the-correlation-between-st
     ```
 
@@ -25,50 +25,49 @@
     pip install -r code/requirements.txt
     ```
 
-## Data Preparation
+## Usage
 
-The pipeline requires a curated dataset of studies. Since no verified dataset contains the exact (r, n, tract) tuples, you must prepare a CSV file manually or via a separate extraction script.
+### 1. Prepare Input Data
 
-1.  **Create the input file**:
-    Create `data/raw/studies_extracted.csv` with the following columns:
-    ```csv
-    author,year,tract_name,metric,r,n,t_value,p_value
-    Smith,2020,Arcuate Fasciculus,FA,0.45,120,,
-    Jones,2021,Cingulum Bundle,FA,0.32,85,,
-    ...
-    ```
-    *Note: At least 10 unique (Author, Year) pairs are required for the quantitative meta-analysis mode. If you have fewer, the system will automatically switch to Narrative Mode.*
+Place your study data in `data/raw/studies.csv` with the following columns:
+- `author`, `year`, `tract_name`, `metric`, `r`, `n`, `qualitative_desc`
 
-2.  **Verify data integrity**:
-    Ensure there are no missing `n` values if `r` is present.
+*Note: If you do not have real data, use the provided synthetic data generator in `tests/data/synthetic_data.py`.*
 
-## Running the Pipeline
+### 2. Run the Analysis
 
-1.  **Execute the main script**:
-    ```bash
-    python code/main.py --input data/raw/studies_extracted.csv --output data/derived/
-    ```
-
-2.  **Check outputs**:
-    - `data/derived/meta_analysis_result.json`: Contains the statistical results.
-    - `data/derived/forest_plot.png`: Forest plot of effect sizes.
-    - `data/derived/funnel_plot.png`: Funnel plot for publication bias.
-    - `data/derived/narrative_summary.txt`: (If N < 10) A text summary of findings.
-
-## Testing
-
-Run the unit tests to verify statistical logic:
+Execute the main script:
 ```bash
-pytest tests/unit/ -v
+python code/main.py --input data/raw/studies.csv --output data/processed/results.json
 ```
 
-Run integration tests:
+### 3. Generate Visualizations
+
+The script automatically generates plots in `data/processed/plots/`:
+- `forest_plot.png`
+- `funnel_plot.png`
+- `correlation_plot.png`
+
+### 4. Verify Results
+
+Check the output JSON (`data/processed/results.json`) for:
+- `synthesis_mode`: "quantitative" or "narrative"
+- `pooled_r` (if quantitative)
+- `i_squared` (must have 2 decimal places)
+- `egger_skipped_reason` (if N < 10)
+
+### 5. Run Tests
+
 ```bash
-pytest tests/integration/ -v
+pytest tests/ -v
 ```
 
 ## Troubleshooting
 
-- **Error: "Insufficient studies for Egger's test"**: This is expected if $N < 10$. The system will skip the test and log a warning.
-- **Error: "Model convergence failed"**: The system will fallback to a Fixed-Effects model and log a warning.
-- **Memory Error**: Unlikely for this dataset size. If encountered, ensure no large files are loaded unnecessarily.
+- **Memory Error**: Ensure you are not loading a massive dataset. The pipeline is designed for <100 studies.
+- **Egger's Test Error**: If N < 10, the test is skipped automatically. Check `egger_skipped_reason`.
+- **PNG Size**: If PNGs exceed 5MB, reduce DPI in `visualization.py` (default is set to a moderate magnitude).
+
+## Output Format
+
+The final output is a JSON file containing the meta-analysis results and paths to the generated plots. All statistics are reproducible via the pinned random seeds in `code/utils.py`.

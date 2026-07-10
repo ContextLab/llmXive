@@ -1,4 +1,4 @@
-resolved_at: '2026-07-09T08:07:54.678985+00:00'
+resolved_at: '2026-07-10T13:23:18.481174+00:00'
 datasets:
 - intent: SKIP
   status: verified
@@ -41,23 +41,29 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+  - url: https://repository.rcsi.com/articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Constraining_Innovation_A_critical_discourse_analysis_of_power_and_assessment_policy_in_higher_education/32820581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+  - url: https://repository.rcsi.com/articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/journal_contribution/_b_Cognitive_Preconditions_for_the_Deep_Symbolic_Systems_Model_DSSM_b_/32957006
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Dicerium_IV_Nitride_Complex_with_a_Linear_CeNCe_Core_Stabilized_by_Bulky_Cyclohexyltriamide_Ligands/32946563
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Electronic_Structure_and_Orbital_Filling_in_2D_YCl_Electride_Single-Atom_Catalysts_A_Combined_First-Principles_and_Machine-Learning_Study/32946554
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Hydrocarbon_Organic_Cage-Based_Porous_Liquid_for_Ethylene_Ethane_Separation/32957062
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,23 +87,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21266344
+  - url: https://zenodo.org/records/21294750
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21266344
+  - url: https://zenodo.org/records/21294750
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21274517
+  - url: https://zenodo.org/records/21282004
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21274517
+  - url: https://zenodo.org/records/21282004
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21274176
+  - url: https://zenodo.org/records/21294017
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,9 +124,9 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/MRAGDATASET/Pubmed-MHQA/resolve/main/data/dev-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/Gaborandi/Psychedelics_pubmed_abstracts/resolve/main/psychedelics.csv
     source: huggingface
-    format: parquet
+    format: csv
     relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
@@ -138,43 +144,45 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://huggingface.co/datasets/openlifescienceai/pubmedqa/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/Gaborandi/Psychedelics_pubmed_abstracts/resolve/main/psychedelics.csv
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/MRAGDATASET/Pubmed-MHQA/resolve/main/data/dev-00000-of-00001.parquet
+    format: csv
+  - url: https://huggingface.co/datasets/brainchalov/pubmed_arxiv_abstracts_data/resolve/main/df_0.csv.gz
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+    format: gzip
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Interpretable_polyp_classification_via_end-to-end_Concept_Bottleneck_Models_with_vision-language_concept_alignment_pdf/32957087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+  - url: https://repository.rcsi.com/articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Constraining_Innovation_A_critical_discourse_analysis_of_power_and_assessment_policy_in_higher_education/32820581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
+  - url: https://repository.rcsi.com/articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/journal_contribution/_b_Cognitive_Preconditions_for_the_Deep_Symbolic_Systems_Model_DSSM_b_/32957006
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Dicerium_IV_Nitride_Complex_with_a_Linear_CeNCe_Core_Stabilized_by_Bulky_Cyclohexyltriamide_Ligands/32946563
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Electronic_Structure_and_Orbital_Filling_in_2D_YCl_Electride_Single-Atom_Catalysts_A_Combined_First-Principles_and_Machine-Learning_Study/32946554
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://onlinelibrary.wiley.com/doi/10.1111/pai.13484
-    source: zenodo
-    status: wrong_format
-    reason: HTTP 403
   - url: https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2021.652029/full
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://onlinelibrary.wiley.com/doi/10.1002/ppul.24798
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/pai.13484
     source: zenodo
     status: wrong_format
     reason: HTTP 403
@@ -182,36 +190,44 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/12783759
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/ppul.24798
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/14774229
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Humanized_mouse_models_for_drug_metabolism_and_drug_transport_a_systematic_review/32946551/1
+  - url: https://deepblue.lib.umich.edu/items/dccee2da-7cfb-4748-a560-998597b27d4b
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21296412
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21275083
+  - url: https://zenodo.org/records/21296412
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21275083
+  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_Review_and_Meta-Analysis_of_Nano-Enabled_Food_Packaging_Antimicrobial_Efficacy_Antioxidant_Stability_and_Regulatory_Perspectives/30993599
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/2j3zb/
+  - url: https://tandf.figshare.com/articles/journal_contribution/Systematic_Review_and_Meta-Analysis_of_Nano-Enabled_Food_Packaging_Antimicrobial_Efficacy_Antioxidant_Stability_and_Regulatory_Perspectives/30993599/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.26262/heal.auth.ir.374830
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPConnectionPool(host=''ikee.lib.auth.gr'',
-      port=80): Max retries exceeded with url: /record/374830 (Caused by ConnectTimeoutError(<HTTPConnection(host=''ikee.lib.auth.gr'',
-      port=80) at 0x7f5ad90961d0>, ''Connection to ikee.lib.auth.gr timed out. (connect
-      timeout=20.0)''))'
 - intent: MRI
   status: verified
   candidates:
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO260K/resolve/main/PT001_ClevelandCCF/mapping.tsv
+    source: huggingface
+    format: tsv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5504
+      parsed: true
   - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
     source: huggingface
     format: tsv
@@ -235,6 +251,10 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: HTTP 401
+  - url: https://huggingface.co/datasets/FOMO-MRI/FOMO260K/resolve/main/PT001_ClevelandCCF/mapping.tsv
+    source: huggingface
+    status: verified
+    format: tsv
   - url: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv
     source: huggingface
     status: verified
@@ -243,30 +263,32 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://huggingface.co/api/resolve-cache/datasets/arjundd/mridata-stanford-knee-3d-fse/386707653616d0f84850b6d8f09efcfa5433e964/metadata.csv?%2Fdatasets%2Farjundd%2Fmridata-stanford-knee-3d-fse%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%225ad19715d7b1b1d0422cc932384b6c216526bfed%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/report/KZN_economic_review_final_report/32868911
+  - url: https://figshare.com/articles/dataset/Supplementary_Materials_3_for_On_the_use_of_laboratory_tests_to_assess_the_corrosion_behavior_of_weathering_steel_in_marine_atmospheres_Yuzhou_Wang_et_al_/32957078
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Supplementary_information_b_-_b_Indicator_species_of_predatory_wasps_Hymenoptera_Pemphredonini_and_their_biogeographic_regionalization_in_China_b_/29321240
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Interpretable_polyp_classification_via_end-to-end_Concept_Bottleneck_Models_with_vision-language_concept_alignment_pdf/32957087
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Mechanistic_Insights_into_the_Antioxidant_and_Pro-oxidant_Behaviors_of_Uric_Acid_in_the_Presence_of_Cu_II_/32946569
+  - url: https://repository.rcsi.com/articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Transition_to_adulthood_perspectives_from_young_people_with_cerebral_palsy_parents_and_health_professionals/32947568
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://repository.mmu.ac.uk/articles/journal_contribution/Constraining_Innovation_A_critical_discourse_analysis_of_power_and_assessment_policy_in_higher_education/32820581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Visible-Light-Controlled_Formation_of_G_Quadruplexes/32946564
+  - url: https://repository.rcsi.com/articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/The_Geopolitical_Repricing_of_AI_Infrastructure_Energy_Risk_and_Strategic_Allocation/32946530
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/DREAMER-S_deep_learning-enabled_attention-based_multiple-instance_approaches_with_explainable_representations_for_spatial_biology/32947553
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
   - url: https://zenodo.org/records/16198518
     source: zenodo
     status: wrong_format
@@ -275,11 +297,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7717571
+  - url: https://zenodo.org/records/16307763
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16307763
+  - url: https://zenodo.org/records/7717571
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -287,15 +309,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/405694
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.repository.cam.ac.uk/handle/1810/403554
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/147852
+  - url: https://unige.iris.cineca.it/handle/11567/941306
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -303,7 +317,15 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://juser.fz-juelich.de/record/1059282
+  - url: https://air.unimi.it/handle/2434/219127
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/147852
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/hdr7p/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

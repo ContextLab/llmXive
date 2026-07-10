@@ -1,63 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StudyRecord"
-description: "Schema for a single literature entry in the meta-analysis pipeline."
-type: "object"
+title: StudyRecord
+type: object
 properties:
   author:
-    type: "string"
-    description: "First author's last name."
-    minLength: 1
+    type: string
+    description: "First author name"
   year:
-    type: "integer"
-    description: "Publication year."
-    minimum: 1900
-    maximum: 2100
+    type: integer
+    description: "Publication year"
   tract_name:
-    type: "string"
-    description: "Name of the white matter tract."
-    minLength: 1
-  harmonized_tract_id:
-    type: "string"
-    description: "Standardized ID from JHU Atlas (e.g., 'AF_L')."
-    minLength: 1
+    type: string
+    description: "Name of the brain tract (e.g., 'arcuate fasciculus')"
   metric:
-    type: "string"
-    description: "dMRI metric used (e.g., FA, MD)."
-    enum: ["FA", "MD", "AD", "RD"]
+    type: string
+    description: "MRI metric (e.g., 'FA', 'MD')"
   r:
-    type: "number"
-    description: "Correlation coefficient."
+    type: number
     minimum: -1.0
     maximum: 1.0
-    nullable: true
+    description: "Correlation coefficient"
   n:
-    type: "integer"
-    description: "Sample size."
+    type: integer
     minimum: 1
-    nullable: true
+    description: "Sample size"
   t_value:
-    type: "number"
-    description: "t-statistic."
-    nullable: true
-  p_value:
-    type: "number"
-    description: "p-value."
-    minimum: 0.0
-    maximum: 1.0
-    nullable: true
-  direction:
-    type: "string"
-    description: "Direction of effect."
-    enum: ["positive", "negative", "mixed"]
-    nullable: true
-  notes:
-    type: "string"
-    description: "Extraction notes."
-    nullable: true
+    type: number
+    description: "T-statistic (if r not available)"
+  qualitative_desc:
+    type: string
+    description: "Extracted qualitative description (if no r/n)"
+  source:
+    type: string
+    description: "Source of the record (e.g., 'PubMed', 'Synthetic')"
 required:
-  - "author"
-  - "year"
-  - "tract_name"
-  - "harmonized_tract_id"
-  - "metric"
+  - author
+  - year
+  - tract_name
+  - metric
+  - qualitative_desc
+  - source
 additionalProperties: false

@@ -2,67 +2,81 @@
 
 ## Overview
 
-This document defines the data structures for the meta-analysis pipeline. The system processes a list of `StudyRecord` objects, performs statistical aggregation, and outputs a `MetaAnalysisResult`.
+This document defines the data structures for the meta-analysis pipeline. It includes the input schema for study records, the output schema for meta-analysis results, and the schema for the narrative fallback.
 
-## Core Entities
+## Entities
 
 ### StudyRecord
 
-Represents a single extracted entry from the literature.
+Represents a single literature entry.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `author` | string | First author's last name. | Required. |
-| `year` | integer | Publication year. | Required. |
-| `tract_name` | string | Name of the white matter tract (e.g., "Arcuate Fasciculus"). | Required. |
-| `harmonized_tract_id` | string | Standardized ID from JHU Atlas (e.g., "AF_L"). | Required for aggregation. Mapped from `tract_name`. |
-| `metric` | string | dMRI metric used (e.g., "FA", "MD"). | Required. |
-| `r` | float | Correlation coefficient. | Nullable. If null, `t_value` or `p_value` may be present. |
-| `n` | integer | Sample size. | Required if `r` is present. |
-| `t_value` | float | t-statistic. | Nullable. |
-| `p_value` | float | p-value. | Nullable. |
-| `direction` | string | "positive", "negative", or "mixed". | Optional. |
-| `notes` | string | Any extraction notes or caveats. | Optional. |
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| `author` | string | First author name. | Yes |
+| `year` | integer | Publication year. | Yes |
+| `tract_name` | string | Name of the brain tract (e.g., "arcuate fasciculus"). | Yes |
+| `metric` | string | MRI metric (e.g., "FA", "MD"). | Yes |
+| `r` | float | Correlation coefficient. | Conditional |
+| `n` | integer | Sample size. | Conditional |
+| `t_value` | float | T-statistic (if r not available). | Conditional |
+| `qualitative_desc` | string | Extracted qualitative description (if no r/n). | Yes |
+| `source` | string | Source of the record (e.g., "PubMed", "Synthetic"). | Yes |
 
-**Unique Study Definition**: A study is uniquely identified by the tuple `(author, year)`. Multiple tracts from the same paper count as one study for the $N < 10$ threshold check, but as distinct comparisons for Bonferroni correction if $N \ge 10$ (subject to non-independence handling).
+**Constraints**:
+- `r` must be in [-1, 1].
+- `n` must be > 0.
+- If `r` and `n` are missing, `qualitative_desc` must be populated.
 
 ### MetaAnalysisResult
 
-The aggregated output of the pipeline.
+Represents the aggregated output.
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `synthesis_mode` | string | "quantitative" or "narrative". | Determined by study count. |
-| `weighted_mean_r` | float | Pooled correlation coefficient (back-transformed). | Only if `synthesis_mode` == "quantitative". |
-| `ci_95_lower` | float | Lower bound of 95% CI. | Only if `synthesis_mode` == "quantitative". |
-| `ci_95_upper` | float | Upper bound of 95% CI. | Only if `synthesis_mode` == "quantitative". |
-| `i_squared` | float | Heterogeneity statistic ($I^2$). | Only if `synthesis_mode` == "quantitative". |
-| `egger_intercept` | float | Intercept from Egger's regression. | Only if $N \ge 10$. |
-| `egger_p_value` | float | P-value from Egger's regression. | Only if $N \ge 10$. |
-| `bonferroni_threshold` | float | Adjusted alpha threshold. | Only if $N \ge 10$ and $k \ge 2$. |
-| `study_count` | integer | Number of unique (Author, Year) pairs. | Required. |
-| `tract_count` | integer | Number of distinct tracts. | Required. |
-| `narrative_summary` | string | Text summary of findings. | Only if `synthesis_mode` == "narrative". |
-| `power_warning` | string | "Low Power" if N < 20 for small effects. | Nullable. |
-| `warnings` | list[string] | List of warnings (e.g., "Convergence failed", "Egger's test skipped"). | Required. |
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| `pooled_r` | float | Weighted mean correlation. | Conditional |
+| `ci_lower` | float | 95% CI lower bound. | Conditional |
+| `ci_upper` | float | 95% CI upper bound. | Conditional |
+| `i_squared` | float | Heterogeneity statistic (2 decimals). | Conditional |
+| `egger_intercept` | float | Egger's test intercept. | Conditional |
+| `egger_p` | float | Egger's test p-value. | Conditional |
+| `egger_skipped_reason` | string | Reason for skipping Egger's test (if N<10). | Conditional |
+| `synthesis_mode` | string | "quantitative" or "narrative". | Yes |
+| `study_count` | integer | Number of eligible studies. | Yes |
+| `tract_count` | integer | Number of distinct tracts. | Yes |
+| `bonferroni_adjusted_alpha` | float | Adjusted alpha if applied. | Conditional |
+| `qualitative_summary` | string | Narrative summary (if synthesis_mode="narrative"). | Conditional |
+
+**Constraints**:
+- If `synthesis_mode` == "quantitative", `pooled_r`, `i_squared`, and `egger_skipped_reason` (if applicable) must be present.
+- If `synthesis_mode` == "narrative", `qualitative_summary` must be present.
+- `i_squared` must have at least 2 decimal places.
+
+### VisualizationOutput
+
+Represents generated plots.
+
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| `forest_plot_path` | string | Path to PNG file. | Yes |
+| `funnel_plot_path` | string | Path to PNG file. | Yes |
+| `correlation_plot_path` | string | Path to PNG file. | Yes |
+| `file_size_mb` | float | Size of each PNG in MB. | Yes |
+
+**Constraints**:
+- `file_size_mb` < 5.0 for all plots.
 
 ## Data Flow
 
-1.  **Input**: `data/raw/studies_extracted.csv` (or JSON).
-2.  **Processing**:
-    *   Parse and validate `StudyRecord` fields.
-    *   **Tract Harmonization**: Map `tract_name` to `harmonized_tract_id` using a standard ontology. Flag non-standard entries.
-    *   Check `unique_study_count`.
-    *   If `< 10`: Trigger `NarrativeSynthesis` module.
-    *   If `>= 10`: Trigger `MetaAnalysis` module (Random-Effects, I², Egger's).
-    *   **Non-Independence Check**: If multiple tracts from the same study are present, apply Robust Variance Estimation (RVE) or group as a single unit.
-    *   Apply `BonferroniCorrection` if applicable.
-    *   **Power Analysis**: Check if N < 20 and expected effect size is small. Add `power_warning` if so.
-3.  **Output**: `data/derived/meta_analysis_result.json` and PNG plots.
+1.  **Input**: `raw/studies.csv` (or JSONL from PubMed).
+2.  **Extraction**: `extraction.py` parses input -> `processed/study_records.json`.
+3.  **Analysis**: `meta_analysis.py` reads records -> `results/meta_analysis_result.json`.
+4.  **Visualization**: `visualization.py` reads result -> `results/plots/` (PNGs).
+5.  **Output**: Final JSON report and PNGs.
 
-## Constraints & Validation
+## Validation Rules
 
-- **Missing Data**: If `r` is missing, the system attempts to derive it from `t_value` or `p_value` using standard formulas. If derivation fails, the study is excluded and logged.
-- **Collinearity**: If a study reports multiple tracts that are definitionally related (e.g., "Left Arcuate" and "Right Arcuate" treated as one tract type), they are counted as distinct comparisons for correction logic but the narrative summary must acknowledge the potential lack of independence.
-- **Precision**: All floating-point results are rounded to 4 decimal places for storage, 2 decimal places for display in plots.
-- **Non-Independence**: The pipeline will log a warning if multiple tracts from the same study are included without explicit RVE logic, as this may inflate Type I error rates.
+- **Study Count**: Must be >= 1 for any analysis.
+- **Tract Count**: Must be >= 1.
+- **Effect Size Range**: `r` must be [-1, 1].
+- **Precision**: `i_squared` must be formatted to 2 decimal places.
+- **Skip Logic**: If `study_count` < 10, `egger_p` must be null and `egger_skipped_reason` must be set.

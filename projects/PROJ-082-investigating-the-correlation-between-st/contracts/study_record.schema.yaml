@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Study Record Schema
+description: >
+  Defines the structure for individual study records extracted from the literature.
+  Includes bibliographic metadata, quantitative effect sizes (r, n), and qualitative descriptors.
+type: object
+required:
+  - study_id
+  - author
+  - year
+  - title
+  - tract_name
+properties:
+  study_id:
+    type: string
+    description: Unique identifier for the study record (e.g., hash of title + author).
+    pattern: "^[a-z0-9]{32}$"
+  author:
+    type: string
+    description: Primary author's last name.
+  year:
+    type: integer
+    minimum: 1900
+    maximum: 2100
+  title:
+    type: string
+    description: Full title of the publication.
+  journal:
+    type: string
+    description: Name of the journal or conference proceedings.
+  tract_name:
+    type: string
+    description: The specific white matter tract investigated (harmonized name).
+    examples:
+      - "arcuate_fasciculus"
+      - "cingulum_bundle"
+      - "uncinate_fasciculus"
+  effect_size_r:
+    type: number
+    description: Pearson correlation coefficient.
+    minimum: -1.0
+    maximum: 1.0
+    nullable: true
+  sample_size_n:
+    type: integer
+    description: Number of participants in the study.
+    minimum: 1
+    nullable: true
+  qualitative_descriptor:
+    type: string
+    description: >
+      Textual description of the association if quantitative data is missing.
+      Extracted via specific pattern matching (e.g., "increased connectivity associated with").
+    nullable: true
+  directionality:
+    type: string
+    enum:
+      - positive
+      - negative
+      - mixed
+      - null
+    description: Inferred direction of the correlation.
+  quality_score:
+    type: number
+    description: Quality assessment score (0.0 to 1.0).
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.0
+  raw_source:
+    type: object
+    description: Original data block from the source file for auditability.
+    additionalProperties: true
+  extraction_notes:
+    type: string
+    description: Notes on the extraction process or ambiguities found.
+    nullable: true
+  timestamp_extracted:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of extraction.
+additionalProperties: false

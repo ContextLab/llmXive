@@ -1,67 +1,90 @@
 # Research: Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences
 
-## Executive Summary
+## Summary
 
-This research phase evaluates the feasibility of conducting a meta-analysis on the relationship between structural brain connectivity (specifically white matter integrity via dMRI) and music preferences. The primary challenge identified is the scarcity of direct empirical studies reporting correlation coefficients (`r`) between specific dMRI tracts and quantitative music preference scores.
+This research phase investigates the feasibility of a meta-analysis on the correlation between structural brain connectivity (dMRI metrics) and music preferences. The primary challenge is the scarcity of direct (r, n) pairs in existing literature. The strategy prioritizes a quantitative random-effects meta-analysis if ≥10 eligible studies are found; otherwise, it pivots to a narrative systematic review.
 
-The **Dataset Strategy** confirms that while verified datasets exist for PubMed literature and general MRI metadata, **no single verified dataset contains the specific (tract, r, n) tuples required for direct meta-analysis**. Therefore, the implementation plan assumes a "Literature Extraction" workflow where the system parses a pre-defined CSV of extracted studies (simulating the output of a manual literature search) rather than scraping raw text from the verified PubMed JSONL files directly for effect sizes. The verified datasets serve as the *source of the literature list* (titles/abstracts) to validate the existence of relevant studies, but the *effect size data* must be manually curated or simulated for the pipeline to function as a meta-analysis engine.
+**Scientific Validity & Construct Validity**:
+The project distinguishes between **Pipeline Validation** (using synthetic data to test code logic) and **Scientific Discovery** (analyzing real data).
+1. **Synthetic Data**: Used *only* to verify that the code correctly calculates pooled effects, I², and Egger's test. The "ground truth" is known by design. This does *not* validate the hypothesis that "dMRI correlates with music preference."
+2. **Real Data**: If real studies < 10, the system **must** output a narrative review. No quantitative pooled estimate is valid if the data is sparse or heterogeneous.
 
-## Dataset Strategy
+## Verified Datasets
 
-| Dataset Name | Verified URL | Relevance to Analysis | Usage Strategy |
-|:--- |:--- |:--- |:--- |
-| **PubMed** | ` | Source of literature titles/abstracts to identify potential studies. | **Read-Only Reference**: Used to validate that studies exist in the literature. Effect sizes (`r`, `n`) are **NOT** extracted directly from this file due to format (abstracts lack statistical tables). The pipeline will expect a curated CSV input for statistical synthesis. |
-| **Brain_MRI_Dataset** | ` | General MRI metadata. | **Read-Only Reference**: Contains image metadata but no behavioral preference data. Not suitable for direct correlation analysis. |
-| **FOMO45K** | ` | Large-scale MRI mapping. | **Read-Only Reference**: No behavioral preference data. |
-| **SKIP_NoClip_Data** | ` | Unrelated to neuroscience/music. | **Excluded**: Irrelevant to the research question. |
+The following datasets are available and verified for use. Note that **no dataset directly contains "music preference" ratings paired with dMRI metrics**. The analysis will rely on extracting data from primary studies (via PubMed abstracts) or using proxy datasets for methodological testing.
 
-**Critical Finding**: None of the verified datasets contain the specific combination of (dMRI tract metrics, sample size, music preference score) required for the meta-analysis.
-* **Decision**: The `code/` pipeline will be designed to ingest a **curated CSV** (e.g., `data/raw/studies_extracted.csv`) representing the output of a manual literature review. The `research.md` documents that the "Literature Search" step is a prerequisite manual task or a separate NLP extraction module (not part of this statistical pipeline) to populate this CSV.
-* **Fallback**: If the curated CSV contains fewer than 10 unique (Author, Year) pairs, the pipeline will automatically trigger the **Narrative Synthesis** mode (as per FR-006 and Principle VII).
+| Dataset Name | URL | Relevance |
+|--------------|-----|-----------|
+| PubMed Abstracts | ` | Primary source for extracting study metadata and qualitative descriptors. |
+| PubMed Q&A | ` | Potential source for structured question-answer pairs regarding neural circuitry. |
+| Psychedelics Pubmed | ` | Irrelevant (wrong domain). |
+| FOMO260K MRI | ` | Contains MRI mappings but lacks behavioral/music data. Useful for testing dMRI metric parsing. |
+| FOMO45K MRI | ` | Same as above. |
+| Brain MRI Dataset | ` | Contains MRI metadata but no music preference data. |
 
-## Statistical Methodology
+**Dataset Strategy**:
+1. **Unit Testing**: Generate synthetic CSV with known `r`, `n`, and tract names to test pipeline logic (recovery of ground truth).
+2. **Real-World Extraction**: The `extraction.py` module will parse PubMed abstracts.
+ - *Quantitative*: Extract `r` and `n` ONLY if explicitly stated in text. If missing, the study is **excluded** from the quantitative pool.
+ - *Qualitative*: Extract tract names and directional descriptors using regex (see below).
+3. **Fallback**: If extraction yields <10 studies with valid (r, n), the system triggers the narrative synthesis mode.
 
-### Meta-Analysis Model
-- **Model**: Random-Effects Model (DerSimonian-Laird or Restricted Maximum Likelihood via `statsmodels`).
-- **Effect Size**: Pearson correlation coefficient (`r`).
-- **Transformation**: Fisher's `z` transformation will be applied to `r` before aggregation to normalize the distribution, then back-transformed for reporting.
-- **Heterogeneity**: Quantified using $I^2$ statistic.
-- **Publication Bias**: Assessed via Egger's linear regression test (conditional on $N \ge 10$).
+## Methodological Decisions
 
-### Multiple Comparison Correction
-- **Method**: Bonferroni correction.
-- **Trigger**: Applied only if $N \ge 10$ AND number of distinct tracts $k \ge 2$.
-- **Correction Factor**: $\alpha_{adj} = \alpha / k$.
-- **Non-Independence**: If multiple tracts from the same study are included, they are treated as distinct comparisons for Bonferroni correction **only if** the study reports them as independent analyses. Otherwise, the study is treated as a single unit for the primary aggregation, with a note on the potential for within-study correlation.
+### 1. Statistical Model (Random-Effects)
+- **Decision**: Use a random-effects model (DerSimonian-Laird or REML) via `statsmodels` or `scipy`.
+- **Rationale**: Studies in neuroscience vary widely in methodology, scanners, and populations. A random-effects model accounts for between-study heterogeneity, which is expected to be high.
+- **Reference**: Constitution Principle VI mandates this approach.
 
-### Power Analysis
-- **Trigger**: Always performed.
-- **Logic**: If $N < 20$ and the expected effect size is small (r < 0.3), a `power_warning` is included in the output. This is distinct from the $N < 10$ Egger's test gate.
+### 2. Heterogeneity (I²)
+- **Decision**: Calculate I² statistic.
+- **Precision**: Must be reported to **at least two decimal places** (addressing T019).
+- **Threshold**: I² ≥ 50% indicates substantial heterogeneity (US-2).
+- **Heterogeneity Handling**: If I² > 75% or data is extremely sparse, the pooled estimate will be flagged as "unreliable" in the output report, and the narrative description will be prioritized.
 
-### Narrative Synthesis Fallback
-- **Trigger**: $N < 10$ unique studies.
-- **Output**: Structured text summary describing the directionality and consistency of findings across the available studies, without pooled effect sizes.
+### 3. Publication Bias (Egger's Test)
+- **Decision**: Perform Egger's linear regression test.
+- **Condition**: **ONLY** if N ≥ 10 (number of studies).
+- **Skip Message**: If N < 10, output `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression."` (addressing T021).
 
-## Tract Harmonization
-To address the variability in tract definitions across studies (e.g., "Arcuate Fasciculus" vs "AF"), the pipeline will map all `tract_name` strings to a standard ontology (e.g., JHU White Matter Tractography Atlas). Studies using non-standard names will be flagged, and their data will be aggregated only if a clear mapping can be established. This ensures the construct validity of the pooled effect size.
+### 4. Multiple Comparisons (Bonferroni)
+- **Decision**: Apply Bonferroni correction for multiple tract comparisons.
+- **Condition**: **ONLY** if N ≥ 10 AND number of distinct tracts (k) ≥ 2.
+- **Resolution of T022**: The spec (FR-005) mandates Bonferroni. The plan implements Bonferroni but includes a mandatory **Limitations Note** in the output report stating: "Bonferroni correction was applied despite known non-independence of brain tracts, which may result in conservative Type II errors. Robust Variance Estimation (RVE) is a preferred alternative for correlated data but was not implemented per spec requirement FR-005."
 
-## Data Provenance & Validation
-- **Input Data**: The pipeline expects `data/raw/studies_extracted.csv` as a **user-provided artifact**. This file represents the output of a manual literature review. The pipeline does **not** attempt to scrape or auto-extract effect sizes from raw literature (PubMed abstracts) because they lack statistical tables.
-- **Unit Testing**: Synthetic data is used **only** to verify the mathematical correctness of the statistical engines (e.g., "Does the code correctly calculate I²?"). These tests do not validate the scientific claim, only the code logic.
-- **Scientific Execution**: When run with manually curated data, the pipeline generates empirical findings. The validity of these findings depends on the quality of the manual curation, which is outside the scope of the code but documented in the `research.md`.
+### 5. Qualitative Extraction (T013)
+- **Decision**: Use regex and keyword matching on abstract text.
+- **Logic**:
+ - **Tract Detection**: Regex for `[A-Za-z]+\s+(fasciculus|bundle|tract|pathway)` (e.g., "arcuate fasciculus").
+ - **Directional Detection**: Regex for `(increased|decreased|reduced|enhanced|correlated)\s+(FA|MD|FA/MD)` in proximity to tract names.
+ - **Extraction**: Store the full sentence or clause as `qualitative_desc`.
+ - **Validation**: If `r` or `n` are not found in the abstract, the study is marked as "narrative candidate" and excluded from the quantitative pool.
 
-## Feasibility Assessment (Compute)
-- **Memory**: The analysis of < 100 studies requires negligible RAM (< 500MB).
-- **CPU**: Statistical calculations (I², Egger's) are $O(N)$ and will complete in seconds.
-- **Time**: Total runtime on GitHub Actions (2 vCPU) estimated at < 5 minutes.
-- **Constraints**: No GPU required. All libraries (`statsmodels`, `scipy`) have CPU wheels available.
+### 6. Fallback Protocol (FR-006)
+- **Decision**: If unique (Author, Year) pairs < 10, switch to narrative mode.
+- **Output**: Generate a structured text summary of qualitative findings instead of a pooled effect size.
+
+### 7. Narrative Synthesis Methodology
+- **Decision**: Use a thematic analysis framework for the narrative review.
+- **Coding Scheme**:
+ - **Theme 1**: Tract Involvement (e.g., "Arcuate Fasciculus is most frequently cited").
+ - **Theme 2**: Metric Direction (e.g., "FA increases associated with preference").
+ - **Theme 3**: Population Differences (e.g., "Musicians vs. Non-musicians").
+- **Output**: A structured summary report organized by these themes.
+
+## Compute Feasibility
+
+- **Memory**: The analysis is lightweight (pandas dataframes, statsmodels). Expected peak RAM < 1GB.
+- **CPU**: No GPU required. `statsmodels` and `scipy` run efficiently on 2 vCPU.
+- **Time**: Processing multiple studies takes seconds. The 15-minute limit (SC-001) is generous.
+- **Disk**: Input CSVs and output PNGs are small (<10MB total).
 
 ## Risks & Mitigations
-- **Risk**: Insufficient studies ($N < 10$) for quantitative analysis.
- - **Mitigation**: The pipeline is explicitly designed to detect this and switch to Narrative Mode (FR-006). This is an acceptable outcome per the spec.
-- **Risk**: Missing effect sizes (only p-values reported).
- - **Mitigation**: The extraction module will attempt conversion using standard formulas (p-value to z-score to r) or flag the study for exclusion with a log entry.
-- **Risk**: Model convergence failure.
- - **Mitigation**: Fallback to Fixed-Effects model if Random-Effects fails to converge, with a warning log.
-- **Risk**: Tract definition heterogeneity.
- - **Mitigation**: Mapping to a standard ontology and flagging non-standard entries.
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| No studies found with direct (r, n) pairs | High | Trigger narrative fallback (FR-006). Use synthetic data for testing. |
+| I² calculation fails to converge | Medium | Log error, fall back to fixed-effects model (as per Edge Cases). |
+| Egger's test requires N≥10 but N=9 | Low | Skip test, report specific reason (T021). |
+| PNG files exceed 5MB | Medium | Optimize DPI and compression in `matplotlib` (T031). |
+| Heterogeneity too high (I² > 75%) | High | Suppress pooled estimate in report; emphasize narrative findings. |

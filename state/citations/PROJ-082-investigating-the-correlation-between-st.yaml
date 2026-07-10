@@ -1,4 +1,4 @@
-- artifact_hash: 0cbc66deb1018acc57d6cf4065d735f6ffe833c90e8aa502b9644b66046760b6
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
   artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,22 +7,44 @@
   kind: url
   value: https://huggingface.co/datasets/MedRAG/pubmed/resolve/main/chunk/pubmed23n0001.jsonl`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d4e87efb0d0560cfd5c2b9/688767e910318cc898ad968bbfa5d1bf8daa39d5795ed1ea0c356198f3dd6d5b?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pubmed23n0001.jsonl%3B+filename%3D%22pubmed23n0001.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783588960&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkNGU4N2VmYjBkMDU2MGNmZDVjMmI5LzY4ODc2N2U5MTAzMThjYzg5OGFkOTY4YmJmYTVkMWJmOGRhYTM5ZDU3OTVlZDFlYTBjMzU2MTk4ZjNkZDZkNWJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHVibWVkMjNuMDAwMS5qc29ubCUzQitmaWxlbmFtZSUzRCUyMnB1Ym1lZDIzbjAwMDEuanNvbmwlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU4ODk2MH19fV19&Signature=MEUCIEpEfo7z8HsJHNb1fprUjcI2CaJuvvL521yDeK9QpO49AiEAgaDmSt7PC7itPVh1ayuaXp%7EFKQO7Jb0WDsVz8Kwr0C8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-09T08:22:40.169620Z'
-- artifact_hash: 0cbc66deb1018acc57d6cf4065d735f6ffe833c90e8aa502b9644b66046760b6
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65d4e87efb0d0560cfd5c2b9/688767e910318cc898ad968bbfa5d1bf8daa39d5795ed1ea0c356198f3dd6d5b?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pubmed23n0001.jsonl%3B+filename%3D%22pubmed23n0001.jsonl%22%3B&user_id=public&Expires=1783693818&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVkNGU4N2VmYjBkMDU2MGNmZDVjMmI5LzY4ODc2N2U5MTAzMThjYzg5OGFkOTY4YmJmYTVkMWJmOGRhYTM5ZDU3OTVlZDFlYTBjMzU2MTk4ZjNkZDZkNWJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHVibWVkMjNuMDAwMS5qc29ubCUzQitmaWxlbmFtZSUzRCUyMnB1Ym1lZDIzbjAwMDEuanNvbmwlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY5MzgxOH19fV19&Signature=MEQCIGrR9I927ja7e2I-vtiIse2Nz7X1sC4wOt6z7pSv2%7EBLAiA%7EPaqdkjYwcYEibxFiK9DKDkqlpi76BPZyLdL4AF8G5g__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T13:30:18.537549Z'
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
   artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: base_caption_templates_100.csv
+  fetched_title: pqaa.zip
   kind: url
-  value: https://huggingface.co/datasets/KRMayD/Brain_MRI_Dataset/resolve/main/Brain_MRI_Used_Data_SD/metadata/base_caption_templates_100.csv`
+  value: https://huggingface.co/datasets/bigbio/pubmed_qa/resolve/main/pqaa.zip`
   verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/KRMayD/Brain_MRI_Dataset/87c64a3d5986ac398b74931c1923c9bc8258f332/Brain_MRI_Used_Data_SD%2Fmetadata%2Fbase_caption_templates_100.csv?%2Fdatasets%2FKRMayD%2FBrain_MRI_Dataset%2Fresolve%2Fmain%2FBrain_MRI_Used_Data_SD%2Fmetadata%2Fbase_caption_templates_100.csv=&etag=%2274f45b78a9d751d1724a4f900a6e3519e75054ee%22
-  verified_at: '2026-07-09T08:22:40.169620Z'
-- artifact_hash: 0cbc66deb1018acc57d6cf4065d735f6ffe833c90e8aa502b9644b66046760b6
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63716ba1345f97d07b2b3945/1d81662d9a67765e1433d7436a8e6441fdd5bfc4f1b1f61122ebfe9fa3a530f6?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pqaa.zip%3B+filename%3D%22pqaa.zip%22%3B&response-content-type=application%2Fzip&user_id=public&Expires=1783693821&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM3MTZiYTEzNDVmOTdkMDdiMmIzOTQ1LzFkODE2NjJkOWE2Nzc2NWUxNDMzZDc0MzZhOGU2NDQxZmRkNWJmYzRmMWIxZjYxMTIyZWJmZTlmYTNhNTMwZjZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHFhYS56aXAlM0IrZmlsZW5hbWUlM0QlMjJwcWFhLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY5MzgyMX19fV19&Signature=MEQCIDMxoSY-t-T8S5hSfs4UU8EXFzj29tXDcro3TdRGT47cAiA7mrz0YZORwEqVMKFdQeb-ZBXs2hzcGR8AMn9Evlz2jA__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T13:30:18.537549Z'
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
   artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
   cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: psychedelics.csv
+  kind: url
+  value: https://huggingface.co/datasets/Gaborandi/Psychedelics_pubmed_abstracts/resolve/main/psychedelics.csv`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/640de997ade771d6c5fe1b3f/268a0bc98a8d37b84787c432e40c556ed0046b26bbedcc0fbe74d719e2b6207e?user_id=public&response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27psychedelics.csv%3B+filename%3D%22psychedelics.csv%22%3B&Expires=1783693831&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQwZGU5OTdhZGU3NzFkNmM1ZmUxYjNmLzI2OGEwYmM5OGE4ZDM3Yjg0Nzg3YzQzMmU0MGM1NTZlZDAwNDZiMjZiYmVkY2MwZmJlNzRkNzE5ZTJiNjIwN2VcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cHN5Y2hlZGVsaWNzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnBzeWNoZWRlbGljcy5jc3YlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzY5MzgzMX19fV19&Signature=MEUCIGb8WZ0oVQB5XjF9apdMxRxH8NX7xeENTLiOT7AkUCIDAiEAk%7EITqibY4leq8G6i8wYmZ%7E9Xv%7EbVwEWHq9JCeR0ZS1g_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T13:30:18.537549Z'
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
+  artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: mapping.tsv
+  kind: url
+  value: https://huggingface.co/datasets/FOMO-MRI/FOMO260K/resolve/main/PT001_ClevelandCCF/mapping.tsv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/FOMO-MRI/FOMO260K/f36570918e1ca274642db88c5f8a2ebbf204c538/PT001_ClevelandCCF%2Fmapping.tsv?%2Fdatasets%2FFOMO-MRI%2FFOMO260K%2Fresolve%2Fmain%2FPT001_ClevelandCCF%2Fmapping.tsv=&etag=%22b4f4eab37c38b5267bebf0df405e8a2bbef11eaa%22
+  verified_at: '2026-07-10T13:30:18.537549Z'
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
+  artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: FOMO45k_260k_mapping.tsv
@@ -30,15 +52,15 @@
   value: https://huggingface.co/datasets/FOMO-MRI/FOMO45K/resolve/main/FOMO45k_260k_mapping.tsv`
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/FOMO-MRI/FOMO45K/bf2bb12bd5cfeaed65e4a003e72d55fb8322c28a/FOMO45k_260k_mapping.tsv?%2Fdatasets%2FFOMO-MRI%2FFOMO45K%2Fresolve%2Fmain%2FFOMO45k_260k_mapping.tsv=&etag=%228e4f4755645e96ea6e50069040f3793b00b7a5be%22
-  verified_at: '2026-07-09T08:22:40.169620Z'
-- artifact_hash: 0cbc66deb1018acc57d6cf4065d735f6ffe833c90e8aa502b9644b66046760b6
+  verified_at: '2026-07-10T13:30:18.537549Z'
+- artifact_hash: 92cf508f2a9956677346f65d0a421472f1d041767cb89651d42d73b301c6b2c6
   artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/research.md
-  cite_id: c-004
+  cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001-e16cdfe0f96065a2.parquet
+  fetched_title: base_caption_templates_100.csv
   kind: url
-  value: https://huggingface.co/datasets/umm-maybe/Skip_NoClip_Data/resolve/main/data/test-00000-of-00001-e16cdfe0f96065a2.parquet`
+  value: https://huggingface.co/datasets/KRMayD/Brain_MRI_Dataset/resolve/main/Brain_MRI_Used_Data_SD/metadata/base_caption_templates_100.csv`
   verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/650c94d4e063bef6d9ae3d9d/db7518500cb851bbf77678ded6650bf80134000ffc0eb60634237669d811ae94?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001-e16cdfe0f96065a2.parquet%3B+filename%3D%22test-00000-of-00001-e16cdfe0f96065a2.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783588963&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUwYzk0ZDRlMDYzYmVmNmQ5YWUzZDlkL2RiNzUxODUwMGNiODUxYmJmNzc2NzhkZWQ2NjUwYmY4MDEzNDAwMGZmYzBlYjYwNjM0MjM3NjY5ZDgxMWFlOTRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS1lMTZjZGZlMGY5NjA2NWEyLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDAxLWUxNmNkZmUwZjk2MDY1YTIucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzNTg4OTYzfX19XX0_&Signature=MEUCIQDpcZQm5rl%7EG6exuTJBkxPz4KaRmzCxo0wrjcmvxYWorwIgaCG9ARCLfyDNFZ36h61WbfUAsimuVyE-uNUhqkoHV2E_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-09T08:22:40.169620Z'
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/KRMayD/Brain_MRI_Dataset/87c64a3d5986ac398b74931c1923c9bc8258f332/Brain_MRI_Used_Data_SD%2Fmetadata%2Fbase_caption_templates_100.csv?%2Fdatasets%2FKRMayD%2FBrain_MRI_Dataset%2Fresolve%2Fmain%2FBrain_MRI_Used_Data_SD%2Fmetadata%2Fbase_caption_templates_100.csv=&etag=%2274f45b78a9d751d1724a4f900a6e3519e75054ee%22
+  verified_at: '2026-07-10T13:30:18.537549Z'
