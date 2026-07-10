@@ -2,16 +2,16 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to a terminal with sufficient free RAM and CPU cores.
+-   Python 3.11+
+-   Git
+-   7GB+ RAM (for local development; CI uses 7GB)
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-047-exploring-the-impact-of-data-imputation-
+    cd projects/PROJ-047-exploring-the-impact-of-data-imputation-/
     ```
 
 2.  **Create a virtual environment**:
@@ -24,42 +24,51 @@
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: This installs `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `matplotlib`, and `pytest`.*
 
 ## Running the Simulation
 
-### 1. Run a Single Simulation (Debug Mode)
-To test the pipeline with a single seed and $\beta$ value:
-```bash
-python code/main.py --seed 42 --beta 0.5 --runs 1
-```
-*   Output: `data/raw/synth_42_0.5.csv`, `data/processed/`, `data/results/estimates_42_0.5.csv`.
+### Full Sensitivity Analysis
+Execute the full simulation sweep ($\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$) with 200 replications:
 
-### 2. Run the Full Sensitivity Analysis
-To run the full study (200 runs per $\beta$, 5 $\beta$ values = 1,000 total runs):
 ```bash
-python code/main.py --full-sweep
-```
-* **Expected Runtime**: [deferred] on a standard CPU.
-*   **Output**: `data/results/sensitivity_analysis.csv`, `data/results/summary_plots/`.
-
-### 3. Verify Results
-Check the generated summary file:
-```bash
-python -c "import pandas as pd; df = pd.read_csv('data/results/sensitivity_analysis.csv'); print(df[['beta', 'method', 'mean_bias', 'coverage_rate']].head())"
+python code/main.py --beta-sweep --replications 200
 ```
 
-## Reproducibility Check
+### Single Run (Debug)
+Run a single simulation for a specific $\beta$ value:
 
-To ensure reproducibility, run the simulation with a fixed seed and compare the output hash:
 ```bash
-python code/main.py --seed 12345 --beta 0.5 --runs 1
-sha256sum data/results/estimates_12345_0.5.csv
+python code/main.py --beta 0.5 --replications 1
 ```
-The hash should match the recorded hash in `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml`.
+
+### Output
+Results will be saved to `data/synthetic/`:
+-   `raw/`: Generated datasets.
+-   `imputed/`: Imputed datasets.
+-   `estimates/`: Causal estimates and bias metrics.
+-   `summary/`: Aggregated statistics and plots.
+
+## Verification
+
+1.  **Check Ground Truth**:
+    ```bash
+    python code/tests/test_scm.py
+    ```
+    Ensure the generated ATE matches the theoretical value.
+
+2.  **Check MNAR Mechanism**:
+    ```bash
+    python code/tests/test_missingness.py
+    ```
+    Verify Spearman correlation $\rho > 0.5$ between $M$ and $Y$.
+
+3.  **Run Full Test Suite**:
+    ```bash
+    pytest code/tests/ -v
+    ```
 
 ## Troubleshooting
 
-*   **Memory Error**: Reduce `N_SAMPLES` in `code/simulation/config.py` (default value).
-*   **Convergence Warning (MICE)**: Increase `max_iter` in `code/analysis/imputation.py` or switch to `BayesianRidge` estimator.
-*   **Runtime Exceeds 6h**: Reduce the number of replications in `code/simulation/config.py` from a higher baseline to a lower count. (note: this affects statistical power).
+-   **Memory Error**: Reduce `--replications` or `sample_size` in `code/simulation/config.py`.
+-   **Convergence Failure**: Increase MICE iterations or switch to Mean/KNN for debugging.
+-   **Runtime Error**: Ensure no GPU acceleration is enabled (check `CUDA_VISIBLE_DEVICES` is empty).

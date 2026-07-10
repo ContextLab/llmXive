@@ -40,9 +40,10 @@
 
 - [ ] T004 Create `code/simulation/config.py` defining hyperparameters: beta sweep `[0.0, 0.2, 0.5, 0.8, 1.0]`, sample size `N=1000`, replications per beta `200`, and random seed management
 - [ ] T005 [P] [Foundational] Define base classes/interfaces in `code/simulation/scm_generator.py`: create abstract `SCMGenerator` class and `SyntheticDataset` dataclass with fields `X`, `T`, `Y`, `ground_truth_ate`, `seed`.
-- [ ] T006 [P] [Foundational] Define base classes/interfaces in `code/simulation/missingness.py`: create abstract `MissingnessInjector` class and `MissingnessPattern` dataclass with fields `mask`, `alpha`, `beta`, `target_rate`.
-- [ ] T007 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
-- [ ] T008 [P] [Foundational] Create `code/main.py` with an empty CLI entry point skeleton (no loop logic yet) that accepts `--config` and `--output` arguments.
+- [ ] T006 [P] [Foundational] Implement `regenerate_ground_truth(seed, beta)` function in `code/simulation/scm_generator.py` to deterministically regenerate the exact $\tau_{true}$ and $\beta$ parameters for any given seed, ensuring Constitution Principle VI compliance. **Add unit tests** in `tests/test_scm_generator.py` with function name `test_regenerate_ground_truth`. The test must verify that for `seed=42` and `beta=0.5`, the function returns `tau_true=0.5` and `beta=0.5` exactly (hardcoded expected values).
+- [ ] T007 [P] [Foundational] Define base classes/interfaces in `code/simulation/missingness.py`: create abstract `MissingnessInjector` class and `MissingnessPattern` dataclass with fields `mask`, `alpha`, `beta`, `target_rate`.
+- [ ] T008 Create `code/analysis/__init__.py` and base data structures for `SyntheticDataset`, `ImputationResult`, and `CausalEstimate` entities
+- [ ] T009 [P] [Foundational] Create `code/main.py` with an empty CLI entry point skeleton (no loop logic yet) that accepts `--config` and `--output` arguments.
 
 ---
 
@@ -54,13 +55,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
-- [ ] T010 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
-- [ ] T011 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
-- [ ] T012 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to flag runs where VIF > 10 (Edge Case: near-perfect collinearity).
-- [ ] T013 [US1] [Requires: T009, T010] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and unobserved $Y$. If $\rho \le 0.5$ or $p \ge 0.01$, flag the run as `invalid_mnar` and exclude it from bias aggregation. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": int, "correlation": float, "p_value": float, "is_mnar_valid": bool }`.
-- [ ] T014 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
-- [ ] T015 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
+- [ ] T010 [P] [US1] Implement concrete logic in `code/simulation/scm_generator.py`: create `generate_scm(seed, n, tau_true)` function that returns a `SyntheticDataset` object with `X`, `T`, `Y`, `ground_truth_ate`.
+- [ ] T011 [P] [US1] Implement concrete logic in `code/simulation/missingness.py`: create `inject_mnar(data, beta, target_rate)` function using logistic regression to generate mask `M` based on `Y` (FR-002).
+- [ ] T012 [US1] Implement `code/simulation/missingness.py` function `tune_alpha(beta, target_rate)` to find $\alpha$ that yields the desired missingness rate for a given $\beta$.
+- [ ] T013 [US1] Add collinearity diagnostic check in `code/simulation/scm_generator.py` to flag runs where VIF > 10 (Edge Case: near-perfect collinearity).
+- [ ] T014 [US1] [Requires: T010, T011] Implement verification logic in `code/simulation/verify_us1.py`: Calculate Spearman $\rho$ between $M$ and unobserved $Y$. If $\rho \le $ or $p \ge 0.01$, **flag** the run as `invalid_mnar`. **Define `run_id` as a SHA-256 hash of `seed` and `beta`**. Write results to `data/results/us1_verification.json` with schema: `{ "run_id": "<hash>", "correlation": float, "p_value": float, "is_mnar_valid": bool, "status": "valid" | "failed_low_correlation" }`. The main loop (T029a) must skip aggregation for runs where `is_mnar_valid` is false.
+- [ ] T015 [US1] Create `tests/test_scm_generator.py` to test deterministic generation given a seed and verify ground-truth ATE storage.
+- [ ] T016 [US1] Create `tests/test_missingness.py` to test that missingness correlates with `Y` and that `tune_alpha` converges to target rate.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (synthetic data generation with MNAR)
 
@@ -74,15 +75,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mean_imputation(data)`
-- [ ] T017 [P] [US2] Implement `code/analysis/imputation.py` function `apply_knn_imputation(data, k=5)` using `sklearn.impute.KNNImputer` (CPU only, FR-003)
-- [ ] T018 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mice_imputation(data)` using `sklearn.impute.IterativeImputer` with `BayesianRidge` or `RandomForestRegressor` (CPU only, FR-003)
-- [ ] T019 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_ipw(data, treatment_col, outcome_col)` using `statsmodels` (FR-004)
-- [ ] T020 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_psm(data, treatment_col, outcome_col)` using nearest neighbor matching (FR-004)
-- [ ] T021 [US2] Create `code/analysis/pipeline.py` to orchestrate: Input incomplete data → Apply 3 imputations → Apply 2 estimators to each → Return matrix of 6 ATE estimates
-- [ ] T022 [US2] Add error handling in `pipeline.py` to detect and flag non-convergent imputation runs or infinite estimates (Edge Case: extreme missingness)
-- [ ] T023 [US2] Create `tests/test_imputation.py` to verify imputation methods produce complete dataframes without NaNs
-- [ ] T024 [US2] Create `tests/test_causal_estimation.py` to verify IPW and PSM return valid floats and standard errors
+- [ ] T017 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mean_imputation(data)`
+- [ ] T018 [P] [US2] Implement `code/analysis/imputation.py` function `apply_knn_imputation(data, k=5)` using `sklearn.impute.KNNImputer` (CPU only, FR-003)
+- [ ] T019 [P] [US2] Implement `code/analysis/imputation.py` function `apply_mice_imputation(data)` using `sklearn.impute.IterativeImputer` with `BayesianRidge` or `RandomForestRegressor` (CPU only, FR-003).
+- [ ] T020 [P] [US2] **Implement Standard Error & CI Combination Logic**: Create `code/analysis/se_combination.py` with two functions: `apply_rubins_rules(estimates_list)` for MICE and `apply_bootstrap_ci(data, estimator_func, n_boot=1000)` for Mean/KNN. This task must output robust standard errors and confidence intervals.
+- [ ] T021 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_ipw(data, treatment_col, outcome_col)` using `statsmodels` (FR-004). **Call T020** for SE/CI calculation.
+- [ ] T022 [P] [US2] Implement `code/analysis/causal_estimation.py` function `estimate_ate_psm(data, treatment_col, outcome_col)` using nearest neighbor matching (FR-004). **Call T020** for SE/CI calculation.
+- [ ] T023 [US2] Create `code/analysis/pipeline.py` function `run_imputation_and_estimation(data)` to orchestrate: Input incomplete data → Apply 3 imputations → Apply multiple estimators to each → Return matrix of ATE estimates. **This function must be the single entry point for US2 logic.**
+- [ ] T024 [US2] Add error handling in `pipeline.py` to detect and flag non-convergent imputation runs or infinite estimates (Edge Case: extreme missingness)
+- [ ] T025 [US2] Create `tests/test_imputation.py` to verify imputation methods produce complete dataframes without NaNs
+- [ ] T026 [US2] Create `tests/test_causal_estimation.py` to verify IPW and PSM return valid floats and standard errors
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data generation + imputation + estimation)
 
@@ -96,15 +98,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
-- [ ] T026 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_coverage_rate(estimates, ground_truth)` for % CI validity (FR-008)
-- [ ] T027 [P] [US3] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: 1) Run Shapiro-Wilk test on bias distribution. 2) If $p < 0.05$, use Friedman test; else use Repeated-Measures ANOVA. 3) If significant ($p < 0.05$), run Nemenyi post-hoc. 4) If distribution is skewed, compute bootstrap confidence intervals for the difference in medians as a robust alternative (FR-006).
-- [ ] T028 [US3] Implement `code/main.py` loop to execute 200 replications for each $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. Write a file named `data/results/simulation_summary.csv` with the following schema: [beta, method, estimator, ate, bias, rmse, seed]. Ensure execution completes within the timeout constraint..
-- [ ] T029 [US3] Implement `code/analysis/sensitivity.py` to compute Spearman rank correlation $\rho$ between $\beta$ and mean absolute bias, verifying $\rho > 0.9$ and $p < 0.05$ trend (FR-007, SC-005)
-- [ ] T030 [US3] Generate plots in `data/results/`: `data/results/bias_vs_beta.png`, `data/results/coverage_vs_beta.pdf`, and `data/results/bias_distributions.png`. Verify files exist and are non-empty.
-- [ ] T031 [US3] Create `tests/test_metrics.py` to verify bias calculations match manual checks on small synthetic data
-- [ ] T032 [US3] Create `tests/test_sensitivity.py` to verify monotonic trend detection logic
-- [ ] T038 [US3] Implement `code/analysis/metrics.py` function `compute_bootstrap_ci(bias_matrix)` to calculate bootstrap confidence intervals for the difference in medians if the distribution is skewed (FR-006 robust alternative).
+- [ ] T027 [P] [US3] Implement `code/analysis/metrics.py` function `calculate_bias_metrics(estimates, ground_truth)` returning absolute bias and RMSE (FR-005)
+- [ ] T028 [P] [US3] Implement `code/analysis/metrics.py` function `run_statistical_test(bias_matrix)`: **Per Plan T014, implement a Linear Mixed-Effects Model (LMM)** using `statsmodels` or `linearmodels` with `run_id` as a random effect to test for bias differences across methods. If LMM fails to converge, fall back to ANOVA/Friedman. **If the distribution is skewed (assessed via Shapiro-Wilk), compute bootstrap confidence intervals as a robust alternative.** **Output**: Write the test result (p-value, test type used, conclusion, robust_ci if applicable) to `data/results/statistical_test_results.json`.
+- [ ] T029a [US3] [Requires: T023] **Loop Orchestration**: Implement `code/main.py` logic to iterate through $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$. For each $\beta$, iterate a sufficient number of times. **Invoke T023 (run_imputation_and_estimation)** for the pipeline step. Call `T010` (Gen), `T011` (Inject), `T014` (Verify). **Skip** aggregation for runs flagged `invalid_mnar` in T014.
+- [ ] T029b [US3] [Requires: T029a] **Data Aggregation**: Aggregate results from T029a into `data/results/simulation_summary.csv`. **Schema**: `[beta, method, estimator, ate, bias, rmse, seed, run_id, ground_truth_ate, beta_value, status]`. Ensure `ground_truth_ate` and `beta_value` are included for every row to satisfy Constitution VI. **Also calculate Spearman correlation and regression slope for bias vs. beta here.**
+- [ ] T029c [US3] [Requires: T029b] **Schema Validation**: Validate that `data/results/simulation_summary.csv` contains all columns required for T031 plots (bias_vs_beta, coverage_vs_beta, bias_distributions). If missing, raise an error.
+- [ ] T030 [US3] [Requires: T029b] **Bias Trend Verification**: Compute Spearman rank correlation $\rho$ AND regression slope for bias vs. $\beta$. Verify $\rho > 0.9$, $p < 0.05$, and slope is positive. **Output**: Write verification result (pass/fail, $\rho$, p-value, slope, status) to `data/results/bias_trend_verification.json`.
+- [ ] T031 [US3] Generate plots in `data/results/`: `data/results/bias_vs_beta.png`, `data/results/coverage_vs_beta.pdf`, and `data/results/bias_distributions.png`. Verify files exist and are non-empty.
+- [ ] T032 [US3] Create `tests/test_metrics.py` to verify bias calculations match manual checks on small synthetic data
+- [ ] T033 [US3] Create `tests/test_sensitivity.py` to verify monotonic trend detection logic
+- [ ] T035 [US3] [Requires: T029b] **Coverage Slope Verification**: Perform linear regression of coverage rate against $\beta$. Verify slope is negative and $p < 0.05$. **Output**: Write verification result (slope, p-value, pass/fail, status) to `data/results/coverage_slope_verification.json`.
+- [ ] T036 [US3] Create `tests/test_regression.py` to verify the coverage slope regression logic.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -114,13 +118,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Create `.github/workflows/simulation.yml` with steps to install dependencies, run `pytest`, and execute `main.py`.
-- [ ] T039 [P] Add timeout configuration to `.github/workflows/simulation.yml` (set `timeout-minutes: 240`) and verify execution time does not exceed a practical threshold on free-tier CPU (SC-003).
-- [ ] T034 [P] Implement `code/utils/hashing.py` to generate SHA-256 content hashes for all files in `data/`.
-- [ ] T040 [P] Implement logic to update `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `artifact_hashes` map using the hashes generated in T034.
-- [ ] T035 [P] Generate `docs/paper/` draft figures and tables directly from `data/results/simulation_summary.csv` (Single Source of Truth)
-- [ ] T036 Run full regression test suite on the complete pipeline to ensure no runtime errors under extreme missingness (>50%)
-- [ ] T037 Validate that all tasks complete without GPU usage or 8-bit quantization requirements
+- [ ] T037 [P] Create `.github/workflows/simulation.yml` with steps to install dependencies, run `pytest`, and execute `main.py`.
+- [ ] T038 [P] Add timeout configuration to `.github/workflows/simulation.yml` (set `timeout-minutes: 240`) and verify execution time does not exceed the maximum duration of the free-tier CPU. (SC-003).
+- [ ] T039 [P] Implement `code/utils/hashing.py` to generate SHA-256 content hashes for all files in `data/`.
+- [ ] T040 [P] Implement logic to update `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `artifact_hashes` map using the hashes generated in T039.
+- [ ] T041 [P] Update `.github/workflows/simulation.yml` to include a step that detects GPU usage (e.g., `nvidia-smi` check or environment variable) and fails the job if GPU is detected, ensuring strict CPU-only compliance.
+- [ ] T042a [US3] [Requires: T029c] Generate `docs/paper/bias_vs_beta.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_bias.py`.
+- [ ] T042b [US3] [Requires: T029c] Generate `docs/paper/coverage_vs_beta.pdf` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_coverage.py`.
+- [ ] T042c [US3] [Requires: T029c] Generate `docs/paper/bias_distributions.png` from `data/results/simulation_summary.csv` using a dedicated script `code/analysis/plot_distributions.py`.
+- [ ] T043 Run full regression test suite on the complete pipeline to ensure no runtime errors under extreme missingness (>50%)
 
 ---
 
@@ -215,4 +221,5 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All code must run on CPU-only GitHub Actions free tier (Multiple CPU, GB RAM, 6h limit). No GPU, no 8-bit quantization, no large models.
 - **Data Integrity**: Never fabricate data. Use `code/simulation/scm_generator.py` for all "ground truth".
-- **Statistical Rigor**: Use Shapiro-Wilk to decide between ANOVA and Friedman; use bootstrap CIs for skewed data.
+- **Statistical Rigor**: Use LMM as primary test (Plan T014); Bootstrap as fallback.
+- **Verification**: All statistical tests must output JSON verification files with pass/fail flags.

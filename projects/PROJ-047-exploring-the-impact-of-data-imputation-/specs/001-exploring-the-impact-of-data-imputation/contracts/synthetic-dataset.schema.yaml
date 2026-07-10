@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SyntheticDataset
+description: Schema for a generated synthetic dataset with known ground-truth ATE and MNAR parameters.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the simulation run (e.g., seed_123_beta_0.5)."
+  seed:
+    type: integer
+    description: "Random seed used for generation."
+  beta:
+    type: number
+    description: "MNAR strength parameter (beta)."
+  sample_size:
+    type: integer
+    description: "Number of samples (N)."
+  ground_truth_ate:
+    type: number
+    description: "Known ATE (tau_true) from the SCM."
+  missingness_rate:
+    type: number
+    description: "Proportion of missing values in Y."
+  data_path:
+    type: string
+    description: "Path to the generated dataset (Parquet/CSV)."
+  checksum:
+    type: string
+    description: "SHA-256 hash of the data file."
+required:
+  - run_id
+  - seed
+  - beta
+  - sample_size
+  - ground_truth_ate
+  - missingness_rate
+  - data_path
+  - checksum
+additionalProperties: false

@@ -1,43 +1,39 @@
 # Implementation Plan: Exploring the Impact of Data Imputation Methods on Causal Inference
 
 **Branch**: `001-data-imputation-mnar-impact` | **Date**: 2026-07-10 | **Spec**: `specs/001-data-imputation-mnar-impact/spec.md`
-**Input**: Feature specification from `specs/001-data-imputation-mnar-impact/spec.md`
+**Input**: Feature specification from `/specs/001-data-imputation-mnar-impact/spec.md`
 
 ## Summary
 
-This feature implements a simulation study to quantify the bias introduced by standard imputation methods (Mean, KNN, MICE) when applied to data with Missing Not At Random (MNAR) mechanisms. The system generates synthetic Structural Causal Models (SCMs) with known ground-truth Average Treatment Effects (ATE), injects missingness based on unobserved outcomes, applies imputation, and estimates causal effects using IPW and PSM. The plan addresses every FR and SC, ensuring computational feasibility on CPU-only GitHub Actions runners while maintaining strict reproducibility and statistical rigor.
-
-**Experimental Design**: The study performs **200 replications per beta level** across **5 beta levels** (0.0, 0.2, 0.5, 0.8, 1.0), resulting in **1,000 total simulation runs**. This design ensures sufficient statistical power for the Friedman test and sensitivity analysis (SC-003 refers to the 200 replications per level required for stability).
+This project implements a simulation study to quantify the bias introduced by standard imputation methods (Mean, KNN, MICE) when applied to data with Missing Not At Random (MNAR) mechanisms. The core technical approach involves generating synthetic Structural Causal Models (SCMs) with known ground-truth Average Treatment Effects (ATE), injecting missingness into the outcome variable based on unobserved values, and comparing the resulting causal estimates (via IPW and PSM) against the known truth. The study explicitly sweeps the MNAR strength parameter to identify failure thresholds, adhering to strict CPU-only constraints for execution on GitHub Actions free-tier runners.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `causalgraphicalmodels` (or custom SCM generator), `fancyimpute` (MICE), `matplotlib`, `seaborn`, `pytest`  
-**Storage**: Local filesystem (`data/` for synthetic artifacts, `data/processed/` for results)  
-**Testing**: `pytest` with parameterized tests for simulation runs  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational Research / Simulation Study  
-**Performance Goals**: Complete 1,000 simulation runs (200 per beta) + sensitivity analysis within 4 hours on 2 CPU cores, 7GB RAM.  
-**Constraints**: No GPU usage; no 8-bit/4-bit quantization; strict memory limits (<7GB RAM); no external dataset dependencies (synthetic only).  
-**Scale/Scope**: A sufficient number of replications per beta level, 5 beta levels, 3 imputation methods, 2 estimators.
+**Primary Dependencies**: `scikit-learn>=1.3.0`, `statsmodels>=0.14.0`, `numpy>=1.24.0`, `pandas>=2.0.0`, `scipy>=1.11.0`, `causalnex>=0.12.0` (or `dowhy` if CPU-tractable, otherwise custom SCM), `fancyimpute` (or `sklearn.impute` for MICE via `IterativeImputer`), `linearmodels` (for Mixed-Effects).  
+**Storage**: Local file system (`data/synthetic/`), JSON/CSV/Parquet outputs.  
+**Testing**: `pytest` with `pytest-cov`.  
+**Target Platform**: Linux (GitHub Actions free-tier: A modest number of CPUs and sufficient RAM).  
+**Project Type**: Computational Research / Simulation Engine.  
+**Performance Goals**: Complete 200 simulation runs + sensitivity analysis within 4 hours (SC-003).  
+**Constraints**: Strictly CPU-only; no GPU; memory usage < 6GB; no external API calls for data generation (synthetic only).  
+**Scale/Scope**: Multiple simulation replications across varying MNAR strength levels ($\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$).
 
-**Agents & Tools**:
-- **Advancement-Evaluator Agent**: Manages project state transitions. Updates `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `updated_at` and `artifact_hashes` on artifact changes.
-- **Reference-Validator Agent**: Validates citations at three points: (1) on artifact write, (2) before Advancement-Evaluator review, (3) as a blocking gate on `research_review` → `research_accepted`.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Compliance Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/simulation.py`. `requirements.txt` pins versions. Synthetic data generation is deterministic given seed. |
-| **II. Verified Accuracy** | **PASS** | No external dataset URLs are cited for the core analysis (synthetic data). Any references to literature (e.g., MICE papers) will be validated by the **Reference-Validator Agent** at three specific points: (1) on artifact write, (2) before Advancement-Evaluator review, and (3) as a blocking gate on `research_review` → `research_accepted`, as mandated by the Constitution's Verified Accuracy Gate. |
-| **III. Data Hygiene** | **PASS** | Synthetic data generated is checksummed. No modification of raw synthetic files; intermediate results written to new files with hashes. |
-| **IV. Single Source of Truth** | **PASS** | All bias metrics and plots in `paper/` will be derived directly from `data/results/simulation_summary.csv`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Artifacts in `data/` and `code/` will carry content hashes. The **Advancement-Evaluator Agent** updates `state/projects/PROJ-047-exploring-the-impact-of-data-imputation-.yaml` `updated_at` and `artifact_hashes` map whenever any file under `data/` or `code/` changes, ensuring the state file reflects the current project state. |
-| **VI. Synthetic Ground Truth Integrity** | **PASS** | `code/simulation.py` explicitly encodes `tau_true` and `beta` (MNAR parameter). Bias is calculated as `|estimate - tau_true|`. |
-| **VII. Causal Estimation Robustness** | **PASS** | Both IPW and PSM are implemented. Interaction effects between imputation and estimator are logged and flagged if bias diverges significantly. |
+| Principle | Status | Action Required / Note |
+|-----------|--------|------------------------|
+| **I. Reproducibility** | PASS | Random seeds will be pinned in `code/`. Synthetic generation is deterministic given seed. |
+| **II. Verified Accuracy** | PASS | No external citations for data generation; synthetic ground truth is self-contained. Citations for methods (MICE, IPW) will be validated against primary sources. |
+| **III. Data Hygiene** | PASS | Synthetic data files will be checksummed upon generation. No PII (synthetic only). |
+| **IV. Single Source of Truth** | PASS | All bias metrics and plots will be generated programmatically from `data/synthetic/` results. No hand-typed numbers. |
+| **V. Versioning Discipline** | PASS | Artifacts (scripts, data) will carry content hashes. State file updated on changes. |
+| **VI. Synthetic Ground Truth Integrity** | PASS | `code/simulation/scm_generator.py` will explicitly encode $\tau_{true}$ and $\beta`. A dedicated `regenerate_ground_truth(seed, beta)` function (Task T006) ensures mathematical verifiability. |
+| **VII. Causal Estimation Robustness Verification** | PASS | Both IPW and PSM will be run for every imputation method. Divergence (diff > 0.1 or non-overlapping CIs) will be flagged in `ImputationResult` (Task T015). |
 
 ## Project Structure
 
@@ -49,12 +45,11 @@ specs/001-data-imputation-mnar-impact/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── synthetic_data.schema.yaml
-│   ├── imputation_result.schema.yaml
-│   └── causal_estimate.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── synthetic-dataset.schema.yaml
+    └── causal-estimate.schema.yaml
 ```
+*Note: Duplicate schema files (`synthetic_data.schema.yaml`, `synthetic_dataset.schema.yaml`, `causal_estimate.schema.yaml`) have been removed to establish `synthetic-dataset.schema.yaml` and `causal-estimate.schema.yaml` as the canonical SSoT.*
 
 ### Source Code (repository root)
 
@@ -62,95 +57,73 @@ specs/001-data-imputation-mnar-impact/
 code/
 ├── simulation/
 │   ├── __init__.py
-│   ├── scm_generator.py      # Generates SCM with known ATE
-│   ├── missingness.py        # Injects MNAR missingness (tunes alpha for fixed rate)
-│   └── config.py             # Hyperparameters (beta sweep, N, seeds)
+│   ├── scm_generator.py       # Generates SCM with known ATE
+│   ├── missingness.py         # Injects MNAR missingness
+│   └── config.py              # Simulation parameters (beta sweep, seeds)
 ├── analysis/
 │   ├── __init__.py
-│   ├── imputation.py         # Mean, KNN, MICE wrappers
-│   ├── causal_estimation.py  # IPW and PSM wrappers
-│   └── metrics.py            # Bias, RMSE, Coverage, Statistical tests (Friedman/Nemenyi)
-├── main.py                   # Orchestration script
-├── requirements.txt          # Pinned dependencies
-└── tests/
-    ├── test_scm_generator.py
-    ├── test_missingness.py
-    └── test_metrics.py
-
-data/
-├── raw/                      # Generated synthetic datasets (checksummed)
-├── processed/                # Imputed datasets, causal estimates
-└── results/                  # Aggregated bias tables, plots
-
-state/
-└── projects/
-    └── PROJ-047-exploring-the-impact-of-data-imputation-.yaml  # Managed by Advancement-Evaluator
-
-docs/
-└── paper/                    # Draft paper with figures
+│   ├── imputation.py          # Mean, KNN, MICE wrappers
+│   ├── causal_estimation.py   # IPW and PSM logic
+│   └── metrics.py             # Bias, RMSE, Coverage, Statistical tests, Divergence Flagging
+├── main.py                    # Orchestration: loops beta, runs sims, aggregates
+├── tests/
+│   ├── test_scm.py
+│   ├── test_missingness.py
+│   └── test_metrics.py
+├── requirements.txt           # Pinned dependencies
+└── README.md                  # Execution instructions
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`simulation`, `analysis`) is chosen to keep the project lightweight and runnable on CI. No separate frontend/backend or mobile layers are needed for a pure simulation study.
+**Structure Decision**: Single-project structure chosen for tight coupling of simulation and analysis. No frontend/backend split. Modular separation of `simulation` (data gen) and `analysis` (processing) ensures testability and aligns with the "Foundational" vs "Orchestration" dependency correction from previous concerns.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Two Estimators (IPW & PSM)** | Required by FR-004 and Constitution Principle VII to distinguish imputation error from estimator error. | Using only one estimator (e.g., PSM) would conflate imputation bias with estimator bias, failing to isolate the impact of missingness handling. |
-| **MNAR Parameter Sweep** | Required by FR-007 and SC-005 to identify failure thresholds. | A single beta value would not reveal the monotonic trend or the specific point where standard methods fail. |
-| **Statistical Normality Check** | **REMOVED**. The plan now mandates the **Friedman test** by default for all bias comparisons to avoid 'test of assumptions' bias. | Relying on a Shapiro-Wilk test to choose between ANOVA and Friedman introduces bias and is statistically unsound for this design. The Friedman test is robust to non-normality and is the standard for repeated-measures simulation studies. |
-| **Replication Count** | **200 replications per beta level** ([deferred] total runs) are required to stabilize bias estimates and ensure power for the Friedman test. | A total of 200 runs (40 per level) would be underpowered to detect significant differences in bias across methods (SC-003). |
+|-----------|------------|-------------------------------------|
+| None | The project adheres to a single-repo, modular Python structure. | N/A |
 
-## Methodology Highlights
+## Implementation Phases & Tasks
 
-### 1. Synthetic Data Generation (FR-001, US-1)
-*   **Model**: Structural Causal Model (SCM) with binary treatment $T$, continuous outcome $Y$, and confounders $X$.
-*   **Ground Truth**: The ATE ($\tau_{true}$) is explicitly set (e.g., 0.5) during generation.
-*   **MNAR Mechanism**: Missingness $M$ is generated via logistic regression: $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta Y)$.
-    *   $\beta$ controls the strength of MNAR.
- * **$\alpha$ is tuned dynamically** for each $\beta$ to maintain a **fixed missingness rate** (e.g., [deferred]), isolating the effect of $\beta$ from the volume of missing data.
-    *   $\beta \in \{0.0, 0.2, 0.5, 0.8, 1.0\}$ for sensitivity analysis.
-*   **Verification**: All runs are included regardless of the Spearman correlation between $M$ and unobserved $Y$. **No arbitrary threshold (e.g., $\rho > 0.5$) is used to discard runs.** The acceptance criteria in the spec (US-1) regarding $\rho > 0.5$ serves as a verification of the *mechanism generation* (ensuring the code works) but is NOT applied as a filter to the final dataset for sensitivity analysis. This ensures the full spectrum of MNAR strength is captured, including subtle effects.
-*   **Bias Definition**: Bias is calculated as $|\hat{\tau}_{imp} - \tau_{true}|$, where $\tau_{true}$ is the **known generative parameter**, not an empirical estimate from observed data. This avoids tautological confusion about identifiability under MNAR. The observed data under MNAR is inherently biased; the study measures how much the imputation methods fail to recover the *generative parameter*.
+### Phase 0: Setup & Verification
+- **T001**: Initialize repository, `requirements.txt`, and CI workflow (CPU-only).
+- **T002**: Set up directory structure (`data/`, `code/`, `specs/`).
+- **T003**: Implement basic logging and configuration loading (`config.py`).
 
-### 2. Imputation Pipeline (FR-003, US-2)
-*   **Methods**:
-    *   **Mean**: Simple mean imputation (baseline).
-    *   **KNN**: k-Nearest Neighbors ($k=5$) using Euclidean distance.
-    *   **MICE**: Multivariate Imputation by Chained Equations (using `IterativeImputer` in scikit-learn with `RandomForestRegressor` or `BayesianRidge`).
-*   **Constraint**: All methods run on CPU. No GPU acceleration.
+### Phase 1: Foundational Simulation Engine (Per Spec FR-001, FR-002)
+- **T004**: Implement `scm_generator.py` to generate synthetic data (Binary T, Continuous Y, Confounders X) with fixed $\tau_{true}$.
+- **T005**: Implement `missingness.py` to inject MNAR missingness using logistic model $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta Y)$.
+- **T006**: **Implement `regenerate_ground_truth(seed, beta)` function** in `scm_generator.py`. This function must deterministically regenerate the exact $\tau_{true}$ and $\beta$ parameters for any given seed, ensuring Constitution Principle VI compliance. Add unit tests verifying `regenerate_ground_truth` returns the expected values.
+- **T007**: Implement collinearity check (VIF) in `scm_generator.py` to flag runs with VIF > 10.
 
-### 3. Causal Estimation (FR-004, US-2)
-*   **IPW**: Inverse Probability Weighting using propensity scores estimated via logistic regression on **imputed data**.
-*   **PSM**: Propensity Score Matching (1:1 nearest neighbor matching) on **imputed data**.
-*   **Handling MNAR Bias in Propensity Scores**: The plan explicitly acknowledges that under MNAR, the imputation introduces bias into the propensity scores (since $Y$ influences $M$, and $M$ influences the imputed $Y$, which influences $T$ estimation if $T$ is correlated with $Y$). This bias is an expected component of the total error being measured. No attempt is made to restrict to complete cases, as that would defeat the purpose of testing imputation methods. The study measures the total bias (imputation + estimation) relative to the generative parameter.
+### Phase 2: Imputation & Estimation Logic (Per Spec FR-003, FR-004)
+- **T008**: Implement `imputation.py` wrappers for Mean, KNN ($k=5$), and MICE (using `IterativeImputer` with CPU settings).
+- **T009**: Implement `causal_estimation.py` for IPW and PSM. Ensure both estimators return `estimate`, `se`, and `ci_bounds`.
+- **T010**: Implement standard error correction logic:
+    - For MICE: Implement Rubin's Rules to combine estimates across imputations.
+    - For Mean/KNN: Implement bootstrapping of the full imputation+estimation pipeline to derive robust SEs and CIs.
 
-### 4. Bias Quantification & Statistical Testing (FR-005, FR-006, US-3)
-*   **Metrics**:
-    *   Absolute Bias: $|\hat{\tau} - \tau_{true}|$
-    *   RMSE: $\sqrt{\frac{1}{n}\sum(\hat{\tau}_i - \tau_{true})^2}$
-    *   Coverage Rate: Proportion of 95% CIs containing $\tau_{true}$.
-*   **Statistical Tests**:
-    *   **Default**: **Friedman test** for comparing bias across 3 methods (Mean, KNN, MICE) within each beta level. The Shapiro-Wilk test has been removed to avoid 'test of assumptions' bias.
-    *   **Post-hoc**: **Nemenyi test** for pairwise comparisons if Friedman test is significant ($p < 0.05$).
-    *   **Robustness**: Bootstrap CIs for median differences.
-*   **Sensitivity Analysis**: Spearman rank correlation ($\rho$) between $\beta$ and mean absolute bias. Expect $\rho > 0.9$.
+### Phase 3: Orchestration & Analysis (Per Spec FR-005, FR-006, FR-007, FR-008)
+- **T011**: Create `main.py` skeleton with CLI entry point (`--beta-sweep`, `--replications`).
+- **T012**: Implement the main simulation loop:
+    1. Load config (beta values, seeds).
+    2. Call `T004` (Generate Data).
+    3. Call `T005` (Inject Missingness).
+    4. Call `T006` (Verify Ground Truth).
+    5. Call `T008` (Impute).
+    6. Call `T009` (Estimate).
+    7. Call `T010` (Calculate SE/CI).
+- **T013**: Implement `metrics.py` to calculate:
+    - Absolute Bias ($|\hat{\tau} - \tau_{true}|$).
+    - Squared Error (per run).
+    - Coverage Rate (% CI).
+    - **Divergence Flag**: Calculate $|\hat{\tau}_{IPW} - \hat{\tau}_{PSM}|$. Flag if difference > 0.1 OR if 95% CIs do not overlap. Store flag in `ImputationResult`.
+- **T014**: Implement statistical testing in `metrics.py`:
+    - Fit Linear Mixed-Effects Model (LMM) with `run_id` as random effect to test for bias differences across methods (replacing ANOVA/Friedman).
+    - Calculate Spearman correlation for monotonicity trends.
+- **T015**: Implement aggregation logic to compute RMSE (aggregated from `squared_error` across runs) and generate summary plots.
+- **T016**: Write results to `data/synthetic/` with checksums.
 
-## Compute Feasibility
-
-*   **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-*   **Strategy**:
-    *   Data generation and imputation are vectorized (numpy/pandas).
-    *   MICE uses `IterativeImputer` with a limited number of iterations and a lightweight estimator (Ridge).
-    *   Causal estimation uses `statsmodels` (IPW) and `causalinference` or custom PSM (efficient numpy implementation).
- * **Runtime**: [deferred] runs total. Estimated time per run: on the order of seconds (CPU). Total: several hours.
-    *   **Memory**: $N=1000$ datasets are small (~1MB). Multiple runs fit easily in 7GB RAM.
-    *   **No GPU**: All libraries (scikit-learn, statsmodels) default to CPU.
-
-## Decision Rationale
-
-*   **Why Synthetic?**: Real MNAR datasets do not have known ground truth. Without known $\tau_{true}$, bias cannot be calculated.
-*   **Why IPW & PSM?**: To isolate imputation error from estimator error (Constitution Principle VII).
-*   **Why Friedman/Nemenyi?**: To rigorously test if differences in bias are statistically significant, accounting for the repeated-measures nature of the simulation (same seed, different methods) without relying on normality assumptions.
-*   **Why 200 Replications per Level?**: To ensure statistical power for the Friedman test and to stabilize the bias estimates for the sensitivity analysis.
-*   **Why Dynamic $\alpha$?**: To isolate the effect of the MNAR mechanism ($\beta$) from the effect of missingness volume.
+### Phase 4: Validation & Reporting
+- **T017**: Run full sensitivity analysis (multiple runs x multiple betas).
+- **T018**: Verify all outputs against `contracts/` schemas.
+- **T019**: Generate final summary report and plots.

@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CausalEstimate
+description: Schema for a causal effect estimate derived from an imputed dataset.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Reference to the parent SyntheticDataset."
+  imputation_method:
+    type: string
+    description: "Name of the imputation method (e.g., Mean, KNN, MICE)."
+  estimator_type:
+    type: string
+    enum:
+      - IPW
+      - PSM
+    description: "Type of causal estimator used."
+  estimated_ate:
+    type: number
+    description: "Calculated ATE (tau_hat)."
+  standard_error:
+    type: number
+    description: "Standard error of the estimate."
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% CI."
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% CI."
+  bias:
+    type: number
+    description: "Absolute bias |tau_hat - tau_true|."
+  squared_error:
+    type: number
+    description: "Squared error (tau_hat - tau_true)^2. Used for RMSE aggregation."
+  coverage:
+    type: boolean
+    description: "True if tau_true is within CI."
+required:
+  - run_id
+  - imputation_method
+  - estimator_type
+  - estimated_ate
+  - standard_error
+  - ci_lower
+  - ci_upper
+  - bias
+  - squared_error
+  - coverage
+additionalProperties: false

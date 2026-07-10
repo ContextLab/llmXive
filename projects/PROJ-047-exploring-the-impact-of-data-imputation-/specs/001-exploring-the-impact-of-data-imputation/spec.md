@@ -87,7 +87,7 @@ The system must calculate the absolute bias and RMSE for each method across mult
 
 ## Assumptions
 
-- The synthetic data generation using `causalinference` or `do-why` packages is computationally feasible on a standard CPU within the 6-hour limit for 200+ replications.
+- The synthetic data generation using `causalinference` or `do-why` packages is computationally feasible on a standard CPU within a reasonable time limit for 200+ replications.
 - The "standard" imputation methods (Mean, KNN, MICE) are implemented using `scikit-learn` and `statsmodels`/`fancyimpute` without requiring GPU acceleration or 8-bit quantization.
 - The logistic missingness model $P(M=1|Y) = \text{logit}^{-1}(\alpha + \beta Y)$ is sufficient to model the MNAR mechanism for this study, and no more complex non-linear missingness functions are required for the initial scope.
 - The ground-truth ATE is defined by the user in the simulation script (e.g., $\tau_{true} = 0.5$) and serves as the immutable reference for all bias calculations, acknowledging it is a parameter of the generative model.
