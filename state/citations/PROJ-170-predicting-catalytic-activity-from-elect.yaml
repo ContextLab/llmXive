@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 94b89749b83e4037f2572e3339369c184e2a17494e777da5b809d8b9bdaba553
+  artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1038/s41586-025-00000-x
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/s41586-025-00000-x
+  verified_at: '2026-07-10T15:15:05.887298Z'
+- artifact_hash: c9cd7af72d59ab78c60ee95bcdfcd741e988902a35557f65b1bc5d37319bc175
+  artifact_path: projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00014.parquet
+  kind: url
+  value: https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6668cc9303e3c114f0585497/4ac0cd2fb2f1dd319f905e3869e6f0f55751a0c1c3ad39711a269a44778a14f3?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00014.parquet%3B+filename%3D%22train-00000-of-00014.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783701759&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY2OGNjOTMwM2UzYzExNGYwNTg1NDk3LzRhYzBjZDJmYjJmMWRkMzE5ZjkwNWUzODY5ZTZmMGY1NTc1MWEwYzFjM2FkMzk3MTFhMjY5YTQ0Nzc4YTE0ZjNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMTQucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDE0LnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzcwMTc1OX19fV19&Signature=MEYCIQD5GlEMg1Sbpn-kbBX0PChRuZe4sZbwVyXxs96WIUF9SgIhANJXrgPsAT1u2mQsKVMKfIrRyZnbZn2gPukioAUJBW54&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-10T15:42:39.895553Z'

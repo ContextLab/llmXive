@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for the output metrics of the model training and evaluation."
+type: "object"
+properties:
+  xgboost:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R-squared value for XGBoost model."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error for XGBoost model."
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient for XGBoost model."
+    required:
+      - r_squared
+      - mae
+      - pearson_r
+  linear_baseline:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R-squared value for Linear Baseline model."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error for Linear Baseline model."
+      pearson_r:
+        type: "number"
+        description: "Pearson correlation coefficient for Linear Baseline model."
+    required:
+      - r_squared
+      - mae
+      - pearson_r
+  comparison:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        enum: ["t-test", "wilcoxon"]
+        description: "Type of statistical test performed."
+      p_value:
+        type: "number"
+        description: "P-value from the statistical test."
+      significant:
+        type: "boolean"
+        description: "True if p-value < 0.05."
+    required:
+      - test_type
+      - p_value
+      - significant
+  alignment_rate:
+    type: "number"
+    description: "Ratio of matched entries to total OC20 entries (SC-002)."
+  top_5_descriptors:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the descriptor."
+        shap_value:
+          type: "number"
+          description: "Mean absolute SHAP value."
+      required:
+        - name
+        - shap_value
+    minItems: 5
+    maxItems: 5
+required:
+  - xgboost
+  - linear_baseline
+  - comparison
+  - alignment_rate
+  - top_5_descriptors
+additionalProperties: false

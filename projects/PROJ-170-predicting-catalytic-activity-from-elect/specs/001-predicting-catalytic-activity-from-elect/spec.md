@@ -1,15 +1,15 @@
 # Feature Specification: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-**Feature Branch**: `001-predicting-catalytic-activity`  
-**Created**: 2026-06-24  
-**Status**: Draft  
+**Feature Branch**: `001-predicting-catalytic-activity`
+**Created**: 2026-06-24
+**Status**: Draft
 **Input**: User description: "Predicting Catalytic Activity from Electronic Structure and Reaction Path Features"
 
 ## User Scenarios & Testing
 
 ### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-As a computational chemist, I need a reproducible pipeline that downloads the OC20 subset, retrieves Materials Project bulk descriptors, and aligns them with experimental TOF data so that I can begin analysis with a clean, validated dataset.
+As a computational chemist, I need a reproducible pipeline that downloads the OC20 dataset, retrieves Materials Project bulk descriptors, and aligns them with experimental TOF data so that I can begin analysis with a clean, validated dataset.
 
 **Why this priority**: Without a unified, aligned dataset, no modeling or statistical analysis is possible. This is the foundational step that enables all subsequent research activities.
 
@@ -17,8 +17,8 @@ As a computational chemist, I need a reproducible pipeline that downloads the OC
 
 **Acceptance Scenarios**:
 
-1. **Given** the OC20 subset, Materials Project descriptors, and experimental TOF CSV are available, **When** the preprocessing script runs, **Then** a unified dataset with ≥3000 matched entries is generated.
-2. **Given** a catalyst entry with missing d-band center, **When** the k-nearest-neighbor imputation (k=5) runs, **Then** the missing value is filled with the mean of the 5 nearest neighbors based on composition similarity.
+1. **Given** the OC20 dataset, Materials Project descriptors, and the 2025 CO₂ hydrogenation study dataset are available, **When** the preprocessing script runs, **Then** a unified dataset with ≥ [deferred: n≥500, target≥3000] matched entries is generated (target justified by power analysis for α=0.05, power=0.8).
+2. **Given** a catalyst entry with missing d-band center, **When** the k-nearest-neighbor imputation (k=5) runs, **Then** the missing value is filled with the mean of the 5 nearest neighbors based on stoichiometry similarity.
 3. **Given** the unified dataset, **When** the scaling step runs, **Then** all numeric features are transformed to zero mean and unit variance, and the output is saved as `aligned_dataset.csv`.
 
 ---
@@ -57,25 +57,22 @@ As a domain expert, I need a SHAP-based analysis that ranks the top 5 descriptor
 
 ### Edge Cases
 
-- What happens when the Materials Project descriptor file is missing a specific catalyst composition? (Handled by k=5 imputation; if <5 neighbors exist, the value is flagged and excluded from training).
+- What happens when the Materials Project descriptor file is missing a specific catalyst composition? (Handled by k=5 imputation; if <5 neighbors exist, the entry is flagged and excluded from training).
 - How does the system handle experimental TOF values that are reported as "below detection limit"? (These entries are excluded from the regression training set but logged in a separate report).
 - What happens if the 5-fold cross-validation yields identical R² scores for multiple hyperparameter sets? (The set with the lowest n_estimators is selected to minimize overfitting risk).
+- What happens if an entry has missing descriptors but <5 neighbors exist in the reference set? (The entry is kept in the unified dataset but flagged and excluded from model training to prevent imputation failure).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the OC reaction energetics subset (≈5k entries), Materials Project bulk descriptors, and the CO₂ hydrogenation experimental TOF CSV
-
-Research Question: How does catalyst structure influence turnover frequency in CO₂ hydrogenation?
-Method: High-throughput screening of heterogeneous catalysts under controlled reaction conditions.
-References: [Insert DOI/arXiv/author-year here] via `wget` and parse them into a unified Pandas DataFrame (See US-1).
-- **FR-002**: System MUST align DFT entries to experimental TOFs using catalyst composition, surface facet, and synthesis condition identifiers, excluding entries with <5 matching neighbors for imputation (See US-1).
-- **FR-003**: System MUST impute missing descriptor values using k-nearest-neighbors (k=5) based on Euclidean distance in composition space and scale all numeric features to zero mean and unit variance (See US-1).
+- **FR-001**: System MUST download the OC dataset (≈5k entries), Materials Project bulk descriptors, and the 2025 CO₂ hydrogenation study dataset () via `wget` and parse them into a unified Pandas DataFrame (See US-1).
+- **FR-002**: System MUST align DFT entries to experimental TOFs using exact string matching on columns: `composition`, `surface_facet`, `synthesis_condition`. Entries are excluded from the unified dataset if they cannot be aligned OR if `synthesis_condition` is not uniquely identifiable to prevent circular validation. If an entry is aligned but has missing descriptors with <5 neighbors in the reference set, it is flagged and excluded from model training (See US-1).
+- **FR-003**: System MUST impute missing descriptor values using k-nearest-neighbors (k=5) based on Euclidean distance in stoichiometry space (normalized element counts), excluding the target variable (experimental_tof) from distance calculation. If fewer than 5 neighbors are found, the entry is flagged and excluded from model training. All numeric features must be scaled to zero mean and unit variance (See US-1).
 - **FR-004**: System MUST train a Gradient-Boosted Regression Trees model (XGBoost) with a grid search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, and n_estimators ≤ 200, selecting the configuration that maximizes 5-fold cross-validated R² (See US-2).
-- **FR-005**: System MUST fit a linear regression baseline using only d-band center and activation barrier, and perform a paired t-test (α=0.05) on the absolute errors of the XGBoost and baseline models on the hold-out test set (See US-2).
+- **FR-005**: System MUST fit a linear regression baseline using only d-band center and activation barrier, perform a Shapiro-Wilk test (α=0.05) on the distribution of absolute errors; if normality is rejected, use Wilcoxon signed-rank test instead of paired t-test; otherwise, perform a two-tailed paired t-test (α=0.05, H0: mean difference = 0) on the absolute errors of the XGBoost and baseline models on the hold-out test set (See US-2).
 - **FR-006**: System MUST compute SHAP values for the final XGBoost model, rank descriptors by mean absolute SHAP impact, and generate a bar plot of the top 5 descriptors (See US-3).
-- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors (See US-3).
+- **FR-007**: System MUST output a final report containing the Pearson R, MAE, t-test p-value, and the ranked list of top 5 descriptors. The report must compare the top 5 descriptors against the reference list in Nørskov et al., 2005 (d-band center, activation barrier, reaction energy) and explicitly state matches or novel findings (See US-3).
 
 ### Key Entities
 
@@ -91,17 +88,18 @@ References: [Insert DOI/arXiv/author-year here] via `wget` and parse them into a
 
 - **SC-001**: The predictive performance (Pearson R and MAE) of the XGBoost model is measured against the linear baseline model on the hold-out test set to determine if the expanded descriptor set provides statistically significant improvement (See US-2).
 - **SC-002**: The alignment success rate (number of matched entries / total experimental entries) is measured against the total number of experimental TOF entries to assess data coverage (See US-1).
-- **SC-003**: The predictive power of the top 5 SHAP-ranked descriptors is measured against the full model's R² to determine if a compact set captures the majority of the signal (See US-3).
-- **SC-004**: The computational runtime of the full pipeline (download to report generation) is measured against the 6-hour GitHub Actions runner limit to verify feasibility (See US-1, US-2, US-3).
-- **SC-005**: The statistical significance of the model improvement is measured against the α=0.05 threshold using a paired t-test on absolute errors (See US-2).
+- **SC-003**: A model trained independently on the top 5 SHAP-ranked descriptors must achieve an R² ≥ 0.50 * R²_full, measuring feature redundancy rather than physical validation (See US-3).
+- **SC-004**: The computational runtime of the full pipeline (download to report generation) is measured against the GitHub Actions runner time limit. to verify feasibility (See US-1, US-2, US-3).
+- **SC-005**: The statistical significance of the model improvement is measured against the α=0.05 threshold using a paired t-test or Wilcoxon signed-rank test on absolute errors (See US-2).
 
 ## Assumptions
 
-- The Materials Project bulk descriptor CSV contains valid d-band center, p-band center, and Bader charge values for the catalyst compositions present in the OC20 subset.
+- The Materials Project bulk descriptor CSV contains valid d-band center, p-band center, and Bader charge values for the catalyst compositions present in the OC20 dataset.
 - The experimental TOF values in the 2025 CO₂ hydrogenation study are reported in consistent units (e.g., s⁻¹) and do not require unit conversion.
-- The OC20 subset and Materials Project data can be downloaded and stored within the 14 GB disk limit of the free-tier runner.
-- The k-nearest-neighbor imputation (k=5) is sufficient to handle missing values without introducing significant bias, as the dataset is assumed to be dense in composition space.
+- The OC dataset and Materials Project data can be downloaded and stored within the disk limit of the free-tier runner.
+- The k-nearest-neighbor imputation (k=5) is sufficient to handle missing values without introducing significant bias, as the dataset is assumed to be dense in composition space. If <5 neighbors exist, the entry is excluded from training to avoid bias.
 - The XGBoost model with n_estimators ≤ 200 and default precision (no quantization) will complete training within the 6-hour time limit on 2 CPU cores.
-- The paired t-test assumption of normality for the distribution of absolute errors is met; if not, a non-parametric alternative (Wilcoxon signed-rank test) will be used as a fallback (documented in code).
-- The "2025 CO₂ hydrogenation study" refers to a publicly available supplementary CSV linked in the paper mentioned in the idea, and the URL is stable.
+- The paired t-test assumption of normality for the distribution of absolute errors is checked; if not met, a non-parametric alternative (Wilcoxon signed-rank test) is used as a fallback (documented in code).
+- The "2025 CO₂ hydrogenation study" refers to the publicly available supplementary CSV linked in the paper mentioned in the idea, and the URL is stable.
 - The d-band center and activation barrier are definitionally distinct from other descriptors, so multicollinearity diagnostics will be performed but are not expected to prevent model training.
+- The target of ≥3000 matched entries is a guideline based on power analysis for α=0.05 and power=0.8; if fewer entries are available (but ≥500), the analysis proceeds with the available data.

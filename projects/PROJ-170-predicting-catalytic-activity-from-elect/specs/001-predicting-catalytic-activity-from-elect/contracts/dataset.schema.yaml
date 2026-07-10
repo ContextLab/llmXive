@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Dataset Schema"
+description: "Schema for the unified catalyst dataset used in training and evaluation (OC20 DFT only)."
+type: "object"
+properties:
+  catalyst_id:
+    type: "string"
+    description: "Unique identifier for the catalyst entry."
+  composition:
+    type: "string"
+    description: "Chemical formula of the catalyst."
+  surface_facet:
+    type: "string"
+    description: "Crystallographic facet (e.g., (111))."
+  d_band_center:
+    type: "number"
+    description: "d-band center in eV (derived or imputed)."
+  adsorption_energy:
+    type: "number"
+    description: "Adsorption energy in eV (derived or imputed)."
+  energy_change:
+    type: "number"
+    description: "DFT reaction energy in eV (target variable)."
+  imputation_flag:
+    type: "boolean"
+    description: "True if the entry was imputed via structure-based KNN."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion from training, if any."
+required:
+  - catalyst_id
+  - composition
+  - surface_facet
+  - d_band_center
+  - adsorption_energy
+  - energy_change
+additionalProperties: false
