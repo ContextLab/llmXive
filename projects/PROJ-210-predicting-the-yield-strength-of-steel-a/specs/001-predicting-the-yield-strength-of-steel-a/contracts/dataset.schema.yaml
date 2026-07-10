@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Engineered Steel Alloy Dataset Schema"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the alloy sample."
+  comp_C:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Carbon content (0-1)."
+  comp_Mn:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Manganese content (0-1)."
+  comp_Cr:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Chromium content (0-1)."
+  comp_Ni:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized Nickel content (0-1)."
+  temp_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized tempering temperature (0-1)."
+  cooling_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized cooling rate (0-1)."
+  time_norm:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized holding time (0-1)."
+  type_quench:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "One-hot encoded quenching flag."
+  type_temper:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "One-hot encoded tempering flag."
+  ratio_C_Mn:
+    type: "number"
+    description: "Derived Carbon to Manganese ratio."
+  ratio_Cr_Ni:
+    type: "number"
+    description: "Derived Chromium to Nickel ratio."
+  inter_C_cool_ortho:
+    type: "number"
+    description: "Orthogonalized interaction (GAM residuals, k=5 cubic): Carbon × Cooling Rate."
+  inter_Cr_time_ortho:
+    type: "number"
+    description: "Orthogonalized interaction (GAM residuals, k=5 cubic): Chromium × Holding Time."
+  inter_C_cool_raw:
+    type: "number"
+    description: "Raw interaction: Carbon × Cooling Rate (for physical comparison)."
+  yield_strength:
+    type: "number"
+    minimum: 0.0
+    description: "Measured yield strength in MPa. Must not be null."
+required:
+  - sample_id
+  - comp_C
+  - comp_Mn
+  - comp_Cr
+  - comp_Ni
+  - temp_norm
+  - cooling_norm
+  - time_norm
+  - type_quench
+  - type_temper
+  - ratio_C_Mn
+  - ratio_Cr_Ni
+  - inter_C_cool_ortho
+  - inter_Cr_time_ortho
+  - inter_C_cool_raw
+  - yield_strength
+additionalProperties: false

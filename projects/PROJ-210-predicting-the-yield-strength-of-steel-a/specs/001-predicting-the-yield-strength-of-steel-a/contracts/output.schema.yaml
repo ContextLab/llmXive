@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results and Validation Schema"
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    enum:
+      - "GAM"
+      - "LinearRegression"
+      - "RandomForest"
+      - "XGBoost"
+    description: "Name of the trained model."
+  r2_score:
+    type: "number"
+    description: "R-squared score from cross-validation."
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance_value:
+          type: "number"
+      required:
+        - feature_name
+        - importance_value
+  interaction_shap:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        interaction_pair:
+          type: "string"
+          description: "e.g., 'C_cooling'"
+        mean_abs_shap:
+          type: "number"
+      required:
+        - interaction_pair
+        - mean_abs_shap
+  permutation_p_values:
+    type: "object"
+    additionalProperties:
+      type: "number"
+      description: "P-value for the interaction term from nested permutation test."
+  fdr_corrected:
+    type: "boolean"
+    description: "Whether Benjamini-Hochberg correction was applied."
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+          enum:
+            - 0.01
+            - 0.05
+            - 0.10
+      kuncheva_index:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Stability metric across thresholds (adjusted Rand index)."
+      rank_correlation:
+        type: "number"
+        minimum: -1.0
+        maximum: 1.0
+        description: "Spearman rank correlation across thresholds."
+      stability_flag:
+        type: "string"
+        enum:
+          - "stable"
+          - "unstable"
+          - "insufficient_data"
+        description: "Result of stability check (stable if Kuncheva >= 0.8)."
+    required:
+      - thresholds
+      - kuncheva_index
+      - rank_correlation
+      - stability_flag
+required:
+  - model_name
+  - r2_score
+  - feature_importance
+  - interaction_shap
+  - permutation_p_values
+  - fdr_corrected
+  - sensitivity_analysis
+additionalProperties: false
