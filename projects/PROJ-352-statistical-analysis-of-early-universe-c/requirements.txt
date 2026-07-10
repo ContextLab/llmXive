@@ -1,0 +1,12 @@
+healpy>=1.15.0
+numpy>=1.21.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+requests>=2.26.0
+astropy>=5.0.0
+matplotlib>=3.4.0
+pytest>=6.2.0
+pytest-cov>=3.0.0
+black>=22.0.0
+flake8>=4.0.0
+pylint>=2.12.0

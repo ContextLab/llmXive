@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmb-defect-analysis"
+version = "0.1.0"
+description = "Statistical Analysis of Early Universe CMB Fluctuations and Topological Defects"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "healpy",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "requests",
+    "astropy",
+    "matplotlib",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "pylint>=3.0",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "C0116", # missing-function-docstring
+    "R0903", # too-few-public-methods
+    "W0511", # fixme
+]
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

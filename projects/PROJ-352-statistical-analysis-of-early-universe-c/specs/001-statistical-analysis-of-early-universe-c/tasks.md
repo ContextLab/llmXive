@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/`
-- [ ] T001b [P] Create `code/__init__.py` and `tests/__init__.py`
-- [ ] T001c [P] Create `requirements.txt` with dependencies: `healpy`, `numpy`, `scipy`, `scikit-learn`, `requests`, `astropy`, `matplotlib`, `pytest`
+- [X] T001a [P] Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/`
+- [X] T001b [P] Create `code/__init__.py` and `tests/__init__.py`
+- [X] T001c [P] Create `requirements.txt` with dependencies: `healpy`, `numpy`, `scipy`, `scikit-learn`, `requests`, `astropy`, `matplotlib`, `pytest`
 - [ ] T001d [P] Create `README.md` with project overview and setup instructions
 - [ ] T002 [P] Configure linting (flake8/pylint) and formatting (black) tools
 
@@ -58,9 +58,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure (`data/raw/`, `data/processed/`) and logging infrastructure
-- [ ] T005 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
-- [ ] T006 Implement checksum validation logic for downloaded FITS files in `code/download.py`
-- [ ] T007 Create base configuration management for paths, seeds, and Planck parameters in `code/config.py`
+- [~] T005 Implement `code/download.py` with exponential backoff retry logic for Planck Legacy Archive access
+- [~] T006 Implement checksum validation logic for downloaded FITS files in `code/download.py`
+- [~] T007 Create base configuration management for paths, seeds, and Planck parameters in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,8 +76,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
-- [ ] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
+- [~] T010 [P] [US1] Unit test for download retry logic and checksum validation in `tests/test_download.py`
+- [~] T011 [P] [US1] Unit test for mask application and pixel count verification in `tests/test_mask.py`
 
 ### Implementation for User Story 1
 
@@ -86,7 +86,7 @@
 - [ ] T014 [US1] Implement `code/mask.py`: Load a Galactic mask (or equivalent) and apply to CMB map
 - [ ] T015 [US1] Implement `code/mask.py`: Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting pixels within N=2 of mask edge to 0. Algorithm: For each pixel, if distance to nearest masked pixel <= 2, set value to 0.
 - [ ] T015b [US1] Implement `code/mask.py`: Apply Schmalzing & Gorski (1998) analytical correction as SECONDARY verification step; compare T015 output against analytical expectations and log comparison
-- [ ] T016 [US1] Verify masked map has ≥95% sky coverage and ≥2.5M valid pixels (FR-002) using formula: `sky_coverage = valid_pixels / (12 * 128^2)`. Save verification result to `data/processed/coverage_report.json`
+- [ ] T016 [US1] {{claim:c_8f22d433}} (FR-002) using formula: `sky_coverage = valid_pixels / (12 * 128^2)`. Save verification result to `data/processed/coverage_report.json`
 - [ ] T017 [US1] Compute basic statistics (mean, std) on masked map to ensure physical plausibility and Save mean/std to `data/processed/map_stats.json`
 - [ ] T018 [US1] Save masked map to `data/processed/masked_cmb_n128.fits`
 
@@ -139,7 +139,7 @@
 - [ ] T030b [US3] Implement `code/simulate.py`: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions free-tier. Abort if exceeded.
 - [ ] T031 [US3] Implement `code/simulate.py`: Process simulations in batches (Generate -> Compute MF -> Discard Map) to stay under available RAM constraints.
 - [ ] T032 [US3] Compute Minkowski Functionals for each simulation using `code/minkowski.py`
-- [ ] T036 [US3] Implement `code/simulate.py`: Generate N=500 Cosmic String template realizations at varying Gμ values (range [1e-7, 1e-6], 5 steps) and compute their MFs to build the H1 distribution
+- [ ] T036 [US3] Implement `code/simulate.py`: {{claim:c_1feb14ee}} and compute their MFs to build the H1 distribution
 - [ ] T033 [US3] Implement `code/statistics.py`: Compute sample covariance matrix of MFs across N=1,000 simulations using Ledoit-Wolf shrinkage estimator
 - [ ] T034 [US3] Implement `code/statistics.py`: Perform PCA on MF curves to reduce dimensionality for stable multivariate testing
 - [ ] T035 [US3] Implement `code/statistics.py`: Perform Likelihood Ratio Test (Lambda = -2 * log(L_H0 / L_H1)) comparing observed MF vector against Gaussian null hypothesis ($H_0$) and Cosmic String alternative hypothesis ($H_1$) distributions. Use Chi-squared distribution with k degrees of freedom. Use Ledoit-Wolf covariance matrix from T033.
@@ -176,8 +176,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Phase N (Polish)**: Depends on US1, US2, US3 completion
 
 ### User Story Dependencies
@@ -244,9 +244,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

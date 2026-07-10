@@ -1,0 +1,3 @@
+T001d [P] Create `README.md` with project overview and setup instructions: 2
+T002 [P] Configure linting (flake8/pylint) and formatting (black) tools: 1
+T004 Setup data directory structure (`data/raw/`, `data/processed/`) and logging infrastructure: 1
