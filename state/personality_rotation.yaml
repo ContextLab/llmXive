@@ -1,14 +1,7 @@
-last_used: david-krakauer
-last_used_at: '2026-07-07T12:56:00.317133+00:00'
+last_used: eric-kandel
+last_used_at: '2026-07-10T05:26:42.309517+00:00'
 last_outcome: committed
 history:
-- slug: albert-einstein
-  started_at: '2026-06-23T17:37:01.985676+00:00'
-  ended_at: '2026-06-23T18:41:24.878814+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-758-testing-hubble-constant-isotropy-using-p/reviews/research/_held/albert-einstein-simulated__2026-06-23__research.2.md
 - slug: albert-einstein
   started_at: '2026-06-23T18:41:24.878814+00:00'
   ended_at: '2026-06-23T19:37:14.282752+00:00'
@@ -1218,3 +1211,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-778-quantifying-calibration-drift-of-machine/reviews/research/david-krakauer-simulated__2026-07-07__research.md
+- slug: eric-kandel
+  started_at: '2026-07-07T12:56:00.317133+00:00'
+  ended_at: '2026-07-10T05:26:42.309517+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-346-investigating-the-correlation-between-gu/reviews/research/eric-kandel-simulated__2026-07-10__research.md
