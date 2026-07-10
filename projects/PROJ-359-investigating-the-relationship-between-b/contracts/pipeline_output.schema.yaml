@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Pipeline Output Schema
+description: |
+  Schema for the baseline network metrics output file (baseline_metrics.csv).
+  Validates the structure of computed network metrics per participant.
+type: object
+required:
+  - headers
+  - rows
+properties:
+  headers:
+    type: array
+    description: Expected column headers
+    items:
+      type: string
+    contains:
+      const: "participant_id"
+    contains:
+      const: "global_efficiency"
+    contains:
+      const: "modularity"
+    contains:
+      const: "fpn_strength"
+    contains:
+      const: "dmn_strength"
+  rows:
+    type: array
+    description: List of metric records
+    items:
+      type: object
+      required:
+        - participant_id
+        - global_efficiency
+        - modularity
+        - fpn_strength
+        - dmn_strength
+      properties:
+        participant_id:
+          type: string
+          pattern: "^sub-\\d+$"
+        global_efficiency:
+          type: number
+        modularity:
+          type: number
+        fpn_strength:
+          type: number
+        dmn_strength:
+          type: number
+        exclusion_reason:
+          type: string
+          description: Optional field if excluded

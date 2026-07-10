@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `projects/PROJ-359-investigating-the-relationship-between-b/code/` with `src/`, `tests/`, `data/raw/`, `data/preprocessed/`, `data/results/`, `data/logs/`, `data/motion/`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (fMRIPrep 23.1.3, Nilearn, NetworkX, bctpy, scikit-learn, statsmodels, pandas, matplotlib, pyyaml, openneuro-py)
-- [ ] T003 [P] Configure linting (ruff), formatting (black), and pre-commit hooks for reproducibility
+- [X] T001 Create project structure per implementation plan: `projects/PROJ-359-investigating-the-relationship-between-b/code/` with `src/`, `tests/`, `data/raw/`, `data/preprocessed/`, `data/results/`, `data/logs/`, `data/motion/`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (fMRIPrep 23.1.3, Nilearn, NetworkX, bctpy, scikit-learn, statsmodels, pandas, matplotlib, pyyaml, openneuro-py)
+- [X] T003 [P] Configure linting (ruff), formatting (black), and pre-commit hooks for reproducibility
 
 ---
 

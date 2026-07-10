@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ds000278 Dataset Schema
+description: |
+  Validation schema for the ds000278 OpenNeuro dataset structure and content.
+  Ensures resting-state fMRI data and behavioral data are present and correctly formatted.
+type: object
+required:
+  - participants
+  - functional_runs
+  - behavioral_data
+properties:
+  participants:
+    type: object
+    description: Participants.tsv metadata
+    required:
+      - participant_id
+      - age
+      - sex
+    properties:
+      participant_id:
+        type: array
+        items:
+          type: string
+          pattern: "^sub-\\d+$"
+      age:
+        type: array
+        items:
+          type: integer
+          minimum: 0
+      sex:
+        type: array
+        items:
+          type: string
+          enum: ["M", "F"]
+  functional_runs:
+    type: array
+    description: List of resting-state fMRI runs found
+    items:
+      type: object
+      required:
+        - subject
+        - path
+        - space
+        - preprocessing_status
+      properties:
+        subject:
+          type: string
+          pattern: "^sub-\\d+$"
+        path:
+          type: string
+          description: Path to NIfTI file
+        space:
+          type: string
+          const: "MNI"
+        preprocessing_status:
+          type: string
+          const: "preproc"
+        run_type:
+          type: string
+          const: "rest"
+  behavioral_data:
+    type: object
+    description: Behavioral/Task data TSV
+    required:
+      - participant_id
+      - nback_dprime
+      - wm_accuracy
+    properties:
+      participant_id:
+        type: array
+        items:
+          type: string
+          pattern: "^sub-\\d+$"
+      nback_dprime:
+        type: array
+        items:
+          type: number
+      wm_accuracy:
+        type: array
+        items:
+          type: number

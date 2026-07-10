@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Output Schema
+description: |
+  Schema for the regression model summary output (model_summary.csv).
+  Validates the statistical results including beta coefficients, standard errors,
+  permutation p-values, and corrected p-values.
+type: object
+required:
+  - headers
+  - rows
+properties:
+  headers:
+    type: array
+    description: Expected column headers
+    items:
+      type: string
+    contains:
+      const: "predictor"
+    contains:
+      const: "beta"
+    contains:
+      const: "se"
+    contains:
+      const: "p_perm"
+    contains:
+      const: "p_corrected"
+    contains:
+      const: "ci_lower"
+    contains:
+      const: "ci_upper"
+  rows:
+    type: array
+    description: List of predictor statistics
+    items:
+      type: object
+      required:
+        - predictor
+        - beta
+        - se
+        - p_perm
+        - p_corrected
+        - ci_lower
+        - ci_upper
+      properties:
+        predictor:
+          type: string
+          description: Name of the predictor variable
+        beta:
+          type: number
+          description: Standardized or unstandardized coefficient
+        se:
+          type: number
+          description: Standard error of the coefficient
+        p_perm:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Permutation-based p-value
+        p_corrected:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Holm-Bonferroni corrected p-value
+        ci_lower:
+          type: number
+          description: Lower bound of 95% CI
+        ci_upper:
+          type: number
+          description: Upper bound of 95% CI

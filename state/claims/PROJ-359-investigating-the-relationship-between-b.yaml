@@ -1,0 +1,1199 @@
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Project uses OpenNeuro ds000278 resting-state dataset
+  claim_id: c_513e72c9
+  context: Task T005 mandates downloading ds000278 via OpenNeuro API. The Spec (FR-001)
+    and Plan have been updated to reflect this dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_ds000278_resting-state_dataset
+  kind: entity_fact
+  raw_text: The project uses the OpenNeuro HCP rs-fMRI release ds000278, which contains
+    the required resting-state scans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:14:57Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, effect size 0.15'
+  claim_id: c_bfa8b15f
+  context: "Task T015 implements power analysis script using statsmodels to calculate\
+    \ power for N participants, \u03B1=0.05, effect=0.15."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates power for N participants with an alpha of
+    0.05 and an effect size of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:15:39Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Regression model predictors: Global Efficiency, Modularity, FPN Strength,
+    DMN Strength, Age, Sex'
+  claim_id: c_20dd192b
+  context: Task T027 implements multiple linear regression predicting WM score from
+    the four baseline metrics (Global Efficiency, Modularity, FPN Strength, DMN Strength)
+    + Age + Sex.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_predictors:_Global_Efficiency,_Modularity,
+  kind: entity_fact
+  raw_text: The regression model predicts working memory score from Global Efficiency,
+    Modularity, FPN Strength, and DMN Strength, plus Age and Sex.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:16:37Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses at least 1000 shuffles
+  claim_id: c_77664fbb
+  context: "Task T027 specifies performing permutation testing (\u22651000 shuffles)\
+    \ and applying Holm-Bonferroni correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_at_least_1000_shuffles
+  kind: magnitude
+  raw_text: The permutation testing for the regression model uses at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:17:06Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset ds000278 selected over ds000277
+  claim_id: c_1f2dac59
+  context: 'Notes state: Spec FR-001 and Plan have been updated to mandate ds000278
+    (resting-state) instead of ds000277 (task-based) to align with the hypothesis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000278_selected_over_ds000277
+  kind: entity_fact
+  raw_text: The dataset ds000278 was selected instead of ds000277 to align with the
+    hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:17:29Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 5GB memory, 1 process, 4500MB mem_mb
+  claim_id: c_80f8850a
+  context: Task T008 sets up Docker execution wrapper for fMRIPrep with --memory 5g
+    --nprocs 1 --mem_mb 4500 to fit CI constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker execution wrapper for fMRIPrep is configured with --memory
+    5g --nprocs 1 --mem_mb 4500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:17:41Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Download dataset ds000278 for resting-state scans
+  claim_id: c_1f429a02
+  context: T005 [P] Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI
+    release) via OpenNeuro API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_ds000278_for_resting-state_scans
+  kind: entity_fact
+  raw_text: This task MUST download ds000278 which contains the required resting-state
+    scans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:22:50Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset ds000278 contains resting-state scans
+  claim_id: c_183d21b6
+  context: Verify checksums and handle HTTP errors. If ds000278 is unavailable or
+    lacks resting-state data, abort with error.
+  evidence:
+    entailment_evidence: Dataset ds000278 contains resting-state scans
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000278_contains_resting-state_scans
+  kind: entity_fact
+  raw_text: The dataset ds000278 contains resting-state scans.
+  resolved_value: Dataset ds000278 contains resting-state scans
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T16:22:52Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'fMRIPrep Docker memory constraints: 5g memory, 1 process, 4500 mem_mb'
+  claim_id: c_b70e4f8b
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker execution wrapper for fMRIPrep uses --memory 5g --nprocs 1
+    --mem_mb 4500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:23:25Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Motion exclusion threshold is 3.0 mm
+  claim_id: c_11b87730
+  context: Define motion exclusion constant MOTION_THRESHOLD_MM = 3.0 in src/utils.py
+    (matching FR-002 and Constitution Principle VII).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The motion exclusion constant is 3.0 mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:23:44Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, effect size 0.15'
+  claim_id: c_b449bc89
+  context: 'Implement power analysis script src/power_analysis.py: use statsmodels
+    to calculate power for N participants, alpha=0.05, effect=0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis calculates power for N participants with alpha=0.05 and
+    effect=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:24:21Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ROI extraction uses Schaefer 400-region parcellation
+  claim_id: c_bd15c981
+  context: 'Implement ROI extraction in src/metrics.py: load Schaefer 400-region parcellation
+    from; extract time series from preprocessed NIfTI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer 400-region parcellation is used for ROI extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:24:36Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Regression model uses Global Efficiency, Modularity, FPN Strength, DMN
+    Strength as predictors
+  claim_id: c_0289a0a6
+  context: 'Implement multiple linear regression in src/regression.py: Predict WM
+    score from the four baseline metrics (Global Efficiency, Modularity, FPN Strength,
+    DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_uses_Global_Efficiency,_Modularity,_FPN_Str
+  kind: entity_fact
+  raw_text: The model predicts working memory from Global Efficiency, Modularity,
+    FPN Strength, and DMN Strength.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:25:33Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 shuffles
+  claim_id: c_0c5127bc
+  context: Perform permutation testing (>=1000 shuffles) and apply Holm-Bonferroni
+    correction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_1000_shuffles
+  kind: magnitude
+  raw_text: Permutation testing uses at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:26:09Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Full pipeline test requires 30 participants
+  claim_id: c_c36e13dc
+  context: Run full pipeline integration test on ds000278 subset (N>=30) to verify
+    24-hour runtime and memory constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline integration test requires N>=30 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:27:10Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset is ds000278 (resting-state)
+  claim_id: c_f9c5f73a
+  context: Spec FR-001 and Plan have been updated to mandate ds000278 (resting-state)
+    instead of ds000277 (task-based) to align with the hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_is_ds000278_(resting-state)
+  kind: entity_fact
+  raw_text: The dataset used is ds000278 (resting-state) instead of ds000277 (task-based).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:27:23Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 contains resting-state scans with specific naming convention
+  claim_id: c_02422d22
+  context: This task MUST download ds000278 which contains the required resting-state
+    scans (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_contains_resting-state_scans_with_specific_naming_c
+  kind: entity_fact
+  raw_text: ds000278 contains the required resting-state scans (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:28:24Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Motion exclusion constant set to 3.0 mm
+  claim_id: c_b38f5339
+  context: Define motion exclusion constant MOTION_THRESHOLD_MM = 3.0 in src/utils.py
+    (matching FR-002 and Constitution Principle VII).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_constant_set_to_3.0_mm
+  kind: entity_fact
+  raw_text: The motion exclusion constant is defined as 3.0 mm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:02Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset changed from ds000277 to ds000278
+  claim_id: c_7248627e
+  context: Spec FR-001 and Plan have been updated to mandate ds000278 (resting-state)
+    instead of ds000277 (task-based) to align with the hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_changed_from_ds000277_to_ds000278
+  kind: entity_fact
+  raw_text: The dataset was changed from ds000277 (task-based) to ds000278 (resting-state).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:17Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, effect size 0.15'
+  claim_id: c_68923929
+  context: "Implement power analysis script src/power_analysis.py: use statsmodels\
+    \ to calculate power for N participants, \u03B1=0.05, effect=0.15"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha of 0.05 and an effect size of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:43Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 shuffles
+  claim_id: c_57d97895
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_1000_shuffles
+  kind: magnitude
+  raw_text: Permutation testing involves at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:30:06Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: 'Regression predictors: Global Efficiency, Modularity, FPN Strength,
+    DMN Strength'
+  claim_id: c_61ffc19d
+  context: 'Implement multiple linear regression in src/regression.py: Predict WM
+    score from the four baseline metrics (Global Efficiency, Modularity, FPN Strength,
+    DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_predictors:_Global_Efficiency,_Modularity,_FPN_St
+  kind: entity_fact
+  raw_text: The regression model uses Global Efficiency, Modularity, FPN Strength,
+    and DMN Strength as predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:31:02Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 5g memory and 1 process
+  claim_id: c_a98d2f61
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker execution wrapper is configured with --memory 5g --nprocs 1
+    --mem_mb 4500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:31:14Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 contains resting-state scans
+  claim_id: c_74b64888
+  context: 'T005 [P] Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI
+    release) via OpenNeuro API. MANDATORY: This task MUST download ds000278 which
+    contains the required resting-state scans...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_contains_resting-state_scans
+  kind: entity_fact
+  raw_text: This task MUST download ds000278 which contains the required resting-state
+    scans (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:36:39Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 is OpenNeuro HCP rs-fMRI release
+  claim_id: c_ec887674
+  context: T005 [P] Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI
+    release) via OpenNeuro API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_is_OpenNeuro_HCP_rs-fMRI_release
+  kind: entity_fact
+  raw_text: The dataset ds000278 is the OpenNeuro HCP rs-fMRI release.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:36:58Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Schaefer 400-region parcellation used for ROI extraction
+  claim_id: c_8b78aee0
+  context: 'T020 [US1] Implement ROI extraction in src/metrics.py: load Schaefer 400-region
+    parcellation from ; extract time series from preprocessed NIfTI (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer 400-region parcellation is used for ROI extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:36:58Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05 effect size 0.15
+  claim_id: c_f870fc1f
+  context: 'T015 [US0] Implement power analysis script src/power_analysis.py: use
+    statsmodels to calculate power for N participants, alpha=0.05, effect=0.15...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha of 0.05 and an effect size of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:36:59Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression predicts WM from Global Efficiency Modularity FPN Strength
+    DMN Strength
+  claim_id: c_7b898fe3
+  context: 'T027 [US2] Implement multiple linear regression in src/regression.py:
+    Predict WM score from the four baseline metrics (Global Efficiency, Modularity,
+    FPN Strength, DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_predicts_WM_from_Global_Efficiency_Modularity_FPN
+  kind: entity_fact
+  raw_text: The regression model predicts WM score from Global Efficiency, Modularity,
+    FPN Strength, and DMN Strength.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:37:52Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutation test 1000 shuffles
+  claim_id: c_48f0aea3
+  context: T027 [US2] ... Perform permutation testing (>=1000 shuffles) and apply
+    Holm-Bonferroni correction.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_1000_shuffles
+  kind: magnitude
+  raw_text: The permutation test performs at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:38:14Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model includes Age and Sex
+  claim_id: c_4fcbd9e7
+  context: T027 [US2] Predict WM score from the four baseline metrics (Global Efficiency,
+    Modularity, FPN Strength, DMN Strength) + Age + Sex.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_includes_Age_and_Sex
+  kind: entity_fact
+  raw_text: The regression model includes Age and Sex as predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:38:37Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 is resting-state replacing ds000277 task-based
+  claim_id: c_b29e56b4
+  context: 'Dataset Correction: Spec FR-001 and Plan have been updated to mandate
+    ds000278 (resting-state) instead of ds000277 (task-based) to align with the hypothesis.'
+  evidence:
+    entailment_evidence: Ds000278 is resting-state replacing ds000277 task-based
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ds000278_is_resting-state_replacing_ds000277_task-based
+  kind: entity_fact
+  raw_text: The dataset ds000278 is resting-state data, replacing the previously mentioned
+    ds000277 (task-based).
+  resolved_value: ds000278 is resting-state replacing ds000277 task-based
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T16:38:39Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 is the OpenNeuro HCP resting-state dataset used
+  claim_id: c_da9d334d
+  context: 'MANDATORY: This task MUST download ds000278 which contains the required
+    resting-state scans (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz). The Spec
+    (FR-001) and Plan have been updated to reflect this dataset.'
+  evidence:
+    entailment_evidence: Ds000278 is the OpenNeuro HCP resting-state dataset used
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ds000278_is_the_OpenNeuro_HCP_resting-state_dataset_used
+  kind: entity_fact
+  raw_text: The study uses the OpenNeuro HCP rs-fMRI release ds000278, which contains
+    the required resting-state scans.
+  resolved_value: ds000278 is the OpenNeuro HCP resting-state dataset used
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T16:39:37Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: power analysis parameters alpha 0.05 and effect size 0.15
+  claim_id: c_d55ecaa8
+  context: "Implement power analysis script src/power_analysis.py: use statsmodels\
+    \ to calculate power for N participants, \u03B1=0.05, effect=0.15; write the achieved\
+    \ power value explicitly to data/results/power_analysis.txt in format ACHIEVED_POWER=0.XX\
+    \ (FR-010, SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates power for N participants with alpha=0.05
+    and effect size=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:40:00Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: network metrics include Global Efficiency Modularity Q FPN Strength and
+    DMN Strength
+  claim_id: c_841fcec7
+  context: 'Implement network metric calculation in src/metrics.py: compute Global
+    Efficiency, Modularity (Q), FPN Strength, DMN Strength using bctpy or NetworkX;
+    save to baseline_metrics.csv (FR-004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Network_metrics_include_Global_Efficiency_Modularity_Q_FPN_S
+  kind: entity_fact
+  raw_text: The network metrics calculated are Global Efficiency, Modularity (Q),
+    FPN Strength, and DMN Strength.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:40:30Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model predicts WM from four baseline metrics plus Age and
+    Sex
+  claim_id: c_639fb65a
+  context: 'Implement multiple linear regression in src/regression.py: Predict WM
+    score from the four baseline metrics (Global Efficiency, Modularity, FPN Strength,
+    DMN Strength) + Age + Sex. DO NOT use PCA or LASSO.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_predicts_WM_from_four_baseline_metrics_plus
+  kind: entity_fact
+  raw_text: The regression model predicts working memory score from the four baseline
+    metrics (Global Efficiency, Modularity, FPN Strength, DMN Strength) plus Age and
+    Sex.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:41:14Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: permutation testing uses at least 1000 shuffles
+  claim_id: c_f2b5c134
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_at_least_1000_shuffles
+  kind: magnitude
+  raw_text: The permutation testing uses at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:41:16Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to p-values
+  claim_id: c_a9ff655b
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: The Holm-Bonferroni correction is applied to the p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:41:43Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: PCA skipped for direct regression on four baseline metrics
+  claim_id: c_3814cdca
+  context: 'Plan Override: Explicitly skip Principal Component Analysis (PCA). The
+    Plan.md Phase 2 instructs PCA, but Spec FR-005 mandates direct regression on the
+    four baseline metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PCA_skipped_for_direct_regression_on_four_baseline_metrics
+  kind: entity_fact
+  raw_text: Principal Component Analysis (PCA) is explicitly skipped in favor of direct
+    regression on the four baseline metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:42:14Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 resting-state dataset selected over ds000277 task-based dataset
+  claim_id: c_c791af98
+  context: 'Dataset Correction: Spec FR-001 and Plan have been updated to mandate
+    ds000278 (resting-state) instead of ds000277 (task-based) to align with the hypothesis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_resting-state_dataset_selected_over_ds000277_task-b
+  kind: entity_fact
+  raw_text: The dataset ds000278 (resting-state) was selected instead of ds000277
+    (task-based) to align with the hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:42:16Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000278 contains resting-state scans
+  claim_id: c_1500c6a6
+  context: 'Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI release)
+    via OpenNeuro API. MANDATORY: This task MUST download ds000278 which contains
+    the required resting-state scans.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000278_contains_resting-state_scans
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset ds000278 contains the required resting-state scans
+    (sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:43:09Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 3
+  canonical: Schaefer 400-region parcellation used for ROI extraction
+  claim_id: c_10931ca3
+  context: 'Implement ROI extraction in src/metrics.py: load Schaefer 400-region parcellation
+    from ; extract time series from preprocessed NIfTI (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Schaefer 400-region parcellation is used for ROI extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:43:09Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Working memory predicted using Global Efficiency, Modularity, FPN Strength,
+    and DMN Strength
+  claim_id: c_635f7af5
+  context: 'Implement multiple linear regression in src/regression.py: Predict WM
+    score from the four baseline metrics (Global Efficiency, Modularity, FPN Strength,
+    DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Working_memory_predicted_using_Global_Efficiency,_Modularity
+  kind: entity_fact
+  raw_text: 'The analysis predicts working memory using four specific baseline metrics:
+    Global Efficiency, Modularity, FPN Strength, and DMN Strength.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:44:07Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses at least 1000 shuffles
+  claim_id: c_939092be
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_testing_uses_at_least_1000_shuffles
+  kind: magnitude
+  raw_text: Permutation testing involves at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:44:09Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha 0.05 and effect size 0.15
+  claim_id: c_6e8f2edd
+  context: "Implement power analysis script src/power_analysis.py: use statsmodels\
+    \ to calculate power for N participants, \u03B1=0.05, effect=0.15"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05 and an effect size of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:44:33Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Pipeline targets 24-hour runtime on N>=30 subset
+  claim_id: c_2b5a7e87
+  context: "Run full pipeline integration test on ds000278 subset (N\u226530) to verify\
+    \ 24-hour runtime and memory constraints (FR-008, SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline targets a maximum runtime of 24 hours on a subset of N\u2265\
+    30 participants."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:44:53Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 5g memory and 4500 MB
+  claim_id: c_b5c79aa5
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Docker execution wrapper is configured with 5g memory and 4500 MB
+    mem_mb.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:45:08Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Power analysis requires minimum 30 participants
+  claim_id: c_6105eff0
+  context: Integration test for power analysis threshold in tests/integration/test_power_gate.py
+    (verify abort if N < 30)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis requires a minimum of 30 participants (N < 30 triggers
+    an abort).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:45:48Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Dataset ds000278 mandated over ds000277 for resting-state analysis
+  claim_id: c_2eac84df
+  context: 'Dataset Correction: Spec FR-001 and Plan have been updated to mandate
+    ds000278 (resting-state) instead of ds000277 (task-based) to align with the hypothesis.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000278_mandated_over_ds000277_for_resting-state_an
+  kind: entity_fact
+  raw_text: The dataset ds000278 (resting-state) was mandated instead of ds000277
+    (task-based) to align with the hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:46:03Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 dataset contains resting-state scans
+  claim_id: c_11b89936
+  context: 'Implement src/download.py to fetch ds000278 (OpenNeuro HCP rs-fMRI release)
+    via OpenNeuro API. MANDATORY: This task MUST download ds000278 which contains
+    the required resting-state scans.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_dataset_contains_resting-state_scans
+  kind: entity_fact
+  raw_text: The dataset ds000278 (OpenNeuro HCP rs-fMRI release) contains the required
+    resting-state scans.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:48:50Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: ds000278 mandated over ds000277 for resting-state data
+  claim_id: c_889b0a6b
+  context: Spec FR-001 and Plan have been updated to mandate ds000278 (resting-state)
+    instead of ds000277 (task-based) to align with the hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000278_mandated_over_ds000277_for_resting-state_data
+  kind: entity_fact
+  raw_text: The dataset ds000278 contains resting-state scans and is mandated by the
+    specification instead of ds000277.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:49:03Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: power analysis uses alpha 0.05 and effect size 0.15
+  claim_id: c_faf41812
+  context: "Implement power analysis script src/power_analysis.py: use statsmodels\
+    \ to calculate power for N participants, \u03B1=0.05, effect=0.15."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates power for N participants with alpha=0.05
+    and effect size=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:49:03Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model uses Global Efficiency, Modularity, FPN Strength, DMN
+    Strength
+  claim_id: c_863e95d6
+  context: 'Implement multiple linear regression in src/regression.py: Predict WM
+    score from the four baseline metrics (Global Efficiency, Modularity, FPN Strength,
+    DMN Strength) + Age + Sex.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_uses_Global_Efficiency,_Modularity,_FPN_Str
+  kind: entity_fact
+  raw_text: 'The regression model uses four baseline metrics: Global Efficiency, Modularity,
+    FPN Strength, and DMN Strength.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:49:58Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model includes Age and Sex predictors
+  claim_id: c_9f00b97d
+  context: Predict WM score from the four baseline metrics (Global Efficiency, Modularity,
+    FPN Strength, DMN Strength) + Age + Sex.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_includes_Age_and_Sex_predictors
+  kind: entity_fact
+  raw_text: The regression model includes Age and Sex as predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:50:00Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression uses at least 1000 permutation shuffles
+  claim_id: c_fdf6211d
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_uses_at_least_1000_permutation_shuffles
+  kind: magnitude
+  raw_text: The regression model performs permutation testing with at least 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:50:20Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression uses Holm-Bonferroni correction
+  claim_id: c_9365572d
+  context: "Perform permutation testing (\u22651000 shuffles) and apply Holm-Bonferroni\
+    \ correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_uses_Holm-Bonferroni_correction
+  kind: entity_fact
+  raw_text: The regression model applies Holm-Bonferroni correction to p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:50:54Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 5g memory
+  claim_id: c_ce7eedd4
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints (FR-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Docker_wrapper_configured_with_5g_memory
+  kind: entity_fact
+  raw_text: The pipeline is configured to run with 5g of memory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:51:10Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 1 process
+  claim_id: c_b62a7e9a
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is configured to use 1 process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:51:30Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Docker wrapper configured with 4500 MB memory per process
+  claim_id: c_cb359681
+  context: Setup Docker execution wrapper for fMRIPrep with --memory 5g --nprocs 1
+    --mem_mb 4500 to fit CI constraints (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is configured to use 4500 MB of memory per process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:51:45Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: project uses Python 3.11
+  claim_id: c_3244f3cd
+  context: Initialize Python 3.11 project with pinned dependencies in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:52:07Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: project uses fMRIPrep 23.1.3
+  claim_id: c_7d6a4fe5
+  context: Initialize Python 3.11 project with pinned dependencies in requirements.txt
+    (fMRIPrep 23.1.3, Nilearn, NetworkX, bctpy, scikit-learn, statsmodels, pandas,
+    matplotlib, pyyaml, openneuro-py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses fMRIPrep version 23.1.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:52:21Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: power analysis output written to data/results/power_analysis.txt
+  claim_id: c_333fd063
+  context: write the achieved power value explicitly to data/results/power_analysis.txt
+    in format ACHIEVED_POWER=0.XX (FR-010, SC-003).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_output_written_to_data/results/power_analysis
+  kind: entity_fact
+  raw_text: The power analysis must output the achieved power value to data/results/power_analysis.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:52:50Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression output columns beta se p_perm p_corrected ci_lower ci_upper
+  claim_id: c_dcef9f62
+  context: 'Write model_summary.csv with columns: predictor, beta, se, p_perm, p_corrected,
+    ci_lower, ci_upper (FR-005, SC-001, SC-002).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_output_columns_beta_se_p_perm_p_corrected_ci_lowe
+  kind: entity_fact
+  raw_text: The regression model output includes columns for beta, standard error,
+    permutation p-value, corrected p-value, and confidence interval bounds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:53:12Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: pipeline runtime limit 24 hours
+  claim_id: c_2523520d
+  context: "Run full pipeline integration test on ds000278 subset (N\u226530) to verify\
+    \ 24-hour runtime and memory constraints (FR-008, SC-005)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within a 24-hour runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:53:32Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: power analysis aborts if N less than 30
+  claim_id: c_db8e8cc1
+  context: Integration test for power analysis threshold in tests/integration/test_power_gate.py
+    (verify abort if N < 30).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_aborts_if_N_less_than_30
+  kind: magnitude
+  raw_text: The integration test for User Story 0 requires a power analysis threshold
+    of N < 30 to abort.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:54:30Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model skips PCA
+  claim_id: c_c6e82e3b
+  context: 'Plan Override: Explicitly skip Principal Component Analysis (PCA). The
+    Plan.md Phase 2 instructs PCA, but Spec FR-005 mandates direct regression on the
+    four baseline metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_skips_PCA
+  kind: entity_fact
+  raw_text: The regression model does not use Principal Component Analysis (PCA).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:54:58Z'
+- artifact_path: projects/PROJ-359-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: regression model skips LASSO
+  claim_id: c_c24acdda
+  context: "DO NOT use PCA or LASSO. Perform permutation testing (\u22651000 shuffles)\
+    \ and apply Holm-Bonferroni correction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_skips_LASSO
+  kind: entity_fact
+  raw_text: The regression model does not use LASSO.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:55:23Z'

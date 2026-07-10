@@ -1,0 +1,14 @@
+? T004 [P] Implement `src/utils.py` with logging infrastructure, JSON log writers,
+  and deterministic seeding (`RANDOM_SEED` env var)
+: 2
+? 'T005 [P] Implement `src/download.py` to fetch `ds000278` (OpenNeuro HCP rs-fMRI
+  release) via OpenNeuro API. **MANDATORY**: This task MUST download `ds000278` which
+  contains the required resting-state scans (`sub-*/func/*_space-MNI_desc-preproc_bold.nii.gz`).
+  The Spec (FR-001) and Plan have been updated to reflect this dataset. Verify checksums
+  and handle HTTP errors. If `ds000278` is unavailable or lacks resting-state data,
+  abort with error: "Required resting-state dataset ds000278 not found."'
+: 1
+? T006 Create `contracts/dataset_schema.schema.yaml`, `contracts/pipeline_output.schema.yaml`,
+  `contracts/regression_output_schema.schema.yaml`, and `contracts/regression_result.schema.yaml`
+  for validation
+: 1
