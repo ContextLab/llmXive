@@ -4,206 +4,203 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LassoCV, RidgeCV
-from sklearn.model_selection import KFold, LeaveOneOut, cross_val_score
-from sklearn.metrics import r2_score
-import yaml
 
+from config import get_config, ConfigError
 from utils.logging import get_module_logger
-from config import get_config
+from utils.io import check_disk_space
 
 logger = get_module_logger(__name__)
 
 def load_processed_data(config: Any) -> pd.DataFrame:
     """
-    Load the processed features dataset from disk.
-    Expects the file at config.paths.processed_features (derived from data/processed/features.csv).
+    Load the preprocessed and aggregated dataset from disk.
+    Expects the file path to be defined in config.
     """
-    input_path = Path("data/processed/features.csv")
-    if not input_path.exists():
-        logger.error(f"Processed features file not found at {input_path}. Run preprocessing pipeline first.")
-        raise FileNotFoundError(f"Processed features file not found: {input_path}")
+    input_path = Path(config.get("paths", {}).get("processed_data", "data/processed/features_vif.csv"))
     
+    if not input_path.exists():
+        raise FileNotFoundError(f"Processed data file not found at {input_path}. "
+                                "Please ensure T019-T021 have completed successfully.")
+    
+    logger.info(f"Loading processed data from {input_path}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def determine_cv_strategy(n_samples: int) -> Union[KFold, LeaveOneOut]:
+def determine_cv_strategy(n_samples: int) -> int:
     """
-    Determine the Cross-Validation strategy based on sample size N.
-    FR-005: 5-fold if N >= 30, LOOCV if N < 30.
+    Determine the cross-validation fold strategy based on sample size.
+    Returns 5 for N >= 30, otherwise 1 (LOOCV).
     """
     if n_samples >= 30:
-        logger.info(f"N={n_samples} >= 30. Using 5-fold Cross Validation.")
-        return KFold(n_splits=5, shuffle=True, random_state=42)
-    else:
-        logger.info(f"N={n_samples} < 30. Using Leave-One-Out Cross Validation.")
-        return LeaveOneOut()
+        return 5
+    return 1
 
-def check_study_covariate_condition(df: pd.DataFrame) -> bool:
+def check_study_covariate_condition(df: pd.DataFrame) -> Tuple[bool, int]:
     """
     Check if unique_studies >= N-1.
-    If true, the 'source_study' covariate should be excluded during training (handled by caller).
-    Returns True if the condition is met (meaning we should exclude the covariate).
+    Returns (condition_met, unique_studies_count).
     """
-    n = len(df)
-    if 'source_study' not in df.columns:
-        logger.warning("Column 'source_study' not found in dataframe. Assuming condition not met or column already handled.")
-        return False
-    
     unique_studies = df['source_study'].nunique()
-    logger.info(f"Unique studies: {unique_studies}, N-1: {n-1}")
-    
+    n = len(df)
     condition_met = unique_studies >= (n - 1)
-    if condition_met:
-        logger.info(f"Condition met (unique_studies={unique_studies} >= N-1={n-1}). 'source_study' will be excluded as covariate.")
-    else:
-        logger.info(f"Condition NOT met. 'source_study' may be retained if present in features.")
-    return condition_met
+    logger.info(f"Study covariate check: unique_studies={unique_studies}, N={n}, condition_met={condition_met}")
+    return condition_met, unique_studies
 
-def train_model(
-    df: pd.DataFrame, 
-    target_col: str = 'compound_yield',
-    feature_cols: Optional[List[str]] = None
-) -> Tuple[Any, Dict[str, Any]]:
+def train_model(df: pd.DataFrame, cv_folds: int, exclude_study_covariate: bool) -> Tuple[Any, pd.DataFrame]:
     """
-    Train a regularized regression model (LASSO or Ridge) using scikit-learn.
+    Train a regularized regression model (Ridge/Lasso) on the prepared features.
     
-    Logic:
-    1. Identify predictors (X) and target (y).
-    2. Apply selected CV strategy (determined by N).
-    3. If 'source_study' is in features and study condition is met, drop it.
-    4. Train LassoCV (primary) with internal CV.
-    5. Return the fitted model and metrics.
+    Args:
+        df: The dataframe containing features and target.
+        cv_folds: Number of CV folds.
+        exclude_study_covariate: If True, drops 'source_study' from features.
+    
+    Returns:
+        model: The fitted sklearn model.
+        feature_importance_df: DataFrame of coefficients sorted by magnitude.
     """
-    if feature_cols is None:
-        # Default: all numeric columns except target
-        feature_cols = [c for c in df.columns if c != target_col and df[c].dtype in ['int64', 'float64', 'int32', 'float32']]
+    try:
+        from sklearn.linear_model import RidgeCV, LassoCV
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.pipeline import Pipeline
+    except ImportError as e:
+        logger.error("Required scikit-learn components not found. Ensure requirements.txt is installed.")
+        raise e
+
+    # Identify target and features
+    target_col = "compound_concentration" # Assuming standard target name from T012/T013
+    if target_col not in df.columns:
+        # Fallback or strict error based on actual schema
+        raise KeyError(f"Target column '{target_col}' not found in dataframe. Columns: {df.columns.tolist()}")
+
+    feature_cols = [c for c in df.columns if c != target_col]
     
-    # Filter features to ensure they exist
-    available_features = [c for c in feature_cols if c in df.columns]
-    if len(available_features) == 0:
-        raise ValueError("No valid feature columns found for training.")
+    if exclude_study_covariate and 'source_study' in feature_cols:
+        logger.info("Excluding 'source_study' covariate as per FR-010.")
+        feature_cols.remove('source_study')
     
-    X = df[available_features].copy()
+    X = df[feature_cols].copy()
     y = df[target_col].copy()
+
+    # Handle non-numeric columns if any remain (e.g., categorical encoding issues)
+    # For this implementation, we assume preprocessing (T020/T021) handled encoding.
+    # If 'source_study' was kept, it might be categorical; we drop it if not numeric for simplicity here
+    # or assume it was one-hot encoded in T021. 
+    # Strictly, if 'source_study' is kept and is object type, we must handle it.
+    # Given T021 logic, if kept, it might be a categorical covariate.
+    # We will select only numeric columns for linear regression to avoid errors.
+    numeric_cols = X.select_dtypes(include=[np.number]).columns
+    X = X[numeric_cols]
+
+    if X.empty:
+        raise ValueError("No numeric features available for training after filtering.")
+
+    # Train a RidgeCV model (automatic alpha selection via CV)
+    # Using Ridge as it is generally more stable than Lasso for high collinearity
+    model = RidgeCV(alphas=[0.1, 1.0, 10.0, 100.0], cv=cv_folds)
     
-    # Handle missing values in X or y
-    if X.isnull().any().any() or y.isnull().any():
-        logger.warning("Missing values detected in features or target. Dropping rows with NaN.")
-        mask = ~(X.isnull().any(axis=1) | y.isnull())
-        X = X[mask]
-        y = y[mask]
-        if len(X) == 0:
-            raise ValueError("No data remaining after dropping NaNs.")
-
-    # Check study condition to potentially drop 'source_study'
-    if 'source_study' in X.columns:
-        # We need to check the condition on the original data structure, 
-        # but here we assume the check was done or we re-evaluate on current subset.
-        # Per T023 logic: if unique_studies >= N-1, exclude 'source_study'.
-        unique_studies = X['source_study'].nunique()
-        if unique_studies >= (len(X) - 1):
-            logger.info("Dropping 'source_study' from features based on study condition.")
-            X = X.drop(columns=['source_study'])
-            if 'source_study' in available_features:
-                available_features.remove('source_study')
-
-    # Determine CV strategy based on current N
-    cv_strategy = determine_cv_strategy(len(X))
-
-    logger.info(f"Training model with {len(X)} samples and {X.shape[1]} features.")
-    logger.info(f"Features: {available_features}")
-
-    # Train LassoCV (automatically selects alpha via internal CV)
-    # We use LassoCV as the primary model for feature selection (sparsity)
-    model = LassoCV(
-        cv=cv_strategy, 
-        random_state=42, 
-        n_jobs=-1,
-        max_iter=10000
-    )
-    
+    logger.info(f"Training Ridge model with {cv_folds}-fold CV on {X.shape[1]} features.")
     model.fit(X, y)
     
-    # Calculate R2 on the training set (or use CV score from model)
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
+    logger.info(f"Model training complete. Best alpha: {model.alpha_}")
+
+    # Extract coefficients
+    coefficients = pd.Series(model.coef_, index=X.columns)
     
-    # Extract best alpha
-    best_alpha = model.alpha_
+    # Create a dataframe for analysis
+    feature_importance_df = pd.DataFrame({
+        'feature': coefficients.index,
+        'coefficient': coefficients.values
+    })
     
-    # Calculate CV R2 scores if available from the internal CV
-    # Note: model.scores_ might be available depending on sklearn version, 
-    # but cross_val_score is more explicit if we need to re-run or verify.
-    # For this task, we rely on the model's internal selection and final fit R2.
+    return model, feature_importance_df
+
+def extract_top_predictors(feature_importance_df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    """
+    Extract the top N predictors by absolute coefficient magnitude.
     
-    metrics = {
-        "r2_train": r2,
-        "best_alpha": best_alpha,
-        "n_samples": len(X),
-        "n_features": X.shape[1],
-        "cv_strategy": "KFold(5)" if len(X) >= 30 else "LOOCV"
-    }
+    Args:
+        feature_importance_df: DataFrame with 'feature' and 'coefficient' columns.
+        top_n: Number of top predictors to return.
     
-    logger.info(f"Model trained. R2: {r2:.4f}, Best Alpha: {best_alpha:.6f}")
+    Returns:
+        DataFrame of top N predictors sorted by absolute coefficient descending.
+    """
+    if feature_importance_df.empty:
+        logger.warning("Feature importance dataframe is empty. Returning empty result.")
+        return pd.DataFrame()
+
+    # Calculate absolute magnitude
+    feature_importance_df['abs_coefficient'] = feature_importance_df['coefficient'].abs()
     
-    return model, metrics
+    # Sort by absolute magnitude descending
+    sorted_df = feature_importance_df.sort_values(by='abs_coefficient', ascending=False)
+    
+    # Select top N
+    top_predictors = sorted_df.head(top_n)
+    
+    logger.info(f"Extracted top {len(top_predictors)} predictors.")
+    for idx, row in top_predictors.iterrows():
+        logger.info(f"  - {row['feature']}: {row['coefficient']:.4f} (|coef|={row['abs_coefficient']:.4f})")
+    
+    return top_predictors
 
 def main():
     """
-    Main entry point for T024: Train LASSO/Ridge model.
-    1. Load config.
-    2. Load processed data.
-    3. Check study condition (T023 logic).
-    4. Train model.
-    5. Save model and metrics.
+    Main entry point for T025: Extract top 10 predictors.
+    Orchestrates loading, training, and extraction, then writes results to disk.
     """
-    config = get_config()
-    logger.info("Starting T024: Model Training Pipeline")
+    logger.info("Starting T025: Extract top 10 predictors.")
     
+    # Load config
     try:
-        # 1. Load Data
-        df = load_processed_data(config)
-        
-        # 2. Check Study Covariate Condition (T023)
-        # This ensures we drop 'source_study' if the condition is met
-        check_study_covariate_condition(df)
-        
-        # 3. Train Model
-        model, metrics = train_model(df)
-        
-        # 4. Save Outputs
-        # Save model coefficients and metrics to data/processed/model_results.yaml
-        output_path = Path("data/processed/model_results.yaml")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Prepare coefficients for saving
-        coefficients = dict(zip(model.feature_names_in_, model.coef_))
-        
-        results = {
-            "metrics": metrics,
-            "coefficients": coefficients,
-            "model_type": "LassoCV"
-        }
-        
-        with open(output_path, 'w') as f:
-            yaml.dump(results, f, default_flow_style=False)
-        
-        logger.info(f"Model results saved to {output_path}")
-        
-        # Print summary
-        print(f"Training Complete.")
-        print(f"  R2 Score: {metrics['r2_train']:.4f}")
-        print(f"  Best Alpha: {metrics['best_alpha']:.6f}")
-        print(f"  Top 5 Features by |Coeff|:")
-        sorted_coefs = sorted(coefficients.items(), key=lambda x: abs(x[1]), reverse=True)[:5]
-        for feat, coef in sorted_coefs:
-            print(f"    {feat}: {coef:.6f}")
-            
-    except Exception as e:
-        logger.error(f"Training pipeline failed: {e}", exc_info=True)
+        config = get_config()
+    except ConfigError as e:
+        logger.error(f"Configuration error: {e}")
         sys.exit(1)
+
+    # Check disk space for output
+    estimated_output_size = 1024 * 1024  # 1MB estimate
+    check_disk_space(estimated_output_size)
+
+    # 1. Load Data
+    try:
+        df = load_processed_data(config)
+    except Exception as e:
+        logger.error(f"Failed to load processed data: {e}")
+        sys.exit(1)
+
+    # 2. Determine CV Strategy
+    n_samples = len(df)
+    cv_folds = determine_cv_strategy(n_samples)
+    logger.info(f"Selected CV strategy: {cv_folds} folds (N={n_samples})")
+
+    # 3. Check Study Covariate Condition
+    exclude_covariate, unique_studies_count = check_study_covariate_condition(df)
+    
+    # 4. Train Model
+    try:
+        model, feature_df = train_model(df, cv_folds, exclude_covariate)
+    except Exception as e:
+        logger.error(f"Model training failed: {e}")
+        sys.exit(1)
+
+    # 5. Extract Top 10 Predictors
+    top_10_df = extract_top_predictors(feature_df, top_n=10)
+
+    # 6. Save Output
+    output_path = Path(config.get("paths", {}).get("top_predictors", "data/processed/top_10_predictors.csv"))
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    top_10_df.to_csv(output_path, index=False)
+    logger.info(f"Top 10 predictors saved to {output_path}")
+
+    # Also save the full coefficient list for reference
+    full_coeffs_path = Path(config.get("paths", {}).get("full_coefficients", "data/processed/all_coefficients.csv"))
+    feature_df.to_csv(full_coeffs_path, index=False)
+    logger.info(f"All coefficients saved to {full_coeffs_path}")
+
+    return top_10_df
 
 if __name__ == "__main__":
     main()

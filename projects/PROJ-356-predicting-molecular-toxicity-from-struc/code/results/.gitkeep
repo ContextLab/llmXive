@@ -1,0 +1,7 @@
+# This directory is reserved for pipeline output artifacts.
+# Generated files include:
+# - metrics_baseline.json
+# - oof_predictions_fold_*.json
+# - oof_predictions_final.json
+# - error_analysis_report.json
+# Keep this file to ensure the directory is tracked in git.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.28694",
+  "judged_at": "2026-07-10T16:13:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ai for auto-research: roadmap & user guide\" computer science",
+  "rationale": "The paper focuses on the policy and verification mechanisms for restricting AI research to prevent superintelligence risks, which is a distinct construct from the user's question about extending a specific \"AI for Auto-Research\" roadmap and user guide. While both touch on AI research, the candidate paper does not measure the same mechanisms, variables, or empirical baselines related to the technical execution or user guidance of automated research systems, nor does it serve as a foundational met",
+  "relevant": false
+}

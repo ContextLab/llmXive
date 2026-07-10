@@ -1,0 +1,6 @@
+T025 [US2] Implement `code/models/training.py` to extract top 10 predictors by absolute coefficient magnitude: 1
+? 'T026 [US2] Implement `code/data/preprocessing.py` to detect ''model instability''
+  (e.g., VIF > 10 or singular matrix) and perform conditional removal of predictors
+  as per Assumption 6. **Output**: Updated feature set for training.'
+: 1
+T027 [US2] Write unit tests for feature engineering in `code/tests/test_preprocessing.py` (verify metrics calculation): 1

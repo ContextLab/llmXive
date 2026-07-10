@@ -717,3 +717,163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T04:52:28Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Data download success rate is at least 93%
+  claim_id: c_f487ffc5
+  context: "Phase 3: User Story 1 - Data Pipeline and Validation. Tests for User Story\
+    \ 1 (OPTIONAL - only if tests requested) \u26A0\uFE0F NOTE: Write these tests\
+    \ FIRST, ensure they FAIL before implementation"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_download_success_rate_is_at_least_93%25
+  kind: magnitude
+  raw_text: "Contract test for data download success rate (\u226593%) in tests/test_download.py"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:28:34Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Crystal structures are fetched from OBELiX and Materials Project
+  claim_id: c_f9d4c94b
+  context: 'Phase 3: User Story 1 - Data Pipeline and Validation. Implementation for
+    User Story 1. T014 [P] [US1] Implement download.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crystal_structures_are_fetched_from_OBELiX_and_Materials_Pro
+  kind: entity_fact
+  raw_text: Implement `download.py` to fetch crystal structures from OBELiX and Materials
+    Project using static MP-ID list
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:03Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "Li-O distances in transition metal oxides fall within 1.95-2.15 \xC5\
+    \ range"
+  claim_id: c_ab646b69
+  context: "Phase 3: User Story 1. T020 [US1] REVISE: Implement crystallographic constraint\
+    \ check in code/validate.py to verify Li-O distances fall within 1.95-2.15 \xC5\
+    \ range for transition metal oxides"
+  evidence:
+    asserted: '1.95'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: "Validate crystallographic constraint check in code/validate.py to verify\
+    \ Li-O distances fall within 1.95-2.15 \xC5 range for transition metal oxides"
+  resolved_value: '1.62'
+  resolver: approximate
+  source_hash: 65f02f5f3cf60bd189ad0ddf5cdcfee285a894ef110a68bc37d5236b11303740
+  source_type: external
+  status: verified
+  updated_at: '2026-07-10T16:29:03Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect energy values match literature within 0.5 eV tolerance
+  claim_id: c_de9eb981
+  context: 'Phase 4: User Story 2 - Defect Energy and Barrier Calculations. Independent
+    Test: Can be fully tested by running the calculation module on 2-3 pre-selected
+    test systems and verifying output energy values match expected ranges from literature'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output energy values match expected ranges from literature (within
+    0.5 eV tolerance for defect energies)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Semi-empirical bond-valence sum model uses parameters from Brown
+  claim_id: c_cd73fc9d
+  context: "Phase 4: User Story 2. T023 [US2] Define and implement semi-empirical\
+    \ approximation method (bond-valence sum model using parameters from Brown (Wikidata\
+    \ Q42867277, https://www.wikidata.org/wiki/Q42867277)) for remaining compositions\
+    \ to achieve n\u226512"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement semi-empirical approximation method (bond-valence sum model\
+    \ using parameters from Brown (Wikidata Q42867277, https://www.wikidata.org/wiki/Q42867277))\
+    \ for remaining compositions to achieve n\u226512"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:29:52Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "NEB convergence criteria requires force less than or equal to 0.05 eV/\xC5"
+  claim_id: c_0f1b6207
+  context: "Phase 4: User Story 2. Tests for User Story 2 (OPTIONAL - only if tests\
+    \ requested) \u26A0\uFE0F T022 [P] [US2] Integration test for NEB convergence\
+    \ criteria (force \u22640.05 eV/\xC5)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NEB_convergence_criteria_requires_force_less_than_or_equal_t
+  kind: magnitude
+  raw_text: "Implement NEB convergence criteria (force \u22640.05 eV/\xC5)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:30:12Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Requests streaming is used for files larger than 100MB
+  claim_id: c_e61ac0b6
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. T048 [P] Code cleanup: Refactor
+    code/download.py to use requests streaming for files >100MB'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requests_streaming_is_used_for_files_larger_than_100MB
+  kind: entity_fact
+  raw_text: Refactor code/download.py to use requests streaming for files >100MB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:30:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Vectorized regression loop achieves 50% runtime reduction on 1000 synthetic
+    data points
+  claim_id: c_65649fd5
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. T049 [P] Performance optimization:
+    Vectorize the regression loop in code/analysis.py using numpy broadcasting. Pass/Fail:
+    Replace explicit for loops over compositions with numpy matrix operations; unit
+    test tests/test_analysis_vectorized.py must verify identical results with <50%
+    runtime reduction on n=1000 synthetic data'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T16:30:53Z'

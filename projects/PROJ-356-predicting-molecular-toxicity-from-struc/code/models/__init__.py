@@ -1,4 +1,8 @@
 """
 Models package for molecular toxicity prediction.
-Contains rule-based and machine learning model implementations.
+
+This package contains model implementations for:
+- Rule-based scoring using structural alerts
+- Logistic Regression with global molecular descriptors
 """
+pass

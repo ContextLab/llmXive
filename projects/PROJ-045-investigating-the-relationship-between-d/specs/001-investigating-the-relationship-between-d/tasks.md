@@ -212,7 +212,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data download success rate (≥93%) in tests/test_download.py"
+Task: "Contract test for data download success rate (≥93%) in tests/test_download.py "
 Task: "Integration test for completeness report generation in tests/test_validate.py"
 
 # Launch all models for User Story 1 together:

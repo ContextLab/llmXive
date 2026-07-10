@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T15:28:27.462464Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-094-evaluating-the-effectiveness-of-retrieva
-last_run_id: e547c049-a49d-46e7-aef3-2ca049f1e8a3
+last_run_id: 96025055-eb43-4681-bc8d-0e9cab0eb40c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Evaluating the Effectiveness of Retrieval-Augmented Generation for Code Search
-updated_at: '2026-06-28T15:18:27.290894Z'
+updated_at: '2026-07-10T16:14:41.356073Z'

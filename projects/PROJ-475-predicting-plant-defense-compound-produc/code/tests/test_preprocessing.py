@@ -4,166 +4,269 @@ import tempfile
 import shutil
 import unittest
 from pathlib import Path
-import pandas as pd
-import numpy as np
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import numpy as np
+import pandas as pd
+
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from data.preprocessing import (
-    aggregate_to_population_level,
+    calculate_heterozygosity,
+    calculate_nucleotide_diversity,
+    calculate_genomic_diversity_metrics,
     calculate_vif,
-    calculate_genomic_diversity_metrics
+    detect_model_instability,
 )
-from utils.logging import configure_root_logger
+from utils.logging import get_module_logger
 
-configure_root_logger()
+logger = get_module_logger(__name__)
 
-class TestPreprocessingT020(unittest.TestCase):
-    
+
+class TestPreprocessingT027(unittest.TestCase):
+    """Unit tests for feature engineering metrics calculation (T027)."""
+
     def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.test_data_path = Path(self.temp_dir) / "test_data.csv"
+        """Create temporary directory for test artifacts."""
+        self.test_dir = tempfile.mkdtemp()
+        self.sample_df = None
+
+    def tearDown(self):
+        """Clean up temporary directory."""
+        shutil.rmtree(self.test_dir, ignore_errors=True)
+
+    def _create_genomic_df(self, n_samples=10, n_sites=100):
+        """Create a realistic mock genomic dataframe for testing.
         
-        # Create a sample dataset with multiple populations and predictors
+        Args:
+            n_samples: Number of population samples
+            n_sites: Number of genomic sites
+        
+        Returns:
+            pd.DataFrame with genotype data (0, 1, 2)
+        """
         np.random.seed(42)
-        n_samples = 100
-        n_populations = 5
-        
         data = {
-            'population_id': [f'POP_{i % n_populations}' for i in range(n_samples)],
-            'env_temp': np.random.normal(20, 5, n_samples),
-            'env_precip': np.random.normal(100, 20, n_samples),
-            'env_ph': np.random.normal(6.5, 0.5, n_samples),
-            'compound_conc': np.random.normal(50, 10, n_samples),
-            'genotype_1': np.random.choice([0, 1, 2], n_samples),
-            'genotype_2': np.random.choice([0, 1, 2], n_samples),
+            'population_id': [f'POP_{i}' for i in range(n_samples)],
+            'site_0': np.random.choice([0, 1, 2], size=n_samples, p=[0.7, 0.2, 0.1]),
+            'site_1': np.random.choice([0, 1, 2], size=n_samples, p=[0.6, 0.3, 0.1]),
         }
         
-        self.df = pd.DataFrame(data)
-        self.df.to_csv(self.test_data_path, index=False)
-    
-    def tearDown(self):
-        """Clean up temporary files."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-    
-    def test_aggregate_to_population_level(self):
-        """Test FR-009: Aggregate all data to population level."""
-        df = self.df.copy()
+        for i in range(2, n_sites):
+            data[f'site_{i}'] = np.random.choice([0, 1, 2], size=n_samples, p=[0.7, 0.2, 0.1])
         
-        # Aggregate
-        aggregated = aggregate_to_population_level(df, population_col='population_id')
+        return pd.DataFrame(data)
+
+    def _create_env_df(self, n_samples=10):
+        """Create a mock environmental dataframe for VIF testing.
         
-        # Assertions
-        self.assertEqual(len(aggregated), 5)  # 5 unique populations
-        self.assertIn('population_id', aggregated.columns)
-        self.assertIn('env_temp', aggregated.columns)
-        self.assertIn('env_precip', aggregated.columns)
-        self.assertIn('compound_conc', aggregated.columns)
+        Args:
+            n_samples: Number of samples
         
-        # Check that values are means (not sums)
-        original_sum = df.groupby('population_id')['env_temp'].mean()
-        aggregated_sum = aggregated.set_index('population_id')['env_temp']
-        pd.testing.assert_series_equal(original_sum, aggregated_sum, check_names=False)
-    
-    def test_aggregate_empty_dataframe(self):
-        """Test aggregation with empty DataFrame."""
-        empty_df = pd.DataFrame()
-        result = aggregate_to_population_level(empty_df, population_col='population_id')
-        self.assertTrue(result.empty)
-    
-    def test_aggregate_with_missing_values(self):
-        """Test aggregation handles missing values correctly."""
-        df = self.df.copy()
-        df.loc[0, 'env_temp'] = np.nan
-        
-        aggregated = aggregate_to_population_level(df, population_col='population_id')
-        
-        # Should still have 5 populations
-        self.assertEqual(len(aggregated), 5)
-        # Mean should handle NaNs (default behavior)
-        self.assertFalse(aggregated['env_temp'].isna().any())
-    
-    def test_calculate_vif_basic(self):
-        """Test VIF calculation with basic data."""
-        # Create data with some correlation
+        Returns:
+            pd.DataFrame with correlated environmental variables
+        """
         np.random.seed(42)
-        n = 50
+        # Create correlated features to test VIF calculation
+        temp = np.random.normal(20, 5, n_samples)
+        precip = temp * 0.8 + np.random.normal(100, 20, n_samples)
+        humidity = precip * 0.6 + np.random.normal(50, 10, n_samples)
+        
+        return pd.DataFrame({
+            'population_id': [f'POP_{i}' for i in range(n_samples)],
+            'temperature': temp,
+            'precipitation': precip,
+            'humidity': humidity,
+            'elevation': np.random.normal(500, 200, n_samples)
+        })
+
+    def test_calculate_heterozygosity_single_site(self):
+        """Test heterozygosity calculation for a single site."""
+        # Create a simple case: 10 individuals, 3 heterozygous (1s)
         df = pd.DataFrame({
-            'x1': np.random.normal(0, 1, n),
-            'x2': np.random.normal(0, 1, n),
-            'x3': np.random.normal(0, 1, n),
+            'population_id': ['POP_1'] * 10,
+            'site_0': [0, 0, 1, 1, 1, 2, 2, 0, 0, 0]
         })
         
-        # Add some correlation between x1 and x2
-        df['x2'] = df['x1'] * 0.5 + np.random.normal(0, 0.5, n)
+        result = calculate_heterozygosity(df, 'site_0')
         
-        vif_result = calculate_vif(df, exclude_cols=[])
+        # Expected: 3 heterozygous out of 10 = 0.3
+        expected = 0.3
+        self.assertAlmostEqual(result, expected, places=5)
+
+    def test_calculate_heterozygosity_all_homozygous(self):
+        """Test heterozygosity when all individuals are homozygous."""
+        df = pd.DataFrame({
+            'population_id': ['POP_1'] * 10,
+            'site_0': [0, 0, 0, 2, 2, 0, 0, 2, 0, 0]
+        })
         
-        # Should have 3 features
-        self.assertEqual(len(vif_result), 3)
-        self.assertIn('feature', vif_result.columns)
-        self.assertIn('vif', vif_result.columns)
+        result = calculate_heterozygosity(df, 'site_0')
+        self.assertEqual(result, 0.0)
+
+    def test_calculate_nucleotide_diversity_basic(self):
+        """Test nucleotide diversity calculation."""
+        df = pd.DataFrame({
+            'population_id': ['POP_1'] * 4,
+            'site_0': [0, 0, 2, 2]  # Two alleles, 0 and 2
+        })
         
-        # All VIFs should be non-negative
-        self.assertTrue((vif_result['vif'] >= 0).all())
-    
+        result = calculate_nucleotide_diversity(df, 'site_0')
+        
+        # With 2 alleles at equal frequency, expected diversity is high
+        self.assertGreater(result, 0.0)
+        self.assertLessEqual(result, 1.0)
+
+    def test_calculate_genomic_diversity_metrics(self):
+        """Test the combined genomic diversity metrics function."""
+        df = self._create_genomic_df(n_samples=20, n_sites=50)
+        
+        metrics_df = calculate_genomic_diversity_metrics(df)
+        
+        # Verify output structure
+        self.assertIn('population_id', metrics_df.columns)
+        self.assertIn('heterozygosity', metrics_df.columns)
+        self.assertIn('nucleotide_diversity', metrics_df.columns)
+        
+        # Verify values are in valid range
+        self.assertTrue((metrics_df['heterozygosity'] >= 0).all())
+        self.assertTrue((metrics_df['heterozygosity'] <= 1).all())
+        self.assertTrue((metrics_df['nucleotide_diversity'] >= 0).all())
+        self.assertTrue((metrics_df['nucleotide_diversity'] <= 1).all())
+        
+        # Verify all populations are present
+        self.assertEqual(len(metrics_df), 20)
+
+    def test_calculate_vif_no_collinearity(self):
+        """Test VIF calculation with uncorrelated variables."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            'population_id': [f'POP_{i}' for i in range(50)],
+            'var_a': np.random.normal(0, 1, 50),
+            'var_b': np.random.normal(0, 1, 50),
+            'var_c': np.random.normal(0, 1, 50)
+        })
+        
+        vif_df = calculate_vif(df, exclude_cols=['population_id'])
+        
+        # With no collinearity, VIF should be close to 1
+        self.assertIn('VIF', vif_df.columns)
+        self.assertTrue((vif_df['VIF'] >= 1).all())
+        self.assertTrue((vif_df['VIF'] < 5).all())
+
     def test_calculate_vif_high_collinearity(self):
-        """Test VIF detection of high collinearity (VIF > 5)."""
-        # Create data with high collinearity
+        """Test VIF calculation with highly correlated variables."""
         np.random.seed(42)
-        n = 50
+        base = np.random.normal(0, 1, 50)
         df = pd.DataFrame({
-            'x1': np.random.normal(0, 1, n),
-            'x2': np.random.normal(0, 1, n),
+            'population_id': [f'POP_{i}' for i in range(50)],
+            'var_a': base,
+            'var_b': base * 0.95 + np.random.normal(0, 0.1, 50),  # Highly correlated
+            'var_c': np.random.normal(0, 1, 50)
         })
         
-        # Create highly correlated feature
-        df['x3'] = df['x1'] * 0.95 + np.random.normal(0, 0.01, n)
+        vif_df = calculate_vif(df, exclude_cols=['population_id'])
         
-        vif_result = calculate_vif(df, exclude_cols=[])
-        
-        # Find VIF for x3
-        x3_vif = vif_result[vif_result['feature'] == 'x3']['vif'].values[0]
-        
-        # VIF should be > 5 for highly correlated feature
-        self.assertGreater(x3_vif, 5.0)
-    
-    def test_calculate_vif_empty(self):
-        """Test VIF calculation with empty DataFrame."""
-        empty_df = pd.DataFrame()
-        result = calculate_vif(empty_df)
-        self.assertTrue(result.empty)
-    
-    def test_calculate_vif_exclude_cols(self):
-        """Test VIF calculation excludes specified columns."""
+        # One variable should have high VIF
+        self.assertIn('VIF', vif_df.columns)
+        high_vif_count = (vif_df['VIF'] > 5).sum()
+        self.assertGreater(high_vif_count, 0)
+
+    def test_detect_model_instability_vif(self):
+        """Test model instability detection via VIF threshold."""
+        np.random.seed(42)
+        base = np.random.normal(0, 1, 50)
         df = pd.DataFrame({
-            'id': [1, 2, 3, 4, 5],
-            'x1': [1.0, 2.0, 3.0, 4.0, 5.0],
-            'x2': [2.0, 3.0, 4.0, 5.0, 6.0],
+            'population_id': [f'POP_{i}' for i in range(50)],
+            'var_a': base,
+            'var_b': base * 0.99 + np.random.normal(0, 0.01, 50),  # Extremely correlated
+            'target': np.random.normal(0, 1, 50)
         })
         
-        vif_result = calculate_vif(df, exclude_cols=['id'])
+        unstable, unstable_features = detect_model_instability(df, vif_threshold=10)
         
-        # 'id' should not be in results
-        self.assertNotIn('id', vif_result['feature'].values)
-        self.assertEqual(len(vif_result), 2)  # Only x1 and x2
-    
-    def test_integration_aggregate_and_vif(self):
-        """Integration test: Aggregate then calculate VIF."""
-        df = self.df.copy()
+        self.assertTrue(unstable)
+        self.assertGreater(len(unstable_features), 0)
+
+    def test_detect_model_instability_singular_matrix(self):
+        """Test model instability detection via singular matrix."""
+        # Create a dataset with perfect multicollinearity
+        np.random.seed(42)
+        df = pd.DataFrame({
+            'population_id': [f'POP_{i}' for i in range(10)],
+            'var_a': np.random.normal(0, 1, 10),
+            'var_b': np.random.normal(0, 1, 10),
+            'var_c': np.random.normal(0, 1, 10),
+            'var_d': np.random.normal(0, 1, 10),
+            'target': np.random.normal(0, 1, 10)
+        })
         
-        # Step 1: Aggregate to population level
-        aggregated = aggregate_to_population_level(df, population_col='population_id')
+        # Add a perfect linear combination
+        df['var_sum'] = df['var_a'] + df['var_b'] + df['var_c'] + df['var_d']
         
-        # Step 2: Calculate VIF on aggregated data
-        vif_result = calculate_vif(aggregated, exclude_cols=['population_id'])
+        unstable, unstable_features = detect_model_instability(df, vif_threshold=5)
         
-        # Verify VIF calculation ran
-        self.assertFalse(vif_result.empty)
-        self.assertIn('feature', vif_result.columns)
-        self.assertIn('vif', vif_result.columns)
+        # Should detect instability due to perfect collinearity
+        self.assertTrue(unstable)
+
+    def test_genomic_metrics_consistency(self):
+        """Test that genomic metrics are consistent across runs with same seed."""
+        df1 = self._create_genomic_df(n_samples=30, n_sites=100)
+        df2 = self._create_genomic_df(n_samples=30, n_sites=100)
+        
+        # Reset seed to ensure same random generation
+        np.random.seed(42)
+        df1 = self._create_genomic_df(n_samples=30, n_sites=100)
+        np.random.seed(42)
+        df2 = self._create_genomic_df(n_samples=30, n_sites=100)
+        
+        metrics1 = calculate_genomic_diversity_metrics(df1)
+        metrics2 = calculate_genomic_diversity_metrics(df2)
+        
+        # Results should be identical
+        pd.testing.assert_frame_equal(metrics1, metrics2)
+
+    def test_vif_calculation_with_missing_values(self):
+        """Test VIF calculation handles missing values gracefully."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            'population_id': [f'POP_{i}' for i in range(20)],
+            'var_a': np.random.normal(0, 1, 20),
+            'var_b': np.random.normal(0, 1, 20),
+            'var_c': np.random.normal(0, 1, 20)
+        })
+        
+        # Introduce missing values
+        df.loc[0:2, 'var_a'] = np.nan
+        
+        vif_df = calculate_vif(df, exclude_cols=['population_id'])
+        
+        # Should still produce results (pandas handles NaN in regression)
+        self.assertIn('VIF', vif_df.columns)
+        self.assertEqual(len(vif_df), 3)
+
+    def test_genomic_diversity_empty_dataframe(self):
+        """Test that genomic diversity functions handle edge cases."""
+        empty_df = pd.DataFrame(columns=['population_id', 'site_0'])
+        
+        with self.assertRaises(ValueError):
+            calculate_genomic_diversity_metrics(empty_df)
+
+    def test_vif_single_feature(self):
+        """Test VIF calculation with only one feature."""
+        df = pd.DataFrame({
+            'population_id': [f'POP_{i}' for i in range(10)],
+            'var_a': np.random.normal(0, 1, 10)
+        })
+        
+        vif_df = calculate_vif(df, exclude_cols=['population_id'])
+        
+        # Single feature should have VIF of 1.0
+        self.assertEqual(len(vif_df), 1)
+        self.assertEqual(vif_df['VIF'].iloc[0], 1.0)
+
 
 if __name__ == '__main__':
     unittest.main()

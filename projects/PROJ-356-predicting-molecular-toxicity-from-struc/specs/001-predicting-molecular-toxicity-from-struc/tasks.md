@@ -117,7 +117,7 @@
 
 **Goal**: Perform DeLong's test on **Out-of-Fold (OOF)** predictions (one prediction per instance from the fold where it was held out) to determine if the performance difference is statistically significant.
 
-**Independent Test**: The statistical analysis module can be tested by providing it with two vectors of predicted probabilities from the models (OOF predictions, one per instance) and verifying that it outputs a p-value and confidence interval indicating whether the AUC difference is significant at the 0.05 level. [UNRESOLVED-CLAIM: c_6a3eabdc — status=not_enough_info]
+**Independent Test**: The statistical analysis module can be tested by providing it with two vectors of predicted probabilities from the models (OOF predictions, one per instance) and verifying that it outputs a p-value and confidence interval indicating whether the AUC difference is significant at the 0.05 level.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -169,7 +169,7 @@
 - [ ] T041 [P] [US1] Update `src/data/download.py` to enforce a minimum sample size check (N > 1000) and fail gracefully if the dataset is too small (Addressing Reviewer Concern: "quantity of material matters"). **Source**: Spec Assumptions.
 - [ ] T042 [P] [US1] Update `src/data/download.py` to explicitly log the specific assay ID (e.g., PubChem AID 1851) and assay type (Ames/ToxCast) in the data report (Addressing Reviewer Concern: "measurement instrument for mutagenicity"). **Source**: Spec Assumptions.
 - [ ] T043 [US1] Update `results/metrics_baseline.json` schema to include `dataset_metadata` field to store assay_id, assay_type, and total_compounds (FR-001, FR-002).
-- [ ] T044 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay] [UNRESOLVED-CLAIM: c_c7e52a7b — status=not_enough_info]" (Addressing Reviewer Concern: "reproducibility standard")
+- [ ] T044 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay] [UNRESOLVED-CLAIM: c_ee448bec — status=not_enough_info] " (Addressing Reviewer Concern: "reproducibility standard")
 - [ ] T045 [P] [US1] Add a pre-flight validation script `scripts/validate_dataset.py` that checks column existence, label distribution, and SMILES validity before pipeline execution
 
 ---
