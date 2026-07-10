@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anomaly Detector Configuration"
+description: "Configuration schema for Bayesian Nonparametrics Anomaly Detection (max 2KB)"
+type: object
+properties:
+  random_seed:
+    type: integer
+    description: "Random seed for reproducibility"
+  window_length:
+    type: integer
+    description: "Sliding window length (default: 30)"
+  stride:
+    type: integer
+    description: "Sliding window stride (default: 1)"
+  advi_max_iter:
+    type: integer
+    description: "Maximum ADVI iterations (default: 500)"
+  advi_tol:
+    type: number
+    description: "ADVI convergence tolerance (default: 0.01)"
+  threshold_default:
+    type: number
+    description: "Default anomaly threshold (default: 0.05)"
+  sensitivity_sweep:
+    type: array
+    items:
+      type: number
+    description: "Threshold values for sensitivity analysis (e.g., [0.01, 0.05, 0.1])"
+required:
+  - random_seed
+  - window_length
+  - stride
+  - advi_max_iter
+  - advi_tol
+  - threshold_default
+additionalProperties: false

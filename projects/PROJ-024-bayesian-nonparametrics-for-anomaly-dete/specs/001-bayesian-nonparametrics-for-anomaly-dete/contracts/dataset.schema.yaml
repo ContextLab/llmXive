@@ -1,19 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset"
+title: "Dataset Schema"
+description: "Schema for time series dataset used in anomaly detection"
 type: object
-required:
-  - series_id
-  - values
 properties:
-  series_id:
+  dataset_name:
     type: string
-  values:
-    type: array
-    items:
-      type: number
-    minItems: 1000
-  timestamp:
-    type: array
-    items:
-      type: string
-      format: date-time
+    description: "Name of the dataset"
+  source_url:
+    type: string
+    format: uri
+    description: "Verified source URL (from # Verified datasets block)"
+  num_observations:
+    type: integer
+    minimum: 1000
+    description: "Number of observations (min 1000)"
+  is_univariate:
+    type: boolean
+    description: "Whether the dataset is univariate"
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the raw file"
+required:
+  - dataset_name
+  - source_url
+  - num_observations
+  - is_univariate
+  - checksum
+additionalProperties: false

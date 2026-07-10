@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anomaly Detection Output Schema"
+description: "Schema for detection events and posterior trajectories"
+type: object
+properties:
+  detection_events:
+    type: array
+    items:
+      type: object
+      properties:
+        event_id:
+          type: integer
+        method:
+          type: string
+          enum: ["DP-GMM", "GMM-k3", "GMM-k5", "GMM-k10", "ARIMA"]
+        detection_timestamp:
+          type: integer
+        injection_timestamp:
+          type: integer
+        time_to_detection:
+          type: integer
+        score:
+          type: number
+      required:
+        - event_id
+        - method
+        - detection_timestamp
+        - injection_timestamp
+        - time_to_detection
+        - score
+  posterior_trajectory:
+    type: array
+    items:
+      type: object
+      properties:
+        window_id:
+          type: integer
+        alpha_mean:
+          type: number
+        alpha_std:
+          type: number
+        pi_mean:
+          type: array
+          items:
+            type: number
+        pi_var:
+          type: number
+        alpha_derivative:
+          type: number
+        converged:
+          type: boolean
+      required:
+        - window_id
+        - alpha_mean
+        - alpha_std
+        - pi_mean
+        - pi_var
+        - alpha_derivative
+        - converged
+  sensitivity_report:
+    type: object
+    properties:
+      threshold_values:
+        type: array
+        items:
+          type: number
+      false_positive_rates:
+        type: array
+        items:
+          type: number
+      false_negative_rates:
+        type: array
+        items:
+          type: number
+      stability_flags:
+        type: array
+        items:
+          type: boolean
+    required:
+      - threshold_values
+      - false_positive_rates
+      - false_negative_rates
+      - stability_flags
+required:
+  - detection_events
+  - posterior_trajectory
+  - sensitivity_report
+additionalProperties: false
