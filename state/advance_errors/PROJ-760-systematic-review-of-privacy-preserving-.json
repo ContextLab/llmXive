@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-760-systematic-review-of-privacy-preserving-",
   "stage": "clarified",
-  "last_error": "research.md reference is unreachable: 'http://export.arxiv.org/api/query' (timeout/socket error: The read operation timed out). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
-  "last_seen": "2026-07-08T19:38:00.123779+00:00",
-  "count": 1
+  "last_error": "research.md reference is unreachable: 'https://export.arxiv.org/api/query' (HTTP 400). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "last_seen": "2026-07-10T04:36:40.374046+00:00",
+  "count": 2
 }
