@@ -1,4 +1,4 @@
-- artifact_hash: 9dbcffdb2267abdba73dd8456bc7421c581959beeb589eac86f6efc6eb3e304a
+- artifact_hash: ecde0daee1e14678a9735cc98bfdd50cb4b8e003be966e27316ea6b97832dab1
   artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://huggingface.co/datasets/GFA-D2/pilot_flags
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/GFA-D2/pilot_flags
-  verified_at: '2026-07-08T02:15:17.822701Z'
-- artifact_hash: 9dbcffdb2267abdba73dd8456bc7421c581959beeb589eac86f6efc6eb3e304a
+  verified_at: '2026-07-10T10:15:13.382690Z'
+- artifact_hash: ecde0daee1e14678a9735cc98bfdd50cb4b8e003be966e27316ea6b97832dab1
   artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/spec.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,26 @@
   value: https://huggingface.co/datasets/GFA-D2/pilot_flags`
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/GFA-D2/pilot_flags
-  verified_at: '2026-07-08T02:15:17.822701Z'
+  verified_at: '2026-07-10T10:15:13.382690Z'
+- artifact_hash: 16915ecb0b2c4d8b6e4081897830233e876f25a0a710ce314ba264c4d86b2a8c
+  artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: data.csv
+  kind: url
+  value: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/GFA-D2/pilot_flags/76f5f73a18d746d15cdd098354159d7cf154ae4b/data.csv?%2Fdatasets%2FGFA-D2%2Fpilot_flags%2Fresolve%2Fmain%2Fdata.csv=&etag=%22868157417cbe46f5e1ce3cadc77a2e945cd53c65%22
+  verified_at: '2026-07-10T10:46:25.385539Z'
+- artifact_hash: a799004ccc5997ec0852bdddefa11646a53a1347e14c12f7bd307d3a5e29e712
+  artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: data.csv
+  kind: url
+  value: https://huggingface.co/datasets/GFA-D2/pilot_flags/resolve/main/data.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/GFA-D2/pilot_flags/76f5f73a18d746d15cdd098354159d7cf154ae4b/data.csv?%2Fdatasets%2FGFA-D2%2Fpilot_flags%2Fresolve%2Fmain%2Fdata.csv=&etag=%22868157417cbe46f5e1ce3cadc77a2e945cd53c65%22
+  verified_at: '2026-07-10T10:46:45.676471Z'

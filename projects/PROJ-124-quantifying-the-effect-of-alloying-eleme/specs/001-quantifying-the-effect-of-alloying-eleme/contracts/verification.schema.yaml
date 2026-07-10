@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Verification Requests Schema"
+description: "Schema for the JSON file containing top candidates for experimental validation."
+type: "object"
+properties:
+  candidates:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        rank:
+          type: "integer"
+          description: "Rank in the sorted list (1-based)."
+        composition:
+          type: "string"
+        predicted_log10_Rc:
+          type: "number"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        status:
+          type: "string"
+          const: "pending_verification"
+        novelty_status:
+          type: "string"
+          description: "novel, known, or unverified_external"
+          enum:
+            - "novel"
+            - "known"
+            - "unverified_external"
+      required:
+        - rank
+        - composition
+        - predicted_log10_Rc
+        - ci_lower
+        - ci_upper
+        - status
+        - novelty_status
+      additionalProperties: false
+required:
+  - candidates
+additionalProperties: false

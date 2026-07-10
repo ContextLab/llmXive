@@ -1,4 +1,4 @@
-resolved_at: '2026-07-08T02:18:38.815932+00:00'
+resolved_at: '2026-07-10T10:18:39.843757+00:00'
 datasets:
 - intent: GFA
   status: verified
@@ -19,23 +19,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+  - url: https://figshare.com/articles/online_resource/Code_and_Generated_ROI_Data/32956307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+  - url: https://figshare.com/articles/dataset/Telomere-to-telomere_scale_genome_assembly_of_Chinese_oak_moth_i_Antheraea_pernyi_i_/32833508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Resonant_domain_wall_dynamics_in_a_three-dimensional_magnetic_nano_double_helix/32925371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+  - url: https://figshare.com/articles/dataset/_b_Narrative_Review_of_Pre-Service_Teachers_Career_Development_b_/32956328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ro.uow.edu.au/articles/journal_contribution/Mobile_mental_health_application_use_and_app_feature_preferences_among_individuals_with_mental_disorders_in_Ethiopia_A_cross-sectional_survey/32928905
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_Systematic_Framework_for_Machine_Learning-Based_Robust_Project_Scheduling_Under_Uncertainty/32948852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -55,7 +55,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10889251
+  - url: https://zenodo.org/records/5749720
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -124,23 +124,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+  - url: https://figshare.com/articles/dataset/_b_Narrative_Review_of_Pre-Service_Teachers_Career_Development_b_/32956328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+  - url: https://figshare.com/articles/online_resource/Code_and_Generated_ROI_Data/32956307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+  - url: https://figshare.com/articles/dataset/Telomere-to-telomere_scale_genome_assembly_of_Chinese_oak_moth_i_Antheraea_pernyi_i_/32833508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Resonant_domain_wall_dynamics_in_a_three-dimensional_magnetic_nano_double_helix/32925371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_Systematic_Framework_for_Machine_Learning-Based_Robust_Project_Scheduling_Under_Uncertainty/32948852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -164,23 +164,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2510.16165
+  - url: https://dmphub.uc3prd.cdlib.net/dmps/10.48321/D12FC13A68
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.06564
+  - url: https://zenodo.org/records/21291847
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.06356
+  - url: https://zenodo.org/records/21291847
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.06111
+  - url: https://fair.unifg.it//handle/11369/369485
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.05906
+  - url: https://zenodo.org/records/21276211
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -199,23 +199,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+  - url: https://figshare.com/articles/dataset/_b_Narrative_Review_of_Pre-Service_Teachers_Career_Development_b_/32956328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+  - url: https://figshare.com/articles/online_resource/Code_and_Generated_ROI_Data/32956307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+  - url: https://figshare.com/articles/dataset/Telomere-to-telomere_scale_genome_assembly_of_Chinese_oak_moth_i_Antheraea_pernyi_i_/32833508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Resonant_domain_wall_dynamics_in_a_three-dimensional_magnetic_nano_double_helix/32925371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://torrens.figshare.com/articles/thesis/University_Faculty_and_Students_Perspectives_on_Academic_Integrity_in_Written_Assessments_in_the_Age_of_Artificial_Intelligence/32928890
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_Systematic_Framework_for_Machine_Learning-Based_Robust_Project_Scheduling_Under_Uncertainty/32948852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -254,24 +254,28 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Elementary_Weak_Solutions_of_the_Navier_Stokes_Equations_by_a_New_Fixed_Point_Theorem/32900846
+  - url: https://figshare.com/articles/dataset/_b_Narrative_Review_of_Pre-Service_Teachers_Career_Development_b_/32956328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+  - url: https://figshare.com/articles/online_resource/Code_and_Generated_ROI_Data/32956307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+  - url: https://figshare.com/articles/dataset/Telomere-to-telomere_scale_genome_assembly_of_Chinese_oak_moth_i_Antheraea_pernyi_i_/32833508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Resonant_domain_wall_dynamics_in_a_three-dimensional_magnetic_nano_double_helix/32925371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_Systematic_Framework_for_Machine_Learning-Based_Robust_Project_Scheduling_Under_Uncertainty/32948852
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.11591/eei.v9i2.1972
@@ -279,39 +283,35 @@ datasets:
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5951740
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.05814
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21079712
+  - url: https://zenodo.org/records/21291847
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21079712
+  - url: https://zenodo.org/records/21291847
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21251726
+  - url: https://zenodo.org/records/21289868
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21251726
+  - url: https://zenodo.org/records/20674981
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -352,28 +352,24 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/preprint/Elementary_Weak_Solutions_of_the_Navier_Stokes_Equations_by_a_New_Fixed_Point_Theorem/32900846
+  - url: https://figshare.com/articles/dataset/_b_Narrative_Review_of_Pre-Service_Teachers_Career_Development_b_/32956328
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/_5_6__Stage-First_Templates__/32928914
+  - url: https://figshare.com/articles/online_resource/Code_and_Generated_ROI_Data/32956307
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Evolution_of_Acidic_Mammalian_Chitinase_b_b_G_b_b_ene_b_b_b_b_i_CHIA_i_b_b_is_b_/32928797
+  - url: https://figshare.com/articles/dataset/Telomere-to-telomere_scale_genome_assembly_of_Chinese_oak_moth_i_Antheraea_pernyi_i_/32833508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/OCT-Angiography_Findings_in_Acute_Diffuse_Unilateral_Subacute_Neurorretinitis_A_Case_Report/32928922
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Resonant_domain_wall_dynamics_in_a_three-dimensional_magnetic_nano_double_helix/32925371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Artificial_Intelligence_of_Things_for_Smarter_Healthcare_A_Survey_of_Advancements_Challenges_and_Opportunities/32766693
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_Systematic_Framework_for_Machine_Learning-Based_Robust_Project_Scheduling_Under_Uncertainty/32948852
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5550909
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.1653/024.099.0440
@@ -384,7 +380,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7683127
+  - url: https://zenodo.org/records/5550909
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -392,23 +388,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.06523
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21288629
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.06499
+  - url: https://zenodo.org/records/21288629
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.05920
+  - url: https://zenodo.org/records/21288315
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.05457
+  - url: https://zenodo.org/records/21288315
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21252410
+  - url: https://zenodo.org/records/20116450
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

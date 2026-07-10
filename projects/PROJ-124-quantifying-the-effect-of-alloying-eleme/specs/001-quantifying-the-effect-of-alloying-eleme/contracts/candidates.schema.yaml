@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Candidate Output Schema"
+description: "Schema for the ranked list of novel alloy candidates (JSON format, for internal use)."
+type: "object"
+properties:
+  composition:
+    type: "string"
+    description: "Predicted composition string"
+  predicted_log10_Rc:
+    type: "number"
+    description: "Model prediction of log10(Rc)"
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval (2.5%)"
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval (97.5%)"
+  doa_risk:
+    type: "string"
+    description: "Domain of Applicability risk level"
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+  penalty_applied:
+    type: "number"
+    description: "Penalty added to prediction if outside DoA (0.0 or 1.0)"
+  final_score:
+    type: "number"
+    description: "Adjusted score for ranking"
+  novelty_status:
+    type: "string"
+    description: "Novelty status of the composition"
+  risk_score:
+    type: "number"
+    description: "Raw Mahalanobis distance for re-analysis"
+required:
+  - composition
+  - predicted_log10_Rc
+  - ci_lower
+  - ci_upper
+  - doa_risk
+  - penalty_applied
+  - final_score
+  - novelty_status
+  - risk_score
+additionalProperties: false

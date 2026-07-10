@@ -2,67 +2,81 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Access to GitHub Actions (for CI execution) or a local environment with 7GB+ RAM.
+- Python 3.11+
+- Git
+- Access to GitHub Actions (for CI) or a local environment with sufficient RAM to support the workflow.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-124-quantifying-the-effect-of-alloying-eleme
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `pymatgen`, `scikit-learn`, `statsmodels`, and `pandas`.*
+1. **Clone the repository** (or navigate to the project directory).
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note*: `requirements.txt` pins versions for `pymatgen`, `scikit-learn`, `pandas`, `numpy`, `shap`, `statsmodels`.
 
 ## Running the Pipeline
 
-The pipeline consists of three sequential scripts. Execute them in order:
-
-### Step 1: Ingest and Engineer Features
-Downloads the dataset from the verified HuggingFace URL and computes physics-based descriptors.
+### Option 1: Full Pipeline (Recommended)
+Run the orchestration script to download, process, train, and screen:
 ```bash
-python code/01_ingest_and_engineer.py
+python code/main.py
 ```
-*Output*: `data/processed/engineered_features.csv`
+This will:
+1. Download data from HuggingFace.
+2. Engineer features.
+3. Train models (RF, GB) and select the best one.
+4. Perform residual analysis and retrain if needed.
+5. Screen ternary combinations.
+6. Output `output/candidates.csv` and `output/verification_requests.json`.
 
-### Step 2: Train and Validate Models
-Trains Random Forest and Gradient Boosting models, performs LOCO cross-validation, checks for heteroscedasticity, and saves the best model.
+### Option 2: Step-by-Step
+
+**Step 1: Download Data**
 ```bash
-python code/02_train_and_validate.py
+python code/data/download.py
 ```
-*Output*: `output/best_model.pkl` (and potentially `best_model_weighted.pkl`)
 
-### Step 3: Screen Candidates
-Generates ternary combinations, predicts GFA, filters by threshold, and outputs the top candidates.
+**Step 2: Feature Engineering**
 ```bash
-python code/03_screen_candidates.py
+python code/data/features.py
 ```
-*Output*: `output/top_candidates.csv`, `output/verification_requests.json`
 
-## Verification
+**Step 3: Train Models**
+```bash
+python code/models/train.py
+```
 
-To verify the pipeline:
-1.  Check that `output/top_candidates.csv` exists and contains rows with `predicted_log_rc < 4.0`.
-2.  Verify `output/verification_requests.json` contains the top 10 candidates with `status: "pending_verification"`.
-3.  Run the unit tests:
-    ```bash
-    pytest tests/
-    ```
+**Step 4: Screen Candidates**
+```bash
+python code/models/predict.py
+```
+
+## Expected Outputs
+
+- `data/raw/`: Raw CSVs (checksummed).
+- `data/processed/features.csv`: Feature-engineered dataset.
+- `output/best_model.pkl`: The selected regression model.
+- `output/shap_feature_importance.json`: Global feature importance.
+- `output/candidates.csv`: Top 10 novel alloy candidates.
+- `output/verification_requests.json`: JSON for experimental validation.
 
 ## Troubleshooting
 
--   **Dataset Download Failed**: The script retries 3 times with 5s backoff. If it fails, check your internet connection and the verified URL.
--   **Unknown Elements**: Rows with elements not in Pymatgen are logged and skipped. Check `logs/engineering.log` for details.
--   **Memory Error**: The pipeline is designed for <7GB RAM. If OOM occurs, reduce the number of hyperparameter combinations in `02_train_and_validate.py`.
+- **Missing `log10_Rc`**: The pipeline will fail with an explicit error. Verify the dataset schema.
+- **Unknown Elements**: Rows with unknown elements are skipped. Check logs for warnings.
+- **Memory Error**: Unlikely on this dataset. If it occurs, reduce the number of bootstrapped models (configurable).
+- **No Candidates**: If no compositions fall below the threshold, `candidates.csv` will be empty (header only).
+
+## Verification
+
+Run the test suite to ensure correctness:
+```bash
+pytest tests/
+```
+This includes contract tests against the YAML schemas defined in `contracts/`.
