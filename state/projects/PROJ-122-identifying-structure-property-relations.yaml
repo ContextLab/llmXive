@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-122-identifying-structure-property-relations
-last_run_id: 25bcba55-90ad-4f0a-891b-01bf3f28e095
+last_run_id: 5b59c88e-1d50-496b-b1a2-7f9cbe6aa519
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations
 title: Identifying Structure-Property Relationships in Polymer Blends Using Public
   Databases
-updated_at: '2026-07-08T22:05:01.850727Z'
+updated_at: '2026-07-10T10:53:12.259817Z'

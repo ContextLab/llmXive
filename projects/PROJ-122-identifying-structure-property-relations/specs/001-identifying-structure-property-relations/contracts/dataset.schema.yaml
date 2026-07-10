@@ -1,50 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PolymerBlendDataset"
-description: "Schema for the cleaned and harmonized polymer blend dataset."
+description: "Schema for the harmonized polymer blend dataset."
 type: "object"
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the blend entry."
-  components:
+  records:
     type: "array"
-    description: "List of components in the blend."
     items:
       type: "object"
       properties:
-        smiles:
+        id:
           type: "string"
-          description: "SMILES string of the component."
-        weight_fraction:
+          description: "Unique identifier for the blend entry."
+        components:
+          type: "array"
+          description: "List of components in the blend."
+          items:
+            type: "object"
+            properties:
+              smiles:
+                type: "string"
+                description: "SMILES string of the component."
+              weight_fraction:
+                type: "number"
+                minimum: 0.0
+                maximum: 1.0
+                description: "Weight fraction of the component."
+            required:
+              - smiles
+              - weight_fraction
+        tg_k:
           type: "number"
+          description: "Glass Transition Temperature in Kelvin."
           minimum: 0.0
-          maximum: 1.0
-          description: "Weight fraction of the component."
+        youngs_modulus_gpa:
+          type: "number"
+          description: "Young's Modulus in GPa."
+          minimum: 0.0
+        source:
+          type: "string"
+          description: "Source dataset name."
+        validation_status:
+          type: "string"
+          enum:
+            - "valid"
+            - "invalid_units"
+            - "invalid_smiles"
+            - "invalid_composition"
+          description: "Validation status of the record."
       required:
-        - smiles
-        - weight_fraction
-  measured_tg_k:
-    type: "number"
-    description: "Glass transition temperature in Kelvin."
-    minimum: 0.0
-  measured_modulus_gpa:
-    type: "number"
-    description: "Young's Modulus in GPa."
-    minimum: 0.0
-  source:
-    type: "string"
-    description: "Source of the data (e.g., NIST, MaterialsProject)."
-  validation_status:
-    type: "string"
-    enum:
-      - "PASS"
-      - "FAIL"
-    description: "Validation status based on unit and weight checks."
+        - id
+        - components
+        - tg_k
+        - youngs_modulus_gpa
+        - source
+        - validation_status
 required:
-  - id
-  - components
-  - measured_tg_k
-  - measured_modulus_gpa
-  - source
-  - validation_status
-additionalProperties: false
+  - records

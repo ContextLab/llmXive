@@ -3,49 +3,76 @@
 ## Prerequisites
 
 *   Python 3.11+
-*   Access to a GitHub Actions runner (or local environment with multiple CPU cores and sufficient RAM).
-*   API keys for Materials Project (if required by the spec's assumed sources).
+*   Git
+*   Access to the Polymer Database, NIST, and Materials Project APIs (or pre-downloaded data in `data/raw/`).
 
 ## Installation
 
-1.  Clone the repository and navigate to the project root.
-2.  Create a virtual environment:
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-122-identifying-structure-property-relations
+    ```
+
+2.  **Create and activate virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-3.  Install dependencies:
+
+3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
 
-## Running the Pipeline
+## Data Preparation
 
-Execute the full pipeline end-to-end:
+1.  **Fetch Data**:
+    Run the ingestion script. It will attempt to fetch from APIs. If APIs are unreachable, it will look for `data/raw/polymer_db.csv`, `data/raw/nist.json`, etc.
+    ```bash
+    python code/01_ingest.py
+    ```
+    *Output*: `data/processed/harmonized.csv`
+
+2.  **Verify Data**:
+    Check the log for excluded rows (invalid SMILES, bad composition).
+    ```bash
+    cat logs/ingest.log
+    ```
+
+## Feature Engineering
+
+Generate molecular descriptors and interaction features:
 ```bash
-bash code/run_pipeline.sh
+python code/02_features.py
 ```
+*Output*: `data/processed/features.parquet`
 
-This script performs the following steps in order:
-1.  **Ingest**: Fetches data, harmonizes units, validates weight fractions.
-2.  **Features**: Generates RDKit descriptors and computes baseline physical models (Fox/GT).
-3.  **Train**: Trains RF, XGB, and Linear models; performs cross-validation and t-tests; runs VIF sensitivity analysis.
-4.  **Stability**: Executes **5 independent training runs** with different random seeds to measure feature stability.
-5.  **Report**: Generates SHAP plots, summary statistics, and the `data_quality_report.json`.
+## Model Training & Validation
 
-**Note**: If the data fetch fails to return polymer blend data with Tg/Modulus, the pipeline will halt with a "Data Insufficiency" error.
+Train models, perform VIF sensitivity analysis, and run stability checks:
+```bash
+python code/03_train.py
+```
+*Output*: `data/artifacts/models/`, `data/artifacts/shap_values.csv`, `data/artifacts/stability_report.json`
 
-## Verifying Results
+## Reporting
 
-*   **Check Data Quality**: Review `data/processed/cleaned.csv` to ensure weight fractions sum to ~1.0. Check `results/data_quality_report.json` for the pass rate (SC-004).
-*   **Check Descriptors**: Verify `data/features/descriptors.csv` has $\ge 15$ columns per monomer.
-*   **Check Model Performance**: Look for `results/model_metrics.json` containing MAE and p-values.
-*   **Check VIF**: Review `results/vif_analysis.txt` for collinearity flags and sensitivity results.
-*   **Check Stability**: Review `results/stability_analysis.json` for feature importance consistency across 5 independent runs.
+Generate the final summary table, SHAP plots, and stability charts:
+```bash
+python code/04_report.py
+```
+*Output*: `data/artifacts/final_report.md`, `data/artifacts/plots/`
+
+## Testing
+
+Run unit and integration tests:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-*   **Data Insufficiency**: If the dataset has < 100 samples or missing target variables, the pipeline will halt. Check the logs for "Data Insufficiency" error.
-*   **API Rate Limits**: The script implements exponential backoff. If it fails after multiple retries, check network connectivity or API status.
-*   **Memory Error**: If running out of RAM, reduce the dataset size in `code/01_ingest.py` (sampling strategy).
-*   **No Verified Source**: If NIST/Materials Project APIs do not return the required data, the pipeline halts. This is expected behavior per the research strategy.
+*   **Data Insufficiency**: If `N < 100`, the pipeline halts with `DataInsufficiencyError`.
+*   **API Rate Limits**: The script implements exponential backoff. If it fails after 5 retries, check your API key or network.
+*   **Memory Error**: If running out of RAM, reduce the `n_estimators` in `code/03_train.py` or sample the dataset in `code/01_ingest.py`.

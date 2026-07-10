@@ -1,39 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelOutput"
-description: "Schema for the final model output and metrics."
+description: "Schema for model training outputs and metrics."
 type: "object"
 properties:
-  model_name:
-    type: "string"
-    description: "Name of the best performing model (RF or XGB)."
-  metrics:
+  model_metrics:
     type: "object"
     properties:
+      best_model_name:
+        type: "string"
+        description: "Name of the best performing model (e.g., 'RandomForest')."
       mae_tg:
         type: "number"
-        description: "Mean Absolute Error for Tg prediction."
+        description: "Mean Absolute Error for Tg on test set."
       mae_modulus:
         type: "number"
-        description: "Mean Absolute Error for Modulus prediction."
+        description: "Mean Absolute Error for Modulus on test set."
       baseline_mae_tg:
         type: "number"
-        description: "MAE of the physical mixing rule baseline for Tg."
+        description: "MAE of linear baseline for Tg."
       baseline_mae_modulus:
         type: "number"
-        description: "MAE of the physical mixing rule baseline for Modulus."
-      t_test_p_value:
+        description: "MAE of linear baseline for Modulus."
+      p_value_tg:
         type: "number"
-        description: "P-value from the paired t-test comparing ML vs. Baseline errors."
-      t_test_rejected_null:
-        type: "boolean"
-        description: "Whether the null hypothesis was rejected."
+        description: "P-value from permutation test or t-test for Tg."
+      p_value_modulus:
+        type: "number"
+        description: "P-value from permutation test or t-test for Modulus."
+      vif_sensitivity_delta_mae:
+        type: "number"
+        description: "Change in MAE after excluding highest VIF feature."
+      vif_sensitivity_baseline_mae:
+        type: "number"
+        description: "Baseline MAE before VIF exclusion."
     required:
+      - best_model_name
       - mae_tg
       - mae_modulus
       - baseline_mae_tg
       - baseline_mae_modulus
-      - t_test_p_value
-      - t_test_rejected_null
+      - p_value_tg
+      - p_value_modulus
+      - vif_sensitivity_delta_mae
+      - vif_sensitivity_baseline_mae
   feature_importance:
     type: "array"
     description: "Top 10 features by importance."
@@ -47,63 +56,27 @@ properties:
       required:
         - feature_name
         - importance_score
-  vif_analysis:
-    type: "object"
-    properties:
-      flagged_pairs:
-        type: "array"
-        description: "Pairs of features with VIF > 5.0."
-        items:
-          type: "string"
-      sensitivity_impact:
-        type: "object"
-        properties:
-          excluded_feature:
-            type: "string"
-          mae_change:
-            type: "number"
-            description: "Change in MAE after excluding the highest VIF feature."
-        required:
-          - excluded_feature
-          - mae_change
-    required:
-      - flagged_pairs
-      - sensitivity_impact
   stability_analysis:
     type: "object"
-    description: "Feature importance stability across 5 independent runs."
     properties:
-      top_stable_features:
+      top_10_frequency:
         type: "array"
-        description: "Features appearing in top-10 in >= 80% of runs."
+        description: "Frequency of each feature appearing in top 10 across 5 runs."
         items:
-          type: "string"
-      runs_count:
-        type: "integer"
-        description: "Number of independent runs performed."
+          type: "object"
+          properties:
+            feature_name:
+              type: "string"
+            frequency:
+              type: "integer"
+              minimum: 0
+              maximum: 5
+          required:
+            - feature_name
+            - frequency
     required:
-      - top_stable_features
-      - runs_count
-  data_quality:
-    type: "object"
-    description: "Data quality metrics."
-    properties:
-      total_fetched:
-        type: "integer"
-      valid_records:
-        type: "integer"
-      quality_rate:
-        type: "number"
-        description: "Percentage of valid records."
-    required:
-      - total_fetched
-      - valid_records
-      - quality_rate
+      - top_10_frequency
 required:
-  - model_name
-  - metrics
+  - model_metrics
   - feature_importance
-  - vif_analysis
   - stability_analysis
-  - data_quality
-additionalProperties: false

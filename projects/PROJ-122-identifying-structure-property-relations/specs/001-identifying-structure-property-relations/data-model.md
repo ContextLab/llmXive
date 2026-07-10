@@ -2,50 +2,50 @@
 
 ## Entities
 
-### 1. PolymerBlend
-Represents a single blend entry.
-*   `id`: Unique identifier (UUID or hash).
-*   `components`: List of `Component` objects.
-*   `measured_tg_k`: Glass transition temperature in Kelvin (Target).
-*   `measured_modulus_gpa`: Young's Modulus in GPa (Target).
-*   `source`: Origin of data (e.g., "NIST", "MaterialsProject").
-*   `validation_status`: "PASS" or "FAIL" (based on weight fraction and SMILES checks).
-*   `data_quality_flag`: Boolean indicating if the record passed all validation checks.
+### PolymerBlend
+Represents a single polymer blend entry.
+*   **Attributes**:
+    *   `id`: Unique identifier (string).
+    *   `components`: List of component objects.
+        *   `smiles`: SMILES string (string).
+        *   `weight_fraction`: Float (0.0 to 1.0).
+    *   `tg_k`: Glass Transition Temperature (Kelvin).
+    *   `youngs_modulus_gpa`: Young's Modulus (GPa).
+    *   `source`: Origin dataset (string).
+    *   `validation_status`: 'valid', 'invalid_units', 'invalid_smiles', 'invalid_composition'.
 
-### 2. Component
-Represents a constituent polymer in a blend.
-*   `smiles`: SMILES string.
-*   `weight_fraction`: Float (0.0 - 1.0).
-*   `is_minor`: Boolean (True if weight fraction < 0.05).
+### MolecularDescriptor
+Represents a computed property of a monomer.
+*   **Attributes**:
+    *   `smiles`: Input SMILES (string).
+    *   `mw`: Molecular Weight (float).
+    *   `tpsa`: Topological Polar Surface Area (float).
+    *   `rotatable_bonds`: Count (int).
+    *   `ffv`: Fractional Free Volume (float).
+    *   `h_bond_donors`: Count (int).
+    *   `h_bond_acceptors`: Count (int).
+    *   `logp`: Partition coefficient (float).
+    *   *(15+ descriptors total)*.
 
-### 3. MolecularDescriptor
-Computed properties for a monomer/component.
-*   `molecular_weight`: Float.
-*   `tpsa`: Topological Polar Surface Area (Float).
-*   `rotatable_bonds`: Integer.
-*   `fractional_free_volume`: Float.
-*   `hansen_solubility`: Tuple (D, P, H).
-*   `count`: Total number of descriptors (Must be $\ge 15$).
-
-### 4. InteractionFeature
-Derived features for the blend (Baselines).
-*   `predicted_tg_fox`: Float (Fox Equation).
-*   `predicted_tg_gordon_taylor`: Float.
-*   `vif_scores`: Dict of descriptor names to VIF values.
+### InteractionFeature
+Represents derived features for a blend.
+*   **Attributes**:
+    *   `blend_id`: Reference to PolymerBlend.
+    *   `weighted_avg_<desc>`: Weighted average of descriptor.
+    *   `diff_<desc>`: Absolute difference of descriptor between components.
+    *   `fox_tg`: Predicted Tg via Fox equation.
+    *   `gordon_taylor_tg`: Predicted Tg via Gordon-Taylor equation.
 
 ## Data Flow
 
-1.  **Raw Ingest**: Fetch from APIs/CSVs -> `data/raw/`.
-2.  **Validation**: Check units, SMILES, weight fractions -> `data/processed/cleaned.csv`.
-3.  **Feature Gen**: Apply RDKit -> `data/features/descriptors.csv`.
-4.  **Baseline Calc**: Compute Fox/GT equations -> `data/features/baselines.csv`.
-5.  **Model Input**: Final feature matrix (X) and targets (y).
+1.  **Raw Data** (`data/raw/`): Immutable downloads (CSV/JSON).
+2.  **Ingested Data** (`data/processed/harmonized.csv`): Cleaned, unit-converted, validated rows.
+3.  **Feature Matrix** (`data/processed/features.parquet`): Pandas DataFrame with descriptors + interaction features.
+4.  **Model Artifacts** (`data/artifacts/`): Pickled models, SHAP values, stability reports.
 
-## Constraints & Rules
+## Constraints
 
-*   **Unit Constraint**: All temperatures MUST be in Kelvin. All moduli MUST be in GPa.
-*   **Physical Bounds**: Predicted Tg > 0 K; Predicted Modulus >= 0 GPa.
-*   **Missing Data**: If SMILES is missing for any component with $w > 0.05$, the row is excluded.
-*   **Collinearity**: VIF > 5.0 triggers sensitivity analysis (no auto-exclusion).
-*   **Data Quality**: Records failing validation are excluded; the exclusion rate is tracked for SC-004.
-*   **No Synthetic Data**: No target variables (Tg, Modulus) will be synthesized or simulated.
+*   **Units**: Tg must be in Kelvin; Modulus in GPa.
+*   **Composition**: Sum of weight fractions must be within 1.0 ± 0.02.
+*   **SMILES**: Must be parsable by RDKit.
+*   **Missing Data**: Rows with missing SMILES for components > 0.05 weight fraction are excluded.
