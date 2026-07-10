@@ -1,31 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: pass
 
-The question explicitly asks about the biological relationship between genomic potential (BGC presence/diversity) and chemical phenotype (metabolite abundance) across species. It frames the inquiry as measuring the extent of this explanatory power, which is a substantive scientific question about the genotype-phenotype gap, rather than evaluating the performance of a specific machine learning architecture or computational constraint.
+The question asks about the fundamental biological relationship between genomic potential (presence/diversity of biosynthetic gene clusters) and chemical phenotype (metabolite abundance). It explicitly investigates the "genotype-phenotype gap" and regulatory constraints, which are substantive scientific phenomena independent of the specific regression models or antiSMASH pipeline used to measure them.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor variables are derived from genomic DNA sequences via antiSMASH (identifying gene clusters), while the predicted variables are quantitative abundance values from metabolomics data (e.g., mass spectrometry or NMR). These are distinct measurement modalities; the metabolite abundance is an experimental observation of chemical output, not a mathematical summary of the genomic sequence itself, ensuring the relationship is empirical rather than mechanically guaranteed.
+The predictor (BGC presence/diversity) is derived from genomic sequence data (DNA), while the predicted variable (metabolite abundance) is derived from mass spectrometry or NMR profiling (chemical composition). These are independent measurement modalities; the presence of a gene does not mechanically guarantee the accumulation of its product due to transcriptional, translational, and environmental regulation, ensuring the relationship is empirical rather than constructed.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Both positive and null results are highly informative for the field. A strong correlation would validate genome mining as a sufficient proxy for chemical discovery in non-model species, whereas a weak correlation (expected given the "genotype-phenotype gap" noted in the motivation) would provide crucial evidence that regulatory or environmental factors dominate, redirecting future research efforts toward multi-omics integration.
+Both positive and null results are highly informative for the field. A strong correlation would validate genome-mining as a primary strategy for chemotype discovery, while a weak correlation (expected by the hypothesis) would definitively prove that genomic potential is insufficient without regulatory context, justifying a shift toward multi-omics approaches. Neither outcome is predetermined by current dogma.
 
 ### Question-narrowing check
-
 **Verdict**: pass
 
-The question names a specific domain relationship (BGC diversity explaining metabolite variation) without being constrained by implementation details like "can a 3-layer GNN" or "within 6 hours." While the methodology section specifies regression models, the research question itself remains focused on the biological mechanism and the limits of genomic prediction.
+The question names a clear domain relationship ("To what extent does X explain variation in Y?") rather than focusing on implementation constraints like model architecture, hardware limits, or software benchmarks. The methodology is a means to answer the biological question, not the question itself.
 
 ### Overall verdict
-
 **Verdict**: validated
 
-All checks pass; the research question addresses a genuine gap in understanding the predictability of plant chemical phenotypes from genomic data. The question is independent of specific methodological constraints, relies on independent data sources, and offers significant scientific value regardless of the outcome. The project is ready to advance to initialization.
+All checks pass; the research question targets a genuine, non-trivial biological gap regarding the predictability of chemical phenotypes from genomic data. The project is ready to proceed to initialization without reframing.

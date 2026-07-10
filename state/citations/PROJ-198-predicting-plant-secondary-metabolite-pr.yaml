@@ -1,1 +1,11 @@
-[]
+- artifact_hash: fa07520d5c5553ae6353905675faf2f694c74937e75ca96a4067d9c69886b052
+  artifact_path: projects/PROJ-198-predicting-plant-secondary-metabolite-pr/specs/001-predicting-plant-secondary-metabolite-pr/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: antiSMASH Documentation
+  kind: url
+  value: https://docs.antismash.secondarymetabolites.org/
+  verification_status: verified
+  verified_against_url: https://docs.antismash.secondarymetabolites.org/
+  verified_at: '2026-07-10T17:28:42.653438Z'

@@ -37,13 +37,13 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-198-predicting-plant-secondary-metabolite-pr.yaml` `updated_at` timestamp.
 
-### VI. Genomic-to-Metabolomic Alignment Integrity
+### VI. Genotype-Phenotype Gap Quantification
 
-Because the core research question investigates the correlation between biosynthetic gene cluster (BGC) presence and metabolite abundance, the alignment between genomic assemblies and metabolomics tables MUST be strictly validated at the species level. Any species lacking a matched pair of a valid antiSMASH 7.0 prediction and a corresponding metabolite abundance table from PMDB or MetaboLights MUST be excluded from the final feature-target matrix. This principle is grounded in the "Methodology sketch" which explicitly states the creation of a "final aligned feature-target matrix" by filtering for species with both valid BGC predictions and metabolite measurements.
+The predictive relationship between biosynthetic gene cluster (BGC) diversity and metabolite abundance MUST be explicitly quantified using regression metrics (R², Pearson correlation) on a held-out test set stratified by phylogenetic clade. This principle is grounded in the research question's focus on "to what extent" BGCs explain variation and the methodology's requirement to measure the statistical relationship between genomic potential and chemical output. A null result (R² ≈ 0) is considered a valid scientific outcome indicating that genomic potential alone is insufficient, consistent with the project's goal to clarify the limits of genomic annotation.
 
-### VII. Signal Validation Against Permutation Baselines
+### VII. Computational Baseline Validation
 
-To ensure that reported correlations between BGC diversity and metabolite profiles are not artifacts of data structure or phylogenetic similarity, every model evaluation MUST include a label-permutation baseline test. The model's R² and Pearson correlation scores on the hold-out set MUST be explicitly compared against the results of shuffling metabolite values. This requirement is directly derived from the "Expected results" and "Methodology sketch" sections, which mandate a "label-permutation baseline" to validate that the signal is not an artifact and to distinguish between genuine genomic prediction and spurious correlations.
+Model performance MUST be validated against a label-permutation baseline where metabolite values are shuffled to ensure the observed signal is not an artifact of data structure or model overfitting. This requirement is derived from the methodology's explicit step to "validate the model's predictive power against a label-permutation baseline" to distinguish true biological correlation from spurious statistical patterns in the cross-species dataset.
 
 ## Reproducibility Requirements
 

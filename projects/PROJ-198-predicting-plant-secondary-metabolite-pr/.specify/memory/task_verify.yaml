@@ -1,10 +1,11 @@
-T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`): 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas,
-  numpy, biopython, requests, dendropy, pyyaml, statsmodels, scipy)
+? 'T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`,
+  `tests/`) <!-- ATOMIZE: requested -->'
 : 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 1
-T004 Create `data/` directory structure and `checksums.txt` for data hygiene: 1
-? 'T005 [P] Implement `code/utils/phylogeny.py` for tree parsing (Newick) and PVR
-  (Phylogenetic Eigenvector Regression) calculation using `statsmodels` (Plan deviation:
-  replaces PIC)'
+? T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`,
+  `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`,
+  `tqdm`, `pydantic`) in `requirements.txt`
 : 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T004 Create Pydantic models for `Species`, `BGCFeature`, `Metabolite`, and `ModelOutput` in `code/models/`: 1
+T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths: 1
+T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers: 1

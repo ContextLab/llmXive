@@ -1,0 +1,42 @@
+# Configuration for PROJ-198: Predicting Plant Secondary Metabolite Profiles
+# This file defines paths, thresholds, and the species list.
+
+settings:
+  data_root: data
+  phylogeny_path: raw/phylogeny/species_tree.newick
+  mibig_ontology_path: raw/mibig/mibig_ontology.json
+  
+  # Thresholds
+  max_genome_size_mb: 500.0
+  antismash_confidence: 0.3
+  min_species_count: 5
+  
+  # Timeouts
+  download_timeout: 300
+
+species_list:
+  - name: "Arabidopsis thaliana"
+    scientific_name: "Arabidopsis thaliana"
+    genome_assembly: "TAIR10"
+    source: "NCBI"
+    accession: "NC_003070"
+  - name: "Oryza sativa"
+    scientific_name: "Oryza sativa"
+    genome_assembly: "IRGSP-1.0"
+    source: "Phytozome"
+    accession: "JGI_Os"
+  - name: "Solanum lycopersicum"
+    scientific_name: "Solanum lycopersicum"
+    genome_assembly: "SL4.0"
+    source: "NCBI"
+    accession: "NC_007898"
+  - name: "Vitis vinifera"
+    scientific_name: "Vitis vinifera"
+    genome_assembly: "IGGP_8x"
+    source: "Phytozome"
+    accession: "Vv12"
+  - name: "Zea mays"
+    scientific_name: "Zea mays"
+    genome_assembly: "B73_RefGen_v4"
+    source: "NCBI"
+    accession: "NC_008602"

@@ -1,6 +1,6 @@
 # Tasks: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
+**Input**: Design documents from `/specs/001-predict-plant-metabolite-profiles/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas, numpy, biopython, requests, dendropy, pyyaml, statsmodels, scipy)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`) <!-- ATOMIZE: requested -->
+- [ ] T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`, `tqdm`, `pydantic`) in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -55,90 +55,87 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `data/` directory structure and `checksums.txt` for data hygiene
-- [ ] T005 [P] Implement `code/utils/phylogeny.py` for tree parsing (Newick) and PVR (Phylogenetic Eigenvector Regression) calculation using `statsmodels` (Plan deviation: replaces PIC)
-- [X] T006 [P] Implement `code/utils/anti_smash_parser.py` for JSON parsing (handles mock/real BGC data)
-- [~] T007 Create base data models/entities (Species, BGC Feature, Metabolite Profile) in `code/data_models.py`
-- [~] T008 Configure environment configuration management (`.env` for API keys, paths, and `CI_MODE` flag)
-- [~] T009 Setup pytest configuration and contract test schemas (`contracts/aligned_dataset.schema.yaml`, `contracts/model_results.schema.yaml`)
+- [ ] T004 Create Pydantic models for `Species`, `BGCFeature`, `Metabolite`, and `ModelOutput` in `code/models/`
+- [ ] T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths
+- [ ] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers
+- [~] T007 Implement data directory structure creation and checksum verification logic in `code/data/__init__.py`
+- [~] T008 Setup environment variable management for API keys (if needed) and local paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Cross-Species Data Alignment & Feature Extraction (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Alignment and Feature Extraction (Priority: P1) 🎯 MVP
 
-**Goal**: Construct a unified, analysis-ready dataset by aligning genomic and metabolomic data, loading mock BGC data (CI) or manual antiSMASH (non-CI), and harmonizing identifiers.
+**Goal**: Automatically download genomic assemblies and metabolite tables, run antiSMASH, and generate an aligned matrix.
 
-**Independent Test**: The pipeline can be fully tested by running it on a small, manually curated subset of species (e.g., *Arabidopsis*, *Rice*, *Maize*) and verifying that the output CSV contains a variable number of rows, with non-null values for both BGC counts and metabolite log-abundances.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T010 [P] [US1] Contract test for aligned dataset schema in `tests/contract/test_aligned_dataset.py`
-- [~] T011 [P] [US1] Integration test for species-level join logic in `tests/integration/test_data_alignment.py`
+**Independent Test**: Execute the pipeline on a small subset (5 species) and verify the output CSV contains non-null values for both BGC counts and metabolite abundances, completing within 30 minutes on CPU.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to:
- 1. Fetch genome assemblies from NCBI RefSeq (Entrez API) OR load mock data from `data/raw/mock_genomes.json` if `CI_MODE` is true (FR-001)
- 2. Fetch metabolite abundance tables from MetaboLights API OR load mock data from `data/raw/mock_metabolites.csv` (FR-001)
- 3. **Mock-first approach**: If `CI_MODE` is true, load `data/raw/mock_anti_smash.json` (Plan deviation: antiSMASH not run on CI). If `CI_MODE` is false, log that antiSMASH execution is manual and load pre-computed BGC data if available. (FR-002 deviation)
- 4. Harmonize metabolite identifiers using InChIKeys and apply log-transformation (FR-003)
- 5. Perform species-level join, excluding species missing either data type, and logging warnings (FR-003, Edge Case)
- 6. Validate minimum species count (≥10) and abort pipeline (exit code 1) if insufficient for real data; allow CI mock fallback if `CI_MODE` is true (Edge Case)
- 7. Add validation and error handling for missing data types and zero-BGC detections (FR-002, Edge Case)
- 8. Add logging for data download, parsing, and alignment operations
+- [~] T012 [US1] Implement `download_genomes()` in `code/data/download.py` to fetch FASTA/GFF from NCBI RefSeq/Phytozome, skipping genomes > 500MB, including retry logic, timeout handling, and graceful failure messaging for network timeouts
+- [~] T013 [US1] Implement `download_metabolites()` in `code/data/download.py` to fetch abundance tables from PMDB/MetaboLights, including retry logic, timeout handling, and graceful failure messaging for network timeouts <!-- ATOMIZE: requested -->
+- [~] T014 [US1] Implement `run_antiSMASH_wrapper()` in `code/data/preprocess.py` to execute the antiSMASH pipeline and parse JSON output to generate a binary presence matrix and a count matrix for BGC diversity
+- [ ] T016 [US1] Implement `harmonize_metabolites()` in `code/data/preprocess.py` to apply InChIKey normalization, pseudo-count +1, and log-transformation
+- [ ] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
+- [ ] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
+- [ ] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
+- [ ] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T009 [P] [US1] Unit test for genome size filter logic in `tests/unit/test_download.py`
+- [ ] T010 [P] [US1] Unit test for InChIKey harmonization in `tests/unit/test_preprocess.py`
+- [ ] T011 [P] [US1] Integration test for end-to-end data alignment on 3 mock species in `tests/integration/test_align.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Regression Modeling & Hypothesis Testing (Priority: P2)
+## Phase 4: User Story 2 - Predictive Modeling and Validation (Priority: P2)
 
-**Goal**: Quantify the relationship between BGC diversity and metabolite abundance using Standard CV and PVR to control for phylogeny, with permutation baselines.
+**Goal**: Train regression models (RF, Elastic Net, PGLS) with phylogenetic stratification and validate against a permutation baseline.
 
-**Independent Test**: The modeling step can be fully tested by running the training script on the aligned dataset, verifying that the Standard CV R² is calculated, and confirming that the PVR-adjusted p-value is < 0.05.
+**Independent Test**: Run training on the P1 dataset, verify R² > 0 for PGLS, and confirm phylogenetic permutation baseline yields R² near zero.
+
+- [ ] T021 [US2] Implement `load_phylogeny()` in `code/modeling/phylo.py` to load species tree data (Newick format) from `data/raw/phylogeny/` for stratification
+- [ ] T021b [US2] Implement `construct_covariance_matrix()` in `code/modeling/phylo.py` using `dendropy` to generate the phylogenetic covariance matrix from the tree loaded in T021
+- [ ] T024 [US2] [PRIMARY] Implement `train_pgls()` in `code/modeling/phylo.py` using `statsmodels` and the phylogenetic covariance matrix from T021b (constructed via `dendropy`) to account for non-independence. This task produces the PRIMARY analysis output per FR-010. Use PCA-reduced features from T023a-PCA.
+- [ ] T024b [US2] Implement `report_primary_results()` in `code/modeling/eval.py` to explicitly extract, format, and log the PGLS R² and feature importance as the primary result for the final report, ensuring FR-010 compliance.
+- [ ] T022 [US2] Implement `create_stratified_split()` in `code/modeling/train.py` to split data by phylogenetic clade
+- [ ] T023a-PCA [US2] Implement `apply_pca()` in `code/modeling/train.py` to apply PCA for dimensionality reduction before multivariate modeling to prevent overfitting (N < 50 vs high features). Output saved to `data/interim/pca_features.csv`.
+- [ ] T023a [US2] Implement `train_models_loo()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting using Leave-One-Out CV. **Run this task; if N >= 20, run T023b instead; otherwise skip T023b.** Use PCA-reduced features from T023a-PCA.
+- [ ] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.
+- [ ] T025 [US2] Implement `evaluate_models()` in `code/modeling/eval.py` to calculate R² and Pearson correlation on hold-out sets
+- [ ] T026 [US2] Implement `run_phylogenetic_permutation()` in `code/modeling/eval.py` to shuffle labels while preserving tree structure and calculate baseline R²
+- [ ] T027 [US2] Implement `calculate_significance()` in `code/modeling/eval.py` to compare model R² against baseline (p < 0.05 check)
+- [ ] T028 [US2] Implement `save_metrics()` in `code/modeling/eval.py` to write initial metrics to `data/processed/metrics.json`
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`
-- [ ] T021 [P] [US2] Integration test for Standard CV + PVR + Permutation baseline in `tests/integration/test_model_validation.py`
-
-### Implementation for User Story 2
-
-- [ ] T022 [P] [US2] Implement `code/modeling/train.py` to train Random Forest and Elastic Net models (FR-005)
-- [ ] T023 [US2] Implement `code/utils/phylogeny.py` to perform Phylogenetic Eigenvector Regression (PVR) using Felsenstein's method (Plan deviation: replaces PIC) on the parsed tree (FR-008 deviation, SC-006)
-- [ ] T024 [US2] Implement `code/modeling/validate.py` to perform label-permutation baseline (multiple iterations) and calculate p-value (FR-005)
-- [ ] T025 [US2] Implement `code/modeling/train.py` to evaluate model performance against hold-out test set and report R² (SC-001, SC-002)
-- [ ] T026 [US2] Integrate PVR residuals into the modeling pipeline to ensure phylogenetic independence (FR-008 deviation)
-- [ ] T027 [US2] Implement `code/modeling/train.py` to implement Standard 5-fold cross-validation (primary) with PVR integration. Explicitly note that LOCO-CV is rejected per Plan due to N<20 constraints (FR-004 deviation)
-- [ ] T028 [US2] Add logging for model training, cross-validation, and permutation results
+- [ ] T019 [P] [US2] Unit test for phylogenetic stratified split logic in `tests/unit/test_modeling.py`
+- [ ] T020 [P] [US2] Unit test for permutation baseline generation in `tests/unit/test_eval.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Sensitivity Analysis & Threshold Justification (Priority: P3)
+## Phase 5: User Story 3 - Sensitivity Analysis and Threshold Justification (Priority: P3)
 
-**Goal**: Ensure conclusions are robust to arbitrary filtering thresholds and analyze feature importance with collinearity diagnostics.
+**Goal**: Perform sensitivity analysis on BGC detection thresholds and generate the final report.
 
-**Independent Test**: The sensitivity analysis can be fully tested by running the analysis with three different relative abundance thresholds (e.g., 10th, 25th, 50th percentiles) and verifying that the output includes a table showing the R² variation across these thresholds.
+**Independent Test**: Re-run analysis with thresholds {0.1, 0.3, 0.5, 0.7} and verify R² variation is ≤ 0.05.
+
+- [ ] T030a [US3] Implement `retrain_with_thresholds()` in `code/modeling/eval.py` to re-train models using varied BGC detection thresholds across a range of low to high values.
+- [ ] T030b [US3] Implement `run_sensitivity_sweep()` in `code/modeling/eval.py` to iterate over thresholds and record R²/error rates for each sweep
+- [ ] T031 [US3] Implement `calculate_variation()` in `code/modeling/eval.py` to calculate the max R² difference, return the metric, and write it to `metrics.json` (verify ≤ 0.05). **Run after T028; update metrics.json with variation result or FAIL flag if max_diff > 0.05.**
+- [ ] T032 [US3] Implement `generate_report()` in `code/cli/main.py` or `code/utils/report.py` to compile model metrics, feature importance, and sensitivity results
+- [ ] T033 [US3] Add threshold justification text to the report citing "antiSMASH default confidence" and community standards
+- [ ] T034 [US3] Save final report as `data/processed/final_report.md` and `data/processed/sensitivity_results.json`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py`
-- [ ] T030 [P] [US3] Integration test for threshold sweep logic in `tests/integration/test_sensitivity_analysis.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [P] [US3] Implement `code/modeling/sensitivity.py` to sweep minimum-abundance threshold across a range of percentiles (FR-006)
-- [ ] T032 [US3] Implement `code/modeling/sensitivity.py` to re-run regression model for each threshold and record R² values (FR-006)
-- [ ] T033 [US3] Implement `code/data/preprocess.py` to calculate collinearity diagnostics (VIF) for predictors (FR-007)
-- [ ] T034 [US3] Implement `code/modeling/sensitivity.py` to generate sensitivity report showing R² variation and confirming qualitative conclusion (FR-006)
-- [ ] T035 [US3] Implement feature importance ranking and output with collinearity notes (FR-007, SC-004)
-- [ ] T036 [US3] Add logging for sensitivity sweep iterations and results
+- [ ] T029 [P] [US3] Unit test for threshold sweep logic in `tests/unit/test_sensitivity.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,11 +145,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `quickstart.md` and `README.md`
-- [ ] T039 Code cleanup and refactoring
-- [ ] T040 Performance optimization across all stories (ensure <6h runtime on CI)
-- [ ] T041 [P] Additional unit tests in `tests/unit/`
-- [ ] T042 Run quickstart.md validation to ensure end-to-end pipeline execution
+- [ ] T035 [P] Documentation updates in `README.md` and `docs/`
+- [ ] T036 Code cleanup and refactoring of `code/data/` and `code/modeling/`
+- [ ] T037 Performance optimization: Ensure PCA is applied before PGLS if feature count > N
+- [ ] T038 [P] Add unit tests for edge cases (zero BGCs, missing metabolites) in `tests/unit/`
+- [ ] T039 Run `quickstart.md` validation to ensure all steps execute correctly on CI
 
 ---
 
@@ -170,8 +167,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for aligned dataset
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for model results
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires aligned data from US1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires model results from US2
 
 ### Within Each User Story
 
@@ -196,12 +193,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for aligned dataset schema in tests/contract/test_aligned_dataset.py"
-Task: "Integration test for species-level join logic in tests/integration/test_data_alignment.py"
+Task: "Unit test for genome size filter logic in tests/unit/test_download.py"
+Task: "Unit test for InChIKey harmonization in tests/unit/test_preprocess.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py to fetch genome assemblies"
-Task: "Implement code/utils/anti_smash_parser.py to parse antiSMASH output"
+Task: "Implement download_genomes() in code/data/download.py"
+Task: "Implement download_metabolites() in code/data/download.py"
 ```
 
 ---
@@ -246,7 +243,3 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data fetching tasks MUST use real, reachable URLs or Python package fetchers; no synthetic data generation for final results (mock data is only for CI fallback).
-- **CRITICAL**: antiSMASH is not run on CI; tasks must handle mock data loading gracefully as per Plan.md.
-- **CRITICAL**: LOCO-CV (FR-004) and PIC (FR-008) are deviated from in Plan.md. Tasks implement PVR and Standard CV as per Plan. Spec amendment required to align spec.md.
-- **CRITICAL**: T017 (now part of T012) enforces abort on <10 species for Research; CI Mock Fallback allowed only if `CI_MODE` is true.

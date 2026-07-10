@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the regression model results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "ElasticNet", "GradientBoosting", "PGLS"]
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Significance against phylogenetic permutation baseline."
+  feature_importance:
+    type: "object"
+    description: "Map of feature name to importance score."
+    additionalProperties:
+      type: "number"
+  cross_val_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "R² scores from LOO cross-validation or bootstrap."
+  cv_method:
+    type: "string"
+    enum: ["LOO", "Bootstrap"]
+    description: "Cross-validation method used."
+required:
+  - "model_type"
+  - "r_squared"
+  - "pearson_r"
+  - "p_value"
+  - "feature_importance"
+  - "cross_val_scores"
+  - "cv_method"

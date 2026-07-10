@@ -1,11 +1,20 @@
+# Existing dependencies from T002
 scikit-learn
 pandas
 numpy
 biopython
 requests
-dendropy
 pyyaml
+dendropy
 statsmodels
-scipy
+pymc3
+tqdm
+pydantic
+pydantic-settings
+
+# Testing dependencies
 pytest
-jsonschema
+pytest-cov
+
+# antiSMASH is typically installed via conda or system package, not pip
+# If using the web API version, requests is sufficient (already included)

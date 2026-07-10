@@ -2,69 +2,84 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `conda` or `venv`
--   Internet access for data download (or mock data generation)
--   **Optional**: `antiSMASH 7.0` installed locally (only if running on real data manually, not on CI)
+- Python 3.11+
+- Git
+- Access to NCBI RefSeq and MetaboLights (no API key required for public data, but rate limits apply).
+- **Note**: antiSMASH 7.0 is a dependency. If you have Docker, the pipeline will attempt to run antiSMASH in a container. Otherwise, it will use a local installation. **Genomes > 500MB will be skipped automatically.**
 
 ## Installation
 
-1.  **Clone & Setup**:
+1.  **Clone the repository**:
     ```bash
-    git clone <repo-url>
+    git clone <repository-url>
     cd projects/PROJ-198-predicting-plant-secondary-metabolite-pr
+    ```
+
+2.  **Create a virtual environment**:
+    ```bash
     python -m venv venv
-    source venv/bin/activate
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
     pip install -r code/requirements.txt
     ```
 
-2.  **Verify Environment**:
-    Ensure Python is accessible.
+4.  **(Optional) Install antiSMASH**:
+    If you have Docker installed, no action is needed. If you prefer to install antiSMASH locally:
     ```bash
-    python --version
+    # Follow instructions at https://docs.antismash.secondarymetabolites.org/
+    # Ensure 'antismash' is in your PATH.
     ```
 
 ## Running the Pipeline
 
-### 1. Configure Species List
-Edit `config/species_list.yaml` to include your target species (e.g., *Arabidopsis*, *Rice*, *Maize*).
+### 1. Configuration
+Edit `code/config.py` or `config/species_list.yaml` to define the list of plant species to analyze.
 ```yaml
 species:
-  - id: "Arabidopsis_thaliana"
-    clade: "Brassicaceae"
-  - id: "Oryza_sativa"
-    clade: "Poaceae"
-  # ... add at least 10 species
+  - "Arabidopsis thaliana"
+  - "Oryza sativa"
+  - "Solanum lycopersicum"
+  # ... add more
 ```
-**Note**: If these species do not have matched genome/metabolite data available in public repositories, the pipeline will generate a **mock dataset** for validation.
 
-### 2. Execute Data Download & Alignment
+### 2. Data Download and Processing
+Run the data pipeline to download genomes, predict BGCs, and align data.
 ```bash
-python code/main.py --step download_and_align
+python code/cli/main.py --step download_and_align
 ```
-*This step attempts to download genomes, runs antiSMASH (if local), fetches metabolites, and creates `data/processed/aligned_dataset.csv`. If no real data is found, it generates a mock dataset.*
+*This step may take 30-60 minutes depending on the number of species and antiSMASH execution time. Genomes > 500MB are skipped.*
 
-### 3. Run Modeling & Validation
+### 3. Model Training and Evaluation
+Train the models and run the sensitivity analysis.
 ```bash
-python code/main.py --step model_and_validate
+python code/cli/main.py --step train_and_evaluate
 ```
-*This step performs PVR, Random Forest/Elastic Net training, Permutation tests. **Note: PIC is not run due to data limitations.**.*
+*This step runs LOO cross-validation, PGLS, and the phylogenetic permutation baseline. It includes PCA dimensionality reduction.*
 
-### 4. Run Sensitivity Analysis
+### 4. View Results
+Results are saved to `data/processed/`.
+- `aligned_matrix.csv`: The input data.
+- `model_metrics.json`: Performance metrics.
+- `sensitivity_analysis.csv`: Robustness check results (threshold sweep).
+
+## Testing
+
+Run the unit and integration tests:
 ```bash
-python code/main.py --step sensitivity_sweep
+pytest tests/
 ```
-*This step sweeps the 10th, 25th, 50th percentile thresholds and generates the robustness report.*
 
-## Expected Outputs
-
--   `data/processed/aligned_dataset.csv`: The final feature-target matrix (real or mock).
--   `results/model_metrics.json`: R², p-values (perm), VIF scores. **Note: No PIC p-value.**
--   `results/sensitivity_report.csv`: R² variation across thresholds.
--   `logs/pipeline.log`: Execution logs with warnings for missing data.
+To test the pipeline on a small subset (5 species) to verify the 30-minute constraint:
+```bash
+python code/cli/main.py --step download_and_align --limit 5
+```
 
 ## Troubleshooting
 
--   **"Insufficient species count"**: Ensure your `species_list.yaml` has ≥10 species with both genome and metabolite data available. If not, the pipeline will default to mock data.
--   **"antiSMASH timeout"**: This step is skipped on CI. If running locally, reduce the number of species in the list (max 20 recommended).
--   **"No plant data found"**: The pipeline will generate a mock dataset for CI validation. Real results require manual data assembly.
+- **antiSMASH Timeout**: If the pipeline hangs for a specific species, that species will be excluded. Check logs for "Species skipped due to timeout".
+- **Missing Data**: If a species has no metabolite data, it will be excluded. Check `data/interim/alignment_warnings.log` for details.
+- **Memory Error**: If you encounter OOM errors, reduce the number of species in the config or increase the swap space on your machine.
+- **Small Sample Size**: If N < 20, the pipeline will use LOO cross-validation instead of 5-fold.

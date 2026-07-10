@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BGC Feature Matrix Schema"
+description: "Schema for the BGC presence/count matrix."
+type: "array"
+items:
+  type: "object"
+  properties:
+    species_name:
+      type: "string"
+    bgc_type:
+      type: "string"
+      description: "BGC type (e.g., terpenoid, alkaloid, unknown)."
+    count:
+      type: "integer"
+      minimum: 0
+    presence:
+      type: "integer"
+      enum: [0, 1]
+    mapping_source:
+      type: "string"
+      enum: ["MIBiG", "Pfam", "Unknown"]
+      description: "Source of the BGC classification."
+  required:
+    - "species_name"
+    - "bgc_type"
+    - "count"
+    - "presence"
+    - "mapping_source"

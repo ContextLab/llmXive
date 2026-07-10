@@ -1,61 +1,68 @@
 # Data Model: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
-## Entity Relationship Overview
+## Overview
 
-The data model is designed to support the strict alignment of genomic features (BGCs) with metabolomic profiles. The core relationship is a **1:1** mapping between a `Species` and its `AlignedProfile`, which is the intersection of valid genomic and metabolomic data.
+This document defines the data entities, transformations, and schemas required for the project. All data artifacts must conform to the schemas defined in `contracts/`. Runtime validation will be enforced via Pydantic models.
 
-## Core Entities
+## Entities
 
 ### 1. Species
 The fundamental unit of analysis.
--   **Attributes**:
-    -   `species_id` (string): Unique identifier (e.g., "Arabidopsis_thaliana").
-    -   `taxon_id` (string): NCBI Taxonomy ID.
-    -   `clade` (string): Phylogenetic family or monophyletic group (for LOCO split).
-    -   `genome_path` (string): Path to downloaded FASTA/GFF.
-    -   `metabolite_profile_id` (string): ID from PMDB/MetaboLights.
--   **Constraints**: Must have both `genome_path` and `metabolite_profile_id` to be included in the final dataset.
+- **Attributes**:
+    - `species_name` (str): Scientific name (e.g., "Arabidopsis thaliana").
+    - `phylogenetic_clade` (str): Clade identifier for stratification (e.g., "Brassicales").
+    - `genome_status` (str): "available" or "missing".
+    - `metabolome_status` (str): "available" or "missing".
+    - `genome_size_mb` (float): Size of genome assembly (used for filtering >500MB).
 
-### 2. BGC Feature Matrix
-A sparse binary/count matrix derived from antiSMASH.
--   **Rows**: `species_id`
--   **Columns**: `bgc_type` (e.g., "terpene", "alkaloid", "polyketide").
--   **Values**: 0 (absent) or 1 (present) / Count.
--   **Source**: `code/utils/anti_smash_parser.py` (FR-002).
+### 2. BGC Feature
+Predicted biosynthetic gene cluster.
+- **Attributes**:
+    - `species_name` (str): Foreign key to Species.
+    - `bgc_type` (str): Predicted class (e.g., "terpenoid", "alkaloid", "unknown").
+    - `count` (int): Number of BGCs of this type in the genome.
+    - `presence` (bool): 1 if count > 0, else 0.
+    - `mapping_source` (str): "MIBiG" or "Pfam" (to track fallback usage).
 
-### 3. Metabolite Profile
-Quantitative abundance data.
--   **Rows**: `species_id`
--   **Columns**: `inchi_key` (unique chemical identifier).
--   **Values**: Log-transformed abundance (float).
--   **Transformation**: `log10(abundance + 1e-6)` to handle zeros.
+### 3. Metabolite Target
+Quantitative metabolite abundance.
+- **Attributes**:
+    - `species_name` (str): Foreign key to Species.
+    - `inchikey` (str): Unique chemical identifier.
+    - `abundance_raw` (float): Raw abundance value.
+    - `abundance_log` (float): Log-transformed value (log(raw + 1)).
+    - `compound_class` (str): Chemical class (e.g., "flavonoid").
 
-### 4. Aligned Dataset (The "Single Source of Truth")
-The final feature-target matrix used for modeling.
--   **Structure**: DataFrame where rows are species, columns are BGC types (features) + Metabolite abundances (targets).
--   **Filtering**: Excludes any species with missing data in either source.
--   **Minimum Size**: ≥10 rows (US-1).
+### 4. Model Output
+Results of the regression analysis.
+- **Attributes**:
+    - `model_type` (str): "RF", "ElasticNet", "GradientBoosting", "PGLS".
+    - `r_squared` (float): Coefficient of determination.
+    - `pearson_r` (float): Correlation coefficient.
+    - `p_value` (float): Significance against null.
+    - `feature_importance` (dict): Map of feature name to importance score.
+    - `cv_method` (str): "LOO" or "Bootstrap".
 
-## Data Flow & Transformations
+## Data Flow
 
-1.  **Raw Download**:
-    -   `data/raw/genomes/<species_id>.fasta`
-    -   `data/raw/metabolites/<species_id>.csv`
-2.  **Processing**:
-    -   `anti_smash` → `data/processed/bgc_matrix.csv`
-    -   `harmonize` → `data/processed/metabolite_matrix.csv`
-3.  **Alignment**:
-    -   Join on `species_id` → `data/processed/aligned_dataset.csv`
-    -   **Validation**: Check for NaNs/Infs. If >50% zero BGCs, raise warning.
+1.  **Raw**: Downloaded FASTA, GFF, and CSV/TSV from NCBI/PMDB.
+2.  **Intermediate**:
+    - `bgc_predictions.json`: Output from antiSMASH wrapper.
+    - `metabolite_harmonized.csv`: InChIKey-mapped abundance.
+    - `tree_pruned.nwk`: Pruned phylogenetic tree.
+3.  **Processed**:
+    - `aligned_matrix.csv`: Final feature-target matrix (Species x Features).
+    - `pca_components.csv`: Reduced dimensionality features (optional).
+4.  **Final**:
+    - `model_metrics.json`: Aggregated results.
+    - `sensitivity_analysis.csv`: Results of threshold sweep.
 
-## Contract Definitions
+## Schemas (Contracts)
 
-The system enforces the following contracts:
--   **Input Contract**: `aligned_dataset.csv` must contain `species_id`, `clade`, and at least one BGC column and one Metabolite column.
--   **Output Contract**: `model_results.json` must contain `r2_test`, `p_permutation`, `p_pic`, and `vif_scores`.
+The following schemas are defined in `contracts/` to ensure data integrity. All data loading functions will use Pydantic models to enforce these schemas at runtime.
 
-## Schema Constraints
+- `dataset.schema.yaml`: Defines the structure of the aligned input matrix.
+- `feature_matrix.schema.yaml`: Defines the BGC feature matrix.
+- `model_output.schema.yaml`: Defines the structure of the regression results.
 
--   **No PII**: No human identifiers.
--   **Immutability**: Raw files are never overwritten.
--   **Checksums**: Every file in `data/raw` and `data/processed` has a SHA-256 hash recorded.
+**Note**: All numeric fields must be validated for range (e.g., R² between -1 and 1, counts >= 0). Missing values must be explicitly handled (e.g., filtered or imputed with documented method).

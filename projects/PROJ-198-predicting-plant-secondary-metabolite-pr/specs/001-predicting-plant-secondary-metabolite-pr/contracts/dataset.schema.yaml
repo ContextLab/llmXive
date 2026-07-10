@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Dataset Schema"
+description: "Schema for the final aligned matrix of BGC features and metabolite targets."
+type: "object"
+properties:
+  species_name:
+    type: "string"
+    description: "Scientific name of the plant species."
+  phylogenetic_clade:
+    type: "string"
+    description: "Phylogenetic clade for stratification."
+  genome_size_mb:
+    type: "number"
+    description: "Size of genome assembly in MB (used for filtering)."
+  bgc_features:
+    type: "object"
+    description: "Map of BGC type to count."
+    additionalProperties:
+      type: "integer"
+      minimum: 0
+  metabolite_targets:
+    type: "object"
+    description: "Map of InChIKey to log-transformed abundance."
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+required:
+  - "species_name"
+  - "phylogenetic_clade"
+  - "bgc_features"
+  - "metabolite_targets"
+additionalProperties: false
