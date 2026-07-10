@@ -2,70 +2,66 @@
 
 ## Overview
 
-The data model captures every artifact produced by the pipeline, including the newly introduced pre‑registration, source‑identification, and representativeness artifacts, and the KS‑test result required for SC‑006.
+This document defines the data structures for the pipeline, covering raw ingestion, processed features, and output artifacts. All data is stored in `data/` (raw) and `output/` (derived).
 
-## Entity Definitions
+## Entities
 
-### 1. Pre‑Registration Manifest
-* `registration_id`: UUID.
-* `timestamp`: ISO‑8601 string.
-* `primary_outcome`: string (e.g., `"tDCS motor performance percentage change"`).
-* `hypothesis`: string.
-* `analysis_plan`: list of planned steps (as strings).
-* `registered_by`: string.
+### 1. Raw EEG Epoch
+Represents a 2‑second window of filtered EEG data.
+- **Subject ID**: Unique identifier.
+- **Condition**: `rest` or `task`.
+- **Time Series**: 2D array (Channels × Samples).
+- **Metadata**: Sampling rate, channel names, reference.
 
-### 2. Verified Source Manifest
-* `source_type`: Enum `["EEG", "tDCS"]`.
-* `source_url`: string (verified URL).
-* `checksum`: string (SHA‑256).
-* `subject_count`: integer.
-* `verification_status`: Enum `["available", "unavailable"]`.
-* `notes`: optional string.
+### 2. tDCS Response
+Represents the percentage change in motor task score.
+- **Subject ID**: Matches EEG Subject ID.
+- **Pre Score**: Baseline motor task performance.
+- **Post Score**: Post‑stimulation motor task performance.
+- **Response %**: `((Post - Pre) / Pre) * 100`.
 
-### 3. Raw Dataset Manifest (unchanged)
-* `source_url`, `dataset_type`, `subject_count`, `checksum`, `ingestion_status` (as in `dataset.schema.yaml`).
+### 3. Feature Vector (Pre-Reduction)
+Aggregated metrics per subject **before dimensionality reduction**.
+- **Subject ID**: Unique identifier.
+- **Power Features**: Dictionary of band power (delta, theta, alpha, beta, gamma) per channel.
+- **Connectivity Features**: Dictionary of PLV/wPLI per channel pair.
+- **tDCS Response**: Target variable.
 
-### 4. Representativeness Summary (New)
-* `demographics`: object (age_mean, age_sd, sex_ratio).
-* `protocol_heterogeneity`: string (e.g., "High", "Low").
-* `generalization_risk`: boolean.
+### 4. Feature Vector (Reduced)
+Aggregated metrics per subject **after dimensionality reduction** (Phase 6).
+- **Subject ID**: Unique identifier.
+- **Reduced Features**: Numeric array of length `p_reduced` where `p_reduced ≤ 0.5 × N`.  
+- **tDCS Response**: Target variable.
 
-### 5. EEG Epoch
-* `subject_id`, `condition`, `channels`, `data` (2‑D array), `bad_channels`.
+### 5. Analysis Mode
+State of the system:
+- `Primary Mode`: Valid single‑source paired data exists.
+- `Data Insufficient Mode`: No valid paired data found.
+- `Underpowered`: Valid data but `N < N_min` or `p_reduced > 0.5 * N`.
 
-### 6. Feature Vector
-* `subject_id`, `spectral_power` (delta‑gamma), `connectivity` (channel‑pair map), `tdcs_response`, `normality_flag`.
+## File Formats
 
-### 7. KS‑Test Result (new, for SC‑006)
-* `statistic`: number.
-* `p_value`: number.
-* `interpretation`: string (e.g., `"null distribution uniform"`).
+### `data/raw/*.edf` / `data/raw/*.bids/`
+Raw EEG data in BIDS or EDF format. Unmodified.
 
-### 8. Analysis Result
-* `mode`: Enum `["Primary", "Hypothesis_Unanswerable", "Underpowered", "Generalization_Unanswerable"]`.
-* `reason`: string explaining the mode.
-* `model_metrics`: object (may be `null` if not in Primary mode) – includes `adjusted_r2`, `permutation_p_value`, `fdr_corrected_p_values`, `ks_test_result`.
-* `power_analysis`: object with `min_n_required`, `actual_n`, `status`.
-* `sensitivity_table`: list of rows (`p_threshold`, `r_squared_threshold`, `significance`, `stability`).
-* `manifest`: object mapping output metrics to input hashes and code block IDs (for Principle IV).
+### `data/processed/features.csv`
+CSV containing the **pre‑reduction** feature matrix (spectral power + connectivity). Columns: `subject_id`, `power_delta_chX`, …, `plv_c3_c4`, `wpli_c3_c4`, `tdcs_response`.
 
-## Data Flow
+### `data/processed/reduced_features.npy`
+NumPy binary array of the **post‑reduction** feature matrix (after PCA or LASSO). Shape `(N, p_reduced)` where `p_reduced ≤ 0.5 × N`. This constraint guarantees that the subsequent regression model satisfies the `p ≤ 0.5 × N` rule, mitigating the p ≫ n problem highlighted in the review.
 
-1. **Pre‑registration** → `pre_registration.yaml`.
-2. **Systematic Search** → logs candidate accession numbers.
-3. **Source Identification** → `verified_eeg_source.json`, `verified_tdcs_source.json`.
-4. **Ingestion Gate** → `Raw Dataset Manifest`.
-5. **Representativeness Check** → `representativeness_summary.json`.
-6. **Power & Feasibility Checks** → `power_analysis.json`.
-7. **Preprocessing** → `EEG Epoch` files.
-8. **Feature Extraction** → `Feature Vector` records.
-9. **Modeling** (if Primary) → `model_metrics` (including KS test).
-10. **Generalization Check** → secondary `model_metrics` (or log "Generalization Unanswerable").
-11. **Manifest Generation** → `manifest.json` linking every output metric to its input hash and code block ID.
+### `output/verified_source_manifest.json`
+JSON artifact listing search results (see FR‑017, FR‑018).
+
+### `output/pre-registration.json`
+JSON artifact generated before any processing (see FR‑016).
+
+### `output/results.json`
+Final statistical output (only in Primary Mode). See `contracts/output.schema.yaml`.
 
 ## Constraints
 
-* No synthetic data generation.
-* All data must stem from a single verified source unless the Generalization Check explicitly attempts a secondary independent paired dataset.
-* Memory‑efficient chunking for large EEG files (≤7 GB RAM).
-* All artifacts are immutable after creation; any transformation writes a new file with a documented derivation.
+- **Memory**: Feature matrices are chunked; if `N` is large, down‑sample epochs to stay within 7 GB RAM.  
+- **Precision**: All floating‑point values stored as `float64`.  
+- **Integrity**: Raw data checksums must match entries in `state/...yaml` `artifact_hashes`.  
+- **Dimensionality**: After Phase 6, `p_reduced` must satisfy `p_reduced ≤ 0.5 × N`. If this cannot be achieved, the pipeline flags **Underpowered** and aborts modeling (FR‑008).

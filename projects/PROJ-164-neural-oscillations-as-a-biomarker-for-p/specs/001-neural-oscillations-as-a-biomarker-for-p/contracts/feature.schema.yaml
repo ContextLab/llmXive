@@ -1,50 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Feature Vector Schema"
-description: "Schema for the extracted EEG features per subject"
-type: object
+description: "Schema for the feature matrix used in modeling."
+type: "object"
 properties:
   subject_id:
-    type: string
-    description: "Unique identifier for the subject"
-  spectral_power:
-    type: object
-    properties:
-      delta:
-        type: number
-        description: "Power in delta band"
-      theta:
-        type: number
-        description: "Power in theta band"
-      alpha:
-        type: number
-        description: "Power in alpha band"
-      beta:
-        type: number
-        description: "Power in beta band"
-      gamma:
-        type: number
-        description: "Power in gamma band"
-    required:
-      - delta
-      - theta
-      - alpha
-      - beta
-      - gamma
-  connectivity:
-    type: object
-    description: "Map of channel pairs to PLV/wPLI values"
-    additionalProperties:
-      type: number
+    type: "string"
+    description: "Unique identifier for the subject."
+  power_delta:
+    type: "number"
+    description: "Spectral power in delta band (1-4 Hz)."
+  power_theta:
+    type: "number"
+    description: "Spectral power in theta band (4-8 Hz)."
+  power_alpha:
+    type: "number"
+    description: "Spectral power in alpha band (8-13 Hz)."
+  power_beta:
+    type: "number"
+    description: "Spectral power in beta band (13-30 Hz)."
+  power_gamma:
+    type: "number"
+    description: "Spectral power in gamma band (30-45 Hz)."
+  plv_c3_c4:
+    type: "number"
+    description: "Phase Locking Value between C3 and C4."
+  wpli_c3_c4:
+    type: "number"
+    description: "Weighted Phase Lag Index between C3 and C4."
   tdcs_response:
-    type: number
-    description: "Percentage change in motor task score"
-  normality_flag:
-    type: boolean
-    description: "True if data is non-normal (Shapiro-Wilk p < 0.05)"
+    type: "number"
+    description: "Percentage change in motor task score."
 required:
   - subject_id
-  - spectral_power
-  - connectivity
+  - power_delta
+  - power_theta
+  - power_alpha
+  - power_beta
+  - power_gamma
+  - plv_c3_c4
+  - wpli_c3_c4
   - tdcs_response
-  - normality_flag
-additionalProperties: false

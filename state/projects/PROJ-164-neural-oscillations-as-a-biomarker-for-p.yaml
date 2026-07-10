@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T18:27:45.431354Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-164-neural-oscillations-as-a-biomarker-for-p
-last_run_id: edf1c16f-6191-4b6a-9a1b-3c3a626fd273
+last_run_id: fb73e7fb-9a91-43f2-883c-ff9f2833a19d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p/specs/001-neural-oscillations-as-a-biomarker-for-p
 title: Neural Oscillations as a Biomarker for Predicting Response to Transcranial
   Direct Current Stimulation
-updated_at: '2026-07-09T11:00:55.710932Z'
+updated_at: '2026-07-10T15:07:17.124499Z'

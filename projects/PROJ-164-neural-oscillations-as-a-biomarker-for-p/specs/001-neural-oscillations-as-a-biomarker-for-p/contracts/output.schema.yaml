@@ -1,73 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Result Schema"
-description: "Schema for the final analysis output of the pipeline."
+title: "Statistical Output Schema"
+description: "Schema for the final results.json artifact (Primary Mode only)."
 type: "object"
 properties:
-  mode:
+  analysis_mode:
     type: "string"
-    enum:
-      - "Primary"
-      - "Hypothesis_Unanswerable"
-      - "Underpowered"
-      - "Generalization_Unanswerable"
-    description: "The execution mode of the pipeline."
-  reason:
+    enum: ["Primary Mode", "Data Insufficient Mode", "Underpowered"]
+  model_type:
     type: "string"
-    description: "Explanation for the selected mode."
-  model_metrics:
-    type:
-      - "object"
-      - "null"
-    description: "Model performance metrics (R², adjusted R², p‑value, FDR‑corrected p‑values, KS test)."
-    properties:
-      r_squared:
-        type: "number"
-      adjusted_r_squared:
-        type: "number"
-      p_value:
-        type: "number"
-      fdr_p_values:
-        type: "array"
-        items:
-          type: "number"
-      ks_test_result:
-        type: "object"
-        description: "Kolmogorov‑Smirnov test result on permutation null distribution."
-        properties:
-          statistic:
-            type: "number"
-          p_value:
-            type: "number"
-        required:
-          - statistic
-          - p_value
-        additionalProperties: false
-    required:
-      - r_squared
-      - adjusted_r_squared
-      - p_value
-      - fdr_p_values
-      - ks_test_result
-    additionalProperties: false
-  power_analysis:
+    description: "Type of regression used (e.g., 'Ridge', 'Rank-Ridge')."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  p_values:
     type: "object"
-    properties:
-      min_n_required:
-        type: "integer"
-      actual_n:
-        type: "integer"
-      status:
-        type: "string"
-        enum:
-          - "Sufficient"
-          - "Underpowered"
-    required:
-      - min_n_required
-      - actual_n
-      - status
+    description: "Raw p-values for each feature."
+  fdr_p_values:
+    type: "object"
+    description: "FDR-corrected p-values for each feature."
+  ks_statistic:
+    type: "number"
+    description: "Kolmogorov-Smirnov statistic for null distribution uniformity."
+  ks_p_value:
+    type: "number"
+    description: "P-value for the KS test."
   sensitivity_table:
     type: "array"
-    description: "Sensitivity analysis results across thresholds."
     items:
       type: "object"
       properties:
@@ -75,17 +33,23 @@ properties:
           type: "number"
         r_squared_threshold:
           type: "number"
-        significance:
-          type: "boolean"
         stability:
-          type: "string"
-      required:
-        - p_threshold
-        - r_squared_threshold
-        - significance
-        - stability
+          type: "boolean"
+    description: "Sensitivity analysis results."
+  underpowered_flag:
+    type: "boolean"
+    description: "True if N < required minimum."
+  min_n_required:
+    type: "integer"
+    description: "Minimum sample size required for power."
 required:
-  - mode
-  - reason
-  - power_analysis
-additionalProperties: false
+  - analysis_mode
+  - model_type
+  - r_squared
+  - p_values
+  - fdr_p_values
+  - ks_statistic
+  - ks_p_value
+  - sensitivity_table
+  - underpowered_flag
+  - min_n_required
