@@ -22,5 +22,29 @@
         "intent": "openai human eval HumanEval Verified via datasets library Downloaded datasets.load_dataset \"openai/human eval\" to ensure reproducibility and canonical access. The raw JSON is cached locally."
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-10T17:26:01.516186+00:00",
+    "project": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/openai/human-eval",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl",
+        "intent": "openai human eval Note on HumanEval Access : The raw URL is not used directly to avoid 401/403 issues. Instead, datasets library loader used,"
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-07-10T17:28:08.479011+00:00",
+    "project": "PROJ-466-evaluating-the-impact-of-code-style-on-l",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/openai/human-eval",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl",
+        "intent": "openai human eval HumanEval 164 Python programming problems with unit tests. datasets.load_dataset \"openai_humaneval\" Verified : Source is canonical HuggingFace Hub. Direct URL not used"
+      }
+    ]
   }
 ]
