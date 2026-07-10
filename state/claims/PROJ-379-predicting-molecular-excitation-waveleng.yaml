@@ -1,0 +1,37 @@
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: UV-Vis spectral data fetched from HuggingFace dataset zjunlp/UV-Vis-ML
+  claim_id: c_deb88542
+  context: The pipeline automatically fetches real UV-Vis spectral data from the HuggingFace
+    dataset `zjunlp/UV-Vis-ML` during the ingestion step. No manual download is required.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UV-Vis_spectral_data_fetched_from_HuggingFace_dataset_zjunlp
+  kind: entity_fact
+  raw_text: The pipeline automatically fetches real UV-Vis spectral data from the
+    HuggingFace dataset zjunlp/UV-Vis-ML during the ingestion step.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:57:56Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Minimum test set size of 50 molecules enforced
+  claim_id: c_838e26cd
+  context: The pipeline enforces a minimum test set size of 50 molecules for statistical
+    power. Scaffold splitting ensures no data leakage between train, validation, and
+    test sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline enforces a minimum test set size of 50 molecules for statistical
+    power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-10T00:58:59Z'

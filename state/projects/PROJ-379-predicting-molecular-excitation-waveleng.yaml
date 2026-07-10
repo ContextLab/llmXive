@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T22:24:12.355838Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-379-predicting-molecular-excitation-waveleng
-last_run_id: 170834be-29fd-446e-8898-23277c415650
+last_run_id: 7c71e62f-5ec5-4071-8f29-7aa93bb1c6e9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng
 title: Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks
-updated_at: '2026-07-08T04:26:15.024917Z'
+updated_at: '2026-07-10T01:06:32.129765Z'

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Results Schema"
+description: "Schema for model evaluation results and attribution data."
+type: "object"
+properties:
+  predictions:
+    type: "array"
+    description: "List of prediction records for the test set."
+    items:
+      type: "object"
+      required:
+        - "mol_id"
+        - "predicted_lambda"
+        - "actual_lambda"
+        - "error"
+      properties:
+        mol_id:
+          type: "string"
+          description: "Reference to the molecule ID."
+        predicted_lambda:
+          type: "number"
+          description: "Model predicted wavelength in nm."
+        actual_lambda:
+          type: "number"
+          description: "Ground truth wavelength in nm."
+        error:
+          type: "number"
+          description: "Absolute error (|predicted - actual|)."
+        attribution_weights:
+          type: "object"
+          description: "Dictionary of atom indices to contribution weights."
+          additionalProperties:
+            type: "number"
+      additionalProperties: false
+additionalProperties: false

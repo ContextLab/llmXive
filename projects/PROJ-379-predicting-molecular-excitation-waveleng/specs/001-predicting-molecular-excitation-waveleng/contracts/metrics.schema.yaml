@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Summary Schema"
+description: "Schema for the aggregated performance metrics and statistical checks."
+type: "object"
+properties:
+  gnn:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in nm."
+      r_squared:
+        type: "number"
+        description: "Coefficient of determination (R²)."
+  baseline:
+    type: "object"
+    properties:
+      mae:
+        type: "number"
+        description: "Baseline MAE in nm."
+      r_squared:
+        type: "number"
+        description: "Baseline R²."
+  comparison:
+    type: "object"
+    properties:
+      delta_mae:
+        type: "number"
+        description: "Difference in MAE (Baseline - GNN)."
+      p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test."
+      significant:
+        type: "boolean"
+        description: "True if p_value < 0.05."
+      statistical_power_status:
+        type: "string"
+        description: "Status of statistical power (e.g., 'sufficient', 'low_power')."
+      test_sample_size:
+        type: "integer"
+        description: "Number of samples in the test set."
+  collinearity_flags:
+    type: "object"
+    properties:
+      baseline_ecfp_correlation:
+        type: "number"
+        description: "Maximum Pearson correlation between ECFP bits."
+      flagged:
+        type: "boolean"
+        description: "True if correlation >= 0.9."
+  redundancy_masks:
+    type: "object"
+    properties:
+      subgraph_similarity:
+        type: "number"
+        description: "Maximum cosine similarity between latent subgraphs."
+      masked:
+        type: "boolean"
+        description: "True if similarity > 0.9 and weights were masked."
+  constraints:
+    type: "object"
+    properties:
+      target_mae_met:
+        type: "boolean"
+        description: "True if GNN MAE < 30 nm (or computed equivalent)."
+      failure_threshold_met:
+        type: "boolean"
+        description: "True if GNN MAE <= 50 nm."
+      data_source_type:
+        type: "string"
+        description: "Either 'experimental' or 'computed'."
+  runtime:
+    type: "object"
+    properties:
+      total_seconds:
+        type: "number"
+        description: "Total wall-clock time for training and evaluation."
+      within_limit:
+        type: "boolean"
+        description: "True if runtime <= 6 hours."
+additionalProperties: false

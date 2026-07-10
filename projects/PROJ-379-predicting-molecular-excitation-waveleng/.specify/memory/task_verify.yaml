@@ -1,0 +1,12 @@
+? 'T001a [P] Create project directory structure: Create directories `data/raw`, `data/processed`,
+  `code`, `tests`, `docs` in `projects/PROJ-379-predicting-molecular-excitation-waveleng/`'
+: 1
+? 'T001b [P] Create `requirements.txt` with pinned versions: `rdkit==2023.9.5`, `torch==2.1.0+cpu`,
+  `torch-geometric==2.4.0`, `pandas==2.1.0`, `scikit-learn==1.3.0`, `numpy==1.24.0`,
+  `pyyaml==6.0.1`, `pytest==7.4.0`'
+: 1
+? 'T001c [P] Create `README.md` with Quickstart section: Include instructions for
+  environment setup, data fetching, and running the pipeline end-to-end'
+: 1
+T002 Create `.flake8` and `pyproject.toml` with black configuration for linting and formatting: 1
+T004 [P] Create data directory structure (`data/raw/`, `data/processed/`) and create empty `data/checksums.txt`: 1
