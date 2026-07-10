@@ -1,0 +1,5 @@
+T008 Create `tests/unit/__init__.py` and `tests/contract/__init__.py`: 1
+T008b Create `data/verified_datasets.yaml` as the local registry for verified accession titles (required by T010): 1
+? 'T009 [US0] Implement `code/discovery/query_geno.py` with search logic for "multi-generational",
+  "methylation", "RNA-seq", and "fluctuating" keywords. **Output**: `output/discovery_results.json`.'
+: 1

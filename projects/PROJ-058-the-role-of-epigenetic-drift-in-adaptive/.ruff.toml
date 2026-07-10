@@ -1,0 +1,23 @@
+# Extend the main pyproject.toml configuration if specific overrides are needed for the root
+# or if running ruff from the root without pyproject.toml discovery.
+# This file mirrors the settings in pyproject.toml for explicit CLI usage.
+
+select = ["E", "F", "I", "N", "W", "D", "UP", "B"]
+ignore = [
+    "D100",
+    "D104",
+    "D107",
+]
+fixable = ["ALL"]
+exclude = [
+    ".git",
+    "data",
+    "output",
+    "logs",
+    "__pycache__",
+]
+line-length = 88
+target-version = "py311"
+
+[lint.pydocstyle]
+convention = "google"

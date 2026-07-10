@@ -1,0 +1,24 @@
+# Verified Datasets Registry
+# This file serves as the local registry for verified accession titles
+# required by T010 (validate_reference function).
+#
+# Format:
+# - accession: <GEO/ENCODE Accession ID>
+#   title: <Exact or near-exact title string from the source>
+#   organism: <mouse | C. elegans | Drosophila | human>
+#   type: <methylation | rna_seq | multi-omics>
+#   verified_at: <ISO 8601 timestamp>
+#
+# Note: This file is populated dynamically by T009 (query_geno.py) upon
+# successful discovery and validation. It acts as the ground truth for
+# the title-token overlap check.
+#
+# Initial state: Empty registry. Populated during US0 execution.
+verified_datasets: []
+
+# Metadata for the registry
+metadata:
+  version: "1.0.0"
+  last_updated: null
+  source: "GEO/ENCODE Discovery Pipeline"
+  validation_threshold: 0.7

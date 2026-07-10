@@ -1,0 +1,18 @@
+# Black configuration for PROJ-058
+target-version = ['py311']
+line-length = 88
+skip-string-normalization = false
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
