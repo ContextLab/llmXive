@@ -1,0 +1,33 @@
+[MASTER]
+ignore=.git,__pycache__,venv,.venv,build,dist
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    C0111,  # Missing docstring
+    C0103,  # Invalid name (allow lowercase for vars)
+    R0903,  # Too few public methods
+    W0511,  # TODO comments
+    R0913,  # Too many arguments
+    R0914,  # Too many local variables
+    R0915,  # Too many statements
+    R0902,  # Too many instance attributes
+    R0904,  # Too many public methods
+    R0917,  # Too many positional arguments
+    W0613,  # Unused argument
+    R1705,  # Unnecessary "else" after "return"
+    C0301,  # Line too long (handled by black/flake8)
+    E1101,  # Instance of object has no attribute (dynamic attrs)
+    R0801,  # Similar lines
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-args=8
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+max-attributes=10
+max-public-methods=20

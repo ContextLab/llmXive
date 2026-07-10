@@ -1,0 +1,15 @@
+{
+  "project_root": ".",
+  "data_raw": "data/raw",
+  "data_processed": "data/processed",
+  "data_compliance": "data/compliance",
+  "results_dir": "results",
+  "figures_dir": "figures",
+  "config_file": "config/project_config.json",
+  "seed_file": "config/seed_config.json",
+  "default_seed": 42,
+  "bootstrap_resamples": 10000,
+  "power_sim_iterations": 1000,
+  "compliance_social_media_max_min": 30,
+  "compliance_news_blocked": true
+}

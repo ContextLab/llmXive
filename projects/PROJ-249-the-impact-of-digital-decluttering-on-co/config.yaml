@@ -1,0 +1,26 @@
+project_root: null
+data:
+  raw: data/raw
+  processed: data/processed
+  compliance: data/compliance
+  figures: data/figures
+results:
+  output_dir: results
+  report_file: final_report.md
+  summary_file: statistical_summary.json
+  power_file: power_analysis.json
+  sensitivity_file: sensitivity_analysis_report.md
+analysis:
+  bootstrap_resamples: 10000
+  monte_carlo_iterations: 1000
+  effect_size_threshold: 0.2
+  p_value_threshold: 0.05
+  convergence_max_iter: 100
+random_seed:
+  default: 42
+  config_file: data/compliance/seed_config.yaml
+paths:
+  tasks_md: tasks.md
+  plan_md: plan.md
+  spec_md: specs/001-digital-decluttering-study/spec.md
+  data_model_md: specs/001-digital-decluttering-study/data-model.md

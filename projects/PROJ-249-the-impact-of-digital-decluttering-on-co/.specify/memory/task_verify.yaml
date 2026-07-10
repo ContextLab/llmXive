@@ -1,0 +1,15 @@
+? T011 [P] [US1] Unit test for SART scoring logic against OSF reference (v+) in `tests/unit/test_sart_scoring.py`
+  (runs against data from T017)
+: 1
+? 'T014 [US1] Implement SART scoring function in `code/scoring/sart.py` (response
+  times ranging from tens of milliseconds to several seconds, commission errors);
+  MUST accept input schema `{''response_time'': float, ''accuracy'': bool, ''stimulus_type'':
+  str}` and output `{''commission_errors'': int, ''omission_errors'': int, ''mean_rt'':
+  float}`.'
+: 1
+T016 [US1] Implement PSS-10 and PANAS scoring functions in `code/scoring/questionnaires.py`: 1
+? T017 [US1] Create synthetic data generator for baseline validation in `code/validation/synthetic_baseline.py`
+  (FR-009, US-1); MUST output to `data/raw/synthetic_baseline.csv` with columns (`participant_id`,
+  `metric_type`, `value`, `timestamp`) and defined distributions (e.g., SART errors
+  ~ N(10, 3), PSS-10 ~ N(20, 5)).
+: 2

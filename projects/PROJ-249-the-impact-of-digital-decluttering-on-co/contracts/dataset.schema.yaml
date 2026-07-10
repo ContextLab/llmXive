@@ -1,0 +1,163 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Digital Decluttering Study Dataset Schema
+description: Schema definitions for the digital decluttering study data
+
+definitions:
+  Participant:
+    type: object
+    required:
+      - participant_id
+      - recruitment_date
+      - baseline_date
+      - post_intervention_date
+      - group_assignment
+    properties:
+      participant_id:
+        type: string
+        pattern: "^P\\d{3}$"
+        description: "Pseudonymous participant identifier (e.g., P001, P002)"
+      recruitment_date:
+        type: string
+        format: date
+        description: "Date of participant recruitment"
+      baseline_date:
+        type: string
+        format: date
+        description: "Date of baseline data collection"
+      post_intervention_date:
+        type: string
+        format: date
+        description: "Date of post-intervention data collection"
+      group_assignment:
+        type: string
+        enum:
+          - intervention
+          - control
+        description: "Study group assignment"
+      demographics:
+        type: object
+        properties:
+          age:
+            type: integer
+            minimum: 18
+            maximum: 100
+          gender:
+            type: string
+          education_level:
+            type: string
+        description: "Demographic information"
+
+  MeasurementRecord:
+    type: object
+    required:
+      - participant_id
+      - metric_type
+      - value
+      - timestamp
+      - session_type
+    properties:
+      participant_id:
+        type: string
+        pattern: "^P\\d{3}$"
+        description: "Reference to participant"
+      metric_type:
+        type: string
+        enum:
+          - sart_commission_errors
+          - sart_omission_errors
+          - sart_mean_rt
+          - ospan_span_score
+          - ospan_total_correct
+          - pss10_total
+          - panas_positive
+          - panas_negative
+        description: "Type of metric being recorded"
+      value:
+        type: number
+        description: "Measured value"
+      timestamp:
+        type: string
+        format: date-time
+        description: "When the measurement was taken"
+      session_type:
+        type: string
+        enum:
+          - baseline
+          - post_intervention
+        description: "Which session the measurement belongs to"
+      trial_data:
+        type: object
+        description: "Optional trial-level data for cognitive tasks"
+        properties:
+          response_times:
+            type: array
+            items:
+              type: number
+          accuracies:
+            type: array
+            items:
+              type: boolean
+          stimuli:
+            type: array
+            items:
+              type: string
+
+  ComplianceLog:
+    type: object
+    required:
+      - participant_id
+      - date
+      - social_media_minutes
+      - news_consumption
+      - notifications_status
+      - submitted_at
+    properties:
+      participant_id:
+        type: string
+        pattern: "^P\\d{3}$"
+        description: "Reference to participant"
+      date:
+        type: string
+        format: date
+        description: "Date of the compliance log"
+      social_media_minutes:
+        type: integer
+        minimum: 0
+        maximum: 1440
+        description: "Minutes spent on social media"
+      news_consumption:
+        type: boolean
+        description: "Whether news was consumed (true = non-compliant)"
+      notifications_status:
+        type: string
+        enum:
+          - off
+          - on
+        description: "Status of notifications"
+      notes:
+        type: string
+        description: "Optional participant notes"
+      submitted_at:
+        type: string
+        format: date-time
+        description: "When the log was submitted"
+
+# Root schema for the entire dataset
+type: object
+properties:
+  participants:
+    type: array
+    items:
+      $ref: "#/definitions/Participant"
+  measurements:
+    type: array
+    items:
+      $ref: "#/definitions/MeasurementRecord"
+  compliance_logs:
+    type: array
+    items:
+      $ref: "#/definitions/ComplianceLog"
+required:
+  - participants
+  - measurements
+  - compliance_logs
