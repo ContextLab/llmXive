@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T19:38:00.880298Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-410-predicting-plant-root-system-architectur
-last_run_id: a06e247f-5e13-4b2c-94c9-50067e0a35be
+last_run_id: 1f37217e-9e78-4f92-a492-fac38bee348d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-410-predicting-plant-root-system-architectur/specs/001-predicting-plant-root-system-architectur
 title: Predicting Plant Root System Architecture from Publicly Available Genomic Data
-updated_at: '2026-07-02T10:45:05.173838Z'
+updated_at: '2026-07-10T02:00:26.677988Z'

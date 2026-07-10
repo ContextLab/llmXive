@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unified Dataset Schema"
+description: "Schema for the harmonized genotype-phenotype dataset used in training."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_genomic:
+        type: "string"
+        description: "Source of genomic data (e.g., '1001 Genomes')"
+      source_phenotypic:
+        type: "string"
+        description: "Source of phenotypic data (e.g., 'ATRDB')"
+      preprocessing_date:
+        type: "string"
+        format: "date-time"
+      excluded_accessions_count:
+        type: "integer"
+        description: "Number of accessions excluded due to mismatch or missing data"
+    required:
+      - source_genomic
+      - source_phenotypic
+      - preprocessing_date
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        accession_id:
+          type: "string"
+          description: "Unique identifier for the plant accession"
+        nutrient_condition:
+          type: "string"
+          description: "Environmental condition (e.g., 'Low_N', 'High_N')"
+        root_length:
+          type: "number"
+          description: "Primary root length in cm"
+        branching_density:
+          type: "number"
+          description: "Number of lateral roots per cm"
+        angle:
+          type: "number"
+          description: "Root growth angle in degrees"
+        genotype_vector:
+          type: "array"
+          items:
+            type: "integer"
+            minimum: 0
+            maximum: 2
+          description: "Allele counts (0, 1, 2) for all SNPs"
+        split:
+          type: "string"
+          enum:
+            - "train"
+            - "val"
+            - "test"
+          description: "Dataset split assignment"
+      required:
+        - accession_id
+        - nutrient_condition
+        - genotype_vector
+        - split
+    description: "List of records containing matched genomic and phenotypic data"
+required:
+  - metadata
+  - data

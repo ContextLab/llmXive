@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the results of model training and evaluation."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique ID for this run"
+  timestamp:
+    type: "string"
+    format: "date-time"
+  models:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_id:
+          type: "string"
+          description: "Unique identifier for the model instance"
+        algorithm:
+          type: "string"
+          enum:
+            - "LinearRegression_ElasticNet"
+            - "RandomForest"
+            - "GradientBoosting"
+        nutrient_condition:
+          type: "string"
+          description: "Condition the model was trained on"
+        metrics:
+          type: "object"
+          properties:
+            r2:
+              type: "number"
+              description: "Coefficient of determination"
+            r2_ci_95:
+              type: "array"
+              items:
+                type: "number"
+              description: "95% Confidence Interval for R2 [lower, upper]"
+            mae:
+              type: "number"
+              description: "Mean Absolute Error"
+            cv_score:
+              type: "number"
+              description: "Cross-validation mean score"
+            null_baseline_r2:
+              type: "number"
+              description: "R2 of the intercept-only null model"
+          required:
+            - r2
+            - r2_ci_95
+            - mae
+            - null_baseline_r2
+        permutation_test:
+          type: "object"
+          properties:
+            iterations:
+              type: "integer"
+              description: "Number of permutation iterations"
+            p_value:
+              type: "number"
+              description: "Probability that observed R2 occurred by chance"
+            significant:
+              type: "boolean"
+              description: "True if p_value < 0.05"
+          required:
+            - iterations
+            - p_value
+            - significant
+        feature_importance:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              feature_name:
+                type: "string"
+              score:
+                type: "number"
+              rank:
+                type: "integer"
+            required:
+              - feature_name
+              - score
+              - rank
+          description: "Top features by importance"
+      required:
+        - model_id
+        - algorithm
+        - nutrient_condition
+        - metrics
+        - permutation_test
+        - feature_importance
+  disclaimer:
+    type: "string"
+    description: "Standardized associational disclaimer"
+    const: "Findings are associational and do not imply causation."
+required:
+  - experiment_id
+  - timestamp
+  - models
+  - disclaimer
