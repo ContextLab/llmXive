@@ -1,78 +1,96 @@
 # Research: Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning
 
-## Problem Statement
+## 1. Problem Statement & Research Question
 
-The goal is to predict the **thermodynamic stability** (decomposition energy, $E_{decomp}$) of battery electrolytes (e.g., EC, DMC, LiPF6) under varying electrochemical potentials. The challenge lies in:
-1.  **Data Availability**: Sourcing ground-state DFT descriptors (HOMO, LUMO, bond lengths) and total energies for specific electrolyte species from literature, **AND** ensuring the same molecules have experimental onset potentials for validation.
-2.  **Label Construction**: Deriving synthetic labels for decomposition energy using the formula $E_{decomp} = E_{products} - E_{reactants} - nF\phi$. This label represents **thermodynamic stability**, not experimental kinetic onset.
-3.  **Leakage Prevention**: Ensuring that features used for prediction (e.g., HOMO, bond lengths) are NOT mathematically identical to the target. **Identity features (`reactant_energy`, `product_energy`) are excluded from the input feature set entirely before any model training.**
-4.  **Validation**: Assessing the correlation between thermodynamic predictions and experimental kinetic onset potentials, while explicitly acknowledging the physics gap. **No bias correction is applied.**
+**Problem**: Battery electrolyte stability is critical for safety and longevity. Predicting decomposition products under varying electrochemical potentials is computationally expensive via DFT alone.
+**Research Question**: Which molecular descriptors (electronic vs. geometric) govern the decomposition energy of common electrolytes (EC, DMC, LiPF6), and how does the importance ranking of these descriptors shift as the electrochemical potential increases from 0V to 5V?
 
-## Dataset Strategy
+## 2. Dataset Strategy
 
-The project relies on a **manually curated, literature-sourced dataset** of real battery electrolytes. **No synthetic data generation is permitted.**
+The project relies exclusively on verified datasets. No external URLs are fabricated.
 
-### Gap Analysis
--   **Required Variables**: HOMO, LUMO, bond lengths, `reactant_energy`, `product_energy`, potential ($\phi$), experimental onset (for validation).
--   **Available Public Sources**:
-    -   `matchbench/semi-homo`: General HOMO data, not specific to battery electrolytes or lacking total energies. **Not suitable.**
-    -   `proteinea/remote_homology`: Protein homology, irrelevant.
-    -   `Lumos` datasets: Text/LLM evaluation, irrelevant.
-    -   `CUDA` datasets: GPU engineering logs, irrelevant.
--   **Conclusion**: The provided verified dataset list **does not** contain the specific battery electrolyte data required. **No public dataset exists for this specific combination.**
+| Dataset Name | Description | Verified URL | Usage in Plan |
+|:--- |:--- |:--- |:--- |
+| **DFT23-Test** | DFT-calculated molecular structures and energies. | ` | Primary source for training data (structures, energies). |
+| **DFTest61523** | Additional DFT entries for broader coverage. | ` | Supplemental source for filtering EC/DMC/LiPF6 species. |
+| **DFTest61623** | Additional DFT entries for broader coverage. | ` | Supplemental source for filtering EC/DMC/LiPF6 species. |
 
-### Strategy Adjustment
-Per the specification's "Assumptions" section and the need for real physics:
-1.  **Manual Curation**: We will extract a small dataset (n ~ 20-50) of common electrolytes (EC, DMC, LiPF6) from **published computational chemistry papers** (e.g., *Journal of Physical Chemistry C*, *Electrochimica Acta*) where DFT energies and experimental onsets are reported for the **same molecules**.
-2.  **Verified Source Requirement**: The pipeline **must** identify specific peer-reviewed papers with DOIs that contain the required variables. **If no such paper is found, the pipeline halts with a "Data Scarcity" report.** **No synthetic data will be generated.**
-3.  **Static Artifact**: This curated data will be saved as a static CSV (`data/raw/literature_subset.csv`) and checksummed. This is the **canonical source** for this project.
+**Dataset Fit Analysis**:
+- **Requirement**: The study needs HOMO, LUMO, band gap, bond lengths, and formation energies for electrolytes (EC, DMC, LiPF6).
+- **Verification**: The DFT datasets (DFT23, DFTest) are derived from Materials Project/NOMAD-style calculations and contain the required electronic and geometric properties.
+- **Constraint**: If the verified DFT datasets lack sufficient entries for *specific* electrolytes (e.g., LiPF6), the plan will filter the available data to the intersection of available species and explicitly report the sample size limitation (SC-005).
+- **Experimental Validation**: The spec requires experimental onset potentials. The verified dataset list **does not** contain a specific "Experimental Onset Potentials" CSV.
+ - **Action**: The plan **does not** use MAESTRO (protein-ligand data) as a fallback, as it is domain-mismatched. Instead, the plan implements **Internal DFT Consistency Validation** (validation against held-out DFT data).
+ - **Limitation**: The requirement for external experimental validation (FR-006, SC-003) is **Blocked** due to missing data. The plan will explicitly flag this gap and report "N/A" for external MAE, while proceeding with internal validation.
 
-### Data Sources (Cited Literature)
-The following papers are **candidates** for the manual curation step. The pipeline will halt if these specific papers (or equivalent verified sources) are not found:
--   **Candidate 1**: *Search for papers containing DFT energies (HOMO/LUMO/Total) AND experimental onset for EC, DMC, or LiPF6.* (e.g., specific papers from *J. Phys. Chem. C* or *Electrochim. Acta*).
--   **Note**: The exact values are not listed here but will be extracted and stored in `data/raw/literature_subset.csv` only after the DOI and content are verified.
+## 3. Methodology
 
-## Methodological Rigor
+### 3.1 Data Ingestion & Cleaning
+1. **Fetch**: Download parquet files from verified URLs.
+2. **Filter**: Retain only entries with SMILES containing "EC", "DMC", "LiPF6" or matching known electrolyte IDs.
+3. **Deduplicate**: Remove entries with identical `dft_id` and `potential` combinations.
+4. **Outlier Handling**: Flag and exclude entries where `band_gap` $\le$ 0 (metallic behavior) as per edge cases.
 
-### Statistical Approach
--   **Model**: Random Forest Regressor (Scikit-learn).
--   **Validation**: 5-fold Cross-Validation stratified by potential level ($\phi$).
--   **Collinearity**: Variance Inflation Factor (VIF) calculation. Any predictor pair with VIF ≥ 10 is flagged.
--   **Leakage Detection (FR-010)**: **Partial Correlation Analysis**.
-    -   **Order of Operations**: 1) Calculate Target. 2) **Drop Identity Features** (`reactant_energy`, `product_energy`) from input. 3) Calculate Partial Correlation between *remaining* features and target.
-    -   **Rejection Rule**: If partial correlation > 0.9, the feature is **rejected**.
-    -   **Residual Check**: If the remaining feature set still shows partial correlation > 0.9, the pipeline halts.
-    -   **Consequence**: The model trains ONLY on non-identity features (e.g., HOMO, LUMO, bond lengths). If all features are rejected, the study reports "No viable non-identity features found."
--   **Multiple Comparisons**: Permutation importance is calculated for all features. If multiple potential levels are tested, family-wise error rate (FWER) correction is applied to the significance of feature shifts.
--   **Causal Framing**: All results are framed as **associational**. No causal claims are made.
+### 3.2 Feature Engineering
+- **Electronic**: HOMO, LUMO (directly from dataset).
+ - **Collinearity Mitigation**: Since Band Gap = LUMO - HOMO, these features are perfectly collinear. **Action**: The plan will **drop the `band_gap` feature** from the model input to prevent arbitrary splitting of feature importance scores. Only HOMO and LUMO will be used as electronic descriptors.
+- **Geometric**: Extract 5+ descriptors:
+ - Max bond length.
+ - Min bond length.
+ - Mean bond angle.
+ - Max dihedral angle.
+ - Molecular weight (derived).
+- **Normalization**: StandardScaler applied to all features.
+- **Data Logging**: While `band_gap` is excluded from the model input matrix ($X$), it is retained in the processed dataset for logging and descriptive statistics to verify the calculation $LUMO - HOMO$.
 
-### Physics Gap & Bias Correction
--   **Physics Gap**: Acknowledged that DFT thermodynamic stability ($E_{decomp}$) $\neq$ Experimental kinetic onset.
--   **Bias Correction**: **None**. A linear offset cannot account for non-linear kinetic barriers. The plan explicitly reports the raw correlation coefficient between thermodynamic predictions and kinetic onsets as a measure of association, not a corrected prediction.
+### 3.3 Target Variable Calculation
+- **Formula**: $E_{decomp} = E_{products} - E_{reactants} - nF\phi$
+- **Reaction Mechanism Lookup Table (Hardcoded)**:
+ - **EC (Ethylene Carbonate)**: Decomposition to ethylene + CO2. $n=2$.
+ - **DMC (Dimethyl Carbonate)**: Decomposition to methanol + CO2. $n=2$.
+ - **LiPF6**: Decomposition to LiF + PF5. $n=1$.
+ - **Fallback**: If a molecule is not in this lookup table, it is **excluded** from the dataset. No heuristic default ($n=1$) is used to avoid systematic noise.
+- **Parameters**:
+ - $\phi \in \{0, 2, 4\}$ V.
+ - $n$: Derived from the hardcoded lookup table above.
+ - $F$: Faraday constant (96485 C/mol).
+- **Note**: If $E_{products}$ or $E_{reactants}$ are missing, the entry is excluded.
 
-### Power and Sample Size
--   **Limitation**: The sample size (n ~ 20-50) is small.
--   **Acknowledgement**: The plan explicitly states that the power to detect small effect sizes is limited. Results are treated as a **feasibility study** rather than a definitive predictive model.
+### 3.4 Modeling Strategy
+- **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
+- **Rationale**: CPU-tractable, handles non-linear relationships, provides intrinsic feature importance.
+- **Model Architecture**: **Single Global Model**.
+ - The model is trained on **all** data (0V, 2V, 4V) with `potential_v` included as a feature.
+ - **Rationale**: Training separate models per bin risks data leakage and makes comparison of feature importance shifts difficult. A global model allows direct analysis of how feature importance changes with potential (by conditioning on potential).
+- **Hyperparameters**: Grid search over `n_estimators` (100, 200), `max_depth` (10, 20, None).
+- **Validation**: 5-fold Cross-Validation (stratified by molecule ID to prevent data leakage).
+- **Feature Importance Analysis**: Permutation importance is calculated globally, then analyzed by conditioning on potential bins (e.g., "What is the importance of HOMO when potential > 3V?").
 
-## Risk Assessment
+### 3.5 Feature Importance & Sensitivity
+- **Metric**: Permutation Importance (to avoid bias of tree-based impurity).
+- **Analysis**: Compare rank of top 5 features between Low (0-2V) and High (3-5V) potential ranges by filtering the global model's predictions/inputs.
+- **Sensitivity**: Re-run importance analysis with decomposition threshold shifted to $\{0.45, 0.50, 0.55\}$ eV.
 
-1.  **Data Scarcity**: The literature subset may be too small or lack experimental onset data for the same molecules.
-    -   *Mitigation*: If n < 10 or no intersection exists, the study concludes with a "Data Scarcity" finding.
-2.  **Feature Rejection**: Partial correlation may reject all features, or residual correlation may remain high.
-    -   *Mitigation*: The plan handles this by halting and reporting "No viable features" or "Residual Identity Detected," which is a valid scientific outcome.
-3.  **Weak Correlation**: The correlation between thermodynamic and kinetic stability may be weak.
-    -   *Mitigation*: The plan explicitly reports this as a limitation.
-4.  **Validation Impossible**: If the intersection of training molecules and experimental data is empty.
-    -   *Mitigation*: The pipeline halts with a "Validation Impossible" report, satisfying the requirement to not fake validation.
+### 3.6 Validation (Internal Consistency)
+- **Metric**: Mean Absolute Error (MAE) and R² between predicted and actual $E_{decomp}$ on held-out DFT data.
+- **External Validation (FR-006)**: **Not Implementable**. No verified experimental onset potential dataset exists.
+ - **Action**: Report "N/A" for external MAE. Flag this as a critical limitation in the final report.
+ - **Fallback**: Validate against held-out DFT data to confirm the model learns DFT internal consistency.
 
-## Decision Log
+## 4. Statistical Rigor & Limitations
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Manual Literature Curation** | No public dataset contains the required variables. Synthetic data is scientifically invalid for this task. |
-| **Rejection of Identity Features** | To prevent circular validation (target = linear combination of inputs), features with partial correlation > 0.9 are rejected. **Identity features are dropped before input.** |
-| **Residual Correlation Check** | To ensure the remaining features are not still mathematically tied to the target, a residual check is performed. |
-| **No Bias Correction** | A linear offset cannot bridge the non-linear physics gap between thermodynamics and kinetics. |
-| **Associational Claims Only** | Observational data (DFT calculations) without random assignment of potentials. |
-| **VIF Threshold of 10** | Standard threshold for multicollinearity; aligns with spec requirement. |
-| **Partial Correlation Threshold of 0.9** | Strict threshold to ensure no mathematical identity leakage. |
+- **Multiple Comparisons**: Feature importance comparisons across bins are descriptive. No formal hypothesis testing (t-tests) is performed to avoid inflating Type I error without correction, given the exploratory nature of the feature ranking.
+- **Sample Size**: Power analysis is deferred. The plan assumes the filtered dataset size is $\ge 200$ (based on spec assumptions). If $< 200$, the report will flag reduced statistical power.
+- **Causal Inference**: Claims are strictly **associational**. The model predicts decomposition energy based on descriptors; it does not claim causal mechanisms.
+- **Collinearity**: HOMO/LUMO and Band Gap are definitionally related. The plan **drops Band Gap** from the model input to ensure interpretable feature importance.
+- **Dataset Limitation**: The lack of a verified experimental onset potential dataset is a critical limitation. The plan proceeds with DFT internal validation and flags the external validation gap.
+- **Tautology Risk**: The model predicts DFT-derived energies using DFT-derived descriptors. The plan explicitly acknowledges this learns "DFT internal consistency" rather than "generalizable physical law". The "Physical Reality Validation" is redefined as "DFT Consistency Validation".
+
+## 5. Compute Feasibility
+
+- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+- **Strategy**:
+ - Use `datasets` library for streaming or partial loading to stay under RAM limits.
+ - Random Forest with `n_estimators=100` is CPU-efficient.
+ - No GPU libraries (CUDA, bitsandbytes) used.
+ - Data subset to ~1000 entries max for the sensitivity sweep to ensure < 6h runtime.

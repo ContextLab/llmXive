@@ -37,13 +37,29 @@ Advancement-Evaluator Agent invalidates stale review records when the
 hashed artifact changes. Every research-stage artifact change updates this
 project's `state/projects/PROJ-085-predicting-battery-electrolyte-decomposi.yaml` `updated_at` timestamp.
 
-### VI. Computational Stability and Resource Constraints
+### VI. Computational Thermodynamic Consistency
 
-All Density Functional Theory (DFT) data processing and Machine Learning (ML) training pipelines MUST be designed to execute within a strict 7GB RAM limit on CPU-only infrastructure, as specified in the methodology for high-throughput screening feasibility. Synthetic labels for decomposition energy MUST be derived deterministically using the formula $E_{decomp} = E_{products} - E_{reactants} - nF\phi$ to ensure that model training targets are mathematically consistent with the applied electrochemical potential $\phi$ rather than relying on opaque black-box predictions.
+All derived decomposition energies MUST be calculated using the explicit
+thermodynamic relation $E_{decomp} = E_{products} - E_{reactants} - nF\phi$,
+where $\phi$ represents the applied electrochemical potential. Ground-state
+electronic descriptors (e.g., HOMO, LUMO, band gap) extracted via `pymatgen`
+and `RDKit` MUST be strictly decoupled from the target decomposition labels
+to prevent data leakage. This principle is grounded in the **Methodology
+sketch** requirement to "generate synthetic labels... for a range of potentials"
+and the **Research question** focus on how determinants shift under varying
+potentials.
 
-### VII. Mechanistic Interpretability over Black-Box Prediction
+### VII. Physical Reality Validation
 
-Model selection MUST prioritize algorithms capable of explicit feature importance extraction (e.g., Random Forest with permutation importance) to identify the specific physical determinants (such as HOMO/LUMO gaps or bond dissociation energies) governing stability shifts. Validation MUST be performed on held-out sets of experimentally measured decomposition onset potentials to ensure the model elucidates the shifting dominance of physical determinants under different voltage conditions, rather than merely fitting DFT-derived training labels.
+Model predictions of decomposition energetics MUST be validated against an
+independent set of experimental decomposition onset potentials (e.g., cyclic
+voltammetry data) to ensure the model captures physical reality rather than
+DFT artifacts. This validation step is mandatory before reporting feature
+importance shifts. This principle is grounded in the **Methodology sketch**
+explicit instruction to "validate the model's predictions against a separate,
+independent set of experimental decomposition onset potentials" and the
+**Expected results** goal of correlating predictions with "physical intuition
+and existing electrochemical theory."
 
 ## Reproducibility Requirements
 

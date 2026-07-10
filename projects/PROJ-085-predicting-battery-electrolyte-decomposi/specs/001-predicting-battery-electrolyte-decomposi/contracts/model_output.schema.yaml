@@ -1,59 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelTrainingOutput"
-description: "Schema for the output of the Random Forest training process, including feature importance, cross-validation scores, and rejected features."
+title: "Model Run Output Schema"
+description: "Schema for the results of the Random Forest training and evaluation"
 type: "object"
 properties:
-  model_id:
+  run_id:
     type: "string"
-    description: "UUID of the model run."
-  algorithm:
+    description: "Unique UUID for the model run"
+  model_type:
     type: "string"
-    const: "RandomForestRegressor"
-  cv_score:
+    description: "Type of model used"
+    enum: ["RandomForest"]
+  potential_bin:
+    type: "string"
+    description: "Potential range bin"
+    enum: ["low", "high"]
+  r2_score:
     type: "number"
-    description: "Mean R² score from 5-fold cross-validation."
+    description: "Coefficient of determination"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
   feature_importance:
     type: "object"
-    description: "Map of feature names to their permutation importance scores."
+    description: "Map of feature names to importance scores"
     additionalProperties:
       type: "number"
-  vif_flags:
+  sensitivity_thresholds:
     type: "array"
-    description: "List of features flagged for high collinearity (VIF >= 10)."
+    description: "List of thresholds tested for sensitivity"
+    items:
+      type: "number"
+    minItems: 3
+  top_3_features:
+    type: "array"
+    description: "List of top 3 feature names by importance"
     items:
       type: "string"
-  rejected_features:
-    type: "array"
-    description: "List of features rejected due to Partial Correlation > 0.9 (mathematical identity leakage)."
-    items:
-      type: "string"
-  residual_correlation:
-    type: "number"
-    description: "Partial correlation of the remaining feature set with the target. Must be < 0.9."
-    maximum: 0.9
-  constraints_check:
-    type: "object"
-    description: "Verification of resource constraints."
-    properties:
-      gpu_used:
-        type: "boolean"
-        const: false
-      ram_peak_gb:
-        type: "number"
-        maximum: 7
-      runtime_hours:
-        type: "number"
-        maximum: 6
-    required:
-      - gpu_used
-      - ram_peak_gb
-      - runtime_hours
+    minItems: 3
 required:
-  - model_id
-  - algorithm
-  - cv_score
+  - run_id
+  - model_type
+  - potential_bin
+  - r2_score
+  - mae
   - feature_importance
-  - rejected_features
-  - residual_correlation
-  - constraints_check
+  - top_3_features
 additionalProperties: false

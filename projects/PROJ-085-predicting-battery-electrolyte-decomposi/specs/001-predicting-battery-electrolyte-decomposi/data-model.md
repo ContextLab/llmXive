@@ -1,79 +1,52 @@
-# Data Model: Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning
+# Data Model: Predicting Battery Electrolyte Decomposition Products
 
-## Overview
+## 1. Entities
 
-This document defines the data structures used throughout the pipeline, ensuring strict adherence to the schema contracts and preventing data leakage.
+### 1.1 ElectrolyteMolecule
+Represents a chemical species and its intrinsic properties.
+- `dft_id` (string): Unique identifier from the source dataset.
+- `smiles` (string): Canonical SMILES representation.
+- `formation_energy` (float): Formation energy in eV.
+- `homo` (float): Highest Occupied Molecular Orbital energy (eV).
+- `lumo` (float): Lowest Unoccupied Molecular Orbital energy (eV).
+- `band_gap` (float): LUMO - HOMO (eV). *Note: This field is present in raw data and processed logs for reference but is EXCLUDED from the model input matrix (X) to prevent collinearity.*
+- `bond_lengths` (list[float]): List of bond lengths in Angstroms.
+- `bond_angles` (list[float]): List of bond angles in degrees.
+- `molecular_weight` (float): Calculated MW in g/mol.
 
-## Entities
+### 1.2 DecompositionEvent
+Represents the calculated stability of a molecule at a specific potential.
+- `molecule_id` (string): Reference to `ElectrolyteMolecule.dft_id`.
+- `potential_v` (float): Applied electrochemical potential (0, 2, or 4 V).
+- `decomposition_energy` (float): Calculated $E_{decomp}$ in eV.
+- `n_electrons` (int): Number of electrons transferred (from hardcoded lookup table).
+- `reaction_mechanism` (string): The specific reaction mechanism used (e.g., "EC_reduction_n2").
+- `is_valid` (boolean): Flag indicating if the entry passed outlier checks and has a defined reaction mechanism.
 
-### 1. Molecule (Input)
-Represents a single electrolyte species with ground-state properties.
--   `molecule_id`: Unique string identifier (e.g., "lit-001-EC").
--   `species`: Chemical formula (e.g., "C3H4O3").
--   `hom`: HOMO energy (eV).
--   `lum`: LUMO energy (eV).
--   `band_gap`: Calculated as `lum - hom` (eV).
--   `bond_lengths`: Dictionary of bond type to length (Å) or flattened columns (e.g., `c_o_len`, `c_c_len`).
--   `reactant_energy`: Total energy of the reactant (eV). **Used ONLY for target calculation. Excluded from feature matrix.**
--   `product_energy`: Total energy of the decomposition products (eV). **Used ONLY for target calculation. Excluded from feature matrix.**
--   `potential_phi`: Applied electrochemical potential (V).
--   `decomp_energy`: Calculated label: `product_energy - reactant_energy - n * F * potential_phi` (eV). **Target variable.**
--   `experimental_onset`: Experimental decomposition onset potential (eV) (optional, for validation).
+### 1.3 ModelRun
+Represents a specific training configuration and its results.
+- `run_id` (string): UUID for the run.
+- `model_type` (string): "RandomForest".
+- `potential_bin` (string): "low" (0-2V), "high" (3-5V), or "global".
+- `r2_score` (float): Coefficient of determination on test set.
+- `mae` (float): Mean Absolute Error on test set.
+- `feature_importance` (dict): Map of feature name to importance score (EXCLUDING `band_gap`).
+- `sensitivity_threshold` (float): The threshold used for this run.
+- `external_validation_status` (string): "N/A" (due to missing data).
 
-### 2. FeatureSet (Processed)
-The feature set used for training, **excluding** identity features.
--   `feature_name`: Name of the feature (e.g., "hom", "bond_c_o_len").
--   `value`: Feature value.
--   `is_rejected`: Boolean flag. `True` if the feature was rejected due to Partial Correlation > 0.9 or VIF ≥ 10.
--   `rejection_reason`: String describing why the feature was rejected (e.g., "Partial Correlation > 0.9 with target").
--   **Constraint**: `reactant_energy` and `product_energy` are **never** present in this set.
+## 2. Data Flow
 
-### 3. ModelOutput (Intermediate)
-Results from the Random Forest training.
--   `model_id`: UUID for the specific model run.
--   `feature_importance`: Dictionary mapping feature name to importance score.
--   `cv_score`: Mean R² score from 5-fold cross-validation.
--   `vif_scores`: Dictionary mapping feature name to VIF value.
--   `rejected_features`: List of feature names rejected during Phase 1.3.
--   `residual_correlation`: Float. Partial correlation of remaining features with target (must be < 0.9).
+1.  **Raw Input**: Parquet files from HuggingFace.
+2.  **Filtered**: `ElectrolyteMolecule` records (cleaned, deduplicated).
+3.  **Derived**: `DecompositionEvent` records (calculated $E_{decomp}$ using hardcoded reaction table).
+4.  **Model Input**: Feature matrix (X) and Target vector (y) constructed from `DecompositionEvent`. **Note: `band_gap` is explicitly dropped from X to ensure feature independence.**
+5.  **Output**: `ModelRun` artifacts (metrics, importance maps).
 
-### 4. ValidationResult (Final)
-Comparison against experimental data.
--   `experiment_id`: Reference to the experimental measurement.
--   `predicted_energy`: Model prediction (eV).
--   `experimental_onset`: Experimental onset potential (eV).
--   `residual`: `predicted - experimental`.
--   `correlation_coefficient`: R² score for the correlation study.
--   `bias_corrected`: **False** (Bias correction is not applied).
+## 3. Constraints & Validations
 
-### 5. SensitivityAnalysis (Final)
-Output of the threshold sweep analysis.
--   `threshold_eV`: The specific threshold value tested (e.g., -0.05, 0.0, +0.05).
--   `false_positive_rate`: Calculated rate at this threshold.
--   `false_negative_rate`: Calculated rate at this threshold.
--   `total_samples`: Number of samples evaluated.
-
-## Data Flow
-
-1.  **Ingestion**: Raw CSV (Literature Subset) → `data/raw/literature_subset.csv`.
-2.  **Contract Validation**: Validate against `dataset.schema.yaml`.
-3.  **Cleaning**: Drop rows with missing HOMO/LUMO; calculate `decomp_energy` for each `Molecule` instance.
-4.  **Feature Engineering**:
-    -   **Drop Identity**: **Explicitly remove** `reactant_energy` and `product_energy` from the feature matrix.
-    -   Calculate VIF.
-    -   Calculate Partial Correlation between features and `decomp_energy`.
-    -   **Reject** features with Partial Correlation > 0.9.
-    -   **Residual Check**: Verify remaining features have partial correlation < 0.9.
-    -   Output `data/derived/features_cleaned.csv` (only non-rejected features).
-5.  **Training**: Input `features_cleaned.csv` → Output `data/derived/model_artifact.pkl` + `data/derived/importance.json`.
-6.  **Validation**: Compare `model_artifact.pkl` predictions with `experimental_onset` (if available) → `data/derived/validation_report.json`.
-7.  **Sensitivity Analysis**: Sweep thresholds → `data/derived/sensitivity_analysis.csv`.
-
-## Constraints
-
--   **No NaNs**: Feature matrix must have zero NaN values.
--   **No Leakage**: `decomp_energy` is never used as an input feature. `reactant_energy` and `product_energy` are **excluded from the feature matrix entirely** before any model training or leakage check.
--   **VIF Limit**: Features with VIF ≥ 10 are flagged but retained only if Partial Correlation < 0.9 (unlikely for energy terms).
--   **Residual Correlation**: The remaining feature set must have partial correlation < 0.9 with the target.
--   **Empty Feature Set**: If all features are rejected, the pipeline halts with a "No viable features" report.
--   **Data Intersection**: The validation step requires the intersection of training molecules and experimental onset molecules to be non-empty.
+- **Missing Data**: Any record with `None` in `homo`, `lumo`, or `formation_energy` is excluded.
+- **Physical Bounds**: `band_gap` must be $> 0$ for inclusion in the dataset (used for filtering outliers).
+- **Potential Range**: `potential_v` must be in $\{0, 2, 4\}$.
+- **Reaction Mechanism**: `n_electrons` and `reaction_mechanism` must be defined in the hardcoded lookup table. Molecules without a defined mechanism are excluded.
+- **Energy Formula**: $E_{decomp}$ must be calculated using the explicit thermodynamic relation defined in the spec.
+- **Feature Selection**: `band_gap` is **excluded** from model training inputs to prevent collinearity issues. It remains in the dataset for descriptive statistics only.
