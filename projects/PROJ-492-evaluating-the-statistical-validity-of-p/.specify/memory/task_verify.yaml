@@ -172,6 +172,10 @@
   \ c_6ea75dbe \u2014 status=not_enough_info], and runs audit pipeline (verify workflow\
   \ runs and respects limits) [DEPENDS ON: T010]."
 : 1
+? "T012 Create CI workflow file `.github/workflows/audit.yml` that installs dependencies,\
+  \ enforces CPU \u2264 2 vCPU, RAM \u2264 2 GB, timeout a predefined duration, and\
+  \ runs audit pipeline (verify workflow runs and respects limits) [DEPENDS ON: T010]."
+: 2
 ? "T013 Create Dockerfile for optional local execution (uses only CPU\u2011compatible\
   \ base image [UNRESOLVED-CLAIM: c_0e949e9d \u2014 status=not_enough_info]) (build\
   \ Docker image successfully). **(No dependency on T012)**"
